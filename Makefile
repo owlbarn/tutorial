@@ -1,6 +1,6 @@
 .PHONY: all
 all:
-	
+	# do nothing ...
 
 
 .PHONY: clean
