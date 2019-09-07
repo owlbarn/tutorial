@@ -1,12 +1,23 @@
-.PHONY: all
+.PHONY: all clean dep publish promote test test-all docker depext
+
 all:
-	# do nothing ...
+	@dune build @html
+	@echo Site has been generated in _build/default/static/
 
+vendor:
+	duniverse init rwo `cat pkgs` --pin mdx,https://github.com/Julow/mdx.git,duniverse_mode
 
-.PHONY: clean
+test:
+	dune runtest
+
+test-all:
+	dune build @runtest-all
+
+dep:
+	dune exec -- rwo-dep
+
 clean:
-	$(RM) -r all_temp_files
-
+	dune clean
 
 .PHONY: push
 push:
