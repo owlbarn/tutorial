@@ -90,10 +90,20 @@ If these functions cannot satisfy your need, Ndarray provides a more flexible me
 
 The difference between the two is: ``init`` passes 1-d index to the user-defined function wheras ``init_nd`` passes n-dimensional index. As a result, ``init`` is much faster than ``init_nd``. The following code creates an ndarray where all the elements are even numbers.
 
-.. code-block:: ocaml
+```ocaml
 
-  let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i));;
+# let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i));;
+val x : Arr.arr =
+  
+   C0 C1 C2 C3 C4 C5 C6 C7 
+R0  0  2  4  6  8 10 12 14 
+R1 16 18 20 22 24 26 28 30 
+R2 32 34 36 38 40 42 44 46 
+R3 48 50 52 54 56 58 60 62 
+R4 64 66 68 70 72 74 76 78 
+R5 80 82 84 86 88 90 92 94 
 
+```
 
 
 
@@ -145,11 +155,41 @@ Map Functions
 
 For example, the following code add 1 to every element in ``x``
 
-.. code-block:: ocaml
+```ocaml non-deterministic=output
+# let x = Arr.uniform [|3;4;5|];;
+val x : Arr.arr =
+  
+              C0        C1       C2       C3         C4 
+R[0,0]  0.378545  0.861025 0.712662 0.563556   0.964339 
+R[0,1]  0.582878  0.834786 0.722758 0.265025   0.712912 
+R[0,2] 0.0894476   0.13984 0.475555 0.616536   0.202631 
+R[0,3]  0.983487 0.0167333  0.25018 0.483741   0.736418 
+R[1,0] 0.0757294  0.662478 0.460645 0.203446   0.725446 
+             ...       ...      ...      ...        ... 
+R[1,3]   0.83694  0.897979 0.912516 0.833211     0.4145 
+R[2,0]  0.903692  0.883623 0.809134 0.859235   0.188514 
+R[2,1]  0.236758  0.566636 0.613932 0.215875 0.00911335 
+R[2,2]  0.859797  0.708086 0.518328 0.974299   0.472426 
+R[2,3]  0.126273  0.946126  0.42223 0.955181   0.422184 
 
-  let x = Arr.uniform [|3;4;5|];;
-  let y = Arr.map (fun a -> a +. 1.) x;;
 
+# let y = Arr.map (fun a -> a +. 1.) x;;
+val y : Arr.arr =
+  
+            C0      C1      C2      C3      C4 
+R[0,0] 1.37854 1.86103 1.71266 1.56356 1.96434 
+R[0,1] 1.58288 1.83479 1.72276 1.26503 1.71291 
+R[0,2] 1.08945 1.13984 1.47556 1.61654 1.20263 
+R[0,3] 1.98349 1.01673 1.25018 1.48374 1.73642 
+R[1,0] 1.07573 1.66248 1.46065 1.20345 1.72545 
+           ...     ...     ...     ...     ... 
+R[1,3] 1.83694 1.89798 1.91252 1.83321  1.4145 
+R[2,0] 1.90369 1.88362 1.80913 1.85923 1.18851 
+R[2,1] 1.23676 1.56664 1.61393 1.21588 1.00911 
+R[2,2]  1.8598 1.70809 1.51833  1.9743 1.47243 
+R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218 
+
+```
 
 ``map`` function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as ``sin``, ``cos``, ``neg``, and etc. Here are some examples to show how to make your own vectorised functions.
 

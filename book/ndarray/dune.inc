@@ -6,3 +6,11 @@
            (run ocaml-mdx test --prelude=prelude.ml --direction=to-md %{x})
            (diff? %{x} %{x}.corrected)
 )))
+(alias
+ (name   runtest-all)
+ (deps   (:x README.md)
+         prelude.ml)
+ (action (progn
+           (run ocaml-mdx test --prelude=prelude.ml --direction=to-md --non-deterministic %{x})
+           (diff? %{x} %{x}.corrected)
+)))
