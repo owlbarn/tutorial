@@ -1,9 +1,14 @@
 (alias
   (name html)
   (deps introduction.html
-        ))
+        prologue.html))
 
 (rule
   (targets introduction.html)
   (deps    introduction/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets prologue.html)
+  (deps    prologue/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
