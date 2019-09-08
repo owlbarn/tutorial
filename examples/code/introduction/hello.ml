@@ -1,3 +1,1 @@
-let main () = print_endline "Hello world"
-
-main ()
+let hello () = print_endline "test ..."

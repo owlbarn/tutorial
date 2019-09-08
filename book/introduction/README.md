@@ -4,12 +4,14 @@ Introduction
 Hello world!
 
 ```sh
-$ date
-$ uname -a
+$ echo "Test shell command"
+Test shell command
 ```
 
 ```ocaml
 # print_endline "hello world"
+hello world
+- : unit = ()
 ```
 
 
@@ -23,6 +25,7 @@ another example ...
 
 ```ocaml file=../../examples/code/introduction/world.ml
 let test () = print_endline "again ..."
+let test2 () = print_endline "test 02 ..."
 ```
 
 Finished.

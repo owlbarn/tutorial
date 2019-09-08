@@ -14,7 +14,7 @@ test-all:
 	dune build @runtest-all
 
 dep:
-	dune exec -- rwo-dep
+	dune exec -- otb-dep
 
 clean:
 	dune clean
