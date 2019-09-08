@@ -432,12 +432,41 @@ Manipulation Functions
 
 Ndarray module contains many useful functions to manipulate ndarrays. For exmaple, you can tile and repeat an ndarray along a specified axis.
 
-.. code-block:: ocaml
+```ocaml non-deterministic=output
 
-  let x = Arr.sequential [|3;4|];;
+# let x = Arr.sequential [|3;4|];;
+val x : Arr.arr =
+  
+   C0 C1 C2 C3 
+R0  0  1  2  3 
+R1  4  5  6  7 
+R2  8  9 10 11 
 
-  let y = Arr.tile x [|2;2|];;
-  let z = Arr.repeat ~axis:0 x 2;;
+
+# let y = Arr.tile x [|2;2|];;
+val y : Arr.arr =
+  
+   C0 C1 C2 C3 C4 C5 C6 C7 
+R0  0  1  2  3  0  1  2  3 
+R1  4  5  6  7  4  5  6  7 
+R2  8  9 10 11  8  9 10 11 
+R3  0  1  2  3  0  1  2  3 
+R4  4  5  6  7  4  5  6  7 
+R5  8  9 10 11  8  9 10 11 
+
+
+# let z = Arr.repeat x [|2;1|];;
+val z : Arr.arr =
+  
+   C0 C1 C2 C3 
+R0  0  1  2  3 
+R1  0  1  2  3 
+R2  4  5  6  7 
+R3  4  5  6  7 
+R4  8  9 10 11 
+R5  8  9 10 11 
+
+```
 
 
 You can also expand the dimensionality of an ndarray, or squeeze out those dimensions having only one element, or even padding elements to an existing ndarray.
