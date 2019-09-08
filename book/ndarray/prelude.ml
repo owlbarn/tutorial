@@ -2,6 +2,7 @@
 
 open Core
 open Owl
+open Bigarray
 
 let () = Printexc.record_backtrace false
 let () = 
