@@ -16,7 +16,16 @@ The following code snippet embeds and evaluates OCaml code.
 # print_endline "hello world"
 hello world
 - : unit = ()
-# open Owl
+
+# Mat.uniform 4 4;;
+- : Mat.mat =
+
+         C0       C1        C2       C3 
+R0 0.378545 0.861025  0.712662 0.563556 
+R1 0.964339 0.582878  0.834786 0.722758 
+R2 0.265025 0.712912 0.0894476  0.13984 
+R3 0.475555 0.616536  0.202631 0.983487 
+
 ```
 
 The following code snippet embeds the code from a file.
