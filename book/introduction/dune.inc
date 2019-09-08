@@ -1,14 +1,11 @@
-(rule
- (target findlib.conf)
- (action (write-file %{target} "")))
-
 (alias
  (name   runtest)
  (deps   (:x README.md)
-         (:conf findlib.conf)
-         )
- (locks ../../global-lock)
+         (:y1 ../../examples/code/introduction/hello.ml)
+         (:y0 ../../examples/code/introduction/world.ml)
+         prelude.ml)
  (action (progn
-           (setenv OCAMLFIND_CONF %{conf} (run ocaml-mdx test --direction=to-ml %{x}))
-
-           (diff? %{x} %{x}.corrected))))
+           (run ocaml-mdx test --prelude=prelude.ml --direction=to-ml %{x})
+           (diff? %{x} %{x}.corrected)
+           (diff? %{y1} %{y1}.corrected)
+           (diff? %{y0} %{y0}.corrected))))
