@@ -1,4 +1,4 @@
-.PHONY: all clean dep publish promote test test-all docker depext
+.PHONY: all clean dep publish promote test test-all docker depext push
 
 all:
 	@dune build @html
@@ -19,7 +19,6 @@ dep:
 clean:
 	dune clean
 
-.PHONY: push
 push:
 	git commit -am "editing book ..." && \
 	git push origin `git branch | grep \* | cut -d ' ' -f2`

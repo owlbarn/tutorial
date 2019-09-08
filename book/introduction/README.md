@@ -16,6 +16,7 @@ The following code snippet embeds and evaluates OCaml code.
 # print_endline "hello world"
 hello world
 - : unit = ()
+# open Owl
 ```
 
 The following code snippet embeds the code from a file.
