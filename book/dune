@@ -5,5 +5,5 @@
 
 (rule
   (targets introduction.html)
-  (deps    introduction/README.md)
+  (deps    introduction/README.md.corrected)
   (action  (run mdx output %{deps} -o %{targets})))

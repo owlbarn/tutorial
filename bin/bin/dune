@@ -1,0 +1,7 @@
+(executables
+ (package      otb)
+ (names        app       dep)
+ (public_names otb-build otb-dep)
+ (preprocess   (pps ppx_jane))
+ (libraries    otb lambdasoup sexp_pretty)
+ (flags        :standard -short-paths))

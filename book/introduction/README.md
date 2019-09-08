@@ -1,3 +1,6 @@
+Introduction
+-----------------------------------------------------------
+
 Hello world!
 
 ```sh
@@ -7,4 +10,10 @@ $ uname -a
 
 ```ocaml
 # print_endline "hello world"
+```
+
+
+
+```ocaml file=../../examples/code/introduction/hello.ml
+
 ```
