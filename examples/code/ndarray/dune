@@ -1,0 +1,4 @@
+(executable
+  (name      ndarray)
+  (modules   ndarray)
+  (libraries owl))
