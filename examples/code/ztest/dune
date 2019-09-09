@@ -1,5 +1,5 @@
 (executables
-  (package      otb-example)
+  (package      otb-example-ztest)
   (names        app)
   (public_names otb-app)
   (libraries    owl)
