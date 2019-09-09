@@ -19,4 +19,8 @@
   (deps    ndarray/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
+(rule
+  (targets visualisation.html)
+  (deps    visualisation/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
 

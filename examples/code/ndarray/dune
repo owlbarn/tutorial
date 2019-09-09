@@ -8,7 +8,8 @@
                 interface_00
                 interface_01
                 interface_02
-                interface_03))
+                interface_03
+                interface_04))
 
 (alias
  (name   runtest)
