@@ -66,17 +66,15 @@ val bernoulli : ('a, 'b) kind -> ?p:float -> int array -> ('a, 'b) t
 
 Sometimes, we want to generate numbers with equal distance between two consecutive elements. These ndarrays are useful in generating intervals and plotting figures.
 
-.. code-block:: ocaml
+```ocaml file=../../examples/code/ndarray/interface_02.mli
+open Owl.Dense.Ndarray.Generic
 
-  val sequential : ('a, 'b) kind -> ?a:'a -> ?step:'a -> int array -> ('a, 'b) t
-  (* generate sequential numbers with specified starting point and step size *)
+val sequential : ('a, 'b) kind -> ?a:'a -> ?step:'a -> int array -> ('a, 'b) t
 
-  val linspace : ('a, 'b) kind -> 'a -> 'a -> int -> ('a, 'b) t
-  (* generate a 1-d array with specified starting and ending points, and the number of points. *)
+val linspace : ('a, 'b) kind -> 'a -> 'a -> int -> ('a, 'b) t
 
-  val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
-  (* similar to linspace but the distance is log-spaced. *)
-
+val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
+```
 
 If these functions cannot satisfy your need, Ndarray provides a more flexible mechanism allowing you to have more control over the initialisation of an ndarray.
 
