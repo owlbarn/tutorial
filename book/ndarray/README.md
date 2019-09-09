@@ -55,7 +55,10 @@ The other three functions are self-explained, ``zeros`` and ``ones`` fill the al
 If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.
 
 ```ocaml
-Owl.Dense.Ndarray.Generic.uniform
+# Owl.Dense.Ndarray.Generic.uniform
+- : ('a, 'b) kind ->
+    ?a:'a -> ?b:'a -> int array -> ('a, 'b) Dense.Ndarray.Generic.t
+= <fun>
 ```
 
 .. code-block:: ocaml
