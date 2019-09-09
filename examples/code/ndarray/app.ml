@@ -1,3 +1,4 @@
 open Interface_00
+open Interface_01
 
-let main () = print_endline "hello world ..."
+let app_info = "ndarray examples"

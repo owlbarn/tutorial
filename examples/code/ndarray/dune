@@ -4,7 +4,9 @@
   (public_names otb-app-ndarray)
   (libraries    owl)
   (flags        :standard -w -33)
-  (modules      app interface_00))
+  (modules      app 
+                interface_00
+                interface_01))
 
 (alias
  (name   runtest)

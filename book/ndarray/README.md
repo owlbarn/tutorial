@@ -54,24 +54,15 @@ The other three functions are self-explained, ``zeros`` and ``ones`` fill the al
 
 If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.
 
-```ocaml
-# Owl.Dense.Ndarray.Generic.uniform
-- : ('a, 'b) kind ->
-    ?a:'a -> ?b:'a -> int array -> ('a, 'b) Dense.Ndarray.Generic.t
-= <fun>
+```ocaml file=../../examples/code/ndarray/interface_01.mli
+open Owl.Dense.Ndarray.Generic
+
+val uniform : ('a, 'b) kind -> ?a:'a -> ?b:'a -> int array -> ('a, 'b) t
+
+val gaussian : ('a, 'b) kind -> ?mu:'a -> ?sigma:'a -> int array -> ('a, 'b) t
+
+val bernoulli : ('a, 'b) kind -> ?p:float -> int array -> ('a, 'b) t
 ```
-
-.. code-block:: ocaml
-
-  val uniform : ('a, 'b) kind -> ?a:'a -> ?b:'a -> int array -> ('a, 'b) t
-  (* create an ndarray follows uniform distribution. *)
-
-  val gaussian : ('a, 'b) kind -> ?mu:'a -> ?sigma:'a -> int array -> ('a, 'b) t
-  (* create an ndarray follows gaussian distribution. *)
-
-  val bernoulli : ('a, 'b) kind -> ?p:float -> int array -> ('a, 'b) t
-  (* create a 0-1 ndarray follows bernoulli distribution. *)
-
 
 Sometimes, we want to generate numbers with equal distance between two consecutive elements. These ndarrays are useful in generating intervals and plotting figures.
 
