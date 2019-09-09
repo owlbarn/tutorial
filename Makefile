@@ -1,6 +1,6 @@
 .PHONY: all clean dep publish promote test test-all docker depext push
 
-all:
+all: dep test
 	@dune build @html
 	@echo Site has been generated in _build/default/static/
 
@@ -14,7 +14,8 @@ test-all:
 	dune build @runtest-all
 
 dep:
-	dune exec -- otb-dep
+	#dune exec -- otb-dep
+	dune build @install
 
 clean:
 	dune clean

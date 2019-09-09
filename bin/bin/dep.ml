@@ -157,6 +157,13 @@ let process_md ~toc book_dir =
   in
   main_dune ()
 
+let process_examples example_dir =
+  let exts = book_extensions in
+  find_dirs_containing ~exts example_dir |>
+  List.map (fun dir -> 
+    print_endline dir
+  )
+
 let _ =
   let toc = read_toc "book" in
   process_md ~toc "book";

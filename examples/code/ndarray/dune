@@ -1,7 +1,7 @@
 (executables
   (package      otb-example)
   (names        app)
-  (public_names otb-app)
+  (public_names otb-app-ndarray)
   (libraries    owl)
   (flags        :standard)
   (modules      app))
