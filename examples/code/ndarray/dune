@@ -3,8 +3,8 @@
   (names        app)
   (public_names otb-app-ndarray)
   (libraries    owl)
-  (flags        :standard)
-  (modules      app))
+  (flags        :standard -w -33)
+  (modules      app interface_00))
 
 (alias
  (name   runtest)

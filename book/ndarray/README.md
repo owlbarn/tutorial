@@ -36,6 +36,18 @@ Creation Functions
 
 The first group of functions I want to introduce is creation function. They generate a dense data structure for you to work on further. The most often used ones are probably these four.
 
+```ocaml file=../../examples/code/ndarray/interface_00.mli
+open Owl.Dense.Ndarray.Generic
+
+val empty : ('a, 'b) kind -> int array -> ('a, 'b) t
+
+val create : ('a, 'b) kind -> int array -> 'a -> ('a, 'b) t
+
+val zeros : ('a, 'b) kind -> int array -> ('a, 'b) t
+
+val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
+```
+
 .. code-block:: ocaml
 
   val empty : ('a, 'b) kind -> int array -> ('a, 'b) t
