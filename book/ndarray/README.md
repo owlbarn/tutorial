@@ -78,12 +78,13 @@ val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
 
 If these functions cannot satisfy your need, Ndarray provides a more flexible mechanism allowing you to have more control over the initialisation of an ndarray.
 
-.. code-block:: ocaml
+```ocaml file=../../examples/code/ndarray/interface_03.mli
+open Owl.Dense.Ndarray.Generic
 
-  val init : ('a, 'b) kind -> int array -> (int -> 'a) -> ('a, 'b) t
+val init : ('a, 'b) kind -> int array -> (int -> 'a) -> ('a, 'b) t
 
-  val init_nd : ('a, 'b) kind -> int array -> (int array -> 'a) -> ('a, 'b) t
-
+val init_nd : ('a, 'b) kind -> int array -> (int array -> 'a) -> ('a, 'b) t
+```
 
 The difference between the two is: ``init`` passes 1-d index to the user-defined function wheras ``init_nd`` passes n-dimensional index. As a result, ``init`` is much faster than ``init_nd``. The following code creates an ndarray where all the elements are even numbers.
 

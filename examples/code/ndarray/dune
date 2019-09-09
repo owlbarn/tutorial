@@ -6,7 +6,9 @@
   (flags        :standard -w -33)
   (modules      app 
                 interface_00
-                interface_01))
+                interface_01
+                interface_02
+                interface_03))
 
 (alias
  (name   runtest)
