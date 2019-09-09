@@ -48,22 +48,15 @@ val zeros : ('a, 'b) kind -> int array -> ('a, 'b) t
 val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
 ```
 
-.. code-block:: ocaml
-
-  val empty : ('a, 'b) kind -> int array -> ('a, 'b) t
-
-  val create : ('a, 'b) kind -> int array -> 'a -> ('a, 'b) t
-
-  val zeros : ('a, 'b) kind -> int array -> ('a, 'b) t
-
-  val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
-
-
 These four functions return an ndarray of specified shape, number type, and precision. ``empty`` function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling ``empty`` function is very fast.
 
 The other three functions are self-explained, ``zeros`` and ``ones`` fill the allocated memory with zeors and one respectively, whereas ``create`` function fills the memory with the specified value.
 
 If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.
+
+```ocaml
+Owl.Dense.Ndarray.Generic.uniform
+```
 
 .. code-block:: ocaml
 
