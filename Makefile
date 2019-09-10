@@ -4,9 +4,6 @@ all: test
 	dune build @html
 	echo Site has been generated in _build/default/static/
 
-vendor:
-	duniverse init rwo `cat pkgs` --pin mdx,https://github.com/Julow/mdx.git,duniverse_mode
-
 test: tool
 	dune build @runtest
 	dune exec -- otb-dep $(CURDIR)
