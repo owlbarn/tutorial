@@ -20,7 +20,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
 - : unit = ()
 ```
 
-![Image one](/static/images/visualisation/plot_003.png  | width=300)
+<img src="/static/images/visualisation/plot_003.png" alt="plot 003" title="Plot example one" width="300px" />
 
 Another example ...
 
