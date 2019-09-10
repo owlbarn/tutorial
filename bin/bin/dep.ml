@@ -176,7 +176,7 @@ let copy_images root src =
   in
   let dir = Filename.dirname dst in
   let cmd = sprintf "mkdir -p %s && cp %s %s" dir src dst in
-  print_endline cmd;
+  sprintf "exec: %s" cmd |> print_endline;
   Sys.command cmd |> ignore
 
 let copy_files_to_static root exts copy =
