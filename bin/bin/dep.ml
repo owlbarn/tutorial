@@ -44,7 +44,10 @@ let book_extensions =
     ".json"; ".atd"; ".rawsh"; ".c"; ".h"; ".cmd"; ".S" ]
 
 let static_extensions =
-  [ ".js"; ".jpg"; ".css"; ".png" ]
+  [ ".js"; ".jpg"; ".css"; ".png"; ".html" ]
+
+
+let image_extensions = [ "jpg"; "jpeg"; "png" ]
 
 (** Process the book chapters *)
 
@@ -157,6 +160,34 @@ let process_md ~toc book_dir =
   in
   main_dune ()
 
+let rec index_of arr x n =
+  if arr.(n) = x then n 
+  else index_of arr x (n+1)
+
+let copy_images root src =
+  let static_dir = sprintf "%s/static" root in
+  let arr = String.split_on_char '/' src |> Array.of_list in
+  let idx = index_of arr "_build" 0 + 3 in
+  let dst = 
+    Array.sub arr idx (Array.length arr - idx) |> 
+    Array.to_list |> 
+    String.concat "/" |>
+    sprintf "%s/images/%s" static_dir
+  in
+  let dir = Filename.dirname dst in
+  let cmd = sprintf "mkdir -p %s && cp %s %s" dir src dst in
+  print_endline cmd;
+  Sys.command cmd |> ignore
+
+let copy_files_to_static root exts copy =
+  let build_dir = sprintf "%s/_build" root in
+  find_dirs_containing ~exts build_dir |>
+  List.map (fun d ->
+    files_with ~exts:static_extensions d |> List.map (Filename.concat d)
+  ) |>
+  List.flatten |>
+  List.iter(fun s -> copy root s)
+
 let process_examples example_dir =
   let exts = book_extensions in
   find_dirs_containing ~exts example_dir |>
@@ -165,6 +196,10 @@ let process_examples example_dir =
   )
 
 let _ =
+  let root = Sys.argv.(1) in
+  copy_files_to_static root image_extensions copy_images
+  (*
   let toc = read_toc "book" in
   process_md ~toc "book";
   process_chapters ~toc "book" "static";
+  *)
