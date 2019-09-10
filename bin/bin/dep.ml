@@ -188,7 +188,16 @@ let copy_files_to_static root exts copy =
   List.flatten |>
   List.iter(fun s -> copy root s)
 
+let process_examples example_dir =
+  let exts = book_extensions in
+  find_dirs_containing ~exts example_dir |>
+  List.map (fun dir -> 
+    print_endline dir
+  )
+
 let _ =
+  let root = Sys.argv.(1) in
+  copy_files_to_static root image_extensions copy_images;
   let toc = read_toc "book" in
   process_md ~toc "book";
   process_chapters ~toc "book" "static"

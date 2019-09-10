@@ -3,6 +3,7 @@
 all: test
 	@dune build @site
 	@echo Site has been generated in _build/default/static/
+	#@cp -r _build/default/static/* static/ && rm -rf static/*.html
 
 test: tool
 	@dune build @runtest
