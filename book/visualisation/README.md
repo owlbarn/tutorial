@@ -8,7 +8,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
   let h = Plot.create "plot_003.png" in
 
   Plot.set_foreground_color h 0 0 0;
-  Plot.set_background_color h 25 255 255;
+  Plot.set_background_color h 255 255 255;
   Plot.set_title h "Function: f(x) = sine x / x";
   Plot.set_xlabel h "x-axis";
   Plot.set_ylabel h "y-axis";
