@@ -1,13 +1,9 @@
 (alias
   (name html)
-  (deps prologue.html
-        introduction.html
-        ndarray.html))
-
-(rule
-  (targets prologue.html)
-  (deps    prologue/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps introduction.html
+        ndarray.html
+        prologue.html
+        visualisation.html))
 
 (rule
   (targets introduction.html)
@@ -20,7 +16,11 @@
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
+  (targets prologue.html)
+  (deps    prologue/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
   (targets visualisation.html)
   (deps    visualisation/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
-

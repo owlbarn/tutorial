@@ -4,6 +4,8 @@
  ((title "Language Concepts")
   (chapters
    (introduction
+    ndarray
+    visualisation
     ))))
 
 (part
