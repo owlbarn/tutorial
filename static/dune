@@ -1,0 +1,42 @@
+(alias
+  (name site)
+  (deps images/visualisation/plot_003.png
+        images/visualisation/plot_023.png))(alias (name site) (deps introduction.html))
+
+(rule
+  (targets introduction.html)
+  (deps    (:x ../book/introduction.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run rwo-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps ndarray.html))
+
+(rule
+  (targets ndarray.html)
+  (deps    (:x ../book/ndarray.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run rwo-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps prologue.html))
+
+(rule
+  (targets prologue.html)
+  (deps    (:x ../book/prologue.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run rwo-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps visualisation.html))
+
+(rule
+  (targets visualisation.html)
+  (deps    (:x ../book/visualisation.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run rwo-build build chapter -o . -repo-root .. %{x})))

@@ -199,7 +199,8 @@ let _ =
   let root = Sys.argv.(1) in
   copy_files_to_static root image_extensions copy_images;
   let toc = read_toc "book" in
-  process_md ~toc "book"
+  process_md ~toc "book";
+  process_chapters ~toc "book" "static"
   (*
   let toc = read_toc "book" in
   process_md ~toc "book";
