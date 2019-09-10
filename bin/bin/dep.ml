@@ -180,7 +180,7 @@ let copy_images root src =
   Sys.command cmd |> ignore
 
 let copy_files_to_static root exts copy =
-  let build_dir = sprintf "%s/_build" root in
+  let build_dir = sprintf "%s/_build/default/book" root in
   find_dirs_containing ~exts build_dir |>
   List.map (fun d ->
     files_with ~exts:static_extensions d |> List.map (Filename.concat d)
