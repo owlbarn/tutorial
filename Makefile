@@ -18,5 +18,5 @@ clean:
 	@dune clean
 
 push:
-	@git commit -am "editing book ..." && \
+	git commit -am "editing book ..." && \
 	@xgit push origin `git branch | grep \* | cut -d ' ' -f2`
