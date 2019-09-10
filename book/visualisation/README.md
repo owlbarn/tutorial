@@ -20,6 +20,8 @@ This chapter teaches you how to use visualisation functionality in Owl.
 - : unit = ()
 ```
 
+![Image one](/static/images/visualisation/plot_003.png)
+
 Another example ...
 
 ```ocaml
