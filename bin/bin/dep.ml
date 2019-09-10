@@ -78,7 +78,7 @@ let dune_for_chapter file =
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/%s)
-  (action  (run rwo-build build chapter -o . -repo-root .. %%{x})))|}
+  (action  (run otb-build build chapter -o . -repo-root .. %%{x})))|}
     file file file toc_file
 
 let read_toc base_dir =
@@ -98,7 +98,7 @@ let frontpage_chapter ?(deps=[]) name =
   (rule
     (targets %s.html)
     (deps    (alias ../book/html) ../book/%s.html ../bin/bin/app.exe %s)
-    (action  (run rwo-build build %s -o . -repo-root ..)))|}
+    (action  (run otb-build build %s -o . -repo-root ..)))|}
     name name name
     (String.concat " " deps)
     name
@@ -188,21 +188,7 @@ let copy_files_to_static root exts copy =
   List.flatten |>
   List.iter(fun s -> copy root s)
 
-let process_examples example_dir =
-  let exts = book_extensions in
-  find_dirs_containing ~exts example_dir |>
-  List.map (fun dir -> 
-    print_endline dir
-  )
-
 let _ =
-  let root = Sys.argv.(1) in
-  copy_files_to_static root image_extensions copy_images;
   let toc = read_toc "book" in
   process_md ~toc "book";
   process_chapters ~toc "book" "static"
-  (*
-  let toc = read_toc "book" in
-  process_md ~toc "book";
-  process_chapters ~toc "book" "static";
-  *)
