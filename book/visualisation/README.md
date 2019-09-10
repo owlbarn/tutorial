@@ -20,9 +20,11 @@ This chapter teaches you how to use visualisation functionality in Owl.
 - : unit = ()
 ```
 
+The generated figure is as below.
+
 <img src="/static/images/visualisation/plot_003.png" alt="plot 003" title="Plot example one" width="300px" />
 
-Another example ...
+Another example follows,
 
 ```ocaml
 # let x, y = Mat.meshgrid (-2.5) 2.5 (-2.5) 2.5 50 50 in
@@ -50,5 +52,7 @@ Another example ...
   Plot.output h;;
 - : unit = ()
 ```
+
+<img src="/static/images/visualisation/plot_023.png" alt="plot 023" title="Plot example two" width="600px" />
 
 Finished.
