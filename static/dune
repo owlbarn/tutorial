@@ -14,7 +14,31 @@
         js/min/modernizr-min.js
         theme/epub/layout.html
         theme/mobi/layout.html
-        theme/pdf/pdf.css))(alias (name site) (deps introduction.html))
+        theme/pdf/pdf.css))(alias (name site) (deps faqs.html))
+  (rule
+    (targets faqs.html)
+    (deps    (alias ../book/html) ../book/faqs.html ../bin/bin/app.exe )
+    (action  (run otb-build build faqs -o . -repo-root ..)))
+
+(alias (name site) (deps index.html))
+  (rule
+    (targets index.html)
+    (deps    (alias ../book/html) ../book/index.html ../bin/bin/app.exe )
+    (action  (run otb-build build index -o . -repo-root ..)))
+
+(alias (name site) (deps install.html))
+  (rule
+    (targets install.html)
+    (deps    (alias ../book/html) ../book/install.html ../bin/bin/app.exe )
+    (action  (run otb-build build install -o . -repo-root ..)))
+
+(alias (name site) (deps toc.html))
+  (rule
+    (targets toc.html)
+    (deps    (alias ../book/html) ../book/toc.html ../bin/bin/app.exe ../book/toc.scm)
+    (action  (run otb-build build toc -o . -repo-root ..)))
+
+(alias (name site) (deps introduction.html))
 
 (rule
   (targets introduction.html)

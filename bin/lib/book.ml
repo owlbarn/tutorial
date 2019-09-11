@@ -14,7 +14,7 @@ let head_item : Html.item =
       "name","viewport";
       "content","width=device-width, initial-scale=1.0"
     ] [];
-    title [`Data "Real World OCaml"];
+    title [`Data "OCaml Scientific Computing"];
     link ~a:["rel","stylesheet"; "href","css/app.css"] [];
     link ~a:["rel","stylesheet"; "href","css/prism.css"] [];
     script ~a:["src","js/min/modernizr-min.js"] [];
@@ -30,13 +30,13 @@ let title_bar,title_bar_frontpage =
     a ~a:["href","toc.html"] [`Data "Table of Contents"];
     a ~a:["href","faqs.html"] [`Data "FAQs"];
     a ~a:["href","install.html"] [`Data "Install"];
-    a ~a:["href","https://ocaml.janestreet.com/ocaml-core/"]
+    a ~a:["href","https://ocaml.xyz/apidoc/index.html"]
       [`Data "API Docs"];
   ]
   in
-  let h1 = h1 [`Data "Real World OCaml"] in
-  let h4 = h4 [`Data "Functional programming for the masses"] in
-  let h5 = h5 [`Data "2"; sup [`Data "nd"]; `Data " Edition (in progress)"] in
+  let h1 = h1 [`Data "OCaml Scientific Computing"] in
+  let h4 = h4 [`Data "Functional Scientific and Engineering Computing"] in
+  let h5 = h5 [`Data "1"; sup [`Data "st"]; `Data " Edition (in progress)"] in
   let title_bar =
     div ~a:["class","title-bar"] [
       div ~a:["class","title"] [h1; h5; nav]
@@ -53,12 +53,9 @@ let title_bar,title_bar_frontpage =
 let footer_item : Html.item =
   let open Html in
   let links = [
-    "http://twitter.com/realworldocaml", "@realworldocaml";
-    "http://twitter.com/yminsky", "@yminsky";
-    "http://twitter.com/avsm", "@avsm";
-    "https://plus.google.com/111219778721183890368", "+hickey";
-    "https://github.com/realworldocaml", "GitHub";
-    "http://www.goodreads.com/book/show/16087552-real-world-ocaml", "goodreads";
+    "http://twitter.com/ryanrhymes", "@ryanrhymes";
+    "http://ocaml.xyz", "ocaml.xyz";
+    "https://github.com/owlbarn/", "GitHub";
   ]
   |> List.map ~f:(fun (href,text) -> li [a ~a:["href",href] [`Data text]])
   |> ul
@@ -66,8 +63,7 @@ let footer_item : Html.item =
   footer [
     div ~a:["class","content"] [
       links;
-      p [`Data "Copyright 2012-2014 \
-         Jason Hickey, Anil Madhavapeddy and Yaron Minsky."];
+      p [`Data "Copyright 2012-2014 Liang Wang"];
     ]
   ]
 
@@ -166,20 +162,18 @@ let make_frontpage ?(repo_root=".") () : Html.t Deferred.t =
   let file = repo_root/"book"/"index.html" in
   (
     Toc.get ~repo_root () >>| function
-    | [a;b;c;d] -> a,b,c,d
+    | [a;b;c] -> a,b,c
     | _ -> failwith "frontpage design expects exactly 3 parts"
-  ) >>= fun (prologue,part1,part2,part3) ->
+  ) >>= fun (prologue,part1,part2) ->
   let column1 = [Html.div ~a:["class","index-toc"]
     ((part_items prologue)@(part_items part1))]
   in
   let column2 = [Html.div ~a:["class","index-toc"] (part_items part2)] in
-  let column3 = [Html.div ~a:["class","index-toc"] (part_items part3)] in
   Html.of_file file >>| fun html ->
   let content =
     html
     |> Html.replace_id_node_with ~id:"part1" ~with_:column1
     |> Html.replace_id_node_with ~id:"part2" ~with_:column2
-    |> Html.replace_id_node_with ~id:"part3" ~with_:column3
   in
   main_template ~title_bar:title_bar_frontpage ~content ()
 
