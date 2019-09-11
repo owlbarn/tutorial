@@ -1,12 +1,25 @@
 (alias
   (name html)
   (deps algodiff.html
+        architecture.html
+        backend.html
+        cgraph.html
+        constant.html
+        dataframe.html
+        diffequation.html
         introduction.html
+        linear-algebra.html
+        maths.html
+        matrix.html
         ndarray.html
         neural-network.html
+        neural-ode.html
+        nlp.html
         optimisation.html
         prologue.html
-        visualisation.html))
+        stats.html
+        visualisation.html
+        zoo.html))
 
 (rule
   (targets algodiff.html)
@@ -14,8 +27,53 @@
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
+  (targets architecture.html)
+  (deps    architecture/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets backend.html)
+  (deps    backend/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets cgraph.html)
+  (deps    cgraph/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets constant.html)
+  (deps    constant/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets dataframe.html)
+  (deps    dataframe/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets diffequation.html)
+  (deps    diffequation/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
   (targets introduction.html)
   (deps    introduction/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets linear-algebra.html)
+  (deps    linear-algebra/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets maths.html)
+  (deps    maths/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets matrix.html)
+  (deps    matrix/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
@@ -29,6 +87,16 @@
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
+  (targets neural-ode.html)
+  (deps    neural-ode/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets nlp.html)
+  (deps    nlp/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
   (targets optimisation.html)
   (deps    optimisation/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
@@ -39,6 +107,16 @@
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
+  (targets stats.html)
+  (deps    stats/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
   (targets visualisation.html)
   (deps    visualisation/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets zoo.html)
+  (deps    zoo/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
