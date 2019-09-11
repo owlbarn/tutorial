@@ -15,6 +15,7 @@ let head_item : Html.item =
       "content","width=device-width, initial-scale=1.0"
     ] [];
     title [`Data "OCaml Scientific Computing"];
+    link ~a:["rel","stylesheet"; "href","https://fonts.googleapis.com/css?family=Open+Sans&display=swap"] [];
     link ~a:["rel","stylesheet"; "href","css/app.css"] [];
     link ~a:["rel","stylesheet"; "href","css/prism.css"] [];
     script ~a:["src","js/min/modernizr-min.js"] [];

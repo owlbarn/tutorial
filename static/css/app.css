@@ -311,7 +311,7 @@ h6 {
 }
 /* Default header styles */
  h1, h2, h3, h4, h5, h6 {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: 300;
      font-style: 300;
      color: #222222;
@@ -771,7 +771,7 @@ h6 {
      margin-top: 0.84375rem;
 }
  .splash nav a, .title-bar nav a {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: normal;
      color: white;
      text-transform: uppercase;
@@ -943,7 +943,7 @@ h6 {
      margin: 0;
      text-transform: none;
      font-weight: 300;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-style: italic;
      color: #9c9c9c;
 }
@@ -988,7 +988,7 @@ h6 {
      padding: 0;
 }
  .toc-full .children .children a {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      color: #6f6f6f;
      line-height: 1;
 }
@@ -1029,7 +1029,7 @@ h6 {
  .index-toc ul li a {
      display: block;
      padding: 0.3rem 0;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      color: #444444;
      line-height: 1;
 }
@@ -1065,7 +1065,7 @@ h6 {
      font-size: 80%;
 }
  .author .author-meta p a {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
  @media only screen and (min-width: 40.063em) {
      .author {
@@ -1119,7 +1119,7 @@ h6 {
     }
 }
  .question {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: 300;
      font-size: 1.5rem;
      line-height: 1.25;
@@ -1151,7 +1151,7 @@ h6 {
      padding: 0.875rem 1rem;
      line-height: 1.2;
      color: dimgray;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      transition: color 0.2s;
 }
  .scroll-nav .scroll-nav__wrapper .scroll-nav__list .scroll-nav__item .scroll-nav__link:hover {
@@ -1182,7 +1182,7 @@ h6 {
  .scroll-nav .scroll-nav__wrapper .scroll-nav__sub-list .scroll-nav__sub-item .scroll-nav__sub-link {
      display: table-cell;
      font-size: 80%;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      padding-left: 1em;
      padding-top: 0.5em;
      padding-bottom: 0.5em;
@@ -1213,7 +1213,7 @@ h6 {
  section p strong, section p b {
      text-transform: lowercase;
      font-variant: small-caps;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: bold;
 }
  section section {
@@ -1245,7 +1245,7 @@ h6 {
      padding-top: 0;
 }
  section div[data-type=note] p {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: normal;
 }
  section div[data-type=note] div.highlight {
@@ -1263,7 +1263,7 @@ h6 {
      margin-top: 0;
 }
  section aside p {
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: normal;
 }
  section div.highlight {
@@ -1302,7 +1302,7 @@ h6 {
  section table caption {
      padding: 0.5rem 0;
      border-bottom: 1px solid #dddddd;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
      font-weight: 300;
      text-transform: uppercase;
 }
@@ -1312,7 +1312,7 @@ h6 {
  section table th {
      text-align: left;
      border-bottom: 1px solid #dddddd;
-     font-family: "proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+     font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
  section table tr:nth-child(even) td {
      background: #fafafa;

@@ -43,7 +43,7 @@ var discourseDiv = div({
     top: 0,
     bottom: 0,
     borderLeft: 'solid 1px black',
-    fontFamily: '"proxima-nova", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif',
+    fontFamily: '"Opan Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif',
     height: '100%',
     width: '400px',
     transition: '.4s linear',
