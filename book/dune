@@ -1,9 +1,17 @@
 (alias
   (name html)
-  (deps introduction.html
+  (deps algodiff.html
+        introduction.html
         ndarray.html
+        neural-network.html
+        optimisation.html
         prologue.html
         visualisation.html))
+
+(rule
+  (targets algodiff.html)
+  (deps    algodiff/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
   (targets introduction.html)
@@ -13,6 +21,16 @@
 (rule
   (targets ndarray.html)
   (deps    ndarray/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets neural-network.html)
+  (deps    neural-network/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets optimisation.html)
+  (deps    optimisation/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule

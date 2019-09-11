@@ -5,6 +5,9 @@
   (chapters
    (introduction
     ndarray
+    algodiff
+    optimisation
+    neural-network
     visualisation
     ))))
 
