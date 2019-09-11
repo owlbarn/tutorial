@@ -1,7 +1,20 @@
 (alias
   (name site)
-  (deps images/visualisation/plot_003.png
-        images/visualisation/plot_023.png))(alias (name site) (deps introduction.html))
+  (deps css/app.css
+        css/prism.css
+        images/visualisation/plot_003.png
+        images/visualisation/plot_023.png
+        js/_functions.js
+        js/app.js
+        js/discourse.js
+        js/jquery.min.js
+        js/modernizr.js
+        js/prism.js
+        js/min/app-min.js
+        js/min/modernizr-min.js
+        theme/epub/layout.html
+        theme/mobi/layout.html
+        theme/pdf/pdf.css))(alias (name site) (deps introduction.html))
 
 (rule
   (targets introduction.html)
