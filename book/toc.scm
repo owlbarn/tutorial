@@ -1,7 +1,7 @@
 (chapter prologue)
 
 (part
- ((title "Language Concepts")
+ ((title "Numerical Techniques")
   (chapters
    (introduction
     ndarray
@@ -9,7 +9,7 @@
     ))))
 
 (part
- ((title "Tools and Techniques")
+ ((title "System Architecture")
   (chapters
    (
     ))))

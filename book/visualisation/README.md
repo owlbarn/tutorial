@@ -22,7 +22,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
 
 The generated figure is as below.
 
-<img src="/static/images/visualisation/plot_003.png" alt="plot 003" title="Plot example one" width="300px" />
+<img src="images/visualisation/plot_003.png" alt="plot 003" title="Plot example one" width="300px" />
 
 Another example follows,
 
@@ -53,6 +53,6 @@ Another example follows,
 - : unit = ()
 ```
 
-<img src="/static/images/visualisation/plot_023.png" alt="plot 023" title="Plot example two" width="600px" />
+<img src="images/visualisation/plot_023.png" alt="plot 023" title="Plot example two" width="600px" />
 
 Finished.
