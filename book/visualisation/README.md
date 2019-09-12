@@ -22,8 +22,6 @@ This chapter teaches you how to use visualisation functionality in Owl.
 # let f x = Maths.sin x /. x in
   let h = Plot.create "plot_001.png" in
 
-  Plot.set_foreground_color h 0 0 0;
-  Plot.set_background_color h 255 255 255;
   Plot.set_title h "Function: f(x) = sine x / x";
   Plot.set_xlabel h "x-axis";
   Plot.set_ylabel h "y-axis";
@@ -105,7 +103,7 @@ Another example follows,
 
   (* focus on the subplot at 1,1 *)
   Plot.subplot h 1 1;
-  Plot.set_foreground_color h 0 50 255;
+  Plot.set_foreground_color h 255 0 0;
   Plot.set_title h "Sine function";
   Plot.(plot_fun ~h ~spec:[ LineStyle 2 ] Maths.sin 0. 28.);
   Plot.autocorr ~h (Mat.sequential 1 28);
