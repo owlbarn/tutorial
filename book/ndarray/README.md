@@ -6,9 +6,7 @@ N-dimensional array is the building block of Owl library. It serves as the core 
 Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in `owl_dense_ndarray_generic.mli <https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli>`_. Many of these functions (especially the critical ones) in Owl's core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray's ``mli`` file, you can can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.
 
 
-
-Ndarray Types
--------------------------------------------------
+## Ndarray Types
 
 The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native ``Bigarray``, more specifically it is ``Bigarray.Genarray``. Therefore, Ndarray has the same type as that of ``Genarray``. I did not wrap Genarray into another type therefore changing the data between Owl and other libraries are trivial.
 

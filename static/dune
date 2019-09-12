@@ -2,7 +2,16 @@
   (name site)
   (deps css/app.css
         css/prism.css
+        images/visualisation/plot_001.png
+        images/visualisation/plot_002.png
         images/visualisation/plot_003.png
+        images/visualisation/plot_004.png
+        images/visualisation/plot_005.png
+        images/visualisation/plot_006.png
+        images/visualisation/plot_007.png
+        images/visualisation/plot_008.png
+        images/visualisation/plot_009.png
+        images/visualisation/plot_010.png
         images/visualisation/plot_023.png
         js/_functions.js
         js/app.js
