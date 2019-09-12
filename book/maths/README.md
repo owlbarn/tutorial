@@ -1,4 +1,4 @@
-Mathematical Functions
-===========================================================
+# Mathematical Functions
+
 
 TBD

@@ -1,5 +1,5 @@
-Visualisation
-===========================================================
+# Visualisation
+
 
 This chapter teaches you how to use visualisation functionality in Owl.
 

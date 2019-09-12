@@ -1,4 +1,4 @@
-Vectors and Matrices
-===========================================================
+# Vectors and Matrices
+
 
 TBD

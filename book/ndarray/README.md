@@ -1,5 +1,5 @@
-N-Dimensional Array
-===========================================================
+# N-Dimensional Array
+
 
 N-dimensional array is the building block of Owl library. It serves as the core dense data structure and many advanced numerical functions are defined atop of it. For example, ``Algodiff``, ``Optimise``, ``Neural``, and ``Lazy`` all these functors take Ndarray module as their input.
 
@@ -90,7 +90,7 @@ The difference between the two is: ``init`` passes 1-d index to the user-defined
 
 ```ocaml
 
-# let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i));;
+# let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i))
 val x : Arr.arr =
   
    C0 C1 C2 C3 C4 C5 C6 C7 
@@ -154,7 +154,7 @@ Map Functions
 For example, the following code add 1 to every element in ``x``
 
 ```ocaml non-deterministic=output
-# let x = Arr.uniform [|3;4;5|];;
+# let x = Arr.uniform [|3;4;5|]
 val x : Arr.arr =
   
               C0        C1       C2       C3         C4 
@@ -171,7 +171,7 @@ R[2,2]  0.859797  0.708086 0.518328 0.974299   0.472426
 R[2,3]  0.126273  0.946126  0.42223 0.955181   0.422184 
 
 
-# let y = Arr.map (fun a -> a +. 1.) x;;
+# let y = Arr.map (fun a -> a +. 1.) x
 val y : Arr.arr =
   
             C0      C1      C2      C3      C4 
