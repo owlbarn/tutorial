@@ -21,6 +21,7 @@ let head_item : Html.item =
     script ~a:["src","js/min/modernizr-min.js"] [];
     script ~a:["src","js/prism.js"] [];
     script ~a:["src","//use.typekit.net/gfj8wez.js"] [];
+    script ~a:["src","http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"] [];
     script [`Data "try{Typekit.load();}catch(e){}"];
   ]
 
