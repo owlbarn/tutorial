@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/otb-example/META"
+  "_build/install/default/lib/otb-example/dune-package"
+  "_build/install/default/lib/otb-example/opam"
+]
+bin: [
+  "_build/install/default/bin/otb-app-ndarray"
+]
