@@ -3,7 +3,7 @@
 
 This is not a tutorial on how to use the computation graph in Owl. Instead, what I will present is a bird's-eye view on how the computation graph is designed then fitted into Owl's functor stack, and its implications on the architecture of numerical systems.
 
-To motivate you to continue reading this article, you can try to run both `mnist_cnn.ml <https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml>`_ and `lazy_mnist.ml <https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml>`_ then compare their performance. Both Zoo scripts train the same convolutional neural network to recognise the handwritten digits using MNIST datasets in 60 iterations. On my laptop, ``mnist_cnn.ml`` takes 30s to finish and consumes approximate 4GB memory, whilst ``lazy_mnist.ml`` only takes 5s and consumes about 0.75GB. ``lazy_mnist.ml`` achieves the state-of-the-art performance which you can obtain by using TensorFlow (with its recent XLA optimisation), actually Owl runs even faster on 3 out of 4 machines we have tested.
+To motivate you to continue reading this article, you can try to run both [mnist_cnn.ml](https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml) and [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml) then compare their performance. Both Zoo scripts train the same convolutional neural network to recognise the handwritten digits using MNIST datasets in 60 iterations. On my laptop, `mnist_cnn.ml` takes 30s to finish and consumes approximate 4GB memory, whilst `lazy_mnist.ml` only takes 5s and consumes about 0.75GB. `lazy_mnist.ml` achieves the state-of-the-art performance which you can obtain by using TensorFlow (with its recent XLA optimisation), actually Owl runs even faster on 3 out of 4 machines we have tested.
 
 OK, if these numbers arouse your interest in knowing how the magic happens, let me unveil the underlying mechanism of Owl's computation graph in the following sections.
 
@@ -12,16 +12,16 @@ OK, if these numbers arouse your interest in knowing how the magic happens, let 
 
 As a functional programmer, it is basic knowledge that a function takes an input then produces an output. The input of a function can be the output of another function which then creates dependency. If we view a function as one node in a graph, and its input and output as incoming and outgoing links respectively, as the computation continues, these functions are chained together to form a directed acyclic graph (DAG). Such a DAG is often referred to as a computation graph.
 
-Here is an example graph for calculating function ``sin (x * y)``.
+Here is an example graph for calculating function `sin (x * y)`.
 
 <img src="images/cgraph/plot_cgraph_01.png" alt="plot_cgraph_01" title="Computation graph" width="300px" />
 
 
-The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector ``y`` of shape [1; 4] is broadcasted on the matrix ``x`` of shape [8; 4] in ``Mul`` operation.
+The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcasted on the matrix `x` of shape [8; 4] in `Mul` operation.
 
 The computation graph can be either implicitly constructed or explicitly declared in the code. Often, implicit construction is done by operator overloading while explicit declaration uses domain specific languages (DSL). The two methods lead to two different kinds of computation graphs -- *dynamic* and *static graph*, each has its own pros and cons.
 
-Dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language's native constructs such as ``if ... else ...`` and ``for`` loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, static graphs sometimes make it difficult to express conditions and loops when using with native code together.
+Dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language's native constructs such as `if ... else ...` and `for` loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, static graphs sometimes make it difficult to express conditions and loops when using with native code together.
 
 As we can see, the flexibility of a dynamic graph comes with the price of lower performance. Facebook's Pytorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively. Interestingly, Owl does something slightly different from these two in order to get the best parts of both worlds, we will detail this in the following.
 
@@ -67,54 +67,54 @@ The computation graph is implemented in a very self-contained stack. I have devi
 The left figure shows part of Owl's original functor stack, and the right one shows how the current one looks like after injection. We know the functor stack plays a central role in Owl's architecture. In the old design, Ndarray implements a set of fundamental n-dimensional array operations, then Algodiff defines abstract mathematical operations for differentiation, finally Optimise engine glues low-level maths with high-level deep neural network applications. The whole stack is parameterised by the number type abstraction in Ndarray.
 
 
-- ``Ndarray``: provides number type abstraction and implements the fundamental numerical operations.
-- ``Algodiff``: implements algorithmic differentiation.
-- ``Optimise``: uses the derivative information to build an optimisation engine.
-- ``Neural_Neuron``: implements various kind of neuron functions which can be optimised.
-- ``Neural_Graph``: connects neurons together to form a network so that we can train a useful model.
+- `Ndarray`: provides number type abstraction and implements the fundamental numerical operations.
+- `Algodiff`: implements algorithmic differentiation.
+- `Optimise`: uses the derivative information to build an optimisation engine.
+- `Neural_Neuron`: implements various kind of neuron functions which can be optimised.
+- `Neural_Graph`: connects neurons together to form a network so that we can train a useful model.
 
 
-The functor stack of computation graph is injected between ``Ndarray`` and ``Algodiff``. **The design principle is that the functor stack of a numerical system should be parameterised by both number type and device type.** Number type provides data representation (real or complex, single or double, row-based or column-based layout, etc.) which decides how a maths construct should be built and operated. Device type provides hardware representation (CPU, GPU, FPGA, etc.) which decides how the computation should be performed on a specific device.
+The functor stack of computation graph is injected between `Ndarray` and `Algodiff`. **The design principle is that the functor stack of a numerical system should be parameterised by both number type and device type.** Number type provides data representation (real or complex, single or double, row-based or column-based layout, etc.) which decides how a maths construct should be built and operated. Device type provides hardware representation (CPU, GPU, FPGA, etc.) which decides how the computation should be performed on a specific device.
 
 The list below summarises the functionality of each functor. The order and naming of these functors can already give you a rough understanding about how it is designed.
 
-- ``Device``: device abstraction contains device-dependent types and functions.
-- ``Type``: type definition of various (mathematical) operations.
-- ``Shape``: provides the shape inference function in the graph.
-- ``Symbol``: provides various functions to manipulate symbols.
-- ``Operator``: implements maths operators (``+``, ``-``, ``*``, ``/``, and etc.) which decide how the symbols should  be connected to form a graph.
-- ``Optimiser``: optimises the structure of a given graph by searching and optimising various patterns.
-- ``Graph``: manipulates computation graphs at high level, e.g. visualisation, connecting inputs and outputs.
-- ``Engine``: evaluates a computation graph on a specific device.
+- `Device`: device abstraction contains device-dependent types and functions.
+- `Type`: type definition of various (mathematical) operations.
+- `Shape`: provides the shape inference function in the graph.
+- `Symbol`: provides various functions to manipulate symbols.
+- `Operator`: implements maths operators (`+`, `-`, `*`, `/`, and etc.) which decide how the symbols should  be connected to form a graph.
+- `Optimiser`: optimises the structure of a given graph by searching and optimising various patterns.
+- `Graph`: manipulates computation graphs at high level, e.g. visualisation, connecting inputs and outputs.
+- `Engine`: evaluates a computation graph on a specific device.
 
 
 Why the magic can happen? Simply put, the injected computation graph stack provides an abstraction layer similar to symbolic maths. The original eager evaluation becomes symbolic operation (or graph construction) therefore they can be lazily evaluated.
 
 The shape inference functionality is able to infer the data shape of every node in a graph from its input. This allows Owl to calculate how much memory is required to evaluate the graph and pre-allocate this space. Owl can further track the reference number of each function node and reuse the allocated memory as much as possible, which reduces both memory footprint and Garbage Collector (GC) overhead, significantly improves the computation speed.
 
-The Optimiser functor searches for various structural patterns in a graph, removes unnecessary computations and fusing computation nodes if possible. All the patterns are defined in `owl_computation_optimiser.ml <https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_optimiser.ml>`_, and it is very straightforward to plug in more patterns to extend Optimiser's capability. Here are some example patterns.
+The Optimiser functor searches for various structural patterns in a graph, removes unnecessary computations and fusing computation nodes if possible. All the patterns are defined in [owl_computation_optimiser.ml](https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_optimiser.ml), and it is very straightforward to plug in more patterns to extend Optimiser's capability. Here are some example patterns.
 
 *Constant folding* is a very basic pattern to reduce graph size. We can pre-calculate some subgraphs. For example, the inputs which node `#241` depends on are all constants, so the value of `#241` is already decided. We can fold all the constants to node `#241` before evaluating the whole graph.
 
 <img src="images/cgraph/owl_cgraph_opt_0.png" alt="owl_cgraph_opt_0" title="Computation graph" width="700px" />
 
-*Fusing operations* can effectively reduce the round trips to the memory, which saves a lot of time when operating large ndarrys. In the figure below, nodes `#421`, `#463`, and `#464` are fused into one ``fma`` node (i.e. fused-multiply-add operation), which also improves numerical accuracy. Owl also recognises quite complicated patterns, e.g. pattern formed by nodes `#511` -- `#515` appears a lot in DNN training that uses Adagrad (Adaptive Subgradient Methods), the Optimiser is able to fuse all these operations into one-pass calculation.
+*Fusing operations* can effectively reduce the round trips to the memory, which saves a lot of time when operating large ndarrys. In the figure below, nodes `#421`, `#463`, and `#464` are fused into one `fma` node (i.e. fused-multiply-add operation), which also improves numerical accuracy. Owl also recognises quite complicated patterns, e.g. pattern formed by nodes `#511` -- `#515` appears a lot in DNN training that uses Adagrad (Adaptive Subgradient Methods), the Optimiser is able to fuse all these operations into one-pass calculation.
 
 <img src="images/cgraph/owl_cgraph_opt_1.png" alt="owl_cgraph_opt_1" title="Computation graph" width="700px" />
 
-In the next example, *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for ``repeat`` operation is also removed because ``add`` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
+In the next example, *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for `repeat` operation is also removed because `add` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
 
 <img src="images/cgraph/owl_cgraph_opt_2.png" alt="owl_cgraph_opt_2" title="Computation graph" width="700px" />
 
-To understand how effective the Optimiser works, I present both the `{original computation graph} <../_images/owl_cgraph_mnist_raw.png>`_ and the `{optimised graph} <../_images/owl_cgraph_mnist_opt.png>`_ taken from `lazy_mnist.ml <https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml>`_. Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
+To understand how effective the Optimiser works, I present both the `{original computation graph} <../_images/owl_cgraph_mnist_raw.png>`_ and the `{optimised graph} <../_images/owl_cgraph_mnist_opt.png>`_ taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
 
 
 Engine functor sits on top of the stack, this is where a computation graph finally gets executed. Engine functor contains two sub modules, one for initialising the graph and the other for evaluating graph.
 
-Before we finish this section, we can try the following snippet in ``utop``. Both snippets generate a module for DNN applications, the difference is that the first one uses the old stack whereas the second one uses the new stack with computation graph.
+Before we finish this section, we can try the following snippet in `utop`. Both snippets generate a module for DNN applications, the difference is that the first one uses the old stack whereas the second one uses the new stack with computation graph.
 
 
-.. code-block:: ocaml
+```text
 
   module M =
     Owl_neural_generic.Flatten (
@@ -124,11 +124,12 @@ Before we finish this section, we can try the following snippet in ``utop``. Bot
             Owl_algodiff_generic.Make (
               Dense.Ndarray.S)))));;
 
+```
 
 For the new stack, we can see it is indeed much deeper.
 
 
-.. code-block:: ocaml
+```text
 
   module M =
     Owl_neural_generic.Flatten (
@@ -147,6 +148,7 @@ For the new stack, we can see it is indeed much deeper.
                               Owl_computation_cpu_device.Make (
                                 Dense.Ndarray.S))))))))))))));;
 
+```
 
 
 ## What to Do with GPU?
@@ -155,7 +157,7 @@ Programming a GPU is very much like programming a computer cluster. The gain of 
 
 When offloading the computation to a GPU, we should avoid transmitting data back and forth between the host and the device memory, so eager evaluation is not ideal in this context because the performance will be throttled by copying. This is the gap between CPU computing and a language with eager evaluation. Computation graph essentially fills the gap between Owl and GPU computing simply because the laziness can be simulated now.
 
-From implementation perspective, we only need to write a new engine functor for GPU devices to evaluate a graph, all the others remain the same. I am currently working on the `OpenCL engine <https://github.com/owlbarn/owl/blob/master/src/opencl/compute/owl_computation_opencl_engine.ml>`_. The amount of code for implementing OpenCL engine is surprisingly small, only around 700 ~ 900 LOC. Comparing to the `CPU engine <https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_cpu_engine.ml>`_, the OpenCL engine maintains the memory allocated on both host and device for each node, copying only happens whenever it is necessary, the allocated memory on the device is reused as much as possible.
+From implementation perspective, we only need to write a new engine functor for GPU devices to evaluate a graph, all the others remain the same. I am currently working on the [OpenCL engine](https://github.com/owlbarn/owl/blob/master/src/opencl/compute/owl_computation_opencl_engine.ml). The amount of code for implementing OpenCL engine is surprisingly small, only around 700 ~ 900 LOC. Comparing to the [CPU engine](https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_cpu_engine.ml), the OpenCL engine maintains the memory allocated on both host and device for each node, copying only happens whenever it is necessary, the allocated memory on the device is reused as much as possible.
 
 
 
@@ -167,15 +169,15 @@ It turns out, for a specific type of applications like DNN, we can! Owl achieves
 
 If we know that the graph structure remains the same in every iteration, rather than re-constructing it all the time, we can convert it into a static graph before the iterative evaluation. This is exactly what Owl does. By so doing, the programmer can enjoy the flexibility offered by the dynamic graph construction with operator overloading, but still achieve the best performance from static graph.
 
-Comparing to TensorFlow, the time overhead (for graph conversion and optimisation) is shifted to the runtime in Owl. You may worry about the performance - "Is it going to slow down my fancy DNN application?" The fact is, even for large and complex graphs, this Just-in-Time compilation (JIT) and optimisation are often quite fast. In this `lazy_lstm.ml <https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml>`_ example, there are 15,105 nodes and 21,335 edges. Owl is able to compile the graph within 230ms then optimise it within 210ms. The optimised graph contains only 8,224 nodes, 14,444 edges and runs much faster. Remember that you only need to do it once before training. For smaller networks, it often just takes several milliseconds.
+Comparing to TensorFlow, the time overhead (for graph conversion and optimisation) is shifted to the runtime in Owl. You may worry about the performance - "Is it going to slow down my fancy DNN application?" The fact is, even for large and complex graphs, this Just-in-Time compilation (JIT) and optimisation are often quite fast. In this [lazy_lstm.ml](https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml) example, there are 15,105 nodes and 21,335 edges. Owl is able to compile the graph within 230ms then optimise it within 210ms. The optimised graph contains only 8,224 nodes, 14,444 edges and runs much faster. Remember that you only need to do it once before training. For smaller networks, it often just takes several milliseconds.
 
-Technically, JIT is very straightforward to implement in Owl's architecture. Given a deep neural network, Owl first runs both forward pass and backward pass. Because of the computation graph, the calculation becomes symbolic and we can obtain the complete computation graph to calculate the loss and gradients of a neural network. We can then pass this static graph to the optimisation engine to optimise. The `Neural Compiler <https://github.com/owlbarn/owl/blob/master/src/base/neural/owl_neural_compiler.ml>`_ functor is parameterised by a computation engine then compiles a DNN definition and training configuration into a device-dependent static graph.
+Technically, JIT is very straightforward to implement in Owl's architecture. Given a deep neural network, Owl first runs both forward pass and backward pass. Because of the computation graph, the calculation becomes symbolic and we can obtain the complete computation graph to calculate the loss and gradients of a neural network. We can then pass this static graph to the optimisation engine to optimise. The [Neural Compiler](https://github.com/owlbarn/owl/blob/master/src/base/neural/owl_neural_compiler.ml) functor is parameterised by a computation engine then compiles a DNN definition and training configuration into a device-dependent static graph.
 
 
 
 ## What Is Next?
 
-The `complete functor stack <https://github.com/owlbarn/owl/tree/master/src/base/compute>`_ of the computation graph has already been implemented, and it has been used internally in Owl to speed up many operations. However, to let other programmers take advantage of this power, I still need to do a lot of engineering work to wrap up a set of easy-to-use APIs.
+The [complete functor stack](https://github.com/owlbarn/owl/tree/master/src/base/compute) of the computation graph has already been implemented, and it has been used internally in Owl to speed up many operations. However, to let other programmers take advantage of this power, I still need to do a lot of engineering work to wrap up a set of easy-to-use APIs.
 
 Even though it is very fast, the Neural Compiler still takes extra time to convert and optimise a graph. Both tasks can actually be moved into compilation phase using MetaOCaml, which will squeeze out some extra performance gain for us.
 
