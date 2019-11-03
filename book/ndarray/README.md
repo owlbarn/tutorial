@@ -451,7 +451,7 @@ R2  8  9 10 11
 
 The code below tiles `x` once on both dimentions.
 
-```ocaml non-deterministic=output
+```ocaml
 # let y = Arr.tile x [|2;2|]
 val y : Arr.arr =
   
@@ -467,7 +467,7 @@ R5  8  9 10 11  8  9 10 11
 
 Comparing to `tile`, `repeat` function replicates each element in their adjacent places along specified dimension.
 
-```ocaml non-deterministic=output
+```ocaml
 # let z = Arr.repeat x [|2;1|]
 val z : Arr.arr =
   
