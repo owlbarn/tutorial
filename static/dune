@@ -3,6 +3,8 @@
   (deps css/app.css
         css/prism.css
         images/cgraph/owl_cgraph_functor_stack.png
+        images/cgraph/owl_cgraph_mnist_opt.png
+        images/cgraph/owl_cgraph_mnist_raw.png
         images/cgraph/owl_cgraph_opt_0.png
         images/cgraph/owl_cgraph_opt_1.png
         images/cgraph/owl_cgraph_opt_2.png

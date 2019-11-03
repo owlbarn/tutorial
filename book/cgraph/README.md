@@ -106,7 +106,7 @@ In the next example, *Adding zero* pattern is firstly detected hence `#164` and 
 
 <img src="images/cgraph/owl_cgraph_opt_2.png" alt="owl_cgraph_opt_2" title="Computation graph" width="700px" />
 
-To understand how effective the Optimiser works, I present both the `{original computation graph} <../_images/owl_cgraph_mnist_raw.png>`_ and the `{optimised graph} <../_images/owl_cgraph_mnist_opt.png>`_ taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
+To understand how effective the Optimiser works, I present both the [original computation graph](images/cgraph/owl_cgraph_mnist_raw.png) and the [optimised graph](images/cgraph/owl_cgraph_mnist_opt.png) taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
 
 
 Engine functor sits on top of the stack, this is where a computation graph finally gets executed. Engine functor contains two sub modules, one for initialising the graph and the other for evaluating graph.

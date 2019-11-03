@@ -10,14 +10,14 @@ It becomes an art when balancing between flexibility and efficiency in designing
 
 ## Basic Concepts
 
-The dataframe functionality is implemented in Owl's `Dataframe <https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli>`_ module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.
+The dataframe functionality is implemented in Owl's [Dataframe](https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli) module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.
 
 Owl packs each series into a unified type called `series` and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, iterate the data in a frame. We need to combine dataframe with the numerical functions in `Stats` module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.
 
 
 ## Create Frames
 
-Dataframes can be created in various ways. ``Dataframe.make`` is the core function if we can to create a frame dynamically. For example, the following code creates a frame consisting of three columns include "name", "age", and "salary" of four people.
+Dataframes can be created in various ways. `Dataframe.make` is the core function if we can to create a frame dynamically. For example, the following code creates a frame consisting of three columns include "name", "age", and "salary" of four people.
 
 
 ```ocaml env=env_dataframe_1
@@ -43,10 +43,11 @@ R3 David  35  2800.
 
 In fact, you do not necessarily need to pass in the data when calling ``make`` function. You can make an empty frame by just passing in head names.
 
-.. code-block:: ocaml
+```ocaml
 
   let empty_frame = Dataframe.make [|"name"; "age"; "salary"|];;
 
+```
 
 Try the code, you will see Owl prints out an empty table.
 
@@ -124,16 +125,23 @@ R5 Frank  24  5500. Consultant   male   Beijing, CN
 However, if you just want to append one or two rows, the previous method seems a bit overkill. Instead, you can call `Dataframe.append_row` function.
 
 
-.. code-block:: ocaml
-
-  let new_row = Dataframe.([|pack_string "Erin"; pack_int 22; pack_float 2300.|]);;
-  Dataframe.append_row frame new_row;;
-
+```ocaml env=env_dataframe_1
+# let new_row = Dataframe.([|
+    pack_string "Erin"; 
+    pack_int 22; 
+    pack_float 2300.; 
+    pack_string "Researcher"; 
+    pack_string "male"; 
+    pack_string "New York, US" |])
+  in
+  Dataframe.append_row frame new_row
+- : unit = ()
+```
 
 There are also functions allow you to retrieve the properties.
 
 
-.. code-block:: ocaml
+```text
 
   val copy : t -> t          (* return the copy of a dataframe. *)
 
@@ -147,46 +155,48 @@ There are also functions allow you to retrieve the properties.
 
   ...
 
+```
 
 The module applies several optimisation techniques to accelerate the operations on dataframes. Please refer to the API reference for the complete function list.
 
 
 ## Query Frames
 
-We can use various functions in the module to retrieve the information from a dataframe. The basic ``get`` and ``set`` function treats the dataframe like a matrix. We need to specify the row and column index to retrieve the value of an element.
+We can use various functions in the module to retrieve the information from a dataframe. The basic `get` and `set` function treats the dataframe like a matrix. We need to specify the row and column index to retrieve the value of an element.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   Dataframe.get frame 2 1;;
   (* return Carol's age, i.e. 30 *)
 
+```
 
-``get_row`` and ``get_col`` (also ``get_col_by_name``) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding ``get_rows`` and ``get_cols_by_name``.
+``get_row`` and ``get_col`` (also ``get_col_by_name``) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
 
 Because each column has a name, we can also use head to retrieves information. However, we still need to pass in the row index because rows are not associated with names.
 
 
-.. code-block:: ocaml
-
+```ocaml env=env_dataframe_1
   Dataframe.get_by_name frame 2 "salary";;
   (* return Carol's salary, i.e. 2500. *)
+```
 
 
 We can use ``head`` and ``tail`` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like ``get_slice`` or ``get_slice_by_name`` if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl's Ndarray modules.
 
 
-.. code-block:: ocaml
-
+```ocaml env=env_dataframe_1
   Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
   (* return Bob's and Carol's name and age *)
 
+```
 
 ## Iterate, Map, and Filter
 
 How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. I did not include any method to traverse columns because they can be simply extracted out as series then processed separately.
 
-.. code-block:: ocaml
+```text
 
   val iteri_row : (int -> elt array -> unit) -> t -> unit
 
@@ -204,13 +214,14 @@ How can we miss the classic iteration functions in the functional programming? D
 
   val filter_map_row : (elt array -> elt array option) -> t -> t
 
+```
 
 Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into ``elt`` type, it is a programmer's responsibility to unpack them properly in the passed in function.
 
 The interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.
 
 
-.. code-block:: ocaml
+```text
 
   val ( .%( ) ) : t -> int * string -> elt
   (* associated with ``get_by_name`` *)
@@ -226,7 +237,7 @@ The interesting thing worth mentioning here is that there are several functions 
 
   val ( .$( ) ) : t -> int list * string list -> t
   (* associated with ``get_slice_by_name`` *)
-
+```
 
 Let me present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in ``%()`` to access cells.
 
@@ -349,19 +360,18 @@ In the following examples, we will use Zoo system to load `a gist <http://gist.g
 The first example simply loads the `funding.csv` file into a dataframe, then pretty prints out the table.
 
 
-.. code-block:: ocaml
-
-  let example_01 gist_path =
-    let fname = gist_path ^ "funding.csv" in
-    let types =  [|"s";"s";"f";"s";"s";"s";"s";"f";"s";"s"|] in
-    let df = Dataframe.of_csv ~sep:',' ~types fname in
-    Owl_pretty.pp_dataframe Format.std_formatter df
-
+```ocaml file=../../examples/code/dataframe/example_00.ml
+let fname = "funding.csv" in
+let types =  [|"s";"s";"f";"s";"s";"s";"s";"f";"s";"s"|] in
+let df = Dataframe.of_csv ~sep:',' ~types fname in
+Owl_pretty.pp_dataframe Format.std_formatter df
+```
 
 The result should look like this. I have truncated out some rows to save space here.
 
 
-.. code-block:: text
+```text
+  funding data
 
        +-----------------+-----------------+-------+---------+-------------+-----+----------+----------+--------------+------------
                 permalink           company numEmps  category          city state fundedDate  raisedAmt raisedCurrency        round
@@ -380,6 +390,7 @@ The result should look like this. I have truncated out some rows to save space h
   R1454     grid-networks     Grid Networks     nan       web       Seattle    WA  30-Oct-07   9500000.            USD            a
   R1455     grid-networks     Grid Networks     nan       web       Seattle    WA  20-May-08  10500000.            USD            b
 
+```
 
 The second example is slightly more complicated. It loads `estate.csv` file then filters out the some rows with two predicates. You can see how the two predicates are chained up with ``.?()`` indexing operator.
 
