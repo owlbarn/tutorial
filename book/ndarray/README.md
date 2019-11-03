@@ -348,11 +348,11 @@ The comparison functions can do a lot of useful things for us. As an example, th
 
   let x = Arr.uniform [|10; 10|];;
 
-  (* first solution *)
+  (* the first solution *)
   let y = Arr.map (fun a -> if a > 0.5 then a else 0.) x;;
 
 
-  (* first solution *)
+  (* the second solution *)
   let z = Arr.((x >.$ 0.5) * x);;
 
 ```
