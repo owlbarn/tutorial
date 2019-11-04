@@ -240,6 +240,16 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
+(alias (name site) (deps slicing.html))
+
+(rule
+  (targets slicing.html)
+  (deps    (:x ../book/slicing.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps stats.html))
 
 (rule

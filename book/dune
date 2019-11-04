@@ -17,6 +17,7 @@
         nlp.html
         optimisation.html
         prologue.html
+        slicing.html
         stats.html
         visualisation.html
         zoo.html))
@@ -104,6 +105,11 @@
 (rule
   (targets prologue.html)
   (deps    prologue/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets slicing.html)
+  (deps    slicing/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule

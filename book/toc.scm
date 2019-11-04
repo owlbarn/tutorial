@@ -8,6 +8,7 @@
     stats
     ndarray
     matrix
+    slicing
     algodiff
     optimisation
     linear-algebra
