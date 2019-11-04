@@ -41,7 +41,7 @@ R3 David  35  2800.
 - : unit = ()
 ```
 
-In fact, you do not necessarily need to pass in the data when calling ``make`` function. You can make an empty frame by just passing in head names.
+In fact, you do not necessarily need to pass in the data when calling `make` function. You can make an empty frame by just passing in head names.
 
 ```ocaml
 
@@ -172,7 +172,7 @@ We can use various functions in the module to retrieve the information from a da
 
 ```
 
-``get_row`` and ``get_col`` (also ``get_col_by_name``) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
+`get_row` and `get_col` (also `get_col_by_name`) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
 
 Because each column has a name, we can also use head to retrieves information. However, we still need to pass in the row index because rows are not associated with names.
 
@@ -183,7 +183,7 @@ Because each column has a name, we can also use head to retrieves information. H
 ```
 
 
-We can use ``head`` and ``tail`` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like ``get_slice`` or ``get_slice_by_name`` if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl's Ndarray modules.
+We can use `head` and `tail` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like `get_slice` or `get_slice_by_name` if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl's Ndarray modules.
 
 
 ```ocaml env=env_dataframe_1
@@ -216,7 +216,7 @@ How can we miss the classic iteration functions in the functional programming? D
 
 ```
 
-Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into ``elt`` type, it is a programmer's responsibility to unpack them properly in the passed in function.
+Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into `elt` type, it is a programmer's responsibility to unpack them properly in the passed in function.
 
 The interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.
 
@@ -224,25 +224,28 @@ The interesting thing worth mentioning here is that there are several functions 
 ```text
 
   val ( .%( ) ) : t -> int * string -> elt
-  (* associated with ``get_by_name`` *)
+  (* associated with `get_by_name` *)
 
   val ( .%( )<- ) : t -> int * string -> elt -> unit
-  (* associated with ``set_by_name`` *)
+  (* associated with `set_by_name` *)
 
   val ( .?( ) ) : t -> (elt array -> bool) -> t
-  (* associated with ``filter_row`` *)
+  (* associated with `filter_row` *)
 
   val ( .?( )<- ) : t -> (elt array -> bool) -> (elt array -> elt array) -> t
-  (* associated with ``filter_map_row`` *)
+  (* associated with `filter_map_row` *)
 
   val ( .$( ) ) : t -> int list * string list -> t
-  (* associated with ``get_slice_by_name`` *)
+  (* associated with `get_slice_by_name` *)
+
 ```
 
-Let me present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in ``%()`` to access cells.
+Let me present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in `%()` to access cells.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
+
+  open Dataframe;;
 
   frame.%(1,"age");;
   (* return Bob's age. *)
@@ -250,19 +253,21 @@ Let me present several examples to demonstrate how to use them. We can first pas
   frame.%(2,"salary") <- pack_float 3000.;;
   (* change Carol's salary to 3000. *)
 
+```
 
-``.?()`` provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.
+`.?()` provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   frame.?(fun r -> unpack_int r.(1) < 30);;
 
+```
 
 The output should look like this.
 
 
-.. code-block:: text
+```text
 
   val frame : Owl_dataframe.t =
 
@@ -274,20 +279,21 @@ The output should look like this.
   R2  Erin  22  2300.
   R3  Erin  22  2300.
 
+```
 
-The cool thing about ``.?()`` is that you can chain the filters up like below. The code first filters out the people younger than 30, then further filter out whose salary is higher than 2100.
+The cool thing about `.?()` is that you can chain the filters up like below. The code first filters out the people younger than 30, then further filter out whose salary is higher than 2100.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   frame.?(fun r -> unpack_int r.(1) < 30)
        .?(fun r -> unpack_float r.(2) > 2100.);;
 
+```
 
-It is also possible to filter out some rows then make some modifications. For example, we want to filter out those people older than 25, then raise their salary by 5%. We can achieve this in two ways. First, we can use ``filter_map_row`` functions.
+It is also possible to filter out some rows then make some modifications. For example, we want to filter out those people older than 25, then raise their salary by 5%. We can achieve this in two ways. First, we can use `filter_map_row` functions.
 
-
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   let predicate x =
     let age = unpack_int x.(1) in
@@ -303,11 +309,12 @@ It is also possible to filter out some rows then make some modifications. For ex
 
   filter_map_row predicate frame;;
 
+```
 
-Alternatively, we can use ``.?( )<-`` indexing operator. The difference is that we now need to define two functions - one (i.e. ``check`` function) for checking the predicate and one (i.e. ``modify`` function) for modifying the passed-in rows.
+Alternatively, we can use `.?( )<-` indexing operator. The difference is that we now need to define two functions - one (i.e. `check` function) for checking the predicate and one (i.e. `modify` function) for modifying the passed-in rows.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   let check x = unpack_int x.(1) > 25;;
 
@@ -319,15 +326,18 @@ Alternatively, we can use ``.?( )<-`` indexing operator. The difference is that 
 
   frame.?(check) <- modify;;
 
+```
 
-Running the code will give you the same result as that of calling ``filter_map_row`` function, but the way of structuring code becomes slightly different.
+Running the code will give you the same result as that of calling `filter_map_row` function, but the way of structuring code becomes slightly different.
 
-Finally, you can also use ``$.()`` operator to replace ``get_slice_by_name`` function to retrieve a slice of dataframe.
+Finally, you can also use `$.()` operator to replace `get_slice_by_name` function to retrieve a slice of dataframe.
 
 
-.. code-block:: ocaml
+```ocaml env=env_dataframe_1
 
   frame.$([0;2], ["name"; "salary"]);;
+
+```
 
 
 ## Read/Write CSV Files
@@ -335,23 +345,24 @@ Finally, you can also use ``$.()`` operator to replace ``get_slice_by_name`` fun
 CSV (Comma-Separated Values) is a common format to store tabular data. The module provides simple support to process CSV files. The two core functions are as follows.
 
 
-.. code-block:: ocaml
+```text
 
   val of_csv : ?sep:char -> ?head:string array -> ?types:string array -> string -> t
 
   val to_csv : ?sep:char -> t -> string -> unit
 
+```
 
-``of_csv`` function loads a CSV file into in-memory dataframe while ``to_csv`` writes a dataframe into CSV file on the disk. In both functions, we can use ``sep`` to specify the separator, the default separator is `tab` in Owl.
+`of_csv` function loads a CSV file into in-memory dataframe while `to_csv` writes a dataframe into CSV file on the disk. In both functions, we can use `sep` to specify the separator, the default separator is `tab` in Owl.
 
-For ``of_csv`` function, you can pass in the head names using ``head`` argument, otherwise the first row of the CSV file will be used as head. ``types`` argument is used to specify the type of each column in a CSV file. If ``types`` is dropped, all the column will be treated as string series by default. Note the length of both ``head`` and ``types`` must match the actual number of columns in the CSV file.
+For `of_csv` function, you can pass in the head names using `head` argument, otherwise the first row of the CSV file will be used as head. `types` argument is used to specify the type of each column in a CSV file. If `types` is dropped, all the column will be treated as string series by default. Note the length of both `head` and `types` must match the actual number of columns in the CSV file.
 
-The mapping between ``types`` string and actual OCaml type is below.
+The mapping between `types` string and actual OCaml type is below.
 
-- ``b``: boolean values;
-- ``i``: integer values;
-- ``f``: float values;
-- ``s``: string values;
+- `b`: boolean values;
+- `i`: integer values;
+- `f`: float values;
+- `s`: string values;
 
 
 In the following examples, we will use Zoo system to load `a gist <http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba>`_ which contains several example CSV files. Please make sure you have Zoo system properly installed on your machine.
@@ -371,7 +382,7 @@ The result should look like this. I have truncated out some rows to save space h
 
 
 ```text
-  funding data
+  funding data in csv file
 
        +-----------------+-----------------+-------+---------+-------------+-----+----------+----------+--------------+------------
                 permalink           company numEmps  category          city state fundedDate  raisedAmt raisedCurrency        round
@@ -392,47 +403,46 @@ The result should look like this. I have truncated out some rows to save space h
 
 ```
 
-The second example is slightly more complicated. It loads `estate.csv` file then filters out the some rows with two predicates. You can see how the two predicates are chained up with ``.?()`` indexing operator.
+The second example is slightly more complicated. It loads `estate.csv` file then filters out the some rows with two predicates. You can see how the two predicates are chained up with `.?()` indexing operator.
 
 
-.. code-block:: ocaml
+```ocaml file=../../examples/code/dataframe/example_01.ml
+open Dataframe
 
-  let example_05 gist_path =
-    let fname = gist_path ^ "estate.csv" in
-    let d = (of_csv ~sep:',' fname)
-      .?(fun row -> unpack_string row.(7) = "Condo")
-      .?(fun row -> unpack_string row.(4) = "2")
-    in
-    Owl_pretty.pp_dataframe Format.std_formatter d2
+let fname = "estate.csv" in
+let d = (of_csv ~sep:',' fname)
+  .?(fun row -> unpack_string row.(7) = "Condo")
+  .?(fun row -> unpack_string row.(4) = "2")
+in
+Owl_pretty.pp_dataframe Format.std_formatter d
+```
 
-
-For the other examples, please refer to this Zoo gist `dataframe.ml <https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml>`_.
+For the other examples, please refer to this Zoo gist [dataframe.ml](https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml).
 
 
 ## Infer Type and Separator
 
-I want to devote a bit more text to CSV files. In the previous section, when we use ``of_csv`` function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.
+I want to devote a bit more text to CSV files. In the previous section, when we use `of_csv` function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.
 
 Dataframe is able to automatically detect the correct separator and the type of each column. Of course, it is possible that the detection mechanism fails but such probability is fairly low in many cases. Technically, Dataframe first tries a set of predefined separators to see which one can correctly separate the columns, then it tries a sequence of types to find out which one is able to correctly unpack the elements of a column.
 
 There are several technical things worth mentioning here.
 
 - To be efficient, Dataframe only takes maximum the first 100 lines in the CSV file for inference.
-- If there are missing values in a column of integer type, it falls back to float value because we can use ``nan`` to represent missing values.
+- If there are missing values in a column of integer type, it falls back to float value because we can use `nan` to represent missing values.
 - If the types have been decided based on the first 100 lines, any following lines containing the data of inconsistent type will be dropped.
 
 With this capability, it is much easier to load a CSV to quickly investigate what is inside.
 
+```ocaml file=../../examples/code/dataframe/example_02.ml
+open Dataframe
 
-.. code-block:: ocaml
+let fname = "estate.csv" in
+let df = Dataframe.of_csv fname in
+Owl_pretty.pp_dataframe Format.std_formatter df
+```
 
-  let example_06 gist_path =
-    let fname = gist_path ^ "estate.csv" in
-    let df = Dataframe.of_csv fname in
-    Owl_pretty.pp_dataframe Format.std_formatter df
-
-
-You can use ``Dataframe.types`` function to retrieve the types of all columns in a dataframe.
+You can use `Dataframe.types` function to retrieve the types of all columns in a dataframe.
 
 
 ## What Is Next
