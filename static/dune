@@ -100,6 +100,16 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
+(alias (name site) (deps broadcast.html))
+
+(rule
+  (targets broadcast.html)
+  (deps    (:x ../book/broadcast.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps cgraph.html))
 
 (rule

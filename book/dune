@@ -3,6 +3,7 @@
   (deps algodiff.html
         architecture.html
         backend.html
+        broadcast.html
         cgraph.html
         constant.html
         dataframe.html
@@ -35,6 +36,11 @@
 (rule
   (targets backend.html)
   (deps    backend/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets broadcast.html)
+  (deps    broadcast/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
