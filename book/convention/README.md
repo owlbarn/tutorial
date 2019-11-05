@@ -117,21 +117,23 @@ For the second type of functions that return a scalar, their name looks like the
 
 Technically, `Arr.sum'` is equivalent to the following code.
 
-.. code-block:: ocaml
+```ocaml
 
   let sum' x =
     let y = Arr.sum x in
     Arr.get y [|0|]
 
+```
 
 Let's extend the previous code snippet, and test it in OCaml's toplevel. Then you will understand the difference immediately.
 
-.. code-block:: ocaml
+```ocaml
 
   let x = Arr.sequential [|3;3;3|];;
   let a = Arr.sum ~axis:1 x;;
   let b = Arr.sum x;;
   let c = Arr.sum' x;;
 
+```
 
 Rules and conventions often represent the tradeoffs in a design. By clarifying the restrictions, we hope the programmers can choose the right functions to use in a specific scenario. This chapter may be updated in future to reflect the recent changes in Owl's design.
