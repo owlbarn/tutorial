@@ -253,7 +253,6 @@ As you can see, the operators above do not allow interoperation on different num
 `Owl.Ext` module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, `Ext` immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.
 
 ```text
-
 =============    =============     ==========================
 Operator         Example           Operation
 =============    =============     ==========================
@@ -281,7 +280,6 @@ Operator         Example           Operation
 `min2`           `min2 x y`        element-wise min
 `max2`           `max2 x y`        element-wise max
 =============    =============     ==========================
-
 ```
 
 You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing interoperation makes the operator table much shorter.
