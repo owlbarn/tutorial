@@ -140,7 +140,6 @@ Rules and conventions often represent the tradeoffs in a design. By clarifying t
 
 
 ## Basic Operators
-=================================================
 
 This chapter will go through the operators and `Ext` module. The operators in Owl are implemented in the functors defined in the `Owl_operator` module. These operators are categorised into `Basic`, `Extend`, `Matrix`, and `Ndarray` four module type signatures, because some operations are only meaningful for certain data structures. E.g., matrix multiplication `*@` is only defined in `Matrix` signature.
 
@@ -148,7 +147,7 @@ As long as a module implements the functions defined in the module signature, yo
 
 The operators have been included in each `Ndarray` and `Matrix` module. The following table summarises the operators currently implemented in Owl. In the table, both `x` and `y` represent either a matrix or an ndarray while `a` represents a scalar value.
 
-```ocaml
+```text
 
 ============  ============  ========================  ============  =================
 Operator      Example       Operation                 Dense/Sparse  Ndarray/Matrix
@@ -245,14 +244,14 @@ Extending indexing and slicing operators are not included in the table above, bu
 
 
 
-Extension Module
--------------------------------------------------
+## Extension Module
 
 As you can see, the operators above do not allow interoperation on different number types (which may not be bad thing in many cases actually). E.g., you cannot add a `float32` matrix to `float64` matrix unless you explicitly call the `cast` functions in `Generic` module :doc:`{read this} <basics>`.
 
 `Owl.Ext` module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, `Ext` immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.
 
 ```text
+
 =============    =============     ==========================
 Operator         Example           Operation
 =============    =============     ==========================
@@ -280,6 +279,7 @@ Operator         Example           Operation
 `min2`           `min2 x y`        element-wise min
 `max2`           `max2 x y`        element-wise max
 =============    =============     ==========================
+
 ```
 
 You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing interoperation makes the operator table much shorter.
@@ -302,7 +302,7 @@ Note that `Ext` contains its own `Ext.Dense` module which further contains the f
 
 These modules are simply the wrappers of the original modules in `Owl.Dense` module so they provide most of the APIs already implemented. The extra thing these wrapper modules does is to pack and unpack the raw number types for you automatically. However, you can certainly use the raw data types then use the constructors defined in `Owl_ext_types` to wrap them up by yourself. The constructors are defined as below.
 
-```ocaml
+```text
 
   type ext_typ =
     F   of float
@@ -331,7 +331,7 @@ There are also corresponding `packing` and `unpacking` functions you can use, pl
 
 Let's see some examples to understand how convenient it is to use `Ext` module.
 
-```ocaml
+```text
 
   open Owl.Ext;;
 
@@ -345,7 +345,7 @@ Let's see some examples to understand how convenient it is to use `Ext` module.
   x / y;;
   x *@ y;;
 
-  ...
+  (** ... *)
 
   x > z;;
   x >. z;;
@@ -353,13 +353,14 @@ Let's see some examples to understand how convenient it is to use `Ext` module.
   (x >. F 0.5) * x;;
   (F 10. * x) + y *@ z;;
 
-  ...
+  (** ... *)
 
   round (F 10. * (x *@ z));;
   sin (F 5.) * cos (x + z);;
   tanh (x * F 10. - z);;
 
-  ...
+  (** ... *)
 
+```
 
 Before we finish this chapter, I want to point out the caveat. `Ext` tries to mimic the dynamic languages like Python by with unified types. This prevents OCaml compiler from doing type checking in compilation phase and introduces extra overhead in calling functions. Therefore, besides fast experimenting in toplevel, I do not recommend to use `Ext` module in the production code.
