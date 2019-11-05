@@ -70,6 +70,16 @@
     (deps    (alias ../book/html) ../book/toc.html ../bin/bin/app.exe ../book/toc.scm)
     (action  (run otb-build build toc -o . -repo-root ..)))
 
+(alias (name site) (deps aeos.html))
+
+(rule
+  (targets aeos.html)
+  (deps    (:x ../book/aeos.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps algodiff.html))
 
 (rule
@@ -125,6 +135,16 @@
 (rule
   (targets constant.html)
   (deps    (:x ../book/constant.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps convention.html))
+
+(rule
+  (targets convention.html)
+  (deps    (:x ../book/convention.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)
@@ -265,6 +285,16 @@
 (rule
   (targets stats.html)
   (deps    (:x ../book/stats.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps testing.html))
+
+(rule
+  (targets testing.html)
+  (deps    (:x ../book/testing.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

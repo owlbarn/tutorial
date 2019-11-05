@@ -4,6 +4,7 @@
  ((title "Numerical Techniques")
   (chapters
    (introduction
+    convention
     maths
     stats
     ndarray
@@ -29,4 +30,6 @@
     constant
     zoo
     backend
+    aeos
+    testing
     ))))

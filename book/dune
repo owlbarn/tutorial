@@ -1,11 +1,13 @@
 (alias
   (name html)
-  (deps algodiff.html
+  (deps aeos.html
+        algodiff.html
         architecture.html
         backend.html
         broadcast.html
         cgraph.html
         constant.html
+        convention.html
         dataframe.html
         diffequation.html
         introduction.html
@@ -20,8 +22,14 @@
         prologue.html
         slicing.html
         stats.html
+        testing.html
         visualisation.html
         zoo.html))
+
+(rule
+  (targets aeos.html)
+  (deps    aeos/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
   (targets algodiff.html)
@@ -51,6 +59,11 @@
 (rule
   (targets constant.html)
   (deps    constant/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets convention.html)
+  (deps    convention/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
@@ -121,6 +134,11 @@
 (rule
   (targets stats.html)
   (deps    stats/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets testing.html)
+  (deps    testing/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
