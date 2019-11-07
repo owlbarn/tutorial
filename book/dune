@@ -19,9 +19,11 @@
         neural-ode.html
         nlp.html
         optimisation.html
+        ppl.html
         prologue.html
         slicing.html
         stats.html
+        symbolic.html
         testing.html
         visualisation.html
         zoo.html))
@@ -122,6 +124,11 @@
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
+  (targets ppl.html)
+  (deps    ppl/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
   (targets prologue.html)
   (deps    prologue/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
@@ -134,6 +141,11 @@
 (rule
   (targets stats.html)
   (deps    stats/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets symbolic.html)
+  (deps    symbolic/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule

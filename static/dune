@@ -261,6 +261,16 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
+(alias (name site) (deps ppl.html))
+
+(rule
+  (targets ppl.html)
+  (deps    (:x ../book/ppl.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps prologue.html))
 
 (rule
@@ -286,6 +296,16 @@
 (rule
   (targets stats.html)
   (deps    (:x ../book/stats.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps symbolic.html))
+
+(rule
+  (targets symbolic.html)
+  (deps    (:x ../book/symbolic.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

@@ -20,6 +20,8 @@
     visualisation
     dataframe
     nlp
+    ppl
+    symbolic
     ))))
 
 (part

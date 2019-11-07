@@ -14,6 +14,9 @@ test-all:
 tool:
 	@dune build @install
 
+promote:
+	@dune promote
+
 clean:
 	@dune clean
 
