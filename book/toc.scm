@@ -17,6 +17,7 @@
     diffequation
     neural-network
     neural-ode
+    signal
     visualisation
     dataframe
     nlp

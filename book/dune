@@ -21,6 +21,7 @@
         optimisation.html
         ppl.html
         prologue.html
+        signal.html
         slicing.html
         stats.html
         symbolic.html
@@ -131,6 +132,11 @@
 (rule
   (targets prologue.html)
   (deps    prologue/README.md)
+  (action  (run mdx output %{deps} -o %{targets})))
+
+(rule
+  (targets signal.html)
+  (deps    signal/README.md)
   (action  (run mdx output %{deps} -o %{targets})))
 
 (rule
