@@ -1,4 +1,4 @@
-# N-Dimensional Array
+# N-Dimensional Arrays
 
 
 N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like Numpy to Scipy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, `Algodiff`, `Optimise`, `Neural`, and `Lazy` all these functors take Ndarray module as their module input.
