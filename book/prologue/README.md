@@ -4,7 +4,19 @@ Owl is a software system for scientific and engineering computing. The library i
 
 
 
-## Motivation
+## A Brief History
+
+Owl originated from a research project which studyied the design of synchronous parallel machines for large-scale distributed computing in July 2016. I chose OCaml as the language for developing the system due to its expressiveness and superior runtime efficiency. Another obvious reason is I was working as a [PostDoc](http://www.cl.cam.ac.uk/~lw525/) in OCamlLabs.
+
+Even though OCaml is a very well-designed language, the libraries for numerical computing in OCaml ecosystem were very limited and the tooling was fragmented at that time. In order to test various analytical applications, I had to write so many numerical functions myself, from very low level algebra and random number generators to the high level stuff like algorithmic differentiation and deep neural networks. These code snippets started accumulating and eventually grew much bigger than the distributed engine itself. Therefore I decided to take these functions out and wrapped them up as a standalone library -- Owl.
+
+Owl's architecture undertook at least a dozen of iterations in the beginning, and some of them are quite drastic. I intentionally avoid looking into the architecture of Scipy, Julia, Matlab to minimise their influence on Owl's architecture, I really do not want *yet another xyz ...*. When the architecure became stablised, I started implementing different numerical functions. That was a crazy year in 2017, I worked day and night and added over 6000 functions (over 150,000 LOC). After one-year intensive development, Owl was already capable of doing many complicated numerical tasks.  e.g. see our [Google Inception V3 demo](http://demo.ocaml.xyz/) for image classification. I even held a tutorial in Oxford to demonstrate *Data Science in OCaml*.
+
+Despite of the fact that OCaml is a niche language, Owl has been attracting more and more useers. I really appreciate their patience with this young but ambitious software. The community has been always supportive and provides useful feedback in these years. I hope Owl can help people to study functional programming and solve real-world problems.
+
+
+
+## Reductionism vs. Holism
 
 If you are from Python world and familiar with its ecosystem for numerical computing. You may see Owl as a mixture of Numpy, Scipy, Pandas, and many other libraries. You may be curious about why I have packed so much stuff together. As you learn more and more about OCaml, I am almost certain you will start wondering why Owl's design seems against being *minimalist*, a popular design principle adopted by many OCaml libraries.
 
@@ -18,12 +30,12 @@ Different choice of design principle also reveals the difference between system 
 
 
 
-## Features
+## Key Features
 
-Behind the scene, Owl builds up many advanced numerical functions atop of its solid implementation of n-dimensional arrays. Comparing to other numerical libraries, Owl is very unique, e.g. algorithmic differentiation and distributed computing have been included as integral components in the core system to maximise developers' productivity. Owl is young but grows very fast, the current features include:
+Owl has implemented many advanced numerical functions atop of its solid implementation of n-dimensional arrays. Comparing to other numerical libraries, Owl is very unique in many perspective, e.g. algorithmic differentiation and distributed computing have been included as integral components in the core system to maximise developers' productivity. Owl is young but grows very fast, the current features include:
 
 * N-dimensional array (both dense and sparse)
-* Various number types: ``float32``, ``float64``, ``complex32``, ``complex64``, ``int16``, ``int32`` ...
+* Various number types: ``float32``, ``float64``, ``complex32``, ``complex64``, ``int16``, ``int32``, and etc.
 * Linear algebra and full interface to CBLAS and LAPACKE
 * Algorithmic differentiation (or automatic differentiation)
 * Neural network module for deep learning applications
@@ -31,31 +43,17 @@ Behind the scene, Owl builds up many advanced numerical functions atop of its so
 * Parallel and Distributed computating engine
 * Advanced math and stats functions (e.g., hypothesis tests, MCMC, etc.)
 * Zoo system for efficient scripting and code sharing
-* GPU support
+* Javascript and unikernal backends.
+* Integration with other frameworks such as TensorFlow and Pytorch.
+* GPU and other acclerator frameworks.
 
-The system evolves very fast, and your feedback is very important for me to adjust the direction and decide the focus. In case you find some important features are missing, welcome to submit an issue on the [Issue Tracker](https://github.com/ryanrhymes/owl/issues).
-
-
-
-## Brief History
-
-Owl originated from a research project studying the design of large-scale distributed computing framework in the [Computer Lab](http://www.cl.cam.ac.uk/~lw525/) in July 2016. I chose OCaml as the language for developing the system due to its expressiveness and superior runtime efficiency.
-
-Even though OCaml is a very well-designed language, the libraries for numerical computing in OCaml were very limited and its tooling was fragmented at that time. In order to test various analytical applications, I had to write so many numerical functions myself, from very low level algebra and random number generators to high level stuff like algorithmic differentiation and deep neural networks. These analytical functions started accumulating and eventually grew much bigger than the distributed engine itself. So I took these functions out and wrapped them up as a standalone library -- Owl.
-
-After over one-year intensive development, Owl is already capable of doing many complicated numerical tasks, e.g. see our [Google Inception V3 demo](http://138.68.155.178/) for image classification. I will keep improving Owl and I hope it helps you in solving real-world problems.
-
-
-
-## Why OCaml?
-
-Why not?
+The system evolves very fast, and your feedback is important for me to adjust future direction and the focus. In case you find some important features are missing, welcome to submit an issue on the [Issue Tracker](https://github.com/ryanrhymes/owl/issues).
 
 
 
 ## Contact Me
 
-You can reach me in the following ways, looking forward to hearing from you!
+If you want to discuss about the book, the code, or other related topics, you can reach me in the following ways.
 
 * [Email Me](mailto:liang.wang@cl.cam.ac.uk)
 * [Slack Channel](https://join.slack.com/t/owl-dev-team/shared_invite/enQtMjQ3OTM1MDY4MDIwLTA3MmMyMmQ5Y2U0NjJiNjI0NzFhZDAwNGFhODBmMTk4N2ZmNDExYjZiMzI2N2M1MGNiMTUyYTQ5MTAzZjliZDI)
@@ -63,4 +61,6 @@ You can reach me in the following ways, looking forward to hearing from you!
 
 **Student Project:** If you happen to be a student in the Computer Lab and want to do some challenging development and design, here are some [Part II Projects](http://www.cl.cam.ac.uk/research/srg/netos/stud-projs/studproj-17/#owl0).
 
-If you are interested in more researchy topics, I also offer Part III Projects and please have a look at :doc:[Owl's Sub-Projects](../project/proposal) page and contact me directly via email.
+If you are interested in more researchy topics, I offer Part III Projects and please have a look at :doc:[Owl's Sub-Projects](../project/proposal) page and contact me directly via email.
+
+I am looking forward to hearing from you!
