@@ -1,17 +1,19 @@
 # Conventions
 
-Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example our :doc:`rules on broadcasting operation <broadcast>` and :doc:`conventions on slicing definition <slicing>`. In this chapter, I will cover the naming conventions of Owl's functions.
+Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example the [rules on broadcasting operation](broadcast.html) and the [conventions on slice definition](slicing.html). In this chapter, I will cover the function naming and various conventions in Owl.
 
 
 ## Pure vs. Impure
 
-`Ndarray` module contains a lot of functions to manipulate arrays and perform mathematical operations over them. The **pure functions** (aka immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, **impure functions** (aka mutable functions) refer to those which modifies the passed-in variables in place.
+`Ndarray` module contains many functions to manipulate and perform mathematical operations over multi-dimensional arrays. The **pure functions** (a.k.a immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, **impure functions** (a.k.a mutable functions) refer to those which modifies the passed-in variables in place.
 
-The arguments between pure and impure functions will never end. Functional programming in general promotes the use of immutable data structures. However, the introduction of impure functions to Owl is under many careful and practical considerations. One primary motivation of using in-place modification is to avoid expensive memory allocation and deallocation, this can significantly improve the performance of a numerical application especially when large ndarrays and matrices involved.
+The arguments between pure and impure functions will never end. Functional programming in general promotes the use of immutable data structures. Using impure functions makes it difficult to reason the correctness of the code, therefore you need to think carefully when you decide to use them. On the other hand, generating a fresh `1000 x 1000` matrix every time simply because you modify one element does not seem very practical either.
 
-Using impure functions makes it difficult to reason the correctness of the code, therefore, you need to be careful when you decide to use them. Always remember that you can use `Lazy` functor to achieve the same effect but offload the "dangerous task" to Owl. Please refer to :doc:`Laziness and Dataflow <lazy>` chapter for more details.
+The introduction of impure functions into Owl is under many careful and practical considerations. One primary motivation of using in-place modification is to avoid expensive memory allocation and deallocation operations, this can significantly improve the runtime performance of a numerical application especially when large ndarrays and matrices involved.
 
-Many pure functions in Owl have their corresponding impure version, the difference is that impure version has an extra underscore "`_`" as their ending. For example, the following functions are the pure functions in `Arr` module.
+Can we have the best parts of both world, i.e. writing functional code and being memory efficient at the same time? As you learn more about Owl, you will realise that this can be achieved by lazily evaluating a mathematical expression using [computation graph](cgraph.html). The programer focusses on the functional code, Owl's computation graph module takes care of the "dangerous task" -- allocating and managing the memory efficiently.
+
+Many pure functions in Ndarray module have their corresponding impure version, the difference is that impure version has an extra underscore "`_`" at the end of function names. For example, the following functions are the pure functions in `Arr` module.
 
 ```ocaml
 
