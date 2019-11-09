@@ -156,7 +156,7 @@ To start a Jupyter notebook, you can run this command. The command starts a loca
 
 ```
 
-If you want to run a notebook server remotely, please refer to ["Running a notebook server"](http://jupyter-notebook.readthedocs.io/en/stable/public_server.html). If you want to set up a server for multiple users, please refer to [JupyterHub](https://jupyterhub.readthedocs.io/en/latest/) system.
+If you wish to run a notebook server remotely, please refer to ["Running a notebook server"](http://jupyter-notebook.readthedocs.io/en/stable/public_server.html) for more information. To set up a server for multiple users, which is especially useful for educational purpose, please consult to [JupyterHub](https://jupyterhub.readthedocs.io/en/latest/) system.
 
 When everything is up and running, you can start a new notebook in the web interface. In the new notebook, you must run the following OCaml code in the first input field to load Owl environment.
 
@@ -192,7 +192,7 @@ For example, you can simply copy & paste the whole [lazy_mnist.ml](https://githu
 val make_network : int array -> network = <fun>
 ```
 
-Calling the function ...
+`make_network` defines the structure of a convolution neural network. By passing the shape of input data, Owl autmatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.
 
 ```ocaml env=intro_00
 # make_network [|28;28;1|]
@@ -260,81 +260,33 @@ Calling the function ...
 
 ```
 
-Jupyter notebook should nicely print out the structure of the neural network.
+The Second example demonstrates how to plot figures in notebook. Because Owl's Plot module does not support in-memory plotting, the figure needs to be written into a file first then passed to `Jupyter_notebook.display_file` to render.
 
 
-.. figure:: ../figure/jupyter_example_01.png
-   :scale: 50 %
-   :align: center
-   :alt: jupyter example 01
+```ocaml env=intro_01
 
+# #use "topfind"
+# #require "owl-top, owl-plplot jupyter.notebook"
+# open Owl
+# open Owl_plplot
 
-Second example demonstrates how to plot figures in notebook. Because Owl's Plot module does not support in-memory plotting, the figure needs to be written into a file first then passed to `Jupyter_notebook.display_file` to render.
-
-
-```text
-
-  #use "topfind";;
-  #require "owl-top, jupyter.notebook";;
-  open Owl;;
-
-  (* Plot a normal figure using Plot *)
-
-  let f x = Maths.sin x /. x in
-  let h = Plot.create "plot_003.png" in
-  Plot.set_foreground_color h 0 0 0;
-  Plot.set_background_color h 255 255 255;
+# let f x = Maths.sin x /. x in
+  let h = Plot.create "plot_00.png" in
   Plot.set_title h "Function: f(x) = sine x / x";
   Plot.set_xlabel h "x-axis";
   Plot.set_ylabel h "y-axis";
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
   Plot.plot_fun ~h f 1. 15.;
-  Plot.output h;;
-
-  (* Load into memory and display in Jupyter *)
-
-  Jupyter_notebook.display_file ~base64:true "image/png" "plot_003.png"
-
+  Plot.output h
+- : unit = ()
 ```
 
-Then we can see the plot is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
+To load the image into browser, we need to call `Jupyter_notebook.display_file` function. Then we can see the plot is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
 
+```text
+Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
+```
 
-.. figure:: ../figure/jupyter_example_02.png
-   :scale: 50 %
-   :align: center
-   :alt: jupyter example 02
+<img src="images/introduction/plot_00.png" alt="plot_00" title="Jupyter example 00" width="500px" />
 
-
-### Using owl-jupyter
-
-There is a convenient library `owl-jupyter` specifically for running Owl in a notebook. The library is a thin wrapper of `owl-top`. The biggest difference is that it overwrites `Plot.output` function so the figure is automatically rendered in the notebook without calling `Jupyter_notebook.display_file`.
-
-This means that all the plotting code can be directly used in the notebook without any modifications. Please check the following example and compare it with the previous plotting example, we can see `display_file` call is saved.
-
-
-.. code-block:: ocaml
-
-  #use "topfind";;
-  #require "owl-jupyter";;
-  open Owl_jupyter;;
-
-  let f x = Maths.sin x /. x in
-  let g x = Maths.cos x /. x in
-  let h = Plot.create "" in
-  Plot.set_foreground_color h 0 0 0;
-  Plot.set_background_color h 255 255 255;
-  Plot.set_pen_size h 3.;
-  Plot.plot_fun ~h f 1. 15.;
-  Plot.plot_fun ~h g 1. 15.;
-  Plot.output h;;
-
-
-One thing worth noting is that, if you pass in empty string in `Plot.create` function, the figure is only rendered in the browser. If you pass in non-empty string, then the figure is both rendered in the browser and saved into the file you specified. This is to guarantee `output` function has the consistent behaviour when used in or out of a notebook.
-
-
-.. figure:: ../figure/jupyter_example_03.png
-   :scale: 50 %
-   :align: center
-   :alt: jupyter example 03
