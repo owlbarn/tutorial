@@ -290,3 +290,5 @@ Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 
 <img src="images/introduction/plot_00.png" alt="plot_00" title="Jupyter example 00" width="500px" />
 
+
+Even though the extra call to `display_file` is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.
