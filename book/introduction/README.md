@@ -3,43 +3,42 @@
 
 ## Installation
 
-Owl requires OCaml `>=4.06.0`. Please make sure you have a working OCaml environment before you start installing Owl. Here is a guide on [Install OCaml](https://ocaml.org/docs/install.html).
+Owl requires OCaml version `>=4.06.0`. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to [Install OCaml](https://ocaml.org/docs/install.html).
 
-Owl's installation is rather trivial. There are four possible ways as shown below, from the most straightforward one to the least one.
+Owl's installation is rather trival. There are four possible ways as shown below, from the most straightforward one to the least one.
 
 
 ### Option 1: Install from OPAM
 
-Thanks to the folks in [OCaml Labs](http://ocamllabs.io/), OPAM makes package management in OCaml much easier than before. You can simply type the following in the command line to start.
+Thanks to the folks in [OCaml Labs](http://ocamllabs.io/), OPAM makes package management in OCaml much easier than before. You can simply type the following the command lines to install.
 
 ```shell
 
-  opam depext owl
   opam install owl
 
 ```
 
-If you want to try the newest development features, I recommend the other ways to install Owl, as below.
+There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` by hand, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this issue.
 
-In case of linking issues, known to happen on `ubuntu`-based distribution. You will need to compile `openblas` by hand, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this.
+This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. I usually make a new release whenever there are enough changes accumulated or a significnat feature implemented. If you want to try the newest development features, I recommend the other ways to install Owl, as below.
 
 
 ### Option 2: Pull from Docker Hub
 
-[Owl's docker image](https://hub.docker.com/r/ryanrhymes/owl/) is perfectly synced with master branch. The image is always automatically built whenever there are new commits. You can check the building history on [Docker Hub](https://hub.docker.com/r/ryanrhymes/owl/builds/).
+[Owl's docker images](https://hub.docker.com/r/owlbarn/owl/) are synchronised with the master branch. The image is always automatically built whenever there are new commits. You can check the building history on [Docker Hub](https://hub.docker.com/r/owlbarn/owl/builds).
 
 You only need to pull the image then start a container.
 
 ```shell
 
-  docker pull ryanrhymes/owl
-  docker run -t -i ryanrhymes/owl
+  docker pull owlbarn/owl
+  docker run -t -i owlbarn/owl
 
 ```
 
-Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - `utop`. You can start `utop` in the container and try out some examples.
+Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - `utop`. You can start `utop` in the container and try out some examples. The source code of Owl is stored in `/root/owl` directory. You can modify the source code and rebuild the system directly in the started container.
 
-The source code of Owl is stored in `/root/owl` directory. You can modify the source code and rebuild the system directly in the started container.
+There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g. `docker pull owlbarn/owl:alpine`.
 
 
 ### Option 3: Pin the Dev-Repo
@@ -56,11 +55,11 @@ The source code of Owl is stored in `/root/owl` directory. You can modify the so
 
 ### Option 4: Compile from Source
 
-This is my favourite option. First, you need to clone the repository.
+This is an old-schooled but my favourite option. First, you need to clone the repository.
 
 ```shell
 
-  git clone git@github.com:ryanrhymes/owl.git
+  git clone git@github.com:owlbarn/owl.git
 
 ```
 
@@ -68,7 +67,7 @@ Second, you need to figure out the missing dependencies and install them.
 
 ```shell
 
-  jbuilder external-lib-deps --missing @install
+  dune external-lib-deps --missing @install @runtest
 
 ```
 
@@ -80,7 +79,7 @@ Last, this is perhaps the most classic step.
 
 ```
 
-If your OPAM is older than `V2 beta4`, you need one extra steps. This is due to a bug in OPAM which copies the compiled library into `/.opam/4.06.0/lib/stubslibs` rather than `/.opam/4.06.0/lib/stublibs`. If you don't upgrade OPAM, then you need to manually move `dllowl_stubs.so` file from `stubslib` to `stublib` folder, then everything should work.
+If your OPAM is older than `V2 beta4`, you need one extra steps. This is due to a bug in OPAM which copies the compiled library into `/.opam/4.06.0/lib/stubslibs` rather than `/.opam/4.06.0/lib/stublibs`. If you don't want to upgrade OPAM, then you need to manually move `dllowl_stubs.so` file from `stubslib` to `stublib` folder, then everything should work. However, if you have the most recent OPAM installed, this will not be your concern.
 
 
 ### CBLAS/LAPACKE Dependency
@@ -93,34 +92,25 @@ The most important dependency is [OpenBLAS](https://github.com/xianyi/OpenBLAS).
 
 ```
 
-However, installing from OpenBLAS source code leads to way better performance in my own experiment. OpenBLAS already contains an implementation of LAPACKE, as long as you have a Fortran complier installed on your computer, the LAPACKE will be compiled and included in the installation automatically.
+However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdate binary distribution offerd by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code. 
 
-Another benefit of installing from OpenBLAS source is: some systems' native package management tool installs very old version of OpenBLAS which misses some functions Owl requires.
+OpenBLAS already contains an implementation of LAPACKE, as long as you have a Fortran complier installed on your computer, the LAPACKE will be compiled and included in the installation automatically.
 
 
 ## Interacting with Owl
 
-Owl is well integrated with `utop`. You can use `utop` to try out the experiments in our tutorials. If you want `utop` to automatically load Owl for you, you can also edit `.ocamlinit` file in your home folder by adding the following lines. (Note that the library name is `owl` with lowercase `o`.)
+There are several ways to interact with Owl system. The classic one is to write an OCaml application, compile the code, link to Owl system, then run it natively on a computer. You can also skip the compilation and linking step, and use Zoo system to run the code as a script.
 
-```ocaml
-# #require "owl_top"
-```
+However, the easiest way for a beginner to try out Owl is using REPL (Read–Eval–Print Loop), namely an interactive toplevel. The toplevel offers a convenient way to play with small code snippets. The code run in the toplevel is compiled into bytecode rather than native code. Bytecode often runs much slower than native code. However, this has very little impact on Owl's performance because all its performance-critical functions are implemented in C language.
 
-The `owl_top` is the toplevel library of Owl, it automatically loads `owl` core library and installs the corresponding pretty printers of various data types.
-
-**(duplicate)**
-
-There are several ways to interact with Owl system. The most classic one is to write an OCaml application, compile the code, then run it natively on a computer. You can also skip the compilation step, and use Zoo system to run the code as a script.
-
-However, the easiest way for a beginner to try out Owl is REPL (Read–Eval–Print Loop), or an interactive toplevel. The toplevel offers a convenient way to play with small code snippets. The code run in the toplevel is compiled into bytecode rather than native code. Bytecode often runs much slower than native code. However, this has very little impact on Owl's performance because all its performance-critical functions are implemented in C language.
+OCaml code can be compiled in either bytecode or native code. The bytecode is executed on OCaml virtual machine which is less performant then platform-optimised native code. Toplevel runs the user code in bytecode mode, but this has little impact on Owl's performance because its core functions are implemented in C language. It is hard to notice any performance degradation if you run Owl in a script.
 
 In the following, I will introduce two options to set up an interactive environment for Owl.
 
 
-
 ### Using Toplevel
 
-OCaml language has bundled with a simple toplevel, but I recommend to use *utop* as a more advance replacement. Installing *utop* is straightforward in OPAM, simply run the following command in the system shell.
+OCaml language has bundled with a simple toplevel, but I recommend *utop* as a more advance replacement. Installing *utop* is straightforward using OPAM, simply run the following command in the system shell.
 
 
 ```shell
@@ -129,20 +119,20 @@ OCaml language has bundled with a simple toplevel, but I recommend to use *utop*
 
 ```
 
-After installation, you can load Owl in *utop* with the following commands. `owl-toplevel` is Owl's toplevel library which will automatically load several dependent libraries (including `owl-zoo`, `owl-base`, and `owl` core library) to set up a complete numerical environment.
+After installation, you can load Owl in *utop* with the following commands. `owl-top` is Owl's toplevel library which will automatically load several related libraries (including `owl-zoo`, `owl-base`, and `owl` core library) to set up a complete numerical environment.
 
 ```ocaml
 #  #require "owl-top"
 #  open Owl
 ```
 
-If you do not want to type these commands every time you start *toplevel*, you can add them to `.ocamlinit` file. The toplevel reads `.ocamlinit` file when it starts and uses it to initialise the environment. This file is often stored in the home directory on your computer.
+If you do not want to type these commands every time you start *toplevel*, you can add them to `.ocamlinit` file. The toplevel reads `.ocamlinit` file to initialise the environment during the startup. This file is often stored in the home directory on your computer.
 
 
 
 ### Using Notebook
 
-Jupyter Notebook is a popular way to mix presentation with interactive code execution. It originates in Python world but is widely supported by various languages. One attractive feature of notebook is that it uses client/server architecture and runs in a browser.
+Jupyter Notebook is a popular way to mix presentation with interactive code execution. It originates from Python world and is widely supported by various languages. One attractive feature of notebook is that it uses client/server architecture and runs in a browser.
 
 If you want to know how to use a notebook and its technical details, please read [Jupyter Documentation](http://jupyter.org/documentation). Here let me show you how to set up a notebook to run Owl step by step.
 
@@ -157,7 +147,7 @@ Run the following commands in the shell will install all the dependency for you.
 
 ```
 
-To start a Jupyter notebook, you can run this command. The command starts a local server running on `http://127.0.0.1:8888/`, then opens a tab in your browser as the client.
+To start a Jupyter notebook, you can run this command. The command starts a local server running on [http://127.0.0.1:8888/](http://127.0.0.1:8888/), then opens a tab in your browser as the client.
 
 
 ```shell

@@ -56,7 +56,7 @@ The system evolves very fast, and your feedback is important for me to adjust fu
 If you want to discuss about the book, the code, or other related topics, you can reach me in the following ways.
 
 * [Email Me](mailto:liang.wang@cl.cam.ac.uk)
-* [Slack Channel](https://join.slack.com/t/owl-dev-team/shared_invite/enQtMjQ3OTM1MDY4MDIwLTA3MmMyMmQ5Y2U0NjJiNjI0NzFhZDAwNGFhODBmMTk4N2ZmNDExYjZiMzI2N2M1MGNiMTUyYTQ5MTAzZjliZDI)
+* [Slack Channel](https://join.slack.com/t/owl-dev-team/shared_invite/enQtMjQ3OTM1MDY4MDIwLTcxYTlkODhiNGI4YjVkN2FmMjhlZGZhYzhkMTFhZjY0OGI1NDY5M2Y2NmYzNjBhZmRhZGE0NTY1ZjA5MTk4MjI)
 * [Issue Tracker](https://github.com/ryanrhymes/owl/issues)
 
 **Student Project:** If you happen to be a student in the Computer Lab and want to do some challenging development and design, here are some [Part II Projects](http://www.cl.cam.ac.uk/research/srg/netos/stud-projs/studproj-17/#owl0).
