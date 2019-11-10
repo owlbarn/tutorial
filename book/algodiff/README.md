@@ -139,58 +139,55 @@ In order to understand AD, you need to practice enough, especially if you are in
 
 The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
 
-```text
+```ocaml env=algodiff_00
+open Algodiff.D;;
 
-  open Algodiff.D;;
+let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
 
-  let map f x = Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
+(* calculate derivatives of f0 *)
+let f0 x = Maths.(tanh x);;
+let f1 = diff f0;;
+let f2 = diff f1;;
+let f3 = diff f2;;
+let f4 = diff f3;;
 
-  (* calculate derivatives of f0 *)
-  let f0 x = Maths.(tanh x);;
-  let f1 = diff f0;;
-  let f2 = diff f1;;
-  let f3 = diff f2;;
-  let f4 = diff f3;;
+let x = Owl.Mat.linspace (-4.) 4. 200;;
+let y0 = map f0 x;;
+let y1 = map f1 x;;
+let y2 = map f2 x;;
+let y3 = map f3 x;;
+let y4 = map f4 x;;
 
-  let x = Arr (Owl.Mat.linspace (-4.) 4. 200);;
-  let y0 = map f0 x;;
-  let y1 = map f1 x;;
-  let y2 = map f2 x;;
-  let y3 = map f3 x;;
-  let y4 = map f4 x;;
-
-  (* plot the values of all functions *)
-  let h = Plot.create "plot_00.png" in
-  Plot.set_foreground_color h 0 0 0;
-  Plot.set_background_color h 255 255 255;
-  Plot.plot ~h x y0;
-  Plot.plot ~h x y1;
-  Plot.plot ~h x y2;
-  Plot.plot ~h x y3;
-  Plot.plot ~h x y4;
-  Plot.output h;;
-
+(* plot the values of all functions *)
+let h = Plot.create "plot_00.png" in
+Plot.plot ~h x y0;
+Plot.plot ~h x y1;
+Plot.plot ~h x y2;
+Plot.plot ~h x y3;
+Plot.plot ~h x y4;
+Plot.output h;;
 ```
 
 Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
 
-.. figure:: ../figure/plot_021.png
-   :width: 100%
-   :align: center
-   :alt: higher order derivatives
-
+<img src="images/algodiff/plot_00.png" alt="plot 00" title="higher order derivatives" width="600px" />
 
 If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
 
-.. code-block:: ocaml
+```ocaml
+let f0 x = Maths.(
+  let y = exp (neg x) in
+  (F 1. - y) / (F 1. + y)
+);;
+```
 
-  let f0 x = Maths.(
-    let y = exp (neg x) in
-    (F 1. - y) / (F 1. + y)
-  );;
+As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
 
+```ocaml env=algodiff_00
+let f'''' f = f |> diff |> diff |> diff |> diff
+```
 
-As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., `let g = f |> diff |> diff |> diff |> diff` will give you the fourth derivative of `f`.
+The code above will give you the fourth derivative of `f`, i.e. `f''''`.
 
 
 
@@ -198,81 +195,77 @@ As you see, you can just keep calling `diff` to get higher and higher-order deri
 
 Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
 
-.. code-block:: ocaml
+```ocaml env=algodiff_01
+open Algodiff.D
 
-  open Algodiff.D
-
-  let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
-    let g = (diff f) x in
-    if (unpack_flt g) < eps then x
-    else desc ~eta ~eps f Maths.(x - eta * g);;
-
+let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = (diff f) x in
+  if (unpack_flt g) < eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g);;
+```
 
 Now let's define a function we want to optimise, then plug it into `desc` function.
 
-.. code-block:: ocaml
-
-  let f x = Maths.(sin x + cos x);;
-
-  let x_min = desc f (F 0.1);;
-
+```ocaml env=algodiff_01
+let f x = Maths.(sin x + cos x);;
+let x_min = desc f (F 0.1);;
+```
 
 Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
 
-.. code-block:: ocaml
+```ocaml env=algodiff_01
+let g x = sin x +. cos x in
+let h = Plot.create "plot_01.png" in
+Plot.plot_fun ~h g (-5.) 5.;
+Plot.output h;;
+```
 
-  let g x = sin x +. cos x in
-  Plot.plot_fun g (-5.) 5.;;
-
+<img src="images/algodiff/plot_01.png" alt="plot 00" title="gradient descent" width="600px" />
 
 
 ### Example 3: Newton's Algorithm
 
 Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
 
-.. code-block:: ocaml
+```ocaml env=algodiff_02
+open Algodiff.D
 
-  open Algodiff.D
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
+```
 
-  let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-    let g, h = (gradhessian f) x in
-    if (Maths.l2norm g |> unpack_flt) < eps then x
-    else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
+Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
 
-
-Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum)`.
-
-.. code-block:: ocaml
-
-  let _ =
-    let f x = Maths.(cos x |> sum) in
-    let y = newton f (Mat.uniform 1 2) in
-    Mat.print y;;
-
+```ocaml env=algodiff_02
+# let f x = Maths.(cos x |> sum') in
+  newton f (Mat.uniform 1 2)
+- : t = [Arr(1,2)]
+```
 
 
 ### Example 4: Backpropagation in Neural Network
 
 Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
 
-.. code-block:: ocaml
+```text
+let backprop nn eta x y =
+  let t = tag () in
+  Array.iter (fun l ->
+    l.w <- make_reverse l.w t;
+    l.b <- make_reverse l.b t;
+  ) nn.layers;
+  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |> float_of_int))) in
+  reverse_prop (F 1.) loss;
+  Array.iter (fun l ->
+    l.w <- Maths.((primal l.w) - (eta * (adjval l.w))) |> primal;
+    l.b <- Maths.((primal l.b) - (eta * (adjval l.b))) |> primal;
+  ) nn.layers;
+  loss |> unpack_flt
+```
 
-  let backprop nn eta x y =
-    let t = tag () in
-    Array.iter (fun l ->
-      l.w <- make_reverse l.w t;
-      l.b <- make_reverse l.b t;
-    ) nn.layers;
-    let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |> float_of_int))) in
-    reverse_prop (F 1.) loss;
-    Array.iter (fun l ->
-      l.w <- Maths.((primal l.w) - (eta * (adjval l.w))) |> primal;
-      l.b <- Maths.((primal l.b) - (eta * (adjval l.b))) |> primal;
-    ) nn.layers;
-    loss |> unpack_flt
-
-
-Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in `backprop.ml <https://github.com/ryanrhymes/owl/blob/master/examples/backprop.ml>`_.
+Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in [backprop.ml](https://github.com/owlbarb/owl/blob/master/examples/backprop.ml).
 
 .. figure:: ../figure/plot_034.png
    :width: 100%
@@ -284,25 +277,23 @@ Yes, we just used only 13 lines of code to implement the backpropagation. Actual
 
 Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
 
-.. code-block:: ocaml
-
+```text
   val to_trace: t list -> string
   (* print out the trace in human-readable format *)
 
   val to_dot : tlist -> string
   (* print out the computation graph in dot format *)
-
+```
 
 `to_trace` is useful when the graph is small and you can print it out on the terminal then observe it directly. `to_dot` is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.
 
-In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the `computation_graph.ml <https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml>`_.
+In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the [computation_graph.ml](https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml).
 
 Let's start with a simple function as below.
 
-.. code-block:: ocaml
-
-  let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
-
+```ocaml env=algodiff_00
+let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
+```
 
 The generated computation graph looks like this.
 
@@ -317,26 +308,25 @@ The generated computation graph looks like this.
 
 Let's define a VGG-like neural network as below.
 
-.. code-block:: ocaml
+```ocaml
+open Neural.S
+open Neural.S.Graph
 
-  open Neural.S
-  open Neural.S.Graph
-
-  let make_network input_shape =
-    input input_shape
-    |> normalisation ~decay:0.9
-    |> conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
-    |> conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-    |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-    |> dropout 0.1
-    |> conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
-    |> conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-    |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-    |> dropout 0.1
-    |> fully_connected 512 ~act_typ:Activation.Relu
-    |> linear 10 ~act_typ:Activation.Softmax
-    |> get_network
-
+let make_network input_shape =
+  input input_shape
+  |> normalisation ~decay:0.9
+  |> conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
+  |> conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+  |> dropout 0.1
+  |> conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
+  |> conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+  |> dropout 0.1
+  |> fully_connected 512 ~act_typ:Activation.Relu
+  |> linear 10 ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
 
 The computation graph for this neural network become a bit more complicated now.
 
@@ -350,19 +340,18 @@ The computation graph for this neural network become a bit more complicated now.
 
 How about LSTM network? The following definition seems much lighter than convolutional neural network in the previous example.
 
-.. code-block:: ocaml
+```ocaml
+open Neural.S
+open Neural.S.Graph
 
-  open Neural.S
-  open Neural.S.Graph
-
-  let make_network wndsz vocabsz =
-    input [|wndsz|]
-    |> embedding vocabsz 40
-    |> lstm 128
-    |> linear 512 ~act_typ:Activation.Relu
-    |> linear vocabsz ~act_typ:Activation.Softmax
-    |> get_network
-
+let make_network wndsz vocabsz =
+  input [|wndsz|]
+  |> embedding vocabsz 40
+  |> lstm 128
+  |> linear 512 ~act_typ:Activation.Relu
+  |> linear vocabsz ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
 
 However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the `[PDF file 1] <https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf>`_ for better image quality.
 
