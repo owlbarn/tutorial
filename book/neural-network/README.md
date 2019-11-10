@@ -11,6 +11,87 @@ I will cover the neural network module in this chapter. My original purpose of i
 In the end, I only used less than 3k lines of code to implement a quite full-featured neural network module. Now let's go through what `Neural` module offers.
 
 
+## A Naive Example
+
+```ocaml env=neural_01
+open Algodiff.S
+
+type layer = {
+  mutable w : t;
+  mutable b : t;
+  mutable a : t -> t;
+}
+
+type network = { layers : layer array }
+```
+
+
+```ocaml env=neural_01
+let run_layer x l = Maths.((x *@ l.w) + l.b) |> l.a
+
+let run_network x nn = Array.fold_left run_layer x nn.layers
+```
+
+
+```ocaml env=neural_01
+let l0 = {
+  w = Maths.(Mat.uniform 784 300 * F 0.15 - F 0.075);
+  b = Mat.zeros 1 300;
+  a = Maths.tanh;
+}
+
+let l1 = {
+  w = Maths.(Mat.uniform 300 10 * F 0.15 - F 0.075);
+  b = Mat.zeros 1 10;
+  a = Maths.softmax ~axis:1;
+}
+
+let nn = {layers = [|l0; l1|]}
+```
+
+
+```ocaml env=neural_01
+let backprop nn eta x y =
+  let t = tag () in
+  Array.iter (fun l ->
+    l.w <- make_reverse l.w t;
+    l.b <- make_reverse l.b t;
+  ) nn.layers;
+  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |> float_of_int))) in
+  reverse_prop (F 1.) loss;
+  Array.iter (fun l ->
+    l.w <- Maths.((primal l.w) - (eta * (adjval l.w))) |> primal;
+    l.b <- Maths.((primal l.b) - (eta * (adjval l.b))) |> primal;
+  ) nn.layers;
+  loss |> unpack_flt
+```
+
+
+```ocaml env=neural_01
+let test nn x y =
+  Dense.Matrix.S.iter2_rows (fun u v ->
+    Dataset.print_mnist_image u;
+    let p = run_network (Arr u) nn |> unpack_arr in
+    Dense.Matrix.Generic.print p;
+    Printf.printf "prediction: %i\n" (let _, i = Dense.Matrix.Generic.max_i p in i.(1))
+  ) (unpack_arr x) (unpack_arr y)
+```
+
+
+```ocaml env=neural_01
+let _ =
+  let x, _, y = Dataset.load_mnist_train_data () in
+  for i = 1 to 9 do
+    let x', y' = Dataset.draw_samples x y 100 in
+    backprop nn (F 0.01) (Arr x') (Arr y')
+    |> Owl_log.info "#%03i : loss = %g" i
+  done;
+  let x, y, _ = Dataset.load_mnist_test_data () in
+  let x, y = Dataset.draw_samples x y 10 in
+  test nn (Arr x) (Arr y)
+```
+
+
 ## Module Structure
 
 The [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml) provides two submodules `S` and `D` for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.
@@ -76,7 +157,7 @@ In practice, you do not need to use the modules defined in  [Owl.Neural.Neuron](
 These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
 
 
-## Training & Inference
+## Model Training
 
 Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
 
@@ -136,6 +217,10 @@ After the training is finished, you can call `Graph.model` to generate a functio
 
 You can have a look at Owl's [MNIST CNN example](https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml) for more details and run the code by yourself.
 
+
+## Model Inference
+
+TBD
 
 
 ## Examples
