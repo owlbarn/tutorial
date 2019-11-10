@@ -8,15 +8,15 @@ Due to its importance, I have implemented a comprehensive set of operations on N
 
 ## Ndarray Types
 
-The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native `Bigarray`, more specifically it is `Bigarray.Genarray`. Ndarray has the same type as that of `Genarray`, therefore exchanging data between Owl and other libraries relying on Bigarray are trivial.
+The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native `Bigarray`, more specifically it is `Bigarray.Genarray`. Ndarray has the same type as that of `Genarray`, therefore exchanging data between Owl and other libraries relying on Bigarray is trivial.
 
-OCaml's Bigarray uses `kind` GADT to specify the number type, precision, and memory layout. In Owl, I only keep the first two but fix the last one because Owl only uses `C-layout`, or `Row-based layout` in its implementation. See the type definition in Ndarray module.
+OCaml's Bigarray uses `kind` GADT to specify the number type, precision, and memory layout. Owl only keeps the first two but fixes the last one because Owl only uses `C-layout`, or `Row-based layout` in its implementation. The same design decisions can also be seen in ONNX. See the type definition in Ndarray module.
 
 ```ocaml
   type ('a, 'b) t = ('a, 'b, c_layout) Genarray.t
 ```
 
-Technically, `C-layout` indicates the memory address is continuous at the high dimensions, comparing to the `Fortran-layout` whose continuous memory address is at the low dimensions. The reason why I made this decision is as follows.
+Technically, `C-layout` indicates the memory address is continuous at the highest dimensions, comparing to the `Fortran-layout` whose continuous memory address is at the lowest dimensions. The reason why I made this decision is as follows.
 
 * Mixing two layouts together opens a can of worms and is the source of bugs. Especially, indexing in Fortran starts from 1 whereas indexing in C starts form 0. Many native OCaml data structures such as `Array` and `List` all start indexing from 0, so using `C-layout` avoids many potential troubles in using the library.
 
@@ -24,14 +24,13 @@ Technically, `C-layout` indicates the memory address is continuous at the high d
 
 * Owl has rather different design principles comparing to OCaml's Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml's heap, facilitating exchanging data between different libraries (including Fortran ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.
 
-
 Because of Bigarray, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, Matrix is just a special case of n-dimensional array, and in fact many functions in `Matrix` module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.
 
 
 
 ## Creation Functions
 
-The first group of functions I want to introduce is creation function. They generate a dense data structure for you to work on further. The most often used ones are probably these four.
+The first group of functions I want to introduce is the creation functions. They generate a dense data structure for you to work on further. The most often used ones are probably these four.
 
 ```ocaml file=../../examples/code/ndarray/interface_00.mli
 open Owl.Dense.Ndarray.Generic
@@ -45,7 +44,7 @@ val zeros : ('a, 'b) kind -> int array -> ('a, 'b) t
 val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
 ```
 
-These four functions return an ndarray of specified shape, number type, and precision. `empty` function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling `empty` function is very fast.
+These four functions return an ndarray of the specified shape, number type, and precision. `empty` function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling `empty` function is very fast.
 
 The other three functions are self-explained, `zeros` and `ones` fill the allocated memory with zeors and one respectively, whereas `create` function fills the memory with the specified value.
 
@@ -83,7 +82,7 @@ val init : ('a, 'b) kind -> int array -> (int -> 'a) -> ('a, 'b) t
 val init_nd : ('a, 'b) kind -> int array -> (int array -> 'a) -> ('a, 'b) t
 ```
 
-The difference between the two is: `init` passes 1-d index to the user-defined function wheras `init_nd` passes n-dimensional index. As a result, `init` is much faster than `init_nd`. The following code creates an ndarray where all the elements are even numbers.
+The difference between the two is: `init` passes 1-d indices to the user-defined function whereas `init_nd` passes n-dimensional indices. As a result, `init` is much faster than `init_nd`. The following code creates an ndarray where all the elements are even numbers.
 
 ```ocaml
 
@@ -196,7 +195,6 @@ R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218
 
 ```
 
-
 If you need indices in the transformation function, you can use `mapi` function which passes in the 1-d index of the element being accessed.
 
 ```text
@@ -220,7 +218,7 @@ The `axis` parameter is optional, if you do not specify one, the ndarray will be
 
 The code below demonstrates how to implement your own `sum'` function.
 
-```text
+```ocaml
 
   let sum' ?axis x = Arr.fold ?axis ( +. ) 0. x;;
 
@@ -239,7 +237,7 @@ Similarly, if you need indices in folding function, you can use `foldi` which pa
 
 ## Scan Functions
 
-To some extent, the `scan` function is like the combination of `map` and `fold`. It accumulates the value along the specified axis but it does not change the shape of the input. Think about how do we generate a cumulative distribution function (CDF) from a probability density/mass function (PDF/PMF).
+To some extent, the `scan` function is like the combination of `map` and `fold`. It accumulates the value along the specified axis but it does not change the shape of the input. Think about how we generate a cumulative distribution function (CDF) from a probability density/mass function (PDF/PMF).
 
 The type signature of `scan` looks like this in Ndarray.
 
@@ -263,7 +261,7 @@ Again, you can use `scani` to obtain the indices in the passed in cumulative fun
 
 ## Vectorised Math
 
-Many common operations on ndarrays can be decomposed as a series of `map`, `fold`, and `scan` operations. There is even a specific programming paradigm built atop of this called `Map-Reduce`, which was hyped several years ago in many data processing frameworks.
+Many common operations on ndarrays can be decomposed as a series of `map`, `fold`, and `scan` operations. There is even a specific programming paradigm built atop of this called `Map-Reduce`, which was hyped several years ago in many data processing frameworks. Nowadays, map-reduce is one dominant data-parallel processing paradigm.
 
 The ndarray module has included a very comprehensive set of mathematical functions and all have been vectorised. This means you can apply them directly on an ndarray and the function will be automatically applied to every element in the ndarray.
 
@@ -339,22 +337,19 @@ The fourth group is similar to the second one but compares an ndarray with a sca
 ```
 
 
-You probably noticed the pattern in naming these functions. In general, I recommend using operators rather than calling these function name directly, since it leads to more concise code. Please refer to the chapter on :doc:`Operators <operator>`.
+You probably noticed the pattern in naming these functions. In general, I recommend using operators rather than calling these function name directly, since it leads to more concise code. Please refer to the chapter on [Conventions](convention.html).
 
 
 The comparison functions can do a lot of useful things for us. As an example, the following code shows how to keep the elements greater than `0.5` as they are but set the rest to zeros in an ndarray.
 
 ```ocaml
+let x = Arr.uniform [|10; 10|];;
 
-  let x = Arr.uniform [|10; 10|];;
+(* the first solution *)
+let y = Arr.map (fun a -> if a > 0.5 then a else 0.) x;;
 
-  (* the first solution *)
-  let y = Arr.map (fun a -> if a > 0.5 then a else 0.) x;;
-
-
-  (* the second solution *)
-  let z = Arr.((x >.$ 0.5) * x);;
-
+(* the second solution *)
+let z = Arr.((x >.$ 0.5) * x);;
 ```
 
 As you can see, comparison function combined with operators can lead to more concise code. Moreover, it sometimes outperforms the first solution at the price of higher memory consumption, because the loop is done in C rather than in OCaml.
@@ -541,6 +536,14 @@ Serialisation and deserialisation are simply done with `save` and `load` two fun
 ```
 
 Note that you need to pass in type information in `load` function otherwise Owl cannot figure out what is contained in the chunk of binary file. Alternatively, you can use the corresponding `load` functions in `S/D/C/Z` module to save the type information.
+
+```ocaml
+# let x = Mat.uniform 8 8 in
+  Mat.save x "data.mat";
+  let y = Mat.load "data.mat" in
+  Mat.(x = y)
+- : bool = true
+```
 
 `save` and `load` currently use the Marshall module which is brittle since it depends on specific OCaml versions. In the future, these two functions will be improved.
 

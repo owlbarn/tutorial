@@ -119,6 +119,25 @@ The summation of all the diagonal elements is also 65.
 - : float = 65.
 ```
 
+The last example creates three matrices where the elements follow Bernoulli distribution of different parameters. We then use `Plot.spy` function to visualise how the non-zero elements are distributed in the matrices.
+
+```ocaml
+let x = Mat.bernoulli ~p:0.1 40 40 in
+let y = Mat.bernoulli ~p:0.2 40 40 in
+let z = Mat.bernoulli ~p:0.3 40 40 in
+
+let h = Plot.create ~m:1 ~n:3 "plot_00.png" in
+Plot.subplot h 0 0;
+Plot.spy ~h x;
+Plot.subplot h 0 1;
+Plot.spy ~h y;
+Plot.subplot h 0 2;
+Plot.spy ~h z;
+Plot.output h;;
+```
+
+<img src="images/matrix/plot_00.png" alt="plot 00" title="matrix example 00" width="700px" />
+
 
 ## Access Elements
 
@@ -139,7 +158,7 @@ For dense matrices, i.e., `Dense.Matrix.*`, you can also use shorthand `.%{[|i,j
 # x.%{[|1;2|]} <- 0.;;         (* set the element at (1,2) to 0. *)
 - : unit = ()
 # let a = x.%{[|0;3|]};;       (* get the value of the element at (0,3) *)
-val a : float = 0.52388195972889662
+val a : float = 0.18128702812828124
 ```
 
 
