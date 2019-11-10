@@ -274,7 +274,7 @@ Now I am sure you can understand the difference between `>` and `>.`, and the sa
 Note that the extending indexing and slicing operators are not included in the table above, but you can find the detailed explanation in [Indexing and Slicing Chapter](slicing.html).
 
 
-## Extension Module
+## Operator Extension
 
 As you can see, the operators above do not allow interoperation on different number types (which may not be bad thing in my opinion actually). E.g., you cannot add a `float32` matrix to `float64` matrix unless you explicitly call the `cast` functions in `Generic` module.
 
@@ -505,7 +505,7 @@ Dense.Matrix.S.(eye 5 |> sum);;
 ```
 
 
-## Shortcuts to Double Precision Modules
+## Module Shortcuts
 
 In reality, we often work with double precision numbers, therefore Owl provides some shortcuts to the data structures of double precision float numbers:
 
