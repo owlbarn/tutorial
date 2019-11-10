@@ -73,6 +73,52 @@ R4 0.840643  0.163237 0.658268 0.457176 0.175289
 
 ```
 
+Owl can create some special matrices with specific properties. For example, a *magic square* is a `n x n` matrix (where n is the number of cells on each side) filled with distinct positive integers in the range $1,2,...,n^{2}$ such that each cell contains a different integer and the sum of the integers in each row, column and diagonal is equal.
+
+```ocaml env=matrix_env2
+# let x = Mat.magic 5
+val x : Mat.mat =
+  
+   C0 C1 C2 C3 C4 
+R0 17 24  1  8 15 
+R1 23  5  7 14 16 
+R2  4  6 13 20 22 
+R3 10 12 19 21  3 
+R4 11 18 25  2  9 
+
+```
+
+We can validate this property with the following code. The summation of all the elements on each column is 65.
+
+```ocaml env=matrix_env2
+# Mat.sum_rows x
+- : Mat.mat = 
+   C0 C1 C2 C3 C4 
+R0 65 65 65 65 65 
+
+```
+
+The summation of all the elements on each row is 65.
+
+```ocaml env=matrix_env2
+# Mat.sum_cols x
+- : Mat.mat = 
+   C0 
+R0 65 
+R1 65 
+R2 65 
+R3 65 
+R4 65 
+
+```
+
+The summation of all the diagonal elements is also 65.
+
+```ocaml env=matrix_env2
+# Mat.trace x
+- : float = 65.
+```
+
 
 ## Access Elements
 
