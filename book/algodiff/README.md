@@ -2,9 +2,7 @@
 
 Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields, especially useful for fast prototyping in machine learning research. Comparing to numerical differentiation which can only provides approximate results, AD can calculates the exact derivative of a given function.
 
-Owl provides both numerical differentiation (in `Numdiff.Generic <https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli>`_ module) and algorithmic differentiation (in `Algodiff.Generic <https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli>`_ module). The core nested automatic differentiation algorithm and the differentiation API have been ported to Owl from `DiffSharp <http://diffsharp.github.io/DiffSharp/>`_. Some of the examples below are also adapted from the DiffSharp website.
-
-In this chapter, I will only go through AD module since `Numerical` module is trivial to use.
+Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
 
 
 
@@ -15,7 +13,7 @@ In this chapter, I will only go through AD module since `Numerical` module is tr
 - `Algodiff.S` supports `float32` precision;
 - `Algodiff.D` supports `float64` precision;
 
-`Algodiff` has implemented both forward and backward mode of AD. The complete list of APIs can be found in `owl_algodiff_generic.mli <https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli>`_. The core APIs are listed below.
+`Algodiff` has implemented both forward and backward mode of AD. The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
 
 ```text
 
@@ -353,7 +351,7 @@ let make_network wndsz vocabsz =
   |> get_network
 ```
 
-However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the `[PDF file 1] <https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf>`_ for better image quality.
+However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
 .. figure:: ../figure/plot_030.png
    :width: 100%
@@ -365,7 +363,7 @@ However, the generated computation graph is way more complicated due to LSTM's i
 
 If the computation graph above hasn't scared you yet, here is another one generated from Google's Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl's zoo system `#zoo "6dfed11c521fb2cd286f2519fb88d3bf"`.
 
-The image below is too small to check details, please download the `[PDF file 2] <https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf>`_.
+The image below is too small to check details, please download the [PDF file 2](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf).
 
 .. figure:: ../figure/plot_031.png
    :width: 100%
