@@ -255,42 +255,91 @@ Let' see some more complicated examples.
 
 ## Advanced Usage
 
-Here are some more advanced examples to show how to use slicing to achieve quite complicated stuffs.
-
-
-How to implement `flip` using slicing?
+The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a `5 x 5` sequential matrix for illustration.
 
 ```ocaml env=slicing_env2
-
-  let flip x = Mat.get_slice [ [-1; 0]; [ ] ] x;;
+# let x = Mat.sequential 5 5
+val x : Mat.mat =
+  
+   C0 C1 C2 C3 C4 
+R0  0  1  2  3  4 
+R1  5  6  7  8  9 
+R2 10 11 12 13 14 
+R3 15 16 17 18 19 
+R4 20 21 22 23 24 
 
 ```
 
-How to implement `reverse` using slicing?
+The first function `flip` a matrix upside down, i.e. flip vertically.
 
 ```ocaml env=slicing_env2
+# let flip x = Mat.get_slice [ [-1; 0]; [ ] ] x in
+  flip x
+- : Mat.mat =
 
-  let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x;;
+   C0 C1 C2 C3 C4 
+R0 20 21 22 23 24 
+R1 15 16 17 18 19 
+R2 10 11 12 13 14 
+R3  5  6  7  8  9 
+R4  0  1  2  3  4 
 
 ```
 
-How to rotate a matrix 90 degrees in clockwise direction?
+The second `reverse` function treats a matrix as one-dimensional vector and rerverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.
 
 ```ocaml env=slicing_env2
+# let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
+  reverse x
+- : Mat.mat =
 
-  let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]);;
+   C0 C1 C2 C3 C4 
+R0 24 23 22 21 20 
+R1 19 18 17 16 15 
+R2 14 13 12 11 10 
+R3  9  8  7  6  5 
+R4  4  3  2  1  0 
 
 ```
 
-How to perform right circular shift along columns of a matrix?
+The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very consicise code.
 
 ```ocaml env=slicing_env2
+# let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]) in
+  rotate90 x
+- : Mat.mat =
 
-  let cshift x n =
+   C0 C1 C2 C3 C4 
+R0 20 15 10  5  0 
+R1 21 16 11  6  1 
+R2 22 17 12  7  2 
+R3 23 18 13  8  3 
+R4 24 19 14  9  4 
+
+```
+
+The last function `cshift` performs right circular shift along the columns of a matrix.
+
+```ocaml env=slicing_env2
+let cshift x n =
   let c = Mat.col_num x in
   let h = Utils.Array.(range (c - n) (c - 1)) |> Array.to_list in
   let t = Utils.Array.(range 0 (c - n -1)) |> Array.to_list in
   Mat.get_fancy [ R []; L (h @ t) ] x
+```
+
+Applying to the previous `x`, the outcome should look like this.
+
+```ocaml env=slicing_env2
+# cshift x 2
+- : Mat.mat =
+
+   C0 C1 C2 C3 C4 
+R0  3  4  0  1  2 
+R1  8  9  5  6  7 
+R2 13 14 10 11 12 
+R3 18 19 15 16 17 
+R4 23 24 20 21 22 
 
 ```
 
