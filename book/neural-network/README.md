@@ -1,17 +1,19 @@
 # Neural Networks
 
-**NOTE: many places need fixes, not finished yet.**
+Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
 
-I will cover the neural network module in this chapter. My original purpose of introducing neural network module into Owl is two-fold:
+In the end, I became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
 
-* Test the expressiveness of Owl. Neural network is a useful and complex tool for building modern analytical applications so I chose it.
+The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow's performance on CPU (by the time we measured in 2018).
 
-* To validate my research argument on how to structure modern (distributed) analytical libraries. Namely, the high-level analytical functionality (ML, DNN, optimisation, regression, and etc.) should be "glued" to the classic numerical functions via algorithmic differentiation, and the computation should be distributed via a specialised engine providing several well-defined distribution abstractions.
-
-In the end, I only used less than 3k lines of code to implement a quite full-featured neural network module. Now let's go through what `Neural` module offers.
+In this chapter, I will cover the functionality in `Neural` module with various examples.
 
 
 ## A Naive Example
+
+To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual `Neural` module, let's build a small neural network from scratch. Don't get scared, the whole application is around 60 LOC.
+
+We will build a neural network to recognise hand-written digits. The data we will use is from [MNIST dataset](http://yann.lecun.com/exdb/mnist/). You can use `Owl.Dataset.download_all()` to download the dataset. The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight `w`, bias `b`, and activation function `a`. A network is just a collection of layers.
 
 ```ocaml env=neural_01
 open Algodiff.S
@@ -25,6 +27,11 @@ type layer = {
 type network = { layers : layer array }
 ```
 
+Despite of the complicated internal structure, we can treat a neural network as a function, which is fed with input data and outputs predictions. The question is how to evaluate a network. Evaluating a network can be decomposed as a sequence of evaluation of layers. Each linear layer performs the following calculation where $a$ is a non-linear activation function.
+
+$$ y = a(x \times w + b) $$
+
+The output of one layer will feed into the next layer as its input, moving forward until it reaches the end. The following two lines shows how to evaluate a neural network in *forward mode*.
 
 ```ocaml env=neural_01
 let run_layer x l = Maths.((x *@ l.w) + l.b) |> l.a
@@ -32,6 +39,7 @@ let run_layer x l = Maths.((x *@ l.w) + l.b) |> l.a
 let run_network x nn = Array.fold_left run_layer x nn.layers
 ```
 
+In this small example, we will only use two layer, `l0` and `l1`. `l0` uses a `784 x 300` matrix as weight, and `tanh` as activation function. `l1` is the output layer and `softmax` is the cost function.
 
 ```ocaml env=neural_01
 let l0 = {
@@ -49,6 +57,7 @@ let l1 = {
 let nn = {layers = [|l0; l1|]}
 ```
 
+Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is backpropagation algorithm. 
 
 ```ocaml env=neural_01
 let backprop nn eta x y =
@@ -66,6 +75,7 @@ let backprop nn eta x y =
   loss |> unpack_flt
 ```
 
+The `test` function performs model inferece and compares the predictions with the labelled data. By so doing, we can evaluate the accuracy of a neural network.
 
 ```ocaml env=neural_01
 let test nn x y =
@@ -77,6 +87,7 @@ let test nn x y =
   ) (unpack_arr x) (unpack_arr y)
 ```
 
+The following code starts the training.
 
 ```ocaml env=neural_01
 let _ =
@@ -90,6 +101,8 @@ let _ =
   let x, y = Dataset.draw_samples x y 10 in
   test nn (Arr x) (Arr y)
 ```
+
+The `Neural` module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.
 
 
 ## Module Structure
