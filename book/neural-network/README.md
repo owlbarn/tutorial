@@ -57,7 +57,7 @@ let l1 = {
 let nn = {layers = [|l0; l1|]}
 ```
 
-Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is backpropagation algorithm. 
+Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a netowrk back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters `>>` output parameters.
 
 ```ocaml env=neural_01
 let backprop nn eta x y =
@@ -87,12 +87,12 @@ let test nn x y =
   ) (unpack_arr x) (unpack_arr y)
 ```
 
-The following code starts the training.
+Finally, the following code starts the training for 999 iterations.
 
 ```ocaml env=neural_01
-let _ =
+let main () =
   let x, _, y = Dataset.load_mnist_train_data () in
-  for i = 1 to 9 do
+  for i = 1 to 999 do
     let x', y' = Dataset.draw_samples x y 100 in
     backprop nn (F 0.01) (Arr x') (Arr y')
     |> Owl_log.info "#%03i : loss = %g" i
@@ -100,6 +100,51 @@ let _ =
   let x, y, _ = Dataset.load_mnist_test_data () in
   let x, y = Dataset.draw_samples x y 10 in
   test nn (Arr x) (Arr y)
+```
+
+When the training starts, our application keeps printing the value of loss function in the end of each iteration. From the output, we can see the value of loss function keeps decreasing quickly after training starts.
+
+```text
+2019-11-12 01:04:14.632 INFO : #001 : loss = 2.54432
+2019-11-12 01:04:14.645 INFO : #002 : loss = 2.48446
+2019-11-12 01:04:14.684 INFO : #003 : loss = 2.33889
+2019-11-12 01:04:14.696 INFO : #004 : loss = 2.28728
+2019-11-12 01:04:14.709 INFO : #005 : loss = 2.23134
+2019-11-12 01:04:14.720 INFO : #006 : loss = 2.21974
+2019-11-12 01:04:14.730 INFO : #007 : loss = 2.0249
+2019-11-12 01:04:14.740 INFO : #008 : loss = 1.96638
+2019-11-12 01:04:14.750 INFO : #009 : loss = 1.92944
+2019-11-12 01:04:14.762 INFO : #010 : loss = 1.98345
+```
+
+After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with $90.14%$ chance it is a number 3. Quite accurate!
+
+```text
+.         ■■■■■■■■          
+       ■■■■■■■■■■■■         
+      ■■■■■■■■■■■■■         
+      ■■■■■■■   ■■■■        
+     ■■■■■      ■■■■        
+     ■■■       ■■■■         
+      ■        ■■■■         
+              ■■■■■         
+              ■■■■          
+             ■■■■■■         
+            ■■■■■■■■■       
+            ■■■■■■■■■■      
+             ■■   ■■■■      
+                   ■■■■     
+       ■■          ■■■■     
+      ■■■■        ■■■■      
+      ■■■■■■■■■ ■■■■■■      
+       ■■■■■■■■■■■■■■       
+        ■■■■■■■■■■■■■       
+          ■■■■■■■■■         
+                            
+                            
+            C0         C1        C2       C3          C4         C5          C6          C7        C8          C9 
+R0 0.000966323 0.00105846 0.0896708 0.901432 9.47633E-05 0.00180942 0.000149858 0.000355436 0.0044106 5.26442E-05 
+prediction: 3
 ```
 
 The `Neural` module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.
