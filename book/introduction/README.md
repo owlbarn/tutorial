@@ -292,3 +292,27 @@ Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 
 
 Even though the extra call to `display_file` is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.
+
+
+### Using Owl-Jupyter
+
+
+```txt
+
+# #use "topfind"
+# #require "owl-jupyter"
+# open Owl_jupyter
+
+# let f x = Maths.sin x /. x in
+  let h = Plot.create "plot_01.png" in
+  Plot.set_title h "Function: f(x) = sine x / x";
+  Plot.set_xlabel h "x-axis";
+  Plot.set_ylabel h "y-axis";
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.plot_fun ~h f 1. 15.;
+  Plot.output h
+- : unit = ()
+```
+
+<img src="images/introduction/plot_01.png" alt="plot_01" title="Jupyter example 01" width="700px" />
