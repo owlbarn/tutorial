@@ -296,6 +296,7 @@ Even though the extra call to `display_file` is not ideal, it is obvious that th
 
 ### Using Owl-Jupyter
 
+For the time being, if you want to save that extra line to display a image in Jupyter. There is a convenient module called `owl-jupyter`. Owl-jupyter module overloads the original `Plot.output` function so that a plotted figure can be directly shown on the page.
 
 ```txt
 
@@ -316,3 +317,5 @@ Even though the extra call to `display_file` is not ideal, it is obvious that th
 ```
 
 <img src="images/introduction/plot_01.png" alt="plot_01" title="Jupyter example 01" width="700px" />
+
+From the example above, you can see Owl users' experience can be significantly improved.
