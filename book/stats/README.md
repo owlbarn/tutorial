@@ -7,7 +7,7 @@
 ## Distributions
 
 
-## Hypothesis Test
+## Hypothesis Tests
 
 
 TBD
