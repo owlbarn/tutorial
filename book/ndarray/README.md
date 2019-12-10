@@ -529,7 +529,7 @@ Serialisation and deserialisation are simply done with `save` and `load` two fun
 
 ```text
 
-  val save : ('a, 'b) t -> string -> unit
+  val save : out:string -> ('a, 'b) t -> unit
 
   val load : ('a, 'b) kind -> string -> ('a, 'b) t
 
@@ -539,7 +539,7 @@ Note that you need to pass in type information in `load` function otherwise Owl 
 
 ```ocaml
 # let x = Mat.uniform 8 8 in
-  Mat.save x "data.mat";
+  Mat.save "data.mat" x;
   let y = Mat.load "data.mat" in
   Mat.(x = y)
 - : bool = true

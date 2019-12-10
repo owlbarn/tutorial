@@ -401,7 +401,7 @@ All matrices can be serialised to storage by using `save`. Later, you can load a
 
 ```ocaml env=matrix_env1
 
-  Mat.save x "m0.mat";;    (* save x to m0.mat file *)
+  Mat.save "m0.mat" x;;    (* save x to m0.mat file *)
   Mat.load "m0.mat";;      (* load m0.mat back to the memory *)
 
 ```
