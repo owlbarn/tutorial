@@ -3,4 +3,16 @@
 
 ## Introduction
 
+
+## Vocabulary
+
+
+## Vector Space Models
+
+
+## Indexing and Searching
+
+
+## Conclusion
+
 TBD
