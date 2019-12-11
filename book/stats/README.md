@@ -44,6 +44,10 @@ The following code calculates different central moments of `data`. A central mom
 
 ## Correlations
 
+Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation. 
+
+`x` is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both `y` and `z` are response variables with a linear relation to `x`. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.
+
 ```ocaml env=stats_01
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
@@ -51,7 +55,7 @@ let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
 let z = Array.map (fun a -> 2.5 *. a +. noise 8.) x;;
 ```
 
-Plot the figure ...
+It is easier to see the relation between two variables from a figure. Herein we use Owl's Plplot module to make two scatter plots.
 
 ```ocaml env=stats_01
 (* convert arrays to matrices *)
@@ -71,18 +75,18 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 
   Plot.subplot h 0 1;
   Plot.set_xlabel h "x";
-  Plot.set_ylabel h "z (sigma = 2)";
+  Plot.set_ylabel h "z (sigma = 8)";
   Plot.scatter ~h x' z';
 
   Plot.output h;;
 ```
 
-The figure is as below ...
+The subfigure 1 shows the functional relation between `x` and `y` whilst the subfiture 2 shows the relation between `x` and `z`. Because we have added higher-level noise to `z`, the points in the second figure are more diffused.
 
 <img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
 
 
-Now let us have a look at the correlation between `x` and `y`, as well as the correlation between `x` and `z`.
+Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.
 
 ```ocaml env=stats_01
 # Stats.corrcoef x y
@@ -90,7 +94,6 @@ Now let us have a look at the correlation between `x` and `y`, as well as the co
 # Stats.corrcoef x z
 - : float = 0.757942970751708911
 ```
-
 
 ...
 
