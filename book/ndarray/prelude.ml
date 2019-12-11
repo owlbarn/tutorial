@@ -1,6 +1,5 @@
-#require "core,core.top,ppx_jane,owl-top";;
+#require "owl-top";;
 
-open Core
 open Owl
 open Bigarray
 

@@ -1,6 +1,5 @@
-#require "core,core.top,ppx_jane,owl-top,owl-plplot";;
+#require "owl-top";;
 
-open Core
 open Owl
 open Owl.Utils
 open Bigarray

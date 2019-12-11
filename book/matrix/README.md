@@ -158,7 +158,7 @@ For dense matrices, i.e., `Dense.Matrix.*`, you can also use shorthand `.%{[|i,j
 # x.%{[|1;2|]} <- 0.;;         (* set the element at (1,2) to 0. *)
 - : unit = ()
 # let a = x.%{[|0;3|]};;       (* get the value of the element at (0,3) *)
-val a : float = 0.18128702812828124
+val a : float = 0.181287028128281236
 ```
 
 
