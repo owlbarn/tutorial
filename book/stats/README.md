@@ -55,11 +55,13 @@ Plot the figure ...
 
 ```ocaml env=stats_01
 (* convert arrays to matrices *)
+
 let x' = Mat.of_array x 1 50;;
 let y' = Mat.of_array y 1 50;;
 let z' = Mat.of_array z 1 50;;
 
 (* plot the figures *)
+
 let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 
   Plot.subplot h 0 0;
