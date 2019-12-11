@@ -45,9 +45,40 @@ The following code calculates different central moments of `data`. A central mom
 ## Correlations
 
 ```ocaml env=stats_01
+let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
-let y = Array.map (fun a -> 2.5 *. a) x;; 
+let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
+let z = Array.map (fun a -> 2.5 *. a +. noise 2.) x;;
 ```
+
+Plot the figure ...
+
+```ocaml env=stats_01
+let x' = Mat.of_array x 1 50;;
+let y' = Mat.of_array y 1 50;;
+let z' = Mat.of_array z 1 50;;
+
+let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
+
+  Plot.subplot h 0 0;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "y (sigma = 1)";
+  Plot.scatter ~h x' y';
+
+  Plot.subplot h 0 1;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "z (sigma = 2)";
+  Plot.scatter ~h x' z';
+
+  Plot.output h;;
+```
+
+The figure is as below ...
+
+<img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
+
+
+...
 
 
 ## Distributions
