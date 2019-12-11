@@ -48,7 +48,7 @@ The following code calculates different central moments of `data`. A central mom
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
 let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
-let z = Array.map (fun a -> 2.5 *. a +. noise 2.) x;;
+let z = Array.map (fun a -> 2.5 *. a +. noise 8.) x;;
 ```
 
 Plot the figure ...
@@ -76,6 +76,16 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 The figure is as below ...
 
 <img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
+
+
+Now let us have a look at the correlation between `x` and `y`, as well as the correlation between `x` and `z`.
+
+```ocaml env=stats_01
+# Stats.corrcoef x y
+- : float = 0.987944913889222565
+# Stats.corrcoef x z
+- : float = 0.757942970751708911
+```
 
 
 ...
