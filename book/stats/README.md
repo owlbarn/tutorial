@@ -104,14 +104,13 @@ Stats module supports many distributions. For each distribution, there is a set 
 
 * `gaussian_rvs` : random number generator.
 * `gaussian_pdf` : probability density function.
-* `gaussian_logpdf` : logarithmic probability density function.
 * `gaussian_cdf` : cumulative distribution function.
-* `gaussian_logcdf` : logarithmic cumulative distribution function.
 * `gaussian_ppf` : percent point function (inverse of CDF).
 * `gaussian_sf` : survival function (1 - CDF).
-* `gaussian_logsf` : logarithmic survival function.
 * `gaussian_isf` : inverse survival function (inverse of SF).
-
+* `gaussian_logpdf` : logarithmic probability density function.
+* `gaussian_logcdf` : logarithmic cumulative distribution function.
+* `gaussian_logsf` : logarithmic survival function.
 
 
 ```ocaml env=stats_02
