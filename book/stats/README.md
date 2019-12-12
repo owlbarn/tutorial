@@ -112,12 +112,15 @@ Stats module supports many distributions. For each distribution, there is a set 
 * `gaussian_logcdf` : logarithmic cumulative distribution function.
 * `gaussian_logsf` : logarithmic survival function.
 
+We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution $\mathcal{N} (\mu, \sigma^{2})$. For the first one, the configuration is $(\mu = 1, \sigma = 1)$; whilst for the second one, the configuration is $(\mu = 12, \sigma = 3)$.
 
 ```ocaml env=stats_02
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:1. ~sigma:1.);;
 let y = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:12. ~sigma:3.);;
 ```
+
+We can visualise the data sets using histogram plot as below. When calling `histogram`, we also specify 30 bins explicitly. You can also fine tune the figure using `spec` named parameter to specify the colour, x range, y range, and etc. We will discuss in details on how to use Owl to plot in a separate chapter.
 
 ```ocaml env=stats_02
 (* convert arrays to matrices *)
@@ -142,7 +145,11 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
   Plot.output h;;
 ```
 
+In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.
+
 <img src="images/stats/plot_02.png" alt="plot 02" title="Plot 02" width="700px" />
+
+As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
 
 
 ## Hypothesis Tests
