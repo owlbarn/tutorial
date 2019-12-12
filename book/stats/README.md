@@ -100,6 +100,51 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 
 ## Distributions
 
+Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. Here we use Gaussian distribution as an exmaple to illustrate the naming convention.
+
+* `gaussian_rvs` : random number generator.
+* `gaussian_pdf` : probability density function.
+* `gaussian_logpdf` : logarithmic probability density function.
+* `gaussian_cdf` : cumulative distribution function.
+* `gaussian_logcdf` : logarithmic cumulative distribution function.
+* `gaussian_ppf` : percent point function (inverse of CDF).
+* `gaussian_sf` : survival function (1 - CDF).
+* `gaussian_logsf` : logarithmic survival function.
+* `gaussian_isf` : inverse survival function (inverse of SF).
+
+
+
+```ocaml env=stats_02
+let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
+let x = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:1. ~sigma:1.);;
+let y = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:12. ~sigma:3.);;
+```
+
+```ocaml env=stats_02
+(* convert arrays to matrices *)
+
+let x' = Mat.of_array x 1 999;;
+let y' = Mat.of_array y 1 999;;
+
+(* plot the figures *)
+
+let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
+
+  Plot.subplot h 0 0;
+  Plot.set_ylabel h "frequency";
+  Plot.histogram ~bin:30 ~h x';
+  Plot.histogram ~bin:30 ~h y';
+
+  Plot.subplot h 0 1;
+  Plot.set_ylabel h "PDF p(x)";
+  Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:1. ~sigma:1. x) (-2.) 6.;
+  Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:12. ~sigma:3. x) 0. 25.;
+
+  Plot.output h;;
+```
+
+<img src="images/stats/plot_02.png" alt="plot 02" title="Plot 02" width="700px" />
+
 
 ## Hypothesis Tests
 
