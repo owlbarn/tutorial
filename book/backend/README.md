@@ -32,9 +32,7 @@ The first step is writing down our application in OCaml as follows, then save it
 
   (* Javascript example: use Owl_base to minimise sin *)
 
-  module M = Owl_algodiff_generic.Make (Owl_base_dense_ndarray.D)
- 
-  open M
+  open Algodiff.D
 
   let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
     let g = (diff f) x in
