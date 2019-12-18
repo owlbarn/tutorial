@@ -1,0 +1,139 @@
+<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="statistical-functions">
+<h1>Statistical Functions</h1>
+<p>Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.</p>
+<section class="level2" id="descriptive-statistics">
+<h2>Descriptive Statistics</h2>
+<p>Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.</p>
+<p>We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let data = Array.init 100 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;</code></pre>
+</div>
+<p>Then We use <code>mean</code> function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.mean data;;
+&gt;- : float = 5.39282409364656168
+Stats.std data;;
+&gt;- : float = 2.82512008501752376
+Stats.var data;;
+&gt;- : float = 7.98130349476942147
+Stats.skew data;;
+&gt;- : float = -0.100186978462459622
+Stats.kurtosis data;;
+&gt;- : float = 1.90668234297861261
+</code></pre>
+</div>
+<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
+&gt;- : float = 1.
+Stats.central_moment 1 data;;
+&gt;- : float = 5.3290705182007512e-17
+Stats.central_moment 2 data;;
+&gt;- : float = 7.90149045982172549
+Stats.central_moment 3 data;;
+&gt;- : float = -2.25903009746890815
+</code></pre>
+</div>
+</section>
+<section class="level2" id="correlations">
+<h2>Correlations</h2>
+<p>Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation.</p>
+<p><code>x</code> is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both <code>y</code> and <code>z</code> are response variables with a linear relation to <code>x</code>. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
+let x = Array.init 50 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;
+let y = Array.map (fun a -&gt; 2.5 *. a +. noise 1.) x;;
+let z = Array.map (fun a -&gt; 2.5 *. a +. noise 8.) x;;</code></pre>
+</div>
+<p>It is easier to see the relation between two variables from a figure. Herein we use Owl's Plplot module to make two scatter plots.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* convert arrays to matrices *)
+
+let x' = Mat.of_array x 1 50;;
+let y' = Mat.of_array y 1 50;;
+let z' = Mat.of_array z 1 50;;
+
+(* plot the figures *)
+
+let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
+
+  Plot.subplot h 0 0;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "y (sigma = 1)";
+  Plot.scatter ~h x' y';
+
+  Plot.subplot h 0 1;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "z (sigma = 8)";
+  Plot.scatter ~h x' z';
+
+  Plot.output h;;</code></pre>
+</div>
+<p>The subfigure 1 shows the functional relation between <code>x</code> and <code>y</code> whilst the subfiture 2 shows the relation between <code>x</code> and <code>z</code>. Because we have added higher-level noise to <code>z</code>, the points in the second figure are more diffused.</p>
+<p><img width="700px" title="Plot 01" alt="plot 01" src="images/stats/plot_01.png"></p>
+<p>Intuitively, we can easily see there is stronger relation between <code>x</code> and <code>y</code> from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between <code>x</code> and <code>y</code>, as well as the correlation between <code>x</code> and <code>z</code>. As we see, the smaller correlation value indicates weaker linear relation between <code>x</code> and <code>z</code> comparing to that between <code>x</code> and <code>y</code>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.corrcoef x y;;
+&gt;- : float = 0.987944913889222565
+Stats.corrcoef x z;;
+&gt;- : float = 0.757942970751708911
+</code></pre>
+</div>
+<p>...</p>
+</section>
+<section class="level2" id="distributions">
+<h2>Distributions</h2>
+<p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. Here we use Gaussian distribution as an exmaple to illustrate the naming convention.</p>
+<ul>
+<li><code>gaussian_rvs</code> : random number generator.</li>
+<li><code>gaussian_pdf</code> : probability density function.</li>
+<li><code>gaussian_cdf</code> : cumulative distribution function.</li>
+<li><code>gaussian_ppf</code> : percent point function (inverse of CDF).</li>
+<li><code>gaussian_sf</code> : survival function (1 - CDF).</li>
+<li><code>gaussian_isf</code> : inverse survival function (inverse of SF).</li>
+<li><code>gaussian_logpdf</code> : logarithmic probability density function.</li>
+<li><code>gaussian_logcdf</code> : logarithmic cumulative distribution function.</li>
+<li><code>gaussian_logsf</code> : logarithmic survival function.</li>
+</ul>
+<p>We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution <span class="math inline">𝒩(<em>μ</em>, <em>σ</em><sup>2</sup>)</span>. For the first one, the configuration is <span class="math inline">(<em>μ</em> = 1, <em>σ</em> = 1)</span>; whilst for the second one, the configuration is <span class="math inline">(<em>μ</em> = 12, <em>σ</em> = 3)</span>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
+let x = Array.init 999 (fun _ -&gt; Stats.gaussian_rvs ~mu:1. ~sigma:1.);;
+let y = Array.init 999 (fun _ -&gt; Stats.gaussian_rvs ~mu:12. ~sigma:3.);;</code></pre>
+</div>
+<p>We can visualise the data sets using histogram plot as below. When calling <code>histogram</code>, we also specify 30 bins explicitly. You can also fine tune the figure using <code>spec</code> named parameter to specify the colour, x range, y range, and etc. We will discuss in details on how to use Owl to plot in a separate chapter.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* convert arrays to matrices *)
+
+let x' = Mat.of_array x 1 999;;
+let y' = Mat.of_array y 1 999;;
+
+(* plot the figures *)
+
+let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
+
+  Plot.subplot h 0 0;
+  Plot.set_ylabel h "frequency";
+  Plot.histogram ~bin:30 ~h x';
+  Plot.histogram ~bin:30 ~h y';
+
+  Plot.subplot h 0 1;
+  Plot.set_ylabel h "PDF p(x)";
+  Plot.plot_fun ~h (fun x -&gt; Stats.gaussian_pdf ~mu:1. ~sigma:1. x) (-2.) 6.;
+  Plot.plot_fun ~h (fun x -&gt; Stats.gaussian_pdf ~mu:12. ~sigma:3. x) 0. 25.;
+
+  Plot.output h;;</code></pre>
+</div>
+<p>In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.</p>
+<p><img width="700px" title="Plot 02" alt="plot 02" src="images/stats/plot_02.png"></p>
+<p>As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.</p>
+</section>
+<section class="level2" id="hypothesis-tests">
+<h2>Hypothesis Tests</h2>
+</section>
+<section class="level2" id="order-statistics">
+<h2>Order Statistics</h2>
+<p>TBD</p>
+</section>
+</section>
+</article></div><a href="ndarray.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 05</small>N-Dimensional Arrays</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>

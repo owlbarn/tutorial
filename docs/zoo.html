@@ -1,0 +1,134 @@
+<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="scripting-and-zoo-system">
+<h1>Scripting and Zoo System</h1>
+<p>In this chapter, I will introduce the Zoo system in Owl and how to use it to make "small functions", then distribute and share them with other users. Before we start, I want to briefly discuss the motivation of the Zoo system.</p>
+<p>It is known that we can use OCaml as a scripting language as Python (at certain performance cost because the code is compiled into bytecode). Even though compiling into native code for production use is recommended, scripting is still useful and convenient, especially for light deployment and fast prototyping. In fact, the performance penalty in most Owl scripts is almost unnoticeable because the heaviest numerical computation part is still offloaded to Owl which runs native code.</p>
+<p>While designing Owl, my goal is always to make the whole ecosystem open, flexible, and extensible. Programmers can make their own "small" scripts and share them with others conveniently, so they do not have to wait for such functions to be implemented in Owl's master branch or submit something "heavy" to OPAM.</p>
+<section class="level2" id="typical-scenario">
+<h2>Typical Scenario</h2>
+<p>To illustrate how to use Zoo, let's start with a synthetic scenario. The scenario is very simple: Alice is a data analyst and uses Owl in her daily job. One day, she realised that the functions she needed had not been implemented yet in Owl. Therefore, she spent an hour in her computer and implemented these functions by herself. She thought these functions might be useful to others, e.g., her colleague Bob, she decided to share these functions using Zoo System.</p>
+<p>Now let me see how Alice manages to do so in the following, step by step.</p>
+</section>
+<section class="level2" id="create-a-script">
+<h2>Create a Script</h2>
+<p>First, Alice needs to create a folder (e.g., <code>myscript</code> folder) for her shared script. OK, what to put in the folder then?</p>
+<p>She needs at least two files in this folder. The first one is of course the file (i.e., <code>coolmodule.ml</code>) implementing the function as below. The function <code>sqr_magic</code> returns the square of a magic matrix, it is quite useless in reality but serves as an example here.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  #!/usr/bin/env owl
+
+  open Owl
+
+  let sqr_magic n = Mat.(magic n |&gt; sqr)
+</code></pre>
+</div>
+<p>The second file she needs is a <code>#readme.md</code> which provides a brief description of the shared script. Note that the first line of the <code>#readme.md</code> will be used as a short description for the shared scripts. This short description will be displayed when you use <code>owl -list</code> command to list all the available Zoo code snippets on your computer.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  Square of Magic Matrix
+
+  `Coolmodule` implements a function to generate the square of magic matrices.</code></pre>
+</div>
+</section>
+<section class="level2" id="share-via-gist">
+<h2>Share via Gist</h2>
+<p>Second, Alice needs to distribute the files in <code>myscript</code> folder. But how?</p>
+<p>The distribution is done via <a href="https://gist.github.com/">gist.github.com</a>, so you must have <code>gist</code> installed on your computer. E.g., if you use Mac, you can install <code>gist</code> with <code>brew install gist</code>. Owl provides a simple command line tool to upload the Zoo code snippets. Note that you need to log into your Github account for <code>gist</code> and <code>git</code>.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  owl -upload myscript
+</code></pre>
+</div>
+<p>The <code>owl -upload</code> command simply uploads all the files in <code>myscript</code> as a bundle to your <a href="https://gist.github.com/">gist.github.com</a> page. The command also prints out the url after a successful upload. In our case, you can check the updated bundle on <a href="https://gist.github.com/9f0892ab2b96f81baacd7322d73a4b08">this page</a>.</p>
+</section>
+<section class="level2" id="import-in-another-script">
+<h2>Import in Another Script</h2>
+<p>The bundle Alice uploaded before is assigned a unique <code>id</code>, i.e. <code>9f0892ab2b96f81baacd7322d73a4b08</code>. In order to use the <code>sqr_magic</code> function, Bob only needs to use <code>#zoo</code> directive in his script e.g. <code>bob.ml</code> in order to import the function.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  #!/usr/bin/env owl
+  #zoo "9f0892ab2b96f81baacd7322d73a4b08"
+
+  let _ = Coolmodule.sqr_magic 4 |&gt; Owl.Mat.print
+</code></pre>
+</div>
+<p>Bob's script is very simple, but there are a couple of things worth pointing out:</p>
+<ul>
+<li><p>Zoo system will automatically download the bundle of a given id if it is not cached locally;</p></li>
+<li><p>All the <code>ml</code> files in the bundle will be imported as modules, so you need to use <code>Coolmodule.sqr_magic</code> to access the function.</p></li>
+<li><p>You may also want to use <code>chmod +x bob.ml</code> to make the script executable. This is obvious if you are a heavy terminal user.</p></li>
+</ul>
+<p>Note that to use <code>#zoo</code> directive in <code>utop</code> you need to manually load the <code>owl-zoo</code> library with <code>#require "owl-zoo";;</code>. Alternatively, you can also load <code>owl-top</code> using <code>#require "owl-top";;</code> which is an OCaml toplevel wrapper of Owl.</p>
+<p>If you want to make <code>utop</code> load the library automatically by adding this line to <code>~/.ocamlinit</code>.</p>
+</section>
+<section class="level2" id="choose-a-version-of-script">
+<h2>Choose a Version of Script</h2>
+<p>Alice has modified and uploaded her scripts several times. Each version of her code is assigned a unique <code>version id</code>. Different versions of code may work differently, so how could Bob specify which version to use? Good news is that, he barely needs to change his code.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  #!/usr/bin/env owl
+  #zoo "9f0892ab2b96f81baacd7322d73a4b08?vid=71261b317cd730a4dbfb0ffeded02b10fcaa5948"
+
+  let _ = Coolmodule.sqr_magic 4 |&gt; Owl.Mat.print
+</code></pre>
+</div>
+<p>The only thing he needs to add is a version id using the parameter <code>vid</code>. The naming scheme of Zoo is designed to be similar with the field-value pair in a RESTful query. Version id can be obtained from a gist's <a href="https://gist.github.com/9f0892ab2b96f81baacd7322d73a4b08/revisions">revisions page</a>.</p>
+<p>Besides specifying a version, it is also quite possible that Bob prefers to use the newest version Alice provides, whatever its id may be. The problem here is that, how often does Bob need to contact the Gist server to retreat the version information? Every time he runs his code? Well, that may not be a good idea in many cases considering the communication overhead and response time. Zoo caches gists locally and tends to use the cached code and data rather than downloading them all the time.</p>
+<p>To solve this problem, Zoo provides another parameter in the naming scheme: <code>tol</code>. It is the threshold of a gist's <em>tolerance</em> of the time it exists on the local cache. Any gist that exists on a user's local cache for longer than <code>tol</code> seconds is deemed outdated and thus requires updating the latest <code>vid</code> information from the Gist server before being used. For example:</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  #!/usr/bin/env owl
+  #zoo "9f0892ab2b96f81baacd7322d73a4b08?tol=300"
+
+  let _ = Coolmodule.sqr_magic 4 |&gt; Owl.Mat.print
+</code></pre>
+</div>
+<p>By setting the <code>tol</code> parameter to 300, Bob indicates that, if Zoo has already fetched the version information of this gist from remote server within the past 300 seconds, then keep using its local cache; otherwise contact the Gist server to check if a newer version is pushed. If so, the newest version is downloaded to local cache before being used. In the case where Bob don't want to miss every single update of Alice's gist code, he can simply set <code>tol</code> to 0, which means fetching the version information every time he executes his code.</p>
+<p><code>vid</code> and <code>tol</code> parameters enable users to have fine-grained version control of Zoo gists. Of course, these two parameters should not be used together. When <code>vid</code> is set in a name, the <code>tol</code> parameter will be ignored. If both are not set, as shown in the previous code snippet, Zoo will use the latest locally cached version if it exists.</p>
+</section>
+<section class="level2" id="command-line-tool">
+<h2>Command Line Tool</h2>
+<p>That's all. Zoo system is not complicated at all. There will be more features to be added in future. For the time being, you can check all the available options by executing <code>owl</code>.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  $ owl
+  Owl's Zoo System
+
+  Usage:
+    owl [utop options] [script-file]  execute an Owl script
+    owl -upload [gist-directory]      upload code snippet to gist
+    owl -download [gist-id] [ver-id]  download code snippet from gist; download the latest version if ver-id not specified
+    owl -remove [gist-id]             remove a cached gist
+    owl -update [gist-ids]            update (all if not specified) gists
+    owl -run [gist-id]                run a self-contained gist
+    owl -info [gist-ids]              show the basic information of a gist
+    owl -list [gist-id]               list all cached versions of a gist; list all the cached gists if gist-id not specified
+    owl -help                         print out help information
+</code></pre>
+</div>
+<p>Note that both <code>run</code> and <code>info</code> commands accept a full gist name that can contain extra parameters, instead of only a gist id.</p>
+</section>
+<section class="level2" id="examples">
+<h2>Examples</h2>
+<p>Despite of its simplicity, Zoo is a very flexible and powerful tool and we have been using it heavily in our daily work. We often use Zoo to share the prototype code and small shared modules which we do not want to bother OPAM, such those used in performance tests.</p>
+<p>Moreover, many interesting examples are also built atop of Zoo system.</p>
+<ul>
+<li><p><a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">Google Inception V3 for Image Classification</a></p></li>
+<li><p><a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">Neural Style Transfer</a></p></li>
+<li><p><a href="https://gist.github.com/jzstark/f937ce439c8adcaea23d42753f487299">Fast Neural Style Transfer</a></p></li>
+</ul>
+<p>For example, you can use Zoo to perform DNN-based image classification in only 6 lines of code:</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  #!/usr/bin/env owl
+  #zoo "9428a62a31dbea75511882ab8218076f"
+
+  let _ =
+    let image  = "/path/to/your/image.png" in
+    let labels = InceptionV3.infer image in
+    InceptionV3.to_json ~top:5 labels
+</code></pre>
+</div>
+<p>Please refer to the gist pages listed above and the <a href="http://demo.ocaml.xyz/zoo.html">zoo demo website</a> for more information.</p>
+</section>
+</section>
+</article></div><a href="backend.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 25</small>Compiler Backends</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>

@@ -1,0 +1,261 @@
+<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="introduction">
+<h1>Introduction</h1>
+<section class="level2" id="installation">
+<h2>Installation</h2>
+<p>Owl requires OCaml version <code>&gt;=4.06.0</code>. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to <a href="https://ocaml.org/docs/install.html">Install OCaml</a>.</p>
+<p>Owl's installation is rather trival. There are four possible ways as shown below, from the most straightforward one to the least one.</p>
+<section class="level3" id="option-1-install-from-opam">
+<h3>Option 1: Install from OPAM</h3>
+<p>Thanks to the folks in <a href="http://ocamllabs.io/">OCaml Labs</a>, OPAM makes package management in OCaml much easier than before. You can simply type the following the command lines to install.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  opam install owl
+</code></pre>
+</div>
+<p>There is a known issue when installing Owl on <code>ubuntu</code>-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile <code>openblas</code> by hand, and use the appropriate environment variables to point at your newly compiled library. You can use `<a href="https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu">owl's docker file</a> as a reference for this issue.</p>
+<p>This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. I usually make a new release whenever there are enough changes accumulated or a significnat feature implemented. If you want to try the newest development features, I recommend the other ways to install Owl, as below.</p>
+</section>
+<section class="level3" id="option-2-pull-from-docker-hub">
+<h3>Option 2: Pull from Docker Hub</h3>
+<p><a href="https://hub.docker.com/r/owlbarn/owl/">Owl's docker images</a> are synchronised with the master branch. The image is always automatically built whenever there are new commits. You can check the building history on <a href="https://hub.docker.com/r/owlbarn/owl/builds">Docker Hub</a>.</p>
+<p>You only need to pull the image then start a container.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  docker pull owlbarn/owl
+  docker run -t -i owlbarn/owl
+</code></pre>
+</div>
+<p>Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - <code>utop</code>. You can start <code>utop</code> in the container and try out some examples. The source code of Owl is stored in <code>/root/owl</code> directory. You can modify the source code and rebuild the system directly in the started container.</p>
+<p>There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g. <code>docker pull owlbarn/owl:alpine</code>.</p>
+</section>
+<section class="level3" id="option-3-pin-the-dev-repo">
+<h3>Option 3: Pin the Dev-Repo</h3>
+<p><code>opam pin</code> allows you to pin the local code to Owl's development repository on Github. The first command <code>opam depext</code> installs all the dependencies Owl needs.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  opam depext owl
+  opam pin add owl --dev-repo
+</code></pre>
+</div>
+</section>
+<section class="level3" id="option-4-compile-from-source">
+<h3>Option 4: Compile from Source</h3>
+<p>This is an old-schooled but my favourite option. First, you need to clone the repository.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  git clone git@github.com:owlbarn/owl.git
+</code></pre>
+</div>
+<p>Second, you need to figure out the missing dependencies and install them.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  dune external-lib-deps --missing @install @runtest
+</code></pre>
+</div>
+<p>Last, this is perhaps the most classic step.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  make &amp;&amp; make install
+</code></pre>
+</div>
+<p>If your OPAM is older than <code>V2 beta4</code>, you need one extra steps. This is due to a bug in OPAM which copies the compiled library into <code>/.opam/4.06.0/lib/stubslibs</code> rather than <code>/.opam/4.06.0/lib/stublibs</code>. If you don't want to upgrade OPAM, then you need to manually move <code>dllowl_stubs.so</code> file from <code>stubslib</code> to <code>stublib</code> folder, then everything should work. However, if you have the most recent OPAM installed, this will not be your concern.</p>
+</section>
+<section class="level3" id="cblaslapacke-dependency">
+<h3>CBLAS/LAPACKE Dependency</h3>
+<p>The most important dependency is <a href="https://github.com/xianyi/OpenBLAS">OpenBLAS</a>. Linking to the correct OpenBLAS is the key to achieve the best performance. Depending on the specific platform, you can use <code>yum</code>, <code>apt-get</code>, <code>brew</code> to install the binary format. For example on my Mac OSX, the installation looks like this:</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  brew install homebrew/science/openblas
+</code></pre>
+</div>
+<p>However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdate binary distribution offerd by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code.</p>
+<p>OpenBLAS already contains an implementation of LAPACKE, as long as you have a Fortran complier installed on your computer, the LAPACKE will be compiled and included in the installation automatically.</p>
+</section>
+</section>
+<section class="level2" id="interacting-with-owl">
+<h2>Interacting with Owl</h2>
+<p>There are several ways to interact with Owl system. The classic one is to write an OCaml application, compile the code, link to Owl system, then run it natively on a computer. You can also skip the compilation and linking step, and use Zoo system to run the code as a script.</p>
+<p>However, the easiest way for a beginner to try out Owl is using REPL (Read–Eval–Print Loop), namely an interactive toplevel. The toplevel offers a convenient way to play with small code snippets. The code run in the toplevel is compiled into bytecode rather than native code. Bytecode often runs much slower than native code. However, this has very little impact on Owl's performance because all its performance-critical functions are implemented in C language.</p>
+<p>OCaml code can be compiled in either bytecode or native code. The bytecode is executed on OCaml virtual machine which is less performant then platform-optimised native code. Toplevel runs the user code in bytecode mode, but this has little impact on Owl's performance because its core functions are implemented in C language. It is hard to notice any performance degradation if you run Owl in a script.</p>
+<p>In the following, I will introduce two options to set up an interactive environment for Owl.</p>
+<section class="level3" id="using-toplevel">
+<h3>Using Toplevel</h3>
+<p>OCaml language has bundled with a simple toplevel, but I recommend <em>utop</em> as a more advance replacement. Installing <em>utop</em> is straightforward using OPAM, simply run the following command in the system shell.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  opam install utop
+</code></pre>
+</div>
+<p>After installation, you can load Owl in <em>utop</em> with the following commands. <code>owl-top</code> is Owl's toplevel library which will automatically load several related libraries (including <code>owl-zoo</code>, <code>owl-base</code>, and <code>owl</code> core library) to set up a complete numerical environment.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml"> #require "owl-top";;
+ open Owl;;
+</code></pre>
+</div>
+<p>If you do not want to type these commands every time you start <em>toplevel</em>, you can add them to <code>.ocamlinit</code> file. The toplevel reads <code>.ocamlinit</code> file to initialise the environment during the startup. This file is often stored in the home directory on your computer.</p>
+</section>
+<section class="level3" id="using-notebook">
+<h3>Using Notebook</h3>
+<p>Jupyter Notebook is a popular way to mix presentation with interactive code execution. It originates from Python world and is widely supported by various languages. One attractive feature of notebook is that it uses client/server architecture and runs in a browser.</p>
+<p>If you want to know how to use a notebook and its technical details, please read <a href="http://jupyter.org/documentation">Jupyter Documentation</a>. Here let me show you how to set up a notebook to run Owl step by step.</p>
+<p>Run the following commands in the shell will install all the dependency for you. This includes Jupyter Notebook and its <a href="https://github.com/akabe/ocaml-jupyter">OCaml language extension</a>.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  pip install jupyter
+  opam install jupyter
+  jupyter kernelspec install --name ocaml-jupyter "$(opam config var share)/jupyter"
+</code></pre>
+</div>
+<p>To start a Jupyter notebook, you can run this command. The command starts a local server running on <a class="uri" href="http://127.0.0.1:8888/">http://127.0.0.1:8888/</a>, then opens a tab in your browser as the client.</p>
+<div class="highlight">
+<pre><code class="language-shell">
+  jupyter notebook
+</code></pre>
+</div>
+<p>If you wish to run a notebook server remotely, please refer to <a href="http://jupyter-notebook.readthedocs.io/en/stable/public_server.html">"Running a notebook server"</a> for more information. To set up a server for multiple users, which is especially useful for educational purpose, please consult to <a href="https://jupyterhub.readthedocs.io/en/latest/">JupyterHub</a> system.</p>
+<p>When everything is up and running, you can start a new notebook in the web interface. In the new notebook, you must run the following OCaml code in the first input field to load Owl environment.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">#use "topfind";;
+#require "owl-top, jupyter.notebook";;
+</code></pre>
+</div>
+<p>At this point, a complete Owl environment is set up in the Jupyter Notebook, and you are free to go with any experiments you like.</p>
+<p>For example, you can simply copy &amp; paste the whole <a href="https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml">lazy_mnist.ml</a> to train a convolutional neural network in the notebook. But here, let us just use the following code.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">#use "topfind";;
+#require "owl-top, jupyter.notebook";;
+open Owl;;
+open Neural.S;;
+open Neural.S.Graph;;
+open Neural.S.Algodiff;;
+let make_network input_shape =
+  input input_shape
+  |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
+  |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+  |&gt; max_pool2d [|2;2|] [|2;2|]
+  |&gt; dropout 0.1
+  |&gt; fully_connected 1024 ~act_typ:Activation.Relu
+  |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+  |&gt; get_network
+;;
+&gt;val make_network : int array -&gt; network = &lt;fun&gt;
+</code></pre>
+</div>
+<p><code>make_network</code> defines the structure of a convolution neural network. By passing the shape of input data, Owl autmatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">make_network [|28;28;1|];;
+&gt;- : network =
+&gt;18839
+&gt;
+&gt;[ Node input_0 ]:
+&gt;    Input : in/out:[*,28,28,1]
+&gt;    prev:[] next:[lambda_1]
+&gt;
+&gt;[ Node lambda_1 ]:
+&gt;    Lambda       : in:[*,28,28,1] out:[*,28,28,1]
+&gt;    customised f : t -&gt; t
+&gt;    prev:[input_0] next:[conv2d_2]
+&gt;
+&gt;[ Node conv2d_2 ]:
+&gt;    Conv2D : tensor in:[*;28,28,1] out:[*,28,28,32]
+&gt;    init   : tanh
+&gt;    params : 832
+&gt;    kernel : 5 x 5 x 1 x 32
+&gt;    b      : 32
+&gt;    stride : [1; 1]
+&gt;    prev:[lambda_1] next:[activation_3]
+&gt;
+&gt;[ Node activation_3 ]:
+&gt;    Activation : relu in/out:[*,28,28,32]
+&gt;    prev:[conv2d_2] next:[maxpool2d_4]
+&gt;
+&gt;[ Node maxpool2d_4 ]:
+&gt;    MaxPool2D : tensor in:[*,28,28,32] out:[*,14,14,32]
+&gt;    padding   : SAME
+&gt;    kernel    : [2; 2]
+&gt;    stride    : [2; 2]
+&gt;    prev:[activation_3] next:[dropout_5]
+&gt;
+&gt;[ Node dropout_5 ]:
+&gt;    Dropout : in:[*,14,14,32] out:[*,14,14,32]
+&gt;    rate    : 0.1
+&gt;    prev:[maxpool2d_4] next:[fullyconnected_6]
+&gt;
+&gt;[ Node fullyconnected_6 ]:
+&gt;    FullyConnected : tensor in:[*,14,14,32] matrix out:(*,1024)
+&gt;    init           : standard
+&gt;    params         : 6423552
+&gt;    w              : 6272 x 1024
+&gt;    b              : 1 x 1024
+&gt;    prev:[dropout_5] next:[activation_7]
+&gt;
+&gt;[ Node activation_7 ]:
+&gt;    Activation : relu in/out:[*,1024]
+&gt;    prev:[fullyconnected_6] next:[linear_8]
+&gt;
+&gt;[ Node linear_8 ]:
+&gt;    Linear : matrix in:(*,1024) out:(*,10) 
+&gt;    init   : standard
+&gt;    params : 10250
+&gt;    w      : 1024 x 10
+&gt;    b      : 1 x 10
+&gt;    prev:[activation_7] next:[activation_9]
+&gt;
+&gt;[ Node activation_9 ]:
+&gt;    Activation : softmax 1 in/out:[*,10]
+&gt;    prev:[linear_8] next:[]
+&gt;
+</code></pre>
+</div>
+<p>The Second example demonstrates how to plot figures in notebook. Because Owl's Plot module does not support in-memory plotting, the figure needs to be written into a file first then passed to <code>Jupyter_notebook.display_file</code> to render.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">#use "topfind";;
+#require "owl-top, owl-plplot jupyter.notebook";;
+open Owl;;
+open Owl_plplot;;
+let f x = Maths.sin x /. x in
+let h = Plot.create "plot_00.png" in
+Plot.set_title h "Function: f(x) = sine x / x";
+Plot.set_xlabel h "x-axis";
+Plot.set_ylabel h "y-axis";
+Plot.set_font_size h 8.;
+Plot.set_pen_size h 3.;
+Plot.plot_fun ~h f 1. 15.;
+Plot.output h
+;;
+&gt;- : unit = ()
+</code></pre>
+</div>
+<p>To load the image into browser, we need to call <code>Jupyter_notebook.display_file</code> function. Then we can see the plot is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.</p>
+<div class="highlight">
+<pre><code class="language-text">Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"</code></pre>
+</div>
+<p><img width="500px" title="Jupyter example 00" alt="plot_00" src="images/introduction/plot_00.png"></p>
+<p>Even though the extra call to <code>display_file</code> is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.</p>
+</section>
+<section class="level3" id="using-owl-jupyter">
+<h3>Using Owl-Jupyter</h3>
+<p>For the time being, if you want to save that extra line to display a image in Jupyter. There is a convenient module called <code>owl-jupyter</code>. Owl-jupyter module overloads the original <code>Plot.output</code> function so that a plotted figure can be directly shown on the page.</p>
+<div class="highlight">
+<pre><code class="language-txt">
+# #use "topfind"
+# #require "owl-jupyter"
+# open Owl_jupyter
+
+# let f x = Maths.sin x /. x in
+  let h = Plot.create "plot_01.png" in
+  Plot.set_title h "Function: f(x) = sine x / x";
+  Plot.set_xlabel h "x-axis";
+  Plot.set_ylabel h "y-axis";
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.plot_fun ~h f 1. 15.;
+  Plot.output h
+- : unit = ()</code></pre>
+</div>
+<p><img width="700px" title="Jupyter example 01" alt="plot_01" src="images/introduction/plot_01.png"></p>
+<p>From the example above, you can see Owl users' experience can be significantly improved.</p>
+</section>
+</section>
+</section>
+</article></div><a href="convention.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 02</small>Conventions</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>

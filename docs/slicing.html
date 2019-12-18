@@ -1,0 +1,286 @@
+<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="indexing-and-slicing">
+<h1>Indexing and Slicing</h1>
+<p>Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.</p>
+<p>Before we start, let's clarify some things.</p>
+<ul>
+<li><p>Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined <strong>slice definition</strong>.</p></li>
+<li><p>Slicing can be applied to all the dense data structures, i.e. both ndarrays and matrice.</p></li>
+<li><p>Slice definition is an <code>index list</code> which clarifies <strong>what indices</strong> should be accessed and in <strong>what order</strong> for each dimension of the passed in variable.</p></li>
+<li><p>There are two types of slicing in Owl: <code>basic slicing</code> and <code>fancy slicing</code>. The difference between the two is how the slice is define.</p></li>
+</ul>
+<section class="level2" id="basic-slicing">
+<h2>Basic Slicing</h2>
+<p>For basic slicing, each dimension in the slice definition must be defined in the format of <strong>[start:stop:step]</strong>. Owl provides two functions <code>get_slice</code> and <code>set_slice</code> to retrieve and assign slice values respectively.</p>
+<div class="highlight">
+<pre><code class="language-text">
+  val get_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+
+  val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit
+</code></pre>
+</div>
+<p>Both functions accept <code>int list list</code> as its slice definition. Every <code>list</code> element in the <code>int list list</code> is assumed to be a range. E.g., <code>[ []; [2]; [-1;3] ]</code> is equivalent to its full slice definition <code>[ R []; R [2]; R [-1;3] ]</code>, as we will introduce below in fancy slicing.</p>
+</section>
+<section class="level2" id="fancy-slicing">
+<h2>Fancy Slicing</h2>
+<p>Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrary indices which may not be possible to specify with aforementioned <code>[start;stop;step]</code> format.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  type index =
+    | I of int       (* single index *)
+    | L of int list  (* list of indices *)
+    | R of int list  (* index range *)
+</code></pre>
+</div>
+<p>Fancy slice is defined by an <code>index list</code> where you can use three type constructors to specify:</p>
+<ul>
+<li>an individual index (using <code>I</code> constructor);</li>
+<li>a list of indices (using <code>L</code> constructor);</li>
+<li>a range of indices (using <code>R</code> constructor).</li>
+</ul>
+<p>There are two functions to handle fancy slicing operations.</p>
+<div class="highlight">
+<pre><code class="language-text">
+  val get_fancy : index list -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+
+  val set_fancy : index list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit
+</code></pre>
+</div>
+<p><code>get_fancy s x</code> retrieves a slice of <code>x</code> defined by <code>s</code>; whereas <code>set_fancy s x y</code> assigns the slice of <code>x</code> defined by <code>s</code> according to values in <code>y</code>. Note that <code>y</code> must have the same shape as that defined by <code>s</code>.</p>
+<p>Basic slicing is a special case of fancy slicing where only type constructor <code>R</code> is used in the definition. For example, the following two definitions are equivalent.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Arr.sequential [|10; 10; 10|];;
+
+  Arr.get_slice [ []; [0;8]; [3;9;2] ] x;;
+
+  Arr.get_fancy [ R[]; R[0;8]; R[3;9;2] ] x;;
+</code></pre>
+</div>
+<p>Note that both <code>get_basic</code> and <code>get_fancy</code> return a copy (rather than a view as that in Numpy); whilst <code>set_basic</code> and <code>set_fancy</code> modifies the original data in place.</p>
+</section>
+<section class="level2" id="conventions-in-definition">
+<h2>Conventions in Definition</h2>
+<p>Essentially, Owl's slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.</p>
+<p>The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.</p>
+<ul>
+<li><p>Slice definition is a <code>index list</code>. Each element within the <code>index list</code> corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors <code>I</code>, <code>L</code>, and <code>R</code> to let you specify single index, a list of indices, or a range of indices.</p></li>
+<li><p>Constructor <code>I</code> is trivial, it specifies a specific index. E.g., <code>[ I 2; I 5 ]</code> returns the element at position <code>(2, 5)</code> in a matrix.</p></li>
+<li><p>Constructor <code>L</code> is used to specify a list of indices. E.g., <code>[ I 2; L [5;3] ]</code> returns a <code>1 x 2</code> matrix consists of the elements at <code>(2, 5)</code> and <code>(2, 3)</code> in the original matrix.</p></li>
+<li><p>Constructor <code>R</code> is for specifying a range of indices. It has more conventions but by no means complicated. The following text is dedicated for range conventions.</p></li>
+<li><p>The format of the range definition follows <strong>R [ start; stop; step ]</strong>. Obviously, <code>start</code> specifies the starting index; <code>stop</code> specifies the stopping index (inclusive); and <code>step</code> specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.</p></li>
+<li><p>All three variables <code>start</code>, <code>stop</code>, and <code>step</code> can take both positive and negative values, but <code>step</code> is not allowed to take <code>0</code> value. Positive step indicates that indices will be visited in increasing order from <code>start</code> to <code>stop</code>; and vice versa.</p></li>
+<li><p>For <code>start</code> and <code>stop</code> variables, positive value refers to a specific index; whereas negative value <code>a</code> will be translated into <code>n + a</code> where <code>n</code> is the total number of indices. E.g., <code>[ -1; 0 ]</code> means from the last index to the first one.</p></li>
+<li><p>If you pass in an empty list <code>R []</code>, this will be expanded into <code>[ 0; n - 1; 1 ]</code> which means all the indices will be visited in increasing order with step size <code>1</code>.</p></li>
+<li><p>If you only specify one variable such as <code>[ start ]</code>, then <code>get_slice</code> function assumes that you will take one specific index by automatically extending it into <code>[ start; start; 1 ]</code>. As we can see, <code>start</code> and <code>stop</code> are the same, with step size 1.</p></li>
+<li><p>If you only specify two variables then <code>slice</code> function assumes they are <code>[ start; stop ]</code> which defines the range of indices. However, how <code>get_slice</code> will expand this slice definition depends, as we can see in the below, <code>slice</code> will visit the indices in different orders.</p></li>
+<li>if <code>start &lt;= stop</code>, then it will be expanded to <code>[ start; stop; 1 ]</code>;</li>
+<li><p>if <code>start &gt; stop</code>, then it will be expanded to <code>[ start; stop; -1 ]</code>;</p></li>
+<li><p>It is not necessary to specify all the definitions for all the dimensions, <code>get_slice</code> function will also expand it by assuming you will take all the data in higher dimensions. E.g., <code>x</code> has the shape <code>[ 2; 3; 4 ]</code>, if we define the slice as <code>[ [0] ]</code> then <code>get_slice</code> will expand the definition into <code>[ [0]; []; [] ]</code></p></li>
+</ul>
+<p>OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.</p>
+</section>
+<section class="level2" id="extended-operators">
+<h2>Extended Operators</h2>
+<p>The operators for indexing and slicing are built atop of the extended indexing operators introduced in OCaml 4.06. Three are used in Owl as follows. All of them are defined in the functors in <code>Owl_operator</code> module.</p>
+<ul>
+<li><code>.%{ }</code> : <code>get</code></li>
+<li><code>.%{ }&lt;-</code> : <code>set</code></li>
+<li><code>.${ }</code> : <code>get_slice</code></li>
+<li><code>.${ }&lt;-</code> : <code>set_slice</code></li>
+<li><code>.!{ }</code> : <code>get_fancy</code></li>
+<li><code>.!{ }&lt;-</code> : <code>set_fancy</code></li>
+</ul>
+<p>Here are some examples to show how to use them.</p>
+<p><strong>.%{ }</strong> for indexing, as follows.</p>
+<p>.. code-block:: ocaml</p>
+<p>open Arr;;</p>
+<p>let x = sequential [|10; 10; 10|];; let a = x.%{ [|2; 3; 4|] };; (* i.e. Arr.get <em>) x.%{ [|2; 3; 4|] } &lt;- 111.;; (</em> i.e. Arr.set *)</p>
+<p><strong>.${ }</strong> for basic slicing, as follows.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  open Arr;;
+
+  let x = sequential [|10; 10; 10|] in
+  let a = x.${ [[0;4]; [6;-1]; [-1;0]] } in  (* i.e. Arr.get_slice *)
+  let b = zeros (shape a) in
+  x.${ [[0;4]; [6;-1]; [-1;0]] } &lt;- b;;     (* i.e. Arr.set_slice *)
+</code></pre>
+</div>
+<p><strong>.!{ }</strong> for fancy slicing, as follows.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  open Arr;;
+
+  let x = sequential [|10; 10; 10|] in
+  let a = x.!{ [ L[2;2;1]; R[6;-1]; I 5] } in  (* i.e. Arr.get_fancy *)
+  let b = zeros (shape a) in
+  x.!{ [L[2;2;1]; R[6;-1]; I 5] } &lt;- b;;      (* i.e. Arr.set_fancy *)
+</code></pre>
+</div>
+</section>
+<section class="level2" id="slicing-examples">
+<h2>Slicing Examples</h2>
+<p>I always believe that nothing is better than concrete examples. I will use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray. OK, here they are.</p>
+<p>Let's first define a sequential matrix as the input data for the following examples.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Mat.sequential 5 7;;
+</code></pre>
+</div>
+<p>You should be able to see the following output in <code>utop</code>.</p>
+<div class="highlight">
+<pre><code class="language-text">
+     C0 C1 C2 C3 C4 C5 C6
+  R0  0  1  2  3  4  5  6
+  R1  7  8  9 10 11 12 13
+  R2 14 15 16 17 18 19 20
+  R3 21 22 23 24 25 26 27
+  R4 28 29 30 31 32 33 34
+
+  val x : Mat.mat =
+</code></pre>
+</div>
+<p>Now, we can finally start our experiment. One benefit of running code in <code>utop</code> is that you can observe the output immediately to understand better how <code>slice</code> function works.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Arr.sequential [|10; 10; 10|];;
+
+  (* simply take all the elements *)
+  let s = [ ] in
+  Mat.get_slice s x;;
+
+  (* take row 2 *)
+  let s = [ [2]; [] ] in
+  Mat.get_slice s x;;
+
+  (* same as above, take row 2, but only specify low dimension slice definition *)
+  let s = [ [2] ] in
+  Mat.get_slice s x;;
+
+  (* take from row 1 to 3 *)
+  let s = [ [1;3] ] in
+  Mat.get_slice s x;;
+
+  (* take from row 3 to 1, same as the example above but in reverse order *)
+  let s = [ [3;1] ] in
+  Mat.get_slice s x;;
+</code></pre>
+</div>
+<p>Let' see some more complicated examples.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  (* take from row 1 to 3 and column 3 to 5, so a sub-matrix of x *)
+  let s = [ [1;3]; [3;5] ] in
+  Mat.get_slice s x;;
+
+  (* take from row 1 to the last row *)
+  let s = [ [1;-1]; [] ] in
+  Mat.get_slice s x;;
+
+  (* take the rows of even number indices, i.e., 0;2;4 *)
+  let s = [ [0;-1;2] ] in
+  Mat.get_slice s x;;
+
+  (* take the column of odd number indices, i.e.,1;3;5 ... *)
+  let s = [ []; [1;-1;2] ] in
+  Mat.get_slice s x;;
+
+  (* reverse all the rows of x *)
+  let s = [ [-1;0] ] in
+  Mat.get_slice s x;;
+
+  (* reverse all the elements of x, same as applying reverse function *)
+  let s = [ [-1;0]; [-1;0] ] in
+  Mat.get_slice s x;;
+
+  (* take the second last row, from the first column to the last, with step size 3 *)
+  let s = [ [-2]; [0;-1;3] ] in
+  Mat.get_slice s x;;
+</code></pre>
+</div>
+</section>
+<section class="level2" id="advanced-usage">
+<h2>Advanced Usage</h2>
+<p>The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a <code>5 x 5</code> sequential matrix for illustration.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.sequential 5 5;;
+&gt;val x : Mat.mat =
+&gt;  
+&gt;   C0 C1 C2 C3 C4 
+&gt;R0  0  1  2  3  4 
+&gt;R1  5  6  7  8  9 
+&gt;R2 10 11 12 13 14 
+&gt;R3 15 16 17 18 19 
+&gt;R4 20 21 22 23 24 
+</code></pre>
+</div>
+<p>The first function <code>flip</code> a matrix upside down, i.e. flip vertically.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let flip x = Mat.get_slice [ [-1; 0]; [ ] ] x in
+flip x
+;;
+&gt;- : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3 C4 
+&gt;R0 20 21 22 23 24 
+&gt;R1 15 16 17 18 19 
+&gt;R2 10 11 12 13 14 
+&gt;R3  5  6  7  8  9 
+&gt;R4  0  1  2  3  4 
+</code></pre>
+</div>
+<p>The second <code>reverse</code> function treats a matrix as one-dimensional vector and rerverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
+reverse x
+;;
+&gt;- : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3 C4 
+&gt;R0 24 23 22 21 20 
+&gt;R1 19 18 17 16 15 
+&gt;R2 14 13 12 11 10 
+&gt;R3  9  8  7  6  5 
+&gt;R4  4  3  2  1  0 
+</code></pre>
+</div>
+<p>The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very consicise code.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let rotate90 x = Mat.(transpose x |&gt; get_slice [ []; [-1;0] ]) in
+rotate90 x
+;;
+&gt;- : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3 C4 
+&gt;R0 20 15 10  5  0 
+&gt;R1 21 16 11  6  1 
+&gt;R2 22 17 12  7  2 
+&gt;R3 23 18 13  8  3 
+&gt;R4 24 19 14  9  4 
+</code></pre>
+</div>
+<p>The last function <code>cshift</code> performs right circular shift along the columns of a matrix.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let cshift x n =
+  let c = Mat.col_num x in
+  let h = Utils.Array.(range (c - n) (c - 1)) |&gt; Array.to_list in
+  let t = Utils.Array.(range 0 (c - n -1)) |&gt; Array.to_list in
+  Mat.get_fancy [ R []; L (h @ t) ] x</code></pre>
+</div>
+<p>Applying to the previous <code>x</code>, the outcome should look like this.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">cshift x 2;;
+&gt;- : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3 C4 
+&gt;R0  3  4  0  1  2 
+&gt;R1  8  9  5  6  7 
+&gt;R2 13 14 10 11 12 
+&gt;R3 18 19 15 16 17 
+&gt;R4 23 24 20 21 22 
+</code></pre>
+</div>
+<p>Slicing and indexing is an important topic in Owl, make sure you understand it well before proceeding to other chapters.</p>
+</section>
+</section>
+</article></div><a href="broadcast.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 08</small>Broadcasting Operation</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>

@@ -1,0 +1,419 @@
+<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="neural-networks">
+<h1>Neural Networks</h1>
+<p>Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: <em>"can owl do deep neural network by the way?"</em></p>
+<p>In the end, I became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.</p>
+<p>The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow's performance on CPU (by the time we measured in 2018).</p>
+<p>In this chapter, I will cover the functionality in <code>Neural</code> module with various examples.</p>
+<section class="level2" id="a-naive-example">
+<h2>A Naive Example</h2>
+<p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let's build a small neural network from scratch. Don't get scared, the whole application is around 60 LOC.</p>
+<p>We will build a neural network to recognise hand-written digits. The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset. The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.S
+
+type layer = {
+  mutable w : t;
+  mutable b : t;
+  mutable a : t -&gt; t;
+}
+
+type network = { layers : layer array }</code></pre>
+</div>
+<p>Despite of the complicated internal structure, we can treat a neural network as a function, which is fed with input data and outputs predictions. The question is how to evaluate a network. Evaluating a network can be decomposed as a sequence of evaluation of layers. Each linear layer performs the following calculation where <span class="math inline"><em>a</em></span> is a non-linear activation function.</p>
+<p><br><span class="math display"><em>y</em> = <em>a</em>(<em>x</em> × <em>w</em> + <em>b</em>)</span><br></p>
+<p>The output of one layer will feed into the next layer as its input, moving forward until it reaches the end. The following two lines shows how to evaluate a neural network in <em>forward mode</em>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let run_layer x l = Maths.((x *@ l.w) + l.b) |&gt; l.a
+
+let run_network x nn = Array.fold_left run_layer x nn.layers</code></pre>
+</div>
+<p>In this small example, we will only use two layer, <code>l0</code> and <code>l1</code>. <code>l0</code> uses a <code>784 x 300</code> matrix as weight, and <code>tanh</code> as activation function. <code>l1</code> is the output layer and <code>softmax</code> is the cost function.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let l0 = {
+  w = Maths.(Mat.uniform 784 300 * F 0.15 - F 0.075);
+  b = Mat.zeros 1 300;
+  a = Maths.tanh;
+}
+
+let l1 = {
+  w = Maths.(Mat.uniform 300 10 * F 0.15 - F 0.075);
+  b = Mat.zeros 1 10;
+  a = Maths.softmax ~axis:1;
+}
+
+let nn = {layers = [|l0; l1|]}</code></pre>
+</div>
+<p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a netowrk back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters <code>&gt;&gt;</code> output parameters.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let backprop nn eta x y =
+  let t = tag () in
+  Array.iter (fun l -&gt;
+    l.w &lt;- make_reverse l.w t;
+    l.b &lt;- make_reverse l.b t;
+  ) nn.layers;
+  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |&gt; float_of_int))) in
+  reverse_prop (F 1.) loss;
+  Array.iter (fun l -&gt;
+    l.w &lt;- Maths.((primal l.w) - (eta * (adjval l.w))) |&gt; primal;
+    l.b &lt;- Maths.((primal l.b) - (eta * (adjval l.b))) |&gt; primal;
+  ) nn.layers;
+  loss |&gt; unpack_flt</code></pre>
+</div>
+<p>The <code>test</code> function performs model inferece and compares the predictions with the labelled data. By so doing, we can evaluate the accuracy of a neural network.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let test nn x y =
+  Dense.Matrix.S.iter2_rows (fun u v -&gt;
+    Dataset.print_mnist_image u;
+    let p = run_network (Arr u) nn |&gt; unpack_arr in
+    Dense.Matrix.Generic.print p;
+    Printf.printf "prediction: %i\n" (let _, i = Dense.Matrix.Generic.max_i p in i.(1))
+  ) (unpack_arr x) (unpack_arr y)</code></pre>
+</div>
+<p>Finally, the following code starts the training for 999 iterations.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let main () =
+  let x, _, y = Dataset.load_mnist_train_data () in
+  for i = 1 to 999 do
+    let x', y' = Dataset.draw_samples x y 100 in
+    backprop nn (F 0.01) (Arr x') (Arr y')
+    |&gt; Owl_log.info "#%03i : loss = %g" i
+  done;
+  let x, y, _ = Dataset.load_mnist_test_data () in
+  let x, y = Dataset.draw_samples x y 10 in
+  test nn (Arr x) (Arr y)</code></pre>
+</div>
+<p>When the training starts, our application keeps printing the value of loss function in the end of each iteration. From the output, we can see the value of loss function keeps decreasing quickly after training starts.</p>
+<div class="highlight">
+<pre><code class="language-text">2019-11-12 01:04:14.632 INFO : #001 : loss = 2.54432
+2019-11-12 01:04:14.645 INFO : #002 : loss = 2.48446
+2019-11-12 01:04:14.684 INFO : #003 : loss = 2.33889
+2019-11-12 01:04:14.696 INFO : #004 : loss = 2.28728
+2019-11-12 01:04:14.709 INFO : #005 : loss = 2.23134
+2019-11-12 01:04:14.720 INFO : #006 : loss = 2.21974
+2019-11-12 01:04:14.730 INFO : #007 : loss = 2.0249
+2019-11-12 01:04:14.740 INFO : #008 : loss = 1.96638
+2019-11-12 01:04:14.750 INFO : #009 : loss = 1.92944
+2019-11-12 01:04:14.762 INFO : #010 : loss = 1.98345</code></pre>
+</div>
+<p>After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with <span class="math inline">90.14</span> chance it is a number 3. Quite accurate!</p>
+<div class="highlight">
+<pre><code class="language-text">.         ■■■■■■■■          
+       ■■■■■■■■■■■■         
+      ■■■■■■■■■■■■■         
+      ■■■■■■■   ■■■■        
+     ■■■■■      ■■■■        
+     ■■■       ■■■■         
+      ■        ■■■■         
+              ■■■■■         
+              ■■■■          
+             ■■■■■■         
+            ■■■■■■■■■       
+            ■■■■■■■■■■      
+             ■■   ■■■■      
+                   ■■■■     
+       ■■          ■■■■     
+      ■■■■        ■■■■      
+      ■■■■■■■■■ ■■■■■■      
+       ■■■■■■■■■■■■■■       
+        ■■■■■■■■■■■■■       
+          ■■■■■■■■■         
+                            
+                            
+            C0         C1        C2       C3          C4         C5          C6          C7        C8          C9 
+R0 0.000966323 0.00105846 0.0896708 0.901432 9.47633E-05 0.00180942 0.000149858 0.000355436 0.0044106 5.26442E-05 
+prediction: 3</code></pre>
+</div>
+<p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.</p>
+</section>
+<section class="level2" id="module-structure">
+<h2>Module Structure</h2>
+<p>The <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml">Owl.Neural</a> provides two submodules <code>S</code> and <code>D</code> for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.</p>
+<ul>
+<li><code>Graph</code> : create and manipulate the neural network structure.</li>
+<li><code>Init</code> : control the initialisation of the weights in the network.</li>
+<li><code>Activation</code> : provide a set of frequently used activation functions.</li>
+<li><code>Params</code> : maintains a set of training parameters.</li>
+<li><code>Batch</code> : the batch parameter of training.</li>
+<li><code>Learning_Rate</code> : the learning rate parameter of training.</li>
+<li><code>Loss</code> : the loss function parameter of training.</li>
+<li><code>Gradient</code> : the gradient method parameter of training.</li>
+<li><code>Momentum</code> : the momentum parameter of training.</li>
+<li><code>Regularisation</code> : the regularisation parameter of training.</li>
+<li><code>Clipping</code> : the gradient clipping parameter of training.</li>
+<li><code>Checkpoint</code> : the checkpoint parameter of training.</li>
+<li><code>Parallel</code> : provide parallel computation capability, need to compose with Actor engine. (Experimental, a research project in progress.)</li>
+</ul>
+</section>
+<section class="level2" id="types-of-neuron">
+<h2>Types of Neuron</h2>
+<p>I have implemented a set of commonly used neurons in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a>. Each neuron is a standalone module and adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl's <a href="https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli">Algodiff</a> module.</p>
+<p><code>Algodiff</code> is the most powerful part of Owl and offers great benefits to the modules built atop of it. In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the <code>Algodiff</code> figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl's <a href="https://github.com/ryanrhymes/owl/blob/master/examples/feedforward.ml">Feedforward Network</a> which only uses a couple of hundreds lines of code to implement a complete Feedforward network.</p>
+<p>In practice, you do not need to use the modules defined in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a> directly. Instead, you should call the functions in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_graph.ml">Graph</a> module to create a new neuron and add it to the network. Currently, Graph module contains the following neurons.</p>
+<ul>
+<li><code>input</code></li>
+<li><code>activation</code></li>
+<li><code>linear</code></li>
+<li><code>linear_nobias</code></li>
+<li><code>embedding</code></li>
+<li><code>recurrent</code></li>
+<li><code>lstm</code></li>
+<li><code>gru</code></li>
+<li><code>conv1d</code></li>
+<li><code>conv2d</code></li>
+<li><code>conv3d</code></li>
+<li><code>max_pool1d</code></li>
+<li><code>max_pool2d</code></li>
+<li><code>avg_pool1d</code></li>
+<li><code>avg_pool2d</code></li>
+<li><code>global_max_pool1d</code></li>
+<li><code>global_max_pool2d</code></li>
+<li><code>global_avg_pool1d</code></li>
+<li><code>global_avg_pool2d</code></li>
+<li><code>fully_connected</code></li>
+<li><code>dropout</code></li>
+<li><code>gaussian_noise</code></li>
+<li><code>gaussian_dropout</code></li>
+<li><code>alpha_dropout</code></li>
+<li><code>normalisation</code></li>
+<li><code>reshape</code></li>
+<li><code>flatten</code></li>
+<li><code>lambda</code></li>
+<li><code>add</code></li>
+<li><code>mul</code></li>
+<li><code>dot</code></li>
+<li><code>max</code></li>
+<li><code>average</code></li>
+<li><code>concatenate</code></li>
+</ul>
+<p>These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.</p>
+</section>
+<section class="level2" id="model-training">
+<h2>Model Training</h2>
+<p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
+<p>Let's use the single precision neural network as an example. To work with single precision networks, you need to use/open the following modules</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  open Owl
+  open Neural.S
+  open Neural.S.Graph
+  open Neural.S.Algodiff
+</code></pre>
+</div>
+<p>The code below creates a small convolutional neural network of six layers. Usually, the network definition always starts with <code>input</code> neuron and ends with <code>get_network</code> function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the <code>input_shape</code> is determined.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let make_network input_shape =
+    input input_shape
+    |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
+    |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+    |&gt; max_pool2d [|2;2|] [|2;2|]
+    |&gt; dropout 0.1
+    |&gt; fully_connected 1024 ~act_typ:Activation.Relu
+    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+</code></pre>
+</div>
+<p>Next, I will show you how the <code>train</code> function looks like. The first three lines in the <code>train</code> function is for loading the <code>MNIST</code> dataset and print out the network structure on the terminal. The rest lines defines a <code>params</code> which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call <code>Graph.train</code> to kick off the training process.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let train () =
+    let x, _, y = Dataset.load_mnist_train_data_arr () in
+    let network = make_network [|28;28;1|] in
+    Graph.print network;
+
+    let params = Params.config
+      ~batch:(Batch.Mini 100) ~learning_rate:(Learning_Rate.Adagrad 0.005) 2.
+    in
+    Graph.train ~params network x y |&gt; ignore
+</code></pre>
+</div>
+<p>After the training is finished, you can call <code>Graph.model</code> to generate a functional model to perform inference. Moreover, <code>Graph</code> module also provides functions such as <code>save</code>, <code>load</code>, <code>print</code>, <code>to_string</code> and so on to help you in manipulating the neural network.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let predict network data =
+    let model = Graph.model network in
+    let predication = model data in
+    predication
+</code></pre>
+</div>
+<p>You can have a look at Owl's <a href="https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml">MNIST CNN example</a> for more details and run the code by yourself.</p>
+</section>
+<section class="level2" id="model-inference">
+<h2>Model Inference</h2>
+<p>TBD</p>
+</section>
+<section class="level2" id="examples">
+<h2>Examples</h2>
+<p>In the following, I will present several neural networks defined in Owl. All have been included in Owl's <a href="https://github.com/ryanrhymes/owl/tree/master/examples">examples</a> and can be run separately. If you are interested in the computation graph Owl generated for these networks, you can also have a look at <a href="algodiff.html">this chapter on Algodiff</a>.</p>
+<section class="level3" id="multilayer-perceptron-mlp-for-mnist">
+<h3>Multilayer Perceptron (MLP) for MNIST</h3>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let make_network input_shape =
+    input input_shape
+    |&gt; linear 300 ~act_typ:Activation.Tanh
+    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+</code></pre>
+</div>
+</section>
+<section class="level3" id="convolutional-neural-network-for-mnist">
+<h3>Convolutional Neural Network for MNIST</h3>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let make_network input_shape =
+    input input_shape
+    |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
+    |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+    |&gt; max_pool2d [|2;2|] [|2;2|]
+    |&gt; dropout 0.1
+    |&gt; fully_connected 1024 ~act_typ:Activation.Relu
+    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+</code></pre>
+</div>
+</section>
+<section class="level3" id="vgg-like-neural-network-for-cifar10">
+<h3>VGG-like Neural Network for CIFAR10</h3>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let make_network input_shape =
+    input input_shape
+    |&gt; normalisation ~decay:0.9
+    |&gt; conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
+    |&gt; conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+    |&gt; max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+    |&gt; dropout 0.1
+    |&gt; conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
+    |&gt; conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+    |&gt; max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+    |&gt; dropout 0.1
+    |&gt; fully_connected 512 ~act_typ:Activation.Relu
+    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+</code></pre>
+</div>
+</section>
+<section class="level3" id="lstm-network-for-text-generation">
+<h3>LSTM Network for Text Generation</h3>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let make_network wndsz vocabsz =
+    input [|wndsz|]
+    |&gt; embedding vocabsz 40
+    |&gt; lstm 128
+    |&gt; linear 512 ~act_typ:Activation.Relu
+    |&gt; linear vocabsz ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+</code></pre>
+</div>
+</section>
+<section class="level3" id="googles-inception-for-image-classification">
+<h3>Google's Inception for Image Classification</h3>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let conv2d_bn ?(padding=SAME) kernel stride nn =
+    conv2d ~padding kernel stride nn
+    |&gt; normalisation ~training:false ~axis:3
+    |&gt; activation Activation.Relu
+
+  let mix_typ1 in_shape bp_size nn =
+    let branch1x1 = conv2d_bn [|1;1;in_shape;64|] [|1;1|] nn in
+    let branch5x5 = nn
+      |&gt; conv2d_bn [|1;1;in_shape;48|] [|1;1|]
+      |&gt; conv2d_bn [|5;5;48;64|] [|1;1|]
+    in
+    let branch3x3dbl = nn
+      |&gt; conv2d_bn [|1;1;in_shape;64|] [|1;1|]
+      |&gt; conv2d_bn [|3;3;64;96|]  [|1;1|]
+      |&gt; conv2d_bn [|3;3;96;96|]  [|1;1|]
+    in
+    let branch_pool = nn
+      |&gt; avg_pool2d [|3;3|] [|1;1|]
+      |&gt; conv2d_bn [|1;1;in_shape; bp_size |] [|1;1|]
+    in
+    concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]
+
+  let mix_typ3 nn =
+    let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
+    let branch3x3dbl = nn
+      |&gt; conv2d_bn [|1;1;288;64|] [|1;1|]
+      |&gt; conv2d_bn [|3;3;64;96|] [|1;1|]
+      |&gt; conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
+    in
+    let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+    concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]
+
+  let mix_typ4 size nn =
+    let branch1x1 = conv2d_bn [|1;1;768;192|] [|1;1|] nn in
+    let branch7x7 = nn
+      |&gt; conv2d_bn [|1;1;768;size|] [|1;1|]
+      |&gt; conv2d_bn [|1;7;size;size|] [|1;1|]
+      |&gt; conv2d_bn [|7;1;size;192|] [|1;1|]
+    in
+    let branch7x7dbl = nn
+      |&gt; conv2d_bn [|1;1;768;size|] [|1;1|]
+      |&gt; conv2d_bn [|7;1;size;size|] [|1;1|]
+      |&gt; conv2d_bn [|1;7;size;size|] [|1;1|]
+      |&gt; conv2d_bn [|7;1;size;size|] [|1;1|]
+      |&gt; conv2d_bn [|1;7;size;192|] [|1;1|]
+    in
+    let branch_pool = nn
+      |&gt; avg_pool2d [|3;3|] [|1;1|] (* padding = SAME *)
+      |&gt; conv2d_bn [|1;1; 768; 192|] [|1;1|]
+    in
+    concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]
+
+  let mix_typ8 nn =
+    let branch3x3 = nn
+      |&gt; conv2d_bn [|1;1;768;192|] [|1;1|]
+      |&gt; conv2d_bn [|3;3;192;320|] [|2;2|] ~padding:VALID
+    in
+    let branch7x7x3 = nn
+      |&gt; conv2d_bn [|1;1;768;192|] [|1;1|]
+      |&gt; conv2d_bn [|1;7;192;192|] [|1;1|]
+      |&gt; conv2d_bn [|7;1;192;192|] [|1;1|]
+      |&gt; conv2d_bn [|3;3;192;192|] [|2;2|] ~padding:VALID
+    in
+    let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+    concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]
+
+  let mix_typ9 input nn =
+    let branch1x1 = conv2d_bn [|1;1;input;320|] [|1;1|] nn in
+    let branch3x3 = conv2d_bn [|1;1;input;384|] [|1;1|] nn in
+    let branch3x3_1 = branch3x3 |&gt; conv2d_bn [|1;3;384;384|] [|1;1|] in
+    let branch3x3_2 = branch3x3 |&gt; conv2d_bn [|3;1;384;384|] [|1;1|] in
+    let branch3x3 = concatenate 3 [| branch3x3_1; branch3x3_2 |] in
+    let branch3x3dbl = nn |&gt; conv2d_bn [|1;1;input;448|] [|1;1|] |&gt; conv2d_bn [|3;3;448;384|] [|1;1|] in
+    let branch3x3dbl_1 = branch3x3dbl |&gt; conv2d_bn [|1;3;384;384|] [|1;1|]  in
+    let branch3x3dbl_2 = branch3x3dbl |&gt; conv2d_bn [|3;1;384;384|] [|1;1|]  in
+    let branch3x3dbl = concatenate 3 [|branch3x3dbl_1; branch3x3dbl_2|] in
+    let branch_pool = nn |&gt; avg_pool2d [|3;3|] [|1;1|] |&gt; conv2d_bn [|1;1;input;192|] [|1;1|] in
+    concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]
+
+  let make_network img_size =
+    input [|img_size;img_size;3|]
+    |&gt; conv2d_bn [|3;3;3;32|] [|2;2|] ~padding:VALID
+    |&gt; conv2d_bn [|3;3;32;32|] [|1;1|] ~padding:VALID
+    |&gt; conv2d_bn [|3;3;32;64|] [|1;1|]
+    |&gt; max_pool2d [|3;3|] [|2;2|] ~padding:VALID
+    |&gt; conv2d_bn [|1;1;64;80|] [|1;1|] ~padding:VALID
+    |&gt; conv2d_bn [|3;3;80;192|] [|1;1|] ~padding:VALID
+    |&gt; max_pool2d [|3;3|] [|2;2|] ~padding:VALID
+    |&gt; mix_typ1 192 32 |&gt; mix_typ1 256 64 |&gt; mix_typ1 288 64
+    |&gt; mix_typ3
+    |&gt; mix_typ4 128 |&gt; mix_typ4 160 |&gt; mix_typ4 160 |&gt; mix_typ4 192
+    |&gt; mix_typ8
+    |&gt; mix_typ9 1280 |&gt; mix_typ9 2048
+    |&gt; global_avg_pool2d
+    |&gt; linear 1000 ~act_typ:Activation.(Softmax 1)
+    |&gt; get_network
+
+  let _ = make_network 299 |&gt; print
+</code></pre>
+</div>
+<p>There is a great space for optimisation. There are also some new neurons need to be added, e.g., upsampling, transposed convolution, and etc. Anyway, things will get better and better.</p>
+</section>
+</section>
+</section>
+</article></div><a href="neural-ode.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 14</small>Neural ODE</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>
