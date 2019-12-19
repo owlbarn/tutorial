@@ -177,7 +177,7 @@ let copy_images root src =
   let dir = Filename.dirname dst in
   let cmd = sprintf "mkdir -p %s && cp %s %s" dir src dst in
   sprintf "exec: %s" cmd |> print_endline;
-  Sys.command cmd |> ignore
+  ( Sys.command cmd : int) |> ignore
 
 let copy_files_to_static root exts copy =
   let build_dir = sprintf "%s/_build/default/book" root in
@@ -195,9 +195,9 @@ let process_examples example_dir =
     print_endline dir
   )
 
-let _ =
+let _ : unit = 
   let root = Sys.argv.(1) in
-  copy_files_to_static root image_extensions copy_images;
+  let _x : unit = copy_files_to_static root  image_extensions  copy_images in
   let toc = read_toc "book" in
-  process_md ~toc "book";
+  let _x : unit = process_md ~toc "book" in 
   process_chapters ~toc "book" "static"
