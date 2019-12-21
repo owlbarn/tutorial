@@ -195,7 +195,7 @@ let process_examples example_dir =
     print_endline dir
   )
 
-let () = 
+let () =
   let root = Sys.argv.(1) in
   copy_files_to_static root image_extensions copy_images;
   let toc = read_toc "book" in
