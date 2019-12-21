@@ -197,7 +197,7 @@ let process_examples example_dir =
 
 let () = 
   let root = Sys.argv.(1) in
-  let _x : unit = copy_files_to_static root image_extensions copy_images in
+  copy_files_to_static root image_extensions copy_images;
   let toc = read_toc "book" in
-  let _x : unit = process_md ~toc "book" in 
+  process_md ~toc "book";
   process_chapters ~toc "book" "static"
