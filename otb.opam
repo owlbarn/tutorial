@@ -16,6 +16,9 @@ depends: [
   "async"
   "lambdasoup"
   "re"
+  "mdx"
+  "fmt"
+  "cmdliner"
   "sexp_pretty"
 ]
 build: ["dune" "build"]

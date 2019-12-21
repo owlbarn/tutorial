@@ -32,12 +32,12 @@ If you run the code in `utop`, Owl can pretty print out the dataframe in the fol
 ```ocaml env=env_dataframe_1
 # Owl_pretty.pp_dataframe Format.std_formatter frame;;
   +-----+---+------
-    name age salary 
+    name age salary
   +-----+---+------
-R0 Alice  20  2200. 
-R1   Bob  25  2100. 
-R2 Carol  30  2500. 
-R3 David  35  2800. 
+R0 Alice  20  2200.
+R1   Bob  25  2100.
+R2 Carol  30  2500.
+R3 David  35  2800.
 - : unit = ()
 ```
 
@@ -75,12 +75,12 @@ From the output, we can see that the "job" column has been appended to the end o
 # Owl_pretty.pp_dataframe Format.std_formatter frame;;
 
   +-----+---+------+--------+------+-------------
-    name age salary      job gender      location 
+    name age salary      job gender      location
   +-----+---+------+--------+------+-------------
-R0 Alice  20  2200. Engineer female Cambridge, UK 
-R1   Bob  25  2100.   Driver   male Helsinki, FIN 
-R2 Carol  30  2500. Lecturer female    London, UK 
-R3 David  35  2800.  Manager   male    Prague, CZ 
+R0 Alice  20  2200. Engineer female Cambridge, UK
+R1   Bob  25  2100.   Driver   male Helsinki, FIN
+R2 Carol  30  2500. Lecturer female    London, UK
+R3 David  35  2800.  Manager   male    Prague, CZ
 - : unit = ()
 ```
 
@@ -110,14 +110,14 @@ The new dataframe looks like the following.
 # Owl_pretty.pp_dataframe Format.std_formatter frame_2;;
 
   +-----+---+------+----------+------+-------------
-    name age salary        job gender      location 
+    name age salary        job gender      location
   +-----+---+------+----------+------+-------------
-R0 Alice  20  2200.   Engineer female Cambridge, UK 
-R1   Bob  25  2100.     Driver   male Helsinki, FIN 
-R2 Carol  30  2500.   Lecturer female    London, UK 
-R3 David  35  2800.    Manager   male    Prague, CZ 
-R4  Erin  22  3600. Researcher   male  New York, US 
-R5 Frank  24  5500. Consultant   male   Beijing, CN 
+R0 Alice  20  2200.   Engineer female Cambridge, UK
+R1   Bob  25  2100.     Driver   male Helsinki, FIN
+R2 Carol  30  2500.   Lecturer female    London, UK
+R3 David  35  2800.    Manager   male    Prague, CZ
+R4  Erin  22  3600. Researcher   male  New York, US
+R5 Frank  24  5500. Consultant   male   Beijing, CN
 - : unit = ()
 ```
 

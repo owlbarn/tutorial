@@ -260,13 +260,13 @@ The following are some more advanced examples to show how to use slicing to achi
 ```ocaml env=slicing_env2
 # let x = Mat.sequential 5 5
 val x : Mat.mat =
-  
-   C0 C1 C2 C3 C4 
-R0  0  1  2  3  4 
-R1  5  6  7  8  9 
-R2 10 11 12 13 14 
-R3 15 16 17 18 19 
-R4 20 21 22 23 24 
+
+   C0 C1 C2 C3 C4
+R0  0  1  2  3  4
+R1  5  6  7  8  9
+R2 10 11 12 13 14
+R3 15 16 17 18 19
+R4 20 21 22 23 24
 
 ```
 
@@ -277,12 +277,12 @@ The first function `flip` a matrix upside down, i.e. flip vertically.
   flip x
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 
-R0 20 21 22 23 24 
-R1 15 16 17 18 19 
-R2 10 11 12 13 14 
-R3  5  6  7  8  9 
-R4  0  1  2  3  4 
+   C0 C1 C2 C3 C4
+R0 20 21 22 23 24
+R1 15 16 17 18 19
+R2 10 11 12 13 14
+R3  5  6  7  8  9
+R4  0  1  2  3  4
 
 ```
 
@@ -293,12 +293,12 @@ The second `reverse` function treats a matrix as one-dimensional vector and rerv
   reverse x
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 
-R0 24 23 22 21 20 
-R1 19 18 17 16 15 
-R2 14 13 12 11 10 
-R3  9  8  7  6  5 
-R4  4  3  2  1  0 
+   C0 C1 C2 C3 C4
+R0 24 23 22 21 20
+R1 19 18 17 16 15
+R2 14 13 12 11 10
+R3  9  8  7  6  5
+R4  4  3  2  1  0
 
 ```
 
@@ -309,12 +309,12 @@ The third function rotates a matrix 90 degrees in clockwise direction. As we see
   rotate90 x
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 
-R0 20 15 10  5  0 
-R1 21 16 11  6  1 
-R2 22 17 12  7  2 
-R3 23 18 13  8  3 
-R4 24 19 14  9  4 
+   C0 C1 C2 C3 C4
+R0 20 15 10  5  0
+R1 21 16 11  6  1
+R2 22 17 12  7  2
+R3 23 18 13  8  3
+R4 24 19 14  9  4
 
 ```
 
@@ -334,12 +334,12 @@ Applying to the previous `x`, the outcome should look like this.
 # cshift x 2
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 
-R0  3  4  0  1  2 
-R1  8  9  5  6  7 
-R2 13 14 10 11 12 
-R3 18 19 15 16 17 
-R4 23 24 20 21 22 
+   C0 C1 C2 C3 C4
+R0  3  4  0  1  2
+R1  8  9  5  6  7
+R2 13 14 10 11 12
+R3 18 19 15 16 17
+R4 23 24 20 21 22
 
 ```
 

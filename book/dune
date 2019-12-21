@@ -29,142 +29,313 @@
         visualisation.html
         zoo.html))
 
+(alias
+  (name latex)
+  (deps aeos.tex
+        algodiff.tex
+        architecture.tex
+        backend.tex
+        broadcast.tex
+        cgraph.tex
+        constant.tex
+        convention.tex
+        dataframe.tex
+        diffequation.tex
+        introduction.tex
+        linear-algebra.tex
+        maths.tex
+        matrix.tex
+        ndarray.tex
+        neural-network.tex
+        neural-ode.tex
+        nlp.tex
+        optimisation.tex
+        ppl.tex
+        prologue.tex
+        signal.tex
+        slicing.tex
+        stats.tex
+        symbolic.tex
+        testing.tex
+        visualisation.tex
+        zoo.tex))
+
 (rule
   (targets aeos.html)
-  (deps    aeos/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file aeos/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets aeos.tex)
+  (deps    (:md_file aeos/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets algodiff.html)
-  (deps    algodiff/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file algodiff/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets algodiff.tex)
+  (deps    (:md_file algodiff/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets architecture.html)
-  (deps    architecture/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file architecture/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets architecture.tex)
+  (deps    (:md_file architecture/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets backend.html)
-  (deps    backend/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file backend/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets backend.tex)
+  (deps    (:md_file backend/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets broadcast.html)
-  (deps    broadcast/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file broadcast/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets broadcast.tex)
+  (deps    (:md_file broadcast/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets cgraph.html)
-  (deps    cgraph/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file cgraph/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets cgraph.tex)
+  (deps    (:md_file cgraph/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets constant.html)
-  (deps    constant/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file constant/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets constant.tex)
+  (deps    (:md_file constant/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets convention.html)
-  (deps    convention/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file convention/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets convention.tex)
+  (deps    (:md_file convention/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets dataframe.html)
-  (deps    dataframe/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file dataframe/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets dataframe.tex)
+  (deps    (:md_file dataframe/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets diffequation.html)
-  (deps    diffequation/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file diffequation/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets diffequation.tex)
+  (deps    (:md_file diffequation/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets introduction.html)
-  (deps    introduction/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file introduction/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets introduction.tex)
+  (deps    (:md_file introduction/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets linear-algebra.html)
-  (deps    linear-algebra/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file linear-algebra/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets linear-algebra.tex)
+  (deps    (:md_file linear-algebra/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets maths.html)
-  (deps    maths/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file maths/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets maths.tex)
+  (deps    (:md_file maths/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets matrix.html)
-  (deps    matrix/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file matrix/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets matrix.tex)
+  (deps    (:md_file matrix/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets ndarray.html)
-  (deps    ndarray/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file ndarray/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets ndarray.tex)
+  (deps    (:md_file ndarray/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets neural-network.html)
-  (deps    neural-network/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file neural-network/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets neural-network.tex)
+  (deps    (:md_file neural-network/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets neural-ode.html)
-  (deps    neural-ode/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file neural-ode/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets neural-ode.tex)
+  (deps    (:md_file neural-ode/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets nlp.html)
-  (deps    nlp/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file nlp/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets nlp.tex)
+  (deps    (:md_file nlp/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets optimisation.html)
-  (deps    optimisation/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file optimisation/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets optimisation.tex)
+  (deps    (:md_file optimisation/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets ppl.html)
-  (deps    ppl/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file ppl/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets ppl.tex)
+  (deps    (:md_file ppl/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets prologue.html)
-  (deps    prologue/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file prologue/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets prologue.tex)
+  (deps    (:md_file prologue/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets signal.html)
-  (deps    signal/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file signal/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets signal.tex)
+  (deps    (:md_file signal/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets slicing.html)
-  (deps    slicing/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file slicing/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets slicing.tex)
+  (deps    (:md_file slicing/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets stats.html)
-  (deps    stats/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file stats/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets stats.tex)
+  (deps    (:md_file stats/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets symbolic.html)
-  (deps    symbolic/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file symbolic/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets symbolic.tex)
+  (deps    (:md_file symbolic/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets testing.html)
-  (deps    testing/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file testing/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets testing.tex)
+  (deps    (:md_file testing/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets visualisation.html)
-  (deps    visualisation/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file visualisation/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets visualisation.tex)
+  (deps    (:md_file visualisation/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
   (targets zoo.html)
-  (deps    zoo/README.md)
-  (action  (run mdx output %{deps} -o %{targets})))
+  (deps    (:md_file zoo/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets zoo.tex)
+  (deps    (:md_file zoo/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
