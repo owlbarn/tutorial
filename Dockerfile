@@ -1,7 +1,7 @@
 FROM owlbarn/owl:latest
-USER opam
+USER root
 
 WORKDIR /home/opam/owl_tutorial
 COPY . ${WORKDIR}
 RUN opam install core async lambdasoup re sexp_pretty ppx_jane mdx
-RUN sudo make
+#RUN sudo make
