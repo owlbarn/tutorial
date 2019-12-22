@@ -35,7 +35,7 @@ let title_bar,title_bar_frontpage =
     a ~a:["href","toc.html"] [`Data "Table of Contents"];
     a ~a:["href","faqs.html"] [`Data "FAQs"];
     a ~a:["href","install.html"] [`Data "Install"];
-    a ~a:["href","https://ocaml.janestreet.com/ocaml-core/"]
+    a ~a:["href","https://ocaml.xyz/apidoc/"]
       [`Data "API Docs"];
   ]
   in
