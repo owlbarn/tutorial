@@ -1,4 +1,4 @@
-These scripts form the compilation pipeline for Real World OCaml.  They aren't
+These scripts form the compilation pipeline for OCaml Scientific Computing.  They aren't
 really designed to be useful outside of the book toolchain, but the plan is to
 factor out the useful bits eventually.
 

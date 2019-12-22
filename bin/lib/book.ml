@@ -7,7 +7,7 @@ let (/) = Filename.concat
 (* HTML fragments                                                             *)
 (******************************************************************************)
 let head_item ?chapter_title () : Html.item =
-  let site_title = "Real World OCaml" in
+  let site_title = "OCaml Scientific Computing" in
   let page_title = match chapter_title with
       | None -> site_title
       | Some t' -> sprintf "%s - %s" t' site_title
@@ -39,9 +39,9 @@ let title_bar,title_bar_frontpage =
       [`Data "API Docs"];
   ]
   in
-  let h1 = h1 [`Data "Real World OCaml"] in
-  let h4 = h4 [`Data "Functional programming for the masses"] in
-  let h5 = h5 [`Data "2"; sup [`Data "nd"]; `Data " Edition (in progress)"] in
+  let h1 = h1 [`Data "OCaml Scientific Computing"] in
+  let h4 = h4 [`Data "Functional Scientific and Engineering Computing"] in
+  let h5 = h5 [`Data "1"; sup [`Data "st"]; `Data " Edition (in progress)"] in
   let title_bar =
     div ~a:["class","title-bar"] [
       div ~a:["class","title"] [h1; h5; nav]
@@ -58,12 +58,9 @@ let title_bar,title_bar_frontpage =
 let footer_item : Html.item =
   let open Html in
   let links = [
-    "http://twitter.com/realworldocaml", "@realworldocaml";
-    "http://twitter.com/yminsky", "@yminsky";
-    "http://twitter.com/avsm", "@avsm";
-    "https://plus.google.com/111219778721183890368", "+hickey";
-    "https://github.com/realworldocaml", "GitHub";
-    "http://www.goodreads.com/book/show/16087552-real-world-ocaml", "goodreads";
+    "http://twitter.com/ryanrhymes", "@ryanrhymes";
+    "https://github.com/ryanrhymes", "GitHub";
+    "http://ocaml.xyz", "ocaml.xyz";
   ]
   |> List.map ~f:(fun (href,text) -> li [a ~a:["href",href] [`Data text]])
   |> ul
@@ -71,8 +68,8 @@ let footer_item : Html.item =
   footer [
     div ~a:["class","content"] [
       links;
-      p [`Data "Copyright 2012-2014 \
-         Jason Hickey, Anil Madhavapeddy and Yaron Minsky."];
+      p [`Data "Copyright 2017-2020 \
+         Liang Wang."];
     ]
   ]
 
