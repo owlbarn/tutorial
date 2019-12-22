@@ -6,4 +6,4 @@
 
 (rule
   (with-stdout-to about.ml
-    (echo "let git_commit = Some \"${version:rwo}\"")))
+    (echo "let git_commit = Some \"${version:otb}\"")))

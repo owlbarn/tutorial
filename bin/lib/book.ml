@@ -6,7 +6,12 @@ let (/) = Filename.concat
 (******************************************************************************)
 (* HTML fragments                                                             *)
 (******************************************************************************)
-let head_item : Html.item =
+let head_item ?chapter_title () : Html.item =
+  let site_title = "Real World OCaml" in
+  let page_title = match chapter_title with
+      | None -> site_title
+      | Some t' -> sprintf "%s - %s" t' site_title
+  in
   let open Html in
   head [
     meta ~a:["charset","utf-8"] [];
@@ -14,14 +19,12 @@ let head_item : Html.item =
       "name","viewport";
       "content","width=device-width, initial-scale=1.0"
     ] [];
-    title [`Data "OCaml Scientific Computing"];
-    link ~a:["rel","stylesheet"; "href","https://fonts.googleapis.com/css?family=Open+Sans&display=swap"] [];
+    title [`Data page_title];
     link ~a:["rel","stylesheet"; "href","css/app.css"] [];
     link ~a:["rel","stylesheet"; "href","css/prism.css"] [];
     script ~a:["src","js/min/modernizr-min.js"] [];
     script ~a:["src","js/prism.js"] [];
     script ~a:["src","//use.typekit.net/gfj8wez.js"] [];
-    script ~a:["src","http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"] [];
     script [`Data "try{Typekit.load();}catch(e){}"];
   ]
 
@@ -32,13 +35,13 @@ let title_bar,title_bar_frontpage =
     a ~a:["href","toc.html"] [`Data "Table of Contents"];
     a ~a:["href","faqs.html"] [`Data "FAQs"];
     a ~a:["href","install.html"] [`Data "Install"];
-    a ~a:["href","https://ocaml.xyz/apidoc/index.html"]
+    a ~a:["href","https://ocaml.janestreet.com/ocaml-core/"]
       [`Data "API Docs"];
   ]
   in
-  let h1 = h1 [`Data "OCaml Scientific Computing"] in
-  let h4 = h4 [`Data "Functional Scientific and Engineering Computing"] in
-  let h5 = h5 [`Data "1"; sup [`Data "st"]; `Data " Edition (in progress)"] in
+  let h1 = h1 [`Data "Real World OCaml"] in
+  let h4 = h4 [`Data "Functional programming for the masses"] in
+  let h5 = h5 [`Data "2"; sup [`Data "nd"]; `Data " Edition (in progress)"] in
   let title_bar =
     div ~a:["class","title-bar"] [
       div ~a:["class","title"] [h1; h5; nav]
@@ -55,9 +58,12 @@ let title_bar,title_bar_frontpage =
 let footer_item : Html.item =
   let open Html in
   let links = [
-    "http://twitter.com/ryanrhymes", "@ryanrhymes";
-    "http://ocaml.xyz", "ocaml.xyz";
-    "https://github.com/owlbarn/", "GitHub";
+    "http://twitter.com/realworldocaml", "@realworldocaml";
+    "http://twitter.com/yminsky", "@yminsky";
+    "http://twitter.com/avsm", "@avsm";
+    "https://plus.google.com/111219778721183890368", "+hickey";
+    "https://github.com/realworldocaml", "GitHub";
+    "http://www.goodreads.com/book/show/16087552-real-world-ocaml", "goodreads";
   ]
   |> List.map ~f:(fun (href,text) -> li [a ~a:["href",href] [`Data text]])
   |> ul
@@ -65,7 +71,8 @@ let footer_item : Html.item =
   footer [
     div ~a:["class","content"] [
       links;
-      p [`Data "Copyright 2012-2014 Liang Wang"];
+      p [`Data "Copyright 2012-2014 \
+         Jason Hickey, Anil Madhavapeddy and Yaron Minsky."];
     ]
   ]
 
@@ -136,10 +143,14 @@ let next_chapter_footer next_chapter : Html.item option =
     front page and only chapter pages contain links to a next chapter,
     so these are additional arguments. *)
 let main_template ?(next_chapter_footer=None)
+    ?chapter_title
     ~title_bar ~content () : Html.t =
+  let head_html = match chapter_title with
+    | None -> head_item ()
+    | Some str -> head_item ~chapter_title:str () in
   let open Html in
   [html ~a:["class", "js flexbox fontface"; "lang", "en"; "style", ""] [
-    head [head_item];
+    head_html;
     body (List.filter_map ~f:Fn.id [
       Some title_bar;
       Some (div ~a:["class","wrap"] content);
@@ -147,7 +158,6 @@ let main_template ?(next_chapter_footer=None)
       Some footer_item;
       Some (Html.script ~a:["src","js/jquery.min.js"] []);
       Some (Html.script ~a:["src","js/min/app-min.js"] []);
-      Some (Html.script ~a:["src","js/discourse.js"] []);
     ])
   ]]
 
@@ -165,7 +175,7 @@ let make_frontpage ?(repo_root=".") () : Html.t Deferred.t =
   (
     Toc.get ~repo_root () >>| function
     | [a;b;c] -> a,b,c
-    | _ -> failwith "frontpage design expects exactly 3 parts"
+    | _ -> failwith "frontpage design expects exactly 2 parts"
   ) >>= fun (prologue,part1,part2) ->
   let column1 = [Html.div ~a:["class","index-toc"]
     ((part_items prologue)@(part_items part1))]
@@ -232,7 +242,8 @@ let make_chapter_page chapters chapter_file
   ]
   in
   let content = Index.idx_to_indexterm content in
-  main_template ~title_bar:title_bar ~next_chapter_footer ~content ()
+  let chapter_title = chapter.title in
+  main_template ~title_bar:title_bar ~next_chapter_footer ~content ~chapter_title ()
 
 let make_simple_page file =
   Html.of_file file >>= fun content ->
@@ -242,6 +253,19 @@ let make_simple_page file =
   ] in
   return (main_template ~title_bar:title_bar ~content ())
 
+let make_tex_inputs_page ?(repo_root=".") () : string Deferred.t =
+  Toc_tex.get ~repo_root () >>| fun l ->
+  let to_input s = [Tex.input (repo_root / "book" / s ^ ".tex"); Tex.newpage] in
+  let to_tex t : Tex.t list =
+      match t with
+      | `part (part: Toc_tex.part) ->
+          [Tex.part part.title]::(List.map ~f:to_input part.chapters)
+      | `chapter s -> [to_input s]
+  in
+  List.map ~f:to_tex l
+  |> List.join
+  |> List.map ~f:Tex.to_string
+  |> String.concat ~sep:"\n"
 
 (******************************************************************************)
 (* Main Functions                                                             *)
@@ -252,6 +276,7 @@ type src = [
 | `Toc_page
 | `FAQs
 | `Install
+| `Latex
 ]
 
 let make ?(repo_root=".") ~out_dir = function
@@ -296,5 +321,12 @@ let make ?(repo_root=".") ~out_dir = function
     Log.Global.info "making %s" out_file;
     make_simple_page in_file >>= fun html ->
     return (Html.to_string html) >>= fun contents ->
+    Writer.save out_file ~contents
+  )
+  | `Latex -> (
+    let base = "inputs.tex" in
+    let out_file = out_dir/base in
+    Log.Global.info "making %s" out_file;
+    make_tex_inputs_page ~repo_root () >>= fun contents ->
     Writer.save out_file ~contents
   )

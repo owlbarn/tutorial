@@ -88,14 +88,14 @@ The difference between the two is: `init` passes 1-d indices to the user-defined
 
 # let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i))
 val x : Arr.arr =
-  
-   C0 C1 C2 C3 C4 C5 C6 C7 
-R0  0  2  4  6  8 10 12 14 
-R1 16 18 20 22 24 26 28 30 
-R2 32 34 36 38 40 42 44 46 
-R3 48 50 52 54 56 58 60 62 
-R4 64 66 68 70 72 74 76 78 
-R5 80 82 84 86 88 90 92 94 
+
+   C0 C1 C2 C3 C4 C5 C6 C7
+R0  0  2  4  6  8 10 12 14
+R1 16 18 20 22 24 26 28 30
+R2 32 34 36 38 40 42 44 46
+R3 48 50 52 54 56 58 60 62
+R4 64 66 68 70 72 74 76 78
+R5 80 82 84 86 88 90 92 94
 
 ```
 
@@ -133,6 +133,7 @@ val same_shape : ('a, 'b) t -> ('a, 'b) t -> bool
 (** [same_shape x y] checks whether [x] and [y] has the same shape or not. *)
 
 val kind : ('a, 'b) t -> ('a, 'b) kind
+(** [kind x] returns the type of ndarray [x]. *)
 ```
 
 Note that `nnz` and `density` need to traverse through all the elements in an ndarray, but because the implementation is in C so even for a very large ndarray the performance is still good.
@@ -436,11 +437,11 @@ Let's first create a sequential ndarray.
 
 # let x = Arr.sequential [|3;4|]
 val x : Arr.arr =
-  
-   C0 C1 C2 C3 
-R0  0  1  2  3 
-R1  4  5  6  7 
-R2  8  9 10 11 
+
+   C0 C1 C2 C3
+R0  0  1  2  3
+R1  4  5  6  7
+R2  8  9 10 11
 
 ```
 
@@ -449,14 +450,14 @@ The code below tiles `x` once on both dimentions.
 ```ocaml
 # let y = Arr.tile x [|2;2|]
 val y : Arr.arr =
-  
-   C0 C1 C2 C3 C4 C5 C6 C7 
-R0  0  1  2  3  0  1  2  3 
-R1  4  5  6  7  4  5  6  7 
-R2  8  9 10 11  8  9 10 11 
-R3  0  1  2  3  0  1  2  3 
-R4  4  5  6  7  4  5  6  7 
-R5  8  9 10 11  8  9 10 11 
+
+   C0 C1 C2 C3 C4 C5 C6 C7
+R0  0  1  2  3  0  1  2  3
+R1  4  5  6  7  4  5  6  7
+R2  8  9 10 11  8  9 10 11
+R3  0  1  2  3  0  1  2  3
+R4  4  5  6  7  4  5  6  7
+R5  8  9 10 11  8  9 10 11
 
 ```
 
@@ -465,14 +466,14 @@ Comparing to `tile`, `repeat` function replicates each element in their adjacent
 ```ocaml
 # let z = Arr.repeat x [|2;1|]
 val z : Arr.arr =
-  
-   C0 C1 C2 C3 
-R0  0  1  2  3 
-R1  0  1  2  3 
-R2  4  5  6  7 
-R3  4  5  6  7 
-R4  8  9 10 11 
-R5  8  9 10 11 
+
+   C0 C1 C2 C3
+R0  0  1  2  3
+R1  0  1  2  3
+R2  4  5  6  7
+R3  4  5  6  7
+R4  8  9 10 11
+R5  8  9 10 11
 
 ```
 

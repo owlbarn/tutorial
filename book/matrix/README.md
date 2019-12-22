@@ -46,12 +46,12 @@ As you noticed, the last example is to create a random matrix where the elements
 # Mat.(empty 5 5 |> map (fun _ -> Stats.t_rvs ~df:1. ~loc:0. ~scale:1.))
 - : Mat.mat =
 
-          C0        C1        C2          C3        C4 
-R0   1.44768 -0.349538 -0.600692    -15.6261   2.07554 
-R1  -1.25034   1.20008  -1.76243   -0.719415 -0.580605 
-R2  -1.71484   10.1152 -0.138612    0.276529 -0.355326 
-R3   0.83227  -6.36336   1.48695 -0.00277443 -0.791397 
-R4 -0.336031   -1.7789 -0.113224     4.15084   -2.1577 
+          C0        C1        C2          C3        C4
+R0   1.44768 -0.349538 -0.600692    -15.6261   2.07554
+R1  -1.25034   1.20008  -1.76243   -0.719415 -0.580605
+R2  -1.71484   10.1152 -0.138612    0.276529 -0.355326
+R3   0.83227  -6.36336   1.48695 -0.00277443 -0.791397
+R4 -0.336031   -1.7789 -0.113224     4.15084   -2.1577
 
 ```
 
@@ -64,12 +64,12 @@ Alternatively, you can use `uniform` function to generate the input values, as b
 # Mat.(uniform 5 5 |> map Maths.sin)
 - : Mat.mat =
 
-         C0        C1       C2       C3       C4 
-R0  0.11068 0.0997998 0.185571 0.521833 0.583662 
-R1 0.818164  0.426204 0.524001 0.395543 0.590104 
-R2 0.420941  0.496159 0.084013 0.425077 0.443924 
-R3 0.694034  0.147498 0.430752 0.302604 0.128698 
-R4 0.840643  0.163237 0.658268 0.457176 0.175289 
+         C0        C1       C2       C3       C4
+R0  0.11068 0.0997998 0.185571 0.521833 0.583662
+R1 0.818164  0.426204 0.524001 0.395543 0.590104
+R2 0.420941  0.496159 0.084013 0.425077 0.443924
+R3 0.694034  0.147498 0.430752 0.302604 0.128698
+R4 0.840643  0.163237 0.658268 0.457176 0.175289
 
 ```
 
@@ -78,13 +78,13 @@ Owl can create some special matrices with specific properties. For example, a *m
 ```ocaml env=matrix_env2
 # let x = Mat.magic 5
 val x : Mat.mat =
-  
-   C0 C1 C2 C3 C4 
-R0 17 24  1  8 15 
-R1 23  5  7 14 16 
-R2  4  6 13 20 22 
-R3 10 12 19 21  3 
-R4 11 18 25  2  9 
+
+   C0 C1 C2 C3 C4
+R0 17 24  1  8 15
+R1 23  5  7 14 16
+R2  4  6 13 20 22
+R3 10 12 19 21  3
+R4 11 18 25  2  9
 
 ```
 
@@ -92,9 +92,9 @@ We can validate this property with the following code. The summation of all the 
 
 ```ocaml env=matrix_env2
 # Mat.sum_rows x
-- : Mat.mat = 
-   C0 C1 C2 C3 C4 
-R0 65 65 65 65 65 
+- : Mat.mat =
+   C0 C1 C2 C3 C4
+R0 65 65 65 65 65
 
 ```
 
@@ -102,13 +102,13 @@ The summation of all the elements on each row is 65.
 
 ```ocaml env=matrix_env2
 # Mat.sum_cols x
-- : Mat.mat = 
-   C0 
-R0 65 
-R1 65 
-R2 65 
-R3 65 
-R4 65 
+- : Mat.mat =
+   C0
+R0 65
+R1 65
+R2 65
+R3 65
+R4 65
 
 ```
 
@@ -204,11 +204,11 @@ If you want to create a new matrix out of the existing one, you need `mapi` and 
 # Mat.map ((+.) 1.) x
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 C5 
-R0  1  2  3  4  5  6 
-R1  7  8  9 10 11 12 
-R2 13 14 15 16 17 18 
-R3 19 20 21 22 23 24 
+   C0 C1 C2 C3 C4 C5
+R0  1  2  3  4  5  6
+R1  7  8  9 10 11 12
+R2 13 14 15 16 17 18
+R3 19 20 21 22 23 24
 
 ```
 
@@ -219,9 +219,9 @@ We can take some rows out of `x` by calling `rows` function. The selected rows w
 # Mat.rows x [|0;2|]
 - : Mat.mat =
 
-   C0 C1 C2 C3 C4 C5 
-R0  0  1  2  3  4  5 
-R1 12 13 14 15 16 17 
+   C0 C1 C2 C3 C4 C5
+R0  0  1  2  3  4  5
+R1 12 13 14 15 16 17
 
 ```
 
@@ -232,11 +232,11 @@ Similarly, we can also select some columns as below.
 # Mat.cols x [|3;2;1|]
 - : Mat.mat =
 
-   C0 C1 C2 
-R0  3  2  1 
-R1  9  8  7 
-R2 15 14 13 
-R3 21 20 19 
+   C0 C1 C2
+R0  3  2  1
+R1  9  8  7
+R2 15 14 13
+R3 21 20 19
 
 ```
 

@@ -1,4 +1,4 @@
-<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="algorithmic-differentiation">
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Algorithmic Differentiation - Real World OCaml</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>Real World OCaml</h1><h5>2<sup>nd</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.janestreet.com/ocaml-core/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="algorithmic-differentiation">
 <h1>Algorithmic Differentiation</h1>
 <p>Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields, especially useful for fast prototyping in machine learning research. Comparing to numerical differentiation which can only provides approximate results, AD can calculates the exact derivative of a given function.</p>
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli">Algodiff.Generic</a> module).</p>
@@ -38,7 +38,7 @@
 <li>if input variables &gt;&gt; output variables, then use backward mode;</li>
 <li>if input variables &lt;&lt; output variables, then use forward mode.</li>
 </ul>
-<p>E.g., let's look at the two simple functions <code>f</code> and <code>g</code> defined below. <code>f</code> falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst <code>g</code> falls into the second category.</p>
+<p>E.g., let’s look at the two simple functions <code>f</code> and <code>g</code> defined below. <code>f</code> falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst <code>g</code> falls into the second category.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   open Algodiff.D;;
@@ -65,7 +65,7 @@
   ;;
 </code></pre>
 </div>
-<p>According to the rule of thumb, we need to use backward mode to differentiate <code>f</code>, i.e., calculate the gradient of <code>f</code>. How to do that then? Let's look at the code snippet below.</p>
+<p>According to the rule of thumb, we need to use backward mode to differentiate <code>f</code>, i.e., calculate the gradient of <code>f</code>. How to do that then? Let’s look at the code snippet below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let x = Mat.uniform 1 3;;           (* generate random input *)
@@ -86,7 +86,7 @@
 </code></pre>
 </div>
 <p>Forward mode appears much simpler than the backward mode. <code>make_forward</code> function does almost the same thing as <code>make_reverse</code> does for us, the only exception is that <code>make_forward</code> uses <code>DF</code> type constructor to wrap up the input. All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in <code>y</code>. We can retrieve the derivatives using <code>tangent</code> function, as we used <code>adjval</code> in the backward mode.</p>
-<p>OK, how about we abandon the rule of thumb? In other words, let's use forward mode to differentiate <code>f</code> rather than using backward mode. Please check the solution below.</p>
+<p>OK, how about we abandon the rule of thumb? In other words, let’s use forward mode to differentiate <code>f</code> rather than using backward mode. Please check the solution below.</p>
 <div class="highlight">
 <pre><code class="language-text">  Need to be fixed!
 
@@ -102,7 +102,7 @@
 </div>
 <p>As we can see, for each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for <code>f</code>. One real-world example of <code>f</code> is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.</p>
 <p>Similarly, you can try to use backward mode to differentiate <code>g</code>. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.</p>
-<p>In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.</p>
+<p>In reality, you don’t really need to worry about forward or backward mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.</p>
 </section>
 <section class="level2" id="examples">
 <h2>Examples</h2>
@@ -164,7 +164,7 @@ let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
   if (unpack_flt g) &lt; eps then x
   else desc ~eta ~eps f Maths.(x - eta * g);;</code></pre>
 </div>
-<p>Now let's define a function we want to optimise, then plug it into <code>desc</code> function.</p>
+<p>Now let’s define a function we want to optimise, then plug it into <code>desc</code> function.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f x = Maths.(sin x + cos x);;
 let x_min = desc f (F 0.1);;</code></pre>
@@ -179,8 +179,8 @@ Plot.output h;;</code></pre>
 <p><img width="600px" title="gradient descent" alt="plot 00" src="images/algodiff/plot_01.png"></p>
 </section>
 <section class="level3" id="example-3-newtons-algorithm">
-<h3>Example 3: Newton's Algorithm</h3>
-<p>Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of <code>f</code> which in practice is very expensive operation.</p>
+<h3>Example 3: Newton’s Algorithm</h3>
+<p>Newton’s method is a root-finding algorithm by successively searching for better approximation of the root. The Newton’s method converges faster than gradient descent. The following implementation calculates the exact hessian of <code>f</code> which in practice is very expensive operation.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -200,7 +200,7 @@ newton f (Mat.uniform 1 2)
 </section>
 <section class="level3" id="example-4-backpropagation-in-neural-network">
 <h3>Example 4: Backpropagation in Neural Network</h3>
-<p>Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
+<p>Now let’s talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
 <div class="highlight">
 <pre><code class="language-text">let backprop nn eta x y =
   let t = tag () in
@@ -216,7 +216,7 @@ newton f (Mat.uniform 1 2)
   ) nn.layers;
   loss |&gt; unpack_flt</code></pre>
 </div>
-<p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl's example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
+<p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl’s example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
 <p>.. figure:: ../figure/plot_034.png :width: 100% :align: center :alt: mnist experiment</p>
 </section>
 <section class="level3" id="example-5-computation-graph-of-simple-functions">
@@ -231,7 +231,7 @@ newton f (Mat.uniform 1 2)
 </div>
 <p><code>to_trace</code> is useful when the graph is small and you can print it out on the terminal then observe it directly. <code>to_dot</code> is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.</p>
 <p>In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the <a href="https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml">computation_graph.ml</a>.</p>
-<p>Let's start with a simple function as below.</p>
+<p>Let’s start with a simple function as below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |&gt; sum)</code></pre>
 </div>
@@ -240,7 +240,7 @@ newton f (Mat.uniform 1 2)
 </section>
 <section class="level3" id="example-6-computation-graph-of-vgg-like-neural-network">
 <h3>Example 6: Computation Graph of VGG-like Neural Network</h3>
-<p>Let's define a VGG-like neural network as below.</p>
+<p>Let’s define a VGG-like neural network as below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Neural.S
 open Neural.S.Graph
@@ -278,15 +278,15 @@ let make_network wndsz vocabsz =
   |&gt; linear vocabsz ~act_typ:Activation.(Softmax 1)
   |&gt; get_network</code></pre>
 </div>
-<p>However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
+<p>However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
 <p>.. figure:: ../figure/plot_030.png :width: 100% :align: center :alt: computation graph of lstm</p>
 </section>
 <section class="level3" id="example-8-computation-graph-of-googles-inception">
-<h3>Example 8: Computation Graph of Google's Inception</h3>
-<p>If the computation graph above hasn't scared you yet, here is another one generated from Google's Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl's zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
+<h3>Example 8: Computation Graph of Google’s Inception</h3>
+<p>If the computation graph above hasn’t scared you yet, here is another one generated from Google’s Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl’s zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
 <p>The image below is too small to check details, please download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf">PDF file 2</a>.</p>
 <p>.. figure:: ../figure/plot_031.png :width: 100% :align: center :alt: computation graph of inception</p>
 </section>
 </section>
 </section>
-</article></div><a href="optimisation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 10</small>Optimisation</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>
+</article></div><a href="optimisation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 10</small>Optimisation</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/realworldocaml">@realworldocaml</a></li><li><a href="http://twitter.com/yminsky">@yminsky</a></li><li><a href="http://twitter.com/avsm">@avsm</a></li><li><a href="https://plus.google.com/111219778721183890368">+hickey</a></li><li><a href="https://github.com/realworldocaml">GitHub</a></li><li><a href="http://www.goodreads.com/book/show/16087552-real-world-ocaml">goodreads</a></li></ul><p>Copyright 2012-2014 Jason Hickey, Anil Madhavapeddy and Yaron Minsky.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

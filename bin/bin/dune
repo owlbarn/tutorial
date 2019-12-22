@@ -1,11 +1,7 @@
 (executables
  (package      otb)
- (names        app dep)
- (public_names otb-build otb-dep)
+ (names        app dep convert_md)
+ (public_names otb-build otb-dep otb-convert_md)
  (preprocess   (pps ppx_jane))
- (libraries    otb lambdasoup sexp_pretty)
+ (libraries    otb lambdasoup sexp_pretty mdx cmdliner fmt)
  (flags        :standard -short-paths))
-
-(alias
- (name   bin)
- (deps   app.exe dep.exe))

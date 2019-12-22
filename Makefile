@@ -25,3 +25,11 @@ clean:
 push:
 	git commit -am "editing book ..." && \
 	git push origin `git branch | grep \* | cut -d ' ' -f2`
+
+.PHONY: docker
+docker:
+	docker build -t owlbarn/owl_tutorials:latest .
+
+.PHONY: compile
+compile:
+	docker run -v /home/liang/code/owl_tutorials:/home/opam/owl_tutorials_local -it owlbarn/owl_tutorials:latest

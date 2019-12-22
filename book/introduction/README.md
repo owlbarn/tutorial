@@ -246,7 +246,7 @@ val make_network : int array -> network = <fun>
     prev:[fullyconnected_6] next:[linear_8]
 
 [ Node linear_8 ]:
-    Linear : matrix in:(*,1024) out:(*,10) 
+    Linear : matrix in:(*,1024) out:(*,10)
     init   : standard
     params : 10250
     w      : 1024 x 10
@@ -269,6 +269,8 @@ The Second example demonstrates how to plot figures in notebook. Because Owl's P
 # #require "owl-top, owl-plplot jupyter.notebook"
 # open Owl
 # open Owl_plplot
+Line 1, characters 6-16:
+Error: Unbound module Owl_plplot
 
 # let f x = Maths.sin x /. x in
   let h = Plot.create "plot_00.png" in
@@ -279,7 +281,8 @@ The Second example demonstrates how to plot figures in notebook. Because Owl's P
   Plot.set_pen_size h 3.;
   Plot.plot_fun ~h f 1. 15.;
   Plot.output h
-- : unit = ()
+Line 2, characters 11-22:
+Error: Unbound module Plot
 ```
 
 To load the image into browser, we need to call `Jupyter_notebook.display_file` function. Then we can see the plot is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.

@@ -1,16 +1,16 @@
-<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="dataframe-for-tabular-data">
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Dataframe for Tabular Data - Real World OCaml</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>Real World OCaml</h1><h5>2<sup>nd</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.janestreet.com/ocaml-core/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="dataframe-for-tabular-data">
 <h1>Dataframe for Tabular Data</h1>
-<p>Dataframe is a popular way to manipulate data. It originates from R's dataframe and is widely implemented in many mainstream libraries such as Pandas. Essentially, a dataframe is simple container of the data that can be represented as a table.</p>
-<p>Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml's static type checking, this poses greatest challenges to Owl when I was trying to introduce the similar functionality.</p>
+<p>Dataframe is a popular way to manipulate data. It originates from R’s dataframe and is widely implemented in many mainstream libraries such as Pandas. Essentially, a dataframe is simple container of the data that can be represented as a table.</p>
+<p>Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml’s static type checking, this poses greatest challenges to Owl when I was trying to introduce the similar functionality.</p>
 <p>It becomes an art when balancing between flexibility and efficiency in designing the programming interface. This article covers the design of Dataframe module and its basic usage.</p>
 <section class="level2" id="basic-concepts">
 <h2>Basic Concepts</h2>
-<p>The dataframe functionality is implemented in Owl's <a href="https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli">Dataframe</a> module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.</p>
+<p>The dataframe functionality is implemented in Owl’s <a href="https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli">Dataframe</a> module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.</p>
 <p>Owl packs each series into a unified type called <code>series</code> and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, iterate the data in a frame. We need to combine dataframe with the numerical functions in <code>Stats</code> module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.</p>
 </section>
 <section class="level2" id="create-frames">
 <h2>Create Frames</h2>
-<p>Dataframes can be created in various ways. <code>Dataframe.make</code> is the core function if we can to create a frame dynamically. For example, the following code creates a frame consisting of three columns include "name", "age", and "salary" of four people.</p>
+<p>Dataframes can be created in various ways. <code>Dataframe.make</code> is the core function if we can to create a frame dynamically. For example, the following code creates a frame consisting of three columns include “name”, “age”, and “salary” of four people.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  let name = Dataframe.pack_string_series [|"Alice"; "Bob"; "Carol"; "David"|]
   let age = Dataframe.pack_int_series [|20; 25; 30; 35|]
@@ -21,12 +21,12 @@
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_pretty.pp_dataframe Format.std_formatter frame;;;;
 &gt;  +-----+---+------
-&gt;    name age salary 
+&gt;    name age salary
 &gt;  +-----+---+------
-&gt;R0 Alice  20  2200. 
-&gt;R1   Bob  25  2100. 
-&gt;R2 Carol  30  2500. 
-&gt;R3 David  35  2800. 
+&gt;R0 Alice  20  2200.
+&gt;R1   Bob  25  2100.
+&gt;R2 Carol  30  2500.
+&gt;R3 David  35  2800.
 &gt;- : unit = ()
 </code></pre>
 </div>
@@ -52,17 +52,17 @@
   let location = Dataframe.pack_string_series [|"Cambridge, UK"; "Helsinki, FIN"; "London, UK"; "Prague, CZ"|] in
   Dataframe.append_col frame location "location";;</code></pre>
 </div>
-<p>From the output, we can see that the "job" column has been appended to the end of the previously defined dataframe.</p>
+<p>From the output, we can see that the “job” column has been appended to the end of the previously defined dataframe.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_pretty.pp_dataframe Format.std_formatter frame;;;;
 &gt;
 &gt;  +-----+---+------+--------+------+-------------
-&gt;    name age salary      job gender      location 
+&gt;    name age salary      job gender      location
 &gt;  +-----+---+------+--------+------+-------------
-&gt;R0 Alice  20  2200. Engineer female Cambridge, UK 
-&gt;R1   Bob  25  2100.   Driver   male Helsinki, FIN 
-&gt;R2 Carol  30  2500. Lecturer female    London, UK 
-&gt;R3 David  35  2800.  Manager   male    Prague, CZ 
+&gt;R0 Alice  20  2200. Engineer female Cambridge, UK
+&gt;R1   Bob  25  2100.   Driver   male Helsinki, FIN
+&gt;R2 Carol  30  2500. Lecturer female    London, UK
+&gt;R3 David  35  2800.  Manager   male    Prague, CZ
 &gt;- : unit = ()
 </code></pre>
 </div>
@@ -88,14 +88,14 @@
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_pretty.pp_dataframe Format.std_formatter frame_2;;;;
 &gt;
 &gt;  +-----+---+------+----------+------+-------------
-&gt;    name age salary        job gender      location 
+&gt;    name age salary        job gender      location
 &gt;  +-----+---+------+----------+------+-------------
-&gt;R0 Alice  20  2200.   Engineer female Cambridge, UK 
-&gt;R1   Bob  25  2100.     Driver   male Helsinki, FIN 
-&gt;R2 Carol  30  2500.   Lecturer female    London, UK 
-&gt;R3 David  35  2800.    Manager   male    Prague, CZ 
-&gt;R4  Erin  22  3600. Researcher   male  New York, US 
-&gt;R5 Frank  24  5500. Consultant   male   Beijing, CN 
+&gt;R0 Alice  20  2200.   Engineer female Cambridge, UK
+&gt;R1   Bob  25  2100.     Driver   male Helsinki, FIN
+&gt;R2 Carol  30  2500.   Lecturer female    London, UK
+&gt;R3 David  35  2800.    Manager   male    Prague, CZ
+&gt;R4  Erin  22  3600. Researcher   male  New York, US
+&gt;R5 Frank  24  5500. Consultant   male   Beijing, CN
 &gt;- : unit = ()
 </code></pre>
 </div>
@@ -147,7 +147,7 @@ Dataframe.append_row frame new_row
 <pre><code class="language-ocaml">  Dataframe.get_by_name frame 2 "salary";;
   (* return Carol's salary, i.e. 2500. *)</code></pre>
 </div>
-<p>We can use <code>head</code> and <code>tail</code> functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like <code>get_slice</code> or <code>get_slice_by_name</code> if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl's Ndarray modules.</p>
+<p>We can use <code>head</code> and <code>tail</code> functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like <code>get_slice</code> or <code>get_slice_by_name</code> if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl’s Ndarray modules.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
   (* return Bob's and Carol's name and age *)
@@ -176,7 +176,7 @@ Dataframe.append_row frame new_row
   val filter_map_row : (elt array -&gt; elt array option) -&gt; t -&gt; t
 </code></pre>
 </div>
-<p>Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into <code>elt</code> type, it is a programmer's responsibility to unpack them properly in the passed in function.</p>
+<p>Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into <code>elt</code> type, it is a programmer’s responsibility to unpack them properly in the passed in function.</p>
 <p>The interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.</p>
 <div class="highlight">
 <pre><code class="language-text">
@@ -362,4 +362,4 @@ Owl_pretty.pp_dataframe Format.std_formatter df</code></pre>
 <p>Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g. <code>Stats</code>) in Owl.</p>
 </section>
 </section>
-</article></div><a href="nlp.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 18</small>Natural Language Processing</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>
+</article></div><a href="nlp.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 18</small>Natural Language Processing</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/realworldocaml">@realworldocaml</a></li><li><a href="http://twitter.com/yminsky">@yminsky</a></li><li><a href="http://twitter.com/avsm">@avsm</a></li><li><a href="https://plus.google.com/111219778721183890368">+hickey</a></li><li><a href="https://github.com/realworldocaml">GitHub</a></li><li><a href="http://www.goodreads.com/book/show/16087552-real-world-ocaml">goodreads</a></li></ul><p>Copyright 2012-2014 Jason Hickey, Anil Madhavapeddy and Yaron Minsky.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
