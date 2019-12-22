@@ -1,11 +1,11 @@
-<html style="" lang="en" class="js flexbox fontface"><head><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>OCaml Scientific Computing</title><link href="https://fonts.googleapis.com/css?family=Open+Sans&amp;display=swap" rel="stylesheet"><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script>try{Typekit.load();}catch(e){}</script></head></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/index.html">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="n-dimensional-arrays">
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>N-Dimensional Arrays - Real World OCaml</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>Real World OCaml</h1><h5>2<sup>nd</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.janestreet.com/ocaml-core/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="n-dimensional-arrays">
 <h1>N-Dimensional Arrays</h1>
 <p>N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like Numpy to Scipy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, <code>Algodiff</code>, <code>Optimise</code>, <code>Neural</code>, and <code>Lazy</code> all these functors take Ndarray module as their module input.</p>
-<p>Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">owl_dense_ndarray_generic.mli</a>. Many of these functions (especially the critical ones) in Owl's core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray's <code>mli</code> file, you probably can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.</p>
+<p>Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">owl_dense_ndarray_generic.mli</a>. Many of these functions (especially the critical ones) in Owl’s core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray’s <code>mli</code> file, you probably can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.</p>
 <section class="level2" id="ndarray-types">
 <h2>Ndarray Types</h2>
-<p>The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native <code>Bigarray</code>, more specifically it is <code>Bigarray.Genarray</code>. Ndarray has the same type as that of <code>Genarray</code>, therefore exchanging data between Owl and other libraries relying on Bigarray is trivial.</p>
-<p>OCaml's Bigarray uses <code>kind</code> GADT to specify the number type, precision, and memory layout. Owl only keeps the first two but fixes the last one because Owl only uses <code>C-layout</code>, or <code>Row-based layout</code> in its implementation. The same design decisions can also be seen in ONNX. See the type definition in Ndarray module.</p>
+<p>The very first thing to understand is the types used in Ndarray. Owl’s Ndarray module is built directly on top of OCaml’s native <code>Bigarray</code>, more specifically it is <code>Bigarray.Genarray</code>. Ndarray has the same type as that of <code>Genarray</code>, therefore exchanging data between Owl and other libraries relying on Bigarray is trivial.</p>
+<p>OCaml’s Bigarray uses <code>kind</code> GADT to specify the number type, precision, and memory layout. Owl only keeps the first two but fixes the last one because Owl only uses <code>C-layout</code>, or <code>Row-based layout</code> in its implementation. The same design decisions can also be seen in ONNX. See the type definition in Ndarray module.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  type ('a, 'b) t = ('a, 'b, c_layout) Genarray.t</code></pre>
 </div>
@@ -13,9 +13,9 @@
 <ul>
 <li><p>Mixing two layouts together opens a can of worms and is the source of bugs. Especially, indexing in Fortran starts from 1 whereas indexing in C starts form 0. Many native OCaml data structures such as <code>Array</code> and <code>List</code> all start indexing from 0, so using <code>C-layout</code> avoids many potential troubles in using the library.</p></li>
 <li><p>Supporting both layouts adds a significant amount of complexity in implementing underlying Ndarray functions. Due to the difference in memory layout, code performs well on one layout may not does well on another. Many functions may require different implementations given different layout. This will add too much complexity and increase the code base with marginal benefits.</p></li>
-<li><p>Owl has rather different design principles comparing to OCaml's Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml's heap, facilitating exchanging data between different libraries (including Fortran ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.</p></li>
+<li><p>Owl has rather different design principles comparing to OCaml’s Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml’s heap, facilitating exchanging data between different libraries (including Fortran ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.</p></li>
 </ul>
-<p>Because of Bigarray, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, Matrix is just a special case of n-dimensional array, and in fact many functions in <code>Matrix</code> module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.</p>
+<p>Because of Bigarray, Owl’s Ndarray is also subject to maximum 16 dimensions limits. Moreover, Matrix is just a special case of n-dimensional array, and in fact many functions in <code>Matrix</code> module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.</p>
 </section>
 <section class="level2" id="creation-functions">
 <h2>Creation Functions</h2>
@@ -31,7 +31,7 @@ val zeros : ('a, 'b) kind -&gt; int array -&gt; ('a, 'b) t
 
 val ones : ('a, 'b) kind -&gt; int array -&gt; ('a, 'b) t</code></pre>
 </div>
-<p>These four functions return an ndarray of the specified shape, number type, and precision. <code>empty</code> function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling <code>empty</code> function is very fast.</p>
+<p>These four functions return an ndarray of the specified shape, number type, and precision. <code>empty</code> function is different from the other three – it does not really allocate any memory until you access it. Therefore, calling <code>empty</code> function is very fast.</p>
 <p>The other three functions are self-explained, <code>zeros</code> and <code>ones</code> fill the allocated memory with zeors and one respectively, whereas <code>create</code> function fills the memory with the specified value.</p>
 <p>If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.</p>
 <div class="highlight">
@@ -65,14 +65,14 @@ val init_nd : ('a, 'b) kind -&gt; int array -&gt; (int array -&gt; 'a) -&gt; ('a
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Arr.init [|6;8|] (fun i -&gt; 2. *. (float_of_int i));;
 &gt;val x : Arr.arr =
-&gt;  
-&gt;   C0 C1 C2 C3 C4 C5 C6 C7 
-&gt;R0  0  2  4  6  8 10 12 14 
-&gt;R1 16 18 20 22 24 26 28 30 
-&gt;R2 32 34 36 38 40 42 44 46 
-&gt;R3 48 50 52 54 56 58 60 62 
-&gt;R4 64 66 68 70 72 74 76 78 
-&gt;R5 80 82 84 86 88 90 92 94 
+&gt;
+&gt;   C0 C1 C2 C3 C4 C5 C6 C7
+&gt;R0  0  2  4  6  8 10 12 14
+&gt;R1 16 18 20 22 24 26 28 30
+&gt;R2 32 34 36 38 40 42 44 46
+&gt;R3 48 50 52 54 56 58 60 62
+&gt;R4 64 66 68 70 72 74 76 78
+&gt;R5 80 82 84 86 88 90 92 94
 </code></pre>
 </div>
 </section>
@@ -106,7 +106,8 @@ val size_in_bytes : ('a, 'b) t -&gt; int
 val same_shape : ('a, 'b) t -&gt; ('a, 'b) t -&gt; bool
 (** [same_shape x y] checks whether [x] and [y] has the same shape or not. *)
 
-val kind : ('a, 'b) t -&gt; ('a, 'b) kind</code></pre>
+val kind : ('a, 'b) t -&gt; ('a, 'b) kind
+(** [kind x] returns the type of ndarray [x]. *)</code></pre>
 </div>
 <p>Note that <code>nnz</code> and <code>density</code> need to traverse through all the elements in an ndarray, but because the implementation is in C so even for a very large ndarray the performance is still good.</p>
 <p>Property functions are easy to understand. In the following, I want to focus on three typical operations on n-dimensional array worth your special attention - <code>map</code>, <code>fold</code>, and <code>scan</code>.</p>
@@ -339,43 +340,43 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
 <section class="level2" id="manipulation-functions">
 <h2>Manipulation Functions</h2>
 <p>Ndarray module contains many useful functions to manipulate ndarrays. For exmaple, you can tile and repeat an ndarray along a specified axis.</p>
-<p>Let's first create a sequential ndarray.</p>
+<p>Let’s first create a sequential ndarray.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Arr.sequential [|3;4|];;
 &gt;val x : Arr.arr =
-&gt;  
-&gt;   C0 C1 C2 C3 
-&gt;R0  0  1  2  3 
-&gt;R1  4  5  6  7 
-&gt;R2  8  9 10 11 
+&gt;
+&gt;   C0 C1 C2 C3
+&gt;R0  0  1  2  3
+&gt;R1  4  5  6  7
+&gt;R2  8  9 10 11
 </code></pre>
 </div>
 <p>The code below tiles <code>x</code> once on both dimentions.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.tile x [|2;2|];;
 &gt;val y : Arr.arr =
-&gt;  
-&gt;   C0 C1 C2 C3 C4 C5 C6 C7 
-&gt;R0  0  1  2  3  0  1  2  3 
-&gt;R1  4  5  6  7  4  5  6  7 
-&gt;R2  8  9 10 11  8  9 10 11 
-&gt;R3  0  1  2  3  0  1  2  3 
-&gt;R4  4  5  6  7  4  5  6  7 
-&gt;R5  8  9 10 11  8  9 10 11 
+&gt;
+&gt;   C0 C1 C2 C3 C4 C5 C6 C7
+&gt;R0  0  1  2  3  0  1  2  3
+&gt;R1  4  5  6  7  4  5  6  7
+&gt;R2  8  9 10 11  8  9 10 11
+&gt;R3  0  1  2  3  0  1  2  3
+&gt;R4  4  5  6  7  4  5  6  7
+&gt;R5  8  9 10 11  8  9 10 11
 </code></pre>
 </div>
 <p>Comparing to <code>tile</code>, <code>repeat</code> function replicates each element in their adjacent places along specified dimension.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let z = Arr.repeat x [|2;1|];;
 &gt;val z : Arr.arr =
-&gt;  
-&gt;   C0 C1 C2 C3 
-&gt;R0  0  1  2  3 
-&gt;R1  0  1  2  3 
-&gt;R2  4  5  6  7 
-&gt;R3  4  5  6  7 
-&gt;R4  8  9 10 11 
-&gt;R5  8  9 10 11 
+&gt;
+&gt;   C0 C1 C2 C3
+&gt;R0  0  1  2  3
+&gt;R1  0  1  2  3
+&gt;R2  4  5  6  7
+&gt;R3  4  5  6  7
+&gt;R4  8  9 10 11
+&gt;R5  8  9 10 11
 </code></pre>
 </div>
 <p>You can also expand the dimensionality of an ndarray, or squeeze out those dimensions having only one element, or even padding elements to an existing ndarray.</p>
@@ -388,7 +389,7 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
   val pad : ?v:'a -&gt; int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t
 </code></pre>
 </div>
-<p>Another two useful functions are <code>concatenate</code> and <code>split</code>. <code>concatenate</code> allows us to concatenate an array of ndarrays along the specified axis. The constraint on the shapes is that, except the dimension for concatenation, the rest dimension must be equal. For matrices, there are two operators associated with concatenation: <code>@||</code> for concatenating horizontally (i.e. along axis 1); <code>@=</code> for concatenating vertically (i.e. along axis 0).</p>
+<p>Another two useful functions are <code>concatenate</code> and <code>split</code>. <code>concatenate</code> allows us to concatenate an array of ndarrays along the specified axis. The constraint on the shapes is that, except the dimension for concatenation, the rest dimension must be equal. For matrices, there are two operators associated with concatenation: <code>@||</code> for concatenating horizontally (i.e.&nbsp;along axis 1); <code>@=</code> for concatenating vertically (i.e.&nbsp;along axis 0).</p>
 <p><code>split</code> is simply the inverse operation of concatenation.</p>
 <div class="highlight">
 <pre><code class="language-text">
@@ -437,4 +438,4 @@ Mat.(x = y)
 <p>There are way more functions contained in the Ndarray module than the ones I have introduced here. Please refer to the API documentation for the full list.</p>
 </section>
 </section>
-</article></div><a href="matrix.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 06</small>Vectors and Matrices</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/ryanrhymes">@ryanrhymes</a></li><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/owlbarn/">GitHub</a></li></ul><p>Copyright 2012-2014 Liang Wang</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script><script src="js/discourse.js"></script></body></html>
+</article></div><a href="matrix.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 06</small>Vectors and Matrices</h1></div></a><footer><div class="content"><ul><li><a href="http://twitter.com/realworldocaml">@realworldocaml</a></li><li><a href="http://twitter.com/yminsky">@yminsky</a></li><li><a href="http://twitter.com/avsm">@avsm</a></li><li><a href="https://plus.google.com/111219778721183890368">+hickey</a></li><li><a href="https://github.com/realworldocaml">GitHub</a></li><li><a href="http://www.goodreads.com/book/show/16087552-real-world-ocaml">goodreads</a></li></ul><p>Copyright 2012-2014 Jason Hickey, Anil Madhavapeddy and Yaron Minsky.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
