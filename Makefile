@@ -16,7 +16,8 @@ compile: test
 	git add docs
 
 test: tool
-	@dune build @runtest
+	-dune build @runtest
+	-dune promote
 	@dune exec -- otb-dep $(CURDIR)
 
 test-all:
