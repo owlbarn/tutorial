@@ -25,7 +25,7 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 # Stats.skew data
 - : float = -0.100186978462459622
 # Stats.kurtosis data
-- : float = 1.90668234297861261
+- : float = 1.90668234297861283
 ```
 
 The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
