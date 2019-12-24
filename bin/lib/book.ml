@@ -58,9 +58,8 @@ let title_bar,title_bar_frontpage =
 let footer_item : Html.item =
   let open Html in
   let links = [
-    "http://twitter.com/ryanrhymes", "@ryanrhymes";
-    "https://github.com/ryanrhymes", "GitHub";
     "http://ocaml.xyz", "ocaml.xyz";
+    "https://github.com/ryanrhymes", "GitHub";
   ]
   |> List.map ~f:(fun (href,text) -> li [a ~a:["href",href] [`Data text]])
   |> ul
