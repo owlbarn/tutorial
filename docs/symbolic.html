@@ -2,29 +2,7 @@
 <h1>Symbolic Maths</h1>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<ul>
-<li>The background
-<ul>
-<li>Owl, numerical computing, OCaml ecosystem. Its powerful. de facto etc.</li>
-<li>Neural compilers</li>
-</ul></li>
-<li>The inefficiency
-<ul>
-<li>The other side of the world: symbolic computation.</li>
-<li>Also, symbolic manipulation is not limited to this.</li>
-<li>We have computation graph, but limited to …</li>
-</ul></li>
-<li>My work and solution
-<ul>
-<li>A pure-ocaml impl. based on owl-base. Symbolic maniputation, and multiple engines for executing the core symbolic layer.</li>
-</ul></li>
-<li>The result
-<ul>
-<li>This would enable a series of computation in Owl.</li>
-</ul></li>
-</ul>
-<p>It starts with tf-graph. Works fine. [reference] We find this approach is limited.</p>
-<p>The we find a standaline generic symbolic representation could be used</p>
+<p>The development of <code>owl_symbolic</code> library is motivated by multiple factors. For one thing, scientific computation can be considered as consisting of two broad categories: numerical computation, and symbolic computation. Owl has achieved a solid foundation in the former, but as yet to support the latter one, which is heavily utilised in a lot of fields. For another, with the development of neural network compilers such as <a href="https://tvm.apache.org/">TVM</a>, it is an growing trend that the definition of computation can be separated out, and the low level compilers to deal with optimisation and code generation etc. to pursue best computation performance. Besides, tasks such as visualising a computation also require some form or intermediate representation (IR). Owl has already provided a computation graph layer to separate the definition and execution of computation to improve the performance, but it’s not a IR layer to perform these different tasks as mentioned before. Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.</p>
 </section>
 <section class="level2" id="design">
 <h2>Design</h2>
@@ -183,9 +161,58 @@ pred_onx = sess.run(None, {input_name_x: input_x})[0]</code></pre>
 </section>
 <section class="level2" id="latex-engine">
 <h2>LaTeX Engine</h2>
+<p>The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools. For example, we have built a web UI in this Engine that utilises <a href="">KaTeX</a>, which renders LaTeX string directly on a browser. Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl_symbolic
+open Op
+open Infix
+
+let make_expr0 () =
+  (* construct *)
+  let x = variable "x_0" in
+  let y =
+    exp ((sin x ** float 2.) + (cos x ** float 2.))
+    + (float 10. * (x ** float 2.))
+    + exp (pi () * complex 0. 1.)
+  in
+  let expr = SymGraph.make_graph [| y |] "sym_graph" in
+  (* to LaTeX string *)
+  LaTeX_Engine.of_symbolic expr |&gt; print_endline;
+  expr
+
+let _ =
+  let exprs = [ make_expr0 () ] in
+  LaTeX_Engine.html ~dot:true ~exprs "example.html"</code></pre>
+</div>
+<p>The generated “example.html” webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:</p>
+<p><img src="images/symbolic/latex_00.png"></p>
+<p>For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.</p>
+<p>This is still an on-going work.</p>
 </section>
 <section class="level2" id="owl-engine">
 <h2>Owl Engine</h2>
+<p>An Owl Engine enables converting Owl computation graph to or from a symbolic representation. Symbolic graph can thus benefit from the concise syntax and powerful features such as Algorithm Differentiation in Owl.</p>
+<p>We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks. Here is such an example. A simple computation graph created by <code>make_graph ()</code> is processed by two chained engines, and generates a ONNX model.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl_symbolic
+module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
+module OWL_Engine = Owl_symbolic_engine_owl.Make (G)
+include Owl_algodiff_generic.Make (G)
+
+let make_graph () =
+  let x = G.ones [| 2; 3 |] |&gt; pack_arr in
+  let y = G.var_elt "y" |&gt; pack_elt in
+  let z = Maths.(sin x + y) in
+  let input = [| unpack_elt y |&gt; G.elt_to_node |] in
+  let output = [| unpack_arr z |&gt; G.arr_to_node |] in
+  G.make_graph ~input ~output "graph"
+
+
+let _ =
+  let k = make_graph () |&gt; OWL_Engine.to_symbolic |&gt; ONNX_Engine.of_symbolic in
+  ONNX_Engine.save k "test.onnx"</code></pre>
+</div>
+<p>This is still an on-going work.</p>
 </section>
 <section class="level2" id="algebraic-simplification">
 <h2>Algebraic Simplification</h2>
