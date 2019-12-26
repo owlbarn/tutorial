@@ -24,22 +24,71 @@ The we find a standaline generic symbolic representation could be used
 
 ## Design
 
-- Core
-  - operations classification. Each module contains these common attributes, and also extra attributes such as axis.
-    - input ops: int, float, tensor, variable, random, PI
-  - naming
-  - data structure: graph
-  - shape checking and inferencing
-  - types
-  - The difference of `owl_graph` input and input names in each module.
-  - multiple outputs
+`owl_symbolic` is divided into two parts: the core symbolic representation that construct a symbolic graph, and various engines that perform different task based on the graph.
 
-- Engines
-  Based on this simple core abstraction, we use different *engines* to provide functinalities: ONNX, Owl, LaTeX, pprint, etc.
-  We provide each module an `attr` as extension points. Defined as follow.
+### Core abstraction
+
+The core part is designed to be minimal and contains only necessary information.
+Currently it has already covered many common computation types, such as math operations, tensor manipulations, neural network specific operations such as convolution, pooling etc.
+Each symbol in the symbolic graph performs a certain operation.
+Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.
+
+Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes that are specific to itself.
+The graph is implemented using Owl's `Owl_graph` data structure, with a symbol as attribution of a node in `Owl_graph`.
+
+Currently we adopt a global naming scheme, which is to add an incremental index number after each node's type. For example, if we have an `Add` symbol, an `Div` symbol, and then another `Add` symbol in a graph, then each node will be named `add_0`, `div_1`, `add_1`.
+One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.
+
+One task the symbolic core need to perform is shape checking and shape inferencing. The type supported by `owl_symbolic` is listed as follows:
+```ocaml
+type elem_type =
+  | SNT_Noop
+  | SNT_Float
+  | SNT_Double
+  | SNT_Complex32
+  | SNT_Complex64
+  | SNT_Bool
+  | SNT_String
+  | SNT_Int8
+  | SNT_Int16
+  | SNT_Int32
+  | SNT_Int64
+  | SNT_Uint8
+  | SNT_Uint16
+  | SNT_Uint32
+  | SNT_Uint64
+  | SNT_Float16
+  | SNT_SEQ of elem_type
+```
+This list of types cover most number and non-number types. `SNT_SEQ` means the type a list of the basic elements as inputs/outputs.
+Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node.
+In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to `None`.
+Once the input shapes contains `None`, the shape inference results hereafter will all be `None`, which means the output shapes can not be decided at compile time.
+
+The core part provides symbolic operations as user interface.
+Each operation constructs a `symbol` and create a `symbol Owl_graph.node` as output.
+Some symbol generates multiple outputs. In that case, an operations returns not a node, but an tuple or, when output numbers are uncertain, an array of nodes.
 
 
-  The unified interfaces of each engine: of/to_symbolic.
+### Engines
+
+Based on this simple core abstraction, we use different *engines* to provide functionalities: converting to and from other computation expression formats, print out to human-readable format, graph optimisation, etc.
+As we have said, the core part is kept minimal. If the engines requires information other than what the core provides, each symbol has an `attr` property as extension point.
+
+All engines must follow the signatures below:#
+
+```ocaml
+type t
+
+val of_symbolic : Owl_symbolic_graph.t -> t
+val to_symbolic : t -> Owl_symbolic_graph.t
+val save : t -> string -> unit
+val load : string -> t
+```
+
+It means that, each engine has its own core type `t`, be it a string or another format of graph, and it needs to convert `t` to and from the core symbolic grpah type, or save/load a type `t` data structure to file.
+
+Now that we have explained the design of `owl_symbolic`, let's look at the details of some engines in the next few sections.
 
 ## ONNX Engine
 
@@ -183,6 +232,9 @@ In summary, using ONNX as the intermediate format for exchange computation acros
 
 
 ## Owl Engine
+
+
+## Algebraic Simplification
 
 
 ## Conclusion
