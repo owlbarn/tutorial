@@ -2,12 +2,159 @@
 <h1>Symbolic Maths</h1>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
+<ul>
+<li>The background
+<ul>
+<li>Owl, numerical computing, OCaml ecosystem. Its powerful. de facto etc.</li>
+<li>Neural compilers</li>
+</ul></li>
+<li>The inefficiency
+<ul>
+<li>The other side of the world: symbolic computation.</li>
+<li>Also, symbolic manipulation is not limited to this.</li>
+<li>We have computation graph, but limited to …</li>
+</ul></li>
+<li>My work and solution
+<ul>
+<li>A pure-ocaml impl. based on owl-base. Symbolic maniputation, and multiple engines for executing the core symbolic layer.</li>
+</ul></li>
+<li>The result
+<ul>
+<li>This would enable a series of computation in Owl.</li>
+</ul></li>
+</ul>
+<p>It starts with tf-graph. Works fine. [reference] We find this approach is limited.</p>
+<p>The we find a standaline generic symbolic representation could be used</p>
 </section>
-<section class="level2" id="latex-engine">
-<h2>LaTeX Engine</h2>
+<section class="level2" id="design">
+<h2>Design</h2>
+<ul>
+<li>Core
+<ul>
+<li>operations classification. Each module contains these common attributes, and also extra attributes such as axis.
+<ul>
+<li>input ops: int, float, tensor, variable, random, PI</li>
+</ul></li>
+<li>naming</li>
+<li>data structure: graph</li>
+<li>shape checking and inferencing</li>
+<li>types</li>
+<li>The difference of <code>owl_graph</code> input and input names in each module.</li>
+<li>multiple outputs</li>
+</ul></li>
+<li><p>Engines Based on this simple core abstraction, we use different <em>engines</em> to provide functinalities: ONNX, Owl, LaTeX, pprint, etc. We provide each module an <code>attr</code> as extension points. Defined as follow.</p>
+<p>The unified interfaces of each engine: of/to_symbolic.</p></li>
+</ul>
 </section>
 <section class="level2" id="onnx-engine">
 <h2>ONNX Engine</h2>
+<p>The ONNX Engine is the current focus of development in <code>owl_symbolic</code>. <a href="https://onnx.ai">ONNX</a> is a widely adopted open neural network exchange format. A neural network model defined in ONNX can be, via suitable converters, can be run on different frameworks and thus hardware accelerators. The main target of ONNX is to promote the interchangeability of neural network and machine learning models, but it is worthy of noting that the standard covers a lot of basic operations in scientific computation, such as power, logarithms, trigonometric functions, etc. Therefore, ONNX engines serves as a good starting point for its coverage of operations.</p>
+<p>Taking a symbolic graph as input, how would then the ONNX engine produce ONNX model? We use the <a href="https://github.com/mransan/ocaml-protoc">ocaml-protoc</a>, a protobuf compiler for OCaml, as the tool. The ONNX specification is defined in a <a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">onnx.proto</a> file, and the <code>ocaml-protoc</code> can compile this protobuf files into OCaml types along with serialisation functions for a variety of encodings.</p>
+<p>For example, the toplevel message type in onnx.proto is <code>MessageProto</code>, defined as follows:</p>
+<div class="highlight">
+<pre><code class="language-proto">message ModelProto {
+  optional int64 ir_version = 1;
+  repeated OperatorSetIdProto opset_import = 8;
+  optional string producer_name = 2;
+  optional string producer_version = 3;
+  optional string domain = 4;
+  optional int64 model_version = 5;
+  optional string doc_string = 6;
+  optional GraphProto graph = 7;
+  repeated StringStringEntryProto metadata_props = 14;
+};</code></pre>
+</div>
+<p>And the generated OCaml types and serialisation function are:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+type model_proto =
+  { ir_version : int64 option
+  ; opset_import : operator_set_id_proto list
+  ; producer_name : string option
+  ; producer_version : string option
+  ; domain : string option
+  ; model_version : int64 option
+  ; doc_string : string option
+  ; graph : graph_proto option
+  ; metadata_props : string_string_entry_proto list
+  }
+
+val encode_model_proto : Onnx_types.model_proto -&gt; Pbrt.Encoder.t -&gt; unit</code></pre>
+</div>
+<p>Besides the meta information such as model version and IR version etc., a model is mainly a graph, which include input/output information and an array of nodes. A node specifies operator type, input and output node name, and its own attributions, such as the <code>axis</code> attribution in reduction operations.</p>
+<p>Therefore, all we need is to build up a <code>model_proto</code> data structure gradually from attributions to nodes, graph and model. It can then be serialised using <code>encode_model_proto</code> to generate a protobuf format file, and that is the ONNX model we want.</p>
+<p>Besides building up the model, one other task to be performed in the engine is type checking and type inferencing. The <a href="https://github.com/onnx/onnx/blob/master/docs/Operators.md">operator documentation</a> list the type constraints of each operator. For example, the sine function can only accept input of float or double number types, and generate the same type of input as that of input. Each type of operator has its own rules of type checking and inferencing. Starting from input nodes, which must contain specific type information, this chain if inferencing can thus verify the whole computation meets the type constraints for each node, and then yield the final output types of the whole graph. The reason that type checking is performed at the engine side instead of the core is that each engine may have different type constraints and type inferencing rules for the operators.</p>
+<section class="level3" id="example-1-basic-operations">
+<h3>Example 1: Basic operations</h3>
+<p>Let’s look at an simple example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl_symbolic
+open Op
+open Infix
+
+let x = variable "X"
+let y = variable "Y"
+let z = exp ((sin x ** float 2.) + (cos x ** float 2.)) + (float 10. * (y ** float 2.))
+let g = SymGraph.make_graph [| z |] "sym_graph"
+let m = ONNX_Engine.of_symbolic g
+let _ = ONNX_Engine.save m "test.onnx"</code></pre>
+</div>
+<p>After including necessary library component, the first three line of code creates a symbolic representation <code>z</code> using the symbolic operators such as <code>sin</code>, <code>pow</code> and <code>float</code>. The <code>x</code> and <code>y</code> are variables that accept user input. It is then used to be create a symbolic graph. This step mainly check if there is any duplication of node names. Then the <code>of_symbolic</code> function in ONNX engine takes the symbolic graph as input, and generate a <code>model_proto</code> data structure, which can be further saved as a model named <code>test.onnx</code>.</p>
+<p>To use this ONNX model we could use any framework that supports ONNX. Here we use the Python-based <a href="https://github.com/microsoft/onnxruntime">ONNX Runtime</a> as an example. We prepare a simple Python script as follows:</p>
+<div class="highlight">
+<pre><code class="language-python">import numpy as np
+import math
+import onnxruntime as rt
+
+sess = rt.InferenceSession("test.onnx")
+input_name_x = sess.get_inputs()[0].name
+input_name_y = sess.get_inputs()[1].name
+x = np.asarray(math.pi, dtype="float32")
+y = np.asarray(3., dtype="float32")
+
+pred_onx = sess.run(None, {input_name_x: x, input_name_y: y})[0]
+print(pred_onx)</code></pre>
+</div>
+<p>This script is very simple: it loads the ONNX model we have just created, and then get the two input variables, and assign two values to them in the <code>sess.run</code> command. All the user need to know in advance is that there are two input variables in this ONNX model. Note that not only we could define scalar type input, but also tensor type variables in <code>owl_symbolic</code>, and then assign NumPy array to them when evaluating.</p>
+</section>
+<section class="level3" id="example-2-neural-network">
+<h3>Example 2: Neural network</h3>
+<p>The main purpose of the ONNX standard is for expressing neural network models, and we have already cover most of the common operations that are required to construct neural networks. However, to construct a neural network model directly from existing <code>owl_symbolic</code> operations requires a lot of details such as input shapes or creating extra nodes. To make things easier for the users, we create neural network layer based on existing symbolic operations. This light-weight layer takes only 180 LoC, and yet it provides a Owl-like clean syntax for the users to construct neural networks. For example, we can construct a MNIST-DNN model:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl_symbolic_neural_graph
+let nn =
+  input [| 100; 3; 32; 32 |]
+  |&gt; normalisation
+  |&gt; conv2d [| 32; 3; 3; 3 |] [| 1; 1 |]
+  |&gt; activation Relu
+  |&gt; max_pool2d [| 2; 2 |] [| 2; 2 |] ~padding:VALID
+  |&gt; fully_connected 512
+  |&gt; activation Relu
+  |&gt; fully_connected 10
+  |&gt; activation (Softmax 1)
+  |&gt; get_network
+
+let _ =
+  let onnx_graph = Owl_symbolic_engine_onnx.of_symbolic nn in
+  Owl_symbolic_engine_onnx.save onnx_graph "test.onnx"</code></pre>
+</div>
+<p>Besides this simple DNN, we have also created the complex artchitectures such as ResNet, InceptionV3, SqueezeNet, etc. They are all adapted from existing Owl DNN models with only minor change. The execution of the generated ONNX model is similar:</p>
+<div class="highlight">
+<pre><code class="language-python">import numpy as np
+import onnxruntime as rt
+
+sess = rt.InferenceSession("test.onnx")
+input_name_x = sess.get_inputs()[0].name
+input_name_shape = sess.get_inputs()[0].shape
+input_x = np.ones(input_name_shape , dtype="float32")
+pred_onx = sess.run(None, {input_name_x: input_x})[0]</code></pre>
+</div>
+<p>For simplicity, we generate an dummy input for the execution/inference phase of this model. Of course, currently in our model the weight data is not trained. The training of a model is completed on a framework such as TensorFlow, and combining trained weight data into the ONNX model remains to be a future work.</p>
+<p>Furthermore, by using tools such as <code>js_of_ocaml</code>, we can convert both examples into JavaScript; executing them can create the ONNX models, which in turn can be executed on the browser using <a href="https://github.com/microsoft/onnxjs">ONNX.js</a> that utilises WebGL. In summary, using ONNX as the intermediate format for exchange computation across platforms enables numerous promising directions.</p>
+</section>
+</section>
+<section class="level2" id="latex-engine">
+<h2>LaTeX Engine</h2>
 </section>
 <section class="level2" id="owl-engine">
 <h2>Owl Engine</h2>
