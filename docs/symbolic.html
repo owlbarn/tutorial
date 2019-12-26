@@ -28,23 +28,51 @@
 </section>
 <section class="level2" id="design">
 <h2>Design</h2>
-<ul>
-<li>Core
-<ul>
-<li>operations classification. Each module contains these common attributes, and also extra attributes such as axis.
-<ul>
-<li>input ops: int, float, tensor, variable, random, PI</li>
-</ul></li>
-<li>naming</li>
-<li>data structure: graph</li>
-<li>shape checking and inferencing</li>
-<li>types</li>
-<li>The difference of <code>owl_graph</code> input and input names in each module.</li>
-<li>multiple outputs</li>
-</ul></li>
-<li><p>Engines Based on this simple core abstraction, we use different <em>engines</em> to provide functinalities: ONNX, Owl, LaTeX, pprint, etc. We provide each module an <code>attr</code> as extension points. Defined as follow.</p>
-<p>The unified interfaces of each engine: of/to_symbolic.</p></li>
-</ul>
+<p><code>owl_symbolic</code> is divided into two parts: the core symbolic representation that construct a symbolic graph, and various engines that perform different task based on the graph.</p>
+<section class="level3" id="core-abstraction">
+<h3>Core abstraction</h3>
+<p>The core part is designed to be minimal and contains only necessary information. Currently it has already covered many common computation types, such as math operations, tensor manipulations, neural network specific operations such as convolution, pooling etc. Each symbol in the symbolic graph performs a certain operation. Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.</p>
+<p>Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes that are specific to itself. The graph is implemented using Owl’s <code>Owl_graph</code> data structure, with a symbol as attribution of a node in <code>Owl_graph</code>.</p>
+<p>Currently we adopt a global naming scheme, which is to add an incremental index number after each node’s type. For example, if we have an <code>Add</code> symbol, an <code>Div</code> symbol, and then another <code>Add</code> symbol in a graph, then each node will be named <code>add_0</code>, <code>div_1</code>, <code>add_1</code>. One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.</p>
+One task the symbolic core need to perform is shape checking and shape inferencing. The type supported by <code>owl_symbolic</code> is listed as follows:
+<div class="highlight">
+<pre><code class="language-ocaml">type elem_type =
+  | SNT_Noop
+  | SNT_Float
+  | SNT_Double
+  | SNT_Complex32
+  | SNT_Complex64
+  | SNT_Bool
+  | SNT_String
+  | SNT_Int8
+  | SNT_Int16
+  | SNT_Int32
+  | SNT_Int64
+  | SNT_Uint8
+  | SNT_Uint16
+  | SNT_Uint32
+  | SNT_Uint64
+  | SNT_Float16
+  | SNT_SEQ of elem_type</code></pre>
+</div>
+<p>This list of types cover most number and non-number types. <code>SNT_SEQ</code> means the type a list of the basic elements as inputs/outputs. Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node. In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to <code>None</code>. Once the input shapes contains <code>None</code>, the shape inference results hereafter will all be <code>None</code>, which means the output shapes can not be decided at compile time.</p>
+<p>The core part provides symbolic operations as user interface. Each operation constructs a <code>symbol</code> and create a <code>symbol Owl_graph.node</code> as output. Some symbol generates multiple outputs. In that case, an operations returns not a node, but an tuple or, when output numbers are uncertain, an array of nodes.</p>
+</section>
+<section class="level3" id="engines">
+<h3>Engines</h3>
+<p>Based on this simple core abstraction, we use different <em>engines</em> to provide functionalities: converting to and from other computation expression formats, print out to human-readable format, graph optimisation, etc. As we have said, the core part is kept minimal. If the engines requires information other than what the core provides, each symbol has an <code>attr</code> property as extension point.</p>
+<p>All engines must follow the signatures below:#</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type t
+
+val of_symbolic : Owl_symbolic_graph.t -&gt; t
+val to_symbolic : t -&gt; Owl_symbolic_graph.t
+val save : t -&gt; string -&gt; unit
+val load : string -&gt; t</code></pre>
+</div>
+<p>It means that, each engine has its own core type <code>t</code>, be it a string or another format of graph, and it needs to convert <code>t</code> to and from the core symbolic grpah type, or save/load a type <code>t</code> data structure to file.</p>
+<p>Now that we have explained the design of <code>owl_symbolic</code>, let’s look at the details of some engines in the next few sections.</p>
+</section>
 </section>
 <section class="level2" id="onnx-engine">
 <h2>ONNX Engine</h2>
@@ -158,6 +186,9 @@ pred_onx = sess.run(None, {input_name_x: input_x})[0]</code></pre>
 </section>
 <section class="level2" id="owl-engine">
 <h2>Owl Engine</h2>
+</section>
+<section class="level2" id="algebraic-simplification">
+<h2>Algebraic Simplification</h2>
 </section>
 <section class="level2" id="conclusion">
 <h2>Conclusion</h2>
