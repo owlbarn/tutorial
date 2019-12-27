@@ -2,17 +2,17 @@
 <h1>Symbolic Maths</h1>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<p>The development of <code>owl_symbolic</code> library is motivated by multiple factors. For one thing, scientific computation can be considered as consisting of two broad categories: numerical computation, and symbolic computation. Owl has achieved a solid foundation in the former, but as yet to support the latter one, which is heavily utilised in a lot of fields. For another, with the development of neural network compilers such as <a href="https://tvm.apache.org/">TVM</a>, it is an growing trend that the definition of computation can be separated out, and the low level compilers to deal with optimisation and code generation etc. to pursue best computation performance. Besides, tasks such as visualising a computation also require some form or intermediate representation (IR). Owl has already provided a computation graph layer to separate the definition and execution of computation to improve the performance, but it’s not a IR layer to perform these different tasks as mentioned before. Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.</p>
+<p>The development of <code>owl_symbolic</code> library is motivated by multiple factors. For one thing, scientific computation can be considered as consisting of two broad categories: numerical computation, and symbolic computation. Owl has achieved a solid foundation in the former, but as yet to support the latter one, which is heavily utilised in a lot of fields. For another, with the development of neural network compilers such as <a href="https://tvm.apache.org/">TVM</a>, it is a growing trend that the definition of computation can be separated out, and the low level compilers to deal with optimisation and code generation etc. to pursue best computation performance. Besides, tasks such as visualising a computation also require some form or intermediate representation (IR). Owl has already provided a computation graph layer to separate the definition and execution of computation to improve the performance, but it’s not an IR layer to perform these different tasks as mentioned before. Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.</p>
 </section>
 <section class="level2" id="design">
 <h2>Design</h2>
-<p><code>owl_symbolic</code> is divided into two parts: the core symbolic representation that construct a symbolic graph, and various engines that perform different task based on the graph.</p>
+<p><code>owl_symbolic</code> is divided into two parts: the core symbolic representation that constructs a symbolic graph, and various engines that perform different task based on the graph.</p>
 <section class="level3" id="core-abstraction">
 <h3>Core abstraction</h3>
 <p>The core part is designed to be minimal and contains only necessary information. Currently it has already covered many common computation types, such as math operations, tensor manipulations, neural network specific operations such as convolution, pooling etc. Each symbol in the symbolic graph performs a certain operation. Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.</p>
-<p>Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes that are specific to itself. The graph is implemented using Owl’s <code>Owl_graph</code> data structure, with a symbol as attribution of a node in <code>Owl_graph</code>.</p>
-<p>Currently we adopt a global naming scheme, which is to add an incremental index number after each node’s type. For example, if we have an <code>Add</code> symbol, an <code>Div</code> symbol, and then another <code>Add</code> symbol in a graph, then each node will be named <code>add_0</code>, <code>div_1</code>, <code>add_1</code>. One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.</p>
-One task the symbolic core need to perform is shape checking and shape inferencing. The type supported by <code>owl_symbolic</code> is listed as follows:
+<p>Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes of itself. The graph is implemented using Owl’s <code>Owl_graph</code> data structure, with a symbol as attribution of a node in <code>Owl_graph</code>.</p>
+<p>Currently we adopt a global naming scheme, which is to add an incremental index number after each node’s type. For example, if we have an <code>Add</code> symbol, a <code>Div</code> symbol, and then another <code>Add</code> symbol in a graph, then each node will be named <code>add_0</code>, <code>div_1</code>, and <code>add_1</code>. One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.</p>
+One task the symbolic core needs to perform is shape checking and shape inferencing. The type supported by <code>owl_symbolic</code> is listed as follows:
 <div class="highlight">
 <pre><code class="language-ocaml">type elem_type =
   | SNT_Noop
@@ -33,13 +33,13 @@ One task the symbolic core need to perform is shape checking and shape inferenci
   | SNT_Float16
   | SNT_SEQ of elem_type</code></pre>
 </div>
-<p>This list of types cover most number and non-number types. <code>SNT_SEQ</code> means the type a list of the basic elements as inputs/outputs. Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node. In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to <code>None</code>. Once the input shapes contains <code>None</code>, the shape inference results hereafter will all be <code>None</code>, which means the output shapes can not be decided at compile time.</p>
-<p>The core part provides symbolic operations as user interface. Each operation constructs a <code>symbol</code> and create a <code>symbol Owl_graph.node</code> as output. Some symbol generates multiple outputs. In that case, an operations returns not a node, but an tuple or, when output numbers are uncertain, an array of nodes.</p>
+<p>This list of types covers most number and non-number types. <code>SNT_SEQ</code> means the type a list of the basic elements as inputs/outputs. Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node. In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to <code>None</code>. Once the input shapes contain <code>None</code>, the shape inference results hereafter will all be <code>None</code>, which means the output shapes cannot be decided at compile time.</p>
+<p>The core part provides symbolic operations as user interface. Each operation constructs a <code>symbol</code> and creates a <code>symbol Owl_graph.node</code> as output. Some symbol generates multiple outputs. In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.</p>
 </section>
 <section class="level3" id="engines">
 <h3>Engines</h3>
-<p>Based on this simple core abstraction, we use different <em>engines</em> to provide functionalities: converting to and from other computation expression formats, print out to human-readable format, graph optimisation, etc. As we have said, the core part is kept minimal. If the engines requires information other than what the core provides, each symbol has an <code>attr</code> property as extension point.</p>
-<p>All engines must follow the signatures below:#</p>
+<p>Based on this simple core abstraction, we use different <em>engines</em> to provide functionalities: converting to and from other computation expression formats, print out to human-readable format, graph optimisation, etc. As we have said, the core part is kept minimal. If the engines require information other than what the core provides, each symbol has an <code>attr</code> property as extension point.</p>
+<p>All engines must follow the signature below:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type t
 
@@ -48,14 +48,14 @@ val to_symbolic : t -&gt; Owl_symbolic_graph.t
 val save : t -&gt; string -&gt; unit
 val load : string -&gt; t</code></pre>
 </div>
-<p>It means that, each engine has its own core type <code>t</code>, be it a string or another format of graph, and it needs to convert <code>t</code> to and from the core symbolic grpah type, or save/load a type <code>t</code> data structure to file.</p>
+<p>It means that, each engine has its own core type <code>t</code>, be it a string or another format of graph, and it needs to convert <code>t</code> to and from the core symbolic graph type, or save/load a type <code>t</code> data structure to file. An engine can also contain extra functions besides these four.</p>
 <p>Now that we have explained the design of <code>owl_symbolic</code>, let’s look at the details of some engines in the next few sections.</p>
 </section>
 </section>
 <section class="level2" id="onnx-engine">
 <h2>ONNX Engine</h2>
 <p>The ONNX Engine is the current focus of development in <code>owl_symbolic</code>. <a href="https://onnx.ai">ONNX</a> is a widely adopted open neural network exchange format. A neural network model defined in ONNX can be, via suitable converters, can be run on different frameworks and thus hardware accelerators. The main target of ONNX is to promote the interchangeability of neural network and machine learning models, but it is worthy of noting that the standard covers a lot of basic operations in scientific computation, such as power, logarithms, trigonometric functions, etc. Therefore, ONNX engines serves as a good starting point for its coverage of operations.</p>
-<p>Taking a symbolic graph as input, how would then the ONNX engine produce ONNX model? We use the <a href="https://github.com/mransan/ocaml-protoc">ocaml-protoc</a>, a protobuf compiler for OCaml, as the tool. The ONNX specification is defined in a <a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">onnx.proto</a> file, and the <code>ocaml-protoc</code> can compile this protobuf files into OCaml types along with serialisation functions for a variety of encodings.</p>
+<p>Taking a symbolic graph as input, how would then the ONNX engine produce ONNX model? We use the <a href="https://github.com/mransan/ocaml-protoc">ocaml-protoc</a>, a protobuf compiler for OCaml, as the tool. The ONNX specification is defined in an <a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">onnx.proto</a> file, and the <code>ocaml-protoc</code> can compile this protobuf files into OCaml types along with serialisation functions for a variety of encodings.</p>
 <p>For example, the toplevel message type in onnx.proto is <code>MessageProto</code>, defined as follows:</p>
 <div class="highlight">
 <pre><code class="language-proto">message ModelProto {
@@ -87,12 +87,12 @@ type model_proto =
 
 val encode_model_proto : Onnx_types.model_proto -&gt; Pbrt.Encoder.t -&gt; unit</code></pre>
 </div>
-<p>Besides the meta information such as model version and IR version etc., a model is mainly a graph, which include input/output information and an array of nodes. A node specifies operator type, input and output node name, and its own attributions, such as the <code>axis</code> attribution in reduction operations.</p>
+<p>Besides the meta information such as model version and IR version etc., a model is mainly a graph, which includes input/output information and an array of nodes. A node specifies operator type, input and output node name, and its own attributions, such as the <code>axis</code> attribution in reduction operations.</p>
 <p>Therefore, all we need is to build up a <code>model_proto</code> data structure gradually from attributions to nodes, graph and model. It can then be serialised using <code>encode_model_proto</code> to generate a protobuf format file, and that is the ONNX model we want.</p>
-<p>Besides building up the model, one other task to be performed in the engine is type checking and type inferencing. The <a href="https://github.com/onnx/onnx/blob/master/docs/Operators.md">operator documentation</a> list the type constraints of each operator. For example, the sine function can only accept input of float or double number types, and generate the same type of input as that of input. Each type of operator has its own rules of type checking and inferencing. Starting from input nodes, which must contain specific type information, this chain if inferencing can thus verify the whole computation meets the type constraints for each node, and then yield the final output types of the whole graph. The reason that type checking is performed at the engine side instead of the core is that each engine may have different type constraints and type inferencing rules for the operators.</p>
+<p>Besides building up the model, one other task to be performed in the engine is type checking and type inferencing. The <a href="https://github.com/onnx/onnx/blob/master/docs/Operators.md">operator documentation</a> lists the type constraints of each operator. For example, the sine function can only accept input of float or double number types, and generate the same type of input as that of input. Each type of operator has its own rules of type checking and inferencing. Starting from input nodes, which must contain specific type information, this chain if inferencing can thus verify the whole computation meets the type constraints for each node, and then yield the final output types of the whole graph. The reason that type checking is performed at the engine side instead of the core is that each engine may have different type constraints and type inferencing rules for the operators.</p>
 <section class="level3" id="example-1-basic-operations">
 <h3>Example 1: Basic operations</h3>
-<p>Let’s look at an simple example.</p>
+<p>Let’s look at a simple example.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl_symbolic
 open Op
@@ -105,7 +105,7 @@ let g = SymGraph.make_graph [| z |] "sym_graph"
 let m = ONNX_Engine.of_symbolic g
 let _ = ONNX_Engine.save m "test.onnx"</code></pre>
 </div>
-<p>After including necessary library component, the first three line of code creates a symbolic representation <code>z</code> using the symbolic operators such as <code>sin</code>, <code>pow</code> and <code>float</code>. The <code>x</code> and <code>y</code> are variables that accept user input. It is then used to be create a symbolic graph. This step mainly check if there is any duplication of node names. Then the <code>of_symbolic</code> function in ONNX engine takes the symbolic graph as input, and generate a <code>model_proto</code> data structure, which can be further saved as a model named <code>test.onnx</code>.</p>
+<p>After including necessary library component, the first three line of code creates a symbolic representation <code>z</code> using the symbolic operators such as <code>sin</code>, <code>pow</code> and <code>float</code>. The <code>x</code> and <code>y</code> are variables that accept user input. It is then used to create a symbolic graph. This step mainly checks if there is any duplication of node names. Then the <code>of_symbolic</code> function in ONNX engine takes the symbolic graph as input, and generates a <code>model_proto</code> data structure, which can be further saved as a model named <code>test.onnx</code>.</p>
 <p>To use this ONNX model we could use any framework that supports ONNX. Here we use the Python-based <a href="https://github.com/microsoft/onnxruntime">ONNX Runtime</a> as an example. We prepare a simple Python script as follows:</p>
 <div class="highlight">
 <pre><code class="language-python">import numpy as np
@@ -121,7 +121,7 @@ y = np.asarray(3., dtype="float32")
 pred_onx = sess.run(None, {input_name_x: x, input_name_y: y})[0]
 print(pred_onx)</code></pre>
 </div>
-<p>This script is very simple: it loads the ONNX model we have just created, and then get the two input variables, and assign two values to them in the <code>sess.run</code> command. All the user need to know in advance is that there are two input variables in this ONNX model. Note that not only we could define scalar type input, but also tensor type variables in <code>owl_symbolic</code>, and then assign NumPy array to them when evaluating.</p>
+<p>This script is very simple: it loads the ONNX model we have just created, and then get the two input variables, and assign two values to them in the <code>sess.run</code> command. All the user need to know in advance is that there are two input variables in this ONNX model. Note that we could define not only scalar type input but also tensor type variables in <code>owl_symbolic</code>, and then assign NumPy array to them when evaluating.</p>
 </section>
 <section class="level3" id="example-2-neural-network">
 <h3>Example 2: Neural network</h3>
@@ -144,7 +144,7 @@ let _ =
   let onnx_graph = Owl_symbolic_engine_onnx.of_symbolic nn in
   Owl_symbolic_engine_onnx.save onnx_graph "test.onnx"</code></pre>
 </div>
-<p>Besides this simple DNN, we have also created the complex artchitectures such as ResNet, InceptionV3, SqueezeNet, etc. They are all adapted from existing Owl DNN models with only minor change. The execution of the generated ONNX model is similar:</p>
+<p>Besides this simple DNN, we have also created the complex architectures such as ResNet, InceptionV3, SqueezeNet, etc. They are all adapted from existing Owl DNN models with only minor change. The execution of the generated ONNX model is similar:</p>
 <div class="highlight">
 <pre><code class="language-python">import numpy as np
 import onnxruntime as rt
@@ -155,13 +155,13 @@ input_name_shape = sess.get_inputs()[0].shape
 input_x = np.ones(input_name_shape , dtype="float32")
 pred_onx = sess.run(None, {input_name_x: input_x})[0]</code></pre>
 </div>
-<p>For simplicity, we generate an dummy input for the execution/inference phase of this model. Of course, currently in our model the weight data is not trained. The training of a model is completed on a framework such as TensorFlow, and combining trained weight data into the ONNX model remains to be a future work.</p>
+<p>For simplicity, we generate a dummy input for the execution/inference phase of this model. Of course, currently in our model the weight data is not trained. Training of a model should be completed on a framework such as TensorFlow. Combining trained weight data into the ONNX model remains to be a future work.</p>
 <p>Furthermore, by using tools such as <code>js_of_ocaml</code>, we can convert both examples into JavaScript; executing them can create the ONNX models, which in turn can be executed on the browser using <a href="https://github.com/microsoft/onnxjs">ONNX.js</a> that utilises WebGL. In summary, using ONNX as the intermediate format for exchange computation across platforms enables numerous promising directions.</p>
 </section>
 </section>
 <section class="level2" id="latex-engine">
 <h2>LaTeX Engine</h2>
-<p>The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools. For example, we have built a web UI in this Engine that utilises <a href="">KaTeX</a>, which renders LaTeX string directly on a browser. Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.</p>
+<p>The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools. For example, we have built a web UI in this Engine that utilises <a href="https://katex.org/">KaTeX</a>, which renders LaTeX string directly on a browser. Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl_symbolic
 open Op
@@ -192,7 +192,7 @@ let _ =
 <section class="level2" id="owl-engine">
 <h2>Owl Engine</h2>
 <p>An Owl Engine enables converting Owl computation graph to or from a symbolic representation. Symbolic graph can thus benefit from the concise syntax and powerful features such as Algorithm Differentiation in Owl.</p>
-<p>We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks. Here is such an example. A simple computation graph created by <code>make_graph ()</code> is processed by two chained engines, and generates a ONNX model.</p>
+<p>We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks. Here is such an example. A simple computation graph created by <code>make_graph ()</code> is processed by two chained engines, and generates an ONNX model.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
