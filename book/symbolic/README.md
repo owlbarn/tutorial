@@ -250,7 +250,7 @@ val make_expr0 : unit -> Owl_symbolic_graph.t = <fun>
 
 The generated "example.html" webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:
 
-![](images/symbolic/latex_00.png)
+![](images/symbolic/latex_01.png)
 
 For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.
 
