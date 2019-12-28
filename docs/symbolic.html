@@ -163,7 +163,33 @@ pred_onx = sess.run(None, {input_name_x: input_x})[0]</code></pre>
 <h2>LaTeX Engine</h2>
 <p>The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools. For example, we have built a web UI in this Engine that utilises <a href="https://katex.org/">KaTeX</a>, which renders LaTeX string directly on a browser. Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">open Owl_symbolic
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">open Owl_symbolic;;
+open Op;;
+open Infix;;
+let make_expr0 () =
+  let x = variable "x_0" in
+  (* construct *)
+  let y =
+    exp ((sin x ** float 2.) + (cos x ** float 2.))
+    + (float 10. * (x ** float 2.))
+    + exp (pi () * complex 0. 1.)
+  in
+  SymGraph.make_graph [| y |] "sym_graph"
+;;
+&gt;val make_expr0 : unit -&gt; Owl_symbolic_graph.t = &lt;fun&gt;
+let () = make_expr0 () 
+  |&gt; LaTeX_Engine.of_symbolic 
+  |&gt; print_endline
+;;
+&gt;\exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi \times 1.00i)
+let () = 
+  let exprs = [ make_expr0 () ] in 
+  LaTeX_Engine.html ~dot:true ~exprs "example.html"
+;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre><code class="language-text">open Owl_symbolic
 open Op
 open Infix
 
@@ -180,14 +206,13 @@ let make_expr0 () =
   LaTeX_Engine.of_symbolic expr |&gt; print_endline;
   expr
 
-let _ =
-  let exprs = [ make_expr0 () ] in
-  LaTeX_Engine.html ~dot:true ~exprs "example.html"</code></pre>
+# let exprs = [ make_expr0 () ]
+
+let _ = LaTeX_Engine.html ~dot:true ~exprs "example.html"</code></pre>
 </div>
 <p>The generated “example.html” webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:</p>
 <p><img src="images/symbolic/latex_00.png"></p>
 <p>For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.</p>
-<p>This is still an on-going work.</p>
 </section>
 <section class="level2" id="owl-engine">
 <h2>Owl Engine</h2>
@@ -212,7 +237,6 @@ let _ =
   let k = make_graph () |&gt; OWL_Engine.to_symbolic |&gt; ONNX_Engine.of_symbolic in
   ONNX_Engine.save k "test.onnx"</code></pre>
 </div>
-<p>This is still an on-going work.</p>
 </section>
 <section class="level2" id="algebraic-simplification">
 <h2>Algebraic Simplification</h2>

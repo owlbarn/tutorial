@@ -224,26 +224,27 @@ For example, we have built a web UI in this Engine that utilises [KaTeX](https:/
 Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.
 
 ```ocaml
-open Owl_symbolic
-open Op
-open Infix
+# open Owl_symbolic
+# open Op
+# open Infix
 
-let make_expr0 () =
-  (* construct *)
-  let x = variable "x_0" in
-  let y =
-    exp ((sin x ** float 2.) + (cos x ** float 2.))
-    + (float 10. * (x ** float 2.))
-    + exp (pi () * complex 0. 1.)
-  in
-  let expr = SymGraph.make_graph [| y |] "sym_graph" in
-  (* to LaTeX string *)
-  LaTeX_Engine.of_symbolic expr |> print_endline;
-  expr
-
-let _ =
-  let exprs = [ make_expr0 () ] in
-  LaTeX_Engine.html ~dot:true ~exprs "example.html"
+# let make_expr0 () =
+    let x = variable "x_0" in
+    (* construct *)
+    let y =
+      exp ((sin x ** float 2.) + (cos x ** float 2.))
+      + (float 10. * (x ** float 2.))
+      + exp (pi () * complex 0. 1.)
+    in
+    SymGraph.make_graph [| y |] "sym_graph"
+val make_expr0 : unit -> Owl_symbolic_graph.t = <fun>
+# let () = make_expr0 () 
+    |> LaTeX_Engine.of_symbolic 
+    |> print_endline
+\exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi \times 1.00i)
+# let () = 
+    let exprs = [ make_expr0 () ] in 
+    LaTeX_Engine.html ~dot:true ~exprs "example.html"
 ```
 
 The generated "example.html" webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:
@@ -251,8 +252,6 @@ The generated "example.html" webpage is a standalone page that contains all the 
 ![](images/symbolic/latex_00.png)
 
 For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.
-
-This is still an on-going work.
 
 ## Owl Engine
 
@@ -280,8 +279,6 @@ let _ =
   let k = make_graph () |> OWL_Engine.to_symbolic |> ONNX_Engine.of_symbolic in
   ONNX_Engine.save k "test.onnx"
 ```
-
-This is still an on-going work.
 
 ## Algebraic Simplification
 
