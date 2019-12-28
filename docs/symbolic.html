@@ -72,7 +72,8 @@ val load : string -&gt; t</code></pre>
 </div>
 <p>And the generated OCaml types and serialisation function are:</p>
 <div class="highlight">
-<pre><code class="language-text">
+<pre><code class="language-ocaml">open Owl_symbolic_specs.PT
+
 type model_proto =
   { ir_version : int64 option
   ; opset_import : operator_set_id_proto list
@@ -187,28 +188,6 @@ let () =
   LaTeX_Engine.html ~dot:true ~exprs "example.html"
 ;;
 </code></pre>
-</div>
-<div class="highlight">
-<pre><code class="language-text">open Owl_symbolic
-open Op
-open Infix
-
-let make_expr0 () =
-  (* construct *)
-  let x = variable "x_0" in
-  let y =
-    exp ((sin x ** float 2.) + (cos x ** float 2.))
-    + (float 10. * (x ** float 2.))
-    + exp (pi () * complex 0. 1.)
-  in
-  let expr = SymGraph.make_graph [| y |] "sym_graph" in
-  (* to LaTeX string *)
-  LaTeX_Engine.of_symbolic expr |&gt; print_endline;
-  expr
-
-# let exprs = [ make_expr0 () ]
-
-let _ = LaTeX_Engine.html ~dot:true ~exprs "example.html"</code></pre>
 </div>
 <p>The generated “example.html” webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:</p>
 <p><img src="images/symbolic/latex_00.png"></p>

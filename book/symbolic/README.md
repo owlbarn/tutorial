@@ -106,7 +106,8 @@ message ModelProto {
 
 And the generated OCaml types and serialisation function are:
 
-```text
+```ocaml file=../../examples/code/symbolic/interface_00.mli
+open Owl_symbolic_specs.PT
 
 type model_proto =
   { ir_version : int64 option
