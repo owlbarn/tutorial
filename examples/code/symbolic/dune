@@ -3,7 +3,8 @@
   (libraries    owl owl-symbolic)
   (flags        :standard -w -33)
   (modules      app 
-                interface_00))
+                interface_00
+                interface_01))
 
 (alias
  (name   runtest)

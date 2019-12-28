@@ -65,7 +65,7 @@ As we have said, the core part is kept minimal. If the engines require informati
 
 All engines must follow the signature below:
 
-```text
+```ocaml file=../../examples/code/symbolic/interface_01.mli
 type t
 
 val of_symbolic : Owl_symbolic_graph.t -> t
