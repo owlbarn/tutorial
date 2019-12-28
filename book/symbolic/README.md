@@ -261,20 +261,19 @@ An Owl Engine enables converting Owl computation graph to or from a symbolic rep
 We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks.
 Here is such an example. A simple computation graph created by `make_graph ()` is processed by two chained engines, and generates an ONNX model.
 
-```text
+```ocaml
 open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
+module AD = Owl_algodiff_generic.Make (G)
 module OWL_Engine = Owl_symbolic_engine_owl.Make (G)
-include Owl_algodiff_generic.Make (G)
 
 let make_graph () =
-  let x = G.ones [| 2; 3 |] |> pack_arr in
-  let y = G.var_elt "y" |> pack_elt in
-  let z = Maths.(sin x + y) in
-  let input = [| unpack_elt y |> G.elt_to_node |] in
-  let output = [| unpack_arr z |> G.arr_to_node |] in
+  let x = G.ones [| 2; 3 |] |> AD.pack_arr in
+  let y = G.var_elt "y" |> AD.pack_elt in
+  let z = AD.Maths.(sin x + y) in
+  let input = [| AD.unpack_elt y |> G.elt_to_node |] in
+  let output = [| AD.unpack_arr z |> G.arr_to_node |] in
   G.make_graph ~input ~output "graph"
-
 
 let _ =
   let k = make_graph () |> OWL_Engine.to_symbolic |> ONNX_Engine.of_symbolic in
