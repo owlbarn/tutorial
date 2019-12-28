@@ -65,7 +65,7 @@ As we have said, the core part is kept minimal. If the engines require informati
 
 All engines must follow the signature below:
 
-```text
+```ocaml file=../../examples/code/symbolic/interface_01.mli
 type t
 
 val of_symbolic : Owl_symbolic_graph.t -> t
@@ -106,7 +106,8 @@ message ModelProto {
 
 And the generated OCaml types and serialisation function are:
 
-```text
+```ocaml file=../../examples/code/symbolic/interface_00.mli
+open Owl_symbolic_specs.PT
 
 type model_proto =
   { ir_version : int64 option
@@ -224,35 +225,34 @@ For example, we have built a web UI in this Engine that utilises [KaTeX](https:/
 Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.
 
 ```ocaml
-open Owl_symbolic
-open Op
-open Infix
+# open Owl_symbolic
+# open Op
+# open Infix
 
-let make_expr0 () =
-  (* construct *)
-  let x = variable "x_0" in
-  let y =
-    exp ((sin x ** float 2.) + (cos x ** float 2.))
-    + (float 10. * (x ** float 2.))
-    + exp (pi () * complex 0. 1.)
-  in
-  let expr = SymGraph.make_graph [| y |] "sym_graph" in
-  (* to LaTeX string *)
-  LaTeX_Engine.of_symbolic expr |> print_endline;
-  expr
-
-let _ =
-  let exprs = [ make_expr0 () ] in
-  LaTeX_Engine.html ~dot:true ~exprs "example.html"
+# let make_expr0 () =
+    let x = variable "x_0" in
+    (* construct *)
+    let y =
+      exp ((sin x ** float 2.) + (cos x ** float 2.))
+      + (float 10. * (x ** float 2.))
+      + exp (pi () * complex 0. 1.)
+    in
+    SymGraph.make_graph [| y |] "sym_graph"
+val make_expr0 : unit -> Owl_symbolic_graph.t = <fun>
+# let () = make_expr0 () 
+    |> LaTeX_Engine.of_symbolic 
+    |> print_endline
+\exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi \times 1.00i)
+# let () = 
+    let exprs = [ make_expr0 () ] in 
+    LaTeX_Engine.html ~dot:true ~exprs "example.html"
 ```
 
 The generated "example.html" webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:
 
-![](images/symbolic/latex_00.png)
+![](images/symbolic/latex_01.png)
 
 For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.
-
-This is still an on-going work.
 
 ## Owl Engine
 
@@ -261,27 +261,24 @@ An Owl Engine enables converting Owl computation graph to or from a symbolic rep
 We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks.
 Here is such an example. A simple computation graph created by `make_graph ()` is processed by two chained engines, and generates an ONNX model.
 
-```text
+```ocaml
 open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
+module AD = Owl_algodiff_generic.Make (G)
 module OWL_Engine = Owl_symbolic_engine_owl.Make (G)
-include Owl_algodiff_generic.Make (G)
 
 let make_graph () =
-  let x = G.ones [| 2; 3 |] |> pack_arr in
-  let y = G.var_elt "y" |> pack_elt in
-  let z = Maths.(sin x + y) in
-  let input = [| unpack_elt y |> G.elt_to_node |] in
-  let output = [| unpack_arr z |> G.arr_to_node |] in
+  let x = G.ones [| 2; 3 |] |> AD.pack_arr in
+  let y = G.var_elt "y" |> AD.pack_elt in
+  let z = AD.Maths.(sin x + y) in
+  let input = [| AD.unpack_elt y |> G.elt_to_node |] in
+  let output = [| AD.unpack_arr z |> G.arr_to_node |] in
   G.make_graph ~input ~output "graph"
-
 
 let _ =
   let k = make_graph () |> OWL_Engine.to_symbolic |> ONNX_Engine.of_symbolic in
   ONNX_Engine.save k "test.onnx"
 ```
-
-This is still an on-going work.
 
 ## Algebraic Simplification
 
