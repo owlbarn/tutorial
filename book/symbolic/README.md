@@ -65,7 +65,7 @@ As we have said, the core part is kept minimal. If the engines require informati
 
 All engines must follow the signature below:
 
-```ocaml
+```text
 type t
 
 val of_symbolic : Owl_symbolic_graph.t -> t
@@ -106,7 +106,7 @@ message ModelProto {
 
 And the generated OCaml types and serialisation function are:
 
-```ocaml
+```text
 
 type model_proto =
   { ir_version : int64 option
@@ -261,7 +261,7 @@ An Owl Engine enables converting Owl computation graph to or from a symbolic rep
 We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks.
 Here is such an example. A simple computation graph created by `make_graph ()` is processed by two chained engines, and generates an ONNX model.
 
-```ocaml
+```text
 open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
 module OWL_Engine = Owl_symbolic_engine_owl.Make (G)

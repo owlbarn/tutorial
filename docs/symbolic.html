@@ -41,7 +41,7 @@ One task the symbolic core needs to perform is shape checking and shape inferenc
 <p>Based on this simple core abstraction, we use different <em>engines</em> to provide functionalities: converting to and from other computation expression formats, print out to human-readable format, graph optimisation, etc. As we have said, the core part is kept minimal. If the engines require information other than what the core provides, each symbol has an <code>attr</code> property as extension point.</p>
 <p>All engines must follow the signature below:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">type t
+<pre><code class="language-text">type t
 
 val of_symbolic : Owl_symbolic_graph.t -&gt; t
 val to_symbolic : t -&gt; Owl_symbolic_graph.t
@@ -72,7 +72,7 @@ val load : string -&gt; t</code></pre>
 </div>
 <p>And the generated OCaml types and serialisation function are:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
+<pre><code class="language-text">
 type model_proto =
   { ir_version : int64 option
   ; opset_import : operator_set_id_proto list
@@ -194,7 +194,7 @@ let _ =
 <p>An Owl Engine enables converting Owl computation graph to or from a symbolic representation. Symbolic graph can thus benefit from the concise syntax and powerful features such as Algorithm Differentiation in Owl.</p>
 <p>We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks. Here is such an example. A simple computation graph created by <code>make_graph ()</code> is processed by two chained engines, and generates an ONNX model.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">open Owl_symbolic
+<pre><code class="language-text">open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
 module OWL_Engine = Owl_symbolic_engine_owl.Make (G)
 include Owl_algodiff_generic.Make (G)
