@@ -2,7 +2,7 @@ opam-version: "2.0"
 name: "otb"
 version: "dev"
 maintainer: "Liang Wang <ryanrhymes@gmail.com>"
-authors: ["Author A" "Author B" "Author C"]
+authors: ["Liang Wang" "Jianxin Zhao"]
 license: "ISC"
 homepage: "https://github.com/owlbarn/owl_tutorials"
 bug-reports: "https://github.com/owlbarn/owl_tutorials/issues"
