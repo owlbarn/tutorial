@@ -57,7 +57,7 @@ In the second step, we need to create a `dune` file as follows. This file will i
    (libraries owl-base))
 ```
 
-With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a `demo.js` in `_build/default/` folder.
+With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a `demo.bc.js` in `_build/default/` folder.
 
 
 ```shell
