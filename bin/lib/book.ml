@@ -170,18 +170,20 @@ let make_frontpage ?(repo_root=".") () : Html.t Deferred.t =
   let file = repo_root/"book"/"index.html" in
   (
     Toc.get ~repo_root () >>| function
-    | [a;b;c] -> a,b,c
-    | _ -> failwith "frontpage design expects exactly 2 parts"
-  ) >>= fun (prologue,part1,part2) ->
+    | [a;b;c;d] -> a,b,c,d
+    | _ -> failwith "frontpage design expects exactly 3 parts"
+  ) >>= fun (prologue,part1,part2,part3) ->
   let column1 = [Html.div ~a:["class","index-toc"]
     ((part_items prologue)@(part_items part1))]
   in
   let column2 = [Html.div ~a:["class","index-toc"] (part_items part2)] in
+  let column3 = [Html.div ~a:["class","index-toc"] (part_items part3)] in
   Html.of_file file >>| fun html ->
   let content =
     html
     |> Html.replace_id_node_with ~id:"part1" ~with_:column1
     |> Html.replace_id_node_with ~id:"part2" ~with_:column2
+    |> Html.replace_id_node_with ~id:"part3" ~with_:column3
   in
   main_template ~title_bar:title_bar_frontpage ~content ()
 

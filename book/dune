@@ -5,6 +5,7 @@
         architecture.html
         backend.html
         broadcast.html
+        case-image-inception.html
         cgraph.html
         constant.html
         convention.html
@@ -36,6 +37,7 @@
         architecture.tex
         backend.tex
         broadcast.tex
+        case-image-inception.tex
         cgraph.tex
         constant.tex
         convention.tex
@@ -108,6 +110,16 @@
 (rule
   (targets broadcast.tex)
   (deps    (:md_file broadcast/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets case-image-inception.html)
+  (deps    (:md_file case-image-inception/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-image-inception.tex)
+  (deps    (:md_file case-image-inception/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule

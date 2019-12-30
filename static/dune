@@ -4,6 +4,7 @@
         css/prism.css
         images/algodiff/plot_00.png
         images/algodiff/plot_01.png
+        images/asset/liang.jpg
         images/cgraph/owl_cgraph_functor_stack.png
         images/cgraph/owl_cgraph_mnist_opt.png
         images/cgraph/owl_cgraph_mnist_raw.png
@@ -18,6 +19,8 @@
         images/matrix/plot_00.png
         images/stats/plot_01.png
         images/stats/plot_02.png
+        images/symbolic/latex_00.png
+        images/symbolic/latex_01.png
         images/visualisation/plot_001.png
         images/visualisation/plot_002.png
         images/visualisation/plot_003.png
@@ -121,6 +124,16 @@
 (rule
   (targets broadcast.html)
   (deps    (:x ../book/broadcast.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps case-image-inception.html))
+
+(rule
+  (targets case-image-inception.html)
+  (deps    (:x ../book/case-image-inception.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

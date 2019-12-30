@@ -36,3 +36,9 @@
     aeos
     testing
     ))))
+
+(part
+ ((title "Case Studies")
+  (chapters
+   (case-image-inception
+    ))))

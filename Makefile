@@ -6,6 +6,7 @@ all:
 	docker exec -it owl_tutorials_builder bash -c 'cd /home/opam/owl_tutorials_local && eval `opam env` && make compile'
 	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/book .
 	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/docs .
+	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/static .
 
 docker:
 	docker build -t owlbarn/owl_tutorials:latest .
