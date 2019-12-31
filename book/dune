@@ -30,6 +30,7 @@
         stats.html
         symbolic.html
         testing.html
+        utilities.html
         visualisation.html
         zoo.html))
 
@@ -65,6 +66,7 @@
         stats.tex
         symbolic.tex
         testing.tex
+        utilities.tex
         visualisation.tex
         zoo.tex))
 
@@ -366,6 +368,16 @@
 (rule
   (targets testing.tex)
   (deps    (:md_file testing/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets utilities.html)
+  (deps    (:md_file utilities/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets utilities.tex)
+  (deps    (:md_file utilities/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule

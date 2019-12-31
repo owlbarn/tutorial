@@ -36,6 +36,7 @@
     aeos
     core-opt
     testing
+    utilities
     community
     ))))
 
