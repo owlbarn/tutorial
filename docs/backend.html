@@ -1,17 +1,18 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Compiler Backends - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="//use.typekit.net/gfj8wez.js"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="compiler-backends">
 <h1>Compiler Backends</h1>
-<p>This chapter uses two simple examples to demonstrate how to compile Owl applications into Javascript code so that you can deploy the analytical code into browsers.</p>
+<p>This chapter uses two simple examples to demonstrate how to compile Owl applications into JavaScript code so that you can deploy the analytical code into browsers. It additionally requires the use of <code>dune</code>. As you will see, this will make the compilation to JavaScript effortless.</p>
 <section class="level2" id="background">
 <h2>Background</h2>
-<p>At first glance, Javascript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionality are being pushed from datacenters to edge for reduced latency, better privacy and security. The Javascript applications running in a browser are getting more complicated and powerful.</p>
-<p>Moreover, the engine for executing Javascript is highly optimised even the relatively complicated computational tasks can run with reasonable performance.</p>
+<p>At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionalities are being pushed from datacenters to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful.</p>
+<p>Moreover, JavaScript interpreters are being increasingly optimised, and even relatively complicated computational tasks can run with reasonable performance.</p>
 </section>
 <section class="level2" id="base-library">
 <h2>Base Library</h2>
-<p>Before we start, you need to know some basic things to understand how Owl is able to support Javascript</p>
-<p>Owl system is actually divided to two parts: <a href="https://github.com/owlbarn/owl/tree/master/src/base">Base library</a> and <a href="https://github.com/owlbarn/owl/tree/master/src/owl">Core library</a>. The base library is implemented with pure OCaml so it can be safely compiled into Javascript. Many functionality (e.g.&nbsp;Ndarray) in the base library will be replaced with high-performance C implementation in the Core library.</p>
-<p>As you can see, to enable Javascript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g.&nbsp;algorithmic differentiation, optimisation, even neural networks and many others.</p>
-<p>In this following, I will present how to use <code>Owl_base</code> in writing Javascript applications using both native OCaml code and Facebook Reason. Both examples are straightforward thanks to the powerful jbuilder.</p>
+<p>Before we start, you need to know some basic things to understand how Owl is able to support JavaScript</p>
+<p>The Owl framework, as well as many of its external libraries, is actually divided to two parts: a <a href="https://github.com/owlbarn/owl/tree/master/src/base">Base library</a> and a <a href="https://github.com/owlbarn/owl/tree/master/src/owl">Core library</a>. The base library is implemented with pure OCaml and, thanks to <a href="https://ocsigen.org/js_of_ocaml/"><code>js_of_ocaml</code></a>, it can be safely compiled into JavaScript. Many functionalities (e.g.&nbsp;Ndarray) in the base library are replaced by high-performance C implementations in the Core library.</p>
+<p>As you can see, to enable JavaScript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g.&nbsp;algorithmic differentiation, optimisation, even neural networks and many others.</p>
+<p>In this following, we will present how to use <code>Owl_base</code> in writing JavaScript applications using both native OCaml code and Facebook Reason.</p>
+<p>Even though we will present very simple examples, you should keep in mind that Owl_base is fully compatible with <code>js_of_ocaml</code> and can be used to produce more complex and interactive browser applications.</p>
 </section>
 <section class="level2" id="use-native-ocaml">
 <h2>Use Native OCaml</h2>
@@ -19,9 +20,10 @@
 <p>The first step is writing down our application in OCaml as follows, then save it into a file <code>demo.ml</code></p>
 <div class="highlight">
 <pre><code class="language-ocaml">
-  (* Javascript example: use Owl_base to minimise sin *)
+  (* JavaScript example: use Owl_base to minimise sin *)
 
-  open Algodiff.D
+  module AlgodiffD = Owl_algodiff_generic.Make (Owl_base_algodiff_primal_ops.D)
+  open AlgodiffD
 
   let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
     let g = (diff f) x in
@@ -35,50 +37,39 @@
 </code></pre>
 </div>
 <p>The code is very simple: the <code>desc</code> defines a gradient descent algorithm, then we use <code>desc</code> to calculate the minimum value of <code>Maths.sin</code> function. In the end, we print out the result using <code>Owl_log</code> module’s <code>info</code> function. You should have noticed, we used <code>Owl_algodiff_generic</code> functor to create and include an algorithmic differentiation module by passing the pure implementation of Ndarray in the base library.</p>
-<p>In the second step, we need to create a <code>jbuild</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into javascript by calling <code>js_of_ocaml</code>.</p>
+<p>In the second step, we need to create a <code>dune</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling <code>js_of_ocaml</code>.</p>
+<div class="highlight">
+<pre><code class="language-shell">  (executable
+   (name demo)
+   (modes js)
+   (libraries owl-base))</code></pre>
+</div>
+<p>With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a <code>demo.bc.js</code> in <code>_build/default/</code> folder.</p>
 <div class="highlight">
 <pre><code class="language-shell">
-  (jbuild_version 1)
-
-  (executables
-   ((libraries (owl_base))
-    (names (demo))))
-
-    (rule
-     ((targets (demo.js))
-      (action
-        (run ${bin:js_of_ocaml}
-          --noruntime ${lib:js_of_ocaml-compiler:runtime.js}
-          --source-map ${path:demo.bc} -o ${@} --pretty
-        ))))
+  dune build
 </code></pre>
 </div>
-<p>With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a <code>demo.js</code> in <code>_build/default/</code> folder.</p>
+<p>Finally, we can run the JavaScript using Node.js (or loading into a browser using an appropriate html page).</p>
 <div class="highlight">
 <pre><code class="language-shell">
-  jbuilder build demo.js
-</code></pre>
-</div>
-<p>In the last, we can run the javascript using Node.js engine.</p>
-<div class="highlight">
-<pre><code class="language-shell">
-  node _build/default/demo.js
+  node _build/default/demo.bc.js
 </code></pre>
 </div>
 <p>You should be able to see the output result similar to</p>
 <div class="highlight">
 <pre><code class="language-shell">
-  2018-03-24 16:27:42.368 INFO : argmin f(x) = -1.5708
+  2019-12-30 18:05:49.760 INFO : argmin f(x) = -1.5708
 </code></pre>
 </div>
 </section>
 <section class="level2" id="use-facebook-reason">
 <h2>Use Facebook Reason</h2>
-<p>Facebook Reason is gaining its momentum and becoming a popular choice of developing web applications. Because Reason is basically a wrapper of OCaml, it is very straightforward to use Owl library in Reason to develop advanced numerical applications.</p>
-<p>In this example, I demonstrate how to use reason code to manipulate multi-dimensional arrays, which is the core data structure in Owl. First, please save the following code into a reason file <code>demo.re</code>. Note the the suffix is <em>.re</em> now.</p>
+<p>Facebook Reason is gaining its momentum and becoming a popular choice of developing web applications. Because Reason is basically a syntax on top of OCaml, it is very straightforward to use Owl in Reason to develop advanced numerical applications.</p>
+<p>In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl. First, please save the following code into a reason file <code>demo.re</code>. Note the the suffix is <em>.re</em> now.</p>
 <div class="highlight">
 <pre><code class="language-reason">
-  /* Javascript example: Ndarray and Maths */
+  /* JavaScript example: Ndarray and Maths */
 
   open! Owl_base;
 
@@ -96,38 +87,21 @@
   Owl_base_dense_ndarray.D.print(z);
 </code></pre>
 </div>
-<p>The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Now let’s look at the <code>jbuild</code> file, which turns out to be exactly the same as that in the previous example.</p>
+<p>The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Now let’s look at the <code>dune</code> file, which turns out to be exactly the same as that in the previous example.</p>
+<div class="highlight">
+<pre><code class="language-shell">  (executable
+   (name demo)
+   (modes js)
+   (libraries owl-base))</code></pre>
+</div>
+<p>As in the previous example, you can then compile and run the code with following commands.</p>
 <div class="highlight">
 <pre><code class="language-shell">
-  (jbuild_version 1)
-
-  (executables
-   ((libraries (owl_base))
-    (names (demo))))
-
-    (rule
-     ((targets (demo.js))
-      (action
-        (run ${bin:js_of_ocaml}
-          --noruntime ${lib:js_of_ocaml-compiler:runtime.js}
-          --source-map ${path:demo.bc} -o ${@} --pretty
-        ))))
+  dune build
+  node _build/default/demo.bc.js
 </code></pre>
 </div>
-<p>Similarly, you can then compile and run the code with following commands.</p>
-<div class="highlight">
-<pre><code class="language-shell">
-  jbuilder build demo.js
-  node _build/default/demo.js
-</code></pre>
-</div>
-<p>As you can see, except the code is written in different languages, the rest of the steps are identical in both example thanks to the excellent jbuilder.</p>
-</section>
-<section class="level2" id="future-plan">
-<h2>Future Plan</h2>
-<p>I only presented two simple examples in this Chapter. It is worth noting that Owl_base contains a large amount of advanced functions to allow you write complicated analytical functions including deep neural networks. However, the code above can serve as a template for you to try out different functions.</p>
-<p>The javascript code converted by <code>js_of_ocaml</code> is not readable. On the contrary, BuckleScript is able to compile OCaml code into readable javascript. I am personally very interested in seeing how the complicated numerical functions will look like after BuckleScript converts it into javascript. I will give it a try soon on BuckleScript.</p>
-<p>Moreover, I also find it very fascinated by the fact that these advanced analytical apps can be compiled into small, self-contained, cross-platform code and deployed directly in browser. This will be another story about our Zoo System (refer to :doc:<code>zoo</code>) which I will tell in near future.</p>
+<p>As you can see, except the code is written in different languages, the rest of the steps are identical in both example thanks to the excellent dune.</p>
 </section>
 </section>
 </article></div><a href="aeos.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 26</small>Automatic Empirical Tuning</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
