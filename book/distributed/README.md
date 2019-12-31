@@ -1,4 +1,4 @@
-# Parallel and Distributed Computation
+# Distributed Computating
 
 Actor 
 
