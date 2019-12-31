@@ -1,25 +1,24 @@
 # Compiler Backends
 
-This chapter uses two simple examples to demonstrate how to compile Owl applications into Javascript code so that you can deploy the analytical code into browsers.
-
+This chapter uses two simple examples to demonstrate how to compile Owl applications into JavaScript code so that you can deploy the analytical code into browsers. It additionally requires the use of `dune`. As you will see, this will make the compilation to JavaScript effortless.
 
 ## Background
 
-At first glance, Javascript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g. mobile phones, tablets, laptops, and etc. More functionality are being pushed from datacenters to edge for reduced latency, better privacy and security. The Javascript applications running in a browser are getting more complicated and powerful.
+At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g. mobile phones, tablets, laptops, and etc. More functionalities are being pushed from datacenters to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful.
 
-Moreover, the engine for executing Javascript is highly optimised even the relatively complicated computational tasks can run with reasonable performance.
-
+Moreover, JavaScript interpreters are being increasingly optimised, and even relatively complicated computational tasks can run with reasonable performance.
 
 ## Base Library
 
-Before we start, you need to know some basic things to understand how Owl is able to support Javascript
+Before we start, you need to know some basic things to understand how Owl is able to support JavaScript
 
-Owl system is actually divided to two parts: [Base library](https://github.com/owlbarn/owl/tree/master/src/base) and [Core library](https://github.com/owlbarn/owl/tree/master/src/owl). The base library is implemented with pure OCaml so it can be safely compiled into Javascript. Many functionality (e.g. Ndarray) in the base library will be replaced with high-performance C implementation in the Core library.
+The Owl framework, as well as many of its external libraries, is actually divided to two parts: a [Base library](https://github.com/owlbarn/owl/tree/master/src/base) and a [Core library](https://github.com/owlbarn/owl/tree/master/src/owl). The base library is implemented with pure OCaml and, thanks to [`js_of_ocaml`](https://ocsigen.org/js_of_ocaml/), it can be safely compiled into JavaScript. Many functionalities (e.g. Ndarray) in the base library are replaced by high-performance C implementations in the Core library.
 
-As you can see, to enable Javascript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g. algorithmic differentiation, optimisation, even neural networks and many others.
+As you can see, to enable JavaScript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g. algorithmic differentiation, optimisation, even neural networks and many others.
 
-In this following, I will present how to use `Owl_base` in writing Javascript applications using both native OCaml code and Facebook Reason. Both examples are straightforward thanks to the powerful jbuilder.
+In this following, we will present how to use `Owl_base` in writing JavaScript applications using both native OCaml code and Facebook Reason.
 
+Even though we will present very simple examples, you should keep in mind that Owl_base is fully compatible with `js_of_ocaml` and can be used to produce more complex and interactive browser applications.
 
 ## Use Native OCaml
 
@@ -27,12 +26,12 @@ We know that `Owl_algodiff_generic` is the cornerstone of Owl's fast neural netw
 
 The first step is writing down our application in OCaml as follows, then save it into a file `demo.ml`
 
-
 ```ocaml
 
-  (* Javascript example: use Owl_base to minimise sin *)
+  (* JavaScript example: use Owl_base to minimise sin *)
 
-  open Algodiff.D
+  module AlgodiffD = Owl_algodiff_generic.Make (Owl_base_algodiff_primal_ops.D)
+  open AlgodiffD
 
   let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
     let g = (diff f) x in
@@ -48,42 +47,30 @@ The first step is writing down our application in OCaml as follows, then save it
 
 The code is very simple: the `desc` defines a gradient descent algorithm, then we use `desc` to calculate the minimum value of `Maths.sin` function. In the end, we print out the result using `Owl_log` module's `info` function. You should have noticed, we used `Owl_algodiff_generic` functor to create and include an algorithmic differentiation module by passing the pure implementation of Ndarray in the base library.
 
-In the second step, we need to create a `jbuild` file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into javascript by calling `js_of_ocaml`.
+In the second step, we need to create a `dune` file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling `js_of_ocaml`.
+
+
+```shell
+  (executable
+   (name demo)
+   (modes js)
+   (libraries owl-base))
+```
+
+With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a `demo.bc.js` in `_build/default/` folder.
 
 
 ```shell
 
-  (jbuild_version 1)
-
-  (executables
-   ((libraries (owl_base))
-    (names (demo))))
-
-    (rule
-     ((targets (demo.js))
-      (action
-        (run ${bin:js_of_ocaml}
-          --noruntime ${lib:js_of_ocaml-compiler:runtime.js}
-          --source-map ${path:demo.bc} -o ${@} --pretty
-        ))))
+  dune build
 
 ```
 
-With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a `demo.js` in `_build/default/` folder.
-
-
-```shell
-
-  jbuilder build demo.js
-
-```
-
-In the last, we can run the javascript using Node.js engine.
-
+Finally, we can run the JavaScript using Node.js (or loading into a browser using an appropriate html page).
 
 ```shell
 
-  node _build/default/demo.js
+  node _build/default/demo.bc.js
 
 ```
 
@@ -91,21 +78,21 @@ You should be able to see the output result similar to
 
 ```shell
 
-  2018-03-24 16:27:42.368 INFO : argmin f(x) = -1.5708
+  2019-12-30 18:05:49.760 INFO : argmin f(x) = -1.5708
 
 ```
 
 
 ## Use Facebook Reason
 
-Facebook Reason is gaining its momentum and becoming a popular choice of developing web applications. Because Reason is basically a wrapper of OCaml, it is very straightforward to use Owl library in Reason to develop advanced numerical applications.
+Facebook Reason is gaining its momentum and becoming a popular choice of developing web applications. Because Reason is basically a syntax on top of OCaml, it is very straightforward to use Owl in Reason to develop advanced numerical applications.
 
-In this example, I demonstrate how to use reason code to manipulate multi-dimensional arrays, which is the core data structure in Owl. First, please save the following code into a reason file `demo.re`. Note the the suffix is *.re* now.
+In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl. First, please save the following code into a reason file `demo.re`. Note the the suffix is *.re* now.
 
 
 ```reason
 
-  /* Javascript example: Ndarray and Maths */
+  /* JavaScript example: Ndarray and Maths */
 
   open! Owl_base;
 
@@ -124,44 +111,23 @@ In this example, I demonstrate how to use reason code to manipulate multi-dimens
 
 ```
 
-The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Now let's look at the `jbuild` file, which turns out to be exactly the same as that in the previous example.
+The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Now let's look at the `dune` file, which turns out to be exactly the same as that in the previous example.
 
 
 ```shell
-
-  (jbuild_version 1)
-
-  (executables
-   ((libraries (owl_base))
-    (names (demo))))
-
-    (rule
-     ((targets (demo.js))
-      (action
-        (run ${bin:js_of_ocaml}
-          --noruntime ${lib:js_of_ocaml-compiler:runtime.js}
-          --source-map ${path:demo.bc} -o ${@} --pretty
-        ))))
-
+  (executable
+   (name demo)
+   (modes js)
+   (libraries owl-base))
 ```
 
-Similarly, you can then compile and run the code with following commands.
+As in the previous example, you can then compile and run the code with following commands.
 
 ```shell
 
-  jbuilder build demo.js
-  node _build/default/demo.js
+  dune build
+  node _build/default/demo.bc.js
 
 ```
 
-As you can see, except the code is written in different languages, the rest of the steps are identical in both example thanks to the excellent jbuilder.
-
-
-
-## Future Plan
-
-I only presented two simple examples in this Chapter. It is worth noting that Owl_base contains a large amount of advanced functions to allow you write complicated analytical functions including deep neural networks. However, the code above can serve as a template for you to try out different functions.
-
-The javascript code converted by `js_of_ocaml` is not readable. On the contrary, BuckleScript is able to compile OCaml code into readable javascript. I am personally very interested in seeing how the complicated numerical functions will look like after BuckleScript converts it into javascript. I will give it a try soon on BuckleScript.
-
-Moreover, I also find it very fascinated by the fact that these advanced analytical apps can be compiled into small, self-contained, cross-platform code and deployed directly in browser. This will be another story about our Zoo System (refer to :doc:`zoo`) which I will tell in near future.
+As you can see, except the code is written in different languages, the rest of the steps are identical in both example thanks to the excellent dune.
