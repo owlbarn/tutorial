@@ -1,4 +1,4 @@
-# Distributed Computating
+# Distributed Computing
 
 Actor 
 
