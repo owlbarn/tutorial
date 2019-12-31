@@ -42,4 +42,5 @@
  ((title "Case Studies")
   (chapters
    (case-image-inception
+    case-gpu
     ))))

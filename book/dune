@@ -5,6 +5,7 @@
         architecture.html
         backend.html
         broadcast.html
+        case-gpu.html
         case-image-inception.html
         cgraph.html
         community.html
@@ -38,6 +39,7 @@
         architecture.tex
         backend.tex
         broadcast.tex
+        case-gpu.tex
         case-image-inception.tex
         cgraph.tex
         community.tex
@@ -112,6 +114,16 @@
 (rule
   (targets broadcast.tex)
   (deps    (:md_file broadcast/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets case-gpu.html)
+  (deps    (:md_file case-gpu/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-gpu.tex)
+  (deps    (:md_file case-gpu/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
