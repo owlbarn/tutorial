@@ -35,6 +35,7 @@
     backend
     aeos
     core-opt
+    distributed
     testing
     utilities
     community

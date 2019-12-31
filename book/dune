@@ -14,6 +14,7 @@
         core-opt.html
         dataframe.html
         diffequation.html
+        distributed.html
         introduction.html
         linear-algebra.html
         maths.html
@@ -50,6 +51,7 @@
         core-opt.tex
         dataframe.tex
         diffequation.tex
+        distributed.tex
         introduction.tex
         linear-algebra.tex
         maths.tex
@@ -208,6 +210,16 @@
 (rule
   (targets diffequation.tex)
   (deps    (:md_file diffequation/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets distributed.html)
+  (deps    (:md_file distributed/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets distributed.tex)
+  (deps    (:md_file distributed/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
