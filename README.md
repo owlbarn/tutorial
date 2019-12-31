@@ -13,6 +13,12 @@ This tutorial book is for teaching how to use Owl software. The tooling and temp
 
 Note that tooling is not finished at the moment. Structure and tools are copied mostly from RWO book.
 
+## Contribute
+
+Currently contribution to the book is mainly in the form of Pull Request. 
+Normally you only need to change one of the `README.md` files in `book/` directory, though adding inline scripts requires some special care.
+Please make sure that your local changes compile without any error, and include both the change of markdown file in `docs/` directory in a PR. 
+
 
 ## People
 
