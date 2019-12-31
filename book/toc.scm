@@ -35,6 +35,7 @@
     backend
     aeos
     testing
+    community
     ))))
 
 (part

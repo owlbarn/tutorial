@@ -7,6 +7,7 @@
         broadcast.html
         case-image-inception.html
         cgraph.html
+        community.html
         constant.html
         convention.html
         dataframe.html
@@ -39,6 +40,7 @@
         broadcast.tex
         case-image-inception.tex
         cgraph.tex
+        community.tex
         constant.tex
         convention.tex
         dataframe.tex
@@ -130,6 +132,16 @@
 (rule
   (targets cgraph.tex)
   (deps    (:md_file cgraph/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets community.html)
+  (deps    (:md_file community/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets community.tex)
+  (deps    (:md_file community/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
