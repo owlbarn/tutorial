@@ -189,6 +189,16 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
+(alias (name site) (deps core-opt.html))
+
+(rule
+  (targets core-opt.html)
+  (deps    (:x ../book/core-opt.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps dataframe.html))
 
 (rule

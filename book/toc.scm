@@ -34,6 +34,7 @@
     zoo
     backend
     aeos
+    core-opt
     testing
     community
     ))))

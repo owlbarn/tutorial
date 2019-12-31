@@ -11,6 +11,7 @@
         community.html
         constant.html
         convention.html
+        core-opt.html
         dataframe.html
         diffequation.html
         introduction.html
@@ -45,6 +46,7 @@
         community.tex
         constant.tex
         convention.tex
+        core-opt.tex
         dataframe.tex
         diffequation.tex
         introduction.tex
@@ -174,6 +176,16 @@
 (rule
   (targets convention.tex)
   (deps    (:md_file convention/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets core-opt.html)
+  (deps    (:md_file core-opt/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets core-opt.tex)
+  (deps    (:md_file core-opt/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
