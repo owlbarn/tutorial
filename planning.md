@@ -28,3 +28,8 @@
 - Every chapter should have a broadly similar style, such as that they all need to have an introduction and conclusion section. 
 
 - NN: do not rely on existing demo; we are not yet-another-book bout NN. 
+
+
+## Timeline
+
+@jianxin define the estimated progress using milestones and expected finishing time. Let's say we want to finish by the end of 2020, when to get the first draft out and send out for comments and etc.
