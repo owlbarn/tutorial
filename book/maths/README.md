@@ -5,5 +5,13 @@ The formula, $y=mx+c$, is displayed inline. Some symbols and equations (such as 
 
 $$\sum{\frac{(\mu - \bar{x})^2}{n-1}}$$
 
+## Special Functions
+
+## Interpolation
+
+## Integration
+
+## Root-finding
+
 
 TBD

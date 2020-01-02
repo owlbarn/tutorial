@@ -32,4 +32,6 @@
 
 ## Timeline
 
-@jianxin define the estimated progress using milestones and expected finishing time. Let's say we want to finish by the end of 2020, when to get the first draft out and send out for comments and etc.
+[Timeline table](https://docs.google.com/spreadsheets/d/1Wk1CUsJ257cPKCwxaenRpFB-SiHLn4dmO8a_wpnbsPw/edit?usp=sharing)
+
+The timeline table defines the estimated progress using milestones and expected finishing time. 
