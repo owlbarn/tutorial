@@ -292,16 +292,6 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
-(alias (name site) (deps neural-ode.html))
-
-(rule
-  (targets neural-ode.html)
-  (deps    (:x ../book/neural-ode.html)
-           (alias ../book/html)
-           ../bin/bin/app.exe
-           ../book/toc.scm)
-  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
-
 (alias (name site) (deps nlp.html))
 
 (rule

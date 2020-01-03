@@ -21,7 +21,6 @@
         matrix.html
         ndarray.html
         neural-network.html
-        neural-ode.html
         nlp.html
         optimisation.html
         ppl.html
@@ -58,7 +57,6 @@
         matrix.tex
         ndarray.tex
         neural-network.tex
-        neural-ode.tex
         nlp.tex
         optimisation.tex
         ppl.tex
@@ -280,16 +278,6 @@
 (rule
   (targets neural-network.tex)
   (deps    (:md_file neural-network/README.md))
-  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
-
-(rule
-  (targets neural-ode.html)
-  (deps    (:md_file neural-ode/README.md))
-  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
-
-(rule
-  (targets neural-ode.tex)
-  (deps    (:md_file neural-ode/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
