@@ -16,7 +16,6 @@
     linear-algebra
     diffequation
     neural-network
-    neural-ode
     signal
     visualisation
     dataframe
