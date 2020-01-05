@@ -40,7 +40,7 @@ let title_bar,title_bar_frontpage =
   ]
   in
   let h1 = h1 [`Data "OCaml Scientific Computing"] in
-  let h4 = h4 [`Data "Functional Scientific and Engineering Computing"] in
+  let h4 = h4 [`Data "Functional Programming meets Data Science"] in
   let h5 = h5 [`Data "1"; sup [`Data "st"]; `Data " Edition (in progress)"] in
   let title_bar =
     div ~a:["class","title-bar"] [
