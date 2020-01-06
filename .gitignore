@@ -3,3 +3,5 @@ _opam
 .*.swp
 *.install
 .merlin
+
+.DS_Store

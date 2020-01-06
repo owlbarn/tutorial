@@ -1,0 +1,10 @@
+(executables
+  (names        app)
+  (flags        :standard -w -33)
+  (modules      app 
+                interface_00
+                ))
+
+(alias
+ (name   runtest)
+ (deps   app.exe))
