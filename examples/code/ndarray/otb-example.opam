@@ -2,8 +2,8 @@ opam-version: "2.0"
 name: "otb-example"
 version: "dev"
 maintainer: "Liang Wang <ryanrhymes@gmail.com>"
-homepage: "https://github.com/owlbarn/owl_tutorials"
-bug-reports: "https://github.com/owlbarn/owl_tutorials/issues"
+homepage: "https://github.com/owlbarn/book"
+bug-reports: "https://github.com/owlbarn/book/issues"
 synopsis: "Owl Tutorial Book examples"
 depends: [
   "ocaml" {>= "4.06.0"}
@@ -11,4 +11,4 @@ depends: [
 ]
 build: ["dune" "build"]
 depexts: []
-dev-repo: "git+https://github.com/owlbarn/owl_tutorials.git"
+dev-repo: "git+https://github.com/owlbarn/book.git"

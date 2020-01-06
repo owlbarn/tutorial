@@ -1,15 +1,15 @@
 .PHONY: all clean dep publish promote test test-all docker depext push compile docker
 
 all:
-	-docker run -t -d --name owl_tutorials_builder owlbarn/owl_tutorials:latest
-	docker cp . owl_tutorials_builder:/home/opam/owl_tutorials_local
-	docker exec -it owl_tutorials_builder bash -c 'cd /home/opam/owl_tutorials_local && eval `opam env` && make compile'
-	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/book .
-	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/docs .
-	docker cp owl_tutorials_builder:/home/opam/owl_tutorials_local/static .
+	-docker run -t -d --name book_builder owlbarn/book:latest
+	docker cp . book_builder:/home/opam/book_local
+	docker exec -it book_builder bash -c 'cd /home/opam/book_local && eval `opam env` && make compile'
+	docker cp book_builder:/home/opam/book_local/book .
+	docker cp book_builder:/home/opam/book_local/docs .
+	docker cp book_builder:/home/opam/book_local/static .
 
 docker:
-	docker build -t owlbarn/owl_tutorials:latest .
+	docker build -t owlbarn/book:latest .
 
 compile: test
 	@dune build @site
@@ -33,7 +33,7 @@ promote:
 
 clean:
 	@dune clean
-	docker stop owl_tutorials_builder && docker rm owl_tutorials_builder
+	docker stop book_builder && docker rm book_builder
 
 push:
 	git commit -am "editing book ..." && \

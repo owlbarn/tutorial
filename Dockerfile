@@ -13,7 +13,7 @@ RUN opam update -q && opam pin --dev-repo owl-symbolic
 
 # install owl-tutorials
 
-WORKDIR /home/opam/owl_tutorials
+WORKDIR /home/opam/book
 COPY . ${WORKDIR}
 
 ENTRYPOINT /bin/bash

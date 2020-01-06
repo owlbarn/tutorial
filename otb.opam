@@ -4,8 +4,8 @@ version: "dev"
 maintainer: "Liang Wang <ryanrhymes@gmail.com>"
 authors: ["Liang Wang" "Jianxin Zhao"]
 license: "ISC"
-homepage: "https://github.com/owlbarn/owl_tutorials"
-bug-reports: "https://github.com/owlbarn/owl_tutorials/issues"
+homepage: "https://github.com/owlbarn/book"
+bug-reports: "https://github.com/owlbarn/book/issues"
 synopsis: "Owl Tutorial Book sources"
 depends: [
   "ocaml" {>= "4.06.0"}
@@ -27,4 +27,4 @@ depexts: [
   ["tzdata"] {os-distribution = "debian"}
   ["tzdata"] {os-distribution = "alpine"}
 ]
-dev-repo: "git+https://github.com/owlbarn/owl_tutorials.git"
+dev-repo: "git+https://github.com/owlbarn/book.git"
