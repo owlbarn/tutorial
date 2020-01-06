@@ -1,4 +1,4 @@
-.PHONY: all clean dep publish promote test test-all docker depext push compile docker
+.PHONY: all clean dep publish promote test test-all docker depext push compile docker cloc
 
 all:
 	-docker run -t -d --name book_builder owlbarn/book:latest
@@ -38,3 +38,6 @@ clean:
 push:
 	git commit -am "editing book ..." && \
 	git push origin `git branch | grep \* | cut -d ' ' -f2`
+
+loc:
+	cloc .
