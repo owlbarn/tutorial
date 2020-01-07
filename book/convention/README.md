@@ -11,7 +11,7 @@ The arguments between pure and impure functions will never end. Functional progr
 
 The introduction of impure functions into Owl is under many careful and practical considerations. One primary motivation of using in-place modification is to avoid expensive memory allocation and deallocation operations, this can significantly improve the runtime performance of a numerical application especially when large ndarrays and matrices involved.
 
-Can we have the best parts of both world, i.e. writing functional code and being memory efficient at the same time? As you learn more about Owl, you will realise that this can be achieved by lazily evaluating a mathematical expression using [computation graph](cgraph.html). The programer focusses on the functional code, Owl's computation graph module takes care of the "dangerous task" -- allocating and managing the memory efficiently.
+Can we have the best parts of both world, i.e. writing functional code and being memory efficient at the same time? As you learn more about Owl, you will realise that this can be achieved by lazily evaluating a mathematical expression using [computation graph](cgraph.html). The programmer focusses on the functional code, Owl's computation graph module takes care of the "dangerous task" -- allocating and managing the memory efficiently.
 
 Many pure functions in Ndarray module have their corresponding impure version, the difference is that impure version has an extra underscore "`_`" at the end of function names. For example, the following functions are the pure functions in `Arr` module.
 
@@ -47,9 +47,9 @@ For `Arr.add_ x y`, the question is where to store the final result when both in
 val Arr.add_ : ?out:Arr.arr -> Arr.arr -> Arr.arr -> unit
 ```
 
-As we can see from the function type, the output can be specified by an optional `out` parameter. If `out` is missing in the inputs, then Owl will try to use first operand (i.e. `x`) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument `x` must not be smaller than that of the second argument `y`. In other words, impure function only allows broadcasting smaller `y` onto `x` which is big enough to accomodate the result.
+As we can see from the function type, the output can be specified by an optional `out` parameter. If `out` is missing in the inputs, then Owl will try to use first operand (i.e. `x`) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument `x` must not be smaller than that of the second argument `y`. In other words, impure function only allows broadcasting smaller `y` onto `x` which is big enough to accommodate the result.
 
-Most binary math functions in Owl are associated with a shorthand operator, such as `+`, `-`, `*`, and `/`. The impure versions also have their own operators. For exmaple, corresponding to `Arr.(x + y)` which returns the result in a new ndarray, you can write `Arr.(x += y)` which adds up `x` and `y` and saves the result into `x`.
+Most binary math functions in Owl are associated with a shorthand operator, such as `+`, `-`, `*`, and `/`. The impure versions also have their own operators. For example, corresponding to `Arr.(x + y)` which returns the result in a new ndarray, you can write `Arr.(x += y)` which adds up `x` and `y` and saves the result into `x`.
 
 ```text
 
@@ -254,7 +254,7 @@ Here is the return of the first example.
 - : bool = false
 ```
 
-Here is the returen of the second example.
+Here is the return of the second example.
 
 ```ocaml env=convention_00
 # Mat.(x >. y)
