@@ -97,12 +97,16 @@ Besides these constants, we also provide some frequently used computations based
 - `pi4` ($4\pi$)
 - `pi_2` ($\pi / 2$)
 - `pi_4` ($\pi / 4$)
+- `sqrt1_2` ($\sqrt{\frac{1}{2}}$)
+- `sqrt2` ($\sqrt{2}$)
+- `sqrt3` ($\sqrt{3}$)
+- `sqrtpi` ($\sqrt{\pi}$)
 
 ### Physical constants
 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `speed_of_light`| speed of light in vacuum |
 | `gravitational_constant` | Newtonian constant of gravitation |
 | `plancks_constant_h` | Planck constant | 
@@ -138,7 +142,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Time
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `minute` | one minute in seconds |
 | `hour` | one hour in seconds |
 | `day` | one day in seconds |
@@ -147,7 +151,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Length
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `inch` | one inch in metres | 
 | `foot` | one foot in metres | 
 | `yard` | one yard in metres | 
@@ -163,7 +167,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Area 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `hectare` | one hectare in square meters |
 | `acre` | one acre in square meters |
 | `barn` | one barn in square meters |
@@ -171,7 +175,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Volume 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `liter` | one liter in cubic meters |
 | `us_gallon` | one gallon (US) in cubic meters |
 | `uk_gallon` | one gallon (UK) in cubic meters |
@@ -185,7 +189,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Speed 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `miles_per_hour` | miles per hour in metres per second |
 | `kilometers_per_hour` | kilometres per hour in metres per second |
 | `knot` | one knot in metres per second |
@@ -194,7 +198,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Mass
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `pound_mass` | one pound (avoirdupous) in kg |
 | `ounce_mass` | one ounce in kg |
 | `metric_ton` | 1000 kg |
@@ -208,7 +212,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Force
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `newton` | base unit |
 | `gram_force` | one gram force in newtons | 
 | `kilogram_force` | one kilogram force in newtons | 
@@ -220,7 +224,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Energy
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `joule` | base unit |
 | `calorie` | one calorie (thermochemical) in Joules |
 | `btu` | one British thermal unit (International Steam Table) in Joules |
@@ -230,14 +234,14 @@ Besides these constants, we also provide some frequently used computations based
 ### Power
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `horsepower` | one horsepower in watts |
 
 
 ### Pressure
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `bar` | one bar in pascals | 
 | `std_atmosphere` | standard atmosphere in pascals | 
 | `torr` | one torr (mmHg) in pascals | 
@@ -250,7 +254,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Viscosity
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `poise` | base unit |
 | `stokes` | base unit |
 
@@ -258,7 +262,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Luminance 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `stilb` | Candela per square metre, base unit |
 | `lumen` | Candela square radian, base unit |
 | `phot` | base unit |
@@ -271,7 +275,7 @@ Besides these constants, we also provide some frequently used computations based
 ### Radioactivity
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `curie` | one curie in nuclear transformations per second |
 | `roentgen` | one roentgen in ampere second per kilogram |
 | `rad` | one rad in erg per gram |
