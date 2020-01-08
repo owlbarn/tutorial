@@ -55,7 +55,625 @@
   Const.CGSM.plancks_constant_h;;   (* in CGSM system *)
 </code></pre>
 </div>
-<p>TODO: also contains some math constants.</p>
+</section>
+<section class="level2" id="international-system-of-units">
+<h2>International System of Units</h2>
+<p>Now that you know how to use constants, we will use the International System of Units (SI) as an example to show the constants we include in Owl.</p>
+<section class="level3" id="mathematical-constants">
+<h3>Mathematical constants</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>pi</code></td>
+<td style="text-align: left;">Pi</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>e</code></td>
+<td style="text-align: left;">Natural constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>euler</code></td>
+<td style="text-align: left;">Euler constant</td>
+</tr>
+</tbody>
+</table>
+<p>Besides these constants, we also provide some frequently used computations based on them, including:</p>
+<ul>
+<li><code>log2e</code> (<span class="math inline">log<sub>2</sub><em>e</em></span>)</li>
+<li><code>log10e</code> (<span class="math inline">log<sub>10</sub><em>e</em></span>)</li>
+<li><code>loge2</code> (<span class="math inline">log<sub><em>e</em></sub>2</span>)</li>
+<li><code>loge10</code> (<span class="math inline">log<sub><em>e</em></sub>10</span>)</li>
+<li><code>logepi</code> (<span class="math inline">log<sub><em>e</em></sub><em>π</em></span>)</li>
+<li><code>pi2</code> (<span class="math inline">2<em>π</em></span>)</li>
+<li><code>pi4</code> (<span class="math inline">4<em>π</em></span>)</li>
+<li><code>pi_2</code> (<span class="math inline"><em>π</em>/2</span>)</li>
+<li><code>pi_4</code> (<span class="math inline"><em>π</em>/4</span>)</li>
+</ul>
+</section>
+<section class="level3" id="physical-constants">
+<h3>Physical constants</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>speed_of_light</code></td>
+<td style="text-align: left;">speed of light in vacuum</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>gravitational_constant</code></td>
+<td style="text-align: left;">Newtonian constant of gravitation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>plancks_constant_h</code></td>
+<td style="text-align: left;">Planck constant</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>plancks_constant_hbar</code></td>
+<td style="text-align: left;">reduced Planck constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>astronomical_unit</code></td>
+<td style="text-align: left;">one astronomical unit in meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>light_year</code></td>
+<td style="text-align: left;">one light year in meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>parsec</code></td>
+<td style="text-align: left;">one light year in meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>grav_accel</code></td>
+<td style="text-align: left;">standard acceleration of gravity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>electron_volt</code></td>
+<td style="text-align: left;">electron volt</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>mass_electron</code></td>
+<td style="text-align: left;">electron mass</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>mass_muon</code></td>
+<td style="text-align: left;">muon mass</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>mass_proton</code></td>
+<td style="text-align: left;">proton mass</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>mass_neutron</code></td>
+<td style="text-align: left;">neutron mass</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>rydberg</code></td>
+<td style="text-align: left;">Rydberg constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>boltzmann</code></td>
+<td style="text-align: left;">Boltzmann constant</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>molar_gas</code></td>
+<td style="text-align: left;">molar gas constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>standard_gas_volume</code></td>
+<td style="text-align: left;">molar volume of ideal gas (273.15 K, 100 kPa)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>bohr_radius</code></td>
+<td style="text-align: left;">Bohr radius</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>stefan_boltzmann_constant</code></td>
+<td style="text-align: left;">Stefan-Boltzmann constant</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>thomson_cross_section</code></td>
+<td style="text-align: left;">Thomson cross section in square metre</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>bohr_magneton</code></td>
+<td style="text-align: left;">Bohr magneton in Joules per Tesla</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>nuclear_magneton</code></td>
+<td style="text-align: left;">Nuclear magneton in Joules per Tesla</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>electron_magnetic_moment</code></td>
+<td style="text-align: left;">electron magnetic moment in Joules per Tesla</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>proton_magnetic_moment</code></td>
+<td style="text-align: left;">proton magnetic moment in Joules per Tesla</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>faraday</code></td>
+<td style="text-align: left;">Faraday constant</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>electron_charge</code></td>
+<td style="text-align: left;">electron volt in Joules</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>vacuum_permittivity</code></td>
+<td style="text-align: left;">vacuum electric permittivity</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>vacuum_permeability</code></td>
+<td style="text-align: left;">vacuum magnetic permeability</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>debye</code></td>
+<td style="text-align: left;">one debye in coulomb metre</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>gauss</code></td>
+<td style="text-align: left;">one gauss in maxwell per square metre</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="time">
+<h3>Time</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>minute</code></td>
+<td style="text-align: left;">one minute in seconds</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>hour</code></td>
+<td style="text-align: left;">one hour in seconds</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>day</code></td>
+<td style="text-align: left;">one day in seconds</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>week</code></td>
+<td style="text-align: left;">one week in seconds</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="length">
+<h3>Length</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>inch</code></td>
+<td style="text-align: left;">one inch in metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>foot</code></td>
+<td style="text-align: left;">one foot in metres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>yard</code></td>
+<td style="text-align: left;">one yard in metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>mile</code></td>
+<td style="text-align: left;">one mile in metres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>mil</code></td>
+<td style="text-align: left;">one mil in metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>fathom</code></td>
+<td style="text-align: left;">one fathom in metres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>point</code></td>
+<td style="text-align: left;">one point in metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>micron</code></td>
+<td style="text-align: left;">one micron in metres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>angstrom</code></td>
+<td style="text-align: left;">one angstrom in metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>nautical_mile</code></td>
+<td style="text-align: left;">one <a href="https://en.wikipedia.org/wiki/Nautical_mile">nautical mile</a> in metres</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="area">
+<h3>Area</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>hectare</code></td>
+<td style="text-align: left;">one hectare in square meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>acre</code></td>
+<td style="text-align: left;">one acre in square meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>barn</code></td>
+<td style="text-align: left;">one barn in square meters</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="volume">
+<h3>Volume</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>liter</code></td>
+<td style="text-align: left;">one liter in cubic meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>us_gallon</code></td>
+<td style="text-align: left;">one gallon (US) in cubic meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>uk_gallon</code></td>
+<td style="text-align: left;">one gallon (UK) in cubic meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>canadian_gallon</code></td>
+<td style="text-align: left;">one Canadian gallon in cubic meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>quart</code></td>
+<td style="text-align: left;">one quart (US) in cubic meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>cup</code></td>
+<td style="text-align: left;">one cup (US) in cubic meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>pint</code></td>
+<td style="text-align: left;">one pint in cubic meters</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>fluid_ounce</code></td>
+<td style="text-align: left;">one fluid ounce (US) in cubic meters</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>tablespoon</code></td>
+<td style="text-align: left;">one tablespoon in cubic meters</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="speed">
+<h3>Speed</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>miles_per_hour</code></td>
+<td style="text-align: left;">miles per hour in metres per second</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>kilometers_per_hour</code></td>
+<td style="text-align: left;">kilometres per hour in metres per second</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>knot</code></td>
+<td style="text-align: left;">one knot in metres per second</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="mass">
+<h3>Mass</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>pound_mass</code></td>
+<td style="text-align: left;">one pound (avoirdupous) in kg</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>ounce_mass</code></td>
+<td style="text-align: left;">one ounce in kg</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>metric_ton</code></td>
+<td style="text-align: left;">1000 kg</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>ton</code></td>
+<td style="text-align: left;">one short ton in kg</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>uk_ton</code></td>
+<td style="text-align: left;">one long ton in kg</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>troy_ounce</code></td>
+<td style="text-align: left;">one Troy ounce in kg</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>carat</code></td>
+<td style="text-align: left;">one carat in kg</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>unified_atomic_mass</code></td>
+<td style="text-align: left;">atomic mass constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>solar_mass</code></td>
+<td style="text-align: left;">one solar mass in kg</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="force">
+<h3>Force</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>newton</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>gram_force</code></td>
+<td style="text-align: left;">one gram force in newtons</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>kilogram_force</code></td>
+<td style="text-align: left;">one kilogram force in newtons</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>pound_force</code></td>
+<td style="text-align: left;">one pound force in newtons</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>poundal</code></td>
+<td style="text-align: left;">one poundal in newtons</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>dyne</code></td>
+<td style="text-align: left;">one dyne in newtons</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="energy">
+<h3>Energy</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>joule</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>calorie</code></td>
+<td style="text-align: left;">one calorie (thermochemical) in Joules</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>btu</code></td>
+<td style="text-align: left;">one British thermal unit (International Steam Table) in Joules</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>therm</code></td>
+<td style="text-align: left;">one therm (US) in Joules</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>erg</code></td>
+<td style="text-align: left;">one erg in Joules</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="power">
+<h3>Power</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>horsepower</code></td>
+<td style="text-align: left;">one horsepower in watts</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="pressure">
+<h3>Pressure</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>bar</code></td>
+<td style="text-align: left;">one bar in pascals</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>std_atmosphere</code></td>
+<td style="text-align: left;">standard atmosphere in pascals</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>torr</code></td>
+<td style="text-align: left;">one torr (mmHg) in pascals</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>meter_of_mercury</code></td>
+<td style="text-align: left;">one metre of mercury in pascals</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>inch_of_mercury</code></td>
+<td style="text-align: left;">one inch of mercury in pascals</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>inch_of_water</code></td>
+<td style="text-align: left;">one inch of water in pascals</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>psi</code></td>
+<td style="text-align: left;">one psi in pascals</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="viscosity">
+<h3>Viscosity</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>poise</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>stokes</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="luminance">
+<h3>Luminance</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>stilb</code></td>
+<td style="text-align: left;">Candela per square metre, base unit</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>lumen</code></td>
+<td style="text-align: left;">Candela square radian, base unit</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>phot</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>lux</code></td>
+<td style="text-align: left;">one lux in phots</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>footcandle</code></td>
+<td style="text-align: left;">one footcandle in phots</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>lambert</code></td>
+<td style="text-align: left;">base unit</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>footlambert</code></td>
+<td style="text-align: left;">one footlambert in lambert</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="radioactivity">
+<h3>Radioactivity</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><code>curie</code></td>
+<td style="text-align: left;">one curie in nuclear transformations per second</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><code>roentgen</code></td>
+<td style="text-align: left;">one roentgen in ampere second per kilogram</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><code>rad</code></td>
+<td style="text-align: left;">one rad in erg per gram</td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 </article></div><a href="zoo.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 23</small>Scripting and Zoo System</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
