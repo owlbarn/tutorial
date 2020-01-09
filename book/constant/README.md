@@ -81,7 +81,7 @@ Now that you know how to use constants, we will use the International System of 
 ### Mathematical constants 
 
 | Constant name  | Explanation  |
-| -------------: |:-------------| 
+| :------------- |:-------------| 
 | `pi`| Pi | 
 | `e` | Natural constant |
 | `euler` | Euler constant |
