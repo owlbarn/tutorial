@@ -35,8 +35,8 @@
 </code></pre>
 </div>
 </section>
-<section class="level2" id="some-examples">
-<h2>Some Examples</h2>
+<section class="level2" id="examples-physics-and-math-constants">
+<h2>Examples: Physics and Math constants</h2>
 <p>Now we can safely talk about the distance between two objects, light of speed, and many other real-world stuff with atop of a well-defined metric system in Owl. See the following examples.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -55,53 +55,7 @@
   Const.CGSM.plancks_constant_h;;   (* in CGSM system *)
 </code></pre>
 </div>
-</section>
-<section class="level2" id="international-system-of-units">
-<h2>International System of Units</h2>
-<p>Now that you know how to use constants, we will use the International System of Units (SI) as an example to show the constants we include in Owl.</p>
-<section class="level3" id="mathematical-constants">
-<h3>Mathematical constants</h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Constant name</th>
-<th style="text-align: left;">Explanation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>pi</code></td>
-<td style="text-align: left;">Pi</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>e</code></td>
-<td style="text-align: left;">Natural constant</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>euler</code></td>
-<td style="text-align: left;">Euler constant</td>
-</tr>
-</tbody>
-</table>
-<p>Besides these constants, we also provide some frequently used computations based on them, including:</p>
-<ul>
-<li><code>log2e</code> (<span class="math inline">log<sub>2</sub><em>e</em></span>)</li>
-<li><code>log10e</code> (<span class="math inline">log<sub>10</sub><em>e</em></span>)</li>
-<li><code>loge2</code> (<span class="math inline">log<sub><em>e</em></sub>2</span>)</li>
-<li><code>loge10</code> (<span class="math inline">log<sub><em>e</em></sub>10</span>)</li>
-<li><code>logepi</code> (<span class="math inline">log<sub><em>e</em></sub><em>π</em></span>)</li>
-<li><code>pi2</code> (<span class="math inline">2<em>π</em></span>)</li>
-<li><code>pi4</code> (<span class="math inline">4<em>π</em></span>)</li>
-<li><code>pi_2</code> (<span class="math inline"><em>π</em>/2</span>)</li>
-<li><code>pi_4</code> (<span class="math inline"><em>π</em>/4</span>)</li>
-<li><code>sqrt1_2</code> (<span class="math inline">$\sqrt{\frac{1}{2}}$</span>)</li>
-<li><code>sqrt2</code> (<span class="math inline">$\sqrt{2}$</span>)</li>
-<li><code>sqrt3</code> (<span class="math inline">$\sqrt{3}$</span>)</li>
-<li><code>sqrtpi</code> (<span class="math inline">$\sqrt{\pi}$</span>)</li>
-</ul>
-</section>
-<section class="level3" id="physical-constants">
-<h3>Physical constants</h3>
+<p>The table below shows some physical constants that the <code>SI</code> module includes:</p>
 <table>
 <thead>
 <tr class="header">
@@ -232,9 +186,52 @@
 </tr>
 </tbody>
 </table>
+<p>Some basic mathematical constants are also provided in Owl, though some constants in advanced mathematics are not yet included such as the golden ratio or Euler–Mascheroni constant.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Constant name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>pi</code></td>
+<td style="text-align: left;">Pi</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>e</code></td>
+<td style="text-align: left;">Natural constant</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>euler</code></td>
+<td style="text-align: left;">Euler constant</td>
+</tr>
+</tbody>
+</table>
+<p>Besides these constants, we also provide some frequently used computations based on them, including:</p>
+<ul>
+<li><code>log2e</code> (<span class="math inline">log<sub>2</sub><em>e</em></span>)</li>
+<li><code>log10e</code> (<span class="math inline">log<sub>10</sub><em>e</em></span>)</li>
+<li><code>loge2</code> (<span class="math inline">log<sub><em>e</em></sub>2</span>)</li>
+<li><code>loge10</code> (<span class="math inline">log<sub><em>e</em></sub>10</span>)</li>
+<li><code>logepi</code> (<span class="math inline">log<sub><em>e</em></sub><em>π</em></span>)</li>
+<li><code>pi2</code> (<span class="math inline">2<em>π</em></span>)</li>
+<li><code>pi4</code> (<span class="math inline">4<em>π</em></span>)</li>
+<li><code>pi_2</code> (<span class="math inline"><em>π</em>/2</span>)</li>
+<li><code>pi_4</code> (<span class="math inline"><em>π</em>/4</span>)</li>
+<li><code>sqrt1_2</code> (<span class="math inline">$\sqrt{\frac{1}{2}}$</span>)</li>
+<li><code>sqrt2</code> (<span class="math inline">$\sqrt{2}$</span>)</li>
+<li><code>sqrt3</code> (<span class="math inline">$\sqrt{3}$</span>)</li>
+<li><code>sqrtpi</code> (<span class="math inline">$\sqrt{\pi}$</span>)</li>
+</ul>
 </section>
+<section class="level2" id="international-system-of-units">
+<h2>International System of Units</h2>
+<p>Now that you know how to use constants, we will use the International System of Units (SI) module as an example to show the constants we include in Owl. These units are all derived from the seven basic units we have mentioned, and can be categorised according to different application fields.</p>
 <section class="level3" id="time">
 <h3>Time</h3>
+<p>The base SI unit for time measurement is second.</p>
 <table>
 <thead>
 <tr class="header">
@@ -264,6 +261,7 @@
 </section>
 <section class="level3" id="length">
 <h3>Length</h3>
+<p>The base SI unit for length measurement is metre.</p>
 <table>
 <thead>
 <tr class="header">
@@ -317,6 +315,7 @@
 </section>
 <section class="level3" id="area">
 <h3>Area</h3>
+<p>Measuring area and volume still relies SI base unit metre.</p>
 <table>
 <thead>
 <tr class="header">
@@ -391,6 +390,7 @@
 </section>
 <section class="level3" id="speed">
 <h3>Speed</h3>
+<p>The base units for speed are that of time and length.</p>
 <table>
 <thead>
 <tr class="header">
@@ -416,6 +416,7 @@
 </section>
 <section class="level3" id="mass">
 <h3>Mass</h3>
+<p>The base unit for presenting mass is kilogram (kg).</p>
 <table>
 <thead>
 <tr class="header">
@@ -465,6 +466,7 @@
 </section>
 <section class="level3" id="force">
 <h3>Force</h3>
+<p>Measuring force relies on the SI derived unit: <code>newton</code>, and one newtong equals to 1 kilogram metre per squared second.</p>
 <table>
 <thead>
 <tr class="header">
@@ -475,7 +477,7 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>newton</code></td>
-<td style="text-align: left;">base unit</td>
+<td style="text-align: left;">SI derived unit (<span class="math inline"><em>k</em><em>g</em> ⋅ <em>m</em> ⋅ <em>s</em><sup>(</sup> − 2)</span>)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>gram_force</code></td>
@@ -502,6 +504,7 @@
 </section>
 <section class="level3" id="energy">
 <h3>Energy</h3>
+<p>The unit of measuring energy level is joule, which equals to one kilogram square metre per square second.</p>
 <table>
 <thead>
 <tr class="header">
@@ -512,7 +515,7 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>joule</code></td>
-<td style="text-align: left;">base unit</td>
+<td style="text-align: left;">SI base unit</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>calorie</code></td>
@@ -535,6 +538,7 @@
 </section>
 <section class="level3" id="power">
 <h3>Power</h3>
+<p>The unit of power is <code>watts</code>, a SI derived unit. One watts equals to one kilogram square metre per cubic second, or one Joule per second.</p>
 <table>
 <thead>
 <tr class="header">
@@ -552,6 +556,7 @@
 </section>
 <section class="level3" id="pressure">
 <h3>Pressure</h3>
+<p>To measure we often use pascal as a standard unit. One pascal equals to a kilogram per metre per square second, or a newton per square metre.</p>
 <table>
 <thead>
 <tr class="header">
@@ -593,6 +598,7 @@
 </section>
 <section class="level3" id="viscosity">
 <h3>Viscosity</h3>
+<p>The <code>poise</code> is a unit in dynamic viscosity and the <code>stokes</code> is for kinematic viscosity. They are actually included in the CGS-based system for electrostatic units.</p>
 <table>
 <thead>
 <tr class="header">
@@ -614,6 +620,7 @@
 </section>
 <section class="level3" id="luminance">
 <h3>Luminance</h3>
+<p>Candela is the base unit for luminance, and both <code>lumen</code> and <code>lux</code> are derived units.</p>
 <table>
 <thead>
 <tr class="header">
@@ -624,11 +631,11 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>stilb</code></td>
-<td style="text-align: left;">Candela per square metre, base unit</td>
+<td style="text-align: left;">Candela per square metre</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>lumen</code></td>
-<td style="text-align: left;">Candela square radian, base unit</td>
+<td style="text-align: left;">luminous flux, Candela square radian, SI derived unit</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>phot</code></td>
@@ -636,7 +643,7 @@
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>lux</code></td>
-<td style="text-align: left;">one lux in phots</td>
+<td style="text-align: left;">one lux in phots, SI derived unit</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>footcandle</code></td>
@@ -655,6 +662,7 @@
 </section>
 <section class="level3" id="radioactivity">
 <h3>Radioactivity</h3>
+<p>The SI unit of radioactivity is <code>becquerel</code>, named in honour of the scientist Henri Becquerel, defined as one transformation (or decay or disintegration) per second. The other base unit ampere, second, and kilogram are also used.</p>
 <table>
 <thead>
 <tr class="header">
@@ -665,15 +673,15 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>curie</code></td>
-<td style="text-align: left;">one curie in nuclear transformations per second</td>
+<td style="text-align: left;">one curie in becquerel</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>roentgen</code></td>
-<td style="text-align: left;">one roentgen in ampere second per kilogram</td>
+<td style="text-align: left;">one ampere second per kilogram</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>rad</code></td>
-<td style="text-align: left;">one rad in erg per gram</td>
+<td style="text-align: left;">erg per gram</td>
 </tr>
 </tbody>
 </table>

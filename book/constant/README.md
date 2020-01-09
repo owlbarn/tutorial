@@ -50,7 +50,7 @@ These prefixes are defined in `Const.Prefix` module.
 
 ```
 
-## Some Examples
+## Examples: Physics and Math constants
 
 Now we can safely talk about the distance between two objects, light of speed, and many other real-world stuff with atop of a well-defined metric system in Owl. See the following examples.
 
@@ -74,36 +74,7 @@ How about Planck's constant?
 
 ```
 
-## International System of Units
-
-Now that you know how to use constants, we will use the International System of Units (SI) as an example to show the constants we include in Owl.
-
-### Mathematical constants 
-
-| Constant name  | Explanation  |
-| :------------- |:-------------| 
-| `pi`| Pi | 
-| `e` | Natural constant |
-| `euler` | Euler constant |
-
-Besides these constants, we also provide some frequently used computations based on them, including: 
-
-- `log2e`  ($\log_2 e$)
-- `log10e`  ($\log_10 e$)
-- `loge2`  ($\log_e 2$)
-- `loge10`  ($\log_e 10$)
-- `logepi`  ($\log_e \pi$)
-- `pi2` ($2\pi$)
-- `pi4` ($4\pi$)
-- `pi_2` ($\pi / 2$)
-- `pi_4` ($\pi / 4$)
-- `sqrt1_2` ($\sqrt{\frac{1}{2}}$)
-- `sqrt2` ($\sqrt{2}$)
-- `sqrt3` ($\sqrt{3}$)
-- `sqrtpi` ($\sqrt{\pi}$)
-
-### Physical constants
-
+The table below shows some physical constants that the `SI` module includes: 
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -139,7 +110,39 @@ Besides these constants, we also provide some frequently used computations based
 | `gauss` | one gauss in maxwell per square metre |
 
 
+Some basic mathematical constants are also provided in Owl, though some constants in advanced mathematics are not yet included such as the golden ratio or Euler–Mascheroni constant.
+
+| Constant name  | Explanation  |
+| :------------- |:-------------| 
+| `pi`| Pi | 
+| `e` | Natural constant |
+| `euler` | Euler constant |
+
+Besides these constants, we also provide some frequently used computations based on them, including: 
+
+- `log2e`  ($\log_2 e$)
+- `log10e`  ($\log_10 e$)
+- `loge2`  ($\log_e 2$)
+- `loge10`  ($\log_e 10$)
+- `logepi`  ($\log_e \pi$)
+- `pi2` ($2\pi$)
+- `pi4` ($4\pi$)
+- `pi_2` ($\pi / 2$)
+- `pi_4` ($\pi / 4$)
+- `sqrt1_2` ($\sqrt{\frac{1}{2}}$)
+- `sqrt2` ($\sqrt{2}$)
+- `sqrt3` ($\sqrt{3}$)
+- `sqrtpi` ($\sqrt{\pi}$)
+
+
+## International System of Units
+
+Now that you know how to use constants, we will use the International System of Units (SI) module as an example to show the constants we include in Owl. 
+These units are all derived from the seven basic units we have mentioned, and can be categorised according to different application fields. 
+
 ### Time
+
+The base SI unit for time measurement is second.
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -149,6 +152,8 @@ Besides these constants, we also provide some frequently used computations based
 | `week` | one week in seconds | 
 
 ### Length
+
+The base SI unit for length measurement is metre.
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -165,6 +170,8 @@ Besides these constants, we also provide some frequently used computations based
 
 
 ### Area 
+
+Measuring area and volume still relies SI base unit metre. 
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -188,6 +195,8 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Speed 
 
+The base units for speed are that of time and length.
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
 | `miles_per_hour` | miles per hour in metres per second |
@@ -196,6 +205,8 @@ Besides these constants, we also provide some frequently used computations based
 
 
 ### Mass
+
+The base unit for presenting mass is kilogram (kg).
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -211,9 +222,11 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Force
 
+Measuring force relies on the SI derived unit: `newton`, and one newtong equals to 1 kilogram metre per squared second. 
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
-| `newton` | base unit |
+| `newton` | SI derived unit ($kg⋅m⋅s^(−2)$) |
 | `gram_force` | one gram force in newtons | 
 | `kilogram_force` | one kilogram force in newtons | 
 | `pound_force` | one pound force in newtons | 
@@ -223,9 +236,11 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Energy
 
+The unit of measuring energy level is joule, which equals to one kilogram square metre per square second.  
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
-| `joule` | base unit |
+| `joule` | SI base unit |
 | `calorie` | one calorie (thermochemical) in Joules |
 | `btu` | one British thermal unit (International Steam Table) in Joules |
 | `therm` | one therm (US) in Joules |
@@ -233,12 +248,16 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Power
 
+The unit of power is `watts`, a SI derived unit. One watts equals to one kilogram square metre per cubic second, or one Joule per second. 
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
 | `horsepower` | one horsepower in watts |
 
 
 ### Pressure
+
+To measure we often use pascal as a standard unit. One pascal equals to a kilogram per metre per square second, or a newton per square metre.
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
@@ -253,6 +272,8 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Viscosity
 
+The `poise` is a unit in dynamic viscosity and the `stokes` is for kinematic viscosity. They are actually included in the CGS-based system for electrostatic units.
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
 | `poise` | base unit |
@@ -261,12 +282,14 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Luminance 
 
+Candela is the base unit for luminance, and both `lumen` and `lux` are derived units. 
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
-| `stilb` | Candela per square metre, base unit |
-| `lumen` | Candela square radian, base unit |
+| `stilb` | Candela per square metre |
+| `lumen` |	luminous flux, Candela square radian, SI derived unit |
 | `phot` | base unit |
-| `lux` | one lux in phots |
+| `lux` | one lux in phots, SI derived unit |
 | `footcandle` | one footcandle in phots |
 | `lambert` | base unit |
 | `footlambert` | one footlambert in lambert |
@@ -274,8 +297,11 @@ Besides these constants, we also provide some frequently used computations based
 
 ### Radioactivity
 
+The SI unit of radioactivity is `becquerel`, named in honour of the scientist Henri Becquerel, defined as one transformation (or decay or disintegration) per second.
+The other base unit ampere, second, and kilogram are also used. 
+
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
-| `curie` | one curie in nuclear transformations per second |
-| `roentgen` | one roentgen in ampere second per kilogram |
-| `rad` | one rad in erg per gram |
+| `curie` | one curie in becquerel |
+| `roentgen` | one ampere second per kilogram |
+| `rad` | erg per gram |
