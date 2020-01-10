@@ -44,5 +44,6 @@
  ((title "Case Studies")
   (chapters
    (case-image-inception
+    case-obj-detect
     case-gpu
     ))))
