@@ -1,5 +1,88 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Case - Image Recognition - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="case---image-recognition">
 <h1>Case - Image Recognition</h1>
-<p>TBD</p>
+<section class="level2" id="image-recognition">
+<h2>Image Recognition</h2>
+<p>How can a computer take an image and answer questions like “what is in this picture? A cat, dog, or something else?” In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks — matching or exceeding human performance in some domains.</p>
+<p><a href="https://arxiv.org/abs/1512.00567">InceptionV3</a> is one of Google’s latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.</p>
+</section>
+<section class="level2" id="image-recognition-with-owl">
+<h2>Image Recognition with Owl</h2>
+<p>There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.</p>
+<p>As a prerequisite, please make sure that the tool <a href="https://www.imagemagick.org/">ImageMagick</a> is installed. Besides, prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter:</p>
+<p align="center">
+<img src="images/case-image-inception/panda.png">
+</p>
+</section>
+<section class="level2" id="lets-roll">
+<h2>Let’s Roll!</h2>
+<p>Enough of these boring installation steps. Forget any hello-world code. Let’s do the image classification, right here, right now!</p>
+<div class="highlight">
+<pre><code class="language-clike">owl -run 6dfed11c521fb2cd286f2519fb88d3bf</code></pre>
+</div>
+<p>That’s it. This one-liner is all you need to do to see a image classification example in action. Here is the output (assume using the panda image previously mentioned):</p>
+<div class="highlight">
+<pre><code class="language-clike">Top 5 Predictions:
+Prediction #0 (96.20%) : giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca
+Prediction #1 (0.12%) : lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens
+Prediction #2 (0.06%) : space shuttle
+Prediction #3 (0.04%) : soccer ball
+Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus</code></pre>
+</div>
+</section>
+<section class="level2" id="code-detail">
+<h2>Code Detail</h2>
+<p>This one line of code uses the Zoo system to import the code from <a href="https://gist.github.com/jzstark/6dfed11c521fb2cd286f2519fb88d3bf">this gist</a>. Let’s look at the the code in detail:</p>
+<div class="highlight">
+<pre><code class="language-clike">#!/usr/bin/env owl
+open Owl
+
+(* Import InceptionV3 Library *)
+#zoo "9428a62a31dbea75511882ab8218076f"
+
+let _ = 
+  (* Path to your image; here we use the "panda.png" in this gist as example. *)
+  let img = Owl_zoo_path.extend_zoo_path "panda.png" in
+  (* Image classification *)
+  let labels = InceptionV3.infer img in
+  (* Get top-5 human-readable output in the format of JSON string, or...*) 
+  let top = 5 in 
+  let labels_json   = InceptionV3.to_json ~top labels in
+  (* an array of tuples. Each tuple contains a category (string) and 
+   * its inferred probability (float), ranging from 1 to 100.
+   *)
+  let labels_tuples = InceptionV3.to_tuples labels in
+
+  (* (Optional) Pretty-print the results *)
+  Printf.printf "\nTop %d Predictions:\n" top;
+  Array.iteri (fun i x -&gt; 
+    let cls, prop = x in 
+    Printf.printf "Prediction #%d (%.2f%%) : %s\n" i (prop *. 100.) cls;
+  ) labels_tuples</code></pre>
+</div>
+<p>You need 5 steps to do image classification with InceptionV3:</p>
+<ol type="1">
+<li><p>Import external code/libraries using Zoo in Owl. Using <code>#zoo "gist-id"</code> enables you to use code modules defined in other Gists. Here we want to use <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">InceptionV3</a> modules. It defines the InceptionV3 network architecture and loads weights of the network. The downloaded code are cached in <code>$HOME/.owl/zoo</code> directory. The InceptionV3 module provides three APIs:</p>
+<ul>
+<li><p><code>infer</code>: Service that performs image recognition tasks over client images. It accept a string that specify the location of a local image. Its return value is a 1x1000 N-dimension array, each element is a float number between 0 and 1, indicating the possibility that the image belongs to one of the 1000 classes from ImageNet.</p></li>
+<li><p><code>to_json</code>: Convert the inferred result to a raw JSON string. Parameter <code>top</code>: an int value to specify the top-N likeliest labels to return. Default value is 5.</p></li>
+<li><p><code>to_json</code>: Convert the inferred result to an array of tuples, each tuple contains label name (“class”, string) and the probability (“prop”, float, between 0 and 1) of target image being in that class.</p></li>
+</ul></li>
+<li><p>Load InceptionV3 model with one line of code.</p></li>
+<li><p>Designate an absolute path of your input image. Here we use the <code>extend_zoo_path</code> util function to automatically find the “panda.png” image contained in the Gist itself.</p></li>
+<li><p>Run inference with the neural network model and the input image, and then decode the result, getting top-N (N defaults to 5) predictions in human-readable format. The output is an array of tuple, each tuple consists of a string for classified type description, and a float number ranging from 0 to 100 to represent the percentage probability of the input image actually being this type.</p></li>
+<li><p>If you want, you can pretty-print the result on your screen.</p></li>
+</ol>
+</section>
+<section class="level2" id="online-demo">
+<h2>Online Demo</h2>
+<p>If you are not interested in installing anything, no problem! <a href="http://demo.ocaml.xyz/">Here</a> is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!</p>
+</section>
+<section class="level2" id="want-to-know-more">
+<h2>Want to Know More?</h2>
+<p>We do have more! I suggest you to read the code that constructing the whole InceptionV3 network from <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">this gist</a>. Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.</p>
+<p>Besides InceptionV3, you can also easily construct other popular image recognition networks, such as <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1">ResNet50</a>, <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4">VGG16</a>, <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48">SqueezeNet</a> etc. with elegant Owl code.<br>
+As to other smaller tasks, such as the most common hand-written digits recognition task, you can construct a good deep neural network model with only 9 lines of code!</p>
+<p>Happy hunting!</p>
+</section>
 </section>
 </article></div><a href="case-obj-detect.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 32</small>Case - Object Detection</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
