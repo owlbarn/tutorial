@@ -548,15 +548,20 @@ Note that you need to pass in type information in `load` function otherwise Owl 
 
 `save` and `load` currently use the Marshall module which is brittle since it depends on specific OCaml versions. In the future, these two functions will be improved.
 
-### Use NPY file in Owl
-
 With the help of [npy-ocaml](https://github.com/LaurentMazare/npy-ocaml), we can save and load files in the format of npy file.
 Proposed by NumPy, [NPY](https://docs.scipy.org/doc/numpy-1.14.2/neps/npy-format.html) is a standard binary file format for persisting a single arbitrary ndarray on disk. 
 The format stores all of the shape and data type information necessary to reconstruct the array correctly even on another machine with a different architecture.
 NPY is a widely used serialisation format.
 Owl can thus easily interact with the Python-world data by using this format. 
 
-TODO: examples using npy files
+Using NPY files are the same as that of normal serialisation. Here is a simple example:
 
+```ocaml
+# let x = Arr.uniform [|3; 3|] in 
+  Arr.save_npy ~out:"data.npy" x;
+  let y = Arr.load_npy "data.npy" in 
+  Arr.(x = y) 
+- : bool = true
+```
 
 There are way more functions contained in the Ndarray module than the ones I have introduced here. Please refer to the API documentation for the full list.
