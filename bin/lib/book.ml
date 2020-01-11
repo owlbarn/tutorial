@@ -24,7 +24,8 @@ let head_item ?chapter_title () : Html.item =
     link ~a:["rel","stylesheet"; "href","css/prism.css"] [];
     script ~a:["src","js/min/modernizr-min.js"] [];
     script ~a:["src","js/prism.js"] [];
-    script ~a:["src","//use.typekit.net/gfj8wez.js"] [];
+    script ~a:["src","https://use.typekit.net/gfj8wez.js"] [];
+    script ~a:["src","https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"] [];
     script [`Data "try{Typekit.load();}catch(e){}"];
   ]
 
