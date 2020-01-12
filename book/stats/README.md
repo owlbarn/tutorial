@@ -189,7 +189,7 @@ Our hypothesis is that the data set is drawn from Gaussian distribution $\mathca
  score = -1.29404418291717915}
 ```
 
-The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p-value and score calculated with the given data set.
+The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
 
 ```ocaml
 type hypothesis = {
@@ -208,11 +208,12 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
  score = 9.18320634091117327}
 ```
 
-As we expected, the null hypothesis is accepted with very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
+As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
 
 
 ## Order Statistics
 
+Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value.
 
 
 TBD
