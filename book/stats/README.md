@@ -213,7 +213,17 @@ As we expected, the null hypothesis is accepted with a very small p value. This 
 
 ## Order Statistics
 
-Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value.
+Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
 
+```ocaml
+Stats.min;; (* the mininum of the samples *)
+Stats.max;; (* the maximum of the samples *)
+Stats.median;; (* the median value of the samples *)
+Stats.quartile;; (* quartile of the samples *)
+Stats.first_quartile;; (* the first quartile of the samples *)
+Stats.third_quartile;; (* the third quartile of the samples *)
+Stats.interquartile;; (* the interquartile of the samples *)
+Stats.percentile;; (* percentile of the samples *)
+```
 
-TBD
+In addition to the aforementioned ones, there are many other ordered statitical functions in Owl for you to explore.
