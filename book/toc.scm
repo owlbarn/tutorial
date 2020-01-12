@@ -45,5 +45,6 @@
   (chapters
    (case-image-inception
     case-obj-detect
+    case-nst
     case-gpu
     ))))

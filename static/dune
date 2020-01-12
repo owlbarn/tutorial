@@ -9,6 +9,7 @@
         images/algodiff/plot_01.png
         images/asset/liang.jpg
         images/case-image-inception/panda.png
+        images/case-nst/nst_example.png
         images/cgraph/owl_cgraph_functor_stack.png
         images/cgraph/owl_cgraph_mnist_opt.png
         images/cgraph/owl_cgraph_mnist_raw.png
@@ -151,6 +152,16 @@
 (rule
   (targets case-image-inception.html)
   (deps    (:x ../book/case-image-inception.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps case-nst.html))
+
+(rule
+  (targets case-nst.html)
+  (deps    (:x ../book/case-nst.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

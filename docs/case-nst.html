@@ -1,0 +1,40 @@
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Case - Neural Style Transfer - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/apidoc/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="case---neural-style-transfer">
+<h1>Case - Neural Style Transfer</h1>
+<section class="level2" id="neural-style-transfer">
+<h2>Neural Style Transfer</h2>
+<p>What is Neural Style Transfer (NST)? It is a pretty cool application of Deep Neural Networks (DNN), “the process of using DNN to migrate the semantic content of one image to different styles”.</p>
+<p>Well it may sounds a little bit scary, but the idea is very simple, as the title image shows, this application takes two images A and B as input. Let’s say A is “Mona Lisa” of Da Vinci, and B is “The Starry Night” of Vincent van Gogh.</p>
+<p>We then specify A as the content image and B as the style image, then what a NST application can produce? Boom! A new Mona Lisa, but with the style of Van Gogh (see the middle of title image)! If you want another style, just replace image B and run the application again. Impressionism, abstractionism, classical art, you name it.</p>
+<p>The figure below illustrate this point (<a href="http://genekogan.com/works/style-transfer/">src</a>). You can apply different art styles to the same “Mona Lisa”, or apply the same “Starry Sky” style to any pictures, even a normal daily street view. Isn’t it amazing?</p>
+<p><img src="images/case-nst/mona_lisa.jpeg"></p>
+</section>
+<section class="level2" id="a-very-brief-theory-of-nst">
+<h2>A Very Brief Theory of NST</h2>
+<p>Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
+<p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises: <span class="math display">\[ f(x) = \textrm{content_distance}(x, c) + \textrm{style_distance}(x, s) \]</span></p>
+<p>This equation can be easily translated as: I want to get such an image that its content is close to <code>c</code> , but its style similar to <code>s</code> .</p>
+<p>DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions. Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .</p>
+</section>
+<section class="level2" id="nst-with-owl">
+<h2>NST with Owl</h2>
+<p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
+<p>This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:</p>
+<div class="highlight">
+<pre><code class="language-clike">#zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
+
+Neural_transfer.run ~ckpt:50 ~src:"path/to/content_img.jpg" ~style:"path/to/style_img.jpg" ~dst:"path/to/output_img.png" 250.;;</code></pre>
+</div>
+<p>The first line download gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
+<p>This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. <code>path/to/output_img_N.png</code>). <code>N</code> is specified by the <code>ckpt</code> parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.</p>
+<p>That’s all it takes! If you don’t have suitable input images at hand, the gist already contains exemplar content and style images to get you started. I have to say I had a lot lot of fun playing with it – please allow me to introduce you one of my work using the exemplar images:</p>
+<p><img src="images/case-nst/nst_example.png"></p>
+<p>Here is a presentation of how the content image change gradually in style:</p>
+<p align="center">
+<img src="images/case-nst/example_01.gif">
+</p>
+</section>
+<section class="level2" id="fast-style-transfer">
+<h2>Fast Style Transfer</h2>
+</section>
+</section>
+</article></div><a href="case-gpu.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 34</small>Case - Accelerators</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

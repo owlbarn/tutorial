@@ -7,6 +7,7 @@
         broadcast.html
         case-gpu.html
         case-image-inception.html
+        case-nst.html
         case-obj-detect.html
         cgraph.html
         community.html
@@ -44,6 +45,7 @@
         broadcast.tex
         case-gpu.tex
         case-image-inception.tex
+        case-nst.tex
         case-obj-detect.tex
         cgraph.tex
         community.tex
@@ -140,6 +142,16 @@
 (rule
   (targets case-image-inception.tex)
   (deps    (:md_file case-image-inception/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets case-nst.html)
+  (deps    (:md_file case-nst/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-nst.tex)
+  (deps    (:md_file case-nst/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
