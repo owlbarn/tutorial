@@ -130,6 +130,55 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 </section>
 <section class="level2" id="hypothesis-tests">
 <h2>Hypothesis Tests</h2>
+<p>While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.</p>
+<ul>
+<li>Null hypothesis <span class="math inline">\(H_0\)</span>: there is no relationship between two data sets.</li>
+<li>Alternative hypothesis <span class="math inline">\(H_1\)</span>: there is statistically significant relationship between two data sets.</li>
+</ul>
+<p>The <code>Stats</code> module in Owl supports many different kinds of hypothesis tests.</p>
+<ul>
+<li>Z-Test</li>
+<li>Student’s T-Test</li>
+<li>Paired Sample T-Test</li>
+<li>Unpaired Sample T-Test</li>
+<li>Kolmogorov-Smirnov Test</li>
+<li>Chi-Square Variance Test</li>
+<li>Jarque-Bera Test</li>
+<li>Fisher’s Exact Test</li>
+<li>Wald–Wolfowitz Runs Test</li>
+<li>Mann-Whitney Rank Test</li>
+<li>Wilcoxon Signed-rank Test</li>
+</ul>
+<p>Now let’s see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one <code>data_0</code> is drawn from <span class="math inline">\(\mathcal{N}(0, 1)\)</span>, while the second one <code>data_1</code> is drawn from <span class="math inline">\(\mathcal{N}(3, 1)\)</span>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let data_0 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
+let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</code></pre>
+</div>
+<p>Our hypothesis is that the data set is drawn from Gaussian distribution <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. From the way we genereated the synthetic data, it is obvious that <code>data_0</code> will pass the test, but let’s see what Owl will test us using its <code>Stats.z_test</code> function.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_0;;
+&gt;- : Owl_stats.hypothesis =
+&gt;{Owl.Stats.reject = false; p_value = 0.195650159811977087;
+&gt; score = -1.29404418291717915}
+</code></pre>
+</div>
+<p>The returned result is a record with the following type definition. The fields are self-explained: <code>reject</code> field tells whether the null hypothesis is rejected, along with the p-value and score calculated with the given data set.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type hypothesis = {
+  reject : bool;
+  p_value : float;
+  score : float;
+}</code></pre>
+</div>
+<p>From the previous result, we can see <code>reject = false</code>, indicating null hypothesis is rejected, therefore the data set <code>data_0</code> is drawn from <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. How about the second data set then?</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_1;;
+&gt;- : Owl_stats.hypothesis =
+&gt;{Owl.Stats.reject = true; p_value = 4.18442493800220153e-20;
+&gt; score = 9.18320634091117327}
+</code></pre>
+</div>
+<p>As we expected, the null hypothesis is accepted with very small p value. This indicates that <code>data_1</code> is drawn from a different distribution rather than assumed <span class="math inline">\(\mathcal{N}(0, 1)\)</span>.</p>
 </section>
 <section class="level2" id="order-statistics">
 <h2>Order Statistics</h2>

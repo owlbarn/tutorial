@@ -154,6 +154,62 @@ As an exercise, you can also try out other distributions like gamma, beta, chi2,
 
 ## Hypothesis Tests
 
+While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
+
+* Null hypothesis $H_0$: there is no relationship between two data sets.
+* Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
+
+The `Stats` module in Owl supports many different kinds of hypothesis tests.
+
+* Z-Test
+* Student's T-Test
+* Paired Sample T-Test
+* Unpaired Sample T-Test
+* Kolmogorov-Smirnov Test
+* Chi-Square Variance Test
+* Jarque-Bera Test
+* Fisher's Exact Test
+* Wald–Wolfowitz Runs Test
+* Mann-Whitney Rank Test
+* Wilcoxon Signed-rank Test
+
+Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
+
+```ocaml env=stats_03
+let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
+let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
+```
+
+Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we genereated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
+
+```ocaml env=stats_03
+# Stats.z_test ~mu:0. ~sigma:1. data_0
+- : Owl_stats.hypothesis =
+{Owl.Stats.reject = false; p_value = 0.195650159811977087;
+ score = -1.29404418291717915}
+```
+
+The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p-value and score calculated with the given data set.
+
+```ocaml
+type hypothesis = {
+  reject : bool;
+  p_value : float;
+  score : float;
+}
+```
+
+From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $\mathcal{N}(0, 1)$. How about the second data set then?
+
+```ocaml env=stats_03
+# Stats.z_test ~mu:0. ~sigma:1. data_1
+- : Owl_stats.hypothesis =
+{Owl.Stats.reject = true; p_value = 4.18442493800220153e-20;
+ score = 9.18320634091117327}
+```
+
+As we expected, the null hypothesis is accepted with very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
+
 
 ## Order Statistics
 
