@@ -54,4 +54,93 @@ Here is a presentation of how the content image change gradually in style:
   <img src="images/case-nst/example_01.gif">
 </p>
 
+More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
+
 ## Fast Style Transfer
+
+One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. 
+If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.  
+
+This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase. 
+
+Based on the [TensorFlow implementation](https://github.com/lengstrom/fast-style-transfer), we have implemented a FST application in Owl, and it's not complicated. Here is the network structure:
+
+```ocaml
+open Owl
+open Neural.S
+open Neural.S.Graph
+open Neural.S.Algodiff
+module N = Dense.Ndarray.S
+
+(** Network Structure *)
+
+let conv2d_layer ?(relu=true) kernel stride nn  =
+  let result = 
+    conv2d ~padding:SAME kernel stride nn
+    |> normalisation ~decay:0. ~training:true ~axis:3
+  in
+  match relu with
+  | true -> (result |> activation Activation.Relu)
+  | _    -> result
+
+let conv2d_trans_layer kernel stride nn = 
+  transpose_conv2d ~padding:SAME kernel stride nn
+  |> normalisation ~decay:0. ~training:true ~axis:3
+  |> activation Activation.Relu
+
+let residual_block wh nn = 
+  let tmp = conv2d_layer [|wh; wh; 128; 128|] [|1;1|] nn
+    |> conv2d_layer ~relu:false [|wh; wh; 128; 128|] [|1;1|]
+  in 
+  add [|nn; tmp|]
+
+let make_network h w = 
+  input [|h;w;3|]
+  |> conv2d_layer [|9;9;3;32|] [|1;1|]
+  |> conv2d_layer [|3;3;32;64|] [|2;2|]
+  |> conv2d_layer [|3;3;64;128|] [|2;2|]
+  |> residual_block 3
+  |> residual_block 3
+  |> residual_block 3
+  |> residual_block 3
+  |> residual_block 3
+  |> conv2d_trans_layer [|3;3;128;64|] [|2;2|]
+  |> conv2d_trans_layer [|3;3;64;32|] [|2;2|]
+  |> conv2d_layer ~relu:false [|9;9;32;3|] [|1;1|]
+  |> lambda (fun x -> Maths.((tanh x) * (F 150.) + (F 127.5)))
+  |> get_network
+```
+
+That's it. Given suitable weights, running an inference pass on this DNN is all it takes to get a styled image.
+Like NST, we have wrapped all things up in a [Gist](https://gist.github.com/jzstark/f937ce439c8adcaea23d42753f487299), and provide a simple user interface to users. 
+Here is an example:
+
+```
+#zoo "f937ce439c8adcaea23d42753f487299"
+
+FST.list_styles ();; (* show all supported styles *)
+FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" 
+```
+
+The `run` function mainly takes one content image and output to a new image file, the name of which is designated by the user. The image could be of any popular formats: jpeg, png, etc. This gist contains exemplar content images for you to use.
+
+Note that we did say "given suitable weights". A set of trained weight for the FST DNN represents a unique artistic style. We have already include six different weight files for use, and the users just need to pick one of them and load them into the DNN, without worrying about how to train these weights. 
+
+Current we support six art styles:
+"[Udnie](https://bit.ly/2nBW0ae)" by Francis Picabia, 
+"[The Great Wave off Kanagawa](https://bit.ly/2nKk8Hl)" by Hokusai,
+"[Rain Princess](https://bit.ly/2KA7FAY)" by Leonid Afremov,
+"[La Muse](https://bit.ly/2rS1fWQ)" by Picasso,
+"[The Scream](https://bit.ly/1CvJz5d)" by Edvard Munch, and 
+"[The shipwreck of the Minotaur](https://bit.ly/2wVfizH)" by J. M. W. Turner
+
+
+Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles. 
+
+![](images/case-nst/example_fst00.png)
+
+If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. 
+To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this [Youtube list](https://www.youtube.com/watch?v=cFOM-JnyJv4&list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H).
+And all of these are implemented in Owl.  
+
+Enjoy!
