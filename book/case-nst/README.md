@@ -36,7 +36,11 @@ This application provides a simple interfaces to use. Here is an example showing
 ```
 #zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
 
-Neural_transfer.run ~ckpt:50 ~src:"path/to/content_img.jpg" ~style:"path/to/style_img.jpg" ~dst:"path/to/output_img.png" 250.;;
+Neural_transfer.run 
+  ~ckpt:50 
+  ~src:"path/to/content_img.jpg" 
+  ~style:"path/to/style_img.jpg" 
+  ~dst:"path/to/output_img.png" 250.;;
 ```
 
 The first line download gist files and imported this gist as an OCaml module, and the second line uses the `run` function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.

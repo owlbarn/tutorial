@@ -22,7 +22,11 @@
 <div class="highlight">
 <pre><code class="language-clike">#zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
 
-Neural_transfer.run ~ckpt:50 ~src:"path/to/content_img.jpg" ~style:"path/to/style_img.jpg" ~dst:"path/to/output_img.png" 250.;;</code></pre>
+Neural_transfer.run 
+  ~ckpt:50 
+  ~src:"path/to/content_img.jpg" 
+  ~style:"path/to/style_img.jpg" 
+  ~dst:"path/to/output_img.png" 250.;;</code></pre>
 </div>
 <p>The first line download gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
 <p>This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. <code>path/to/output_img_N.png</code>). <code>N</code> is specified by the <code>ckpt</code> parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.</p>
