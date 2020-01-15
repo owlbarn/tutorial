@@ -11,6 +11,8 @@
         images/case-image-inception/panda.png
         images/case-nst/example_fst00.png
         images/case-nst/nst_example.png
+        images/case-obj-detect/example_00.jpg
+        images/case-obj-detect/example_01.jpg
         images/cgraph/owl_cgraph_functor_stack.png
         images/cgraph/owl_cgraph_mnist_opt.png
         images/cgraph/owl_cgraph_mnist_raw.png
