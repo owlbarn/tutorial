@@ -183,17 +183,10 @@ TBD
 The design of Owl is often driven by real-world applications.
 Besides the MNIST example, we find the image segmentation another challenging application for Owl. Seeking to push the performance of this application, we manage to further optimise the design of CGraph module.
 This work is done by Pierre Vandenhove, and you can visit his [report](http://math.umons.ac.be/staff/Vandenhove.Pierre/resources/ocamllabs_internship_report.pdf) for more details. 
+It starts with the MRCNN-based Object Detection application we introduce in the [Case - Object Detection](https://ocaml.xyz/book/case-obj-detect.html) chapter.
+Please refer to this chapter for detail explanation of this application.
 
-Computer vision is a field dealing with many different automated tasks whose goal is to give high-level descriptions of images and videos. 
-In 2017, the Mask R-CNN (Mask Region-based Convolutional Neural Network) architecture was published, and with sufficient training, it can solve the image segmentation and classification problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. This network has now been implemented in Owl. 
-As a preliminary example, this is what a MRCNN application can do:
-![](images/cgraph/owl_vision_buildings.jpg)
-
-Following the [original paper](https://arxiv.org/abs/1703.06870), the Owl implementation of MRCNN is included in Pierre's [Github repository](https://github.com/owlbarn/owl_mask_rcnn).
-The code was
-mostly ported from [this Keras/TensorFlow implementation](https://github.com/matterport/Mask\_RCNN).
-
-All work well, but the first issue after constructing the network in Owl was that the memory usage, in inference mode, was huge. The network has over 400 layers and to avoid reinitialising the network for every picture, it is good to keep its input size fixed and to resize instead all the images to that size --- a larger size takes more time and memory but yields more accurate results. A reasonable input size for this network is a 1024-pixel-wide square. Unfortunately, obtaining detections for one picture with this size required over 11 GB of RAM, which was too much for my laptop. As a comparison, the TensorFlow implementation only uses 1 GB. There was a big room for improvement!
+The first issue after constructing the network in Owl was that the memory usage, in inference mode, was huge. The network has over 400 layers and to avoid reinitialising the network for every picture, it is good to keep its input size fixed and to resize instead all the images to that size --- a larger size takes more time and memory but yields more accurate results. A reasonable input size for this network is a 1024-pixel-wide square. Unfortunately, obtaining detections for one picture with this size required over 11 GB of RAM, which was too much for my laptop. As a comparison, the TensorFlow implementation only uses 1 GB. There was a big room for improvement!
 
 This is where CGraph comes to rescue.
 A computation graph is always directed and acyclic. Representing the

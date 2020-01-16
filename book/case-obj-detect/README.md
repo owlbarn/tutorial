@@ -141,7 +141,28 @@ let mrcnn num_anchors =
 
 ## Run the Code
 
-TBD
+One example of using the MRCNN code is in [this example](https://github.com/owlbarn/owl_mask_rcnn/blob/master/examples/evalImage.ml). The core part is list below:
+
+```
+open Mrcnn
+
+let src = "image.png" in 
+let fun_detect = Model.detect () in
+let Model.({rois; class_ids; scores; masks}) = fun_detect src in
+let img_arr = Image.img_to_ndarray src in
+let filename = Filename.basename src in
+let format = Images.guess_format src in
+let out_loc = out ^ filename in
+Visualise.display_masks img_arr rois masks class_ids;
+let camlimg = Image.img_of_ndarray img_arr in
+Visualise.display_labels camlimg rois class_ids scores;
+Image.save out_loc format camlimg;
+Visualise.print_results class_ids rois scores
+```
+
+The most import step is to apply `Model.detect ()` on the input images, which returns the region of interests (rois), the classification result id of the object in that region, the classification certainty scores, and a mask that shows the outline of that object in the region.
+With these information, the `Visualise` module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the number close to the bounding box, and finally for printing out the resulting images from the previous two steps.  
+
 
 Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.
 
