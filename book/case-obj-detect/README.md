@@ -17,7 +17,10 @@ In these two examples, normal pictures are processed by MRCNN, and the objects (
 
 ## Mask R-CNN Network
 
-I will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. You can of course get more detailed and technical explanations in the [original paper](https://arxiv.org/abs/1703.06870). The Owl implementation of the inference mode is available in [this repository](https://github.com/pvdhove/owl-mask-rcnn). The code was mostly ported from this [Keras/TensorFlow implementation](https://github.com/matterport/Mask_RCNN).
+This section will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. You can of course get more detailed and technical explanations in the [original paper](https://arxiv.org/abs/1703.06870). 
+The Owl implementation of the inference mode is available in [this repository](https://github.com/pvdhove/owl-mask-rcnn). 
+The code was mostly ported from this [Keras/TensorFlow implementation](https://github.com/matterport/Mask_RCNN).
+This work in this chapter is conducted by [Pierre Vandenhove](http://math.umons.ac.be/staff/Vandenhove.Pierre/) during his internship in the OCamlLabs. 
 
 ### Feature Extractor
 
