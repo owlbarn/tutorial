@@ -426,5 +426,3 @@ I will use another set of examples to finish this tutorial. I must say this tuto
   Sparse.Matrix.D.density x;;             (* show the density of a sparse matrix *)
 
 ```
-
-Enjoy Owl and happy coding!

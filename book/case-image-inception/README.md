@@ -20,9 +20,9 @@ Besides, prepare one image on your computer. It can be of any common image forma
 </p>
 
 
-## Let's Roll!
+## Example
 
-Enough of these boring installation steps. Forget any hello-world code. Let’s do the image classification, right here, right now!
+Let’s do the image classification with one line of code:
 
 ```
 owl -run 6dfed11c521fb2cd286f2519fb88d3bf
@@ -93,13 +93,11 @@ The InceptionV3 module provides three APIs:
 
 ## Online Demo
 
-If you are not interested in installing anything, no problem! [Here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!
+If you are not interested in installing anything, [here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!
 
 ## Want to Know More?
 
-We do have more! I suggest you to read the code that constructing the whole InceptionV3 network from [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
+I suggest reading the code that constructing the whole InceptionV3 network from [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
 
 Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
-As to other smaller tasks, such as the most common hand-written digits recognition task, you can construct a good deep neural network model with only 9 lines of code!
-
-Happy hunting!
+As to other smaller tasks, such as the most common hand-written digits recognition task, you can construct a good deep neural network model with only 9 lines of code.
