@@ -81,6 +81,7 @@ and input_anchors = inputs.(2) i
 ```
 
 The network accepts three inputs, for images, meta data, and number of anchors. 
+The `Configuration` module contains a list of constants that will be used in building the network. 
 
 ### Feature Extractor
 
@@ -115,7 +116,7 @@ let mrcnn_feature_maps = [|p2; p3; p4; p5|]
 ```
 
 The features are extracted combining both ResNet101 and the Feature Pyramid Network.
-ResNet extracts features of the image (the first layers extract low-level features, the last layers extract high-level features.  
+ResNet extracts features of the image (the first layers extract low-level features, the last layers extract high-level features).  
 Feature Pyramid Network creates a second pyramid of feature maps from top to bottom so that every map has access to high and low level features.
 This combination proves to achieve excellent gains in both accuracy and speed. 
 
@@ -125,20 +126,21 @@ To try to locate the objects, about 250,000 overlapping rectangular regions (anc
 
 ```
 let nb_ratios = Array.length C.rpn_anchor_ratios in
-let rpns = Array.init 5
-           (fun i -> RPN.rpn_graph rpn_feature_maps.(i)
-                       nb_ratios C.rpn_anchor_stride
-                       ("_p" ^ string_of_int (i + 2))) in
+let rpns = Array.init 5 (fun i -> 
+  RPN.rpn_graph rpn_feature_maps.(i)
+  nb_ratios C.rpn_anchor_stride
+  ("_p" ^ string_of_int (i + 2))) in
 let rpn_class = concatenate 1 ~name:"rpn_class"
                 (Array.init 5 (fun i -> rpns.(i).(0))) in
 let rpn_bbox = concatenate 1 ~name:"rpn_bbox"
-               (Array.init 5 (fun i -> rpns.(i).(1)))
+                (Array.init 5 (fun i -> rpns.(i).(1)))
 ```
 
-As output of RPN, for each anchor (or bounding box) on the image, returns the likelihood that it contains an object and a refinement for the anchor, both are rank-3 ndarrays.
+Single RPN graphs are applied on the different features in `rpn_features_maps`, and the results from these networks are then concatenated together.
+For each anchor (or bounding box) on the image, the RPN returns the likelihood that it contains an object and a refinement for the anchor, both are rank-3 ndarrays.
 
 
-The 1000 best anchors are then selected according to their objectness (higher is better). Anchors that overlap too much with each other are eliminated, to avoid detecting the same object multiple times. Each selected anchor is also refined in case it was not perfectly centred around the object.
+Next, in the proposal layer, the 1000 best anchors are then selected according to their objectness (higher is better). Anchors that overlap too much with each other are eliminated, to avoid detecting the same object multiple times. Each selected anchor is also refined in case it was not perfectly centred around the object.
 
 ```
 let rpn_rois =
@@ -151,7 +153,10 @@ The proposal layer picks the top anchors from the RPN output, based on non maxim
 
 ### Classification 
 
-All anchor proposals from the previous layer are resized to a fixed size and fed into a 10-layer neural network that assigns to each of them probabilities that it belongs to each class (the network is pre-trained on fixed classes; changing the set of classes requires to re-train the whole network). Note that this step does not take as much time for each anchor as a full-fledged image classifier (such as Inception) since it reuses the pre-computed feature maps from the Feature Pyramid Network — there is no need to go back to the original picture. The class with the highest probability is chosen for each proposal and thanks to the class predictions, the anchor proposals are even more refined. Proposals classified in the ’background’ class are deleted. Eventually, only the proposals with an objectness over some threshold are kept, and we have our final detections, each coming with a bounding box and a label!
+All anchor proposals from the previous layer are resized to a fixed size and fed into a 10-layer neural network that assigns to each of them probabilities that it belongs to each class (the network is pre-trained on fixed classes; changing the set of classes requires to re-train the whole network). 
+Note that this step does not take as much time for each anchor as a full-fledged image classifier (such as Inception) since it reuses the pre-computed feature maps from the Feature Pyramid Network, therefore no need to go back to the original picture.
+The class with the highest probability is chosen for each proposal and thanks to the class predictions, the anchor proposals are even more refined. 
+Proposals classified in the ’background’ class are deleted. Eventually, only the proposals with an objectness over some threshold are kept, and we have our final detections, each coming with a bounding box and a label!
 
 ```
 let mrcnn_class, mrcnn_bbox =
