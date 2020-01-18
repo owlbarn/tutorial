@@ -1,12 +1,24 @@
-# Case - Object Detection
+# Case - Instance Segmentation
 
 Computer vision is a field dealing with many different automated tasks whose goal is to give high-level descriptions of images and videos. It has been applied to a wide variety of domains ranging from highly technical (automatic tagging of satellite images, analysis of medical images, ...) to more mundane (categorise pictures in your phone, make your face into an emoji, ...). 
 It has seen tremendous progress since 2012, when [A. Krizhevsky et al.](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks) used the first deep learning approach to computer vision, crushing all their opponents in the [ImageNet challenge](http://image-net.org/challenges/LSVRC/2012/results.html). It has therefore evolved quite a lot since Inception was first described in 2014 and it was relevant to implement a more recent and involved network with Owl.
 
-Inception performs single-label image classification -- it works well when there is one large object in an image, but gets easily confused when there are lots of small ones. 
-Other programs are meant to classify the pixels on an image in different categories (semantic segmentation), or to detect the position of the objects on an image (object detection). 
-In 2017, the *Mask R-CNN* (Mask Region-based Convolutional Neural Network) architecture was published and with sufficient training, it can solve all these problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. This network has now been implemented in Owl. 
+In the chapter about the [image classification](https://ocaml.xyz/book/case-image-inception.html), we have introduced how the DNN can be applied to classified the one single object in an image. 
+It gets easily confused when there are lots of objects.   
 
+*Object Detection* is another classical computer vision task. Given an image that contains multiple objects, an object detection applications aims to classify individual objects and localize each using a bounding box. 
+
+![](images/case-obj-detect/example_obj.jpg)
+*Example of object detection ([src](https://en.wikipedia.org/wiki/File:Detected-with-YOLO--Schreibtisch-mit-Objekten.jpg))*
+
+Similarly,  *Semantic Segmentation* classify the pixels on an image in different categories. Each segment is recognised by a "mask" that follows cover the whole object.
+
+![](images/case-obj-detect/example_seg.jpg)
+*Example of semantic segmentation ([src](https://gts.ai/how-do-we-solve-the-challenges-faced-due-to-semantic-segmentation/))*
+
+In 2017, the *Mask R-CNN* (Mask Region-based Convolutional Neural Network) architecture was published and with sufficient training, it can solve all these problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. 
+This task is called *Instance Segmentation*.
+This network has now been implemented in Owl. 
 As a preliminary example, this is what it can do:
 
 ![](images/case-obj-detect/example_00.jpg)
@@ -17,19 +29,29 @@ In these two examples, normal pictures are processed by MRCNN, and the objects (
 
 ## Mask R-CNN Network
 
-This section will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. You can of course get more detailed and technical explanations in the [original paper](https://arxiv.org/abs/1703.06870). 
+This section will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. 
+You can of course get more detailed and technical explanations in the [original paper](https://arxiv.org/abs/1703.06870). 
 The Owl implementation of the inference mode is available in [this repository](https://github.com/pvdhove/owl-mask-rcnn). 
 The code was mostly ported from this [Keras/TensorFlow implementation](https://github.com/matterport/Mask_RCNN).
 This work in this chapter is conducted by [Pierre Vandenhove](http://math.umons.ac.be/staff/Vandenhove.Pierre/) during his internship in the OCamlLabs. 
 
 MRCNN extends [Faster R-CNN](https://arxiv.org/abs/1506.01497), which itself extends [Fast R-CNN](https://arxiv.org/abs/1504.08083).
 In Fast R-CNN, the authors propose a network that accepts input images and regions of interest (RoI). For each region, features are extracted by several fully-connect layers, and the features are fed into a branch. 
-One output of this branch contains the output classification of the object in that region, and the other specifies the rectangle location of the object. 
-In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods. The propose a Region Proposal Network that share the same feature extraction backbone with that in Fast R-CNN. 
-MRCNN keeps the architecture of Faster R-CNN, only adding an extra branch in the final stage. Where previously the outputs are object classification and location, now a third branch contains information about the mask of object in the RoI. 
+One output of this branch contains the output classification (together with possibility of that classification) of the object in that region, and the other specifies the rectangle location of the object. 
 
+In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods. The propose a Region Proposal Network (RPN) that share the same feature extraction backbone with that in Fast R-CNN. 
+RPN is a small convolutional network that scans the feature maps quickly, output  a set of rectangular possible object region proposals, each associated with a number that could be called the *objectness* of that region. 
+The RoI feature extraction part of Fast R-CNN is kept unchanged here.
+In this way, a single Faster R-CNN network can be trained and then perform the object detection task without extra help from other region proposal methods. 
 
-Let's look at the code one piece at a time.
+To perform the task of not just objection detection, but also semantic segmentation Mask R-CNN keeps the architecture of Faster R-CNN, only adding an extra branch in the final stage of its RoI feature layer. 
+Where previously the outputs includes object classification and location, now a third branch contains information about the mask of object in the RoI. 
+Therefore, for any RoI, the Mask R-CNN retrieves its rectangle bound, classification results, classification possibility, and the mask of that object, all information at one pass.
+
+## Building Mask R-CNN
+
+After a quick introduction of the MRCNN and how it is developed in theory, let's look at the code to understand how it is constructed in Owl, one piece at a time. 
+Feel free to jump this part for now if you are just interested in using the network directly.
 
 ```
 open Owl
@@ -99,7 +121,7 @@ This combination proves to achieve excellent gains in both accuracy and speed.
 
 ### Proposal Generation
 
-To try to locate the objects, about 250,000 overlapping rectangular regions (anchors) are generated. A small convolutional network (a Region Proposal Network, introduced in 2015 by the predecessor of Mask R-CNN) scans the feature maps and quickly associates to each of them a number that could be called the 'objectness' of that region. 
+To try to locate the objects, about 250,000 overlapping rectangular regions (anchors) are generated. 
 
 ```
 let nb_ratios = Array.length C.rpn_anchor_ratios in

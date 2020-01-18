@@ -13,6 +13,8 @@
         images/case-nst/nst_example.png
         images/case-obj-detect/example_00.jpg
         images/case-obj-detect/example_01.jpg
+        images/case-obj-detect/example_obj.jpg
+        images/case-obj-detect/example_seg.jpg
         images/cgraph/owl_cgraph_functor_stack.png
         images/cgraph/owl_cgraph_mnist_opt.png
         images/cgraph/owl_cgraph_mnist_raw.png
