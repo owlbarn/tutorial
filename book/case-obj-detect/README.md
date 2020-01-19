@@ -3,6 +3,11 @@
 Computer vision is a field dealing with many different automated tasks whose goal is to give high-level descriptions of images and videos. It has been applied to a wide variety of domains ranging from highly technical (automatic tagging of satellite images, analysis of medical images, ...) to more mundane (categorise pictures in your phone, make your face into an emoji, ...). 
 It has seen tremendous progress since 2012, when [A. Krizhevsky et al.](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks) used the first deep learning approach to computer vision, crushing all their opponents in the [ImageNet challenge](http://image-net.org/challenges/LSVRC/2012/results.html). It has therefore evolved quite a lot since Inception was first described in 2014 and it was relevant to implement a more recent and involved network with Owl.
 
+In this chapter, we are going to introduce another classical computer vision task: Instance Segmentation, including its connection with other similar applications, how the deep neural network is constructed in Owl, and how the network, loaded with pre-trained weights, can be used to process users' input image. 
+We have also included a online demo for this application. 
+
+## Introduction
+
 In the chapter about the [image classification](https://ocaml.xyz/book/case-image-inception.html), we have introduced how the DNN can be applied to classified the one single object in an image. 
 It gets easily confused when there are lots of objects.   
 
@@ -26,6 +31,8 @@ As a preliminary example, this is what it can do:
 ![](images/case-obj-detect/example_01.jpg)
 
 In these two examples, normal pictures are processed by MRCNN, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1. 
+
+Image segmentation have a massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells ...), traffic control systems, locate objects in satellite images, etc.
 
 ## Mask R-CNN Network
 
