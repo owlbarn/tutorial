@@ -40,4 +40,5 @@ The timeline table defines the estimated progress using milestones and expected 
 ## Reference
 
 - Matlab Tutorials https://www.mathworks.com/moler/chapters.html
+- [Elegant SciPy](https://www.oreilly.com/library/view/elegant-scipy/9781491922927/)
 - Anything else 

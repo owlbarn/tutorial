@@ -4,11 +4,11 @@ Computer vision is a field dealing with many different automated tasks whose goa
 It has seen tremendous progress since 2012, when [A. Krizhevsky et al.](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks) used the first deep learning approach to computer vision, crushing all their opponents in the [ImageNet challenge](http://image-net.org/challenges/LSVRC/2012/results.html). It has therefore evolved quite a lot since Inception was first described in 2014 and it was relevant to implement a more recent and involved network with Owl.
 
 In this chapter, we are going to introduce another classical computer vision task: Instance Segmentation, including its connection with other similar applications, how the deep neural network is constructed in Owl, and how the network, loaded with pre-trained weights, can be used to process users' input image. 
-We have also included a online demo for this application. 
+We have also included an online demo for this application. 
 
 ## Introduction
 
-In the chapter about the [image classification](https://ocaml.xyz/book/case-image-inception.html), we have introduced how the DNN can be applied to classified the one single object in an image. 
+In the chapter about the [image classification](https://ocaml.xyz/book/case-image-inception.html), we have introduced how the DNN can be applied to classify the one single object in an image. 
 It gets easily confused when there are lots of objects.   
 
 *Object Detection* is another classical computer vision task. Given an image that contains multiple objects, an object detection applications aims to classify individual objects and localize each using a bounding box. 
@@ -32,7 +32,7 @@ As a preliminary example, this is what it can do:
 
 In these two examples, normal pictures are processed by MRCNN, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1. 
 
-Image segmentation have a massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells ...), traffic control systems, locate objects in satellite images, etc.
+Image segmentation have massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells ...), traffic control systems, locate objects in satellite images, etc.
 
 ## Mask R-CNN Network
 
@@ -43,10 +43,10 @@ The code was mostly ported from this [Keras/TensorFlow implementation](https://g
 This work in this chapter is conducted by [Pierre Vandenhove](http://math.umons.ac.be/staff/Vandenhove.Pierre/) during his internship in the OCamlLabs. 
 
 MRCNN extends [Faster R-CNN](https://arxiv.org/abs/1506.01497), which itself extends [Fast R-CNN](https://arxiv.org/abs/1504.08083).
-In Fast R-CNN, the authors propose a network that accepts input images and regions of interest (RoI). For each region, features are extracted by several fully-connect layers, and the features are fed into a branch. 
+In Fast R-CNN, the authors propose a network that accepts input images and regions of interest (RoI). For each region, features are extracted by several fully-connected layers, and the features are fed into a branch. 
 One output of this branch contains the output classification (together with possibility of that classification) of the object in that region, and the other specifies the rectangle location of the object. 
 
-In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods. The propose a Region Proposal Network (RPN) that share the same feature extraction backbone with that in Fast R-CNN. 
+In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods. They propose a Region Proposal Network (RPN) that share the same feature extraction backbone with that in Fast R-CNN. 
 RPN is a small convolutional network that scans the feature maps quickly, output  a set of rectangular possible object region proposals, each associated with a number that could be called the *objectness* of that region. 
 The RoI feature extraction part of Fast R-CNN is kept unchanged here.
 In this way, a single Faster R-CNN network can be trained and then perform the object detection task without extra help from other region proposal methods. 
@@ -214,7 +214,7 @@ Visualise.print_results class_ids rois scores
 ```
 
 The most import step is to apply `Model.detect ()` on the input images, which returns the region of interests (rois), the classification result id of the object in that region, the classification certainty scores, and a mask that shows the outline of that object in the region.
-With these information, the `Visualise` module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the number close to the bounding box, and finally for printing out the resulting images from the previous two steps.  
+With this information, the `Visualise` module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the number close to the bounding box, and finally for printing out the resulting images from the previous two steps.  
 
 
 Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.

@@ -186,7 +186,7 @@ This work is done by Pierre Vandenhove, and you can visit his [report](http://ma
 It starts with the MRCNN-based Object Detection application we introduce in the [Case - Object Detection](https://ocaml.xyz/book/case-obj-detect.html) chapter.
 Please refer to this chapter for detail explanation of this application.
 
-The first issue after constructing the network in Owl was that the memory usage, in inference mode, was huge. The network has over 400 layers and to avoid reinitialising the network for every picture, it is good to keep its input size fixed and to resize instead all the images to that size --- a larger size takes more time and memory but yields more accurate results. A reasonable input size for this network is a 1024-pixel-wide square. Unfortunately, obtaining detections for one picture with this size required over 11 GB of RAM, which was too much for my laptop. As a comparison, the TensorFlow implementation only uses 1 GB. There was a big room for improvement!
+The first issue after constructing the network in Owl was that the memory usage, in inference mode, was huge. The network has over 400 layers and to avoid reinitialising the network for every picture, it is good to keep its input size fixed and to resize instead all the images to that size --- a larger size takes more time and memory but yields more accurate results. A reasonable input size for this network is a 1024-pixel-wide square. Unfortunately, obtaining detections for one picture with this size required over 11 GB of RAM, which was too much for a laptop. As a comparison, the TensorFlow implementation only uses 1 GB. There was a big room for improvement!
 
 This is where CGraph comes to rescue.
 A computation graph is always directed and acyclic. Representing the
