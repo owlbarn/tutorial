@@ -1,5 +1,30 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Introduction - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="introduction">
 <h1>Introduction</h1>
+<p>This chapter briefly introduces the outline of the whole book, and then the installation of Owl. There are different ways to interact with Owl, including <code>utop</code>, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us.</p>
+<section class="level2" id="outline">
+<h2>Outline</h2>
+<p>Scientific Computing is a rapidly growing multidisciplinary field that uses advanced computing capabilities to understand and solve complex problems. The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation). The former uses numerical approximation to solve mathematical problems, while the latter requires an exact exact representation of computation and manipulates symbols that are not assigned specific values.</p>
+<p>Both approaches are widely used in various applications fields, such as engineering, physics, biology, finance, etc. However advanced these applications seem, keep in mind that they are built with basic components in a scientific library, most of which Owl has already provided. For example, you can write a deep neural network with Owl in a few lines of code:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl
+open Neural.S
+open Neural.S.Graph
+open Neural.S.Algodiff
+
+let make_network input_shape =
+  input input_shape
+  |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
+  |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+  |&gt; max_pool2d [|2;2|] [|2;2|]
+  |&gt; dropout 0.1
+  |&gt; fully_connected 1024 ~act_typ:Activation.Relu
+  |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+  |&gt; get_network</code></pre>
+</div>
+<p>It actually consists of basic operations such as <code>add</code>, <code>div</code>, <code>convolution</code>, <code>dot</code>, etc. It’s totally OK if you have no idea what this piece of code is doing. We’ll cover that later in this book. The point is that how to dissect a complex application into basic building blocks in a numerical library, and that’s what we are trying to convey throughout this book.</p>
+<p>The book is divided into three parts, each contain several chapters. The first part covers the numerical techniques such as the math function, optimisation methods, neural networks, etc. This part aims to introduce how to <em>use</em> Owl as a tool. The second part introduces the system architecture of Owl. It introduces the design and implementation of Owl itself for those users who are interested in how things work. In this part we include things such as how we optimise the performance of operations and graphs in computation. The third part contains interesting use cases of Owl. They are not toy examples, but real applications that is being used in certain fields. For example, we have computer vision applications such as image classification, segmentation, and neural style transfer, each covered by a whole chapter.</p>
+<p>There is a long way to go from simple math calculation to those large use cases. Now let’s start from the very first step: installing Owl.</p>
+</section>
 <section class="level2" id="installation">
 <h2>Installation</h2>
 <p>Owl requires OCaml version <code>&gt;=4.06.0</code>. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to <a href="https://ocaml.org/docs/install.html">Install OCaml</a>.</p>
