@@ -2,10 +2,57 @@
 <h1>Signal Processing</h1>
 <section class="level2" id="fast-fourier-transform">
 <h2>Fast Fourier Transform</h2>
+<section class="level3" id="introduction">
+<h3>Introduction</h3>
+<p>Think about an audio that lasts for 10 seconds. This audio can surely be described in the <em>time domain</em>, which means plotting its sound intensity against time as x axis. On the other hand, maybe less obviously, the sound can also be described in the <em>frequency domain</em>. For example, if all the 10 seconds are filled with only playing the A# note, then you can describe this whole audio with one frequency number: 466.16 Hz. If it’s a C note, then the number is 523.25 Hz, etc. The thing is that, the real-world sound is not always so pure, they are quite likely compounded from different frequencies. Perhaps this 10 seconds are about water flowing, or wind whispering, what frequencies it is built from then?</p>
+<p>That’s where Discrete Fourier Transform (DFT) comes into play. It captures the idea of converting the two form of representing a signal: in time domain and in frequency domain. We can represent a signal with the values of some quantity <span class="math inline">\(h\)</span> as a function of time: <span class="math inline">\(h(t)\)</span>, or this signal can be represented by giving its amplitude <span class="math inline">\(H\)</span> as function of frequency: <span class="math inline">\(H(f)\)</span>. We can think they are two representation of the same thing, and Fourier Transform change between them:</p>
+<p><span class="math display">\[ h(f) = \int H(f)\exp^{-2\pi~ift}df\]</span> <span class="math display">\[ H(f) = \int h(t)\exp^{2\pi~ift}dt\]</span></p>
+<p>To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.</p>
+<p>You might be wondering, it’s cool that I can recognise how a sound is composed, but so what? Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.</p>
+<p>Actually, the application of DFT is more than on sound signal processing. (EXAMPLES). It covers a very large of important computation problems that spans many fields and applications, such as music processing, data compressing, image processing, engineering, mathematics, etc.</p>
+<p>The Fast Fourier Transform is an algorithm that reduces the DFT computation complexity from <span class="math inline">\(\mathcal{O}(n^2)\)</span> to <span class="math inline">\(\mathcal{O}(n\log{}n)\)</span>. To introduce the algorithm itself or the detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [0].</p>
+</section>
+<section class="level3" id="fft-in-owl">
+<h3>FFT in Owl</h3>
+<p>Owl provides these basic FFT functions:</p>
+<table>
+<colgroup>
+<col style="width: 45%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Functions</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fft ~axis x</code></td>
+<td style="text-align: left;">Compute the one-dimensional discrete Fourier Transform</td>
+</tr>
+<tr class="even">
+<td><code>ifft ~axis x</code></td>
+<td style="text-align: left;">Compute the one-dimensional inverse discrete Fourier Transform</td>
+</tr>
+<tr class="odd">
+<td><code>rfft ~axis x</code></td>
+<td style="text-align: left;">Compute the one-dimensional discrete Fourier Transform for real input</td>
+</tr>
+<tr class="even">
+<td><code>rfft ~axis x</code></td>
+<td style="text-align: left;">Compute the one-dimensional inverse discrete Fourier Transform for real input</td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 <section class="level2" id="kalman-filtering">
 <h2>Kalman Filtering</h2>
-<p>TBD</p>
+</section>
+<section class="level2" id="reference">
+<h2>Reference</h2>
+<p>[0] Phillips CL, Parr JM, Riskin EA. Signals, systems, and transforms. Upper Saddle River: Prentice Hall; 2003 Aug.</p>
 </section>
 </section>
 </article></div><a href="visualisation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 15</small>Visualisation</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
