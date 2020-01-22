@@ -1,6 +1,6 @@
 # System Architecture
 
-Refer to [@wang2017owl]
+Refer to [@wang2017owl] [@minsky2013real], example of references
 
 TBD
 
