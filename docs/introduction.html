@@ -51,7 +51,7 @@ let make_network input_shape =
 </code></pre>
 </div>
 <p>Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - <code>utop</code>. You can start <code>utop</code> in the container and try out some examples. The source code of Owl is stored in <code>/root/owl</code> directory. You can modify the source code and rebuild the system directly in the started container.</p>
-<p>There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g. <code>docker pull owlbarn/owl:alpine</code>.</p>
+<p>There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g.&nbsp;<code>docker pull owlbarn/owl:alpine</code>.</p>
 </section>
 <section class="level3" id="option-3-pin-the-dev-repo">
 <h3>Option 3: Pin the Dev-Repo</h3>
@@ -131,7 +131,7 @@ let make_network input_shape =
   jupyter kernelspec install --name ocaml-jupyter "$(opam config var share)/jupyter"
 </code></pre>
 </div>
-<p>To start a Jupyter notebook, you can run this command. The command starts a local server running on <a class="uri" href="http://127.0.0.1:8888/">http://127.0.0.1:8888/</a>, then opens a tab in your browser as the client.</p>
+<p>To start a Jupyter notebook, you can run this command. The command starts a local server running on <a href="http://127.0.0.1:8888/">http://127.0.0.1:8888/</a>, then opens a tab in your browser as the client.</p>
 <div class="highlight">
 <pre><code class="language-shell">
   jupyter notebook

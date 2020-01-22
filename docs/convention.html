@@ -1,7 +1,7 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Conventions - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="conventions">
 <h1>Conventions</h1>
 <p>Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example the <a href="broadcast.html">rules on broadcasting operation</a> and the <a href="slicing.html">conventions on slice definition</a>. In this chapter, I will cover the function naming and various conventions in Owl.</p>
-<section class="level2" id="pure-vs.impure">
+<section class="level2" id="pure-vs.-impure">
 <h2>Pure vs.&nbsp;Impure</h2>
 <p><code>Ndarray</code> module contains many functions to manipulate and perform mathematical operations over multi-dimensional arrays. The <strong>pure functions</strong> (a.k.a immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, <strong>impure functions</strong> (a.k.a mutable functions) refer to those which modifies the passed-in variables in place.</p>
 <p>The arguments between pure and impure functions will never end. Functional programming in general promotes the use of immutable data structures. Using impure functions makes it difficult to reason the correctness of the code, therefore you need to think carefully when you decide to use them. On the other hand, generating a fresh <code>1000 x 1000</code> matrix every time simply because you modify one element does not seem very practical either.</p>
@@ -34,7 +34,7 @@
 <div class="highlight">
 <pre><code class="language-text">val Arr.add_ : ?out:Arr.arr -&gt; Arr.arr -&gt; Arr.arr -&gt; unit</code></pre>
 </div>
-<p>As we can see from the function type, the output can be specified by an optional <code>out</code> parameter. If <code>out</code> is missing in the inputs, then Owl will try to use first operand (i.e. <code>x</code>) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument <code>x</code> must not be smaller than that of the second argument <code>y</code>. In other words, impure function only allows broadcasting smaller <code>y</code> onto <code>x</code> which is big enough to accommodate the result.</p>
+<p>As we can see from the function type, the output can be specified by an optional <code>out</code> parameter. If <code>out</code> is missing in the inputs, then Owl will try to use first operand (i.e.&nbsp;<code>x</code>) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument <code>x</code> must not be smaller than that of the second argument <code>y</code>. In other words, impure function only allows broadcasting smaller <code>y</code> onto <code>x</code> which is big enough to accommodate the result.</p>
 <p>Most binary math functions in Owl are associated with a shorthand operator, such as <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code>. The impure versions also have their own operators. For example, corresponding to <code>Arr.(x + y)</code> which returns the result in a new ndarray, you can write <code>Arr.(x += y)</code> which adds up <code>x</code> and <code>y</code> and saves the result into <code>x</code>.</p>
 <div class="highlight">
 <pre><code class="language-text">
@@ -53,7 +53,7 @@ div_scalar        `/$`              `/$=`
 </code></pre>
 </div>
 </section>
-<section class="level2" id="ndarray-vs.scalar">
+<section class="level2" id="ndarray-vs.-scalar">
 <h2>Ndarray vs.&nbsp;Scalar</h2>
 <p>There are three types of ndarray operations: <em>map</em>, <em>scan</em>, and <em>reduce</em>. Many functions can be categorised as reduction operations, such as <code>Arr.sum</code>, <code>Arr.prod</code>, <code>Arr.min</code>, <code>Arr.mean</code>, <code>Arr.std</code>, and etc. All the reduction functions in Owl has a name parameter called <code>axis</code>. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:</p>
 <ul>

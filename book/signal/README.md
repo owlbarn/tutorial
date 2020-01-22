@@ -25,7 +25,7 @@ Actually, the application of DFT is more than on sound signal processing. (EXAMP
 It covers a very large of important computation problems that spans many fields and applications, such as music processing, data compressing, image processing, engineering, mathematics, etc. 
 
 The Fast Fourier Transform is an algorithm that reduces the DFT computation complexity from $\mathcal{O}(n^2)$ to $\mathcal{O}(n\log{}n)$.
-To introduce the algorithm itself or the detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [0].
+To introduce the algorithm itself or the detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 
 ### FFT in Owl 
 
@@ -38,10 +38,10 @@ Owl provides these basic FFT functions:
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 
+
 ## Kalman Filtering
 
+TODO
 
 
-## Reference 
-
-[0] Phillips CL, Parr JM, Riskin EA. Signals, systems, and transforms. Upper Saddle River: Prentice Hall; 2003 Aug.
+## References

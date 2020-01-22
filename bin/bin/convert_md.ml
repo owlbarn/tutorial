@@ -155,6 +155,7 @@ let run (`File file) (`Output output) output_type =
       Sys.command
       "pandoc \
       \  --mathjax \
+      \  -F pandoc-crossref -F pandoc-citeproc --bibliography ../../../book/references.bib \
       \  --section-divs \
       \  -f markdown-ascii_identifiers \
       \  --no-highlight\

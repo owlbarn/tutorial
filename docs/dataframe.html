@@ -253,7 +253,7 @@ Dataframe.append_row frame new_row
   filter_map_row predicate frame;;
 </code></pre>
 </div>
-<p>Alternatively, we can use <code>.?( )&lt;-</code> indexing operator. The difference is that we now need to define two functions - one (i.e. <code>check</code> function) for checking the predicate and one (i.e. <code>modify</code> function) for modifying the passed-in rows.</p>
+<p>Alternatively, we can use <code>.?( )&lt;-</code> indexing operator. The difference is that we now need to define two functions - one (i.e.&nbsp;<code>check</code> function) for checking the predicate and one (i.e.&nbsp;<code>modify</code> function) for modifying the passed-in rows.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let check x = unpack_int x.(1) &gt; 25;;
@@ -359,7 +359,7 @@ Owl_pretty.pp_dataframe Format.std_formatter df</code></pre>
 </section>
 <section class="level2" id="what-is-next">
 <h2>What Is Next</h2>
-<p>Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g. <code>Stats</code>) in Owl.</p>
+<p>Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g.&nbsp;<code>Stats</code>) in Owl.</p>
 </section>
 </section>
 </article></div><a href="nlp.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 17</small>Natural Language Processing</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
