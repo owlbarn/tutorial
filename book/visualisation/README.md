@@ -1,5 +1,6 @@
 # Visualisation
 
+TODO: refer to book [@tufte2001visual]
 
 Owl is an OCaml numerical library. Besides its extensive supports to matrix operations, it also has a flexible plotting module. Owl's `Plot` module is designed to help you in making fairly complicated plots with minimal coding efforts. It is built atop of [Plplot[](http://plplot.sourceforge.net/index.php) but hides its complexity from users.
 
@@ -677,3 +678,6 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 <img src="images/visualisation/plot_019.png" alt="plot 019" title="Plot example 019" width="600px" />
 
 If you have made some cool figures using Owl, please do share them with us on Slack! Thanks.
+
+
+## References
