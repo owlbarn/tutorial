@@ -1,7 +1,14 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Testing Framework - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="testing-framework">
 <h1>Testing Framework</h1>
 <p>Every proper software requires testing, and so is Owl. All too often we have found that testing can help use to find potential errors we had not anticipated during coding.</p>
+<p>In this chapter, we introduce the philosophy of testing in Owl, the tool we use for conducting the unit test, and examples to demonstrate how to do that in Owl. Issues such as using functors in test, and other things to notice in writing test code for Owl etc. are also discussed in this chapter.</p>
+<section class="level2" id="unit-test">
+<h2>Unit Test</h2>
+<p>There are multiple ways to perform tests on your code. One common way is to use assertion or catching/raising errors in the code. These kinds of tests are useful, but embedded in the code itself, while we need separate test modules that check the implementation of functions against expected behaviours.</p>
+<p>In Owl, we apply <em>unit test</em> to make sure the correctness of numerical routines as much as possible. Unit test is a software test method that check the behaviour of individual units in the code. In our case the “unit” often means a single numerical function.</p>
+<p>There is an approach of software development that is called Test Driven Development, where you write test code even before you implement the function to be tested itself. Though we don’t enforce such approach, there are certain testing philosophy we follow during the development of Owl. For example, we generally don’t trust code that is not tested, so in a PR it is always a good practice to accompany your implementation with unit test in the <code>test/</code> directory in the source code. Besides, try to keep the function short and simple, so that a test case can focus on a certain aspect.</p>
 <p>We use the <code>alcotest</code> framework for testing in Owl. <code>alcotest</code> is a lightweight test framework with simple interfaces. It exposes a simple <code>TESTABLE</code> module type, a <code>check</code> function to assert test predicates and a <code>run</code> function to perform a list of <code>unit -&gt; unit</code> test callbacks.</p>
+</section>
 <section class="level2" id="example">
 <h2>Example</h2>
 <p>Let’s look at an example of using <code>alcotest</code> in Owl. Suppose you have implemented some functions in the linear algebra module, including the functions such as rank, determinant, inversion, etc., and try to test if before make a PR. The testing code should look something like this:</p>
@@ -76,7 +83,14 @@ let test_set =
 </code></pre>
 </div>
 <p>There are generally four sections in a test file. In the first section, you specify the required precision and some predefined input data. Here we use <code>1e-6</code> as precision threshold. Two ndarrays are deemed the same if the sum of their difference is less than <code>1e-6</code>, as shown in <code>mpow</code>. The predefined input data can also be defined in each test case, as in <code>is_triu_1</code>.</p>
-<p>In the second section, a test module need to be built, which contains a series of test functions. The most common test function used in Owl has the type <code>unit -&gt; bool</code>. The idea is that each test function compare a certain aspect of a function with expected results. If there are multiple test cases for the same function, such the case in <code>vecnorm</code>, we tend to build different test cases instead of using one large test function to include all the cases.</p>
+<p>In the second section, a test module need to be built, which contains a series of test functions. The most common test function used in Owl has the type <code>unit -&gt; bool</code>. The idea is that each test function compare a certain aspect of a function with expected results. If there are multiple test cases for the same function, such the case in <code>vecnorm</code>, we tend to build different test cases instead of using one large test function to include all the cases. The common pattern of these function can be summarised as:</p>
+<div class="highlight">
+<pre><code class="language-clike">let test_func () = 
+    let expected = expected_value in 
+    let result = func args in 
+    assert (expected = result)</code></pre>
+</div>
+<p>It is important to understand that the equal sign does not necessarily mean the two values have to be the same; in fact, for the float-point number is involved, which is quite often the case, we only need the two values to be approximately equal enough. If that’s case, you need to pay attention to which precision you are using, double or float. The same threshold might be enough for float number, but could still be a large error for double precision computation.</p>
 <p>In the third section wraps these functions with <code>alcotest</code> by stating the expected output. Here we expect all the test functions to return <code>true</code>, though <code>alcotest</code> does support testing returning a lot of other types such as string, int, etc. Please refer to the <a href="https://github.com/mirage/alcotest/blob/master/src/alcotest/alcotest.mli">source file</a> for more detail.</p>
 <p>In the final section, we take functions from section 3 and put them into a list of test set. The test set specify the name and mode of the test. The test mode is either <code>Quick</code> or <code>Slow</code>. Quick tests are ran on any invocations of the test suite. Slow tests are for stress tests that are ran only on occasion, typically before a release or after a major change.</p>
 <p>After this step, the whole file is named <code>unit_linalg.ml</code> and put under the <code>test/</code> directory, as with all other unit test files. Now the only thing left is to add it in the <code>test_runner.ml</code>:</p>
@@ -92,8 +106,47 @@ let test_set =
 <p>What if one of the test functions does not pass? Let’s intentionally make a wrong test, such as asserting the matrix in the <code>rank</code> test is 1 instead of the correct answer 2, and run the test again:</p>
 <p><img src="images/testing/example_01.png"></p>
 </section>
+<section class="level2" id="what-could-go-wrong">
+<h2>What Could Go Wrong</h2>
+<blockquote>
+<p>Who’s Watching the Watchers?</p>
+</blockquote>
+<p>Beware that the test code itself is still code, and thus can also be wrong. We need to be careful in implementing the testing code. There are certain cases that you may want to check.</p>
+<section class="level3" id="corner-cases">
+<h3>Corner Cases</h3>
+<p>Corner cases involves situations that occur outside of normal operating parameters. That is obvious in the testing of convolution operations.</p>
+<p>As the core operation in deep neural networks, convolution is complex: it contains input, kernel, strides, padding, etc. as parameters. Therefore, special cases such as <code>1x1</code> kernel, strides of different height and width etc. are tested in various combinations, sometimes with different input data.</p>
+<div class="highlight">
+<pre><code class="language-clike">module To_test_conv2d_back_input = struct
+    (* conv2D1x1Kernel *)
+    let fun00 () = ...
+
+    (* conv2D1x2KernelStride3Width5 *)
+    let fun01 () = ...
+
+    (* conv2D1x2KernelStride3Width6 *)
+    let fun02 () = ...
+
+    (* conv2D1x2KernelStride3Width7 *)
+    let fun03 () = ...
+
+    (* conv2D2x2KernelC1Same *)
+    let fun04 () = ...
+
+    ...
+
+    (* conv2D2x2KernelStride2Same *)
+    let fun09 () = ...</code></pre>
+</div>
+</section>
+<section class="level3" id="test-coverage">
+<h3>Test Coverage</h3>
+<p>Another issue is the test coverage. It means the percentage of code for which an associated test has exist. Though we don’t seek a strict 100% coverage for now, a wider test coverage is always a good idea.</p>
+<p>For example, in our implementation of the <code>repeat</code> operation, depending on whether the given axes contains one or multiple integers, the implementation changes. Therefore in the test functions it is crucial to cover both cases.</p>
+</section>
+</section>
 <section class="level2" id="use-functor">
-<h2>Use functor</h2>
+<h2>Use Functor</h2>
 <p>Note that you can still benefit from all the powerful features OCaml such as functor. For example, in testing the convolution operation, we hope to the implementation of both that in the core library (which implemented in C), and that in the base library (in pure OCaml). Apparently there is no need to write the same unit test code twice for these two set of implementation.</p>
 <p>To solve that problem, we have a test file <code>unit_conv2d_genericl.ml</code> that has a large module that contains all the previous four sections:</p>
 <div class="highlight">
