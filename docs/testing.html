@@ -1,5 +1,115 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Testing Framework - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="testing-framework">
 <h1>Testing Framework</h1>
-<p>TBD</p>
+<p>Every proper software requires testing, and so is Owl. All too often we have found that testing can help use to find potential errors we had not anticipated during coding.</p>
+<p>We use the <code>alcotest</code> framework for testing in Owl. <code>alcotest</code> is a lightweight test framework with simple interfaces. It exposes a simple <code>TESTABLE</code> module type, a <code>check</code> function to assert test predicates and a <code>run</code> function to perform a list of <code>unit -&gt; unit</code> test callbacks.</p>
+<section class="level2" id="example">
+<h2>Example</h2>
+<p>Let’s look at an example of using <code>alcotest</code> in Owl. Suppose you have implemented some functions in the linear algebra module, including the functions such as rank, determinant, inversion, etc., and try to test if before make a PR. The testing code should look something like this:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl
+open Alcotest
+
+module M = Owl.Linalg.D
+
+(* Section #1 *)
+
+let approx_equal a b =
+  let eps = 1e-6 in
+  Stdlib.(abs_float (a -. b) &lt; eps)
+
+let x0 = Mat.sequential ~a:1. 1 6
+
+(* Section #2 *)
+
+module To_test = struct
+  let rank () =
+    let x = Mat.sequential 4 4 in
+    M.rank x = 2
+
+  let det () =
+    let x = Mat.hadamard 4 in
+    M.det x = 16.
+
+  let vecnorm_01 () =
+    let a = M.vecnorm ~p:1. x0 in
+    approx_equal a 21.
+
+  let vecnorm_02 () =
+    let a = M.vecnorm ~p:2. x0 in
+    approx_equal a 9.539392014169456
+
+  let is_triu_1 () =
+    let x = Mat.of_array [| 1.; 2.; 3.; 0.; 5.; 6.; 0.; 0.; 9. |] 3 3 in
+    M.is_triu x = true
+
+  let mpow () =
+    let x = Mat.uniform 4 4 in
+    let y = M.mpow x 3. in
+    let z = Mat.(dot x (dot x x)) in
+    approx_equal Mat.(y - z |&gt; sum') 0.
+
+end
+
+(* Section #3 *)
+
+let rank () = Alcotest.(check bool) "rank" true (To_test.rank ())
+
+let det () = Alcotest.(check bool) "det" true (To_test.det ())
+
+let inv () = Alcotest.(check bool) "inv" true (To_test.inv ())
+
+let vecnorm_01 () = Alcotest.(check bool) "vecnorm_01" true (To_test.vecnorm_01 ())
+
+let vecnorm_02 () = Alcotest.(check bool) "vecnorm_02" true (To_test.vecnorm_02 ())
+
+let is_triu_1 () = Alcotest.(check bool) "is_triu_1" true (To_test.is_triu_1 ())
+
+(* Section #4 *)
+
+let test_set =
+  [ "rank", `Slow, rank
+  ; "det", `Slow, det
+  ; "vecnorm_01", `Slow, vecnorm_01
+  ; "vecnorm_02", `Slow, vecnorm_02
+  ; "is_triu_1", `Slow, is_triu_1 
+  ; "mpow", `Slow, mpow ]
+</code></pre>
+</div>
+<p>There are generally four sections in a test file. In the first section, you specify the required precision and some predefined input data. Here we use <code>1e-6</code> as precision threshold. Two ndarrays are deemed the same if the sum of their difference is less than <code>1e-6</code>, as shown in <code>mpow</code>. The predefined input data can also be defined in each test case, as in <code>is_triu_1</code>.</p>
+<p>In the second section, a test module need to be built, which contains a series of test functions. The most common test function used in Owl has the type <code>unit -&gt; bool</code>. The idea is that each test function compare a certain aspect of a function with expected results. If there are multiple test cases for the same function, such the case in <code>vecnorm</code>, we tend to build different test cases instead of using one large test function to include all the cases.</p>
+<p>In the third section wraps these functions with <code>alcotest</code> by stating the expected output. Here we expect all the test functions to return <code>true</code>, though <code>alcotest</code> does support testing returning a lot of other types such as string, int, etc. Please refer to the <a href="https://github.com/mirage/alcotest/blob/master/src/alcotest/alcotest.mli">source file</a> for more detail.</p>
+<p>In the final section, we take functions from section 3 and put them into a list of test set. The test set specify the name and mode of the test. The test mode is either <code>Quick</code> or <code>Slow</code>. Quick tests are ran on any invocations of the test suite. Slow tests are for stress tests that are ran only on occasion, typically before a release or after a major change.</p>
+<p>After this step, the whole file is named <code>unit_linalg.ml</code> and put under the <code>test/</code> directory, as with all other unit test files. Now the only thing left is to add it in the <code>test_runner.ml</code>:</p>
+<div class="highlight">
+<pre><code class="language-clike">let () =
+  Alcotest.run "Owl"
+    [ "linear algebra", Unit_linalg.test_set;
+    ...
+    ]</code></pre>
+</div>
+<p>That’s all. Now you can try <code>make test</code> and check if the functions are implemented well:</p>
+<p><img src="images/testing/example_00.png"></p>
+<p>What if one of the test functions does not pass? Let’s intentionally make a wrong test, such as asserting the matrix in the <code>rank</code> test is 1 instead of the correct answer 2, and run the test again:</p>
+<p><img src="images/testing/example_01.png"></p>
+</section>
+<section class="level2" id="use-functor">
+<h2>Use functor</h2>
+<p>Note that you can still benefit from all the powerful features OCaml such as functor. For example, in testing the convolution operation, we hope to the implementation of both that in the core library (which implemented in C), and that in the base library (in pure OCaml). Apparently there is no need to write the same unit test code twice for these two set of implementation.</p>
+<p>To solve that problem, we have a test file <code>unit_conv2d_genericl.ml</code> that has a large module that contains all the previous four sections:</p>
+<div class="highlight">
+<pre><code class="language-clike">module Make (N : Ndarray_Algodiff with type elt = float) = struct
+    (* Section #1 - #4 *)
+    ...
+end </code></pre>
+</div>
+<p>And in the specific testing file for core implementation <code>unit_conv2d.ml</code>, it simply contains one line of code:</p>
+<div class="highlight">
+<pre><code class="language-clike">include Unit_conv2d_generic.Make (Owl_algodiff_primal_ops.S)</code></pre>
+</div>
+<p>Or in the test file for base library <code>unit_base_conv2d.ml</code>:</p>
+<div class="highlight">
+<pre><code class="language-clike">include Unit_conv2d_generic.Make (Owl_base_algodiff_primal_ops.S)</code></pre>
+</div>
+</section>
 </section>
 </article></div><a href="utilities.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 29</small>Internal Utility Modules</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
