@@ -56,13 +56,13 @@ let rank () = Alcotest.(check bool) "rank" true (To_test.rank ())
 
 let det () = Alcotest.(check bool) "det" true (To_test.det ())
 
-let inv () = Alcotest.(check bool) "inv" true (To_test.inv ())
-
 let vecnorm_01 () = Alcotest.(check bool) "vecnorm_01" true (To_test.vecnorm_01 ())
 
 let vecnorm_02 () = Alcotest.(check bool) "vecnorm_02" true (To_test.vecnorm_02 ())
 
 let is_triu_1 () = Alcotest.(check bool) "is_triu_1" true (To_test.is_triu_1 ())
+
+let mpow () = Alcotest.(check bool) "mpow" true (To_test.mpow ())
 
 (* Section #4 *)
 

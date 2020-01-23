@@ -1,4 +1,4 @@
-#require "owl-top";;
+#require "owl-top,alcotest";;
 
 open Owl
 open Bigarray
