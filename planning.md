@@ -14,8 +14,20 @@
 
 - Algorithmic Differentiation: require Calvin's help
 
+- Our content should be between that of scientific computation and data science.
+
+- Pay attention to topics that multiple book cover; perhaps we should also include them.
+
+- We don't have to, or better not to, strictly process chapter by chapter. Dump contents and discuss examples for now. It's OK to leave a note that says "a reference/exmaple should be here".
+
+- No need to change the content now following the other books; but just keep in mind what a publishable structure should look like, and later we can re-arrange the order of contents.
+
 
 ## Notes
+
+- Plotting is no big issue. 
+
+- A lot of things could go wrong, e.g. required functions not implemented yet. Find out these issues as early as possible. 
 
 - The difference between Part I and II: the first is about teaching users to solve problems, and the second is about how the first part is designed and implemented.
 
@@ -35,10 +47,14 @@
 [Timeline table](https://docs.google.com/spreadsheets/d/1Wk1CUsJ257cPKCwxaenRpFB-SiHLn4dmO8a_wpnbsPw/edit?usp=sharing)
 
 The timeline table defines the estimated progress using milestones and expected finishing time. 
-
+Our time is very limited. Pushing 5% a week should merely suffice for the very first stage.
 
 ## Reference
 
-- Matlab Tutorials https://www.mathworks.com/moler/chapters.html
 - [Elegant SciPy](https://www.oreilly.com/library/view/elegant-scipy/9781491922927/)
+
+- [Data Science from Scratch](https://www.oreilly.com/library/view/data-science-from/9781492041122/)
+
+- Matlab Tutorials https://www.mathworks.com/moler/chapters.html
+
 - Anything else 
