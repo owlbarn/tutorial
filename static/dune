@@ -134,6 +134,16 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
+(alias (name site) (deps case-finance.html))
+
+(rule
+  (targets case-finance.html)
+  (deps    (:x ../book/case-finance.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
 (alias (name site) (deps case-gpu.html))
 
 (rule
@@ -169,6 +179,16 @@
 (rule
   (targets case-obj-detect.html)
   (deps    (:x ../book/case-obj-detect.html)
+           (alias ../book/html)
+           ../bin/bin/app.exe
+           ../book/toc.scm)
+  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
+
+(alias (name site) (deps case-recommender.html))
+
+(rule
+  (targets case-recommender.html)
+  (deps    (:x ../book/case-recommender.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

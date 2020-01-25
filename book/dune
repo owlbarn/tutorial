@@ -4,10 +4,12 @@
         algodiff.html
         architecture.html
         backend.html
+        case-finance.html
         case-gpu.html
         case-image-inception.html
         case-nst.html
         case-obj-detect.html
+        case-recommender.html
         cgraph.html
         community.html
         constant.html
@@ -41,10 +43,12 @@
         algodiff.tex
         architecture.tex
         backend.tex
+        case-finance.tex
         case-gpu.tex
         case-image-inception.tex
         case-nst.tex
         case-obj-detect.tex
+        case-recommender.tex
         cgraph.tex
         community.tex
         constant.tex
@@ -113,6 +117,16 @@
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
+  (targets case-finance.html)
+  (deps    (:md_file case-finance/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-finance.tex)
+  (deps    (:md_file case-finance/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
   (targets case-gpu.html)
   (deps    (:md_file case-gpu/README.md))
   (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
@@ -150,6 +164,16 @@
 (rule
   (targets case-obj-detect.tex)
   (deps    (:md_file case-obj-detect/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets case-recommender.html)
+  (deps    (:md_file case-recommender/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-recommender.tex)
+  (deps    (:md_file case-recommender/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule

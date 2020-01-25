@@ -46,4 +46,6 @@
     case-obj-detect
     case-nst
     case-gpu
+    case-recommender
+    case-finance
     ))))
