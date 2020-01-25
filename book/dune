@@ -4,7 +4,6 @@
         algodiff.html
         architecture.html
         backend.html
-        broadcast.html
         case-gpu.html
         case-image-inception.html
         case-nst.html
@@ -42,7 +41,6 @@
         algodiff.tex
         architecture.tex
         backend.tex
-        broadcast.tex
         case-gpu.tex
         case-image-inception.tex
         case-nst.tex
@@ -112,16 +110,6 @@
 (rule
   (targets backend.tex)
   (deps    (:md_file backend/README.md))
-  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
-
-(rule
-  (targets broadcast.html)
-  (deps    (:md_file broadcast/README.md))
-  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
-
-(rule
-  (targets broadcast.tex)
-  (deps    (:md_file broadcast/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule

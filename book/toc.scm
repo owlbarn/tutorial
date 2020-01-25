@@ -10,7 +10,6 @@
     ndarray
     matrix
     slicing
-    broadcast
     algodiff
     optimisation
     linear-algebra
