@@ -2,4 +2,14 @@
 
 Include numerical optimisation from `owl-base`, kmeans, and regressions etc.
 
-TBD
+
+## Model and Error
+
+
+## Linear Regression
+
+
+## Multiple Regression
+
+
+## Logistic Regression

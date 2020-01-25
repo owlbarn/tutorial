@@ -1,4 +1,6 @@
-# Indexing, Slicing, and Broadcasting
+# Slicing and Broadcasting
+
+TODO: rewrite with visual illustration.
 
 Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.
 

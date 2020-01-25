@@ -42,7 +42,7 @@ The third part contains interesting use cases of Owl. They are not toy examples,
 There is a long way to go from simple math calculation to those large use cases. Now let's start from the very first step: installing Owl.
 
 
-## Who Shall Read This Book
+## Who Is This Book For
 
 TBD
 
