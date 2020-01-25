@@ -18,5 +18,4 @@ Include numerical optimisation from `owl-base`, kmeans, and regressions etc.
 ## L-BFGS
 
 
-
 TODO: Shall we actually put root-finding here

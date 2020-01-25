@@ -13,3 +13,6 @@ Include numerical optimisation from `owl-base`, kmeans, and regressions etc.
 
 
 ## Logistic Regression
+
+
+## Support Vector Machine
