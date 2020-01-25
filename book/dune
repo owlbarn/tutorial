@@ -19,7 +19,6 @@
         introduction.html
         linear-algebra.html
         maths.html
-        matrix.html
         ndarray.html
         neural-network.html
         nlp.html
@@ -56,7 +55,6 @@
         introduction.tex
         linear-algebra.tex
         maths.tex
-        matrix.tex
         ndarray.tex
         neural-network.tex
         nlp.tex
@@ -260,16 +258,6 @@
 (rule
   (targets maths.tex)
   (deps    (:md_file maths/README.md))
-  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
-
-(rule
-  (targets matrix.html)
-  (deps    (:md_file matrix/README.md))
-  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
-
-(rule
-  (targets matrix.tex)
-  (deps    (:md_file matrix/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
