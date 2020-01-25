@@ -25,6 +25,7 @@
         optimisation.html
         ppl.html
         prologue.html
+        regression.html
         signal.html
         slicing.html
         stats.html
@@ -61,6 +62,7 @@
         optimisation.tex
         ppl.tex
         prologue.tex
+        regression.tex
         signal.tex
         slicing.tex
         stats.tex
@@ -318,6 +320,16 @@
 (rule
   (targets prologue.tex)
   (deps    (:md_file prologue/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets regression.html)
+  (deps    (:md_file regression/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets regression.tex)
+  (deps    (:md_file regression/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule

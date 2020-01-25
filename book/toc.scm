@@ -11,6 +11,7 @@
     slicing
     algodiff
     optimisation
+    regression
     linear-algebra
     diffequation
     neural-network
