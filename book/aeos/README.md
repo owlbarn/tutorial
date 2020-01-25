@@ -1,5 +1,7 @@
 # Automatic Empirical Tuning
 
+( TODO: include more content)
+
 Recent research work on parameter tuning mostly focus on hyper-parameter tuning, such as optimising the parameters of stochastic gradient in machine learning applications. 
 However, tuning code and parameters in low-level numerical libraries is of the same importance. 
 For example, Automatically Tuned Linear Algebra Software ([ATLAS](http://math-atlas.sourceforge.net/)) and the recent Intel Math Kernel Library ([MKL](https://software.intel.com/en-us/mkl)) are both software libraries of optimised math routines for science and engineering computation. 
@@ -7,6 +9,8 @@ They are widely used in many popular high-level platforms such as Matlab and Ten
 One of the reasons these libraries can provide optimal performance is that they have adopted the paradigm of Automated Empirical Optimisation of Software, or AEOS. That is, a library chooses the best method and parameter to use on a given platform to do a required operation. 
 One highly optimised routine may run much faster than a naively coded one. Optimised code is usually platform- and hardware-specific, but an optimised routine on one machine could perform badly on the other.
 Though Owl currently does not plan to improve the low-level libraries it depends on, as an initial endeavour to apply the AEOS paradigm in Owl, one ideal tuning point is the parameters of OpenMP used in Owl.
+
+## Motivation
 
 Currently many computers contain shared memory multiprocessors. OpenMP is used in key operations in libraries such as Eigen and MKL. Owl has also utilised OpenMP on many mathematical operations to boost their performance by threading calculation.
 For example, the figure below shows that when I apply the sine function on an ndarray in Owl, on a 4-core CPU MacBook, the OpenMP version only takes about a third of the execution time compared with the non-OpenMP version.
@@ -65,6 +69,8 @@ I expect that tuning does not have to be only about OpenMP parameters, and that 
 The AEOS module is implemented in such a way that brings little interference to the main Owl library. Code can be viewed in this pull request, and has been merged into the main branch of Owl. You only need to switch the ENABLE OPENMP flag from 0 to 1 in the dune file to try this feature.
 To evaluate the performance of tuned OpenMP thresholds, I need a metric to compare them. One metric to compare two thresholds is proposed as below. I generate a series of ndarrays, whose sizes grow by certain steps until they reach a given maximum number, e.g. 1,000,000 used in the experiment below. Note that only input sizes that fall between these two thresholds are chosen to be used. 
 I then calculate the performance improvement ratio of the OpenMP version function over the non-OpenMP version on these chosen ndarrays. The ratios are added up, and then amortised by the total number of ndarrays. Hereafter I use this averaged ratio as performance metric.
+
+## Evaluation
 
 The table below presents the tuned threshold values of a five operations on a MacBook with a 1.1GHz Intel Core m3 CPU and a Raspberry Pi 3B. We can see that they vary across different operations and different machines, depending on their computation complexity. 
 For example, on MacBook, the tuning result is "max int", which means that for the relatively simple square root calculation OpenMP should not be used, but that's not the case on Raspberry Pi. Also, note that the less powerful Raspberry Pi tends to get lower thresholds.

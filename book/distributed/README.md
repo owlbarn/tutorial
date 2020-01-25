@@ -1,8 +1,10 @@
 # Distributed Computing
 
-Actor, refer to [@wang2017probabilistic]
+## Actor System
 
-TBD
+refer to [@wang2017probabilistic]
+
+## Synchronise Parallel 
 
 
 ## References

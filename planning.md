@@ -1,8 +1,8 @@
 ## Contents
 
-- FFT could be introduced in the Signal Processing chapter. Convolution could also be introduced in this part. Note that in Part I there is no need to discuss details about low level optimisation.
+- Convolution could also be introduced in FFT part. Note that in Part I there is no need to discuss details about low level optimisation.
 
-- Computation Graph: include Pierre's work; also we could include some of Symbolic's design, such as using graph as IR to convert computation to TPU/GPU.
+- Computation Graph: we could include some of Symbolic's design, such as using graph as IR to convert computation to TPU/GPU.
 
 - Compiler backends: add Mirage.
 
@@ -10,17 +10,15 @@
 
 - Benchmarking could be added at the end of AEOS. The figures need to be re-drawn with smaller size. 
 
-- Organise existing content on count-sketch, regression, interpolation, root-finding, Orthogonal polynomials, kmeans, svm, etc. Put them into existing chapters for now. 
-
-- Algorithmic Differentiation: require Calvin's help
-
 - Our content should be between that of scientific computation and data science.
 
 - Pay attention to topics that multiple book cover; perhaps we should also include them.
 
 - We don't have to, or better not to, strictly process chapter by chapter. Dump contents and discuss examples for now. It's OK to leave a note that says "a reference/exmaple should be here".
 
-- No need to change the content now following the other books; but just keep in mind what a publishable structure should look like, and later we can re-arrange the order of contents.
+- No need to change the content now following the other books; but just keep in mind what a publishable structure should look like, and later we can re-arrange the order of contents. Also note that if some functionality would take a lot of effort to add in Owl, then there is no need to include such content in the book for now.
+
+- The chapters are divided by topics, not strictly following Owl's code structure. 
 
 
 ## Notes
