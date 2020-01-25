@@ -8,6 +8,7 @@
 <p>That’s where Discrete Fourier Transform (DFT) comes into play. It captures the idea of converting the two form of representing a signal: in time domain and in frequency domain. We can represent a signal with the values of some quantity <span class="math inline">\(h\)</span> as a function of time: <span class="math inline">\(h(t)\)</span>, or this signal can be represented by giving its amplitude <span class="math inline">\(H\)</span> as function of frequency: <span class="math inline">\(H(f)\)</span>. We can think they are two representation of the same thing, and Fourier Transform change between them:</p>
 <p><span class="math display">\[ h(f) = \int H(f)\exp^{-2\pi~ift}df\]</span> <span class="math display">\[ H(f) = \int h(t)\exp^{2\pi~ift}dt\]</span></p>
 <p>To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.</p>
+<p>(ADD: description of DFT)</p>
 <p>You might be wondering, it’s cool that I can recognise how a sound is composed, but so what? Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.</p>
 <p>Actually, the application of DFT is more than on sound signal processing. (EXAMPLES). It covers a very large of important computation problems that spans many fields and applications, such as music processing, data compressing, image processing, engineering, mathematics, etc.</p>
 <p>The Fast Fourier Transform is an algorithm that reduces the DFT computation complexity from <span class="math inline">\(\mathcal{O}(n^2)\)</span> to <span class="math inline">\(\mathcal{O}(n\log{}n)\)</span>. To introduce the algorithm itself or the detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic <span data-cites="phillips2003signals" class="citation">(Phillips, Parr, and Riskin 2003)</span>.</p>
@@ -45,6 +46,11 @@
 </tr>
 </tbody>
 </table>
+</section>
+<section class="level3" id="examples">
+<h3>Examples</h3>
+<p>Example 1: remove the noise in audio (from matlab book)</p>
+<p>Example 2: image processing (from scipy book; NR chap 12.6)</p>
 </section>
 </section>
 <section class="level2" id="kalman-filtering">

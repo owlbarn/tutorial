@@ -18,6 +18,8 @@ $$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$
 
 To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.
 
+(ADD: description of DFT)
+
 You might be wondering, it's cool that I can recognise how a sound is composed, but so what? 
 Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
 
@@ -38,6 +40,11 @@ Owl provides these basic FFT functions:
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 
+### Examples 
+
+Example 1: remove the noise in audio (from matlab book) 
+
+Example 2: image processing (from scipy book; NR chap 12.6)
 
 ## Kalman Filtering
 
