@@ -55,6 +55,8 @@ Our time is very limited. Pushing 5% a week should merely suffice for the very f
 
 - [Data Science from Scratch](https://www.oreilly.com/library/view/data-science-from/9781492041122/)
 
+- [Fundamental Statistics](https://sites.google.com/site/fundamentalstatistics/chapter-16)
+
 - Matlab Tutorials https://www.mathworks.com/moler/chapters.html
 
 - Anything else 
