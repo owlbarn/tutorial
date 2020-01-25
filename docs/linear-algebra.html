@@ -361,8 +361,11 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 </div>
 </section>
 </section>
-<section class="level2" id="low-level-interface-to-cblas-lapacke">
-<h2>Low-level Interface to CBLAS &amp; LAPACKE</h2>
+<section class="level2" id="cblas-lapacke">
+<h2>CBLAS &amp; LAPACKE</h2>
+<p>TBD</p>
+<section class="level3" id="low-level-interface-to-cblas-lapacke">
+<h3>Low-level Interface to CBLAS &amp; LAPACKE</h3>
 <p>Owl has implemented the full interface to CBLAS and LAPACKE. Comparing to Julia which chooses to interface to BLAS/LAPACK, you might notice the extra <code>C</code> in <code>CBLAS</code> and <code>E</code> in <code>LAPACKE</code> because they are the corresponding C-interface of Fortran implementations. It is often believed that C-interface may introduce some extra overhead. However, it turns out that we cannot really notice any difference at all in practice when dealing with medium or large problems.</p>
 <ul>
 <li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas module</a> provides the raw interface to CBLAS functions, from level-1 to level-3. The interfaced functions have the same names as those in CBLAS.</p></li>
@@ -370,8 +373,8 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 <li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke.ml">Owl_lapacke module</a> is a very thin layer of interface between <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated module</a> and <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg module</a>. The purpose is to provide a unified function to make generic functions over different number types.</p></li>
 </ul>
 </section>
-<section class="level2" id="high-level-wrappers-in-linalg-module">
-<h2>High-level Wrappers in Linalg Module</h2>
+<section class="level3" id="high-level-wrappers-in-linalg-module">
+<h3>High-level Wrappers in Linalg Module</h3>
 <p>The functions in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas</a> and <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated</a> are very low-level, e.g., you need to deal with calculating parameters, allocating workspace, post-processing results, and many other tedious details. You do not really want to use them directly unless you have enough background in numerical analysis and chase after the performance. In practice, you should use <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg</a> module which gives you a high-level wrapper for frequently used functions.</p>
 <p>The <code>Linalg</code> has the following module structure.</p>
 <ul>
@@ -382,6 +385,22 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 <li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_z.mli">Owl.Linalg.Z</a>: only for <code>complex64</code> type.</p></li>
 </ul>
 <p><code>Generic</code> actually can do everything that <code>S/D/C/Z</code> can but needs some extra type information. The functions in <code>Linalg</code> module are divided into the following groups.</p>
+</section>
+<section class="level3" id="low-level-factorisation-and-helper-functions">
+<h3>Low-level factorisation and Helper functions</h3>
+<div class="highlight">
+<pre><code class="language-text">
+  val lufact : ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
+
+  val qrfact : ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+
+  val bkfact : ?upper:bool -&gt; ?symmetric:bool -&gt; ?rook:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
+
+  val peakflops : ?n:int -&gt; unit -&gt; float
+  (* peak number of float point operations using [Owl_cblas.dgemm] function. *)
+</code></pre>
+</div>
+</section>
 </section>
 <section class="level2" id="basic-functions">
 <h2>Basic functions</h2>
@@ -491,21 +510,6 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 
   val linreg : ('a, 'b) t -&gt; ('a, 'b) t -&gt; 'a * 'a
   (* simple linear regression using OLS. *)
-</code></pre>
-</div>
-</section>
-<section class="level2" id="low-level-factorisation-and-helper-functions">
-<h2>Low-level factorisation and Helper functions</h2>
-<div class="highlight">
-<pre><code class="language-text">
-  val lufact : ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
-
-  val qrfact : ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-
-  val bkfact : ?upper:bool -&gt; ?symmetric:bool -&gt; ?rook:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
-
-  val peakflops : ?n:int -&gt; unit -&gt; float
-  (* peak number of float point operations using [Owl_cblas.dgemm] function. *)
 </code></pre>
 </div>
 </section>

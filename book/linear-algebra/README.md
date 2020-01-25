@@ -435,8 +435,11 @@ I will use another set of examples to finish this tutorial. I must say this tuto
 
 ```
 
+## CBLAS & LAPACKE
 
-## Low-level Interface to CBLAS & LAPACKE
+TBD
+
+### Low-level Interface to CBLAS & LAPACKE
 
 Owl has implemented the full interface to CBLAS and LAPACKE. Comparing to Julia which chooses to interface to BLAS/LAPACK, you might notice the extra `C` in `CBLAS` and `E` in `LAPACKE` because they are the corresponding C-interface of Fortran implementations. It is often believed that C-interface may introduce some extra overhead. However, it turns out that we cannot really notice any difference at all in practice when dealing with medium or large problems.
 
@@ -448,7 +451,7 @@ Owl has implemented the full interface to CBLAS and LAPACKE. Comparing to Julia 
 
 
 
-## High-level Wrappers in Linalg Module
+### High-level Wrappers in Linalg Module
 
 The functions in [Owl_cblas](https://github.com/ryanrhymes/owl/blob/master/src/owl/cblas/owl_cblas.mli) and [Owl_lapacke_generated](https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli) are very low-level, e.g., you need to deal with calculating parameters, allocating workspace, post-processing results, and many other tedious details. You do not really want to use them directly unless you have enough background in numerical analysis and chase after the performance. In practice, you should use [Linalg](https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli) module which gives you a high-level wrapper for frequently used functions.
 
@@ -465,6 +468,22 @@ The `Linalg` has the following module structure.
 - [Owl.Linalg.Z](https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_z.mli): only for `complex64` type.
 
 `Generic` actually can do everything that `S/D/C/Z` can but needs some extra type information. The functions in `Linalg` module are divided into the following groups.
+
+
+### Low-level factorisation and Helper functions
+
+```text
+
+  val lufact : ('a, 'b) t -> ('a, 'b) t * (int32, int32_elt) t
+
+  val qrfact : ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+
+  val bkfact : ?upper:bool -> ?symmetric:bool -> ?rook:bool -> ('a, 'b) t -> ('a, 'b) t * (int32, int32_elt) t
+
+  val peakflops : ?n:int -> unit -> float
+  (* peak number of float point operations using [Owl_cblas.dgemm] function. *)
+
+```
 
 
 
@@ -579,22 +598,6 @@ The `Linalg` has the following module structure.
 
   val linreg : ('a, 'b) t -> ('a, 'b) t -> 'a * 'a
   (* simple linear regression using OLS. *)
-
-```
-
-
-## Low-level factorisation and Helper functions
-
-```text
-
-  val lufact : ('a, 'b) t -> ('a, 'b) t * (int32, int32_elt) t
-
-  val qrfact : ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-
-  val bkfact : ?upper:bool -> ?symmetric:bool -> ?rook:bool -> ('a, 'b) t -> ('a, 'b) t * (int32, int32_elt) t
-
-  val peakflops : ?n:int -> unit -> float
-  (* peak number of float point operations using [Owl_cblas.dgemm] function. *)
 
 ```
 
