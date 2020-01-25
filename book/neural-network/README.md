@@ -1,4 +1,4 @@
-# Neural Networks
+# Deep Neural Networks
 
 Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
 

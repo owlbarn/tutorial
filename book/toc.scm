@@ -5,20 +5,20 @@
   (chapters
    (introduction
     convention
+    visualisation
     maths
     stats
     ndarray
     slicing
+    linear-algebra
+    diffequation
+    signal
     algodiff
     optimisation
     regression
-    linear-algebra
-    diffequation
     neural-network
-    signal
-    visualisation
-    dataframe
     nlp
+    dataframe
     ppl
     symbolic
     ))))
@@ -27,14 +27,14 @@
  ((title "System Architecture")
   (chapters
    (architecture
+    core-opt
+    aeos
     cgraph
-    constant
     zoo
     backend
-    aeos
-    core-opt
     distributed
     testing
+    constant
     utilities
     community
     ))))
