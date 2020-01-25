@@ -1,6 +1,10 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Conventions - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="conventions">
 <h1>Conventions</h1>
 <p>Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example the <a href="broadcast.html">rules on broadcasting operation</a> and the <a href="slicing.html">conventions on slice definition</a>. In this chapter, I will cover the function naming and various conventions in Owl.</p>
+<section class="level2" id="ocaml-in-a-nutshell">
+<h2>OCaml In a Nutshell</h2>
+<p>TBD</p>
+</section>
 <section class="level2" id="pure-vs.-impure">
 <h2>Pure vs.&nbsp;Impure</h2>
 <p><code>Ndarray</code> module contains many functions to manipulate and perform mathematical operations over multi-dimensional arrays. The <strong>pure functions</strong> (a.k.a immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, <strong>impure functions</strong> (a.k.a mutable functions) refer to those which modifies the passed-in variables in place.</p>

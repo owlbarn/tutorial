@@ -3,7 +3,7 @@
 This chapter briefly introduces the outline of the whole book, and then the installation of Owl. 
 There are different ways to interact with Owl, including `utop`, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us. 
 
-## Outline
+## What Is Scientific Computing
 
 Scientific Computing is a rapidly growing multidisciplinary field that uses advanced computing capabilities to understand and solve complex problems. 
 The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation).
@@ -40,6 +40,16 @@ The second part introduces the system architecture of Owl. It introduces the des
 The third part contains interesting use cases of Owl. They are not toy examples, but real applications that is being used in certain fields. For example, we have computer vision applications such as image classification, segmentation, and neural style transfer, each covered by a whole chapter.
 
 There is a long way to go from simple math calculation to those large use cases. Now let's start from the very first step: installing Owl.
+
+
+## Who Shall Read This Book
+
+TBD
+
+
+## Structure of the Book
+
+TBD
 
 
 ## Installation
