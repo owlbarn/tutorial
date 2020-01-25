@@ -3,102 +3,7 @@
 Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.
 
 
-## Descriptive Statistics
-
-Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
-
-We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
-
-```ocaml env=stats_00
-let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
-```
-
-Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
-
-```ocaml env=stats_00
-# Stats.mean data
-- : float = 5.39282409364656168
-# Stats.std data
-- : float = 2.82512008501752376
-# Stats.var data
-- : float = 7.98130349476942147
-# Stats.skew data
-- : float = -0.100186978462459622
-# Stats.kurtosis data
-- : float = 1.90668234297861283
-```
-
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
-
-```ocaml env=stats_00
-# Stats.central_moment 0 data
-- : float = 1.
-# Stats.central_moment 1 data
-- : float = 5.3290705182007512e-17
-# Stats.central_moment 2 data
-- : float = 7.90149045982172549
-# Stats.central_moment 3 data
-- : float = -2.25903009746890815
-```
-
-
-## Correlations
-
-Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation. 
-
-`x` is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both `y` and `z` are response variables with a linear relation to `x`. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.
-
-```ocaml env=stats_01
-let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
-let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
-let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
-let z = Array.map (fun a -> 2.5 *. a +. noise 8.) x;;
-```
-
-It is easier to see the relation between two variables from a figure. Herein we use Owl's Plplot module to make two scatter plots.
-
-```ocaml env=stats_01
-(* convert arrays to matrices *)
-
-let x' = Mat.of_array x 1 50;;
-let y' = Mat.of_array y 1 50;;
-let z' = Mat.of_array z 1 50;;
-
-(* plot the figures *)
-
-let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
-
-  Plot.subplot h 0 0;
-  Plot.set_xlabel h "x";
-  Plot.set_ylabel h "y (sigma = 1)";
-  Plot.scatter ~h x' y';
-
-  Plot.subplot h 0 1;
-  Plot.set_xlabel h "x";
-  Plot.set_ylabel h "z (sigma = 8)";
-  Plot.scatter ~h x' z';
-
-  Plot.output h;;
-```
-
-The subfigure 1 shows the functional relation between `x` and `y` whilst the subfiture 2 shows the relation between `x` and `z`. Because we have added higher-level noise to `z`, the points in the second figure are more diffused.
-
-<img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
-
-
-Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.
-
-```ocaml env=stats_01
-# Stats.corrcoef x y
-- : float = 0.987944913889222565
-# Stats.corrcoef x z
-- : float = 0.757942970751708911
-```
-
-...
-
-
-## Distributions
+## Random Variables
 
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. Here we use Gaussian distribution as an exmaple to illustrate the naming convention.
 
@@ -152,6 +57,101 @@ In subplot 1, we can see the second data set has much wider spread. In subplot 2
 As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
 
 
+## Descriptive Statistics
+
+Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+
+We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
+
+```ocaml env=stats_00
+let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
+```
+
+Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
+
+```ocaml env=stats_00
+# Stats.mean data
+- : float = 5.31364843477812787
+# Stats.std data
+- : float = 2.84206433399567393
+# Stats.var data
+- : float = 8.0773296785702744
+# Stats.skew data
+- : float = -0.20440315951733054
+# Stats.kurtosis data
+- : float = 1.86457865927682298
+```
+
+The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
+
+```ocaml env=stats_00
+# Stats.central_moment 0 data
+- : float = 1.
+# Stats.central_moment 1 data
+- : float = -8.52651282912120191e-16
+# Stats.central_moment 2 data
+- : float = 7.99655638178457107
+# Stats.central_moment 3 data
+- : float = -4.69233832808677143
+```
+
+
+## Correlations
+
+Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation. 
+
+`x` is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both `y` and `z` are response variables with a linear relation to `x`. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.
+
+```ocaml env=stats_01
+let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
+let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
+let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
+let z = Array.map (fun a -> 2.5 *. a +. noise 8.) x;;
+```
+
+It is easier to see the relation between two variables from a figure. Herein we use Owl's Plplot module to make two scatter plots.
+
+```ocaml env=stats_01
+(* convert arrays to matrices *)
+
+let x' = Mat.of_array x 1 50;;
+let y' = Mat.of_array y 1 50;;
+let z' = Mat.of_array z 1 50;;
+
+(* plot the figures *)
+
+let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
+
+  Plot.subplot h 0 0;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "y (sigma = 1)";
+  Plot.scatter ~h x' y';
+
+  Plot.subplot h 0 1;
+  Plot.set_xlabel h "x";
+  Plot.set_ylabel h "z (sigma = 8)";
+  Plot.scatter ~h x' z';
+
+  Plot.output h;;
+```
+
+The subfigure 1 shows the functional relation between `x` and `y` whilst the subfiture 2 shows the relation between `x` and `z`. Because we have added higher-level noise to `z`, the points in the second figure are more diffused.
+
+<img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
+
+
+Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.
+
+```ocaml env=stats_01
+# Stats.corrcoef x y
+- : float = 0.989229727850764129
+# Stats.corrcoef x z
+- : float = 0.722342652115260719
+```
+
+...
+
+
 ## Hypothesis Tests
 
 While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
@@ -185,8 +185,8 @@ Our hypothesis is that the data set is drawn from Gaussian distribution $\mathca
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_0
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = false; p_value = 0.195650159811977087;
- score = -1.29404418291717915}
+{Owl.Stats.reject = false; p_value = 0.0984716313263263171;
+ score = -1.65230872621158897}
 ```
 
 The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
@@ -204,8 +204,8 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_1
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = true; p_value = 4.18442493800220153e-20;
- score = 9.18320634091117327}
+{Owl.Stats.reject = true; p_value = 1.24308805325057672e-22;
+ score = 9.78998949198827439}
 ```
 
 As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
