@@ -8,7 +8,8 @@ In the last few years the field of machine learning has made tremendous progress
 
 [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google’s latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
-## Image Recognition with Owl
+## Constructing InceptionV3 Network
+
 
 There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.
 
@@ -19,8 +20,7 @@ Besides, prepare one image on your computer. It can be of any common image forma
   <img src="images/case-image-inception/panda.png">
 </p>
 
-
-## Example
+## Running Inference
 
 Let’s do the image classification with one line of code:
 

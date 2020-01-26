@@ -13,7 +13,7 @@ Isn’t it amazing?
 
 ![](images/case-nst/mona_lisa.jpeg)
 
-## A Very Brief Theory of NST
+## NST: A Very Brief Theory
 
 Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the [original paper](https://arxiv.org/abs/1508.06576) for more details if you are interested.
 
@@ -26,7 +26,7 @@ DNNs, especially the ones that are used for computer vision tasks, are found to 
 Then the euclidean distance of these characteristics are used to express the `content_distance()` and `style_distance()` functions.
 Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .
 
-## NST with Owl
+## Constructing and Running NST Network
 
 I’ve implement an NST application with Owl. All the code (about 180 lines) is included in [this Gist](https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1). This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included.
 It relies on `ImageMagick` to manipulate image format conversion and resizing. Please make sure it is installed before running.

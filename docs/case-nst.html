@@ -8,15 +8,15 @@
 <p>The figure below illustrate this point (<a href="http://genekogan.com/works/style-transfer/">src</a>). You can apply different art styles to the same “Mona Lisa”, or apply the same “Starry Sky” style to any pictures, even a normal daily street view. Isn’t it amazing?</p>
 <p><img src="images/case-nst/mona_lisa.jpeg"></p>
 </section>
-<section class="level2" id="a-very-brief-theory-of-nst">
-<h2>A Very Brief Theory of NST</h2>
+<section class="level2" id="nst-a-very-brief-theory">
+<h2>NST: A Very Brief Theory</h2>
 <p>Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
 <p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises: <span class="math display">\[ f(x) = \textrm{content_distance}(x, c) + \textrm{style_distance}(x, s) \]</span></p>
 <p>This equation can be easily translated as: I want to get such an image that its content is close to <code>c</code> , but its style similar to <code>s</code> .</p>
 <p>DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions. Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .</p>
 </section>
-<section class="level2" id="nst-with-owl">
-<h2>NST with Owl</h2>
+<section class="level2" id="constructing-and-running-nst-network">
+<h2>Constructing and Running NST Network</h2>
 <p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
 <p>This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:</p>
 <div class="highlight">

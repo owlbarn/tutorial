@@ -5,16 +5,16 @@
 <p>How can a computer take an image and answer questions like “what is in this picture? A cat, dog, or something else?” In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks — matching or exceeding human performance in some domains.</p>
 <p><a href="https://arxiv.org/abs/1512.00567">InceptionV3</a> is one of Google’s latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.</p>
 </section>
-<section class="level2" id="image-recognition-with-owl">
-<h2>Image Recognition with Owl</h2>
+<section class="level2" id="constructing-inceptionv3-network">
+<h2>Constructing InceptionV3 Network</h2>
 <p>There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.</p>
 <p>As a prerequisite, please make sure that the tool <a href="https://www.imagemagick.org/">ImageMagick</a> is installed. Besides, prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter:</p>
 <p align="center">
 <img src="images/case-image-inception/panda.png">
 </p>
 </section>
-<section class="level2" id="example">
-<h2>Example</h2>
+<section class="level2" id="running-inference">
+<h2>Running Inference</h2>
 <p>Let’s do the image classification with one line of code:</p>
 <div class="highlight">
 <pre><code class="language-clike">owl -run 6dfed11c521fb2cd286f2519fb88d3bf</code></pre>
