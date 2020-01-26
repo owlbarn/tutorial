@@ -516,7 +516,7 @@ The following code calculates the inverse of a square matrix `x`.
 
 ```
 
-## Linear Equation Solver 
+## Solve A Linear Equation System
 
 One of the problems encountered most frequently in scientific computation is the solution of systems of simultaneous linear equations.
 (Such as? find very concrete real world applications).
@@ -576,7 +576,7 @@ let t1_sol () =
 Some discussion about the implementation details of `linsolve`.
 
 
-## SVD
+## Singular Value Decomposition
 
 We have talked about LR Factorisation. Another important factorisation is SVD.
 The singular value decomposition (SVD) is among the most important matrix factorizations
