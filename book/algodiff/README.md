@@ -1,12 +1,75 @@
 # Algorithmic Differentiation
 
+
+## Introduction
+
 Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields, especially useful for fast prototyping in machine learning research. Comparing to numerical differentiation which can only provides approximate results, AD can calculates the exact derivative of a given function.
 
-Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
+### Applications of Differentiation in Scientific Computing
 
+The gradient
 
+Derivatives for Systems of Nonlinear Equations, Nonlinear Programming, etc.
+
+### Manual Differentiation
+
+### Motivative Example: Higher-Order Derivatives
+
+The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
+
+```ocaml env=algodiff_00
+open Algodiff.D;;
+
+let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
+
+(* calculate derivatives of f0 *)
+let f0 x = Maths.(tanh x);;
+let f1 = diff f0;;
+let f2 = diff f1;;
+let f3 = diff f2;;
+let f4 = diff f3;;
+
+let x = Owl.Mat.linspace (-4.) 4. 200;;
+let y0 = map f0 x;;
+let y1 = map f1 x;;
+let y2 = map f2 x;;
+let y3 = map f3 x;;
+let y4 = map f4 x;;
+
+(* plot the values of all functions *)
+let h = Plot.create "plot_00.png" in
+Plot.plot ~h x y0;
+Plot.plot ~h x y1;
+Plot.plot ~h x y2;
+Plot.plot ~h x y3;
+Plot.plot ~h x y4;
+Plot.output h;;
+```
+
+Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
+
+<img src="images/algodiff/plot_00.png" alt="plot 00" title="higher order derivatives" width="600px" />
+
+If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
+
+```ocaml
+let f0 x = Maths.(
+  let y = exp (neg x) in
+  (F 1. - y) / (F 1. + y)
+);;
+```
+
+As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
+
+```ocaml env=algodiff_00
+let f'''' f = f |> diff |> diff |> diff |> diff
+```
+
+The code above will give you the fourth derivative of `f`, i.e. `f''''`.
 
 ## High-level APIs
+
+Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
 
 `Algodiff.Generic` is a functor which is able to support both `float32` and `float64` precision `AD`. However, you do not need to deal with `Algodiff.Generic.Make` directly since there are already two ready-made modules.
 
@@ -37,8 +100,76 @@ Owl provides both numerical differentiation (in [Numdiff.Generic](https://github
 Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
 
 
+### Example: Simple Jacobian and Gradient 
+
+REFER: Automatic Differentiation in MATLAB using ADMAT with Applications
+
+### Example: Gradient Descent Algorithm
+
+Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
+
+```ocaml env=algodiff_01
+open Algodiff.D
+
+let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = (diff f) x in
+  if (unpack_flt g) < eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g);;
+```
+
+Now let's define a function we want to optimise, then plug it into `desc` function.
+
+```ocaml env=algodiff_01
+let f x = Maths.(sin x + cos x);;
+let x_min = desc f (F 0.1);;
+```
+
+Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
+
+```ocaml env=algodiff_01
+let g x = sin x +. cos x in
+let h = Plot.create "plot_01.png" in
+Plot.plot_fun ~h g (-5.) 5.;
+Plot.output h;;
+```
+
+<img src="images/algodiff/plot_01.png" alt="plot 00" title="gradient descent" width="600px" />
+
+### Example : Newton's Algorithm
+
+Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
+
+```ocaml env=algodiff_02
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
+```
+
+Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
+
+```ocaml env=algodiff_02
+# let f x = Maths.(cos x |> sum') in
+  newton f (Mat.uniform 1 2)
+- : t = [Arr(1,2)]
+```
+
+## A Brief Theoretical Basis
+
+REFER: The Art of Differentiating Computer Programs
+
+### First Derivative Code 
+
+Tangent, Adjoint, etc.
+
+### Higher Derivative Code 
+
 
 ## Forward or Backward?
+
+REFER: *Evaluating Derivatives*, Chapter 3.
 
 There are two modes in algorithmic differentiation - forward mode and backward mode. Owl has implemented both. Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function :)
 
@@ -126,124 +257,19 @@ Similarly, you can try to use backward mode to differentiate `g`. I will just th
 
 In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 
+## Design of the Algorithm Differentiation Module 
+
+### Lazy Evaluation 
+
+### "There Is No Spoon": Extend AD Module 
 
 
-## Examples
+## Algorithm Differentiation: The Engine of Neural Network
 
 In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.
 
 
-### Example 1: Higher-Order Derivatives
-
-The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
-
-```ocaml env=algodiff_00
-open Algodiff.D;;
-
-let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
-
-(* calculate derivatives of f0 *)
-let f0 x = Maths.(tanh x);;
-let f1 = diff f0;;
-let f2 = diff f1;;
-let f3 = diff f2;;
-let f4 = diff f3;;
-
-let x = Owl.Mat.linspace (-4.) 4. 200;;
-let y0 = map f0 x;;
-let y1 = map f1 x;;
-let y2 = map f2 x;;
-let y3 = map f3 x;;
-let y4 = map f4 x;;
-
-(* plot the values of all functions *)
-let h = Plot.create "plot_00.png" in
-Plot.plot ~h x y0;
-Plot.plot ~h x y1;
-Plot.plot ~h x y2;
-Plot.plot ~h x y3;
-Plot.plot ~h x y4;
-Plot.output h;;
-```
-
-Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
-
-<img src="images/algodiff/plot_00.png" alt="plot 00" title="higher order derivatives" width="600px" />
-
-If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
-
-```ocaml
-let f0 x = Maths.(
-  let y = exp (neg x) in
-  (F 1. - y) / (F 1. + y)
-);;
-```
-
-As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
-
-```ocaml env=algodiff_00
-let f'''' f = f |> diff |> diff |> diff |> diff
-```
-
-The code above will give you the fourth derivative of `f`, i.e. `f''''`.
-
-
-
-### Example 2: Gradient Descent Algorithm
-
-Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
-
-```ocaml env=algodiff_01
-open Algodiff.D
-
-let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g = (diff f) x in
-  if (unpack_flt g) < eps then x
-  else desc ~eta ~eps f Maths.(x - eta * g);;
-```
-
-Now let's define a function we want to optimise, then plug it into `desc` function.
-
-```ocaml env=algodiff_01
-let f x = Maths.(sin x + cos x);;
-let x_min = desc f (F 0.1);;
-```
-
-Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
-
-```ocaml env=algodiff_01
-let g x = sin x +. cos x in
-let h = Plot.create "plot_01.png" in
-Plot.plot_fun ~h g (-5.) 5.;
-Plot.output h;;
-```
-
-<img src="images/algodiff/plot_01.png" alt="plot 00" title="gradient descent" width="600px" />
-
-
-### Example 3: Newton's Algorithm
-
-Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
-
-```ocaml env=algodiff_02
-open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |> unpack_flt) < eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
-```
-
-Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
-
-```ocaml env=algodiff_02
-# let f x = Maths.(cos x |> sum') in
-  newton f (Mat.uniform 1 2)
-- : t = [Arr(1,2)]
-```
-
-
-### Example 4: Backpropagation in Neural Network
+### Backpropagation in Neural Network
 
 Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
 
@@ -271,7 +297,7 @@ Yes, we just used only 13 lines of code to implement the backpropagation. Actual
    :alt: mnist experiment
 
 
-### Example 5: Computation Graph of Simple Functions
+### Example: Computation Graph of Simple Functions
 
 Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
 
@@ -302,7 +328,7 @@ The generated computation graph looks like this.
 
 
 
-### Example 6: Computation Graph of VGG-like Neural Network
+### Example: Computation Graph of VGG-like Neural Network
 
 Let's define a VGG-like neural network as below.
 
@@ -334,7 +360,7 @@ The computation graph for this neural network become a bit more complicated now.
    :alt: computation graph of VGG
 
 
-### Example 7: Computation Graph of LSTM Network
+### Example: Computation Graph of LSTM Network
 
 How about LSTM network? The following definition seems much lighter than convolutional neural network in the previous example.
 
@@ -359,7 +385,7 @@ However, the generated computation graph is way more complicated due to LSTM's i
    :alt: computation graph of lstm
 
 
-### Example 8: Computation Graph of Google's Inception
+### Example: Computation Graph of Google's Inception
 
 If the computation graph above hasn't scared you yet, here is another one generated from Google's Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl's zoo system `#zoo "6dfed11c521fb2cd286f2519fb88d3bf"`.
 
