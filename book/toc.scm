@@ -36,7 +36,6 @@
     testing
     constant
     utilities
-    community
     ))))
 
 (part

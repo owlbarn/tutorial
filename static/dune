@@ -205,16 +205,6 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
-(alias (name site) (deps community.html))
-
-(rule
-  (targets community.html)
-  (deps    (:x ../book/community.html)
-           (alias ../book/html)
-           ../bin/bin/app.exe
-           ../book/toc.scm)
-  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
-
 (alias (name site) (deps constant.html))
 
 (rule
