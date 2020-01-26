@@ -169,7 +169,7 @@ The [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_ne
 * `Parallel` : provide parallel computation capability, need to compose with Actor engine. (Experimental, a research project in progress.)
 
 
-## Types of Neuron
+## Model Definition
 
 I have implemented a set of commonly used neurons in [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml). Each neuron is a standalone module and adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl's [Algodiff](https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli) module.
 
