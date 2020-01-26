@@ -1,4 +1,4 @@
-# Case - Accelerators
+# Case - Using Accelerators
 
 TBD
 
