@@ -52,7 +52,7 @@ Start your `utop`, then load and open `Owl` library. Copy and past the code abov
 
 If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
 
-```ocaml
+```ocaml env=algodiff_00
 let f0 x = Maths.(
   let y = exp (neg x) in
   (F 1. - y) / (F 1. + y)
