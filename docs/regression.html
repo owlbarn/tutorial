@@ -1,14 +1,69 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Regression - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="regression">
 <h1>Regression</h1>
+<p>An important part of Machine Learning (supervised learning). General idea: given data, make predictions.</p>
 <section class="level2" id="model-and-error">
 <h2>Model and Error</h2>
+<section class="level3" id="standard-errors-of-regression-coefficients">
+<h3>Standard Errors of Regression Coefficients</h3>
+</section>
 </section>
 <section class="level2" id="linear-regression">
 <h2>Linear Regression</h2>
-<p>We have a set of simple data (link) for linear regression. A motivational question: house price, etc. as long as it fits the data. Now you need to find out the relationship for better choice-making. Your hypothesis is that this relationship can be formalised as: <span class="math display">\[ y = \theta_0~ + \theta_1~x_1\]</span></p>
+<section class="level3" id="example">
+<h3>Example</h3>
+<p>We have a set of simple data (link) for linear regression. A motivational question: house price, etc. as long as it fits the data. Now you need to find out the relationship for better choice-making.</p>
+<p>Your hypothesis is that this relationship can be formalised as: <span class="math display">\[ y = \theta_0~ + \theta_1~x_1\]</span></p>
+<p>Look at the data. Some notation: <span class="math inline">\(n\)</span> is number of training examples, <span class="math inline">\(x\)</span> is input variable, and <span class="math inline">\(y\)</span> is target variable. Image: Visualise of the data, including a line, and a line-to-dot represent distance.</p>
+<p>The target is to choose <span class="math inline">\(\Theta\)</span> so that the line is <em>close</em> to data we observed. Define “close”:</p>
+<p><span class="math display">\[E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)\]</span></p>
+<p>We call it the cost function. It’s physical meaning.</p>
+</section>
+<section class="level3" id="solving-problem-with-gradient-descent">
+<h3>Solving Problem with Gradient Descent</h3>
+<p>Why gradient descent? We have this surf image:</p>
+<p>IMAGE</p>
+<p>It shows how cost function changes with both <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span>. We can thus use GD to locate the local minimal value.</p>
+<p>How GD works:</p>
+<p><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1) \]</span></p>
+<p>The second part means the direction, and the second part gives the step size.</p>
+<p>This seemingly terrible partial derivative is actually simple to do:</p>
+<p>EQUATION</p>
+<p>Following these equations, you can perform the process until converges:</p>
+<p>CODE</p>
+<p>And now we get the result.</p>
+<p>PLOT: the resulting line against data samples.</p>
+<p>Of course, we can also directly use the GD optimisation method in Owl:</p>
+<p>CODE</p>
+<p>The result would be similar.</p>
+</section>
 </section>
 <section class="level2" id="multiple-regression">
 <h2>Multiple Regression</h2>
+<p>Now the same problem, but variables goes from one to multiple. What would you do? Basically similar, but instead of <span class="math inline">\(\theta_0\)</span>, <span class="math inline">\(\theta_1\)</span>, <span class="math inline">\(\theta_2\)</span>, … now we need the vectorised representation: <span class="math inline">\(\Theta\)</span>:</p>
+<p><span class="math display">\[ J(\Theta) = \frac{1}{2n}(X\Theta - y)^2\]</span>.</p>
+<p>Next we focus on some issues.</p>
+<section class="level3" id="feature-regularisation">
+<h3>Feature Regularisation</h3>
+<p>One factor is hundred times larger than the other variables. That’s bad.</p>
+<p>Regularisation</p>
+</section>
+<section class="level3" id="ols-ridge-lasso-and-elastic_net">
+<h3>Ols, Ridge, Lasso, and Elastic_net</h3>
+<p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
+</section>
+<section class="level3" id="analytical-solution">
+<h3>Analytical Solution</h3>
+<p>Besides GD, there is actually one close form solution to Linear Regression:</p>
+<p><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\]</span></p>
+<p>Try this solution, compare the result with that from GD.</p>
+<p>Where does this solution come from.</p>
+<p>It’s pros and cons vs GD.</p>
+</section>
+</section>
+<section class="level2" id="non-linear-regressions">
+<h2>Non-linear regressions</h2>
+<p>Polynomial CODE IMAGE: result visualisation</p>
+<p>Exponential CODE IMAGE: result visualisation</p>
 </section>
 <section class="level2" id="logistic-regression">
 <h2>Logistic Regression</h2>
