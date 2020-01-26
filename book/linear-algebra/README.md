@@ -11,7 +11,9 @@ There are two levels abstraction in Owl's `Linalg` module:
 The example in this chapter mostly use the high level wrapper. Please refer to the last section for details on CBLAS.
 
 
-## Matrices
+## Vectors and Matrices
+
+TODO: introduce vectors
 
 Before diving into the linear algebra, first we need to understand how matrix in Owl works. 
 It is based on ndarray, but provides unique functions. 

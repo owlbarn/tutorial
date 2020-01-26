@@ -22,7 +22,7 @@ Performance; everybody else do that: NumPy, julia
 
 for-loop reduction; mutable operations; multiple implementation
 
-## Mix Them Up in Owl
+## Cook Good Performance with Ingredients
 
 ### Example: Math function
 
