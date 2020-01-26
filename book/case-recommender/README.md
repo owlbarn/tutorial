@@ -1,3 +1,19 @@
 # Case - Recommender System
 
-TBD
+
+## Architecture
+
+
+## Collect and Aggregate
+
+
+## Preprocess News Data
+
+
+## Index Text Corpus
+
+
+## Search Articles
+
+
+## Make It Live
