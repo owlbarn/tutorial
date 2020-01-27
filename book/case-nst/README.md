@@ -19,7 +19,8 @@ Isn’t it amazing?
 Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the [original paper](https://arxiv.org/abs/1508.06576) for more details if you are interested.
 
 The NST can be seen as an optimisation problem: given a content image `c` and a style image `s` , the target is to get an output image `x` so that it minimises:
-$$ f(x) = \textrm{content_distance}(x, c) + \textrm{style_distance}(x, s) $$
+
+$$f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)$$
 
 This equation can be easily translated as: I want to get such an image that its content is close to `c` , but its style similar to `s` .
 
