@@ -14,7 +14,7 @@ RUN opam install core async lambdasoup re sexp_pretty ppx_jane mdx
 
 RUN opam update -q && opam pin --dev-repo owl-symbolic
 
-# install latex
+# install full latex package
 
 RUN apt-get install -y texlive-full
 

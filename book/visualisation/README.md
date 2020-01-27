@@ -105,8 +105,7 @@ In the following, I will provide some examples to show how to use `spec` paramet
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_020.png" alt="plot 020" title="Plot example 20" width="600px" />
-
+![Plot example 20](images/visualisation/plot_020.png "plot_20"){ width=90% }
 
 The second example shows how to tune `surf` plotting function.
 
@@ -137,7 +136,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_021.png" alt="plot 021" title="Plot example 21" width="600px" />
+![Plot example 21](images/visualisation/plot_021.png "plot_21"){ width=90% }
 
 
 ## Subplots
@@ -181,7 +180,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_002.png" alt="plot 002" title="Plot example 002" width="600px" />
+![Plot example 02](images/visualisation/plot_002.png "plot_002"){ width=90% }
 
 
 ## Multiple Lines
@@ -197,7 +196,7 @@ You can certainly plot multiple lines (or other types of plots) on the same page
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_024.png" alt="plot 024" title="Plot example 024" width="500px" />
+![Plot example 24](images/visualisation/plot_024.png "plot_24"){ width=70% }
 
 Here is another example which has both histogram and line plot in one figure.
 
@@ -217,7 +216,7 @@ Here is another example which has both histogram and line plot in one figure.
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_025.png" alt="plot 025" title="Plot example 025" width="500px" />
+![Plot example 25](images/visualisation/plot_025.png "plot_25"){ width=70% }
 
 So as long as you "hold" the plot without calling `Plot.output`, you can plot many data sets in one figure.
 
