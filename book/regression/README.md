@@ -51,22 +51,28 @@ According to this figure, there is a clear trend that larger population and larg
 
 ### Cost Function
 
-Let's start with a linear hypothesis that the the relationship between these two variables be formalised as: 
-$$ y = \theta_0~ + \theta_1~x_1$$,
+Let's start with a linear model that assumes the the relationship between these two variables be formalised as: 
+$$ y = \theta_0~ + \theta_1~x_1 + \epsilon$$,
 where $y$ denotes the profit we want to predict, and input variable $x_1$ is the population number in this example. 
-Also, we have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$.
+Since modelling can hardly make a perfect match with the real data, we use $\epsilon$ to denote the error between our prediction and the data. 
+Specifically, we represent the prediction part as $h(\theta_0, \theta_1)$:
+$$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$
 
-The $\theta_0$ and $theta_1$ are the parameters of this model. Mathematically they decide a line on a plain. 
+The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plain. 
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively.
 Our target is to choose suitable parameters so that the line is *close* to data we observed. 
 
 TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.
 
-Define "close":
+How do we define the line being "close" to the observed data then?
+One frequently used method is to use the *ordinary least square* to minimizes the sum of squared distances between the data and line.
+We have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$, and thus the $i$'th pair of data can be represented with $x_i$ and $y_i$.
+With these notations, we can represent a metric to represent the *closeness* as:
 
-$$E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)$$
+$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2 - y_i)$$
 
-We call it the cost function.
+In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: to minimise the cost function. 
+
 It's physical meaning; maximise likelihood
 
 ### Solving Problem with Gradient Descent
