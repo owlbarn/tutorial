@@ -5,6 +5,8 @@ General idea: given data, make predictions.
 
 ## Model and Error
 
+TODO: what goes here?
+
 ### Standard Errors of Regression Coefficients
 
 ## Linear Regression
@@ -70,11 +72,13 @@ $$ J(\Theta) = \frac{1}{2n}(X\Theta - y)^2$$.
 
 Next we focus on some issues.
 
-### Feature Regularisation
+### Feature Normalisation
 
 One factor is hundred times larger than the other variables. That's bad.
 
 Regularisation
+
+### Regularisation
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 
@@ -104,5 +108,77 @@ IMAGE: result visualisation
 
 ## Logistic Regression
 
+So far we have been predicting a value for our problems, but what if we don't care about is not the value, but a classification? For example, we want to know if this tumour is cancer or not given previous data. 
+
+We can of course continue to use linear regression to represent the possibility of one of these result, but one issue is that, it could well be out of the bounds of [0, 1]. 
+
+### Sigmoid Function 
+
+EQUATION + IMAGE
+
+With this function, instead of $h = \Theta~X$,  the problem can be modelled as:
+
+$$h(\Theta) = g(\Theta~X)$$
+
+Now we can interpret this model easily.
+If it is larger than 0.5, then ... else ...
+
+### Decision Boundary 
+
+Linear 
+
+IMAGE
+
+Non-Linear
+
+IMAGE
+
+Let's use the non-linear one as practice example.
+
+### Cost Function 
+
+With the new model comes new cost function. 
+
+Measure the *distance*:
+Previously for linear regression we have the Euclidean distance of prediction and real value.
+
+Now we defined it this way:
+Cost equation that involves $log$ function.
+Explain how it comes.
+
+Therefore, we have this cost function:
+
+$$ J(\Theta) = \frac{1}{n}\sum_{i=1}^{n}\textrm{Cost}(h_{\Theta}(x_i), y_i)$$
+
+### Gradient Descent
+
+How to solve this terrible equation?
+
+The sigmoid has a nice property: its derivative is simple:
+
+EQUATION
+
+Therefore, similar to LR, we only need to repeat this step until converges:
+
+EQUATION
+
+Let's write that in Owl:
+
+CODE #1: plain code 
+
+CODE #2: use existing function in Owl 
+
+Plotting the boundaries.
 
 ## Support Vector Machine
+
+It's a similar idea to logistic regression.
+
+Explain the history and basic idea about SVM. It's difference with Log Reg.
+
+Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
+
+
+## Exercise 
+
+(Regularisation of logistic regression could be used as an excise )
