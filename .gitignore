@@ -4,4 +4,8 @@ _opam
 *.install
 .merlin
 
+docs/*.log
+docs/*.tex
+docs/*.pdf
+
 .DS_Store

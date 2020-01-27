@@ -38,7 +38,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
 
 The generated figure is as below.
 
-<img src="images/visualisation/plot_001.png" alt="plot 001" title="Plot example 1" width="500px" />
+![Plot example 01](images/visualisation/plot_001.png "plot_01"){ width=70% }
 
 Another example follows,
 
@@ -69,7 +69,7 @@ Another example follows,
 - : unit = ()
 ```
 
-<img src="images/visualisation/plot_023.png" alt="plot 023" title="Plot example two" width="600px" />
+![Plot example 23](images/visualisation/plot_023.png "plot_23"){ width=90% }
 
 
 ## Specification
