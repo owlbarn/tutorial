@@ -52,7 +52,7 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 
 In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.
 
-<img src="images/stats/plot_02.png" alt="plot 02" title="Plot 02" width="700px" />
+![Plot 02](images/stats/plot_02.png "plot 02"){ width=90% }
 
 As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
 
@@ -137,7 +137,7 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 
 The subfigure 1 shows the functional relation between `x` and `y` whilst the subfiture 2 shows the relation between `x` and `z`. Because we have added higher-level noise to `z`, the points in the second figure are more diffused.
 
-<img src="images/stats/plot_01.png" alt="plot 01" title="Plot 01" width="700px" />
+![Plot 01](images/stats/plot_01.png "plot 01"){ width=90% }
 
 
 Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.

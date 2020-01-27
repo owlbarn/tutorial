@@ -342,8 +342,7 @@ To load the image into browser, we need to call `Jupyter_notebook.display_file` 
 Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 ```
 
-<img src="images/introduction/plot_00.png" alt="plot_00" title="Jupyter example 00" width="500px" />
-
+![Plot example 00](images/introduction/plot_00.png "plot_00"){ width=90% }
 
 Even though the extra call to `display_file` is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.
 
@@ -370,6 +369,6 @@ For the time being, if you want to save that extra line to display a image in Ju
 - : unit = ()
 ```
 
-<img src="images/introduction/plot_01.png" alt="plot_01" title="Jupyter example 01" width="700px" />
+![Plot example 01](images/introduction/plot_01.png "plot_01"){ width=90% }
 
 From the example above, you can see Owl users' experience can be significantly improved.
