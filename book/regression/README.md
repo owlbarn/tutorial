@@ -5,9 +5,11 @@ General idea: given data, make predictions.
 
 ## Model and Error
 
-TODO: what goes here?
-
 ### Standard Errors of Regression Coefficients
+
+### Model Selection
+
+Feature selection: REFER to ISL book Chap 6.
 
 ## Linear Regression
 
@@ -28,7 +30,7 @@ Define "close":
 $$E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)$$
 
 We call it the cost function.
-It's physical meaning.
+It's physical meaning; maximise likelihood
 
 ### Solving Problem with Gradient Descent
 
@@ -144,7 +146,7 @@ Previously for linear regression we have the Euclidean distance of prediction an
 
 Now we defined it this way:
 Cost equation that involves $log$ function.
-Explain how it comes.
+Explain how it comes: maximise the log likelihood
 
 Therefore, we have this cost function:
 
@@ -170,6 +172,29 @@ CODE #2: use existing function in Owl
 
 Plotting the boundaries.
 
+### Multi-class classification 
+
+Similar to the LR problem, you hardly stop at 2 parameters. What if we need to classified an object into one fo multiple classes?
+
+One popular classification problem is the hand-written recognition task. It is...
+It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN.
+For now, we solve that from the logistic regression line of thought. 
+
+Dataset description
+Visualise
+
+Similarly, we extend the cost function towards multi-class:
+
+EQUATION
+
+We can also use the generalised version of GD as before, or directly apply GD method in Owl:
+
+CODE
+
+Let's apply the model on test data:
+
+result.
+
 ## Support Vector Machine
 
 It's a similar idea to logistic regression.
@@ -181,4 +206,4 @@ Apply the SVM to the previous problem, with multiple choices of kernel, and then
 
 ## Exercise 
 
-(Regularisation of logistic regression could be used as an excise )
+Regularisation of logistic regression could be used as an excise

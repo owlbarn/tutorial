@@ -3,9 +3,12 @@
 <p>An important part of Machine Learning (supervised learning). General idea: given data, make predictions.</p>
 <section class="level2" id="model-and-error">
 <h2>Model and Error</h2>
-<p>TODO: what goes here?</p>
 <section class="level3" id="standard-errors-of-regression-coefficients">
 <h3>Standard Errors of Regression Coefficients</h3>
+</section>
+<section class="level3" id="model-selection">
+<h3>Model Selection</h3>
+<p>Feature selection: REFER to ISL book Chap 6.</p>
 </section>
 </section>
 <section class="level2" id="linear-regression">
@@ -17,7 +20,7 @@
 <p>Look at the data. Some notation: <span class="math inline">\(n\)</span> is number of training examples, <span class="math inline">\(x\)</span> is input variable, and <span class="math inline">\(y\)</span> is target variable. Image: Visualise of the data, including a line, and a line-to-dot represent distance.</p>
 <p>The target is to choose <span class="math inline">\(\Theta\)</span> so that the line is <em>close</em> to data we observed. Define “close”:</p>
 <p><span class="math display">\[E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)\]</span></p>
-<p>We call it the cost function. It’s physical meaning.</p>
+<p>We call it the cost function. It’s physical meaning; maximise likelihood</p>
 </section>
 <section class="level3" id="solving-problem-with-gradient-descent">
 <h3>Solving Problem with Gradient Descent</h3>
@@ -92,7 +95,7 @@
 <h3>Cost Function</h3>
 <p>With the new model comes new cost function.</p>
 <p>Measure the <em>distance</em>: Previously for linear regression we have the Euclidean distance of prediction and real value.</p>
-<p>Now we defined it this way: Cost equation that involves <span class="math inline">\(log\)</span> function. Explain how it comes.</p>
+<p>Now we defined it this way: Cost equation that involves <span class="math inline">\(log\)</span> function. Explain how it comes: maximise the log likelihood</p>
 <p>Therefore, we have this cost function:</p>
 <p><span class="math display">\[ J(\Theta) = \frac{1}{n}\sum_{i=1}^{n}\textrm{Cost}(h_{\Theta}(x_i), y_i)\]</span></p>
 </section>
@@ -108,6 +111,18 @@
 <p>CODE #2: use existing function in Owl</p>
 <p>Plotting the boundaries.</p>
 </section>
+<section class="level3" id="multi-class-classification">
+<h3>Multi-class classification</h3>
+<p>Similar to the LR problem, you hardly stop at 2 parameters. What if we need to classified an object into one fo multiple classes?</p>
+<p>One popular classification problem is the hand-written recognition task. It is… It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought.</p>
+<p>Dataset description Visualise</p>
+<p>Similarly, we extend the cost function towards multi-class:</p>
+<p>EQUATION</p>
+<p>We can also use the generalised version of GD as before, or directly apply GD method in Owl:</p>
+<p>CODE</p>
+<p>Let’s apply the model on test data:</p>
+<p>result.</p>
+</section>
 </section>
 <section class="level2" id="support-vector-machine">
 <h2>Support Vector Machine</h2>
@@ -117,7 +132,7 @@
 </section>
 <section class="level2" id="exercise">
 <h2>Exercise</h2>
-<p>(Regularisation of logistic regression could be used as an excise )</p>
+<p>Regularisation of logistic regression could be used as an excise</p>
 </section>
 </section>
 </article></div><a href="neural-network.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 14</small>Deep Neural Networks</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
