@@ -29,8 +29,7 @@ In general, SI is much newer and recommended to use. International System of Uni
 
 Here is a nice [one-page poster](http://www.npl.co.uk/upload/pdf/units-of-measurement-poster.pdf) from NPL to summarise what have talked about SI.
 
-
-<img src="images/constant/metric_001.png" alt="owl_constants_001" title="Owl constants" width="700px" />
+![Owl constants](images/constant/metric_001.png "owl_constants_001"){ width=90% }
 
 
 ## SI Prefix

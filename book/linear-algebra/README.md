@@ -147,7 +147,7 @@ Plot.spy ~h z;
 Plot.output h;;
 ```
 
-<img src="images/matrix/plot_00.png" alt="plot 00" title="matrix example 00" width="700px" />
+![Matrix Example 00](images/matrix/plot_00.png "plot 00"){ width=90% }
 
 
 ### Access Elements
@@ -571,9 +571,7 @@ let t1_sol () =
   Plot.output h
 ```
 
-<img src="images/linear-algebra/plot_00.png" alt="plot 00" title="Linalg example 00" width="600px" />
-
-
+![Linalg Example 00](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% }
 
 Some discussion about the implementation details of `linsolve`.
 

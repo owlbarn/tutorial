@@ -43,7 +43,9 @@ Plot.plot ~h x y4;
 Plot.output h;;</code></pre>
 </div>
 <p>Start your <code>utop</code>, then load and open <code>Owl</code> library. Copy and past the code above, the generated figure will look like this.</p>
-<p><img width="600px" title="higher order derivatives" alt="plot 00" src="images/algodiff/plot_00.png"></p>
+<figure>
+<img alt="" style="width:90.0%" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>higher order derivatives</figcaption>
+</figure>
 <p>If you replace <code>f0</code> in the previous example with the following definition, then you will have another good-looking figure :)</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f0 x = Maths.(
@@ -113,7 +115,9 @@ let h = Plot.create "plot_01.png" in
 Plot.plot_fun ~h g (-5.) 5.;
 Plot.output h;;</code></pre>
 </div>
-<p><img width="600px" title="gradient descent" alt="plot 00" src="images/algodiff/plot_01.png"></p>
+<figure>
+<img alt="" style="width:90.0%" title="plot 01" src="images/algodiff/plot_01.png"><figcaption>gradient descent</figcaption>
+</figure>
 </section>
 <section class="level3" id="example-newtons-algorithm">
 <h3>Example : Newton’s Algorithm</h3>
@@ -254,6 +258,9 @@ newton f (Mat.uniform 1 2)
 </div>
 <p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl’s example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
 <p>.. figure:: ../figure/plot_034.png :width: 100% :align: center :alt: mnist experiment</p>
+<figure>
+<img alt="" style="width:100.0%" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>mnist experiment</figcaption>
+</figure>
 </section>
 <section class="level3" id="example-computation-graph-of-simple-functions">
 <h3>Example: Computation Graph of Simple Functions</h3>
@@ -272,7 +279,9 @@ newton f (Mat.uniform 1 2)
 <pre><code class="language-ocaml">let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |&gt; sum)</code></pre>
 </div>
 <p>The generated computation graph looks like this.</p>
-<p>.. figure:: ../figure/plot_028.png :scale: 100 % :align: center :alt: computation graph of simple functions</p>
+<figure>
+<img alt="" style="width:100.0%" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>computation graph of VGG</figcaption>
+</figure>
 </section>
 <section class="level3" id="example-computation-graph-of-vgg-like-neural-network">
 <h3>Example: Computation Graph of VGG-like Neural Network</h3>
@@ -297,7 +306,9 @@ let make_network input_shape =
   |&gt; get_network</code></pre>
 </div>
 <p>The computation graph for this neural network become a bit more complicated now.</p>
-<p>.. figure:: ../figure/plot_029.png :width: 100% :align: center :alt: computation graph of VGG</p>
+<figure>
+<img alt="" style="width:100.0%" title="plot 029" src="images/algodiff/plot_029.png"><figcaption>computation graph of VGG</figcaption>
+</figure>
 </section>
 <section class="level3" id="example-computation-graph-of-lstm-network">
 <h3>Example: Computation Graph of LSTM Network</h3>
@@ -315,13 +326,17 @@ let make_network wndsz vocabsz =
   |&gt; get_network</code></pre>
 </div>
 <p>However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
-<p>.. figure:: ../figure/plot_030.png :width: 100% :align: center :alt: computation graph of lstm</p>
+<figure>
+<img alt="" style="width:100.0%" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>computation graph of lstm</figcaption>
+</figure>
 </section>
 <section class="level3" id="example-computation-graph-of-googles-inception">
 <h3>Example: Computation Graph of Google’s Inception</h3>
 <p>If the computation graph above hasn’t scared you yet, here is another one generated from Google’s Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl’s zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
 <p>The image below is too small to check details, please download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf">PDF file 2</a>.</p>
-<p>.. figure:: ../figure/plot_031.png :width: 100% :align: center :alt: computation graph of inception</p>
+<figure>
+<img alt="" style="width:100.0%" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>computation graph of inception</figcaption>
+</figure>
 </section>
 </section>
 </section>

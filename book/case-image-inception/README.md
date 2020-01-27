@@ -16,9 +16,7 @@ There exist many good deep learning frameworks that can be used to do image clas
 As a prerequisite, please make sure that the tool [ImageMagick](https://www.imagemagick.org/) is installed.
 Besides, prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter: 
 
-<p align="center">
-  <img src="images/case-image-inception/panda.png">
-</p>
+![](images/case-image-inception/panda.png){.align-center}
 
 ## Running Inference
 

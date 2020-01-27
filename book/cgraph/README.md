@@ -61,7 +61,7 @@ Owl implements the computation graph in a very unique and interesting way. Let's
 
 The computation graph is implemented in a very self-contained stack. I have devised a good way to "inject" it into Owl's original functor stack. If it sounds too abstract, please have a look at the final product in the following figure.
 
-<img src="images/cgraph/owl_cgraph_functor_stack.png" alt="owl_cgraph_functor_stack" title="Computation graph stack" width="700px" />
+![Computation graph stack](images/cgraph/owl_cgraph_functor_stack.png "owl_cgraph_functor_stack"){ width=90% }
 
 
 The left figure shows part of Owl's original functor stack, and the right one shows how the current one looks like after injection. We know the functor stack plays a central role in Owl's architecture. In the old design, Ndarray implements a set of fundamental n-dimensional array operations, then Algodiff defines abstract mathematical operations for differentiation, finally Optimise engine glues low-level maths with high-level deep neural network applications. The whole stack is parameterised by the number type abstraction in Ndarray.
@@ -96,15 +96,15 @@ The Optimiser functor searches for various structural patterns in a graph, remov
 
 *Constant folding* is a very basic pattern to reduce graph size. We can pre-calculate some subgraphs. For example, the inputs which node `#241` depends on are all constants, so the value of `#241` is already decided. We can fold all the constants to node `#241` before evaluating the whole graph.
 
-<img src="images/cgraph/owl_cgraph_opt_0.png" alt="owl_cgraph_opt_0" title="Computation graph" width="700px" />
+![Computation graph](images/cgraph/owl_cgraph_opt_0.png "owl_cgraph_opt_0"){ width=90% }
 
 *Fusing operations* can effectively reduce the round trips to the memory, which saves a lot of time when operating large ndarrys. In the figure below, nodes `#421`, `#463`, and `#464` are fused into one `fma` node (i.e. fused-multiply-add operation), which also improves numerical accuracy. Owl also recognises quite complicated patterns, e.g. pattern formed by nodes `#511` -- `#515` appears a lot in DNN training that uses Adagrad (Adaptive Subgradient Methods), the Optimiser is able to fuse all these operations into one-pass calculation.
 
-<img src="images/cgraph/owl_cgraph_opt_1.png" alt="owl_cgraph_opt_1" title="Computation graph" width="700px" />
+![Computation graph](images/cgraph/owl_cgraph_opt_1.png "owl_cgraph_opt_1"){ width=90% }
 
 In the next example, *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for `repeat` operation is also removed because `add` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
 
-<img src="images/cgraph/owl_cgraph_opt_2.png" alt="owl_cgraph_opt_2" title="Computation graph" width="700px" />
+![Computation graph](images/cgraph/owl_cgraph_opt_2.png "owl_cgraph_opt_2"){ width=90% }
 
 To understand how effective the Optimiser works, I present both the [original computation graph](images/cgraph/owl_cgraph_mnist_raw.png) and the [optimised graph](images/cgraph/owl_cgraph_mnist_opt.png) taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
 

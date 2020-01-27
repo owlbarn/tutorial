@@ -48,7 +48,7 @@ Plot.output h;;
 
 Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
 
-<img src="images/algodiff/plot_00.png" alt="plot 00" title="higher order derivatives" width="600px" />
+![higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% }
 
 If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
 
@@ -133,7 +133,7 @@ Plot.plot_fun ~h g (-5.) 5.;
 Plot.output h;;
 ```
 
-<img src="images/algodiff/plot_01.png" alt="plot 00" title="gradient descent" width="600px" />
+![gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90% }
 
 ### Example : Newton's Algorithm
 
@@ -296,6 +296,8 @@ Yes, we just used only 13 lines of code to implement the backpropagation. Actual
    :align: center
    :alt: mnist experiment
 
+![mnist experiment](images/algodiff/plot_034.png "plot 034"){ width=100% }
+
 
 ### Example: Computation Graph of Simple Functions
 
@@ -321,11 +323,7 @@ let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum
 
 The generated computation graph looks like this.
 
-.. figure:: ../figure/plot_028.png
-   :scale: 100 %
-   :align: center
-   :alt: computation graph of simple functions
-
+![computation graph of VGG](images/algodiff/plot_028.png "plot 028"){ width=100% }
 
 
 ### Example: Computation Graph of VGG-like Neural Network
@@ -354,10 +352,7 @@ let make_network input_shape =
 
 The computation graph for this neural network become a bit more complicated now.
 
-.. figure:: ../figure/plot_029.png
-   :width: 100%
-   :align: center
-   :alt: computation graph of VGG
+![computation graph of VGG](images/algodiff/plot_029.png "plot 029"){ width=100% }
 
 
 ### Example: Computation Graph of LSTM Network
@@ -379,10 +374,7 @@ let make_network wndsz vocabsz =
 
 However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
-.. figure:: ../figure/plot_030.png
-   :width: 100%
-   :align: center
-   :alt: computation graph of lstm
+![computation graph of lstm](images/algodiff/plot_030.png "plot 030"){ width=100% }
 
 
 ### Example: Computation Graph of Google's Inception
@@ -391,7 +383,5 @@ If the computation graph above hasn't scared you yet, here is another one genera
 
 The image below is too small to check details, please download the [PDF file 2](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf).
 
-.. figure:: ../figure/plot_031.png
-   :width: 100%
-   :align: center
-   :alt: computation graph of inception
+
+![computation graph of inception](images/algodiff/plot_031.png "plot 031"){ width=100% }
