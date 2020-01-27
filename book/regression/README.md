@@ -1,7 +1,11 @@
 # Regression
 
-An important part of Machine Learning (supervised learning).
-General idea: given data, make predictions.
+Regression is an important topic in statistical modelling and machine learning. 
+It's about modelling problems that includes one or more variables (also called "features" or "predictors") and making predictions of another variable ("output variable") based on previous data of predictors. 
+
+Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields.
+Introducing all these models are beyond this book.
+In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve problems. 
 
 ## Model and Error
 
@@ -13,10 +17,38 @@ Feature selection: REFER to ISL book Chap 6.
 
 ## Linear Regression
 
-### Example
+Linear regression models the relationship of the features and output variable with a linear model. 
+Let's start with a simple problem where only one feature needs to be considered. 
 
-We have a set of simple data (link) for linear regression.
-A motivational question: house price, etc. as long as it fits the data. Now you need to find out the relationship for better choice-making. 
+### Problem: Where to locate a new McDonald's restaurant?
+
+McDonald's is no doubt one of the most successful fast food chains in the world. Up to 2018, it has already had more than 37, 000 stores world wide, and surely more is being built as you are reading.
+One question then is: where to locate a new McDonald's restaurant? 
+
+According to its [website](https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#), a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. 
+Now let's simplified this problem by asserting that the potential profit is only related to area population. 
+Suppose you are the decision maker in McDonald's, and also have access to data of each branch store (profit, population around this branch). 
+Now linear regression would be a good friend when you are deciding where to locate your next branch.
+
+Here list a part of the data (TODO: link to csv file):
+
+| Profit | Population |
+| :----: | :--------: |
+| 20.27 | 21.76 |
+| 5.49  | 4.26 |
+| 6.32  | 5.18 |
+| 5.56  | 3.08 |
+| 18.94 | 22.63 |
+| 12.82 | 13.50 |
+| ... | ... |
+
+
+Visualising these data can present a clear view.
+
+CODE and IMAGE in Owl 
+
+### Cost Function
+
 
 Your hypothesis is that this relationship can be formalised as:
 $$ y = \theta_0~ + \theta_1~x_1$$
@@ -194,6 +226,8 @@ CODE
 Let's apply the model on test data:
 
 result.
+
+Discussion on accuracy and possible improvement. Leave for exercise. 
 
 ## Support Vector Machine
 
