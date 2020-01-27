@@ -12,7 +12,7 @@ docker:
 	docker build -t owlbarn/book:latest .
 
 compile: test
-	@dune build @site
+	-dune build @site @pdf
 	@echo Site has been generated in _build/default/static/
 	cp -r _build/default/static/* docs/
 	git add docs
