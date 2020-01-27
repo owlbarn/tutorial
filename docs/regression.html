@@ -59,13 +59,15 @@
 </tbody>
 </table>
 <p>Visualising these data can present a clear view.</p>
-<p>CODE and IMAGE in Owl</p>
+<p>TODO: CODE and IMAGE in Owl</p>
+<p>According to this figure, there is a clear trend that larger population and larger profit are co-related together. But precisely how?</p>
 </section>
 <section class="level3" id="cost-function">
 <h3>Cost Function</h3>
-<p>Your hypothesis is that this relationship can be formalised as: <span class="math display">\[ y = \theta_0~ + \theta_1~x_1\]</span></p>
-<p>Look at the data. Some notation: <span class="math inline">\(n\)</span> is number of training examples, <span class="math inline">\(x\)</span> is input variable, and <span class="math inline">\(y\)</span> is target variable. Image: Visualise of the data, including a line, and a line-to-dot represent distance.</p>
-<p>The target is to choose <span class="math inline">\(\Theta\)</span> so that the line is <em>close</em> to data we observed. Define “close”:</p>
+<p>Let’s start with a linear hypothesis that the the relationship between these two variables be formalised as: <span class="math display">\[ y = \theta_0~ + \theta_1~x_1\]</span>, where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Also, we have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>.</p>
+<p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plain. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
+<p>TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.</p>
+<p>Define “close”:</p>
 <p><span class="math display">\[E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)\]</span></p>
 <p>We call it the cost function. It’s physical meaning; maximise likelihood</p>
 </section>

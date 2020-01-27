@@ -45,18 +45,23 @@ Here list a part of the data (TODO: link to csv file):
 
 Visualising these data can present a clear view.
 
-CODE and IMAGE in Owl 
+TODO: CODE and IMAGE in Owl 
+
+According to this figure, there is a clear trend that larger population and larger profit are co-related together. But precisely how?
 
 ### Cost Function
 
+Let's start with a linear hypothesis that the the relationship between these two variables be formalised as: 
+$$ y = \theta_0~ + \theta_1~x_1$$,
+where $y$ denotes the profit we want to predict, and input variable $x_1$ is the population number in this example. 
+Also, we have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$.
 
-Your hypothesis is that this relationship can be formalised as:
-$$ y = \theta_0~ + \theta_1~x_1$$
+The $\theta_0$ and $theta_1$ are the parameters of this model. Mathematically they decide a line on a plain. 
+We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively.
+Our target is to choose suitable parameters so that the line is *close* to data we observed. 
 
-Look at the data. Some notation: $n$ is number of training examples, $x$ is input variable, and $y$ is target variable.
-Image: Visualise of the data, including a line, and a line-to-dot represent distance. 
+TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.
 
-The target is to choose $\Theta$ so that the line is *close* to data we observed. 
 Define "close":
 
 $$E(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\Theta}(x_i - y_i)^2)$$
