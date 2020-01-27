@@ -13,7 +13,8 @@
 <section class="level2" id="nst-a-very-brief-theory">
 <h2>NST: A Very Brief Theory</h2>
 <p>Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
-<p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises: <span class="math display">\[ f(x) = \textrm{content_distance}(x, c) + \textrm{style_distance}(x, s) \]</span></p>
+<p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises:</p>
+<p><span class="math display">\[f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)\]</span></p>
 <p>This equation can be easily translated as: I want to get such an image that its content is close to <code>c</code> , but its style similar to <code>s</code> .</p>
 <p>DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions. Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .</p>
 </section>
