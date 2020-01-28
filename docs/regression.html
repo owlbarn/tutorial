@@ -96,9 +96,71 @@
 </section>
 <section class="level2" id="multiple-regression">
 <h2>Multiple Regression</h2>
-<p>Now the same problem, but variables goes from one to multiple. What would you do? Basically similar, but instead of <span class="math inline">\(\theta_0\)</span>, <span class="math inline">\(\theta_1\)</span>, <span class="math inline">\(\theta_2\)</span>, … now we need the vectorised representation: <span class="math inline">\(\Theta\)</span>:</p>
-<p><span class="math display">\[ J(\Theta) = \frac{1}{2n}(X\Theta - y)^2\]</span>.</p>
-<p>Next we focus on some issues.</p>
+<p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of it’s surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affects the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
+<p>The answer is very straight forward. We just use more parameters, so the model becomes:</p>
+<p><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \]</span></p>
+<p>However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. Therefore, we use the vectorised format in the model: <span class="math display">\[h(\Theta) = \Theta~X^{(i)}\]</span>, where <span class="math inline">\(\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(X^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
+<p>Accordingly, the cost function can be represented as: <span class="math display">\[ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\]</span>, where <span class="math inline">\(y^{(i)}\)</span> is the output variable value on the <span class="math inline">\(i\)</span>th row of input data.</p>
+<p>The derivative and manual gradient descent are left as exercise. Here we only show an example of using the regression function Owl has provided. Similar to the previous problem, we provide some data to this multiple variable problem. Part of the data are listed below:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">x_1</th>
+<th style="text-align: center;">x_2</th>
+<th style="text-align: center;">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1888</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">255000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1604</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">242900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1962</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">259900</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3890</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">573900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1100</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">249900</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1458</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">464500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2526</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">469000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2200</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">475000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+</tr>
+</tbody>
+</table>
+<p>The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.</p>
+<p>CODE + result</p>
+<p>However, result is not the end. There we discuss some important issues.</p>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
 <p>One factor is hundred times larger than the other variables. That’s bad.</p>
@@ -108,6 +170,7 @@
 </section>
 <section class="level3" id="ols-ridge-lasso-and-elastic_net">
 <h3>Ols, Ridge, Lasso, and Elastic_net</h3>
+<p>You might notice that</p>
 <p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
 </section>
 <section class="level3" id="analytical-solution">
@@ -185,7 +248,10 @@
 </section>
 <section class="level2" id="exercise">
 <h2>Exercise</h2>
-<p>Regularisation of logistic regression could be used as an excise</p>
+<ol type="1">
+<li>Manual gradient descent and optimizer on multiple variable problem</li>
+<li>Regularisation of logistic regression could be used as an excise</li>
+</ol>
 </section>
 </section>
 </article></div><a href="neural-network.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 14</small>Deep Neural Networks</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

@@ -129,12 +129,46 @@ CODE and result (no need to figure).
 
 ## Multiple Regression
 
-Now the same problem, but variables goes from one to multiple. What would you do?
-Basically similar, but instead of $\theta_0$, $\theta_1$, $\theta_2$, ... now we need the vectorised representation: $\Theta$:
+Back to our McDonald's problem. We have seen how a new store's profit can be related to the population of it's surrounding, and we can even predict it given previous data. 
+Now, remember that in the real world, population is not the only input features that affects the store's profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. 
+In that case, how can we extend our one-variable linear regression to the case of multiple variables?
 
-$$ J(\Theta) = \frac{1}{2n}(X\Theta - y)^2$$.
+The answer is very straight forward. We just use more parameters, so the model becomes:
 
-Next we focus on some issues.
+$$h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... $$
+
+However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. 
+Therefore, we use the vectorised format in the model:
+$$h(\Theta) = \Theta~X^{(i)}$$,
+where $\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]$, and $X^{(i)} = [1, x_1, x_2, x_3, ...]^T$ contains all the features from the $i$th row in data.
+
+Accordingly, the cost function can be represented as:
+$$ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
+where $y^{(i)}$ is the output variable value on the $i$th row of input data. 
+
+The derivative and manual gradient descent are left as exercise. 
+Here we only show an example of using the regression function Owl has provided.
+Similar to the previous problem, we provide some data to this multiple variable problem. 
+Part of the data are listed below:
+
+| x_1  | x_2  | y    |
+| :--: | :--: | :--: |
+| 1888 | 2 | 255000  |
+| 1604 | 3 | 242900  |
+| 1962 | 4 | 259900  |
+| 3890 | 3 | 573900  |
+| 1100 | 3 | 249900  |
+| 1458 | 3 | 464500  |
+| 2526 | 3 | 469000  |
+| 2200 | 3 | 475000  |
+| ...  | ... | ...   |
+
+The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
+
+CODE + result
+
+However, result is not the end. 
+There we discuss some important issues. 
 
 ### Feature Normalisation
 
@@ -143,6 +177,8 @@ One factor is hundred times larger than the other variables. That's bad.
 ### Regularisation
 
 ### Ols, Ridge, Lasso, and Elastic_net 
+
+You might notice that 
 
 [REFER](https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net)
 
@@ -268,4 +304,5 @@ Apply the SVM to the previous problem, with multiple choices of kernel, and then
 
 ## Exercise 
 
-Regularisation of logistic regression could be used as an excise
+1. Manual gradient descent and optimizer on multiple variable problem
+1. Regularisation of logistic regression could be used as an excise
