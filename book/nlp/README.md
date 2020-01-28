@@ -134,20 +134,32 @@ Show how to further process vocabulary by trim out top and bottom frequency word
 
 ## Vector Space Models
 
+Survey, explain what is VSM, documents become vectors, i.e. a point in high-dimensional space. With VSM, we can cluster the documents based on their proximity, i.e. similarity.
+
 
 ## Bag of Words (BOW)
+
+Explain what is BOW
 
 
 ## Term Frequency–Inverse Document Frequency (TFIDF)
 
+Explain what is TFIDF, mention Cambridge Wolfson fellow.
+
 
 ## Latent Dirichlet Allocation (LDA)
+
+Explain what is LDA.
 
 
 ## Latent Semantic Analysis (LSA)
 
+Explain what is LSA, and how it differs from LDA wrt to derived topics.
+
 
 ## Indexing and Searching
+
+First implement linear search, then explain random projection and implement a naive version.
 
 
 ## Conclusion
