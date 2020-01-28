@@ -351,9 +351,7 @@ But one problem is that, the prediction value could well be out of the bounds of
 
 ### Sigmoid Function 
 
-The solution is to use the sigmoid function (or logistic function):
-
-$f(x) = \frac{1}{1 + e^{-x}$.
+The solution is to use the sigmoid function (or logistic function): $f(x) = \frac{1}{1 + e^{-x}}$.
 
 As shown in the figure, this function project value within the range of [0, 1].
 Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
@@ -395,7 +393,7 @@ TODO: explain how to come up with this equation. About maximise the log likeliho
 Again the question is how to solve this terrible equation? 
 Luckily, The sigmoid function has a nice property: its derivative is simple. 
 
-$$ \frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
+$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
 
 This gradient looks the same to that in linear regression, but it's actually different, since the definition of $h$ is actually different. 
 Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges.
@@ -452,7 +450,6 @@ An SVM model is a representation of the examples as points in space, mapped so t
 Explain the history and basic idea about SVM.
 
 TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
-
 
 ## Exercise 
 
