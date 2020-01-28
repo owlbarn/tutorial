@@ -22,25 +22,25 @@
   |&gt; Bytes.of_string
 
 let preprocess input_file =
-    let output_file = input_file ^ ".output" in
-    Nlp.Corpus.preprocess simple_process input_file output_file</code></pre>
+  let output_file = input_file ^ ".output" in
+  Nlp.Corpus.preprocess simple_process input_file output_file</code></pre>
 </div>
 <p>Then let’s build vocabulary out of the text corpus.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_vocabulary input_file =
-    let vocab = Nlp.Vocabulary.build input_file in
+  let vocab = Nlp.Vocabulary.build input_file in
 
-    (* print out the words of highest frequency *)
-    Nlp.Vocabulary.top vocab 10 |&gt;
-    Owl.Utils.Array.to_string ~sep:", " fst;
+  (* print out the words of highest frequency *)
+  Nlp.Vocabulary.top vocab 10 |&gt;
+  Owl.Utils.Array.to_string ~sep:", " fst;
 
-    (* print out the words of lowest frequency*)
-    Nlp.Vocabulary.bottom vocab 10 |&gt;
-    Owl.Utils.Array.to_string ~sep:", " fst;
+  (* print out the words of lowest frequency*)
+  Nlp.Vocabulary.bottom vocab 10 |&gt;
+  Owl.Utils.Array.to_string ~sep:", " fst;
 
-    (* save the vocabulary *)
-    let output_file = input_file ^ ".vocab" in 
-    Nlp.Vocabulary.save vocab output_file</code></pre>
+  (* save the vocabulary *)
+  let output_file = input_file ^ ".vocab" in 
+  Nlp.Vocabulary.save vocab output_file</code></pre>
 </div>
 <p>The progress of building the vocabulary is printed out. After the vocabular is built, the token of the highest frequency is printed out.</p>
 <div class="highlight">
@@ -58,13 +58,13 @@ let preprocess input_file =
 <p>Now let’s trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely triming off top and bottom 1% of the words.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let trim_vocabulary vocab =
-    Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab</code></pre>
+  Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab</code></pre>
 </div>
 <p>With a vocabulary at hands, now we are ready to tokenise a piece of text.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let tokenise vocab text =
-    String.split_on_char ' ' text |&gt; 
-    List.map (Nlp.Vocabulary.word2index vocab)</code></pre>
+  String.split_on_char ' ' text |&gt; 
+  List.map (Nlp.Vocabulary.word2index vocab)</code></pre>
 </div>
 <p>For example, if we tokenise “this is owl book”, you will get the following output.</p>
 <div class="highlight">
@@ -77,9 +77,9 @@ let preprocess input_file =
 <p>Show how to build corpus using a convenient function in <code>Nlp.Corpus</code></p>
 <div class="highlight">
 <pre><code class="language-ocaml">let main () =
-    let corpus = Nlp.Corpus.build "news.txt" in
-    Nlp.Corpus.save corpus "news.corpus";
-    Nlp.Corpus.print corpus</code></pre>
+  let corpus = Nlp.Corpus.build "news.txt" in
+  Nlp.Corpus.save corpus "news.corpus";
+  Nlp.Corpus.print corpus</code></pre>
 </div>
 <p>The output is like this …</p>
 <div class="highlight">

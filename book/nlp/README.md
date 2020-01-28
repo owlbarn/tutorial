@@ -29,27 +29,27 @@ let simple_process s =
   |> Bytes.of_string
 
 let preprocess input_file =
-    let output_file = input_file ^ ".output" in
-    Nlp.Corpus.preprocess simple_process input_file output_file
+  let output_file = input_file ^ ".output" in
+  Nlp.Corpus.preprocess simple_process input_file output_file
 ```
 
 Then let's build vocabulary out of the text corpus.
 
 ```ocaml
 let build_vocabulary input_file =
-    let vocab = Nlp.Vocabulary.build input_file in
+  let vocab = Nlp.Vocabulary.build input_file in
 
-    (* print out the words of highest frequency *)
-    Nlp.Vocabulary.top vocab 10 |>
-    Owl.Utils.Array.to_string ~sep:", " fst;
+  (* print out the words of highest frequency *)
+  Nlp.Vocabulary.top vocab 10 |>
+  Owl.Utils.Array.to_string ~sep:", " fst;
 
-    (* print out the words of lowest frequency*)
-    Nlp.Vocabulary.bottom vocab 10 |>
-    Owl.Utils.Array.to_string ~sep:", " fst;
+  (* print out the words of lowest frequency*)
+  Nlp.Vocabulary.bottom vocab 10 |>
+  Owl.Utils.Array.to_string ~sep:", " fst;
 
-    (* save the vocabulary *)
-    let output_file = input_file ^ ".vocab" in 
-    Nlp.Vocabulary.save vocab output_file
+  (* save the vocabulary *)
+  let output_file = input_file ^ ".vocab" in 
+  Nlp.Vocabulary.save vocab output_file
 ```
 
 The progress of building the vocabulary is printed out. After the vocabular is built, the token of the highest frequency is printed out.
@@ -71,15 +71,15 @@ Now let's trim off some most and least frequency words. You can trim either by a
 
 ```ocaml
 let trim_vocabulary vocab =
-    Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab
+  Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab
 ```
 
 With a vocabulary at hands, now we are ready to tokenise a piece of text.
 
 ```ocaml
 let tokenise vocab text =
-    String.split_on_char ' ' text |> 
-    List.map (Nlp.Vocabulary.word2index vocab)
+  String.split_on_char ' ' text |> 
+  List.map (Nlp.Vocabulary.word2index vocab)
 ```
 
 For example, if we tokenise "this is owl book", you will get the following output.
@@ -97,9 +97,9 @@ Show how to build corpus using a convenient function in `Nlp.Corpus`
 
 ```ocaml
 let main () =
-    let corpus = Nlp.Corpus.build "news.txt" in
-    Nlp.Corpus.save corpus "news.corpus";
-    Nlp.Corpus.print corpus
+  let corpus = Nlp.Corpus.build "news.txt" in
+  Nlp.Corpus.save corpus "news.corpus";
+  Nlp.Corpus.print corpus
 ```
 
 The output is like this ...
