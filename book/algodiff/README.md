@@ -13,6 +13,8 @@ Derivatives for Systems of Nonlinear Equations, Nonlinear Programming, etc.
 
 ### Manual Differentiation
 
+Liang: consider to rename it to Chain Rule, you need to talk about derivative, gradient, hessian, etc.
+
 ### Motivative Example: Higher-Order Derivatives
 
 The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.

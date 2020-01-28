@@ -89,6 +89,12 @@ tokenise vocab "this is an owl book";;
 - : int list = [55756; 18322; 109456; 90661; 22362]
 ```
 
+Furthermore, we can now tokenise the whole news collection.
+
+```ocaml
+(* TODO *)
+```
+
 
 
 ### Use Convenient Function
