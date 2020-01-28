@@ -228,11 +228,37 @@ val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 </section>
 <section class="level2" id="regularisation">
 <h2>Regularisation</h2>
-<p>Regularisation is an important issue in are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
+<p>Regularisation is an important issue in regression, and is widely used in various regression models. The motivation of using regularisation comes from the problem of <em>over-fitting</em> in regression. In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably. Let’ use the polynomial regression as an example.</p>
+<p>IMAGE: two graphs with the same data, one is fit to the 2nd order, the other fit to the 4th order.</p>
+<p>Apparently, the second model fit too closely with the given data, and you can see that it won’t make a good prediction of future output values.</p>
+<p>To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. Actually we don’t need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:</p>
+<p><span class="math display">\[J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].\]</span></p>
+<p>Here the sum of squared parameter values is the penalty we add to the original cost function, and <span class="math inline">\(lambda\)</span> is a regularisation control parameter.</p>
+<p>That leads to a bit of change in the derivative of <span class="math inline">\(J(\Theta)\)</span> in using gradient descent:</p>
+<p><span class="math display">\[\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].\]</span></p>
+<p>We can now apply the new update procedure in gradient descent code, with a polynomial model up to 4th order.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE and IMAGE (data, old overfitted line; new regularised line)
+However, it is quite likely that we need to use a multiple variable regression as example, 
+since I'm not sure if the functions in the next sections supports polynomial regression;
+that requires the overfitting based on these multi-variable data be obvious.</code></pre>
+</div>
+<p>We can see that by using regularisation the over-fitting problem is solved. Note that we use linear regression in the equation, but regularisation is widely use in all kinds of regressions.</p>
 <section class="level3" id="ols-ridge-lasso-and-elastic_net">
 <h3>Ols, Ridge, Lasso, and Elastic_net</h3>
-<p>You might notice that</p>
-<p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
+<p>You might notice that Owl provides a series of functions other than <code>ols</code>:</p>
+<div class="highlight">
+<pre><code class="language-clike">val ridge : ?i:bool -&gt; ?alpha:float -&gt; arr -&gt; arr -&gt; arr array
+
+val lasso : ?i:bool -&gt; ?alpha:float -&gt; arr -&gt; arr -&gt; arr array
+
+val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&gt; arr -&gt; arr array</code></pre>
+</div>
+<p>What are these functions? The short answer is that: they are for regularisation in regression using different methods. The <code>ridge</code> cost function adds the L2 norm of <span class="math inline">\(\theta\)</span> as the penalty term: <span class="math inline">\(\lambda\sum\theta^2\)</span>, which is what we have introduced. The <code>lasso</code> cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: <span class="math inline">\(\lambda\sum|\theta|\)</span>. This difference makes <code>lasso</code> to be able to allow for some coefficients to be zero, which is very useful for feature selection. The <code>elastic_net</code> is proposed (by whom?) to combine the penalties of the previous two. What it adds is this: <span class="math display">\[\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),\]</span> where <span class="math inline">\(a\)</span> is a control parameter between <code>ridge</code> and <code>lasso</code>. The elastic net method aims to make the feature selection less dependent on input data.</p>
+<p>We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE using ridge. </code></pre>
+</div>
 </section>
 </section>
 <section class="level2" id="logistic-regression">
@@ -299,6 +325,7 @@ val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 <ol type="1">
 <li>Manual gradient descent and optimizer on multiple variable problem</li>
 <li>Regularisation of logistic regression could be used as an excise</li>
+<li>In regularisation, what would happen if the <span class="math inline">\(\lambda\)</span> is extremely large?</li>
 </ol>
 </section>
 </section>

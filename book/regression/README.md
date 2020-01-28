@@ -214,6 +214,7 @@ Let's use the dataset from multi-variable regression again and perform the compu
 ```
 CODE: close form solution.
 ```
+
 TODO: compare the result with previous GD solution. 
 
 Compared to the gradient descent solution, the methods does not require multiple iterations, and you also don't need to worry about hyper-parameters settings such as the choice of learning rate. 
@@ -281,13 +282,64 @@ IMAGE: data scatter point with two curves.
 
 ## Regularisation
 
-Regularisation is an important issue in are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
+Regularisation is an important issue in regression, and is widely used in various regression models. 
+The motivation of using regularisation comes from the problem of *over-fitting* in regression.
+In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably.
+Let' use the polynomial regression as an example.
+
+IMAGE: two graphs with the same data, one is fit to the 2nd order, the other fit to the 4th order. 
+
+Apparently, the second model fit too closely with the given data, and you can see that it won't make a good prediction of future output values.
+
+To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. 
+Actually we don't need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:
+
+$$J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$
+
+Here the sum of squared parameter values is the penalty we add to the original cost function, and $lambda$ is a regularisation control parameter. 
+
+That leads to a bit of change in the derivative of $J(\Theta)$ in using gradient descent:
+
+$$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].$$
+
+We can now apply the new update procedure in gradient descent code, with a polynomial model up to 4th order.
+
+```
+CODE and IMAGE (data, old overfitted line; new regularised line)
+However, it is quite likely that we need to use a multiple variable regression as example, 
+since I'm not sure if the functions in the next sections supports polynomial regression;
+that requires the overfitting based on these multi-variable data be obvious.
+```
+
+We can see that by using regularisation the over-fitting problem is solved.
+Note that we use linear regression in the equation, but regularisation is widely use in all kinds of regressions.
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 
-You might notice that 
+You might notice that Owl provides a series of functions other than `ols`:
 
-[REFER](https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net)
+```
+val ridge : ?i:bool -> ?alpha:float -> arr -> arr -> arr array
+
+val lasso : ?i:bool -> ?alpha:float -> arr -> arr -> arr array
+
+val elastic_net : ?i:bool -> ?alpha:float -> ?l1_ratio:float -> arr -> arr -> arr array
+```
+
+What are these functions? The short answer is that: they are for regularisation in  regression using different methods.
+The `ridge` cost function adds the L2 norm of $\theta$ as the penalty term: $\lambda\sum\theta^2$, which is what we have introduced. 
+The `lasso` cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: $\lambda\sum|\theta|$.
+This difference makes `lasso` to be able to allow for some coefficients to be zero, which is very useful for feature selection.
+The `elastic_net` is proposed (by whom?) to combine the penalties of the previous two. What it adds is this:
+$$\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),$$ 
+where $a$ is a control parameter between `ridge` and `lasso`.
+The elastic net method aims to make the feature selection less dependent on input data. 
+
+We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.
+
+```
+CODE using ridge. 
+```
 
 ## Logistic Regression
 
@@ -391,3 +443,4 @@ Apply the SVM to the previous problem, with multiple choices of kernel, and then
 
 1. Manual gradient descent and optimizer on multiple variable problem
 1. Regularisation of logistic regression could be used as an excise
+1. In regularisation, what would happen if the $\lambda$ is extremely large?
