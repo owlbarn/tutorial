@@ -103,7 +103,9 @@ Here the $x_i0$ and $x_i1$ are just different input features of the $i$-th row i
 Following these equations, you can manually perform the gradient descent process until it converges.
 Here is the code. 
 
+```
 TODO: CODE and explanation.
+```
 
 By executing the code, we can get a pair of parameters: $\theta_0 = xxx$ and $\theta-1 = xxx$.
 To check if they indeed are suitable parameters, we can visualise them against the input data.
@@ -120,13 +122,15 @@ val ols : ?i:bool -> arr -> arr -> arr array
 ```
 
 And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.
-
+```
 CODE and result (no need to figure).
+```
 
 Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.
 
+```
 CODE and result (no need to figure).
-
+```
 ## Multiple Regression
 
 Back to our McDonald's problem. We have seen how a new store's profit can be related to the population of it's surrounding, and we can even predict it given previous data. 
@@ -167,14 +171,33 @@ The problem has two different features. Again, by using the `ols` regression fun
 
 CODE + result
 
-However, result is not the end. 
-There we discuss some important issues. 
+However, result is not the end. Using the multi-variable regression problem as example, we would like to discuss some important issues about regression, including feature normalisation, regularisation, regression methods etc. 
+These issues are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
 
 ### Feature Normalisation
 
-One factor is hundred times larger than the other variables. That's bad.
+Let's look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature.
+That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. 
+
+To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. 
+This step is also called feature scaling. 
+There are many ways to do this, and one of them is the *mean normalisation*: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:
+
+```
+CODE: normalisation
+```
+
+Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration below shows the point.
+
+IMAGES: two image, one ellipses, one circles. with arrows showing the steps towards center. 
+
+Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. 
+For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. 
+More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.
 
 ### Regularisation
+
+
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 

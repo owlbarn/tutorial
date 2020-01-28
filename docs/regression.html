@@ -81,17 +81,23 @@
 <p>This process may seem terrible at first sight, but we can calculate it as:</p>
 <p><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \]</span> and <span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\]</span></p>
 <p>Here the <span class="math inline">\(x_i0\)</span> and <span class="math inline">\(x_i1\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i0 = 1\)</span> and <span class="math inline">\(x_i1 = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges. Here is the code.</p>
-<p>TODO: CODE and explanation.</p>
+<div class="highlight">
+<pre><code class="language-clike">TODO: CODE and explanation.</code></pre>
+</div>
 <p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = xxx\)</span> and <span class="math inline">\(\theta-1 = xxx\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure shows a line that aligns with input data.</p>
 <p>TODO: PLOT: the resulting line against data samples.</p>
 <p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> uses the odinary least square method we have introduced to perform linear regression.</p>
 <div class="highlight">
 <pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.</p>
-<p>CODE and result (no need to figure).</p>
+And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.
+<div class="highlight">
+<pre><code class="language-clike">CODE and result (no need to figure).</code></pre>
+</div>
 <p>Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.</p>
-<p>CODE and result (no need to figure).</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE and result (no need to figure).</code></pre>
+</div>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
@@ -160,10 +166,17 @@
 </table>
 <p>The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.</p>
 <p>CODE + result</p>
-<p>However, result is not the end. There we discuss some important issues.</p>
+<p>However, result is not the end. Using the multi-variable regression problem as example, we would like to discuss some important issues about regression, including feature normalisation, regularisation, regression methods etc. These issues are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
-<p>One factor is hundred times larger than the other variables. That’s bad.</p>
+<p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model.</p>
+<p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. This step is also called feature scaling. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: normalisation</code></pre>
+</div>
+<p>Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration below shows the point.</p>
+<p>IMAGES: two image, one ellipses, one circles. with arrows showing the steps towards center.</p>
+<p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
 </section>
 <section class="level3" id="regularisation">
 <h3>Regularisation</h3>
