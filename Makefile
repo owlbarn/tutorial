@@ -7,6 +7,7 @@ all:
 	docker cp book_builder:/home/opam/book_local/book .
 	docker cp book_builder:/home/opam/book_local/docs .
 	docker cp book_builder:/home/opam/book_local/static .
+	git add docs
 
 docker:
 	docker build -t owlbarn/book:latest .
@@ -15,7 +16,6 @@ compile: test
 	-dune build @site @pdf
 	@echo Site has been generated in _build/default/static/
 	cp -r _build/default/static/* docs/
-	git add docs
 
 test: tool
 	-dune build @runtest
