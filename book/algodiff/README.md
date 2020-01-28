@@ -323,7 +323,7 @@ let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum
 
 The generated computation graph looks like this.
 
-![computation graph of VGG](images/algodiff/plot_028.png "plot 028"){ width=100% }
+![computation graph of VGG](images/algodiff/plot_028.png "plot 028"){ width=90% }
 
 
 ### Example: Computation Graph of VGG-like Neural Network

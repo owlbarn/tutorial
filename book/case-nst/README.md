@@ -11,7 +11,7 @@ We then specify A as the content image and B as the style image, then what a NST
 The figure below illustrate this point ([src](http://genekogan.com/works/style-transfer/)). You can apply different art styles to the same "Mona Lisa", or apply the same "Starry Sky" style to any pictures, even a normal daily street view.
 Isn’t it amazing? 
 
-![Mona Lisa](images/case-nst/mona_lisa.jpeg "Mona Lisa")
+![Mona Lisa](images/case-nst/mona_lisa.png "Mona Lisa")
 
 
 ## NST: A Very Brief Theory
