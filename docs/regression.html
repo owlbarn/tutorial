@@ -199,12 +199,36 @@ The problem has two different features. Again, by using the <code>ols</code> reg
 </section>
 <section class="level2" id="non-linear-regressions">
 <h2>Non-linear regressions</h2>
-<p>Polynomial CODE IMAGE: result visualisation</p>
-<p>Exponential CODE IMAGE: result visualisation</p>
+<p>If only the world is as simple as linear regression. But that’s not to be. A lot of data can follow other patterns than a linear one. For example, checkout the dataset below:</p>
+<p>IMAGE, the dataset that follows a convex curve.</p>
+<p>You can try to fit a line into these data, but it’s quite likely that the result would be very fitting. And that requires non-linear models.</p>
+<p>In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. We shows how to use them with examples, and won’t go into details of the math. Refer to [reference] for more details.</p>
+<p>In polynomial regression, the relationship between the feature <span class="math inline">\(x\)</span> and the output variable is modelled as an nth degree polynomial in the feature <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots \]</span>.</p>
+<p>The model for exponential regression takes two parameters:</p>
+<p><span class="math display">\[ h(\theta_0, \theta_1) = \theta_0~\theta_1^x\]</span>.</p>
+<p>Owl provides functions to do both form of regressions:</p>
+<div class="highlight">
+<pre><code class="language-clike">val exponential : ?i:bool -&gt; arr -&gt; arr -&gt; elt * elt * elt
+
+val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
+</div>
+<p>Let’s look at how to use them in the code. The dataset is the same as in previous figure, contained in the file <a href="Link">data_03.csv</a>.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: Polynomial. We limit that to 3th order. </code></pre>
+</div>
+<p>The result we get is: … . That gives us the polynomial model <span class="math inline">\(y = x + x^2 + x^3 + \epsilon\)</span>.</p>
+<p>The code for exponential regression is similar:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: exponential reg.</code></pre>
+</div>
+<p>The result we get is … That leads to a model: <span class="math inline">\(y = ab^x + \epsilon\)</span>.</p>
+<p>Let’s see show the models works in fitting data:</p>
+<p>IMAGE: data scatter point with two curves.</p>
 </section>
 <section class="level2" id="regularisation">
 <h2>Regularisation</h2>
-<p>Regularisation are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
+<p>Regularisation is an important issue in are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
 <section class="level3" id="ols-ridge-lasso-and-elastic_net">
 <h3>Ols, Ridge, Lasso, and Elastic_net</h3>
 <p>You might notice that</p>

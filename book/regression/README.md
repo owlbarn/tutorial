@@ -231,17 +231,57 @@ Most importantly, there is not always a close-form solution for you to use in ot
 
 ## Non-linear regressions 
 
-Polynomial
-CODE
-IMAGE: result visualisation
+If only the world is as simple as linear regression. But that's not to be. 
+A lot of data can follow other patterns than a linear one. 
+For example, checkout the dataset below:
 
-Exponential
-CODE
-IMAGE: result visualisation
+IMAGE, the dataset that follows a convex curve. 
+
+You can try to fit a line into these data, but it's quite likely that the result would be very fitting. 
+And that requires non-linear models. 
+
+In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. 
+We shows how to use them with examples, and won't go into details of the math. Refer to [reference] for more details. 
+
+In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an nth degree polynomial in the feature $x$:
+
+$$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$.
+
+The model for exponential regression takes two parameters:
+
+$$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x$$.
+
+Owl provides functions to do both form of regressions:
+
+```
+val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
+
+val poly : arr -> arr -> int -> arr
+```
+
+Let's look at how to use them in the code. The dataset is the same as in previous figure, contained in the file [data_03.csv](Link).
+
+```
+CODE: Polynomial. We limit that to 3th order. 
+```
+
+The result we get is: ... . That gives us the polynomial model $y = x + x^2 + x^3 + \epsilon$.
+
+The code for exponential regression is similar:
+
+```
+CODE: exponential reg.
+```
+
+The result we get is ... That leads to a model: $y = ab^x + \epsilon$.
+
+Let's see show the models works in fitting data:
+
+IMAGE: data scatter point with two curves. 
 
 ## Regularisation
 
-Regularisation are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
+Regularisation is an important issue in are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 
