@@ -3,9 +3,6 @@ _opam
 .*.swp
 *.install
 .merlin
-
-docs/*.log
+docs/book.*
 docs/*.tex
-docs/*.pdf
-
 .DS_Store

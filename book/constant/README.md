@@ -225,7 +225,7 @@ Measuring force relies on the SI derived unit: `newton`, and one newtong equals 
 
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
-| `newton` | SI derived unit ($kg⋅m⋅s^(−2)$) |
+| `newton` | SI derived unit ($kg \cdot m \cdot s^{-2}$) |
 | `gram_force` | one gram force in newtons | 
 | `kilogram_force` | one kilogram force in newtons | 
 | `pound_force` | one pound force in newtons | 
