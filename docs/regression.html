@@ -68,27 +68,30 @@
 <p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plain. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
 <p>TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.</p>
 <p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimizes the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
-<p><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2 - y_i)\]</span></p>
-<p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to ideal cases, and our target is thus clear: to minimise the cost function.</p>
-<p>It’s physical meaning; maximise likelihood</p>
+<p><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)\]</span></p>
+<p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to ideal cases, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
+<p><strong>TIPS</strong>: Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line – by “distance” we mean the the euclidean distace. between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance. On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data. TODO: explain the relationship between maximum likelihood estimation and least square.</p>
 </section>
 <section class="level3" id="solving-problem-with-gradient-descent">
 <h3>Solving Problem with Gradient Descent</h3>
-<p>Why gradient descent? We have this surf image:</p>
-<p>IMAGE</p>
-<p>It shows how cost function changes with both <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span>. We can thus use GD to locate the local minimal value.</p>
-<p>How GD works:</p>
-<p><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1) \]</span></p>
-<p>The second part means the direction, and the second part gives the step size.</p>
-<p>This seemingly terrible partial derivative is actually simple to do:</p>
-<p>EQUATION</p>
-<p>Following these equations, you can perform the process until converges:</p>
-<p>CODE</p>
-<p>And now we get the result.</p>
-<p>PLOT: the resulting line against data samples.</p>
-<p>Of course, we can also directly use the GD optimisation method in Owl:</p>
-<p>CODE</p>
-<p>The result would be similar.</p>
+<p>To give a clearer view, we can visualise the cost function with a contour graph:</p>
+<p>IMAGE (CODE if we can do that in Owl)</p>
+<p>We can see that cost function varies with parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> with a bowl-like shape curve surface. It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.</p>
+<p>Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain <em>direction</em> at some <em>step size</em>, and hopefully can converge at a local minimum. Let’s use a fixed step size <span class="math inline">\(\alpha\)</span>, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. Therefore, what we need to do is to apply this update process iteratively for both <span class="math inline">\(\theta\)</span> parameters: <span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), \]</span> where <span class="math inline">\(i\)</span> is 1 or 2.</p>
+<p>This process may seem terrible at first sight, but we can calculate it as:</p>
+<p><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \]</span> and <span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\]</span></p>
+<p>Here the <span class="math inline">\(x_i0\)</span> and <span class="math inline">\(x_i1\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i0 = 1\)</span> and <span class="math inline">\(x_i1 = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges. Here is the code.</p>
+<p>TODO: CODE and explanation.</p>
+<p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = xxx\)</span> and <span class="math inline">\(\theta-1 = xxx\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure shows a line that aligns with input data.</p>
+<p>TODO: PLOT: the resulting line against data samples.</p>
+<p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> uses the odinary least square method we have introduced to perform linear regression.</p>
+<div class="highlight">
+<pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
+</div>
+<p>And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.</p>
+<p>CODE and result (no need to figure).</p>
+<p>Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.</p>
+<p>CODE and result (no need to figure).</p>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
@@ -99,7 +102,6 @@
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
 <p>One factor is hundred times larger than the other variables. That’s bad.</p>
-<p>Regularisation</p>
 </section>
 <section class="level3" id="regularisation">
 <h3>Regularisation</h3>

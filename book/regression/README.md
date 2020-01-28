@@ -69,44 +69,63 @@ One frequently used method is to use the *ordinary least square* to minimizes th
 We have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$, and thus the $i$'th pair of data can be represented with $x_i$ and $y_i$.
 With these notations, we can represent a metric to represent the *closeness* as:
 
-$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2 - y_i)$$
+$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)$$
 
-In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: to minimise the cost function. 
+In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
 
-It's physical meaning; maximise likelihood
+**TIPS**: Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line -- by "distance" we mean the the euclidean distace. between a data point and the point on the line with the same x-axis. 
+A reasonable solution can thus be achieved by minimising this average distance.
+On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data.
+TODO: explain the relationship between maximum likelihood estimation and least square.
 
 ### Solving Problem with Gradient Descent
 
-Why gradient descent? We have this surf image:
+To give a clearer view, we can visualise the cost function with a contour graph:
 
-IMAGE
+IMAGE (CODE if we can do that in Owl)
 
-It shows how cost function changes with both $\theta_0$ and $\theta_1$. We can thus use GD to locate the local minimal value.
+We can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface. 
+It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.
 
-How GD works:
+Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain *direction* at some *step size*, and hopefully can converge at a local minimum. 
+Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. 
+Therefore, what we need to do is to apply this update process iteratively for both $\theta$ parameters:
+$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$
+where $i$ is 1 or 2.
 
-$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1) $$
+This process may seem terrible at first sight, but we can calculate it as:
 
-The second part means the direction, and the second part gives the step size.
+$$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, $$
+and 
+$$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.$$
 
-This seemingly terrible partial derivative is actually simple to do:
+Here the $x_i0$ and $x_i1$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i0 = 1$ and $x_i1 = x_i$.
+Following these equations, you can manually perform the gradient descent process until it converges.
+Here is the code. 
 
-EQUATION
+TODO: CODE and explanation.
 
-Following these equations, you can perform the process until converges:
+By executing the code, we can get a pair of parameters: $\theta_0 = xxx$ and $\theta-1 = xxx$.
+To check if they indeed are suitable parameters, we can visualise them against the input data.
+The resulting figure shows a line that aligns with input data.
 
-CODE
+TODO: PLOT: the resulting line against data samples. 
 
-And now we get the result.
+Of course, there is no need to use to manually solve a linear regression problem with Owl. 
+It has already provides high-level regression functions for use. 
+For example, `ols` uses the odinary least square method we have introduced to perform linear regression.
 
-PLOT: the resulting line against data samples. 
+```
+val ols : ?i:bool -> arr -> arr -> arr array
+```
 
+And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.
 
-Of course, we can also directly use the GD optimisation method in Owl:
+CODE and result (no need to figure).
 
-CODE
+Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.
 
-The result would be similar.
+CODE and result (no need to figure).
 
 ## Multiple Regression
 
@@ -120,8 +139,6 @@ Next we focus on some issues.
 ### Feature Normalisation
 
 One factor is hundred times larger than the other variables. That's bad.
-
-Regularisation
 
 ### Regularisation
 
