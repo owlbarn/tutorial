@@ -111,8 +111,8 @@ And we can use that to directly solve the problem, and the resulting parameters 
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: center;">x_1</th>
-<th style="text-align: center;">x_2</th>
+<th style="text-align: center;"><span class="math inline">\(x_1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(x_2\)</span></th>
 <th style="text-align: center;">y</th>
 </tr>
 </thead>
@@ -164,11 +164,13 @@ And we can use that to directly solve the problem, and the resulting parameters 
 </tr>
 </tbody>
 </table>
-<p>The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.</p>
-<p>CODE + result</p>
-<p>However, result is not the end. Using the multi-variable regression problem as example, we would like to discuss some important issues about regression, including feature normalisation, regularisation, regression methods etc. These issues are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
+The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.
+<div class="highlight">
+<pre><code class="language-clike">CODE + result</code></pre>
+</div>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
+<p>However, getting a result doesn’t mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.</p>
 <p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model.</p>
 <p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. This step is also called feature scaling. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:</p>
 <div class="highlight">
@@ -178,27 +180,36 @@ And we can use that to directly solve the problem, and the resulting parameters 
 <p>IMAGES: two image, one ellipses, one circles. with arrows showing the steps towards center.</p>
 <p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
 </section>
-<section class="level3" id="regularisation">
-<h3>Regularisation</h3>
-</section>
-<section class="level3" id="ols-ridge-lasso-and-elastic_net">
-<h3>Ols, Ridge, Lasso, and Elastic_net</h3>
-<p>You might notice that</p>
-<p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
-</section>
 <section class="level3" id="analytical-solution">
 <h3>Analytical Solution</h3>
-<p>Besides GD, there is actually one close form solution to Linear Regression:</p>
+<p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
 <p><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\]</span></p>
-<p>Try this solution, compare the result with that from GD.</p>
-<p>Where does this solution come from.</p>
-<p>It’s pros and cons vs GD.</p>
+<p>Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
+<p>TODO: where does this equation come from?</p>
+<p>With this method, we don’t need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. This calculation can be efficiently performed in Owl using its Linear Algebra module. Let’s use the dataset from multi-variable regression again and perform the computation.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: close form solution.</code></pre>
+</div>
+<p>TODO: compare the result with previous GD solution.</p>
+<p>Compared to the gradient descent solution, the methods does not require multiple iterations, and you also don’t need to worry about hyper-parameters settings such as the choice of learning rate. On the other hand, however, this approach has its own problems.</p>
+<p>When the size of <span class="math inline">\(X\)</span>, or the input data, becomes very large, the computation of large linear algebra operations such as matrix multiplication and inversion could become really slow. Or even worse: your computer might don’t even have enough memory to perform the computation. Compare to it, gradient descent proves to work well even when the dataset is large.</p>
+<p>Besides, there could be no solution at all using this method. That’s when the <span class="math inline">\(X^T~X\)</span> matrix is non-invertible, e.g.&nbsp;a singular matrix. That could be caused by multiple reasons. Perhaps some of the features are linear dependent, or that there are many redundant features. Then techniques such as choosing feature or regularisation are required.</p>
+<p>Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution.</p>
 </section>
 </section>
 <section class="level2" id="non-linear-regressions">
 <h2>Non-linear regressions</h2>
 <p>Polynomial CODE IMAGE: result visualisation</p>
 <p>Exponential CODE IMAGE: result visualisation</p>
+</section>
+<section class="level2" id="regularisation">
+<h2>Regularisation</h2>
+<p>Regularisation are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
+<section class="level3" id="ols-ridge-lasso-and-elastic_net">
+<h3>Ols, Ridge, Lasso, and Elastic_net</h3>
+<p>You might notice that</p>
+<p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
+</section>
 </section>
 <section class="level2" id="logistic-regression">
 <h2>Logistic Regression</h2>
