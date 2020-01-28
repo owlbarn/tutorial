@@ -343,78 +343,87 @@ CODE using ridge.
 
 ## Logistic Regression
 
-So far we have been predicting a value for our problems, but what if we don't care about is not the value, but a classification? For example, we want to know if this tumour is cancer or not given previous data. 
+So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. 
+What if we don't care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
 
-We can of course continue to use linear regression to represent the possibility of one of these result, but one issue is that, it could well be out of the bounds of [0, 1]. 
+We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
+But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
 
 ### Sigmoid Function 
 
-EQUATION + IMAGE
+The solution is to use the sigmoid function (or logistic function):
 
-With this function, instead of $h = \Theta~X$,  the problem can be modelled as:
+$f(x) = \frac{1}{1 + e^{-x}$.
 
-$$h(\Theta) = g(\Theta~X)$$
+As shown in the figure, this function project value within the range of [0, 1].
+Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
 
-Now we can interpret this model easily.
-If it is larger than 0.5, then ... else ...
+$$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}$$.
+
+Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1.
+Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.
 
 ### Decision Boundary 
 
-Linear 
+The physical meaning of classification is to draw a decision boundary in a hyper-plain. 
+For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plain, as shown in the figure.  
 
 IMAGE
 
-Non-Linear
+If we use a non-linear polynomial model, then the plane is divided by curve lines. 
+Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
+According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle:
 
 IMAGE
 
-Let's use the non-linear one as practice example.
+Logistic regression uses the linear model as kernel.
+If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
 
 ### Cost Function 
 
 With the new model comes new cost function. 
+Previously in linear regression we measure the cost with least square, or euclidean distance. 
+Now in the logistic regression, we define its cost function as:
 
-Measure the *distance*:
-Previously for linear regression we have the Euclidean distance of prediction and real value.
+$$J_{\Theta}(h(x), y) = -log(h(x)), if y = 1, $$ or 
+$$J_{\Theta}(h(x), y) = -log(1 - h(x)), if y = 0.$$ 
 
-Now we defined it this way:
-Cost equation that involves $log$ function.
-Explain how it comes: maximise the log likelihood
-
-Therefore, we have this cost function:
-
-$$ J(\Theta) = \frac{1}{n}\sum_{i=1}^{n}\textrm{Cost}(h_{\Theta}(x_i), y_i)$$
+TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
 
 ### Gradient Descent
 
-How to solve this terrible equation?
+Again the question is how to solve this terrible equation? 
+Luckily, The sigmoid function has a nice property: its derivative is simple. 
 
-The sigmoid has a nice property: its derivative is simple:
+$$ \frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
 
-EQUATION
+This gradient looks the same to that in linear regression, but it's actually different, since the definition of $h$ is actually different. 
+Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges.
+The process is similar to that in linear regression so we will not dig into details again. 
+Instead, we will use the function that Owl provides:
 
-Therefore, similar to LR, we only need to repeat this step until converges:
+```
+val logistic : ?i:bool -> arr -> arr -> arr array
+```
 
-EQUATION
+We have prepared some data in [data_04.csv](Link). We can perform the regression with these data. 
 
-Let's write that in Owl:
+```
+CODE: logistic regression; using polynomial kernel.
+```
 
-CODE #1: plain code 
+IMAGE: plot the data and resulting boundary. 
 
-CODE #2: use existing function in Owl 
-
-Plotting the boundaries.
 
 ### Multi-class classification 
 
-Similar to the LR problem, you hardly stop at 2 parameters. What if we need to classified an object into one fo multiple classes?
+Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?
 
-One popular classification problem is the hand-written recognition task. It is...
+One popular classification problem is the hand-written recognition task. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9.
 It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN.
 For now, we solve that from the logistic regression line of thought. 
 
-Dataset description
-Visualise
+TODO: Dataset description and Visualise
 
 Similarly, we extend the cost function towards multi-class:
 
@@ -422,21 +431,27 @@ EQUATION
 
 We can also use the generalised version of GD as before, or directly apply GD method in Owl:
 
+```
 CODE
+```
 
 Let's apply the model on test data:
 
-result.
+Result.
 
 Discussion on accuracy and possible improvement. Leave for exercise. 
 
 ## Support Vector Machine
 
-It's a similar idea to logistic regression.
+Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. 
+(TODO: explain kernel).
+SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. 
+Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. 
+An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)
 
-Explain the history and basic idea about SVM. It's difference with Log Reg.
+Explain the history and basic idea about SVM.
 
-Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
+TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
 
 
 ## Exercise 

@@ -263,61 +263,62 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 </section>
 <section class="level2" id="logistic-regression">
 <h2>Logistic Regression</h2>
-<p>So far we have been predicting a value for our problems, but what if we don’t care about is not the value, but a classification? For example, we want to know if this tumour is cancer or not given previous data.</p>
-<p>We can of course continue to use linear regression to represent the possibility of one of these result, but one issue is that, it could well be out of the bounds of [0, 1].</p>
+<p>So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. What if we don’t care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.</p>
+<p>We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result. But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?</p>
 <section class="level3" id="sigmoid-function">
 <h3>Sigmoid Function</h3>
-<p>EQUATION + IMAGE</p>
-<p>With this function, instead of <span class="math inline">\(h = \Theta~X\)</span>, the problem can be modelled as:</p>
-<p><span class="math display">\[h(\Theta) = g(\Theta~X)\]</span></p>
-<p>Now we can interpret this model easily. If it is larger than 0.5, then … else …</p>
+<p>The solution is to use the sigmoid function (or logistic function):</p>
+<p><span class="math inline">\(f(x) = \frac{1}{1 + e^{-x}\)</span>.</p>
+<p>As shown in the figure, this function project value within the range of [0, 1]. Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].</p>
+<p><span class="math display">\[h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}\]</span>.</p>
+<p>Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1. Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.</p>
 </section>
 <section class="level3" id="decision-boundary">
 <h3>Decision Boundary</h3>
-<p>Linear</p>
+<p>The physical meaning of classification is to draw a decision boundary in a hyper-plain. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the logistic function, the linear model itself divide the points into two halves in the plain, as shown in the figure.</p>
 <p>IMAGE</p>
-<p>Non-Linear</p>
+<p>If we use a non-linear polynomial model, then the plane is divided by curve lines. Suppose <span class="math inline">\(h(x) = \theta_0 + \theta_1~x + \theta_2~x^2\)</span>. According to the property of sigmoid function, “y=1 if g(h(x)) &gt; 0.5” equals to “y=1 if h(x)&gt;0”, and thus the classification is divided by a circle:</p>
 <p>IMAGE</p>
-<p>Let’s use the non-linear one as practice example.</p>
+<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
 </section>
 <section class="level3" id="cost-function-1">
 <h3>Cost Function</h3>
-<p>With the new model comes new cost function.</p>
-<p>Measure the <em>distance</em>: Previously for linear regression we have the Euclidean distance of prediction and real value.</p>
-<p>Now we defined it this way: Cost equation that involves <span class="math inline">\(log\)</span> function. Explain how it comes: maximise the log likelihood</p>
-<p>Therefore, we have this cost function:</p>
-<p><span class="math display">\[ J(\Theta) = \frac{1}{n}\sum_{i=1}^{n}\textrm{Cost}(h_{\Theta}(x_i), y_i)\]</span></p>
+<p>With the new model comes new cost function. Previously in linear regression we measure the cost with least square, or euclidean distance. Now in the logistic regression, we define its cost function as:</p>
+<p><span class="math display">\[J_{\Theta}(h(x), y) = -log(h(x)), if y = 1, \]</span> or <span class="math display">\[J_{\Theta}(h(x), y) = -log(1 - h(x)), if y = 0.\]</span></p>
+<p>TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.</p>
 </section>
 <section class="level3" id="gradient-descent">
 <h3>Gradient Descent</h3>
-<p>How to solve this terrible equation?</p>
-<p>The sigmoid has a nice property: its derivative is simple:</p>
-<p>EQUATION</p>
-<p>Therefore, similar to LR, we only need to repeat this step until converges:</p>
-<p>EQUATION</p>
-<p>Let’s write that in Owl:</p>
-<p>CODE #1: plain code</p>
-<p>CODE #2: use existing function in Owl</p>
-<p>Plotting the boundaries.</p>
+<p>Again the question is how to solve this terrible equation? Luckily, The sigmoid function has a nice property: its derivative is simple.</p>
+<p><span class="math display">\[ \frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\]</span>,</p>
+<p>This gradient looks the same to that in linear regression, but it’s actually different, since the definition of <span class="math inline">\(h\)</span> is actually different. Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges. The process is similar to that in linear regression so we will not dig into details again. Instead, we will use the function that Owl provides:</p>
+<div class="highlight">
+<pre><code class="language-clike">val logistic : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
+</div>
+<p>We have prepared some data in <a href="Link">data_04.csv</a>. We can perform the regression with these data.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: logistic regression; using polynomial kernel.</code></pre>
+</div>
+<p>IMAGE: plot the data and resulting boundary.</p>
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
-<p>Similar to the LR problem, you hardly stop at 2 parameters. What if we need to classified an object into one fo multiple classes?</p>
-<p>One popular classification problem is the hand-written recognition task. It is… It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought.</p>
-<p>Dataset description Visualise</p>
+<p>Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?</p>
+<p>One popular classification problem is the hand-written recognition task. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought.</p>
+<p>TODO: Dataset description and Visualise</p>
 <p>Similarly, we extend the cost function towards multi-class:</p>
 <p>EQUATION</p>
 <p>We can also use the generalised version of GD as before, or directly apply GD method in Owl:</p>
 <p>CODE</p>
 <p>Let’s apply the model on test data:</p>
-<p>result.</p>
+<p>Result.</p>
 <p>Discussion on accuracy and possible improvement. Leave for exercise.</p>
 </section>
 </section>
 <section class="level2" id="support-vector-machine">
 <h2>Support Vector Machine</h2>
-<p>It’s a similar idea to logistic regression.</p>
-<p>Explain the history and basic idea about SVM. It’s difference with Log Reg.</p>
+<p>Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. (TODO: explain kernel). SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)</p>
+<p>Explain the history and basic idea about SVM.</p>
 <p>Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.</p>
 </section>
 <section class="level2" id="exercise">
