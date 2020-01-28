@@ -119,33 +119,7 @@ When the training starts, our application keeps printing the value of loss funct
 
 After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with $90.14%$ chance it is a number 3. Quite accurate!
 
-```text
-.         ■■■■■■■■          
-       ■■■■■■■■■■■■         
-      ■■■■■■■■■■■■■         
-      ■■■■■■■   ■■■■        
-     ■■■■■      ■■■■        
-     ■■■       ■■■■         
-      ■        ■■■■         
-              ■■■■■         
-              ■■■■          
-             ■■■■■■         
-            ■■■■■■■■■       
-            ■■■■■■■■■■      
-             ■■   ■■■■      
-                   ■■■■     
-       ■■          ■■■■     
-      ■■■■        ■■■■      
-      ■■■■■■■■■ ■■■■■■      
-       ■■■■■■■■■■■■■■       
-        ■■■■■■■■■■■■■       
-          ■■■■■■■■■         
-                            
-                            
-            C0         C1        C2       C3          C4         C5          C6          C7        C8          C9 
-R0 0.000966323 0.00105846 0.0896708 0.901432 9.47633E-05 0.00180942 0.000149858 0.000355436 0.0044106 5.26442E-05 
-prediction: 3
-```
+![Prediction from the model](images/neural-network/plot_01.png "plot_01"){ width=90% }
 
 The `Neural` module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.
 
