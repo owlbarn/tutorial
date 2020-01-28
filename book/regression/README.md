@@ -155,7 +155,7 @@ Here we only show an example of using the regression function Owl has provided.
 Similar to the previous problem, we provide some data to this multiple variable problem. 
 Part of the data are listed below:
 
-| x_1  | x_2  | y    |
+| $x_1$ | $x_2$  | y |
 | :--: | :--: | :--: |
 | 1888 | 2 | 255000  |
 | 1604 | 3 | 242900  |
@@ -168,13 +168,13 @@ Part of the data are listed below:
 | ...  | ... | ...   |
 
 The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
-
+```
 CODE + result
-
-However, result is not the end. Using the multi-variable regression problem as example, we would like to discuss some important issues about regression, including feature normalisation, regularisation, regression methods etc. 
-These issues are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
+```
 
 ### Feature Normalisation
+
+However, getting a result doesn't mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.
 
 Let's look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature.
 That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. 
@@ -195,37 +195,99 @@ Normalisation is not only used in regression, but also may other data analysis a
 For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. 
 More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.
 
-### Regularisation
+### Analytical Solution
 
+Before taking a look at some other forms of regression, let's discuss solution to the linear regression besides gradient descent.
+It turns out that there is actually one close form solution to linear regression problems:
 
+$$\Theta = (X^T~X)^{-1}X^Ty$$
+
+Suppose the linear model contains $m$ features, and the input data contains $n$ rows, then here $X$ is a $n\times~(m+1)$ matrix representing the features data, and the output data $y$ is a $n\times~1$ matrix.
+The reason there is m+1 columns in $X$ is that we need an extra constant feature for each data, and it equals to one for each data point. 
+
+TODO: where does this equation come from?
+
+With this method, we don't need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. 
+This calculation can be efficiently performed in Owl using its Linear Algebra module.
+Let's use the dataset from multi-variable regression again and perform the computation. 
+
+```
+CODE: close form solution.
+```
+TODO: compare the result with previous GD solution. 
+
+Compared to the gradient descent solution, the methods does not require multiple iterations, and you also don't need to worry about hyper-parameters settings such as the choice of learning rate. 
+On the other hand, however, this approach has its own problems. 
+
+When the size of $X$, or the input data, becomes very large, the computation of large linear algebra operations such as matrix multiplication and inversion could become really slow.
+Or even worse: your computer might don't even have enough memory to perform the computation.
+Compare to it, gradient descent proves to work well even when the dataset is large. 
+
+Besides, there could be no solution at all using this method. That's when the $X^T~X$ matrix is non-invertible, e.g. a singular matrix. 
+That could be caused by multiple reasons. Perhaps some of the features are linear dependent, or that there are many redundant features. 
+Then techniques such as choosing feature or regularisation are required. 
+
+Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution. 
+
+## Non-linear regressions 
+
+If only the world is as simple as linear regression. But that's not to be. 
+A lot of data can follow other patterns than a linear one. 
+For example, checkout the dataset below:
+
+IMAGE, the dataset that follows a convex curve. 
+
+You can try to fit a line into these data, but it's quite likely that the result would be very fitting. 
+And that requires non-linear models. 
+
+In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. 
+We shows how to use them with examples, and won't go into details of the math. Refer to [reference] for more details. 
+
+In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an nth degree polynomial in the feature $x$:
+
+$$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$.
+
+The model for exponential regression takes two parameters:
+
+$$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x$$.
+
+Owl provides functions to do both form of regressions:
+
+```
+val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
+
+val poly : arr -> arr -> int -> arr
+```
+
+Let's look at how to use them in the code. The dataset is the same as in previous figure, contained in the file [data_03.csv](Link).
+
+```
+CODE: Polynomial. We limit that to 3th order. 
+```
+
+The result we get is: ... . That gives us the polynomial model $y = x + x^2 + x^3 + \epsilon$.
+
+The code for exponential regression is similar:
+
+```
+CODE: exponential reg.
+```
+
+The result we get is ... That leads to a model: $y = ab^x + \epsilon$.
+
+Let's see show the models works in fitting data:
+
+IMAGE: data scatter point with two curves. 
+
+## Regularisation
+
+Regularisation is an important issue in are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 
 You might notice that 
 
 [REFER](https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net)
-
-### Analytical Solution
-
-Besides GD, there is actually one close form solution to Linear Regression:
-
-$$\Theta = (X^T~X)^{-1}X^Ty$$
-
-Try this solution, compare the result with that from GD.
-
-Where does this solution come from.
-
-It's pros and cons vs GD.
-
-## Non-linear regressions 
-
-Polynomial
-CODE
-IMAGE: result visualisation
-
-Exponential
-CODE
-IMAGE: result visualisation
 
 ## Logistic Regression
 
