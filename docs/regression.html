@@ -81,33 +81,109 @@
 <p>This process may seem terrible at first sight, but we can calculate it as:</p>
 <p><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \]</span> and <span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\]</span></p>
 <p>Here the <span class="math inline">\(x_i0\)</span> and <span class="math inline">\(x_i1\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i0 = 1\)</span> and <span class="math inline">\(x_i1 = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges. Here is the code.</p>
-<p>TODO: CODE and explanation.</p>
+<div class="highlight">
+<pre><code class="language-clike">TODO: CODE and explanation.</code></pre>
+</div>
 <p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = xxx\)</span> and <span class="math inline">\(\theta-1 = xxx\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure shows a line that aligns with input data.</p>
 <p>TODO: PLOT: the resulting line against data samples.</p>
 <p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> uses the odinary least square method we have introduced to perform linear regression.</p>
 <div class="highlight">
 <pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.</p>
-<p>CODE and result (no need to figure).</p>
+And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.
+<div class="highlight">
+<pre><code class="language-clike">CODE and result (no need to figure).</code></pre>
+</div>
 <p>Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.</p>
-<p>CODE and result (no need to figure).</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE and result (no need to figure).</code></pre>
+</div>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
 <h2>Multiple Regression</h2>
-<p>Now the same problem, but variables goes from one to multiple. What would you do? Basically similar, but instead of <span class="math inline">\(\theta_0\)</span>, <span class="math inline">\(\theta_1\)</span>, <span class="math inline">\(\theta_2\)</span>, … now we need the vectorised representation: <span class="math inline">\(\Theta\)</span>:</p>
-<p><span class="math display">\[ J(\Theta) = \frac{1}{2n}(X\Theta - y)^2\]</span>.</p>
-<p>Next we focus on some issues.</p>
+<p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of it’s surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affects the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
+<p>The answer is very straight forward. We just use more parameters, so the model becomes:</p>
+<p><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \]</span></p>
+<p>However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. Therefore, we use the vectorised format in the model: <span class="math display">\[h(\Theta) = \Theta~X^{(i)}\]</span>, where <span class="math inline">\(\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(X^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
+<p>Accordingly, the cost function can be represented as: <span class="math display">\[ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\]</span>, where <span class="math inline">\(y^{(i)}\)</span> is the output variable value on the <span class="math inline">\(i\)</span>th row of input data.</p>
+<p>The derivative and manual gradient descent are left as exercise. Here we only show an example of using the regression function Owl has provided. Similar to the previous problem, we provide some data to this multiple variable problem. Part of the data are listed below:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">x_1</th>
+<th style="text-align: center;">x_2</th>
+<th style="text-align: center;">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1888</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">255000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1604</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">242900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1962</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">259900</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3890</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">573900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1100</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">249900</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1458</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">464500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">2526</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">469000</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2200</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">475000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+</tr>
+</tbody>
+</table>
+<p>The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.</p>
+<p>CODE + result</p>
+<p>However, result is not the end. Using the multi-variable regression problem as example, we would like to discuss some important issues about regression, including feature normalisation, regularisation, regression methods etc. These issues are discussed here, but are by no means limited to the topic of linear regression. You might be able to see them in logistic regression or even clustering.</p>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
-<p>One factor is hundred times larger than the other variables. That’s bad.</p>
+<p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model.</p>
+<p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. This step is also called feature scaling. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: normalisation</code></pre>
+</div>
+<p>Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration below shows the point.</p>
+<p>IMAGES: two image, one ellipses, one circles. with arrows showing the steps towards center.</p>
+<p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
 </section>
 <section class="level3" id="regularisation">
 <h3>Regularisation</h3>
 </section>
 <section class="level3" id="ols-ridge-lasso-and-elastic_net">
 <h3>Ols, Ridge, Lasso, and Elastic_net</h3>
+<p>You might notice that</p>
 <p><a href="https://www.datacamp.com/community/tutorials/tutorial-ridge-lasso-elastic-net">REFER</a></p>
 </section>
 <section class="level3" id="analytical-solution">
@@ -185,7 +261,10 @@
 </section>
 <section class="level2" id="exercise">
 <h2>Exercise</h2>
-<p>Regularisation of logistic regression could be used as an excise</p>
+<ol type="1">
+<li>Manual gradient descent and optimizer on multiple variable problem</li>
+<li>Regularisation of logistic regression could be used as an excise</li>
+</ol>
 </section>
 </section>
 </article></div><a href="neural-network.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 14</small>Deep Neural Networks</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
