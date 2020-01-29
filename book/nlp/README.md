@@ -134,8 +134,15 @@ corpus info
 - : unit = ()
 ```
 
-
 Show how to further process vocabulary by trim out top and bottom frequency words.
+
+
+```ocaml
+let main () =
+  let corpus = Nlp.Corpus.build ~lo:0.01 ~hi:0.01 "news.txt" in
+  Nlp.Corpus.save corpus "news.corpus";
+  Nlp.Corpus.print corpus
+```
 
 
 ## Vector Space Models
