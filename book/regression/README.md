@@ -7,17 +7,10 @@ Regression analysis includes a wide range of models, from linear regression to i
 Introducing all these models are beyond this book.
 In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve problems. 
 
-## Model and Error
-
-### Standard Errors of Regression Coefficients
-
-### Model Selection
-
-Feature selection: REFER to ISL book Chap 6.
-
 ## Linear Regression
 
 Linear regression models the relationship of the features and output variable with a linear model. 
+It is the most widely used regression model in research and business and is the easiest to understand, so it makes an ideal starting point for us to build understanding or regression.
 Let's start with a simple problem where only one feature needs to be considered. 
 
 ### Problem: Where to locate a new McDonald's restaurant?
@@ -132,6 +125,8 @@ Another approach is from the perspective of function optimisation instead of reg
 CODE and result (no need to figure).
 ```
 ## Multiple Regression
+
+TODO: [possible real dataset](https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data)
 
 Back to our McDonald's problem. We have seen how a new store's profit can be related to the population of it's surrounding, and we can even predict it given previous data. 
 Now, remember that in the real world, population is not the only input features that affects the store's profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. 
@@ -383,8 +378,8 @@ With the new model comes new cost function.
 Previously in linear regression we measure the cost with least square, or euclidean distance. 
 Now in the logistic regression, we define its cost function as:
 
-$$J_{\Theta}(h(x), y) = -log(h(x)), if y = 1, $$ or 
-$$J_{\Theta}(h(x), y) = -log(1 - h(x)), if y = 0.$$ 
+$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, $$ or 
+$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.$$ 
 
 TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
 
@@ -450,6 +445,36 @@ An SVM model is a representation of the examples as points in space, mapped so t
 Explain the history and basic idea about SVM.
 
 TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
+
+## Error Metrics
+
+We have introduced using the least square as a target in minimising the distance between model and data, but it is by no means the only way to assess how good a model is. 
+In this section, we discuss several error metrics for assessing the quality of a model and comparing different models.
+In testing a model, for each data point, the its real value $y$ and predicted value $y'$. 
+The difference between these two are called **residual**. 
+In this section, when we say error, we actually mean residual, and do not confuse it with the $\epsilon$ item in the linear model. 
+The latter is the deviation of the observed value from the unobservable true value, and residual means the difference between the observed value and the predicted value. 
+
+First, let's look at two most commonly used metrics:
+
+- **Mean absolute error** (MAE): average absolute value fo residuals, represented by: $\textrm(MAE)=\frac{1}{n}\sum|y - y'|$. 
+- **Mean square error** (MSE): average squared residuals, represented as: $\textrm(MSE)=\frac{1}{n}\sum(y-y')^2$. This is the method we have previous used in linear regression in this chapter. 
+
+The difference between using absolute value and squared value means different sensitivity to outliers. 
+Using the squared residual value, MSE grows quadratically with error. As a result, the outliers are taken into consideration in the regression so as to minimise MSE. 
+On the other hand, by using the absolute error, in MAE each residual contribute proportionally to the metric, and thus the outliers do not have especially large impact on the model fitting. 
+How to choose one of these metrics depends on how you want to treat the outliers in data.
+
+Based on the these two basic metrics, we can derive the definition of other metrics:
+- **Root mean squared error** (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out. 
+
+- **Mean absolute percentage error** (MAPE): based on MAE, MAPE changes it into percentage representation: $\textrm(MAPE)=\frac{1}{n}\sum\|\frac{y - y'}{y}\|$. It denotes the average distance between a model's predictions and their corresponding outputs in percentage format, for easier interpretation. 
+
+- **Mean percentage error** (MPE): similar to MAPE, but does not use the absolute value: $\textrm(MPE)=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)$. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it's a relative measurement of error.
+
+## Model Selection
+
+Feature selection: REFER to ISL book Chap 6.
 
 ## Exercise 
 
