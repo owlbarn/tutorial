@@ -180,16 +180,43 @@ Explain what is BOW, simply counting the frequency. What are the pros and cons o
 
 ## Term Frequency–Inverse Document Frequency (TFIDF)
 
-Explain what is TFIDF, mention Cambridge Wolfson fellow.
+Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.
 
 ```ocaml
-Nlp.Tfidf.build
+let build_tfidf corpus =
+  (* configure and build the model *)
+  let tf = Nlp.Tfidf.Count in
+  let df = Nlp.Tfidf.Idf in
+  let model = Nlp.Tfidf.build ~tf ~df corpus in
+
+  (* print and save model *)
+  Nlp.Tfidf.print model;
+  Nlp.Tfidf.save model "news.tfidf";
+
+  model
+```
+
+After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model.
+
+```ocaml
+let query model doc k =
+  (* TODO: change api *)
+  let typ = Owl_nlp_similarity.Cosine in
+  let vec = Nlp.Tfidf.apply model doc in
+  let knn = Nlp.Tfidf.nearest ~typ model vec k in
+  knn
 ```
 
 
 ## Latent Dirichlet Allocation (LDA)
 
 Explain what is LDA.
+
+```ocaml
+(* TODO: I need to change NLP interface a bit *)
+let build_lda corpus =
+  ()
+```
 
 
 ## Latent Semantic Analysis (LSA)

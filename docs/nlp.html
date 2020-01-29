@@ -150,14 +150,38 @@ corpus info
 </section>
 <section class="level2" id="term-frequencyinverse-document-frequency-tfidf">
 <h2>Term Frequency–Inverse Document Frequency (TFIDF)</h2>
-<p>Explain what is TFIDF, mention Cambridge Wolfson fellow.</p>
+<p>Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">Nlp.Tfidf.build</code></pre>
+<pre><code class="language-ocaml">let build_tfidf corpus =
+  (* configure and build the model *)
+  let tf = Nlp.Tfidf.Count in
+  let df = Nlp.Tfidf.Idf in
+  let model = Nlp.Tfidf.build ~tf ~df corpus in
+
+  (* print and save model *)
+  Nlp.Tfidf.print model;
+  Nlp.Tfidf.save model "news.tfidf";
+
+  model</code></pre>
+</div>
+<p>After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let query model doc k =
+  (* TODO: change api *)
+  let typ = Owl_nlp_similarity.Cosine in
+  let vec = Nlp.Tfidf.apply model doc in
+  let knn = Nlp.Tfidf.nearest ~typ model vec k in
+  knn</code></pre>
 </div>
 </section>
 <section class="level2" id="latent-dirichlet-allocation-lda">
 <h2>Latent Dirichlet Allocation (LDA)</h2>
 <p>Explain what is LDA.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* TODO: I need to change NLP interface a bit *)
+let build_lda corpus =
+  ()</code></pre>
+</div>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
 <h2>Latent Semantic Analysis (LSA)</h2>
