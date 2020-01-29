@@ -1,11 +1,10 @@
 # Signal Processing
 
-TODO: refer to https://scipy.github.io/devdocs/tutorial/signal.html
+TODO: refer to https://scipy.github.io/devdocs/tutorial/signal.html. Try to implement its examples first. 
 
-TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html
+So it's basically a bit of explanation + a lot examples for this chapter. 
 
-
-## Fast Fourier Transform
+## Fourier Transform
 
 
 Think about an audio that lasts for 10 seconds. 
@@ -29,8 +28,13 @@ Think of a classic example where you need to remove some high pitch noisy from s
 Actually, the application of DFT is more than on sound signal processing. (EXAMPLES).
 It covers a very large of important computation problems that spans many fields and applications, such as music processing, data compressing, image processing, engineering, mathematics, etc. 
 
+## Fast Fourier Transform
+
 The Fast Fourier Transform is an algorithm that reduces the DFT computation complexity from $\mathcal{O}(n^2)$ to $\mathcal{O}(n\log{}n)$.
-To introduce the algorithm itself or the detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
+
+TODO: A brief theory about how FFT drops down to log level. Make sure you explain DFT well enough in the previous section.
+
+To introduce the algorithm itself in detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 
 Owl provides these basic FFT functions:
 
@@ -42,28 +46,37 @@ Owl provides these basic FFT functions:
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 
 
-## B-Splines
+TODO: introduce the FFTW we interface to a bit. It's a challenge to make FFT fast, and why FFTW works fast, etc.
 
+## Applications of using FFT
+
+REFER: *Numerical in Matlab* book.
+
+Unlike the regression chapter, **make sure these examples work first**, then perhaps fill in some content. 
+They don't have to be all finished for this round. But you have to be sure about the workload.
+Do not dig deep into the topic FFT. That takes a whole book and more. 
+
+### Small examples
+
+TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. Try all these small examples. We can remove some of them 
+
+### Decipher the Tone 
+
+### Find period of sunspots
+
+[Dataset](http://sidc.oma.be/silso/newdataset) from the Solar Influences Data Center
+
+### Image Processing
+
+(from scipy book; NR chap 12.6; or the data-driven book; or from the elegant scipy book)
+
+## B-Splines
 
 
 ## Filtering
 
 
-### Examples 
-
-Example 1: remove the noise in audio (from matlab book) 
-
-Example 2: image processing (from scipy book; NR chap 12.6)
-
 ## Kalman Filtering
-
-TODO
-
-
-## Image Compression
-
-talk about JPEG ... give an example how to use FFT to compress images.
-
 
 
 ## References
