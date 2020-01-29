@@ -190,7 +190,7 @@ Normalisation is not only used in regression, but also may other data analysis a
 For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. 
 More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.
 
-### Analytical Solution
+### [Analytical Solution](#analytical-solution)
 
 Before taking a look at some other forms of regression, let's discuss solution to the linear regression besides gradient descent.
 It turns out that there is actually one close form solution to linear regression problems:
@@ -275,7 +275,7 @@ Let's see show the models works in fitting data:
 
 IMAGE: data scatter point with two curves. 
 
-## Regularisation
+## [Regularisation](#regularisation)
 
 Regularisation is an important issue in regression, and is widely used in various regression models. 
 The motivation of using regularisation comes from the problem of *over-fitting* in regression.
@@ -321,7 +321,7 @@ val lasso : ?i:bool -> ?alpha:float -> arr -> arr -> arr array
 val elastic_net : ?i:bool -> ?alpha:float -> ?l1_ratio:float -> arr -> arr -> arr array
 ```
 
-What are these functions? The short answer is that: they are for regularisation in  regression using different methods.
+What are these functions? The short answer is that: they are for regularisation in regression using different methods.
 The `ridge` cost function adds the L2 norm of $\theta$ as the penalty term: $\lambda\sum\theta^2$, which is what we have introduced. 
 The `lasso` cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: $\lambda\sum|\theta|$.
 This difference makes `lasso` to be able to allow for some coefficients to be zero, which is very useful for feature selection.
@@ -446,7 +446,9 @@ Explain the history and basic idea about SVM.
 
 TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
 
-## Error Metrics
+## Model error and selection
+
+### Error Metrics
 
 We have introduced using the least square as a target in minimising the distance between model and data, but it is by no means the only way to assess how good a model is. 
 In this section, we discuss several error metrics for assessing the quality of a model and comparing different models.
@@ -457,8 +459,9 @@ The latter is the deviation of the observed value from the unobservable true val
 
 First, let's look at two most commonly used metrics:
 
-- **Mean absolute error** (MAE): average absolute value fo residuals, represented by: $\textrm(MAE)=\frac{1}{n}\sum|y - y'|$. 
-- **Mean square error** (MSE): average squared residuals, represented as: $\textrm(MSE)=\frac{1}{n}\sum(y-y')^2$. This is the method we have previous used in linear regression in this chapter. 
+- **Mean absolute error** (MAE): average absolute value fo residuals, represented by: $\textrm{MAE}=\frac{1}{n}\sum|y - y'|$. 
+- **Mean square error** (MSE): average squared residuals, represented as: $\textrm{MSE}=\frac{1}{n}\sum(y-y')^2$. This is the method we have previous used in linear regression in this chapter. 
+The part before applying average is called **Residual Sum of Squares** (RSS): $\textrm{RSS}=\sum(y-y')^2$.
 
 The difference between using absolute value and squared value means different sensitivity to outliers. 
 Using the squared residual value, MSE grows quadratically with error. As a result, the outliers are taken into consideration in the regression so as to minimise MSE. 
@@ -466,18 +469,49 @@ On the other hand, by using the absolute error, in MAE each residual contribute 
 How to choose one of these metrics depends on how you want to treat the outliers in data.
 
 Based on the these two basic metrics, we can derive the definition of other metrics:
+
 - **Root mean squared error** (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out. 
 
-- **Mean absolute percentage error** (MAPE): based on MAE, MAPE changes it into percentage representation: $\textrm(MAPE)=\frac{1}{n}\sum\|\frac{y - y'}{y}\|$. It denotes the average distance between a model's predictions and their corresponding outputs in percentage format, for easier interpretation. 
+- **Mean absolute percentage error** (MAPE): based on MAE, MAPE changes it into percentage representation: $\textrm{MAPE}=\frac{1}{n}\sum |\frac{y - y'}{y}|$. It denotes the average distance between a model's predictions and their corresponding outputs in percentage format, for easier interpretation. 
 
-- **Mean percentage error** (MPE): similar to MAPE, but does not use the absolute value: $\textrm(MPE)=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)$. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it's a relative measurement of error.
+- **Mean percentage error** (MPE): similar to MAPE, but does not use the absolute value: $\textrm{MPE}=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)$. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it's a relative measurement of error.
 
-## Model Selection
+### Model Selection
 
-Feature selection: REFER to ISL book Chap 6.
+We have already mentioned the issue of feature selection in [previous sections](#analytical-solution).
+It is common to see that in a multiple regression model, many variables are used in the data and modelling, but only a part of them are actually useful. 
+For example, we can consider the weather factor, such as precipitation quantity, in choosing the location of McDonald's store, but I suspect its contribution would be marginal at best. 
+By removing these redundant features, we can make a model clearer and increase its interpretability. 
+[Regularisation](#regularisation) is one way to downplay these features, and in this section we briefly introduce another commonly used technique: *feature selection*.
+
+The basic idea of feature selection is simple: choose features from all the possible combinations, test the performance of each model using metric such as RSS. Then choose the best one from them. 
+To put it into detail, suppose we have $n$ features in a multi-variable regression, then for each $i=1, 2, ... n$, test all the ${n\choose i}$ possible models with $i$ variable(s), choose a best one according to its RSS, and we call this model $M_i$.
+Once this step is done, we can select the best one from the $n$ models: $M_1, M2, .... M_n$ using *certain methods*.
+
+You might have already spotted on big problem in this approach: computation complexity. To test all $2^n$ possibilities is a terribly large cost for even medium number of features. 
+Therefore, some computationally efficient approaches are proposed. One of them is the *stepwise selection*.
+
+The idea of stepwise selection is to build models based on existing best models. We start with one model with zero parameters (always predict the same value regardless of input data) and assume it is the best model.
+Based on this one, we increase the number of features to one, choose among all the $n$ possible models according to their RSS, name the best one $M_1$. 
+And based on $M_1$, we consider adding another feature. Choose among all the $n-1$ possible models according to their RSS, name the best one $M_2$. 
+So on an so forth. 
+Once we have all the models $M_i, i=1,2,...n$, we can select the the the best one from them using suitable methods. 
+This process is called "Forward stepwise selection", and similarly there is also a "Backward stepwise selection", where you build the model sequence from full features selection $M_n$ down to $M_1$.
+
+You might notice that we mention using "certain methods" in selecting the best one from these $n$ models. What are these methods?
+An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. 
+Instead, we need to estimate the test error. We can directly do that using a validation dataset. 
+Otherwise we can make adjustment to the training error such as RSS to include the bias caused by overfitting.
+Such methods includes: $\textrm{C}_p$, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted $\textrm{R}^2$, etc. 
+To further dig into these statistical methods is beyond the scope of this book. 
+We recommend specific textbooks such as [@james2013introduction].
 
 ## Exercise 
 
 1. Manual gradient descent and optimizer on multiple variable problem
 1. Regularisation of logistic regression could be used as an excise
 1. In regularisation, what would happen if the $\lambda$ is extremely large?
+
+
+## References
+

@@ -172,7 +172,7 @@ The problem has two different features. Again, by using the <code>ols</code> reg
 <p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
 </section>
 <section class="level3" id="analytical-solution">
-<h3>Analytical Solution</h3>
+<h3><a href="#analytical-solution">Analytical Solution</a></h3>
 <p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
 <p><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\]</span></p>
 <p>Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
@@ -218,7 +218,7 @@ val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 <p>IMAGE: data scatter point with two curves.</p>
 </section>
 <section class="level2" id="regularisation">
-<h2>Regularisation</h2>
+<h2><a href="#regularisation">Regularisation</a></h2>
 <p>Regularisation is an important issue in regression, and is widely used in various regression models. The motivation of using regularisation comes from the problem of <em>over-fitting</em> in regression. In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably. Let’ use the polynomial regression as an example.</p>
 <p>IMAGE: two graphs with the same data, one is fit to the 2nd order, the other fit to the 4th order.</p>
 <p>Apparently, the second model fit too closely with the given data, and you can see that it won’t make a good prediction of future output values.</p>
@@ -313,24 +313,32 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <p>Explain the history and basic idea about SVM.</p>
 <p>TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.</p>
 </section>
-<section class="level2" id="error-metrics">
-<h2>Error Metrics</h2>
+<section class="level2" id="model-error-and-selection">
+<h2>Model error and selection</h2>
+<section class="level3" id="error-metrics">
+<h3>Error Metrics</h3>
 <p>We have introduced using the least square as a target in minimising the distance between model and data, but it is by no means the only way to assess how good a model is. In this section, we discuss several error metrics for assessing the quality of a model and comparing different models. In testing a model, for each data point, the its real value <span class="math inline">\(y\)</span> and predicted value <span class="math inline">\(y'\)</span>. The difference between these two are called <strong>residual</strong>. In this section, when we say error, we actually mean residual, and do not confuse it with the <span class="math inline">\(\epsilon\)</span> item in the linear model. The latter is the deviation of the observed value from the unobservable true value, and residual means the difference between the observed value and the predicted value.</p>
 <p>First, let’s look at two most commonly used metrics:</p>
 <ul>
-<li><strong>Mean absolute error</strong> (MAE): average absolute value fo residuals, represented by: <span class="math inline">\(\textrm(MAE)=\frac{1}{n}\sum|y - y'|\)</span>.</li>
-<li><strong>Mean square error</strong> (MSE): average squared residuals, represented as: <span class="math inline">\(\textrm(MSE)=\frac{1}{n}\sum(y-y')^2\)</span>. This is the method we have previous used in linear regression in this chapter.</li>
+<li><strong>Mean absolute error</strong> (MAE): average absolute value fo residuals, represented by: <span class="math inline">\(\textrm{MAE}=\frac{1}{n}\sum|y - y'|\)</span>.</li>
+<li><strong>Mean square error</strong> (MSE): average squared residuals, represented as: <span class="math inline">\(\textrm{MSE}=\frac{1}{n}\sum(y-y')^2\)</span>. This is the method we have previous used in linear regression in this chapter. The part before applying average is called <strong>Residual Sum of Squares</strong> (RSS): <span class="math inline">\(\textrm{RSS}=\sum(y-y')^2\)</span>.</li>
 </ul>
 <p>The difference between using absolute value and squared value means different sensitivity to outliers. Using the squared residual value, MSE grows quadratically with error. As a result, the outliers are taken into consideration in the regression so as to minimise MSE. On the other hand, by using the absolute error, in MAE each residual contribute proportionally to the metric, and thus the outliers do not have especially large impact on the model fitting. How to choose one of these metrics depends on how you want to treat the outliers in data.</p>
-<p>Based on the these two basic metrics, we can derive the definition of other metrics: - <strong>Root mean squared error</strong> (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out.</p>
+<p>Based on the these two basic metrics, we can derive the definition of other metrics:</p>
 <ul>
-<li><p><strong>Mean absolute percentage error</strong> (MAPE): based on MAE, MAPE changes it into percentage representation: <span class="math inline">\(\textrm(MAPE)=\frac{1}{n}\sum\|\frac{y - y'}{y}\|\)</span>. It denotes the average distance between a model’s predictions and their corresponding outputs in percentage format, for easier interpretation.</p></li>
-<li><p><strong>Mean percentage error</strong> (MPE): similar to MAPE, but does not use the absolute value: <span class="math inline">\(\textrm(MPE)=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)\)</span>. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it’s a relative measurement of error.</p></li>
+<li><p><strong>Root mean squared error</strong> (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out.</p></li>
+<li><p><strong>Mean absolute percentage error</strong> (MAPE): based on MAE, MAPE changes it into percentage representation: <span class="math inline">\(\textrm{MAPE}=\frac{1}{n}\sum |\frac{y - y'}{y}|\)</span>. It denotes the average distance between a model’s predictions and their corresponding outputs in percentage format, for easier interpretation.</p></li>
+<li><p><strong>Mean percentage error</strong> (MPE): similar to MAPE, but does not use the absolute value: <span class="math inline">\(\textrm{MPE}=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)\)</span>. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it’s a relative measurement of error.</p></li>
 </ul>
 </section>
-<section class="level2" id="model-selection">
-<h2>Model Selection</h2>
-<p>Feature selection: REFER to ISL book Chap 6.</p>
+<section class="level3" id="model-selection">
+<h3>Model Selection</h3>
+<p>We have already mentioned the issue of feature selection in <a href="#analytical-solution">previous sections</a>. It is common to see that in a multiple regression model, many variables are used in the data and modelling, but only a part of them are actually useful. For example, we can consider the weather factor, such as precipitation quantity, in choosing the location of McDonald’s store, but I suspect its contribution would be marginal at best. By removing these redundant features, we can make a model clearer and increase its interpretability. <a href="#regularisation">Regularisation</a> is one way to downplay these features, and in this section we briefly introduce another commonly used technique: <em>feature selection</em>.</p>
+<p>The basic idea of feature selection is simple: choose features from all the possible combinations, test the performance of each model using metric such as RSS. Then choose the best one from them. To put it into detail, suppose we have <span class="math inline">\(n\)</span> features in a multi-variable regression, then for each <span class="math inline">\(i=1, 2, ... n\)</span>, test all the <span class="math inline">\({n\choose i}\)</span> possible models with <span class="math inline">\(i\)</span> variable(s), choose a best one according to its RSS, and we call this model <span class="math inline">\(M_i\)</span>. Once this step is done, we can select the best one from the <span class="math inline">\(n\)</span> models: <span class="math inline">\(M_1, M2, .... M_n\)</span> using <em>certain methods</em>.</p>
+<p>You might have already spotted on big problem in this approach: computation complexity. To test all <span class="math inline">\(2^n\)</span> possibilities is a terribly large cost for even medium number of features. Therefore, some computationally efficient approaches are proposed. One of them is the <em>stepwise selection</em>.</p>
+<p>The idea of stepwise selection is to build models based on existing best models. We start with one model with zero parameters (always predict the same value regardless of input data) and assume it is the best model. Based on this one, we increase the number of features to one, choose among all the <span class="math inline">\(n\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_1\)</span>. And based on <span class="math inline">\(M_1\)</span>, we consider adding another feature. Choose among all the <span class="math inline">\(n-1\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_2\)</span>. So on an so forth. Once we have all the models <span class="math inline">\(M_i, i=1,2,...n\)</span>, we can select the the the best one from them using suitable methods. This process is called “Forward stepwise selection”, and similarly there is also a “Backward stepwise selection”, where you build the model sequence from full features selection <span class="math inline">\(M_n\)</span> down to <span class="math inline">\(M_1\)</span>.</p>
+<p>You might notice that we mention using “certain methods” in selecting the best one from these <span class="math inline">\(n\)</span> models. What are these methods? An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. Instead, we need to estimate the test error. We can directly do that using a validation dataset. Otherwise we can make adjustment to the training error such as RSS to include the bias caused by overfitting. Such methods includes: <span class="math inline">\(\textrm{C}_p\)</span>, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted <span class="math inline">\(\textrm{R}^2\)</span>, etc. To further dig into these statistical methods is beyond the scope of this book. We recommend specific textbooks such as <span data-cites="james2013introduction" class="citation">(James et al. 2013)</span>.</p>
+</section>
 </section>
 <section class="level2" id="exercise">
 <h2>Exercise</h2>
@@ -339,6 +347,14 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <li>Regularisation of logistic regression could be used as an excise</li>
 <li>In regularisation, what would happen if the <span class="math inline">\(\lambda\)</span> is extremely large?</li>
 </ol>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-james2013introduction">
+<p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2013. <em>An Introduction to Statistical Learning</em>. Vol. 112. Springer.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="neural-network.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 14</small>Deep Neural Networks</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
