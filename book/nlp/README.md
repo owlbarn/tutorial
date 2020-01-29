@@ -2,6 +2,8 @@
 
 Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing is a powerful tool to extract insights from text copora. 
 
+This chapter focusses on the vector space models and topic modelling.
+
 
 ## Introduction
 
@@ -92,18 +94,38 @@ tokenise vocab "this is an owl book";;
 Furthermore, we can now tokenise the whole news collection.
 
 ```ocaml
-(* TODO *)
+let tokenise_all vocab input_file =
+  let doc_s = Owl_utils.Stack.make () in
+
+  Owl_io.iteri_lines_of_file
+    (fun i s ->
+      let t =
+        Str.split Owl_nlp_utils.regexp_split s
+        |> List.filter (Owl_nlp_vocabulary.exits_w vocab)
+        |> List.map (Owl_nlp_vocabulary.word2index vocab)
+        |> Array.of_list
+      in
+      Owl_utils.Stack.push doc_s i)
+    input_file;
+
+  doc_s
 ```
 
+Even though this is a simplified case, it well illustrates the typical starting point of text analysis before delving into any topic modelling.
 
 
 ### Use Convenient Function
 
-Show how to build corpus using a convenient function in `Nlp.Corpus`
+Show how to build corpus using a convenient function in `Nlp.Corpus`. The convenient function builds the dictionary and tokienise the text corpus at the same time. You can further specify how to trim off the high-frequency and low-frenquency words when calling the function.
 
 ```ocaml
 let main () =
-  let corpus = Nlp.Corpus.build "news.txt" in
+  (* remove duplicates *)
+  let ids = Nlp.Corpus.unique "news.txt" "clean.txt" in
+  Printf.printf "removed %i duplicates." (Array.length ids);
+
+  (* build vocabulary and tokenise *)
+  let corpus = Nlp.Corpus.build ~lo:0.01 ~hi:0.01 "clean.txt" in
   Nlp.Corpus.save corpus "news.corpus";
   Nlp.Corpus.print corpus
 ```
@@ -134,15 +156,12 @@ corpus info
 - : unit = ()
 ```
 
-Show how to further process vocabulary by trim out top and bottom frequency words.
+The `save` function will create several files, explain these files ...
 
 
-```ocaml
-let main () =
-  let corpus = Nlp.Corpus.build ~lo:0.01 ~hi:0.01 "news.txt" in
-  Nlp.Corpus.save corpus "news.corpus";
-  Nlp.Corpus.print corpus
-```
+### Iterate Documents
+
+Teach how to use `Nlp.Corpus.next` and etc. to iterate and map documents.
 
 
 ## Vector Space Models
@@ -152,12 +171,20 @@ Survey, explain what is VSM, documents become vectors, i.e. a point in high-dime
 
 ## Bag of Words (BOW)
 
-Explain what is BOW
+Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?
+
+```ocaml
+(* implement simple bag of words model ... *)
+```
 
 
 ## Term Frequency–Inverse Document Frequency (TFIDF)
 
 Explain what is TFIDF, mention Cambridge Wolfson fellow.
+
+```ocaml
+Nlp.Tfidf.build
+```
 
 
 ## Latent Dirichlet Allocation (LDA)
