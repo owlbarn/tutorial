@@ -145,7 +145,19 @@ corpus info
 <h2>Bag of Words (BOW)</h2>
 <p>Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* implement simple bag of words model ... *)</code></pre>
+<pre><code class="language-ocaml">(* count the term occurrency in a document *)
+let term_count htbl doc =
+  Array.iter
+    (fun w -&gt;
+      match Hashtbl.mem htbl w with
+      | true  -&gt;
+        let a = Hashtbl.find htbl w in
+        Hashtbl.replace htbl w (a +. 1.)
+      | false -&gt; Hashtbl.add htbl w 1.)
+    doc
+
+let build_bow corpus =
+  ()</code></pre>
 </div>
 </section>
 <section class="level2" id="term-frequencyinverse-document-frequency-tfidf">

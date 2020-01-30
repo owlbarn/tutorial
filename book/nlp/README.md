@@ -174,7 +174,19 @@ Survey, explain what is VSM, documents become vectors, i.e. a point in high-dime
 Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?
 
 ```ocaml
-(* implement simple bag of words model ... *)
+(* count the term occurrency in a document *)
+let term_count htbl doc =
+  Array.iter
+    (fun w ->
+      match Hashtbl.mem htbl w with
+      | true  ->
+        let a = Hashtbl.find htbl w in
+        Hashtbl.replace htbl w (a +. 1.)
+      | false -> Hashtbl.add htbl w 1.)
+    doc
+
+let build_bow corpus =
+  ()
 ```
 
 
