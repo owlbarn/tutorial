@@ -8,12 +8,18 @@ We also cover the relationship between FFT and Convolution, and filters.
 
 ## Discrete Fourier Transform
 
+One theme in numerical applications is the transformation of equations into a coordinate system so that the original question can be easily decoupled and simplified. 
+One of the most important such transformation is the *Fourier Transform*, which decomposes a function of time into its constituent frequencies. 
+In computer based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous. 
+In that case, the method is called *Discrete Fourier Transform* (DFT). 
+
+All these sound too vague. Let's look at an example.
 Think about an audio that lasts for 10 seconds. 
 This audio can surely be described in the *time domain*, which means plotting its sound intensity against time as x axis.
 On the other hand, maybe less obviously, the sound can also be described in the *frequency domain*. For example, if all the 10 seconds are filled with only playing the A# note, then you can describe this whole audio with one frequency number: 466.16 Hz. If it's a C note, then the number is 523.25 Hz, etc. 
 The thing is that, the real-world sound is not always so pure, they are quite likely compounded from different frequencies. Perhaps this 10 seconds are about water flowing, or wind whispering, what frequencies it is built from then?
 
-That's where Discrete Fourier Transform (DFT) comes into play. It captures the idea of converting the two form of representing a signal: in time domain and in frequency domain. 
+That's where Fourier Transform comes into play. It captures the idea of converting the two forms of representing a signal: in time domain and in frequency domain. 
 We can represent a signal with the values of some quantity $h$ as a function of time: $h(t)$, or this signal can be represented by giving its amplitude $H$ as function of frequency: $H(f)$. We can think they are two representation of the same thing, and Fourier Transform change between them:
 
 $$ h(f) = \int H(f)\exp^{-2\pi~ift}df$$
@@ -21,21 +27,27 @@ $$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$
 
 To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.
 
-(ADD: description of DFT)
-
 You might be wondering, it's cool that I can recognise how a sound is composed, but so what? 
 Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
+Not just sound. 
+You can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise. 
+We will show such examples later.
 
-Actually, the application of DFT is more than on sound signal processing. (EXAMPLES).
-It covers a very large of important computation problems that spans many fields and applications, such as music processing, data compressing, image processing, engineering, mathematics, etc. 
+Actually, the application of FT is more than on sound or image signal processing.
+We all use Fourier Transform every day without knowing it: mobile phones, image and audio compression, communication networks, large scale numerical physics and engineering, etc.
+It is the cornerstone fo computational mathematics. 
+One important reason of its popularity is that it has an efficient algorithm in implementation: Fast Fourier Transform.
+
 
 ## Fast Fourier Transform
 
-The Fast Fourier Transform is an algorithm that reduces the DFT computation complexity from $\mathcal{O}(n^2)$ to $\mathcal{O}(n\log{}n)$.
+One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $\mathcal{O}(n^2)$, since it involves a dense $n$ by $n$ matrix multiplication.
+It means that DFT doesn't scale well with input size.
+The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $\mathcal{O}(n\log{}n)$.
+To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions, and most importantly, you only need to compute one such DFT, so on and so forth. Therefore the computation can be reduced to a $log$ level. 
 
-TODO: A brief theory about how FFT drops down to log level. Make sure you explain DFT well enough in the previous section.
-
-To introduce the algorithm itself in detailed math of DFT/FFT is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
+To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
+In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more. 
 
 Owl provides these basic FFT functions:
 
@@ -46,12 +58,14 @@ Owl provides these basic FFT functions:
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 
+The implementation of the FFT module in Owl interfaces to the [Fastest Fourier Transform in the West(FFTW)](http://www.fftw.org/) library, which is known as, as its name indicates, the fastest free software implementation of the fast Fourier transform.
+One interesting fact is that, though this is a C library, its highly optimised code is generated using OCaml.
 
 TODO: introduce the FFTW we interface to a bit. It's a challenge to make FFT fast, and why FFTW works fast, etc.
 
 ### Examples
 
-TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. Try all these small examples. We can remove some of them later.
+TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. 
 
 #### 1-D Discrete Fourier transforms
 
