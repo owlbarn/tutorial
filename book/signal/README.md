@@ -1,9 +1,10 @@
 # Signal Processing
 
-TODO: refer to https://scipy.github.io/devdocs/tutorial/signal.html. Try to implement its examples first. 
+Signal processing is an electrical engineering sub-field that focuses on analysing, modifying and synthesizing signals such as sound, images and biological measurements. (WIKI)
+It covers a wide range of techniques.
 
-To cover the full scope of this topic, even briefly, requires a whole book. 
-This chapter we focuses on Fourier Transform. We introduce its basic idea, and then demonstrate how Owl support FFT with examples and applications.
+In this chapter we mainly focus on Fourier Transform, the core idea in signal processing and modern numerical computing. 
+We introduce its basic idea, and then demonstrate how Owl support FFT with examples and applications.
 We also cover the relationship between FFT and Convolution, and filters. 
 
 ## Discrete Fourier Transform
@@ -49,6 +50,7 @@ To put it in a simple way, the FFT algorithm finds out that, any DFT can be repr
 To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more. 
 
+The implementation of the FFT module in Owl interfaces to the [FFTPack](https://www.netlib.org/fftpack/) C implementation.
 Owl provides these basic FFT functions:
 
 | Functions | Description
@@ -58,21 +60,17 @@ Owl provides these basic FFT functions:
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 
-The implementation of the FFT module in Owl interfaces to the [Fastest Fourier Transform in the West(FFTW)](http://www.fftw.org/) library, which is known as, as its name indicates, the fastest free software implementation of the fast Fourier transform.
-One interesting fact is that, though this is a C library, its highly optimised code is generated using OCaml.
-
-TODO: introduce the FFTW we interface to a bit. It's a challenge to make FFT fast, and why FFTW works fast, etc.
-
 ### Examples
 
-TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. 
+We then show how to use these functions with some simple example. 
+More complex and interesting will follow in the next section.
 
 #### 1-D Discrete Fourier transforms
 
-`fft` and `ifft`.
+Let start with the most basic `fft` and it reverse transform function `ifft`.
 
 
-```text
+```ocaml env=fft_env01
 # let a = [|1.;2.;1.;-1.;1.5;1.0|]
 val a : float array = [|1.; 2.; 1.; -1.; 1.5; 1.|]
 # let b = Arr.of_array a [|6|] |> Dense.Ndarray.Generic.cast_d2z
@@ -81,12 +79,18 @@ val b : (Complex.t, complex64_elt) Dense.Ndarray.Generic.t =
        C0      C1      C2       C3        C4      C5
 R (1, 0i) (2, 0i) (1, 0i) (-1, 0i) (1.5, 0i) (1, 0i)
 
+```
+
+```ocaml env=fft_env01
 # let c = Owl_fft.D.fft b 
 val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 
          C0                 C1                 C2                  C3                C4                C5
 R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.29904i) (2.25, 0.433013i)
 
+```
+
+```ocaml env=fft_env01
 # let d = Owl_fft.D.ifft c
 val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 
@@ -94,8 +98,10 @@ val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 R (1, 1.38778E-17i) (2, 1.15186E-15i) (1, -8.65641E-17i) (-1, -1.52188E-15i) (1.5, 1.69831E-16i) (1, 2.72882E-16i)
 
 ```
+In the result returned by `fft`, the first half contain the positive-frequency terms, and the second half contain the negative-frequency terms, in order of decreasingly negative frequency.
+Typically, only the FFT corresponding to positive frequencies is plotted.
 
-The example plots the FFT of the sum of two sines.
+The next example plots the FFT of the sum of two sines, showing the power of FFT to separate signals of different frequency.
 
 ```text
 # module G = Dense.Ndarray.Generic
@@ -149,12 +155,16 @@ Plot the result.
   let xa = Arr.linspace 1. 600. 600 in
   Plot.plot ~h xa z;
   Plot.output h 
-- : unit = ()
 ```
 
 ![Plot example 01](images/signal/plot_001.png "plot_001"){.align-center width=70%}
 
-`rfft` and `irfft` is for performing fft on real input.
+
+Next let's see `rfft` and `irfft`.
+Function `rfft` calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range.
+The negative part is implied by the Hermitian symmetry of the FFT.
+Similarly, `irfft` performs the reverse step of `rfft`. 
+First, let's make the input even number.
 
 ```text
 # let a = [|1.; 2.; 1.; -1.; 1.5; 1.0|]
@@ -178,6 +188,8 @@ R  1  2  1 -1 1.5  1
 
 ```
 
+And then we change the length of signal to odd.
+
 ```text
 # let a = [|1.; 2.; 1.; -1.; 1.5;|]
 val a : float array = [|1.; 2.; 1.; -1.; 1.5|]
@@ -193,7 +205,12 @@ R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 
 ```
 
+Notice that the rfft of odd and even length signals are of the same shape. (?)
+
 #### N-D Discrete Fourier transforms
+
+TODO: This is not the real N-D FFT. Verify it with SciPy examples.
+IMPLEMENTATION required.
 
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
@@ -226,11 +243,11 @@ IMAGE: plot x and y in to circle-like shape
 
 ## Applications of using FFT
 
-REFER: *Numerical in Matlab* book.
-
-Unlike the regression chapter, **make sure these examples work first**, then perhaps fill in some content. 
-They don't have to be all finished for this round. But you have to be sure about the workload.
-Do not dig deep into the topic FFT. That takes a whole book and more. 
+As we said, the applications of FFT are numerous. Here we pick three to demonstrate the power of FFT and how to use it in Owl.
+The first is to find the period rules in the historical data of sunspots, and the second is about analysing the content of dial number according to audio information.
+Both applications are inspired by [@moler2008numerical].
+The third application is about image processing.
+These three applications together present a full picture about how the wide usage of FFT in various scenarios.
 
 ### Find period of sunspots
 
@@ -280,7 +297,7 @@ The whole number can be used as exercise.
 
 ## FFT and Convolution
 
-Explain the connection clearly. Compare FFT and existing convolution methods if possible. 
+The FFT input signal is inherently truncated. This truncation can be modelled as multiplication of an infinite signal with a rectangular window function. In the spectral domain this multiplication becomes convolution of the signal spectrum with the window function spectrum, being of form . This convolution is the cause of an effect called spectral leakage. Windowing the signal with a dedicated window function helps mitigate spectral leakage.  (COPY ALERT)
 
 
 ## Filtering
