@@ -156,8 +156,14 @@ let term_count htbl doc =
       | false -&gt; Hashtbl.add htbl w 1.)
     doc
 
+(* build bag-of-words for the corpus *)
 let build_bow corpus =
-  ()</code></pre>
+  Nlp.Corpus.mapi_tok 
+    (fun i doc -&gt;
+      let htbl = Hashtbl.create 128 in
+      term_count htbl;
+      htbl)
+    corpus</code></pre>
 </div>
 </section>
 <section class="level2" id="term-frequencyinverse-document-frequency-tfidf">

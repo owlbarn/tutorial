@@ -185,8 +185,14 @@ let term_count htbl doc =
       | false -> Hashtbl.add htbl w 1.)
     doc
 
+(* build bag-of-words for the corpus *)
 let build_bow corpus =
-  ()
+  Nlp.Corpus.mapi_tok 
+    (fun i doc ->
+      let htbl = Hashtbl.create 128 in
+      term_count htbl;
+      htbl)
+    corpus
 ```
 
 
