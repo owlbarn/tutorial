@@ -2,10 +2,11 @@
 
 TODO: refer to https://scipy.github.io/devdocs/tutorial/signal.html. Try to implement its examples first. 
 
-So it's basically a bit of explanation + a lot examples for this chapter. 
+To cover the full scope of this topic, even briefly, requires a whole book. 
+This chapter we focuses on Fourier Transform. We introduce its basic idea, and then demonstrate how Owl support FFT with examples and applications.
+We also cover the relationship between FFT and Convolution, and filters. 
 
-## Fourier Transform
-
+## Discrete Fourier Transform
 
 Think about an audio that lasts for 10 seconds. 
 This audio can surely be described in the *time domain*, which means plotting its sound intensity against time as x axis.
@@ -48,11 +49,11 @@ Owl provides these basic FFT functions:
 
 TODO: introduce the FFTW we interface to a bit. It's a challenge to make FFT fast, and why FFTW works fast, etc.
 
-## Small examples
+### Examples
 
 TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. Try all these small examples. We can remove some of them later.
 
-### 1-D Discrete Fourier transforms
+#### 1-D Discrete Fourier transforms
 
 `fft` and `ifft`.
 
@@ -178,7 +179,7 @@ R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 
 ```
 
-### N-D Discrete Fourier transforms
+#### N-D Discrete Fourier transforms
 
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
@@ -240,17 +241,37 @@ and we can see 11 years is a prominent cycle.
 
 ### Decipher the Tone 
 
+The tune of phone is combination of two different frequencies: 
+
+IMAGE (Reference required)
+
+Data set from Matlab book. Also 1-D signal. 
+
+IMAGE: visualise the data.
+
+The problem is to find out the dial number. 
+Let's take the first segment as example. 
+
+```
+CODE
+```
+
+IMAGE: only two prominent frequencies. According to the table, we can be sure that the first digit in the phone number is xx.
+
+The whole number can be used as exercise. 
+
 ### Image Processing
 
 (from scipy book; NR chap 12.6; or the data-driven book; or from the elegant scipy book)
 
-## B-Splines
+## FFT and Convolution
+
+Explain the connection clearly. Compare FFT and existing convolution methods if possible. 
 
 
 ## Filtering
 
-
-## Kalman Filtering
-
+IMPLEMENTATION required: Currently none implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering. 
+Also, it's better we show the idea that "FFT is the basis of filtering" here.
 
 ## References

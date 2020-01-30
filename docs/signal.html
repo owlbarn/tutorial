@@ -1,9 +1,9 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Signal Processing - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="signal-processing">
 <h1>Signal Processing</h1>
 <p>TODO: refer to https://scipy.github.io/devdocs/tutorial/signal.html. Try to implement its examples first.</p>
-<p>So it’s basically a bit of explanation + a lot examples for this chapter.</p>
-<section class="level2" id="fourier-transform">
-<h2>Fourier Transform</h2>
+<p>To cover the full scope of this topic, even briefly, requires a whole book. This chapter we focuses on Fourier Transform. We introduce its basic idea, and then demonstrate how Owl support FFT with examples and applications. We also cover the relationship between FFT and Convolution, and filters.</p>
+<section class="level2" id="discrete-fourier-transform">
+<h2>Discrete Fourier Transform</h2>
 <p>Think about an audio that lasts for 10 seconds. This audio can surely be described in the <em>time domain</em>, which means plotting its sound intensity against time as x axis. On the other hand, maybe less obviously, the sound can also be described in the <em>frequency domain</em>. For example, if all the 10 seconds are filled with only playing the A# note, then you can describe this whole audio with one frequency number: 466.16 Hz. If it’s a C note, then the number is 523.25 Hz, etc. The thing is that, the real-world sound is not always so pure, they are quite likely compounded from different frequencies. Perhaps this 10 seconds are about water flowing, or wind whispering, what frequencies it is built from then?</p>
 <p>That’s where Discrete Fourier Transform (DFT) comes into play. It captures the idea of converting the two form of representing a signal: in time domain and in frequency domain. We can represent a signal with the values of some quantity <span class="math inline">\(h\)</span> as a function of time: <span class="math inline">\(h(t)\)</span>, or this signal can be represented by giving its amplitude <span class="math inline">\(H\)</span> as function of frequency: <span class="math inline">\(H(f)\)</span>. We can think they are two representation of the same thing, and Fourier Transform change between them:</p>
 <p><span class="math display">\[ h(f) = \int H(f)\exp^{-2\pi~ift}df\]</span> <span class="math display">\[ H(f) = \int h(t)\exp^{2\pi~ift}dt\]</span></p>
@@ -49,12 +49,11 @@
 </tbody>
 </table>
 <p>TODO: introduce the FFTW we interface to a bit. It’s a challenge to make FFT fast, and why FFTW works fast, etc.</p>
-</section>
-<section class="level2" id="small-examples">
-<h2>Small examples</h2>
+<section class="level3" id="examples">
+<h3>Examples</h3>
 <p>TODO: refer to https://scipy.github.io/devdocs/tutorial/fft.html. Try all these small examples. We can remove some of them later.</p>
-<section class="level3" id="d-discrete-fourier-transforms">
-<h3>1-D Discrete Fourier transforms</h3>
+<section class="level4" id="d-discrete-fourier-transforms">
+<h4>1-D Discrete Fourier transforms</h4>
 <p><code>fft</code> and <code>ifft</code>.</p>
 <div class="highlight">
 <pre><code class="language-text"># let a = [|1.;2.;1.;-1.;1.5;1.0|]
@@ -172,8 +171,8 @@ R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 </code></pre>
 </div>
 </section>
-<section class="level3" id="n-d-discrete-fourier-transforms">
-<h3>N-D Discrete Fourier transforms</h3>
+<section class="level4" id="n-d-discrete-fourier-transforms">
+<h4>N-D Discrete Fourier transforms</h4>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
 <div class="highlight">
 <pre><code class="language-text"># let a = Dense.Matrix.Z.eye 5
@@ -200,6 +199,7 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 <p>IMAGE: plot x and y in to circle-like shape</p>
 </section>
 </section>
+</section>
 <section class="level2" id="applications-of-using-fft">
 <h2>Applications of using FFT</h2>
 <p>REFER: <em>Numerical in Matlab</em> book.</p>
@@ -219,20 +219,29 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 </section>
 <section class="level3" id="decipher-the-tone">
 <h3>Decipher the Tone</h3>
+<p>The tune of phone is combination of two different frequencies:</p>
+<p>IMAGE (Reference required)</p>
+<p>Data set from Matlab book. Also 1-D signal.</p>
+<p>IMAGE: visualise the data.</p>
+<p>The problem is to find out the dial number. Let’s take the first segment as example.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE</code></pre>
+</div>
+<p>IMAGE: only two prominent frequencies. According to the table, we can be sure that the first digit in the phone number is xx.</p>
+<p>The whole number can be used as exercise.</p>
 </section>
 <section class="level3" id="image-processing">
 <h3>Image Processing</h3>
 <p>(from scipy book; NR chap 12.6; or the data-driven book; or from the elegant scipy book)</p>
 </section>
 </section>
-<section class="level2" id="b-splines">
-<h2>B-Splines</h2>
+<section class="level2" id="fft-and-convolution">
+<h2>FFT and Convolution</h2>
+<p>Explain the connection clearly. Compare FFT and existing convolution methods if possible.</p>
 </section>
 <section class="level2" id="filtering">
 <h2>Filtering</h2>
-</section>
-<section class="level2" id="kalman-filtering">
-<h2>Kalman Filtering</h2>
+<p>IMPLEMENTATION required: Currently none implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering. Also, it’s better we show the idea that “FFT is the basis of filtering” here.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
