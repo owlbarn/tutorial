@@ -291,6 +291,8 @@ Show that pairwise distance can be done in a matrix multiplication, which is oft
 
 NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.
 
+![Random project on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% }
+
 
 ## Conclusion
 
