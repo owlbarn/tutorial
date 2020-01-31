@@ -241,7 +241,7 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 IMAGE: plot x and y in to circle-like shape
 
 
-## Applications of using FFT
+## Applications of FFT
 
 As we said, the applications of FFT are numerous. Here we pick three to demonstrate the power of FFT and how to use it in Owl.
 The first is to find the period rules in the historical data of sunspots, and the second is about analysing the content of dial number according to audio information.
@@ -295,14 +295,125 @@ The whole number can be used as exercise.
 
 (from scipy book; NR chap 12.6; or the data-driven book; or from the elegant scipy book)
 
-## FFT and Convolution
-
-The FFT input signal is inherently truncated. This truncation can be modelled as multiplication of an infinite signal with a rectangular window function. In the spectral domain this multiplication becomes convolution of the signal spectrum with the window function spectrum, being of form . This convolution is the cause of an effect called spectral leakage. Windowing the signal with a dedicated window function helps mitigate spectral leakage.  (COPY ALERT)
-
-
 ## Filtering
 
-IMPLEMENTATION required: Currently none implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering. 
-Also, it's better we show the idea that "FFT is the basis of filtering" here.
+In the N-dimensional Array chapter, we have introduced the idea of `filter`, which allows to get target data from the input according to some function. 
+*Filtering* in signal processing is similar. It is a generic name for any system that modifies input signal in certain ways, most likely removing some unwanted features from it. 
+
+### Example: Smoothing
+
+Let's start with a simple and common filter task: smoothing. 
+Suppose you have have a segment of noisy signal: the stock price of Google.
+In many cases we hope to remove the extreme trends and see a long-term trend from the historical data.
+
+DATA
+
+```
+CODE: visualise dataset 
+```
+
+To compute the moving average of this signal, I'll create a *window* with 10 elements: 
+
+```
+CODE: short, create an array (not ndarray, since we want to start easy), and normalise to the same 0.1.
+```
+
+Now, we can sliding this window along input signal:
+
+IMAGES: three images that shows the sliding. Two arrays "collide" with each other in opposite direction. 
+
+```
+CODE: moving average
+```
+
+IMAGE: original data + resulting average.
+
+### Gaussian Filter
+
+The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result). 
+We can change to another one: the gaussian filter.
+
+```
+CODE
+```
+
+IMAGE: the result, should be a better smoothing curve. 
+
+(IMPLEMENTATION maybe required: Currently none filter implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering.)
+
+Filters can be generally by their usage into time domain filters and frequency domain filters.
+Time domain filters are used when the information is encoded in the shape of the signal's waveform, and can be used for tasks such as smoothing, waveform shaping, etc. 
+It includes filter methods such as moving average and single pole.
+Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. 
+There are many filters, each with different shape (or *impulse response*) and application scenarios, and we cannot cover them fully here. 
+Please refer to some classical textbooks on signal processing such as [@smith1997scientist] for more information.
+
+### Signal Convolution
+
+What we have done is called *convolution*. 
+Formally it is mathematical operation on two functions that produces a third function expressing how the shape of one is modified by the other:
+
+$$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$
+
+Here $*$ denotes the convolution operation, and you can think of $f$ as (discrete) input signal, and $g$ be filter.
+Note that for computing $f(\tau)g(t-\tau)$ for each $\tau$ requires adding all product pairs. 
+You can see that this process is computation-heavy.
+It is even more tricky for computing the convolution of two continuous signal following definition.
+
+
+We have talked a lot about FFT, and here is the place we use it.
+Fourier Transformation can greatly reduce the complexity of computing the convolution and filtering.
+Specifically, the **Convolution Theorem** states that:
+
+$$\textrm{DFT}(f * g) = \textrm{DFT}(f).\textrm{DFT}(g).$$
+
+To put it into plain words, to get DFT of two signals' convolution, we can simply get the DFT of each signal separately and then multiply them element-wise.
+Someone may also prefer to express it in this way: convolution in the time domain can be expressed in multiplication in the frequency domain. And multiplication we are very familiar with.
+Once you have the $\textrm{DFT}(f * g)$, you can naturally apply the inverse transform and get $f * g$.
+
+Example: the same problem, but solve with FFT (use either average filter or gaussian filter, depending on which one is easy to do):
+
+```
+CODE: fft -> ifft -> smoothed stock price data.
+```
+
+IMAGE
+
+
+### FFT and Image Convolution
+
+You might heard of the word "convolution" before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. 
+The convolution in DNN is often applied on ndarrays. 
+It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called "kernel" to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray.
+This process can be best illustrated with the figure created by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
+
+![Image convolution illustration](images/signal/conv.png "conv"){width=90%}
+
+Owl has provided thorough support of convolution operation:
+
+
+
+```
+val conv1d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
+
+val conv2d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
+
+val conv3d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
+```
+
+They corresponds to different dimension of inputs. 
+Besides, Owl also support other derived convolution types, including dilated convolutions, transpose convolutions, and backward convolutions etc. 
+
+It's OK if none of this makes sense to you now. We'll explain the convolution and its usage in later chapter in detail.
+The point is that, if you look closely, you can find that the image convolution is but only a special high dimensional case of the convolution equation: a given input signal (the image), another similar but smaller filter signal (the kernel), and the filter slides across the input signal and perform element-wise multiplication.
+
+Therefore, we can implement the convolution with FFT and vise versa. 
+For example, we can use `conv1d` function in Owl to solve the previous smoothing problem:
+
+```
+CODE: conv1d of two vectors. 
+```
+Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
+
 
 ## References
