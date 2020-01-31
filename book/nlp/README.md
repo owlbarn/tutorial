@@ -200,6 +200,8 @@ let build_bow corpus =
 
 Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.
 
+Explain why TFIDF is better than BOW, what is the motivation. Give an examble to illustrate.
+
 ```ocaml
 let build_tfidf corpus =
   (* configure and build the model *)
@@ -228,12 +230,26 @@ let query model doc k =
 
 ## Latent Dirichlet Allocation (LDA)
 
-Explain what is LDA.
+Explain what is LDA. `topics` is the number of topics. Owl supports the following types of LDA algorithms.
+
 
 ```ocaml
-(* TODO: I need to change NLP interface a bit *)
-let build_lda corpus =
-  ()
+type lda_typ =
+  | SimpleLDA
+  | FTreeLDA
+  | LightLDA
+  | SparseLDA
+```
+
+How to train an LDA model.
+
+```text
+(* change to ocaml when image progation finished *)
+let build_lda corpus topics =
+  let model = Nlp.Lda.init ~iter:1000 topics in
+  let lda_typ = Nlp.Lda.SparseLDA in
+  Nlp.Lda.train lda_typ model;
+  Owl.Log.info "LDA training finished."
 ```
 
 

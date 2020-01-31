@@ -169,6 +169,7 @@ let build_bow corpus =
 <section class="level2" id="term-frequencyinverse-document-frequency-tfidf">
 <h2>Term Frequency–Inverse Document Frequency (TFIDF)</h2>
 <p>Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.</p>
+<p>Explain why TFIDF is better than BOW, what is the motivation. Give an examble to illustrate.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_tfidf corpus =
   (* configure and build the model *)
@@ -194,11 +195,22 @@ let build_bow corpus =
 </section>
 <section class="level2" id="latent-dirichlet-allocation-lda">
 <h2>Latent Dirichlet Allocation (LDA)</h2>
-<p>Explain what is LDA.</p>
+<p>Explain what is LDA. <code>topics</code> is the number of topics. Owl supports the following types of LDA algorithms.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* TODO: I need to change NLP interface a bit *)
-let build_lda corpus =
-  ()</code></pre>
+<pre><code class="language-ocaml">type lda_typ =
+  | SimpleLDA
+  | FTreeLDA
+  | LightLDA
+  | SparseLDA</code></pre>
+</div>
+<p>How to train an LDA model.</p>
+<div class="highlight">
+<pre><code class="language-text">(* change to ocaml when image progation finished *)
+let build_lda corpus topics =
+  let model = Nlp.Lda.init ~iter:1000 topics in
+  let lda_typ = Nlp.Lda.SparseLDA in
+  Nlp.Lda.train lda_typ model;
+  Owl.Log.info "LDA training finished."</code></pre>
 </div>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
