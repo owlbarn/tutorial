@@ -183,7 +183,7 @@ let build_bow corpus =
 
   model</code></pre>
 </div>
-<p>After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model.</p>
+<p>After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model. Note do NOT teach how to index and how the similarity is calculted here, teach in Indexing and Searching section.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let query model doc k =
   (* TODO: change api *)
@@ -219,7 +219,30 @@ let build_lda corpus topics =
 </section>
 <section class="level2" id="indexing-and-searching">
 <h2>Indexing and Searching</h2>
-<p>First implement linear search, then explain random projection and implement a naive version.</p>
+<p>Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modeling method.</p>
+<section class="level3" id="euclidean-and-consine-similarity">
+<h3>Euclidean and Consine Similarity</h3>
+<p>Define what is euclidean and consine similarity. Emphasise both are correlated on a high-dimensional ball model.</p>
+<p>TODO: use an image to illustrate.</p>
+</section>
+<section class="level3" id="liear-searching">
+<h3>Liear Searching</h3>
+<p>First implement linear search, in this case, we do not need index at all, but it is very slow.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* TODO *)</code></pre>
+</div>
+</section>
+<section class="level3" id="use-matrix-multiplication">
+<h3>Use Matrix Multiplication</h3>
+<p>Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* TODO *)</code></pre>
+</div>
+</section>
+<section class="level3" id="random-projection">
+<h3>Random Projection</h3>
+<p>NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.</p>
+</section>
 </section>
 <section class="level2" id="conclusion">
 <h2>Conclusion</h2>

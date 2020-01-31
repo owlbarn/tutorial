@@ -216,7 +216,7 @@ let build_tfidf corpus =
   model
 ```
 
-After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model.
+After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model. Note do NOT teach how to index and how the similarity is calculted here, teach in Indexing and Searching section.
 
 ```ocaml
 let query model doc k =
@@ -260,7 +260,36 @@ Explain what is LSA, and how it differs from LDA wrt to derived topics.
 
 ## Indexing and Searching
 
-First implement linear search, then explain random projection and implement a naive version.
+Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modeling method.
+
+### Euclidean and Consine Similarity
+
+Define what is euclidean and consine similarity. Emphasise both are correlated on a high-dimensional ball model.
+
+TODO: use an image to illustrate.
+
+
+### Liear Searching
+
+First implement linear search, in this case, we do not need index at all, but it is very slow.
+
+```ocaml
+(* TODO *)
+```
+
+
+### Use Matrix Multiplication
+
+Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation.
+
+```ocaml
+(* TODO *)
+```
+
+
+### Random Projection
+
+NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.
 
 
 ## Conclusion
