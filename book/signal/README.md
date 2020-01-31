@@ -11,8 +11,6 @@ We also cover the relationship between FFT and Convolution, and filters.
 
 One theme in numerical applications is the transformation of equations into a coordinate system so that the original question can be easily decoupled and simplified. 
 One of the most important such transformation is the *Fourier Transform*, which decomposes a function of time into its constituent frequencies. 
-In computer based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous. 
-In that case, the method is called *Discrete Fourier Transform* (DFT). 
 
 All these sound too vague. Let's look at an example.
 Think about an audio that lasts for 10 seconds. 
@@ -28,10 +26,25 @@ $$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$
 
 To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.
 
+In computer-based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous. 
+In that case, the method is called *Discrete Fourier Transform* (DFT). 
+Suppose we have a complex vector $y$ as signal, which contains $n$ elements, then to get the Fourier Transform vector $Y$, the discrete form of the previous equation can be expressed with:
+
+$$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$
+$$ y_k = \frac{1}{n}\sum_{j=0}^{n-1}Y_k~\omega^{-jk},$$
+
+where $\omega = \exp{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that go from 0 to $n-1$ and $k = 0, 1, ..., n -1$.
+
+We highly suggest you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown. 
+It shows how this equation of Fourier Transform comes into being with beautiful and clear illustration.
+(TODO: follow the video, explain the idea of FT clearly, not just smashing an equation into readers' faces.)
+
+(maybe TODO: we can perhaps implement a naive DFT process, both to illustrate the theory with OCaml code, and lay the foundation for understanding FFT. Refer to: Matlab NC book, Chap 8.2)
+
 You might be wondering, it's cool that I can recognise how a sound is composed, but so what? 
 Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
-Not just sound. 
-You can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise. 
+
+Not just sound; you can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise. 
 We will show such examples later.
 
 Actually, the application of FT is more than on sound or image signal processing.
@@ -39,13 +52,21 @@ We all use Fourier Transform every day without knowing it: mobile phones, image 
 It is the cornerstone fo computational mathematics. 
 One important reason of its popularity is that it has an efficient algorithm in implementation: Fast Fourier Transform.
 
-
 ## Fast Fourier Transform
 
 One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $\mathcal{O}(n^2)$, since it involves a dense $n$ by $n$ matrix multiplication.
 It means that DFT doesn't scale well with input size.
 The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $\mathcal{O}(n\log{}n)$.
-To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions, and most importantly, you only need to compute one such DFT, so on and so forth. Therefore the computation can be reduced to a $log$ level. 
+To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions:
+
+$$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$
+$$ = \sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j} + \omega^k\sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j+1}.$$
+
+The key to this step is the fact that $\omega_{2n}^2 = \omega_n$.
+According to this process, you only need to compute FFT for half of the signal, the other half can be gotten by multiplied with $\omega^{k}$, and then concatenate these two sums. 
+The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a $log$ level in a recursive process.
+
+(TODO: but what about the $y_{2j+1}$ part in the second sum? how come the second could be the same as the first sum? Need figure it out.)
 
 To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more. 
@@ -209,8 +230,9 @@ Notice that the rfft of odd and even length signals are of the same shape. (?)
 
 #### N-D Discrete Fourier transforms
 
-TODO: This is not the real N-D FFT. Verify it with SciPy examples.
+( TODO: This is not the real N-D FFT. Verify it with SciPy examples.
 IMPLEMENTATION required.
+TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )
 
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
@@ -248,6 +270,8 @@ The first is to find the period rules in the historical data of sunspots, and th
 Both applications are inspired by [@moler2008numerical].
 The third application is about image processing.
 These three applications together present a full picture about how the wide usage of FFT in various scenarios.
+
+(A backup application can always be to separate noises; Refer to Data-Driven Book, Code 2.3.)
 
 ### Find period of sunspots
 
@@ -293,7 +317,7 @@ The whole number can be used as exercise.
 
 ### Image Processing
 
-(from scipy book; NR chap 12.6; or the data-driven book; or from the elegant scipy book)
+(NR chap 12.6; or Chap 2.6 in the data-driven book (including implementation of 2DFFT); or from the elegant scipy book)
 
 ## Filtering
 
