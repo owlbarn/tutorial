@@ -22,6 +22,8 @@
         images/case-obj-detect/example_01.jpg
         images/case-obj-detect/example_obj.jpg
         images/case-obj-detect/example_seg.jpg
+        images/case-recommender/plot_01.png
+        images/case-recommender/plot_02.png
         images/cgraph/owl_cgraph_functor_stack.png
         images/cgraph/owl_cgraph_mnist_opt.png
         images/cgraph/owl_cgraph_mnist_raw.png
