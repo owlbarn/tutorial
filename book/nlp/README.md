@@ -200,6 +200,8 @@ let build_bow corpus =
 
 Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.
 
+Explain why TFIDF is better than BOW, what is the motivation. Give an examble to illustrate.
+
 ```ocaml
 let build_tfidf corpus =
   (* configure and build the model *)
@@ -214,7 +216,7 @@ let build_tfidf corpus =
   model
 ```
 
-After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model.
+After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model. Note do NOT teach how to index and how the similarity is calculted here, teach in Indexing and Searching section.
 
 ```ocaml
 let query model doc k =
@@ -228,12 +230,26 @@ let query model doc k =
 
 ## Latent Dirichlet Allocation (LDA)
 
-Explain what is LDA.
+Explain what is LDA. `topics` is the number of topics. Owl supports the following types of LDA algorithms.
+
 
 ```ocaml
-(* TODO: I need to change NLP interface a bit *)
-let build_lda corpus =
-  ()
+type lda_typ =
+  | SimpleLDA
+  | FTreeLDA
+  | LightLDA
+  | SparseLDA
+```
+
+How to train an LDA model.
+
+```text
+(* change to ocaml when image progation finished *)
+let build_lda corpus topics =
+  let model = Nlp.Lda.init ~iter:1000 topics in
+  let lda_typ = Nlp.Lda.SparseLDA in
+  Nlp.Lda.train lda_typ model;
+  Owl.Log.info "LDA training finished."
 ```
 
 
@@ -244,7 +260,38 @@ Explain what is LSA, and how it differs from LDA wrt to derived topics.
 
 ## Indexing and Searching
 
-First implement linear search, then explain random projection and implement a naive version.
+Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modeling method.
+
+### Euclidean and Consine Similarity
+
+Define what is euclidean and consine similarity. Emphasise both are correlated on a high-dimensional ball model.
+
+TODO: use an image to illustrate.
+
+
+### Liear Searching
+
+First implement linear search, in this case, we do not need index at all, but it is very slow.
+
+```ocaml
+(* TODO *)
+```
+
+
+### Use Matrix Multiplication
+
+Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation.
+
+```ocaml
+(* TODO *)
+```
+
+
+### Random Projection
+
+NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.
+
+![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% }
 
 
 ## Conclusion
