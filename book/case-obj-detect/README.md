@@ -13,12 +13,12 @@ It gets easily confused when there are lots of objects.
 
 *Object Detection* is another classical computer vision task. Given an image that contains multiple objects, an object detection applications aims to classify individual objects and localize each using a bounding box. 
 
-![](images/case-obj-detect/example_obj.jpg)
+![](images/case-obj-detect/example_obj.jpg){#fig:case-obj-detect:example_obj}
 *Example of object detection ([src](https://en.wikipedia.org/wiki/File:Detected-with-YOLO--Schreibtisch-mit-Objekten.jpg))*
 
 Similarly,  *Semantic Segmentation* classify the pixels on an image in different categories. Each segment is recognised by a "mask" that follows cover the whole object.
 
-![](images/case-obj-detect/example_seg.jpg)
+![](images/case-obj-detect/example_seg.jpg){#fig:case-obj-detect:example_seg}
 *Example of semantic segmentation ([src](https://gts.ai/how-do-we-solve-the-challenges-faced-due-to-semantic-segmentation/))*
 
 In 2017, the *Mask R-CNN* (Mask Region-based Convolutional Neural Network) architecture was published and with sufficient training, it can solve all these problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. 
@@ -26,9 +26,9 @@ This task is called *Instance Segmentation*.
 This network has now been implemented in Owl. 
 As a preliminary example, this is what it can do:
 
-![](images/case-obj-detect/example_00.jpg)
+![Example: Street view](images/case-obj-detect/example_00.jpg){#fig:case-obj-detect:example_01}
 
-![](images/case-obj-detect/example_01.jpg)
+![Example: Sheep](images/case-obj-detect/example_01.jpg){#fig:case-obj-detect:example_02}
 
 In these two examples, normal pictures are processed by MRCNN, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1. 
 

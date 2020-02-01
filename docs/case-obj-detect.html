@@ -6,12 +6,16 @@
 <h2>Introduction</h2>
 <p>In the chapter about the <a href="https://ocaml.xyz/book/case-image-inception.html">image classification</a>, we have introduced how the DNN can be applied to classify the one single object in an image. It gets easily confused when there are lots of objects.</p>
 <p><em>Object Detection</em> is another classical computer vision task. Given an image that contains multiple objects, an object detection applications aims to classify individual objects and localize each using a bounding box.</p>
-<p><img src="images/case-obj-detect/example_obj.jpg"> <em>Example of object detection (<a href="https://en.wikipedia.org/wiki/File:Detected-with-YOLO--Schreibtisch-mit-Objekten.jpg">src</a>)</em></p>
+<p><img id="fig:case-obj-detect:example_obj" src="images/case-obj-detect/example_obj.jpg"> <em>Example of object detection (<a href="https://en.wikipedia.org/wiki/File:Detected-with-YOLO--Schreibtisch-mit-Objekten.jpg">src</a>)</em></p>
 <p>Similarly, <em>Semantic Segmentation</em> classify the pixels on an image in different categories. Each segment is recognised by a “mask” that follows cover the whole object.</p>
-<p><img src="images/case-obj-detect/example_seg.jpg"> <em>Example of semantic segmentation (<a href="https://gts.ai/how-do-we-solve-the-challenges-faced-due-to-semantic-segmentation/">src</a>)</em></p>
+<p><img id="fig:case-obj-detect:example_seg" src="images/case-obj-detect/example_seg.jpg"> <em>Example of semantic segmentation (<a href="https://gts.ai/how-do-we-solve-the-challenges-faced-due-to-semantic-segmentation/">src</a>)</em></p>
 <p>In 2017, the <em>Mask R-CNN</em> (Mask Region-based Convolutional Neural Network) architecture was published and with sufficient training, it can solve all these problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. This task is called <em>Instance Segmentation</em>. This network has now been implemented in Owl. As a preliminary example, this is what it can do:</p>
-<p><img src="images/case-obj-detect/example_00.jpg"></p>
-<p><img src="images/case-obj-detect/example_01.jpg"></p>
+<figure>
+<img alt="" id="fig:case-obj-detect:example_01" src="images/case-obj-detect/example_00.jpg"><figcaption>Figure 1: Example: Street view</figcaption>
+</figure>
+<figure>
+<img alt="" id="fig:case-obj-detect:example_02" src="images/case-obj-detect/example_01.jpg"><figcaption>Figure 2: Example: Sheep</figcaption>
+</figure>
 <p>In these two examples, normal pictures are processed by MRCNN, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1.</p>
 <p>Image segmentation have massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells …), traffic control systems, locate objects in satellite images, etc.</p>
 </section>

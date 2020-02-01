@@ -11,7 +11,7 @@ We then specify A as the content image and B as the style image, then what a NST
 The figure below illustrate this point ([src](http://genekogan.com/works/style-transfer/)). You can apply different art styles to the same "Mona Lisa", or apply the same "Starry Sky" style to any pictures, even a normal daily street view.
 Isn’t it amazing? 
 
-![Mona Lisa](images/case-nst/mona_lisa.png "Mona Lisa")
+![Mona Lisa](images/case-nst/mona_lisa.png "Mona Lisa"){#fig:case-nst:mona-lisa}
 
 
 ## NST: A Very Brief Theory
@@ -52,13 +52,7 @@ This module also supports saving the intermediate images to the same directory a
 That’s all it takes! If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
 I have to say I had a lot lot of fun playing with it -- please allow me to introduce you one of my work using the exemplar images:
 
-![](images/case-nst/nst_example.png)
-
-Here is a presentation of how the content image change gradually in style:
-
-<p align="center">
-  <img src="images/case-nst/example_01.gif">
-</p>
+![Example](images/case-nst/nst_example.png){#fig:case-nst:example_01}
 
 More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
@@ -143,7 +137,7 @@ Current we support six art styles:
 
 Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles. 
 
-![](images/case-nst/example_fst00.png)
+![](images/case-nst/example_fst00.png){#fig:case-obj-detect:example_03}
 
 If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. 
 To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this [Youtube list](https://www.youtube.com/watch?v=cFOM-JnyJv4&list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H).
