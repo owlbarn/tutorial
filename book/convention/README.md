@@ -56,22 +56,26 @@ As we can see from the function type, the output can be specified by an optional
 
 Most binary math functions in Owl are associated with a shorthand operator, such as `+`, `-`, `*`, and `/`. The impure versions also have their own operators. For example, corresponding to `Arr.(x + y)` which returns the result in a new ndarray, you can write `Arr.(x += y)` which adds up `x` and `y` and saves the result into `x`.
 
-```text
-
-==============    ==============    ==============
+--------------    --------------    --------------
 Function Name     Pure              Impure
-==============    ==============    ==============
+--------------    --------------    --------------
 add               `+`               `+=`
-sub               `-`               `-=`
-mul               `*`               `*=`
-div               `/`               `/=`
-add_scalar        `+$`              `+$=`
-sub_scalar        `-$`              `-$=`
-mul_scalar        `*$`              `*$=`
-div_scalar        `/$`              `/$=`
-==============    ==============    ==============
 
-```
+sub               `-`               `-=`
+
+mul               `*`               `*=`
+
+div               `/`               `/=`
+
+add_scalar        `+$`              `+$=`
+
+sub_scalar        `-$`              `-$=`
+
+mul_scalar        `*$`              `*$=`
+
+div_scalar        `/$`              `/$=`
+--------------    --------------    --------------
+: Function alias {#tbl:convention:pure}
 
 
 ##  Ndarray vs. Scalar
@@ -161,68 +165,119 @@ As long as a module implements all the functions defined in the module signature
 
 The operators have been included in each `Ndarray` and `Matrix` module. The following table summarises the operators currently implemented. In the table, both `x` and `y` represent either a matrix or an ndarray while `a` represents a scalar value.
 
-```text
 
-============  ============  ========================  ============  =================
+------------  ------------  ------------------------  ------------  -----------------
 Operator      Example       Operation                 Dense/Sparse  Ndarray/Matrix
-============  ============  ========================  ============  =================
+------------  ------------  ------------------------  ------------  -----------------
 `+`           `x + y`       element-wise add          both          both
-`-`           `x - y`       element-wise sub          both          both
-`*`           `x * y`       element-wise mul          both          both
-`/`           `x / y`       element-wise div          both          both
-`+$`          `x +$ a`      add scalar                both          both
-`-$`          `x -$ a`      sub scalar                both          both
-`*$`          `x *$ a`      mul scalar                both          both
-`/$`          `x /$ a`      div scalar                both          both
-`$+`          `a $+ x`      scalar add                both          both
-`$-`          `a $- x`      scalar sub                both          both
-`$*`          `a $* x`      scalar mul                both          both
-`$/`          `a $/ x`      scalar div                both          both
-`=`           `x = y`       comparison                both          both
-`!=`          `x != y`      comparison                both          both
-`<>`          `x <> y`      same as `!=`              both          both
-`>`           `x > y`       comparison                both          both
-`<`           `x < y`       comparison                both          both
-`>=`          `x >= y`      comparison                both          both
-`<=`          `x <= y`      comparison                both          both
-`=.`          `x =. y`      element-wise cmp          Dense         both
-`!=.`         `x !=. y`     element-wise cmp          Dense         both
-`<>.`         `x <>. y`     same as `!=.`             Dense         both
-`>.`          `x >. y`      element-wise cmp          Dense         both
-`<.`          `x <. y`      element-wise cmp          Dense         both
-`>=.`         `x >=. y`     element-wise cmp          Dense         both
-`<=.`         `x <=. y`     element-wise cmp          Dense         both
-`=$`          `x =$ y`      comp to scalar            Dense         both
-`!=$`         `x !=$ y`     comp to scalar            Dense         both
-`<>$  `       `x <>$ y`     same as `!=`              Dense         both
-`>$`          `x >$ y`      compare to scalar         Dense         both
-`<$`          `x <$ y`      compare to scalar         Dense         both
-`>=$`         `x >=$ y`     compare to scalar         Dense         both
-`<=$`         `x <=$ y`     compare to scalar         Dense         both
-`=.$`         `x =.$ y`     element-wise cmp          Dense         both
-`!=.$`        `x !=.$ y`    element-wise cmp          Dense         both
-`<>.$`        `x <>.$ y`    same as `!=.$`            Dense         both
-`>.$`         `x >.$ y`     element-wise cmp          Dense         both
-`<.$`         `x <.$ y`     element-wise cmp          Dense         both
-`>=.$`        `x >=.$ y`    element-wise cmp          Dense         both
-`<=.$`        `x <=.$ y`    element-wise cmp          Dense         both
-`=~`          `x =~ y`      approx `=`                Dense         both
-`=~$`         `x =~$ y`     approx `=$`               Dense         both
-`=~.`         `x =~. y`     approx `=.`               Dense         both
-`=~.$`        `x =~.$ y`    approx `=.$`              Dense         both
-`%`           `x % y`       mod divide                Dense         both
-`%$`          `x %$ a`      mod divide scalar         Dense         both
-`**`          `x ** y`      power function            Dense         both
-`*@`          `x *@ y`      matrix multiply           both          Matrix
-`/@`          `x /@ y`      solve linear system       both          Matrix
-`**@`         `x **@ a`     matrix power              both          Matrix
-`min2`        `min2 x y`    element-wise min          both          both
-`max2`        `max2 x y`    element-wise max          both          both
-`@=`          `x @= y`      concatenate vertically    Dense         both
-`@||`         `x @|| y`     concatenate horizontally  Dense         both
-============  ============  ========================  ============  =================
 
-```
+`-`           `x - y`       element-wise sub          both          both
+
+`*`           `x * y`       element-wise mul          both          both
+
+`/`           `x / y`       element-wise div          both          both
+
+`+$`          `x +$ a`      add scalar                both          both
+
+`-$`          `x -$ a`      sub scalar                both          both
+
+`*$`          `x *$ a`      mul scalar                both          both
+
+`/$`          `x /$ a`      div scalar                both          both
+
+`$+`          `a $+ x`      scalar add                both          both
+
+`$-`          `a $- x`      scalar sub                both          both
+
+`$*`          `a $* x`      scalar mul                both          both
+
+`$/`          `a $/ x`      scalar div                both          both
+
+`=`           `x = y`       comparison                both          both
+
+`!=`          `x != y`      comparison                both          both
+
+`<>`          `x <> y`      same as `!=`              both          both
+
+`>`           `x > y`       comparison                both          both
+
+`<`           `x < y`       comparison                both          both
+
+`>=`          `x >= y`      comparison                both          both
+
+`<=`          `x <= y`      comparison                both          both
+
+`=.`          `x =. y`      element-wise cmp          Dense         both
+
+`!=.`         `x !=. y`     element-wise cmp          Dense         both
+
+`<>.`         `x <>. y`     same as `!=.`             Dense         both
+
+`>.`          `x >. y`      element-wise cmp          Dense         both
+
+`<.`          `x <. y`      element-wise cmp          Dense         both
+
+`>=.`         `x >=. y`     element-wise cmp          Dense         both
+
+`<=.`         `x <=. y`     element-wise cmp          Dense         both
+
+`=$`          `x =$ y`      comp to scalar            Dense         both
+
+`!=$`         `x !=$ y`     comp to scalar            Dense         both
+
+`<>$  `       `x <>$ y`     same as `!=`              Dense         both
+
+`>$`          `x >$ y`      compare to scalar         Dense         both
+
+`<$`          `x <$ y`      compare to scalar         Dense         both
+
+`>=$`         `x >=$ y`     compare to scalar         Dense         both
+
+`<=$`         `x <=$ y`     compare to scalar         Dense         both
+
+`=.$`         `x =.$ y`     element-wise cmp          Dense         both
+
+`!=.$`        `x !=.$ y`    element-wise cmp          Dense         both
+
+`<>.$`        `x <>.$ y`    same as `!=.$`            Dense         both
+
+`>.$`         `x >.$ y`     element-wise cmp          Dense         both
+
+`<.$`         `x <.$ y`     element-wise cmp          Dense         both
+
+`>=.$`        `x >=.$ y`    element-wise cmp          Dense         both
+
+`<=.$`        `x <=.$ y`    element-wise cmp          Dense         both
+
+`=~`          `x =~ y`      approx `=`                Dense         both
+
+`=~$`         `x =~$ y`     approx `=$`               Dense         both
+
+`=~.`         `x =~. y`     approx `=.`               Dense         both
+
+`=~.$`        `x =~.$ y`    approx `=.$`              Dense         both
+
+`%`           `x % y`       mod divide                Dense         both
+
+`%$`          `x %$ a`      mod divide scalar         Dense         both
+
+`**`          `x ** y`      power function            Dense         both
+
+`*@`          `x *@ y`      matrix multiply           both          Matrix
+
+`/@`          `x /@ y`      solve linear system       both          Matrix
+
+`**@`         `x **@ a`     matrix power              both          Matrix
+
+`min2`        `min2 x y`    element-wise min          both          both
+
+`max2`        `max2 x y`    element-wise max          both          both
+
+`@=`          `x @= y`      concatenate vertically    Dense         both
+
+`@||`         `x @|| y`     concatenate horizontally  Dense         both
+------------  ------------  ------------------------  ------------  -----------------
+: Infix Operators {#tbl:convention:infix}
 
 
 There is a list of things worth your attention as below.
@@ -285,37 +340,56 @@ As you can see, the operators above do not allow interoperation on different num
 
 Some people just like Pythonic way of working, `Owl.Ext` module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, `Ext` immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.
 
-```text
-
-=============    =============     ==========================
+-------------    -------------     --------------------------
 Operator         Example           Operation
-=============    =============     ==========================
+-------------    -------------     --------------------------
 `+`              `x + y`           add
-`-`              `x - y`           sub
-`*`              `x * y`           mul
-`/`              `x / y`           div
-`=`              `x = y`           comparison, return bool
-`!=`             `x != y`          comparison, return bool
-`<>`             `x <> y`          same as `!=`
-`>`              `x > y`           comparison, return bool
-`<`              `x < y`           comparison, return bool
-`>=`             `x >= y`          comparison, return bool
-`<=`             `x <= y`          comparison, return bool
-`=.`             `x =. y`          element_wise comparison
-`!=.`            `x !=. y`         element_wise comparison
-`<>.`            `x <>. y`         same as `!=.`
-`>.`             `x >. y`          element_wise comparison
-`<.`             `x <. y`          element_wise comparison
-`>=.`            `x >=. y`         element_wise comparison
-`<=.`            `x <=. y`         element_wise comparison
-`%`              `x % y`           element_wise mod divide
-`**`             `x ** y`          power function
-`*@`             `x *@ y`          matrix multiply
-`min2`           `min2 x y`        element-wise min
-`max2`           `max2 x y`        element-wise max
-=============    =============     ==========================
 
-```
+`-`              `x - y`           sub
+
+`*`              `x * y`           mul
+
+`/`              `x / y`           div
+
+`=`              `x = y`           comparison, return bool
+
+`!=`             `x != y`          comparison, return bool
+
+`<>`             `x <> y`          same as `!=`
+
+`>`              `x > y`           comparison, return bool
+
+`<`              `x < y`           comparison, return bool
+
+`>=`             `x >= y`          comparison, return bool
+
+`<=`             `x <= y`          comparison, return bool
+
+`=.`             `x =. y`          element_wise comparison
+
+`!=.`            `x !=. y`         element_wise comparison
+
+`<>.`            `x <>. y`         same as `!=.`
+
+`>.`             `x >. y`          element_wise comparison
+
+`<.`             `x <. y`          element_wise comparison
+
+`>=.`            `x >=. y`         element_wise comparison
+
+`<=.`            `x <=. y`         element_wise comparison
+
+`%`              `x % y`           element_wise mod divide
+
+`**`             `x ** y`          power function
+
+`*@`             `x *@ y`          matrix multiply
+
+`min2`           `min2 x y`        element-wise min
+
+`max2`           `max2 x y`        element-wise max
+-------------    -------------     --------------------------
+: Operator extensions {#tbl:convention:ext}
 
 You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing interoperation makes the operator table much shorter.
 

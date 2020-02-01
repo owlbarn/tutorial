@@ -40,21 +40,64 @@
 </div>
 <p>As we can see from the function type, the output can be specified by an optional <code>out</code> parameter. If <code>out</code> is missing in the inputs, then Owl will try to use first operand (i.e.&nbsp;<code>x</code>) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument <code>x</code> must not be smaller than that of the second argument <code>y</code>. In other words, impure function only allows broadcasting smaller <code>y</code> onto <code>x</code> which is big enough to accommodate the result.</p>
 <p>Most binary math functions in Owl are associated with a shorthand operator, such as <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code>. The impure versions also have their own operators. For example, corresponding to <code>Arr.(x + y)</code> which returns the result in a new ndarray, you can write <code>Arr.(x += y)</code> which adds up <code>x</code> and <code>y</code> and saves the result into <code>x</code>.</p>
-<div class="highlight">
-<pre><code class="language-text">
-==============    ==============    ==============
-Function Name     Pure              Impure
-==============    ==============    ==============
-add               `+`               `+=`
-sub               `-`               `-=`
-mul               `*`               `*=`
-div               `/`               `/=`
-add_scalar        `+$`              `+$=`
-sub_scalar        `-$`              `-$=`
-mul_scalar        `*$`              `*$=`
-div_scalar        `/$`              `/$=`
-==============    ==============    ==============
-</code></pre>
+<div id="tbl:convention:pure">
+<table style="width:71%;">
+<caption>Table 1: Function alias</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function Name</th>
+<th style="text-align: left;">Pure</th>
+<th style="text-align: left;">Impure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">add</td>
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>+=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sub</td>
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>-=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mul</td>
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>*=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">div</td>
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>/=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">add_scalar</td>
+<td style="text-align: left;"><code>+$</code></td>
+<td style="text-align: left;"><code>+$=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sub_scalar</td>
+<td style="text-align: left;"><code>-$</code></td>
+<td style="text-align: left;"><code>-$=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mul_scalar</td>
+<td style="text-align: left;"><code>*$</code></td>
+<td style="text-align: left;"><code>*$=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">div_scalar</td>
+<td style="text-align: left;"><code>/$</code></td>
+<td style="text-align: left;"><code>/$=</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 <section class="level2" id="ndarray-vs.-scalar">
@@ -128,67 +171,406 @@ div_scalar        `/$`              `/$=`
 <p>The operators in Owl are implemented in the functors defined in the <code>Owl_operator</code> module. These operators are categorised into <code>Basic</code>, <code>Extend</code>, <code>Matrix</code>, and <code>Ndarray</code> four module type signatures, because some operations are only meaningful for certain data structures. E.g., matrix multiplication <code>*@</code> is only defined in <code>Matrix</code> signature.</p>
 <p>As long as a module implements all the functions defined in the module signature, you can use these functors to generate corresponding operators. In most cases, you do not need to work with these functors directly in Owl since I have done the generation part for you already.</p>
 <p>The operators have been included in each <code>Ndarray</code> and <code>Matrix</code> module. The following table summarises the operators currently implemented. In the table, both <code>x</code> and <code>y</code> represent either a matrix or an ndarray while <code>a</code> represents a scalar value.</p>
-<div class="highlight">
-<pre><code class="language-text">
-============  ============  ========================  ============  =================
-Operator      Example       Operation                 Dense/Sparse  Ndarray/Matrix
-============  ============  ========================  ============  =================
-`+`           `x + y`       element-wise add          both          both
-`-`           `x - y`       element-wise sub          both          both
-`*`           `x * y`       element-wise mul          both          both
-`/`           `x / y`       element-wise div          both          both
-`+$`          `x +$ a`      add scalar                both          both
-`-$`          `x -$ a`      sub scalar                both          both
-`*$`          `x *$ a`      mul scalar                both          both
-`/$`          `x /$ a`      div scalar                both          both
-`$+`          `a $+ x`      scalar add                both          both
-`$-`          `a $- x`      scalar sub                both          both
-`$*`          `a $* x`      scalar mul                both          both
-`$/`          `a $/ x`      scalar div                both          both
-`=`           `x = y`       comparison                both          both
-`!=`          `x != y`      comparison                both          both
-`&lt;&gt;`          `x &lt;&gt; y`      same as `!=`              both          both
-`&gt;`           `x &gt; y`       comparison                both          both
-`&lt;`           `x &lt; y`       comparison                both          both
-`&gt;=`          `x &gt;= y`      comparison                both          both
-`&lt;=`          `x &lt;= y`      comparison                both          both
-`=.`          `x =. y`      element-wise cmp          Dense         both
-`!=.`         `x !=. y`     element-wise cmp          Dense         both
-`&lt;&gt;.`         `x &lt;&gt;. y`     same as `!=.`             Dense         both
-`&gt;.`          `x &gt;. y`      element-wise cmp          Dense         both
-`&lt;.`          `x &lt;. y`      element-wise cmp          Dense         both
-`&gt;=.`         `x &gt;=. y`     element-wise cmp          Dense         both
-`&lt;=.`         `x &lt;=. y`     element-wise cmp          Dense         both
-`=$`          `x =$ y`      comp to scalar            Dense         both
-`!=$`         `x !=$ y`     comp to scalar            Dense         both
-`&lt;&gt;$  `       `x &lt;&gt;$ y`     same as `!=`              Dense         both
-`&gt;$`          `x &gt;$ y`      compare to scalar         Dense         both
-`&lt;$`          `x &lt;$ y`      compare to scalar         Dense         both
-`&gt;=$`         `x &gt;=$ y`     compare to scalar         Dense         both
-`&lt;=$`         `x &lt;=$ y`     compare to scalar         Dense         both
-`=.$`         `x =.$ y`     element-wise cmp          Dense         both
-`!=.$`        `x !=.$ y`    element-wise cmp          Dense         both
-`&lt;&gt;.$`        `x &lt;&gt;.$ y`    same as `!=.$`            Dense         both
-`&gt;.$`         `x &gt;.$ y`     element-wise cmp          Dense         both
-`&lt;.$`         `x &lt;.$ y`     element-wise cmp          Dense         both
-`&gt;=.$`        `x &gt;=.$ y`    element-wise cmp          Dense         both
-`&lt;=.$`        `x &lt;=.$ y`    element-wise cmp          Dense         both
-`=~`          `x =~ y`      approx `=`                Dense         both
-`=~$`         `x =~$ y`     approx `=$`               Dense         both
-`=~.`         `x =~. y`     approx `=.`               Dense         both
-`=~.$`        `x =~.$ y`    approx `=.$`              Dense         both
-`%`           `x % y`       mod divide                Dense         both
-`%$`          `x %$ a`      mod divide scalar         Dense         both
-`**`          `x ** y`      power function            Dense         both
-`*@`          `x *@ y`      matrix multiply           both          Matrix
-`/@`          `x /@ y`      solve linear system       both          Matrix
-`**@`         `x **@ a`     matrix power              both          Matrix
-`min2`        `min2 x y`    element-wise min          both          both
-`max2`        `max2 x y`    element-wise max          both          both
-`@=`          `x @= y`      concatenate vertically    Dense         both
-`@||`         `x @|| y`     concatenate horizontally  Dense         both
-============  ============  ========================  ============  =================
-</code></pre>
+<div id="tbl:convention:infix">
+<table>
+<caption>Table 2: Infix Operators</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 30%">
+<col style="width: 16%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Example</th>
+<th style="text-align: left;">Operation</th>
+<th>Dense/Sparse</th>
+<th style="text-align: left;">Ndarray/Matrix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+<td style="text-align: left;">element-wise add</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+<td style="text-align: left;">element-wise sub</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+<td style="text-align: left;">element-wise mul</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+<td style="text-align: left;">element-wise div</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+$</code></td>
+<td style="text-align: left;"><code>x +$ a</code></td>
+<td style="text-align: left;">add scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-$</code></td>
+<td style="text-align: left;"><code>x -$ a</code></td>
+<td style="text-align: left;">sub scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*$</code></td>
+<td style="text-align: left;"><code>x *$ a</code></td>
+<td style="text-align: left;">mul scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/$</code></td>
+<td style="text-align: left;"><code>x /$ a</code></td>
+<td style="text-align: left;">div scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>$+</code></td>
+<td style="text-align: left;"><code>a $+ x</code></td>
+<td style="text-align: left;">scalar add</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>$-</code></td>
+<td style="text-align: left;"><code>a $- x</code></td>
+<td style="text-align: left;">scalar sub</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>$*</code></td>
+<td style="text-align: left;"><code>a $* x</code></td>
+<td style="text-align: left;">scalar mul</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>$/</code></td>
+<td style="text-align: left;"><code>a $/ x</code></td>
+<td style="text-align: left;">scalar div</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;"><code>x = y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=</code></td>
+<td style="text-align: left;"><code>x != y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;</code></td>
+<td style="text-align: left;"><code>x &lt;&gt; y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;</code></td>
+<td style="text-align: left;"><code>x &gt; y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;</code></td>
+<td style="text-align: left;"><code>x &lt; y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=</code></td>
+<td style="text-align: left;"><code>x &gt;= y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=</code></td>
+<td style="text-align: left;"><code>x &lt;= y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.</code></td>
+<td style="text-align: left;"><code>x =. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.</code></td>
+<td style="text-align: left;"><code>x !=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;. y</code></td>
+<td style="text-align: left;">same as <code>!=.</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.</code></td>
+<td style="text-align: left;"><code>x &gt;. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.</code></td>
+<td style="text-align: left;"><code>x &lt;. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.</code></td>
+<td style="text-align: left;"><code>x &gt;=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.</code></td>
+<td style="text-align: left;"><code>x &lt;=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=$</code></td>
+<td style="text-align: left;"><code>x =$ y</code></td>
+<td style="text-align: left;">comp to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=$</code></td>
+<td style="text-align: left;"><code>x !=$ y</code></td>
+<td style="text-align: left;">comp to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;$</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;$ y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;$</code></td>
+<td style="text-align: left;"><code>x &gt;$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;$</code></td>
+<td style="text-align: left;"><code>x &lt;$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=$</code></td>
+<td style="text-align: left;"><code>x &gt;=$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=$</code></td>
+<td style="text-align: left;"><code>x &lt;=$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.$</code></td>
+<td style="text-align: left;"><code>x =.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.$</code></td>
+<td style="text-align: left;"><code>x !=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.$</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;.$ y</code></td>
+<td style="text-align: left;">same as <code>!=.$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.$</code></td>
+<td style="text-align: left;"><code>x &gt;.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.$</code></td>
+<td style="text-align: left;"><code>x &lt;.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.$</code></td>
+<td style="text-align: left;"><code>x &gt;=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.$</code></td>
+<td style="text-align: left;"><code>x &lt;=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=~</code></td>
+<td style="text-align: left;"><code>x =~ y</code></td>
+<td style="text-align: left;">approx <code>=</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=~$</code></td>
+<td style="text-align: left;"><code>x =~$ y</code></td>
+<td style="text-align: left;">approx <code>=$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=~.</code></td>
+<td style="text-align: left;"><code>x =~. y</code></td>
+<td style="text-align: left;">approx <code>=.</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=~.$</code></td>
+<td style="text-align: left;"><code>x =~.$ y</code></td>
+<td style="text-align: left;">approx <code>=.$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+<td style="text-align: left;">mod divide</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>%$</code></td>
+<td style="text-align: left;"><code>x %$ a</code></td>
+<td style="text-align: left;">mod divide scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;"><code>x ** y</code></td>
+<td style="text-align: left;">power function</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>*@</code></td>
+<td style="text-align: left;"><code>x *@ y</code></td>
+<td style="text-align: left;">matrix multiply</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>/@</code></td>
+<td style="text-align: left;"><code>x /@ y</code></td>
+<td style="text-align: left;">solve linear system</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>**@</code></td>
+<td style="text-align: left;"><code>x **@ a</code></td>
+<td style="text-align: left;">matrix power</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>min2</code></td>
+<td style="text-align: left;"><code>min2 x y</code></td>
+<td style="text-align: left;">element-wise min</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max2</code></td>
+<td style="text-align: left;"><code>max2 x y</code></td>
+<td style="text-align: left;">element-wise max</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>@=</code></td>
+<td style="text-align: left;"><code>x @= y</code></td>
+<td style="text-align: left;">concatenate vertically</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>@||</code></td>
+<td style="text-align: left;"><code>x @|| y</code></td>
+<td style="text-align: left;">concatenate horizontally</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+</tbody>
+</table>
 </div>
 <p>There is a list of things worth your attention as below.</p>
 <ul>
@@ -238,36 +620,139 @@ Mat.(x &gt;. y);;</code></pre>
 <h2>Operator Extension</h2>
 <p>As you can see, the operators above do not allow interoperation on different number types (which may not be bad thing in my opinion actually). E.g., you cannot add a <code>float32</code> matrix to <code>float64</code> matrix unless you explicitly call the <code>cast</code> functions in <code>Generic</code> module.</p>
 <p>Some people just like Pythonic way of working, <code>Owl.Ext</code> module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, <code>Ext</code> immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.</p>
-<div class="highlight">
-<pre><code class="language-text">
-=============    =============     ==========================
-Operator         Example           Operation
-=============    =============     ==========================
-`+`              `x + y`           add
-`-`              `x - y`           sub
-`*`              `x * y`           mul
-`/`              `x / y`           div
-`=`              `x = y`           comparison, return bool
-`!=`             `x != y`          comparison, return bool
-`&lt;&gt;`             `x &lt;&gt; y`          same as `!=`
-`&gt;`              `x &gt; y`           comparison, return bool
-`&lt;`              `x &lt; y`           comparison, return bool
-`&gt;=`             `x &gt;= y`          comparison, return bool
-`&lt;=`             `x &lt;= y`          comparison, return bool
-`=.`             `x =. y`          element_wise comparison
-`!=.`            `x !=. y`         element_wise comparison
-`&lt;&gt;.`            `x &lt;&gt;. y`         same as `!=.`
-`&gt;.`             `x &gt;. y`          element_wise comparison
-`&lt;.`             `x &lt;. y`          element_wise comparison
-`&gt;=.`            `x &gt;=. y`         element_wise comparison
-`&lt;=.`            `x &lt;=. y`         element_wise comparison
-`%`              `x % y`           element_wise mod divide
-`**`             `x ** y`          power function
-`*@`             `x *@ y`          matrix multiply
-`min2`           `min2 x y`        element-wise min
-`max2`           `max2 x y`        element-wise max
-=============    =============     ==========================
-</code></pre>
+<div id="tbl:convention:ext">
+<table style="width:86%;">
+<caption>Table 3: Operator extensions</caption>
+<colgroup>
+<col style="width: 23%">
+<col style="width: 25%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Example</th>
+<th style="text-align: left;">Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+<td style="text-align: left;">add</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+<td style="text-align: left;">sub</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+<td style="text-align: left;">mul</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+<td style="text-align: left;">div</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;"><code>x = y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=</code></td>
+<td style="text-align: left;"><code>x != y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;</code></td>
+<td style="text-align: left;"><code>x &lt;&gt; y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;</code></td>
+<td style="text-align: left;"><code>x &gt; y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;</code></td>
+<td style="text-align: left;"><code>x &lt; y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=</code></td>
+<td style="text-align: left;"><code>x &gt;= y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=</code></td>
+<td style="text-align: left;"><code>x &lt;= y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.</code></td>
+<td style="text-align: left;"><code>x =. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.</code></td>
+<td style="text-align: left;"><code>x !=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;. y</code></td>
+<td style="text-align: left;">same as <code>!=.</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.</code></td>
+<td style="text-align: left;"><code>x &gt;. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.</code></td>
+<td style="text-align: left;"><code>x &lt;. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.</code></td>
+<td style="text-align: left;"><code>x &gt;=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.</code></td>
+<td style="text-align: left;"><code>x &lt;=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+<td style="text-align: left;">element_wise mod divide</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;"><code>x ** y</code></td>
+<td style="text-align: left;">power function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*@</code></td>
+<td style="text-align: left;"><code>x *@ y</code></td>
+<td style="text-align: left;">matrix multiply</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>min2</code></td>
+<td style="text-align: left;"><code>min2 x y</code></td>
+<td style="text-align: left;">element-wise min</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>max2</code></td>
+<td style="text-align: left;"><code>max2 x y</code></td>
+<td style="text-align: left;">element-wise max</td>
+</tr>
+</tbody>
+</table>
 </div>
 <p>You may have noticed, the operators ended with <code>$</code> (e.g., <code>+$</code>, <code>-$</code> …) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same <code>&gt;</code> operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need <code>&gt;$</code> any longer. Allowing interoperation makes the operator table much shorter.</p>
 <p>Currently, the operators in <code>Ext</code> only support interoperation on dense structures. Besides binary operators, <code>Ext</code> also implements most of the common math functions which can be applied to float numbers, complex numbers, matrices, and ndarray. These functions are:</p>
