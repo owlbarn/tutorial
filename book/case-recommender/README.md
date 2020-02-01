@@ -7,7 +7,11 @@ Refer to [@wang2016kvasir]
 
 ## Collect and Aggregate
 
-Refer to [arch](#arch)
+Refer to Section [Architecture](#arch)
+
+```ocaml
+(* TODO *)
+```
 
 
 ## Preprocess News Data
