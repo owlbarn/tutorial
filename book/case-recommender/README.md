@@ -2,10 +2,12 @@
 
 Refer to [@wang2016kvasir]
 
-## Architecture
+## Architecture {#sec:arch}
 
 
 ## Collect and Aggregate
+
+Refer to [@sec:arch]
 
 
 ## Preprocess News Data

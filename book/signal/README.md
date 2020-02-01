@@ -420,9 +420,9 @@ Please refer to some classical textbooks on signal processing such as [@smith199
 What we have done is called *convolution*. 
 Formally it is mathematical operation on two functions that produces a third function expressing how the shape of one is modified by the other:
 
-$$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$
+$$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$ {#eq:signal:01}
 
-Here $*$ denotes the convolution operation, and you can think of $f$ as (discrete) input signal, and $g$ be filter.
+In equation [@eq:signal:01], $*$ denotes the convolution operation, and you can think of $f$ as (discrete) input signal, and $g$ be filter.
 Note that for computing $f(\tau)g(t-\tau)$ for each $\tau$ requires adding all product pairs. 
 You can see that this process is computation-heavy.
 It is even more tricky for computing the convolution of two continuous signal following definition.
@@ -432,9 +432,9 @@ We have talked a lot about FFT, and here is the place we use it.
 Fourier Transformation can greatly reduce the complexity of computing the convolution and filtering.
 Specifically, the **Convolution Theorem** states that:
 
-$$\textrm{DFT}(f * g) = \textrm{DFT}(f).\textrm{DFT}(g).$$
+$$\textrm{DFT}(f * g) = \textrm{DFT}(f).\textrm{DFT}(g).$$ {#eq:signal:02}
 
-To put it into plain words, to get DFT of two signals' convolution, we can simply get the DFT of each signal separately and then multiply them element-wise.
+To put equation [@eq:signal:02] into plain words, to get DFT of two signals' convolution, we can simply get the DFT of each signal separately and then multiply them element-wise.
 Someone may also prefer to express it in this way: convolution in the time domain can be expressed in multiplication in the frequency domain. And multiplication we are very familiar with.
 Once you have the $\textrm{DFT}(f * g)$, you can naturally apply the inverse transform and get $f * g$.
 
