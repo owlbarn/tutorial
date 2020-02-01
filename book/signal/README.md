@@ -317,12 +317,55 @@ The whole number can be used as exercise.
 
 ### Image Processing
 
-(NR chap 12.6; or Chap 2.6 in the data-driven book (including implementation of 2DFFT); or from the elegant scipy book)
+Blurring an image with a two-dimensional FFT.
+IMPLEMENTATION required: FFT2D, iFFT2D, fftShift. Image utils also need to be made clean.
+[Reference](https://scipython.com/book/chapter-6-numpy/examples/blurring-an-image-with-a-two-dimensional-fft/).
+
+FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.
+
+We use the famous Lena image as example:
+
+![Lena](images/signal/lena.png){.align-center}
+
+As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1. 
+
+```
+code
+```
+
+Then we take the 2-D FFT, and centre the frequencies. 
+
+```
+code: fft2 + fftshift; image output 
+```
+
+IMAGE
+
+The result is shown in a figure. It is clear that there are several small frequency bands that can be ignored. 
+Let's remove them using a Gaussian Filter.
+
+```
+code: using Mat.meshgrid to build a gaussian mask; matrix multiplication; image output 
+```
+
+IMAGE
+
+Now that we remove the insignificant frequencies, we can rebuild the image based on this filtered frequency with inverse 2-D FFT.
+
+```
+code:ifft2; show image
+```
+
+IMAGE + some comment about it: its blur but keep basic information; maybe we can do better with ... (some advanced tricks + s-o-a if there is any).
+
+Of course, following similar method as previous applications on 1-D signals, FFT is widely used for removing noise in images by isolate and manipulate particular frequency bands.
 
 ## Filtering
 
 In the N-dimensional Array chapter, we have introduced the idea of `filter`, which allows to get target data from the input according to some function. 
 *Filtering* in signal processing is similar. It is a generic name for any system that modifies input signal in certain ways, most likely removing some unwanted features from it. 
+
+(Refer to "ThinkDSP" in writing.)
 
 ### Example: Smoothing
 
