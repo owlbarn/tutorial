@@ -107,6 +107,7 @@ The table below shows some physical constants that the `SI` module includes:
 | `vacuum_permeability` | vacuum magnetic permeability |
 | `debye` | one debye in coulomb metre |
 | `gauss` | one gauss in maxwell per square metre |
+: Physical constants {#tbl:constant:physic}
 
 
 Some basic mathematical constants are also provided in Owl, though some constants in advanced mathematics are not yet included such as the golden ratio or Euler–Mascheroni constant.
@@ -116,6 +117,7 @@ Some basic mathematical constants are also provided in Owl, though some constant
 | `pi`| Pi | 
 | `e` | Natural constant |
 | `euler` | Euler constant |
+: Math constants {#tbl:constant:math}
 
 Besides these constants, we also provide some frequently used computations based on them, including: 
 
@@ -149,6 +151,7 @@ The base SI unit for time measurement is second.
 | `hour` | one hour in seconds |
 | `day` | one day in seconds |
 | `week` | one week in seconds | 
+: Time units {#tbl:constant:time}
 
 ### Length
 
@@ -166,6 +169,7 @@ The base SI unit for length measurement is metre.
 | `micron` | one micron in metres | 
 | `angstrom` | one angstrom in metres | 
 | `nautical_mile` | one [nautical mile](https://en.wikipedia.org/wiki/Nautical_mile) in metres |
+: Length units {#tbl:constant:length}
 
 
 ### Area 
@@ -177,6 +181,7 @@ Measuring area and volume still relies SI base unit metre.
 | `hectare` | one hectare in square meters |
 | `acre` | one acre in square meters |
 | `barn` | one barn in square meters |
+: Area units {#tbl:constant:area}
 
 ### Volume 
 
@@ -191,6 +196,7 @@ Measuring area and volume still relies SI base unit metre.
 | `pint` |  one pint in cubic meters |
 | `fluid_ounce` | one fluid ounce (US) in cubic meters |
 | `tablespoon` | one tablespoon in cubic meters |
+: Volume units {#tbl:constant:volume}
 
 ### Speed 
 
@@ -201,7 +207,7 @@ The base units for speed are that of time and length.
 | `miles_per_hour` | miles per hour in metres per second |
 | `kilometers_per_hour` | kilometres per hour in metres per second |
 | `knot` | one knot in metres per second |
-
+: Speed units {#tbl:constant:speed}
 
 ### Mass
 
@@ -218,6 +224,7 @@ The base unit for presenting mass is kilogram (kg).
 | `carat` | one carat in kg |
 | `unified_atomic_mass` | atomic mass constant |
 | `solar_mass` | one solar mass in kg | 
+: Mass units {#tbl:constant:mass}
 
 ### Force
 
@@ -231,6 +238,7 @@ Measuring force relies on the SI derived unit: `newton`, and one newtong equals 
 | `pound_force` | one pound force in newtons | 
 | `poundal` | one poundal in newtons | 
 | `dyne` | one dyne in newtons |
+: Force units {#tbl:constant:force}
 
 
 ### Energy
@@ -244,6 +252,7 @@ The unit of measuring energy level is joule, which equals to one kilogram square
 | `btu` | one British thermal unit (International Steam Table) in Joules |
 | `therm` | one therm (US) in Joules |
 | `erg` | one erg in Joules |
+: Energy units {#tbl:constant:energy}
 
 ### Power
 
@@ -252,6 +261,7 @@ The unit of power is `watts`, a SI derived unit. One watts equals to one kilogra
 | Constant name  | Explanation  |
 | :------------- |:-------------| 
 | `horsepower` | one horsepower in watts |
+: Power units {#tbl:constant:power}
 
 
 ### Pressure
@@ -267,6 +277,7 @@ To measure we often use pascal as a standard unit. One pascal equals to a kilogr
 | `inch_of_mercury` | one inch of mercury in pascals | 
 | `inch_of_water` | one inch of water in pascals | 
 | `psi` | one psi in pascals |
+: Pressure units {#tbl:constant:pressure}
 
 
 ### Viscosity
@@ -277,6 +288,7 @@ The `poise` is a unit in dynamic viscosity and the `stokes` is for kinematic vis
 | :------------- |:-------------| 
 | `poise` | base unit |
 | `stokes` | base unit |
+: Viscosity units {#tbl:constant:viscosity}
 
 
 ### Luminance 
@@ -292,6 +304,7 @@ Candela is the base unit for luminance, and both `lumen` and `lux` are derived u
 | `footcandle` | one footcandle in phots |
 | `lambert` | base unit |
 | `footlambert` | one footlambert in lambert |
+: Luminance units {#tbl:constant:illuminatti}
 
 
 ### Radioactivity
@@ -304,3 +317,4 @@ The other base unit ampere, second, and kilogram are also used.
 | `curie` | one curie in becquerel |
 | `roentgen` | one ampere second per kilogram |
 | `rad` | erg per gram |
+: Radioactivity units {#tbl:constant:radioactivity}

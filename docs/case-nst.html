@@ -7,7 +7,7 @@
 <p>We then specify A as the content image and B as the style image, then what a NST application can produce? Boom! A new Mona Lisa, but with the style of Van Gogh (see the middle of title image)! If you want another style, just replace image B and run the application again. Impressionism, abstractionism, classical art, you name it.</p>
 <p>The figure below illustrate this point (<a href="http://genekogan.com/works/style-transfer/">src</a>). You can apply different art styles to the same “Mona Lisa”, or apply the same “Starry Sky” style to any pictures, even a normal daily street view. Isn’t it amazing?</p>
 <figure>
-<img alt="" title="Mona Lisa" src="images/case-nst/mona_lisa.png"><figcaption>Mona Lisa</figcaption>
+<img alt="" id="fig:case-nst:mona-lisa" title="Mona Lisa" src="images/case-nst/mona_lisa.png"><figcaption>Figure 1: Mona Lisa</figcaption>
 </figure>
 </section>
 <section class="level2" id="nst-a-very-brief-theory">
@@ -34,11 +34,9 @@ Neural_transfer.run
 <p>The first line download gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
 <p>This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g.&nbsp;<code>path/to/output_img_N.png</code>). <code>N</code> is specified by the <code>ckpt</code> parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.</p>
 <p>That’s all it takes! If you don’t have suitable input images at hand, the gist already contains exemplar content and style images to get you started. I have to say I had a lot lot of fun playing with it – please allow me to introduce you one of my work using the exemplar images:</p>
-<p><img src="images/case-nst/nst_example.png"></p>
-<p>Here is a presentation of how the content image change gradually in style:</p>
-<p align="center">
-<img src="images/case-nst/example_01.gif">
-</p>
+<figure>
+<img alt="" id="fig:case-nst:example_01" src="images/case-nst/nst_example.png"><figcaption>Figure 2: Example</figcaption>
+</figure>
 <p>More examples can be seen on our <a href="http://demo.ocaml.xyz/neuraltrans.html">demo</a> page.</p>
 </section>
 <section class="level2" id="fast-style-transfer">
@@ -102,7 +100,7 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <p>Note that we did say “given suitable weights”. A set of trained weight for the FST DNN represents a unique artistic style. We have already include six different weight files for use, and the users just need to pick one of them and load them into the DNN, without worrying about how to train these weights.</p>
 <p>Current we support six art styles: “<a href="https://bit.ly/2nBW0ae">Udnie</a>” by Francis Picabia, “<a href="https://bit.ly/2nKk8Hl">The Great Wave off Kanagawa</a>” by Hokusai, “<a href="https://bit.ly/2KA7FAY">Rain Princess</a>” by Leonid Afremov, “<a href="https://bit.ly/2rS1fWQ">La Muse</a>” by Picasso, “<a href="https://bit.ly/1CvJz5d">The Scream</a>” by Edvard Munch, and “<a href="https://bit.ly/2wVfizH">The shipwreck of the Minotaur</a>” by J. M. W. Turner</p>
 <p>Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles.</p>
-<p><img src="images/case-nst/example_fst00.png"></p>
+<p><img id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"></p>
 <p>If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. And all of these are implemented in Owl.</p>
 </section>
 </section>
