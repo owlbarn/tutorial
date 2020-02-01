@@ -13,9 +13,12 @@ Refer to [@wang2016kvasir]
 
 ## Index Text Corpus
 
-![Projection on different random lines](images/case-recommender/plot_01.png "plot_01"){ width=90% }
+![Projection on different random lines](images/case-recommender/plot_01.png "plot_01"){ width=90%, #fig:case-recommender:projection }
 
-![Construct a binary search tree from the reandom projection](images/case-recommender/plot_02.png "plot_01"){ width=90% }
+![Construct a binary search tree from the reandom projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
+
+Figure [@fig:case-recommender:projection] is a simple illustration of how to project points on a 2D plate to random lines. Figure [@fig:case-recommender:search] illustrates how binary search can be built.
+
 
 
 ### Optimise Data Structure
