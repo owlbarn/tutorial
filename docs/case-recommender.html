@@ -19,9 +19,19 @@
 </figure>
 <section class="level3" id="optimise-data-structure">
 <h3>Optimise Data Structure</h3>
+<figure>
+<img alt="" style="width:100.0%" title="plot_03" src="images/case-recommender/plot_03.png"><figcaption>Increase either leaf size or number of trees, but which is better?</figcaption>
+</figure>
+<figure>
+<img alt="" style="width:100.0%" title="plot_04" src="images/case-recommender/plot_04.png"><figcaption>We do not need to store the actual vector at each node. Instead, we can use a random seed to generate on the fly. In a leaf cluster, only the indices of vectors in the original data set are stored.</figcaption>
+</figure>
 </section>
 <section class="level3" id="optimise-index-algorithm">
 <h3>Optimise Index Algorithm</h3>
+<figure>
+<img alt="" style="width:90.0%" title="plot_05" src="images/case-recommender/plot_05.png"><figcaption>Illustration of parallelising the computation.</figcaption>
+</figure>
+<p>Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.</p>
 </section>
 </section>
 <section class="level2" id="search-articles">
