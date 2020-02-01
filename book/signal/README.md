@@ -72,7 +72,7 @@ To introduce Fourier Transform in detailed math and analysis of its properties i
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more. 
 
 The implementation of the FFT module in Owl interfaces to the [FFTPack](https://www.netlib.org/fftpack/) C implementation.
-Owl provides these basic FFT functions:
+Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun]
 
 | Functions | Description
 | --------- |:----------| 
@@ -80,6 +80,8 @@ Owl provides these basic FFT functions:
 | `ifft ~axis x` | Compute the one-dimensional inverse discrete Fourier Transform |
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
+: FFT functions in Owl {#tbl:signal:fftfun}
+
 
 ### Examples
 

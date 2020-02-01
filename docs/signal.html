@@ -25,8 +25,10 @@
 <p>The key to this step is the fact that <span class="math inline">\(\omega_{2n}^2 = \omega_n\)</span>. According to this process, you only need to compute FFT for half of the signal, the other half can be gotten by multiplied with <span class="math inline">\(\omega^{k}\)</span>, and then concatenate these two sums. The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a <span class="math inline">\(log\)</span> level in a recursive process.</p>
 <p>(TODO: but what about the <span class="math inline">\(y_{2j+1}\)</span> part in the second sum? how come the second could be the same as the first sum? Need figure it out.)</p>
 <p>To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic <span data-cites="phillips2003signals" class="citation">(Phillips, Parr, and Riskin 2003)</span>. In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more.</p>
-<p>The implementation of the FFT module in Owl interfaces to the <a href="https://www.netlib.org/fftpack/">FFTPack</a> C implementation. Owl provides these basic FFT functions:</p>
+<p>The implementation of the FFT module in Owl interfaces to the <a href="https://www.netlib.org/fftpack/">FFTPack</a> C implementation. Owl provides these basic FFT functions, listed in Tabel tbl.&nbsp;1</p>
+<div id="tbl:signal:fftfun">
 <table>
+<caption>Table 1: FFT functions in Owl</caption>
 <colgroup>
 <col style="width: 45%">
 <col style="width: 55%">
@@ -56,6 +58,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <section class="level3" id="examples">
 <h3>Examples</h3>
 <p>We then show how to use these functions with some simple example. More complex and interesting will follow in the next section.</p>
