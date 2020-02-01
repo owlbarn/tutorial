@@ -9,6 +9,9 @@ Refer to [@wang2016kvasir]
 
 Refer to Section [Architecture](#arch)
 
+Refer to [AEOS](aeos.html#intro), but this only works for HTML.
+
+
 ```ocaml
 (* TODO *)
 ```
