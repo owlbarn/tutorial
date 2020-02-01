@@ -127,6 +127,7 @@
 \lstset{defaultdialect=[5.3]Lua}
 \lstset{defaultdialect=[x86masm]Assembler}
 \usepackage{longtable,booktabs}
+
 % liang: graphicx support start
 \usepackage{graphicx}
 % Redefine \includegraphics so that, unless explicit options are
@@ -152,6 +153,16 @@
 
 \setkeys{Gin}{width=\ScaleWidthIfNeeded,height=\ScaleHeightIfNeeded,keepaspectratio}
 % liang: graphicx support stop
+
+% liang: pandoc pdf reference support start
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{0em}
+\newenvironment{cslreferences}%
+  {\setlength{\parindent}{0pt}%
+  \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces}%
+  {\par}
+% liang: pandoc pdf reference support stop
+
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
 \makeatletter

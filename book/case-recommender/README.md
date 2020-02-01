@@ -1,5 +1,6 @@
 # Case - Recommender System
 
+Refer to [@wang2016kvasir]
 
 ## Architecture
 
@@ -35,3 +36,6 @@ Blue dotted lines are critical boundaries. The computations in the child-branche
 
 
 ## Make It Live
+
+
+## References

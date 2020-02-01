@@ -124,7 +124,7 @@ type outputs =
   | Latex
 
 let get_output_infos = function
-  | Html -> pp_block_html, pp_text_html, " --mathjax -F pandoc-crossref -F pandoc-citeproc --bibliography ../../../book/references.bib -t html"
+  | Html -> pp_block_html, pp_text_html, " --mathjax -t html"
   | Latex -> pp_block_latex, pp_text_latex,  "-t latex --listings"
 
 let run (`File file) (`Output output) output_type =
@@ -154,6 +154,7 @@ let run (`File file) (`Output output) output_type =
     Fmt.kstrf
       Sys.command
       "pandoc \
+      \  -F pandoc-crossref -F pandoc-citeproc --bibliography ../../../book/references.bib \
       \  --section-divs \
       \  -f markdown-ascii_identifiers \
       \  --no-highlight\
