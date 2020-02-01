@@ -38,7 +38,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
 
 The generated figure is as below.
 
-![Plot example 01](images/visualisation/plot_001.png "plot_01"){ width=70% }
+![Plot example 01](images/visualisation/plot_001.png "plot_01"){ width=70%, #fig:visualisation:plot_001}
 
 Another example follows,
 
@@ -69,7 +69,7 @@ Another example follows,
 - : unit = ()
 ```
 
-![Plot example 23](images/visualisation/plot_023.png "plot_23"){ width=90% }
+![Plot example 23](images/visualisation/plot_023.png "plot_23"){ width=90%,#fig:visualisation:plot_023}
 
 
 ## Specification
@@ -105,7 +105,7 @@ In the following, I will provide some examples to show how to use `spec` paramet
 - : unit = ()
 ```
 
-![Plot example 20](images/visualisation/plot_020.png "plot_20"){ width=90% }
+![Plot example 20](images/visualisation/plot_020.png "plot_20"){ width=90%, #fig:visualisation:plot_020}
 
 The second example shows how to tune `surf` plotting function.
 
@@ -136,7 +136,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-![Plot example 21](images/visualisation/plot_021.png "plot_21"){ width=90% }
+![Plot example 21](images/visualisation/plot_021.png "plot_21"){ width=90%,#fig:visualisation:plot_021 }
 
 
 ## Subplots
@@ -180,7 +180,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-![Plot example 02](images/visualisation/plot_002.png "plot_002"){ width=90% }
+![Plot example 02](images/visualisation/plot_002.png "plot_002"){ width=90%,#fig:visualisation:plot_002}
 
 
 ## Multiple Lines
@@ -196,7 +196,7 @@ You can certainly plot multiple lines (or other types of plots) on the same page
 - : unit = ()
 ```
 
-![Plot example 24](images/visualisation/plot_024.png "plot_24"){ width=70% }
+![Plot example 24](images/visualisation/plot_024.png "plot_24"){ width=70%, #fig:visualisation:plot_024 }
 
 Here is another example which has both histogram and line plot in one figure.
 
@@ -216,7 +216,7 @@ Here is another example which has both histogram and line plot in one figure.
 - : unit = ()
 ```
 
-![Plot example 25](images/visualisation/plot_025.png "plot_25"){ width=90% }
+![Plot example 25](images/visualisation/plot_025.png "plot_25"){ width=90%,#fig:visualisation:plot_025 }
 
 So as long as you "hold" the plot without calling `Plot.output`, you can plot many data sets in one figure.
 
@@ -260,7 +260,7 @@ Despite of its messy looking, the following example shows how to use legend in O
 - : unit = ()
 ```
 
-![Plot example 26](images/visualisation/plot_026.png "plot_26"){ width=90% }
+![Plot example 26](images/visualisation/plot_026.png "plot_26"){ width=90%, #fig:visualisation:plot_026 }
 
 
 ## Drawing
@@ -283,7 +283,7 @@ Despite of its messy looking, the following example shows how to use legend in O
 - : unit = ()
 ```
 
-![Plot example 04](images/visualisation/plot_004.png "plot_24"){ width=90% }
+![Plot example 04](images/visualisation/plot_004.png "plot_24"){ width=90%, #fig:visualisation:plot_004 }
 
 This example demonstrates patterns.
 
@@ -301,7 +301,7 @@ This example demonstrates patterns.
 - : unit = ()
 ```
 
-![Plot example 05](images/visualisation/plot_005.png "plot_25"){ width=90% }
+![Plot example 05](images/visualisation/plot_005.png "plot_25"){ width=90%, #fig:visualisation:plot_025 }
 
 ## Line Plot
 
@@ -319,7 +319,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 22](images/visualisation/plot_022.png "plot_22"){ width=90% }
+![Plot example 22](images/visualisation/plot_022.png "plot_22"){ width=90%, #fig:visualisation:plot_022 }
 
 
 ## Scatter Plot
@@ -351,7 +351,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 006](images/visualisation/plot_006.png "plot_006"){ width=90% }
+![Plot example 006](images/visualisation/plot_006.png "plot_006"){ width=90%, #fig:visualisation:plot_006 }
 
 
 ## Stairs Plot
@@ -371,7 +371,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 007](images/visualisation/plot_007.png "plot_007"){ width=90% }
+![Plot example 007](images/visualisation/plot_007.png "plot_007"){ width=90%, #fig:visualisation:plot_007 }
 
 
 ## Box Plot
@@ -388,7 +388,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 008](images/visualisation/plot_008.png "plot_008"){ width=90% }
+![Plot example 008](images/visualisation/plot_008.png "plot_008"){ width=90%, #fig:visualisation:plot_008 }
 
 
 ## Stem Plot
@@ -409,7 +409,7 @@ Stem plot is simple, as the following code shows.
 - : unit = ()
 ```
 
-![Plot example 009](images/visualisation/plot_009.png "plot_009"){ width=90% }
+![Plot example 009](images/visualisation/plot_009.png "plot_009"){ width=90%, #fig:visualisation:plot_009 }
 
 Stem plot is often used to show the autocorrelation of a variable, therefore Plot module already includes `autocorr` for your convenience.
 
@@ -428,7 +428,7 @@ Stem plot is often used to show the autocorrelation of a variable, therefore Plo
 - : unit = ()
 ```
 
-![Plot example 010](images/visualisation/plot_010.png "plot_010"){ width=90% }
+![Plot example 010](images/visualisation/plot_010.png "plot_010"){ width=90%, #fig:visualisation:plot_010 }
 
 
 ## Area Plot
@@ -449,7 +449,7 @@ Area plot is similar to line plot but also fills the space between the line and 
 - : unit = ()
 ```
 
-![Plot example 011](images/visualisation/plot_011.png "plot_011"){ width=90% }
+![Plot example 011](images/visualisation/plot_011.png "plot_011"){ width=90%, #fig:visualisation:plot_011 }
 
 
 ## Histogram & CDF Plot
@@ -469,7 +469,7 @@ Given a series of measurements, you can easily plot the histogram and empirical 
 - : unit = ()
 ```
 
-![Plot example 012](images/visualisation/plot_012.png "plot_012"){ width=90% }
+![Plot example 012](images/visualisation/plot_012.png "plot_012"){ width=90%, #fig:visualisation:plot_012 }
 
 ## Log Plot
 
@@ -504,7 +504,7 @@ Plot with log-scale on either or both x and y axis.
 - : unit = ()
 ```
 
-![Plot example 013](images/visualisation/plot_013.png "plot_013"){ width=90% }
+![Plot example 013](images/visualisation/plot_013.png "plot_013"){ width=90%, #fig:visualisation:plot_013 }
 
 
 ## 3D Plot
@@ -530,7 +530,7 @@ First, let's look at `mesh` and `surf` functions.
 - : unit = ()
 ```
 
-![Plot example 014](images/visualisation/plot_014.png "plot_014"){ width=90% }
+![Plot example 014](images/visualisation/plot_014.png "plot_014"){ width=90%, #fig:visualisation:plot_014 }
 
 It is easy to control the viewpoint with `altitude` and `azimuth` parameters. Here is an example.
 
@@ -550,7 +550,7 @@ It is easy to control the viewpoint with `altitude` and `azimuth` parameters. He
 
 The generated figure is as below.
 
-![Plot example 015](images/visualisation/plot_015.png "plot_015"){ width=90% }
+![Plot example 015](images/visualisation/plot_015.png "plot_015"){ width=90%, #fig:visualisation:plot_015 }
 
 Here is another similar example with different data set.
 
@@ -580,7 +580,7 @@ Here is another similar example with different data set.
 - : unit = ()
 ```
 
-![Plot example 016](images/visualisation/plot_016.png "plot_016"){ width=90% }
+![Plot example 016](images/visualisation/plot_016.png "plot_016"){ width=90%, #fig:visualisation:plot_016 }
 
 
 Finally, let's look at how heatmap and contour look like.
@@ -607,7 +607,7 @@ Finally, let's look at how heatmap and contour look like.
 - : unit = ()
 ```
 
-![Plot example 017](images/visualisation/plot_017.png "plot_017"){ width=90% }
+![Plot example 017](images/visualisation/plot_017.png "plot_017"){ width=90%, #fig:visualisation:plot_017 }
 
 
 ## Advanced Statistical Plot
@@ -649,7 +649,7 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 - : unit = ()
 ```
 
-![Plot example 018](images/visualisation/plot_018.png "plot_018"){ width=90% }
+![Plot example 018](images/visualisation/plot_018.png "plot_018"){ width=90%, #fig:visualisation:plot_018 }
 
 `probplot` is similar to `qqplot`. It contains two special cases: `normplot` for when the given theoretical distribution is Normal distribution, and `wblplot` for Weibull Distribution. Here is an example of them.
 
@@ -672,6 +672,6 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 - : unit = ()
 ```
 
-![Plot example 019](images/visualisation/plot_019.png "plot_019"){ width=90% }
+![Plot example 019](images/visualisation/plot_019.png "plot_019"){ width=90%, #fig:visualisation:plot_019 }
 
 ## References

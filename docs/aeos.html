@@ -8,10 +8,10 @@
 <section class="level2" id="why-parameter-tuning-in-owl">
 <h2>Why Parameter Tuning in Owl</h2>
 <p>Currently many computers contain shared memory multiprocessors. OpenMP is used in key operations in libraries such as Eigen and MKL. Owl has also utilised OpenMP on many mathematical operations to boost their performance by threading calculation. For example, the figure below shows that when I apply the sine function on an ndarray in Owl, on a 4-core CPU MacBook, the OpenMP version only takes about a third of the execution time compared with the non-OpenMP version.</p>
-<p><img src="images/aeos/sin_perf.png"></p>
+<p><img id="fig:aeso:sin_perf" src="images/aeos/sin_perf.png"></p>
 <p>However, performance improvement does not come for free. Overhead of using OpenMP comes from time spent on scheduling chunks of work to each thread, managing locks on critical sections, and startup time of creating threads, etc. Therefore, when the input ndarray is small enough, these overheads might overtake the benefit of threading. What is a suitable input size to use OpenMP then? This question would be easy to solve if there is one single suitable input size threshold for every operation, but that’s not the case.</p>
 <p>In a small experiment, I compare the performance of two operations, <code>abs</code> (calculate absolute value) and <code>sin</code>, in three cases: running them without using OpenMP, with 2 threads OpenMP, and with 4 threads OpenMP.</p>
-<p><img src="images/aeos/cross.png"></p>
+<p><img id="fig:aeso:cross" src="images/aeos/cross.png"></p>
 <p>The result above shows that, with growing input size, for sine operation, the OpenMP version outperforms the non-OpenMP version at a size of less than 1000, but for <code>abs</code> operation, that cross point is at about 1,000,000. The complexity of math operations varies greatly, and the difference is even starker when compare their performance on different machines. This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes. Thus one fixed threshold for several operations is not an ideal solution. Considering these factors, I need a fine-grained method to decide a suitable OpenMP threshold for each operation.</p>
 </section>
 <section class="level2" id="how-to-tune-openmp-parameters">
@@ -45,7 +45,9 @@ end</code></pre>
 <section class="level2" id="make-a-difference">
 <h2>Make a Difference</h2>
 <p>The table below presents the tuned threshold values of a five operations on a MacBook with a 1.1GHz Intel Core m3 CPU and a Raspberry Pi 3B. We can see that they vary across different operations and different machines, depending on their computation complexity. For example, on MacBook, the tuning result is “max int”, which means that for the relatively simple square root calculation OpenMP should not be used, but that’s not the case on Raspberry Pi. Also, note that the less powerful Raspberry Pi tends to get lower thresholds.</p>
+<div id="tbl:aeos:perf">
 <table>
+<caption>Table 1: Performance comparison</caption>
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -81,8 +83,9 @@ end</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
 <p>I then evaluate the performance improvement after applying AEOS. I compare each generated parameter with 30 random generated thresholds. These measured average ratios are then presented as a box plot, as shown in the figure below.</p>
-<p><img src="images/aeos/perf.png"></p>
+<p><img id="fig:aeso:perf" src="images/aeos/perf.png"></p>
 <p>It can be observed that in general more than 20% average performance improvement can be expected on the MacBook. The result on Raspberry Pi shows a larger deviation but also a higher performance gain (about 30% on average). One reason of this difference could be that a suitable threshold on Raspberry Pi tends to be smaller, leading to a larger probability to outperform a randomly generated value. Note that I cannot proclaim that the tuned parameters are always optimal, since the figure shows that in some rare cases where the improvement percentages are minus, the randomly found values indeed perform better. Also, the result seems to suggest that AEOS can provide a certain bound, albeit a loose one, on the performance improvement, regardless of the type of operation. These interesting issues require further investigation.</p>
 </section>
 </section>

@@ -21,22 +21,22 @@ The thing is that, the real-world sound is not always so pure, they are quite li
 That's where Fourier Transform comes into play. It captures the idea of converting the two forms of representing a signal: in time domain and in frequency domain. 
 We can represent a signal with the values of some quantity $h$ as a function of time: $h(t)$, or this signal can be represented by giving its amplitude $H$ as function of frequency: $H(f)$. We can think they are two representation of the same thing, and Fourier Transform change between them:
 
-$$ h(f) = \int H(f)\exp^{-2\pi~ift}df$$
-$$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$
+$$ h(f) = \int H(f)\exp^{-2\pi~ift}df$$ {#eq:signal:ft01}
+$$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$ 
 
 To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.
 
 In computer-based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous. 
 In that case, the method is called *Discrete Fourier Transform* (DFT). 
-Suppose we have a complex vector $y$ as signal, which contains $n$ elements, then to get the Fourier Transform vector $Y$, the discrete form of the previous equation can be expressed with:
+Suppose we have a complex vector $y$ as signal, which contains $n$ elements, then to get the Fourier Transform vector $Y$, the discrete form of [@eq:signal:ft01] can be expressed with:
 
-$$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$
+$$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$ {#eq:signal:dft01}
 $$ y_k = \frac{1}{n}\sum_{j=0}^{n-1}Y_k~\omega^{-jk},$$
 
 where $\omega = \exp{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that go from 0 to $n-1$ and $k = 0, 1, ..., n -1$.
 
 We highly suggest you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown. 
-It shows how this equation of Fourier Transform comes into being with beautiful and clear illustration.
+It shows how this [@eq:signal:dft01] of Fourier Transform comes into being with beautiful and clear illustration.
 (TODO: follow the video, explain the idea of FT clearly, not just smashing an equation into readers' faces.)
 
 (maybe TODO: we can perhaps implement a naive DFT process, both to illustrate the theory with OCaml code, and lay the foundation for understanding FFT. Refer to: Matlab NC book, Chap 8.2)
@@ -59,11 +59,11 @@ It means that DFT doesn't scale well with input size.
 The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $\mathcal{O}(n\log{}n)$.
 To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions:
 
-$$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$
+$$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$ {#eq:signal:fft01}
 $$ = \sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j} + \omega^k\sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j+1}.$$
 
 The key to this step is the fact that $\omega_{2n}^2 = \omega_n$.
-According to this process, you only need to compute FFT for half of the signal, the other half can be gotten by multiplied with $\omega^{k}$, and then concatenate these two sums. 
+According to [@eq:signal:fft01], you only need to compute FFT for half of the signal, the other half can be gotten by multiplied with $\omega^{k}$, and then concatenate these two sums. 
 The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a $log$ level in a recursive process.
 
 (TODO: but what about the $y_{2j+1}$ part in the second sum? how come the second could be the same as the first sum? Need figure it out.)
@@ -327,7 +327,7 @@ FFT on multi-dimensional signal is effective for image compression, because many
 
 We use the famous Lena image as example:
 
-![Lena](images/signal/lena.png){.align-center}
+![Lena](images/signal/lena.png){#fig:signal:lena}
 
 As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1. 
 
@@ -454,9 +454,9 @@ IMAGE
 You might heard of the word "convolution" before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. 
 The convolution in DNN is often applied on ndarrays. 
 It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called "kernel" to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray.
-This process can be best illustrated with the figure created by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
+This process can be best illustrated with the [@fig:signal:conv] created by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
 
-![Image convolution illustration](images/signal/conv.png "conv"){width=90%}
+![Image convolution illustration](images/signal/conv.png "conv"){width=90%, #fig:signal:conv}
 
 Owl has provided thorough support of convolution operation:
 
@@ -476,7 +476,7 @@ Besides, Owl also support other derived convolution types, including dilated con
 It's OK if none of this makes sense to you now. We'll explain the convolution and its usage in later chapter in detail.
 The point is that, if you look closely, you can find that the image convolution is but only a special high dimensional case of the convolution equation: a given input signal (the image), another similar but smaller filter signal (the kernel), and the filter slides across the input signal and perform element-wise multiplication.
 
-Therefore, we can implement the convolution with FFT and vise versa. 
+Therefore, we can implement the convolution with FFT and vice versa. 
 For example, we can use `conv1d` function in Owl to solve the previous smoothing problem:
 
 ```

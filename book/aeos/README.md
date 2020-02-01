@@ -17,7 +17,7 @@ Though Owl currently does not plan to improve the low-level libraries it depends
 Currently many computers contain shared memory multiprocessors. OpenMP is used in key operations in libraries such as Eigen and MKL. Owl has also utilised OpenMP on many mathematical operations to boost their performance by threading calculation.
 For example, the figure below shows that when I apply the sine function on an ndarray in Owl, on a 4-core CPU MacBook, the OpenMP version only takes about a third of the execution time compared with the non-OpenMP version.
 
-![](images/aeos/sin_perf.png)
+![Compare performance of sin operations](images/aeos/sin_perf.png){#fig:aeso:sin_perf}
 
 However, performance improvement does not come for free. Overhead of using OpenMP comes from time spent on scheduling chunks of work to each thread, managing locks on critical sections, and startup time of creating threads, etc.
 Therefore, when the input ndarray is small enough, these overheads might overtake the benefit of threading.
@@ -25,7 +25,7 @@ What is a suitable input size to use OpenMP then? This question would be easy to
 
 In a small experiment, I compare the performance of two operations, `abs` (calculate absolute value) and `sin`, in three cases: running them without using OpenMP, with 2 threads OpenMP, and with 4 threads OpenMP.
 
-![](images/aeos/cross.png)
+![Observe the crospoints of OpenMP and non-OpenMP operations](images/aeos/cross.png){#fig:aeso:cross}
 
 The result above shows that, with growing input size, for sine operation, the OpenMP version outperforms the non-OpenMP version at a size of less than 1000, but for `abs` operation, that cross point is at about 1,000,000. The complexity of math operations varies greatly, and the difference is even starker when compare their performance on different machines.
 This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes. 
@@ -85,10 +85,11 @@ MacBook     1632        max\_int    1294        123         1880
 Raspberry   1189        209         41          0           0
 Pi                                                          
 ----------- ----------- ----------- ----------- ----------- -------------
+: Performance comparison {#tbl:aeos:perf}
 
 I then evaluate the performance improvement after applying AEOS. I compare each generated parameter with 30 random generated thresholds. These measured average ratios are then presented as a box plot, as shown in the figure below. 
 
-![](images/aeos/perf.png)
+![](images/aeos/perf.png){#fig:aeso:perf}
 
 It can be observed that in general more than 20% average performance improvement can be expected on the MacBook. 
 The result on Raspberry Pi shows a larger deviation but also a higher performance gain (about 30% on average). 

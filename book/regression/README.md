@@ -34,7 +34,7 @@ Here list a part of the data (TODO: link to csv file):
 | 18.94 | 22.63 |
 | 12.82 | 13.50 |
 | ... | ... |
-
+: Sample of input data {#tbl:regression:data01}
 
 Visualising these data can present a clear view.
 
@@ -45,11 +45,13 @@ According to this figure, there is a clear trend that larger population and larg
 ### Cost Function
 
 Let's start with a linear model that assumes the the relationship between these two variables be formalised as: 
-$$ y = \theta_0~ + \theta_1~x_1 + \epsilon$$,
+
+$$ y = \theta_0~ + \theta_1~x_1 + \epsilon,$$ {#eq:regression:eq00}
+
 where $y$ denotes the profit we want to predict, and input variable $x_1$ is the population number in this example. 
 Since modelling can hardly make a perfect match with the real data, we use $\epsilon$ to denote the error between our prediction and the data. 
 Specifically, we represent the prediction part as $h(\theta_0, \theta_1)$:
-$$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$
+$$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$ {#eq:regression:eq01}
 
 The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plain. 
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively.
@@ -62,7 +64,7 @@ One frequently used method is to use the *ordinary least square* to minimizes th
 We have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$, and thus the $i$'th pair of data can be represented with $x_i$ and $y_i$.
 With these notations, we can represent a metric to represent the *closeness* as:
 
-$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)$$
+$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)$$ {#eq:regression:eq02}
 
 In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
 
@@ -83,14 +85,14 @@ It is thus natural to recall the gradient descent we have introduced in the prev
 Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain *direction* at some *step size*, and hopefully can converge at a local minimum. 
 Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. 
 Therefore, what we need to do is to apply this update process iteratively for both $\theta$ parameters:
-$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$
+$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
 where $i$ is 1 or 2.
 
 This process may seem terrible at first sight, but we can calculate it as:
 
-$$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, $$
+$$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, $$ {#eq:regression:eq04}
 and 
-$$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.$$
+$$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.$$ {#eq:regression:eq05}
 
 Here the $x_i0$ and $x_i1$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i0 = 1$ and $x_i1 = x_i$.
 Following these equations, you can manually perform the gradient descent process until it converges.
@@ -108,7 +110,7 @@ TODO: PLOT: the resulting line against data samples.
 
 Of course, there is no need to use to manually solve a linear regression problem with Owl. 
 It has already provides high-level regression functions for use. 
-For example, `ols` uses the odinary least square method we have introduced to perform linear regression.
+For example, `ols` uses the ordinary least square method we have introduced to perform linear regression.
 
 ```
 val ols : ?i:bool -> arr -> arr -> arr array
@@ -134,15 +136,19 @@ In that case, how can we extend our one-variable linear regression to the case o
 
 The answer is very straight forward. We just use more parameters, so the model becomes:
 
-$$h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... $$
+$$h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... $$ {#eq:regression:eq06}
 
 However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. 
 Therefore, we use the vectorised format in the model:
-$$h(\Theta) = \Theta~X^{(i)}$$,
+
+$$h(\Theta) = \Theta~X^{(i)},$$ {#eq:regression:eq065}
+
 where $\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]$, and $X^{(i)} = [1, x_1, x_2, x_3, ...]^T$ contains all the features from the $i$th row in data.
 
 Accordingly, the cost function can be represented as:
-$$ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
+
+$$ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2,$$ {#eq:regression:eq07}
+
 where $y^{(i)}$ is the output variable value on the $i$th row of input data. 
 
 The derivative and manual gradient descent are left as exercise. 
@@ -161,6 +167,7 @@ Part of the data are listed below:
 | 2526 | 3 | 469000  |
 | 2200 | 3 | 475000  |
 | ...  | ... | ...   |
+: Sample of input data {#tbl:regression:data02}
 
 The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
 ```
@@ -195,7 +202,7 @@ More often than not, this ndarray needs to be normalised in data pre-processed f
 Before taking a look at some other forms of regression, let's discuss solution to the linear regression besides gradient descent.
 It turns out that there is actually one close form solution to linear regression problems:
 
-$$\Theta = (X^T~X)^{-1}X^Ty$$
+$$\Theta = (X^T~X)^{-1}X^Ty$$ {#eq:regression:eq075}
 
 Suppose the linear model contains $m$ features, and the input data contains $n$ rows, then here $X$ is a $n\times~(m+1)$ matrix representing the features data, and the output data $y$ is a $n\times~1$ matrix.
 The reason there is m+1 columns in $X$ is that we need an extra constant feature for each data, and it equals to one for each data point. 
@@ -241,11 +248,11 @@ We shows how to use them with examples, and won't go into details of the math. R
 
 In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an nth degree polynomial in the feature $x$:
 
-$$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$.
+$$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$ {#eq:regression:eq08}
 
 The model for exponential regression takes two parameters:
 
-$$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x$$.
+$$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x.$$ {#eq:regression:eq09}
 
 Owl provides functions to do both form of regressions:
 
@@ -289,13 +296,13 @@ Apparently, the second model fit too closely with the given data, and you can se
 To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. 
 Actually we don't need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:
 
-$$J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$
+$$J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$ {#eq:regression:eq10}
 
 Here the sum of squared parameter values is the penalty we add to the original cost function, and $lambda$ is a regularisation control parameter. 
 
 That leads to a bit of change in the derivative of $J(\Theta)$ in using gradient descent:
 
-$$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].$$
+$$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].$$ {#eq:regression:eq11}
 
 We can now apply the new update procedure in gradient descent code, with a polynomial model up to 4th order.
 
@@ -326,7 +333,7 @@ The `ridge` cost function adds the L2 norm of $\theta$ as the penalty term: $\la
 The `lasso` cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: $\lambda\sum|\theta|$.
 This difference makes `lasso` to be able to allow for some coefficients to be zero, which is very useful for feature selection.
 The `elastic_net` is proposed (by whom?) to combine the penalties of the previous two. What it adds is this:
-$$\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),$$ 
+$$\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),$$ {#eq:regression:eq115}
 where $a$ is a control parameter between `ridge` and `lasso`.
 The elastic net method aims to make the feature selection less dependent on input data. 
 
@@ -351,7 +358,7 @@ The solution is to use the sigmoid function (or logistic function): $f(x) = \fra
 As shown in the figure, this function project value within the range of [0, 1].
 Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
 
-$$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}$$.
+$$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.$$ {#eq:regression:eq12}
 
 Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1.
 Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.
@@ -378,8 +385,8 @@ With the new model comes new cost function.
 Previously in linear regression we measure the cost with least square, or euclidean distance. 
 Now in the logistic regression, we define its cost function as:
 
-$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, $$ or 
-$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.$$ 
+$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, $$ {#eq:regression:eq13} or 
+$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.$$ {#eq:regression:eq14}
 
 TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
 
@@ -388,7 +395,7 @@ TODO: explain how to come up with this equation. About maximise the log likeliho
 Again the question is how to solve this terrible equation? 
 Luckily, The sigmoid function has a nice property: its derivative is simple. 
 
-$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$, 
+$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$ {#eq:regression:eq15}
 
 This gradient looks the same to that in linear regression, but it's actually different, since the definition of $h$ is actually different. 
 Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges.

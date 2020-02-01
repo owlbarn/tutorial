@@ -336,13 +336,13 @@ Line 2, characters 11-22:
 Error: Unbound module Plot
 ```
 
-To load the image into browser, we need to call `Jupyter_notebook.display_file` function. Then we can see the plot is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
+To load the image into browser, we need to call `Jupyter_notebook.display_file` function. Then we can see the plot [@fig:introduction:example00] is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
 
 ```text
 Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 ```
 
-![Plot example 00](images/introduction/plot_00.png "plot_00"){ width=90% }
+![Plot example 00](images/introduction/plot_00.png "plot_00"){ width=90%, #fig:introduction:example00}
 
 Even though the extra call to `display_file` is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.
 

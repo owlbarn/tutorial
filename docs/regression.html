@@ -10,7 +10,9 @@
 <p>McDonald’s is no doubt one of the most successful fast food chains in the world. Up to 2018, it has already had more than 37, 000 stores world wide, and surely more is being built as you are reading. One question then is: where to locate a new McDonald’s restaurant?</p>
 <p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch). Now linear regression would be a good friend when you are deciding where to locate your next branch.</p>
 <p>Here list a part of the data (TODO: link to csv file):</p>
+<div id="tbl:regression:data01">
 <table>
+<caption>Table 1: Sample of input data</caption>
 <thead>
 <tr class="header">
 <th style="text-align: center;">Profit</th>
@@ -48,17 +50,20 @@
 </tr>
 </tbody>
 </table>
+</div>
 <p>Visualising these data can present a clear view.</p>
 <p>TODO: CODE and IMAGE in Owl</p>
 <p>According to this figure, there is a clear trend that larger population and larger profit are co-related together. But precisely how?</p>
 </section>
 <section class="level3" id="cost-function">
 <h3>Cost Function</h3>
-<p>Let’s start with a linear model that assumes the the relationship between these two variables be formalised as: <span class="math display">\[ y = \theta_0~ + \theta_1~x_1 + \epsilon\]</span>, where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Since modelling can hardly make a perfect match with the real data, we use <span class="math inline">\(\epsilon\)</span> to denote the error between our prediction and the data. Specifically, we represent the prediction part as <span class="math inline">\(h(\theta_0, \theta_1)\)</span>: <span class="math display">\[h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1\]</span></p>
+<p>Let’s start with a linear model that assumes the the relationship between these two variables be formalised as:</p>
+<p><span id="eq:regression:eq00"><span class="math display">\[ y = \theta_0~ + \theta_1~x_1 + \epsilon,\qquad(1)\]</span></span></p>
+<p>where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Since modelling can hardly make a perfect match with the real data, we use <span class="math inline">\(\epsilon\)</span> to denote the error between our prediction and the data. Specifically, we represent the prediction part as <span class="math inline">\(h(\theta_0, \theta_1)\)</span>: <span id="eq:regression:eq01"><span class="math display">\[h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1\qquad(2)\]</span></span></p>
 <p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plain. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
 <p>TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.</p>
 <p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimizes the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
-<p><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)\]</span></p>
+<p><span id="eq:regression:eq02"><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)\qquad(3)\]</span></span></p>
 <p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to ideal cases, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
 <p><strong>TIPS</strong>: Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line – by “distance” we mean the the euclidean distace. between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance. On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data. TODO: explain the relationship between maximum likelihood estimation and least square.</p>
 </section>
@@ -67,16 +72,16 @@
 <p>To give a clearer view, we can visualise the cost function with a contour graph:</p>
 <p>IMAGE (CODE if we can do that in Owl)</p>
 <p>We can see that cost function varies with parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> with a bowl-like shape curve surface. It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.</p>
-<p>Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain <em>direction</em> at some <em>step size</em>, and hopefully can converge at a local minimum. Let’s use a fixed step size <span class="math inline">\(\alpha\)</span>, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. Therefore, what we need to do is to apply this update process iteratively for both <span class="math inline">\(\theta\)</span> parameters: <span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), \]</span> where <span class="math inline">\(i\)</span> is 1 or 2.</p>
+<p>Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain <em>direction</em> at some <em>step size</em>, and hopefully can converge at a local minimum. Let’s use a fixed step size <span class="math inline">\(\alpha\)</span>, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. Therefore, what we need to do is to apply this update process iteratively for both <span class="math inline">\(\theta\)</span> parameters: <span id="eq:regression:eq03"><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), \qquad(4)\]</span></span> where <span class="math inline">\(i\)</span> is 1 or 2.</p>
 <p>This process may seem terrible at first sight, but we can calculate it as:</p>
-<p><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \]</span> and <span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\]</span></p>
+<p><span id="eq:regression:eq04"><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \qquad(5)\]</span></span> and <span id="eq:regression:eq05"><span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\qquad(6)\]</span></span></p>
 <p>Here the <span class="math inline">\(x_i0\)</span> and <span class="math inline">\(x_i1\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i0 = 1\)</span> and <span class="math inline">\(x_i1 = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges. Here is the code.</p>
 <div class="highlight">
 <pre><code class="language-clike">TODO: CODE and explanation.</code></pre>
 </div>
 <p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = xxx\)</span> and <span class="math inline">\(\theta-1 = xxx\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure shows a line that aligns with input data.</p>
 <p>TODO: PLOT: the resulting line against data samples.</p>
-<p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> uses the odinary least square method we have introduced to perform linear regression.</p>
+<p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> uses the ordinary least square method we have introduced to perform linear regression.</p>
 <div class="highlight">
 <pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
@@ -95,11 +100,17 @@ And we can use that to directly solve the problem, and the resulting parameters 
 <p>TODO: <a href="https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data">possible real dataset</a></p>
 <p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of it’s surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affects the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
 <p>The answer is very straight forward. We just use more parameters, so the model becomes:</p>
-<p><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \]</span></p>
-<p>However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. Therefore, we use the vectorised format in the model: <span class="math display">\[h(\Theta) = \Theta~X^{(i)}\]</span>, where <span class="math inline">\(\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(X^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
-<p>Accordingly, the cost function can be represented as: <span class="math display">\[ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\]</span>, where <span class="math inline">\(y^{(i)}\)</span> is the output variable value on the <span class="math inline">\(i\)</span>th row of input data.</p>
+<p><span id="eq:regression:eq06"><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \qquad(7)\]</span></span></p>
+<p>However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. Therefore, we use the vectorised format in the model:</p>
+<p><span id="eq:regression:eq065"><span class="math display">\[h(\Theta) = \Theta~X^{(i)},\qquad(8)\]</span></span></p>
+<p>where <span class="math inline">\(\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(X^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
+<p>Accordingly, the cost function can be represented as:</p>
+<p><span id="eq:regression:eq07"><span class="math display">\[ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2,\qquad(9)\]</span></span></p>
+<p>where <span class="math inline">\(y^{(i)}\)</span> is the output variable value on the <span class="math inline">\(i\)</span>th row of input data.</p>
 <p>The derivative and manual gradient descent are left as exercise. Here we only show an example of using the regression function Owl has provided. Similar to the previous problem, we provide some data to this multiple variable problem. Part of the data are listed below:</p>
+<div id="tbl:regression:data02">
 <table>
+<caption>Table 2: Sample of input data</caption>
 <thead>
 <tr class="header">
 <th style="text-align: center;"><span class="math inline">\(x_1\)</span></th>
@@ -155,6 +166,7 @@ And we can use that to directly solve the problem, and the resulting parameters 
 </tr>
 </tbody>
 </table>
+</div>
 The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model.
 <div class="highlight">
 <pre><code class="language-clike">CODE + result</code></pre>
@@ -174,7 +186,7 @@ The problem has two different features. Again, by using the <code>ols</code> reg
 <section class="level3" id="analytical-solution">
 <h3><a href="#analytical-solution">Analytical Solution</a></h3>
 <p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
-<p><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\]</span></p>
+<p><span id="eq:regression:eq075"><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\qquad(10)\]</span></span></p>
 <p>Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
 <p>TODO: where does this equation come from?</p>
 <p>With this method, we don’t need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. This calculation can be efficiently performed in Owl using its Linear Algebra module. Let’s use the dataset from multi-variable regression again and perform the computation.</p>
@@ -195,9 +207,9 @@ The problem has two different features. Again, by using the <code>ols</code> reg
 <p>You can try to fit a line into these data, but it’s quite likely that the result would be very fitting. And that requires non-linear models.</p>
 <p>In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. We shows how to use them with examples, and won’t go into details of the math. Refer to [reference] for more details.</p>
 <p>In polynomial regression, the relationship between the feature <span class="math inline">\(x\)</span> and the output variable is modelled as an nth degree polynomial in the feature <span class="math inline">\(x\)</span>:</p>
-<p><span class="math display">\[ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots \]</span>.</p>
+<p><span id="eq:regression:eq08"><span class="math display">\[ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots \qquad(11)\]</span></span></p>
 <p>The model for exponential regression takes two parameters:</p>
-<p><span class="math display">\[ h(\theta_0, \theta_1) = \theta_0~\theta_1^x\]</span>.</p>
+<p><span id="eq:regression:eq09"><span class="math display">\[ h(\theta_0, \theta_1) = \theta_0~\theta_1^x.\qquad(12)\]</span></span></p>
 <p>Owl provides functions to do both form of regressions:</p>
 <div class="highlight">
 <pre><code class="language-clike">val exponential : ?i:bool -&gt; arr -&gt; arr -&gt; elt * elt * elt
@@ -223,10 +235,10 @@ val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 <p>IMAGE: two graphs with the same data, one is fit to the 2nd order, the other fit to the 4th order.</p>
 <p>Apparently, the second model fit too closely with the given data, and you can see that it won’t make a good prediction of future output values.</p>
 <p>To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. Actually we don’t need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:</p>
-<p><span class="math display">\[J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].\]</span></p>
+<p><span id="eq:regression:eq10"><span class="math display">\[J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].\qquad(13)\]</span></span></p>
 <p>Here the sum of squared parameter values is the penalty we add to the original cost function, and <span class="math inline">\(lambda\)</span> is a regularisation control parameter.</p>
 <p>That leads to a bit of change in the derivative of <span class="math inline">\(J(\Theta)\)</span> in using gradient descent:</p>
-<p><span class="math display">\[\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].\]</span></p>
+<p><span id="eq:regression:eq11"><span class="math display">\[\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].\qquad(14)\]</span></span></p>
 <p>We can now apply the new update procedure in gradient descent code, with a polynomial model up to 4th order.</p>
 <div class="highlight">
 <pre><code class="language-clike">CODE and IMAGE (data, old overfitted line; new regularised line)
@@ -245,7 +257,7 @@ val lasso : ?i:bool -&gt; ?alpha:float -&gt; arr -&gt; arr -&gt; arr array
 
 val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>What are these functions? The short answer is that: they are for regularisation in regression using different methods. The <code>ridge</code> cost function adds the L2 norm of <span class="math inline">\(\theta\)</span> as the penalty term: <span class="math inline">\(\lambda\sum\theta^2\)</span>, which is what we have introduced. The <code>lasso</code> cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: <span class="math inline">\(\lambda\sum|\theta|\)</span>. This difference makes <code>lasso</code> to be able to allow for some coefficients to be zero, which is very useful for feature selection. The <code>elastic_net</code> is proposed (by whom?) to combine the penalties of the previous two. What it adds is this: <span class="math display">\[\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),\]</span> where <span class="math inline">\(a\)</span> is a control parameter between <code>ridge</code> and <code>lasso</code>. The elastic net method aims to make the feature selection less dependent on input data.</p>
+<p>What are these functions? The short answer is that: they are for regularisation in regression using different methods. The <code>ridge</code> cost function adds the L2 norm of <span class="math inline">\(\theta\)</span> as the penalty term: <span class="math inline">\(\lambda\sum\theta^2\)</span>, which is what we have introduced. The <code>lasso</code> cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: <span class="math inline">\(\lambda\sum|\theta|\)</span>. This difference makes <code>lasso</code> to be able to allow for some coefficients to be zero, which is very useful for feature selection. The <code>elastic_net</code> is proposed (by whom?) to combine the penalties of the previous two. What it adds is this: <span id="eq:regression:eq115"><span class="math display">\[\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),\qquad(15)\]</span></span> where <span class="math inline">\(a\)</span> is a control parameter between <code>ridge</code> and <code>lasso</code>. The elastic net method aims to make the feature selection less dependent on input data.</p>
 <p>We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.</p>
 <div class="highlight">
 <pre><code class="language-clike">CODE using ridge. </code></pre>
@@ -260,7 +272,7 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <h3>Sigmoid Function</h3>
 <p>The solution is to use the sigmoid function (or logistic function): <span class="math inline">\(f(x) = \frac{1}{1 + e^{-x}}\)</span>.</p>
 <p>As shown in the figure, this function project value within the range of [0, 1]. Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].</p>
-<p><span class="math display">\[h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}\]</span>.</p>
+<p><span id="eq:regression:eq12"><span class="math display">\[h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.\qquad(16)\]</span></span></p>
 <p>Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1. Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.</p>
 </section>
 <section class="level3" id="decision-boundary">
@@ -274,13 +286,13 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <section class="level3" id="cost-function-1">
 <h3>Cost Function</h3>
 <p>With the new model comes new cost function. Previously in linear regression we measure the cost with least square, or euclidean distance. Now in the logistic regression, we define its cost function as:</p>
-<p><span class="math display">\[J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, \]</span> or <span class="math display">\[J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.\]</span></p>
+<p><span id="eq:regression:eq13"><span class="math display">\[J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, \qquad(17)\]</span></span> or <span id="eq:regression:eq14"><span class="math display">\[J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.\qquad(18)\]</span></span></p>
 <p>TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.</p>
 </section>
 <section class="level3" id="gradient-descent">
 <h3>Gradient Descent</h3>
 <p>Again the question is how to solve this terrible equation? Luckily, The sigmoid function has a nice property: its derivative is simple.</p>
-<p><span class="math display">\[\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\]</span>,</p>
+<p><span id="eq:regression:eq15"><span class="math display">\[\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\qquad(19)\]</span></span></p>
 <p>This gradient looks the same to that in linear regression, but it’s actually different, since the definition of <span class="math inline">\(h\)</span> is actually different. Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges. The process is similar to that in linear regression so we will not dig into details again. Instead, we will use the function that Owl provides:</p>
 <div class="highlight">
 <pre><code class="language-clike">val logistic : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
