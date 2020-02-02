@@ -2,6 +2,9 @@
 
 TODO: rewrite with visual illustration.
 
+![template-2d test](images/slicing/plot_00.png "plot_00"){ width=20% }
+
+
 Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.
 
 Before we start, let's clarify some things.
