@@ -1,6 +1,6 @@
 # Owl Book V1
 
-The main purpose of this book is for teaching how to use Owl software. The book also convers many useful numerical and system techniques in numerical computing. Furthermore, the book includes in-depth discussion on the lessons learnt by building large and complex software system to enable scientific computing in OCaml.
+The main purpose of this book is for teaching how to use Owl software. The book also convers many useful numerical and system techniques in numerical computing. Furthermore, the book includes in-depth discussion on the lessons learnt by building a large and complex software system to enable scientific computing in OCaml.
 
 The tooling and template reuse those in [Real World OCaml](https://realworldocaml.org/) under original authors' permission, with minor modidications.
 

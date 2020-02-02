@@ -89,6 +89,7 @@ let dune_for_pdf () =
   (targets book.aux book.idx book.toc)
   (deps    (alias ../book/latex)
            (:x ../book/book.tex)
+           ../book/dedication.tex
            inputs.tex)
   (action  (system "pdflatex -interaction=nonstopmode %%{x} -draftmode")))
 
@@ -103,6 +104,7 @@ let dune_for_pdf () =
   (targets book.pdf)
   (deps    (alias ../book/latex)
            (:x ../book/book.tex)
+           ../book/dedication.tex
            inputs.tex
            book.aux
            book.ind
