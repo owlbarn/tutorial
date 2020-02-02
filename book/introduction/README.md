@@ -369,6 +369,6 @@ For the time being, if you want to save that extra line to display a image in Ju
 - : unit = ()
 ```
 
-![Plot example 01](images/introduction/plot_01.png "plot_01"){ width=90% }
+![Plot example 01](images/introduction/plot_01.png "plot_01"){ width=90%, #fig:introduction:plot01 }
 
 From the example above, you can see Owl users' experience can be significantly improved.

@@ -293,12 +293,7 @@ let backprop nn eta x y =
 
 Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in [backprop.ml](https://github.com/owlbarb/owl/blob/master/examples/backprop.ml).
 
-.. figure:: ../figure/plot_034.png
-   :width: 100%
-   :align: center
-   :alt: mnist experiment
-
-![mnist experiment](images/algodiff/plot_034.png "plot 034"){ width=100% }
+![mnist experiment](images/algodiff/plot_034.png "plot 034"){ width=100%, #fig:algodiff:plot34 }
 
 
 ### Example: Computation Graph of Simple Functions
@@ -354,7 +349,7 @@ let make_network input_shape =
 
 The computation graph for this neural network become a bit more complicated now.
 
-![computation graph of VGG](images/algodiff/plot_029.png "plot 029"){ width=100% }
+![computation graph of VGG](images/algodiff/plot_029.png "plot 029"){ width=100%, #fig:algodiff:plot29 }
 
 
 ### Example: Computation Graph of LSTM Network
