@@ -106,11 +106,9 @@ A RP-tree helps us to locate a cluster which is likely to contain some of the $k
 
 We expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane
 should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster. By reducing such misclassifications, the searching accuracy is supposed to be improved.
-%000000000000000000
   Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research \cite{okun2008}. 
  Similar to our case, ensemble clustering algorithms improve clustering solutions by	fusing information from several data partitions.
 	In our further study on this particular part of the proposed system we intend to extend the probabilistic schemes developed in \cite{DBLP:journals/corr/abs-1302-1948} in an attempt to discover the underlying theoretical properties suggested by our empirical findings. In particular, we intend to similarly provide theoretical bounds for failure probability and show that such failures can be reduced by using more RP-trees.
-%000000000000000000
 
 To experimentally investigate this hypothesis we employ a subset of the Wikipedia database for further analysis.
 In what follows, the data set contains $500,000$ points and we always search for the $50$ nearest neighbours of a query point.
@@ -120,12 +118,7 @@ We query $1,000$ points in each experiment.
 The results presented in Figure \ref{fig:test1} correspond to the mean values of the aggregated nearest neighbours of the $1,000$ query points discovered by PANNS out of $100$ experiment runs.
 Note that $x$-axis represents the "size of search space" which is defined by the number of unique points within the union of all the leaf clusters that the query point fall in. Therefore, given the same search space size, using more tress indicates that the leaf clusters become smaller.
 
-\begin{figure}[htb!]
-  \centering \includegraphics[width=6cm]{sot-figs/figuretest-notproj1.pdf}
-  \caption{The number of true nearest neighbours found for different number of trees. For a given search space size, more trees lead to the better accuracy.}
-  \label{fig:test1}
-%\vskip -5mm
-\end{figure}
+%%% figure
 
 As we can see in Figure \ref{fig:test1}, for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
 As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours are found by performing a search over the $10\%$ of the data set.
@@ -133,26 +126,14 @@ As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours
 To further illustrate the benefits of using as many RP-trees as possible, we present in Figure \ref{fig:test2} the results where the size of search space remains approximately constant while the number of trees grows and 
 subsequently the cluster size shrinks accordingly. As shown, a larger number of trees leads to the better accuracy. E.g., the accuracy is improved about $62.5\%$ by increasing the number of trees from $2$ to $18$. 
 
-%\liang{In the experiments, we fix the size of search space around ??? points, the cluster size shrinks accordingly as the number of trees grows. Figure \ref{fig:test2} show that larger number of trees leads to better accuracy. E.g., the accuracy is improved about $62.5\%$ by increasing the number of trees from $2$ to $16$.}
-
-\begin{figure}[htb!]
-  \centering \includegraphics[width=6cm]{sot-figs/figuretest-treeplot.pdf}
-  \caption{The number of true nearest neighbours found as a function of the number of RP-trees used, while the search space size remains approximately constant.}
-  \label{fig:test2}
-%\vskip -5mm
-\end{figure}
+%%% figure
  
  
  	Finally in Figure \ref{fig:test3} similar outcome is observed when the average size of the leaf clusters remains approximately constant and the number of trees increases. In these experiments, we choose two specific cluster sizes for comparisons, i.e., cluster size $77$ and $787$. Both are just average leaf cluster sizes resulted from the termination criterion in the tree construction procedure which pre-sets a maximum allowed size of a leaf cluster (here $100$ and $1000$ respectively, selected for illustration purposes as any other relative set up gives similar results). 
  	In addition, we also draw a random subset for any given size from the whole data set to serve as a baseline. As we see, the accuracy of the random subset has a linear improvement rate which is simply due to the linear growth of its search space. As expected, the RP-tree solutions are significantly better than the random subset, and cluster size $77$ consistently outperforms cluster size $787$ especially when the search space is small. 
 
 
-\begin{figure}[htb!]
-  \centering \includegraphics[width=6cm]{sot-figs/figuretest-new.pdf}
-  \caption{The number of true nearest neighbours found as a function of the search space size, while the average leaf cluster size remains approximately constant. The random subset serves as the baseline for comparison.}
-  \label{fig:test3}
-%\vskip -5mm
-\end{figure}
+%%% figure
 
 Our empirical results clearly show the benefits of using more trees instead of using larger clusters for improving search accuracy. Moreover, regarding the searching performance, since searching can be easily parallelized, using more trees will not impact the searching time.
 
