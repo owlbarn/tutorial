@@ -38,6 +38,9 @@
         images/cgraph/owl_vision_pebble.png
         images/cgraph/plot_cgraph_01.png
         images/constant/metric_001.png
+        images/distributed/barriers.png
+        images/distributed/psp_00.png
+        images/distributed/psp_01.png
         images/introduction/plot_00.png
         images/introduction/plot_01.png
         images/linear-algebra/plot_00.png
