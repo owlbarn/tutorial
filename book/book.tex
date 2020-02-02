@@ -179,15 +179,25 @@
 \usepackage{makeidx}
 \makeindex
 \renewcommand*\contentsname{Table of content}
+
+% liang: align title, authors to the left start
+\makeatletter
+\patchcmd{\@maketitle}{\begin{center}}{\begin{flushleft}}{}{}
+\patchcmd{\@maketitle}{\begin{tabular}[t]{c}}{\begin{tabular}[t]{@{}l}}{}{}
+\patchcmd{\@maketitle}{\end{center}}{\end{flushleft}}{}{}
+\makeatother
+% liang: align title, authors to the left stop
+
 \title{%
-  OCaml Scientific Computing \\
+  \textbf{OCaml Scientific Computing} \\
+  \large Functional Programming Meets Data Science \\
   \large Version 1, PDF edition (WIP)}
-\date{}
 
 \author{
   Wang, Liang\\
   \texttt{liang.wang@cl.cam.ac.uk}
-  \and
+  \vspace{2em}
+  \\
   Zhao, Jianxin\\
   \texttt{jianxin.zhao@cl.cam.ac.uk}
 }
