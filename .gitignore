@@ -6,3 +6,12 @@ _opam
 docs/book.*
 docs/*.tex
 .DS_Store
+
+book/*.aux
+book/*.fdb_latexmk
+book/*.fls
+book/*.idx
+book/*.lof
+book/*.log
+book/*.lot
+book/*.toc
