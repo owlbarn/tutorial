@@ -4,6 +4,8 @@ Text is a dominant media type on the Internet along with images, videos, and aud
 
 This chapter focusses on the vector space models and topic modelling.
 
+TODO: this chapter now mainly lacks general text introduction of NLP.
+
 
 ## Introduction
 
@@ -308,6 +310,9 @@ let query corpus doc k =
 ### Random Projection
 
 NOTE: give an image illustration on what is random project, but no need to implement. We will reserve in-depth discussion in Recommender System Chapter.
+
+Only give a teaser here which goes like:
+"Linear Search does not rely on data structure, but is slow; matrix multiplication is paralleled version LS, faster, but still compute all the pairwise. If you want to simplify computation, you need to use index, and Random Projection is a widely used index method in industry. It is a big topic, and we will cover that in detail in the case chapter."
 
 ![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% }
 
