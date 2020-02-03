@@ -1,6 +1,6 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Case - Recommender System - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="case---recommender-system">
 <h1>Case - Recommender System</h1>
-<p>Refer to <span data-cites="wang2016kvasir" class="citation">(Wang et al. 2016)</span></p>
+<p>Refer to <span data-cites="7462177" class="citation">(Wang et al. 2016)</span> <span data-cites="7840682" class="citation">(Hyvönen et al. 2016)</span></p>
 <section class="level2" id="arch">
 <h2>Architecture</h2>
 <p>At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as  and . Figure  illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser. The browser extension only sends the page URL back to the KServer whenever a new tab/window is created. The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database. The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him.</p>
@@ -81,10 +81,13 @@ In addition, we also draw a random subset for any given size from the whole data
 </section>
 <section class="level3" id="optimise-index-algorithm">
 <h3>Optimise Index Algorithm</h3>
+<p>refer to II.C in <span data-cites="7840682" class="citation">(Hyvönen et al. 2016)</span></p>
 <figure>
 <img alt="" style="width:90.0%" title="plot_05" src="images/case-recommender/plot_05.png"><figcaption>Illustration of parallelising the computation.</figcaption>
 </figure>
 <p>Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.</p>
+<p>In classic RP trees, a different random vector is used at each inner node of a tree, whereas we use the same random vector for all the sibling nodes of a tree. This choice does not affect the accuracy at all because a query point is routed down each of the trees only once; hence, the query point is projected onto a random vector ri sampled from the same distribution at each level of a tree. This means that the query point is projected onto i.i.d. random vectors r1, . . . , r<code>in both scenarios. An RP tree has 2</code> − 1 inner nodes; therefore, if each node of a tree had a different random vector as in classic RP trees, … different random vectors would be required for one tree. However, when a single vector is used on each level, only <code>vectors are required. This reduces the amount of memory required by the random vectors from exponential to linear with respect to the depth of the trees. Having only</code> random vectors in one tree also speeds up the index construction significantly. While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling the computation of all the projections of the tree in one matrix multiplication: the projected data set</p>
+<p>Although the total amount of computation stays the same, in practice this speeds up the index construction significantly due to the cache effects and low-level parallelization through vectorization</p>
 </section>
 </section>
 <section class="level2" id="search-articles">
@@ -96,10 +99,13 @@ In addition, we also draw a random subset for any given size from the whole data
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
-<div id="ref-wang2016kvasir">
-<p>Wang, Liang, Sotiris Tasoulis, Teemu Roos, and Jussi Kangasharju. 2016. “Kvasir: Scalable Provision of Semantically Relevant Web Content on Big Data Framework.” <em>IEEE Transactions on Big Data</em> 2 (3): 219–33.</p>
+<div id="ref-7840682">
+<p>Hyvönen, V., T. Pitkänen, S. Tasoulis, E. Jääsaari, R. Tuomainen, L. Wang, J. Corander, and T. Roos. 2016. “Fast Nearest Neighbor Search Through Sparse Random Projections and Voting.” In <em>2016 Ieee International Conference on Big Data (Big Data)</em>, 881–88. <a href="https://doi.org/10.1109/BigData.2016.7840682">https://doi.org/10.1109/BigData.2016.7840682</a>.</p>
+</div>
+<div id="ref-7462177">
+<p>Wang, L., S. Tasoulis, T. Roos, and J. Kangasharju. 2016. “Kvasir: Scalable Provision of Semantically Relevant Web Content on Big Data Framework.” <em>IEEE Transactions on Big Data</em> 2 (3): 219–33. <a href="https://doi.org/10.1109/TBDATA.2016.2557348">https://doi.org/10.1109/TBDATA.2016.2557348</a>.</p>
 </div>
 </div>
 </section>
 </section>
-</article></div><a href="case-finance.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 34</small>Case - Numerical Methods in Finance</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
+</article></div><a href="case-finance.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 34</small>Case - Applications in Finance</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

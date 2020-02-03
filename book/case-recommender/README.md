@@ -1,6 +1,6 @@
 # Case - Recommender System
 
-Refer to [@wang2016kvasir]
+Refer to [@7462177] [@7840682]
 
 ## Architecture {#arch}
 
@@ -143,9 +143,40 @@ Our empirical results clearly show the benefits of using more trees instead of u
 
 ### Optimise Index Algorithm
 
+refer to II.C in [@7840682]
+
 ![Illustration of parallelising the computation.](images/case-recommender/plot_05.png "plot_05"){ width=90% }
 
 Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.
+
+In classic RP trees, a different random vector is used at each
+inner node of a tree, whereas we use the same random vector
+for all the sibling nodes of a tree. This choice does not affect
+the accuracy at all because a query point is routed down each
+of the trees only once; hence, the query point is projected onto
+a random vector ri sampled from the same distribution at each
+level of a tree. This means that the query point is projected
+onto i.i.d. random vectors r1, . . . , r` in both scenarios.
+An RP tree has 2
+` − 1 inner nodes; therefore, if each node
+of a tree had a different random vector as in classic RP trees,
+... different random vectors would be required for one tree.
+However, when a single vector is used on each level, only
+` vectors are required. This reduces the amount of memory
+required by the random vectors from exponential to linear with
+respect to the depth of the trees.
+Having only ` random vectors in one tree also speeds up the
+index construction significantly. While some of the observed
+speed-up is explained by a decreased amount of the random
+vectors that have to be generated, mostly it is due to enabling
+the computation of all the projections of the tree in one
+matrix multiplication: the projected data set 
+
+
+Although the total amount of computation stays the same,
+in practice this speeds up the index construction significantly
+due to the cache effects and low-level parallelization through
+vectorization
 
 
 ## Search Articles
