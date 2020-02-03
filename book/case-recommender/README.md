@@ -166,6 +166,244 @@ onto i.i.d. random vectors ....
 ## Search Articles
 
 
+## Code Implementation
+
+Naive implementation .... @jianxin, let's decide how to use them. 
+
+**The following is about how to do the random projection, for sparse projection**
+
+```ocaml env=case-recommender-00
+(* make projection matrix, return as row vectors *)
+let make_projection_matrix seed m n =
+  Owl_stats_prng.init seed;
+  Mat.gaussian m n |> Mat.to_arrays
+
+(* make transposed projection matrix of shape [n x m] *)
+let make_projection_transpose seed m n =
+  Owl_stats_prng.init seed;
+  Mat.gaussian m n |> Mat.transpose |> Mat.to_arrays
+
+(* make the matrix to save projected results *)
+let make_projected_matrix m n =
+  Array.init m (fun _ -> Array.make n 0.)
+
+(* the actual project function, for doc [i] on level [j] *)
+let project i j s projection projected =
+  let r = ref 0. in
+  Array.iter (fun (w, a) ->
+    r := !r +. a *. projection.(w).(j);
+  ) s;
+  projected.(j).(i) <- !r
+
+(* project vector [s] to up to [level] *)
+let project_vec s level projection =
+  let projected = Array.make level 0. in
+  for j = 0 to level - 1 do
+    let r = ref 0. in
+    Array.iter (fun (w, a) ->
+      r := !r +. a *. projection.(w).(j);
+    ) s;
+    projected.(j) <- !r
+  done;
+  projected
+
+(* random projection of sparse data set *)
+let random seed cluster tfidf =
+  (* matrix to be projected: num_doc x vocab *)
+  let num_doc = Nlp.Tfidf.length tfidf in
+  let vocab_len = Nlp.Tfidf.vocab_len tfidf in
+  let level = Maths.log2 (float_of_int num_doc /. cluster) |> ceil |> int_of_float in
+
+  (* random projection matrix: vocab x level *)
+  let projection = make_projection_matrix seed vocab_len level in
+  (* projected result transpose: level x num_doc *)
+  let projected = make_projected_matrix level num_doc in
+
+  Nlp.Tfidf.iteri (fun i s ->
+    for j = 0 to level - 1 do
+      project i j s projection projected;
+    done;
+  ) tfidf;
+
+  (* return the shape of projection, the projected *)
+  vocab_len, level, projected
+```
+
+**The following is about how to do the random projection, for dense projection**
+
+
+```ocaml env=case-recommender-00
+(* make projection matrix *)
+let make_projection_matrix seed m n =
+  Owl_stats_prng.init seed;
+  Mat.gaussian m n
+
+
+(* random projection of dense data set *)
+let random seed cluster data =
+  (* data to be projected: m x n *)
+  let m = Mat.row_num data in
+  let n = Mat.col_num data in
+  let level = Maths.log2 (float_of_int m /. cluster) |> ceil |> int_of_float in
+
+  (* random projection matrix: n x level *)
+  let projection = make_projection_matrix seed n level in
+  (* projected result transpose: level x m *)
+  let projected = Mat.dot data projection |> Mat.transpose in
+
+  (* return the shape of projection, the projected *)
+  n, level, projected, projection
+```
+
+
+**The following is about how to build the index - a binary saerch tree.**
+
+Split the space into subspaces ...
+
+```ocaml env=case-recommender-00
+type t =
+  | Node of float * t * t  (* intermediate nodes: split, left, right *)
+  | Leaf of int array      (* leaves only contains doc_id *)
+
+
+(* divide the projected space into subspaces to assign left and rigt subtrees,
+  the criterion of division is the median value.
+  The passed in [space] is the projected values on a specific level.
+ *)
+let split_space_median space =
+  let space_size = Array.length space in
+  let size_of_l = space_size / 2 in
+  let size_of_r = space_size - size_of_l in
+  (* sort into increasing order for median value *)
+  Array.sort (fun x y -> Pervasives.compare (snd x) (snd y)) space;
+  let median =
+    match size_of_l < size_of_r with
+    | true  -> snd space.(size_of_l)
+    | false -> (snd space.(size_of_l-1) +. snd space.(size_of_l)) /. 2.
+  in
+  let l_subspace = Array.sub space 0 size_of_l in
+  let r_subspace = Array.sub space size_of_l size_of_r in
+  median, l_subspace, r_subspace
+
+
+(* based on the doc_id of the points in the subspace, filter the projected space,
+  both spaces and the reutrn are of the same format (doc_id, projected value).
+  The purpose of this function is to update the projected value using specified
+  level so the recursion can continue.
+ *)
+let filter_projected_space level projected subspace =
+  let plevel = projected.(level) in
+  Array.map (fun (doc_id, _) -> doc_id, plevel.(doc_id)) subspace
+```
+
+Build the binary tree ...
+
+```ocaml env=case-recommender-00
+(* recursively grow the subtree to make a whole tree.
+  [projected] is of shape [level x num_doc].
+  [subspace] is of shape [1 x num_doc].
+ *)
+let rec make_subtree level projected subspace =
+  let num_levels = Array.length projected in
+  match level = num_levels with
+  | true  -> (
+      (* only keep the doc_id in the leaf *)
+      let leaf = Array.map fst subspace in
+      Leaf leaf
+    )
+  | false -> (
+      let median, l_space, r_space = split_space_median subspace in
+      (* update the projected values for the next level *)
+      let l_space = match level < num_levels - 1 with
+        | true  -> filter_projected_space (level+1) projected l_space
+        | false -> l_space
+      in
+      let r_space = match level < num_levels - 1 with
+        | true  -> filter_projected_space (level+1) projected r_space
+        | false -> r_space
+      in
+      (* NOTE: this is NOT tail recursion *)
+      let l_subtree = make_subtree (level+1) projected l_space in
+      let r_subtree = make_subtree (level+1) projected r_space in
+      Node (median, l_subtree, r_subtree)
+    )
+
+(* build binary search tree, the passed in [projected] variable contains the
+  projected points of shape [level x num_doc]. Currently everything is done in
+  memory for efficiency consideration.
+ *)
+let grow projected =
+  (* initialise the first subspace at level 0 *)
+  let subspace = Array.mapi (fun doc_id x -> (doc_id, x)) projected.(0) in
+  (* start recursively making the subtrees from level 0 *)
+  let tree_root = make_subtree 0 projected subspace in
+  tree_root
+```
+
+How search is done ...
+
+```ocaml env=case-recommender-00
+(* traverse the whole tree to locate the cluster for a projected vector [x],
+  level: currrent level of the tree/recursion.
+ *)
+let rec traverse node level x =
+  match node with
+  | Leaf n         -> n
+  | Node (s, l, r) -> (
+      (* NOTE: be consistent with split_space_median *)
+      match x.(level) < s with
+      | true  -> traverse l (level+1) x
+      | false -> traverse r (level+1) x
+    )
+
+(* iterate all the leaves in a tree and apply function [f] *)
+let rec iter_leaves f node =
+  match node with
+  | Leaf n         -> f n
+  | Node (s, l, r) -> iter_leaves f l; iter_leaves f r
+
+(* return the leaves which have [id] inside *)
+let search_leaves node id =
+  let leaf = ref [||] in
+  (
+    try iter_leaves (fun l ->
+      if Array.mem id l = true then (
+        leaf := l;
+        failwith "found";
+      )
+    ) node
+    with exn -> ()
+  );
+  Array.copy !leaf
+
+(* wrapper of traverse function *)
+let query tree x = traverse tree 0 x
+```
+
+**How to count votes?**
+
+```ocaml env=case-recommender-00
+let count_votes nn =
+  let h = Hashtbl.create 128 in
+  Owl_utils.aarr_iter (fun x ->
+    match Hashtbl.mem h x with
+    | true  -> (
+        let c = Hashtbl.find h x in
+        Hashtbl.replace h x (c + 1)
+      )
+    | false -> Hashtbl.add h x 1
+  ) nn;
+  let r = Array.make (Hashtbl.length h) (0,0) in
+  let l = ref 0 in
+  Hashtbl.iter (fun doc_id votes ->
+    r.(!l) <- (doc_id, votes);
+    l := !l + 1;
+  ) h;
+  Array.sort (fun x y -> Pervasives.compare (snd y) (snd x)) r;
+  r
+```
+
+
 ## Make It Live
 
 LWT-web etc. OCaml code.
