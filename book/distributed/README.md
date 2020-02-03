@@ -4,28 +4,76 @@ Background: decentralised computation
 
 In this chapter, we will cover two topics:
 
+1. Actor Engine 
+2. Barrier control, especially PSP
+
+Refer to [@wang2017probabilistic] for more detail.
 
 ## Actor System
 
-refer to [@wang2017probabilistic]
+
+### Introduction
+
+Introduce the design of Actor, such as high order functions and composability with Owl.
+
+### Implementation
+
+(TODO: the design of actor's functor stack; how network/barrier etc. are implemented as separated as different module. Connection with Mirage etc.)
+
+We have implemented PSP in the context of Owl.
+We use Owl in particular because we can use the OCaml functor system to build Actor, a system that abstracts over the computational model involved. The result is that composing Actor with Owl allows us to use functors to transform a sequential numerical application into a parallel version with minimal code modification.
+
+
+The Actor system has implemented core APIs in both map-reduce engine and parameter sever engine. Both map-reduce and parameter server engines need a (logical) centralised entity to coordinate all the nodes' progress.  To demonstrate PSP's capability to transform an existing barrier control method into its fully distributed version, we also extended the parameter server engine to peer-to-peer (p2p) engine. The p2p engine can be used to implement both data and model parallel applications, both data and model parameters can be (although not necessarily) divided into multiple parts then distributed over different nodes.
+
+Each engine has its own set of APIs. E.g., map-reduce engine includes `map`, `reduce`, `join`, `collect`, and etc.; whilst the peer-to-peer engine provides four major APIs: push, pull, schedule, barrier. It is worth noting there is one function shared by all the engines, i.e. barrier function which implements various barrier control mechanisms.
+
+As an example, we briefly introduce the interfaces in peer-to-peer engine.
+
+- `schedule`: decide what model parameters should be computed to update in this step. It can be either a local decision or a central decision.
+
+- `pull`: retrieve the updates of model parameters from somewhere then applies them to the local model. Furthermore, the local updates will be computed based on the scheduled model parameter.
+
+- `push`: send the updates to the model plane. The updates can be sent to either a central server or to individual nodes depending on which engine is used(e.g., map-reduce, parameter server, or peer-to-peer).
+
+- `barrier`: decide whether to advance the local step. Various synchronisation methods can be implemented. Besides the classic BSP, SSP, and ASP, we also implement the proposed PSP within this interface.
+
+To obtain the aforementioned two pieces of information, we can organise the nodes into a structured overlay (e.g., chord or kademlia), the total number of nodes can be estimated by the density of each zone (i.e., a chunk of the name space with well-defined prefixes), given the node identifiers are uniformly distributed in the name space. Using a structured overlay in the design guarantees the following sampling process is correct, i.e., random sampling.
+
+
+## Actor Engines 
 
 A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes.
 These compute nodes can be organised in various ways. 
 
-## Map-Reduce Engine
+
+### Map-Reduce Engine
+
+Introduction + Application
+
+Simple example for readers to to understand
+
+Implementation
+
+Example of using Map-Reduce in Actor
+
+### Parameter Server Engine
+
+Introduction + Application
+
+Simple Example
+
+Implementation
+
+Example of using PS in Actor 
+
+### Peer-to-Peer Engine
 
 Introduction 
 
-All the 
+Implementation
 
-## Parameter Server Engine
-
-Introduction 
-
-
-## Peer-to-Peer Engine
-
-Introduction 
+Example of using P2P in Actor
 
 ## Classic Synchronise Parallel 
 
@@ -64,11 +112,11 @@ SSP relaxes consistency by allowing difference in iteration rate. The difference
 SSP is supposed to mitigate the negative effects of stragglers. But the server still requires global state.
 
 
-## Probabilistic Sampling in Synchronise Parallel
+## Probabilistic Synchronise Parallel
 
 Existing barrier methods allow us to balance consistency against iteration rate in attempting to achieve a high rate of convergence. In particular, SSP parameterises the spectrum between ASP and BSP by introducing a staleness parameter, allowing some degree of asynchrony between nodes so long as no node lags too far behind. Figure~\ref{f:axis} depicts this trade-off.
 
-However, in contrast to a highly reliable and homogeneous datacenter context, let's assume a distributed system consisting of a larger amount of heterogeneous nodes that are distributed at a much larger geographical areas.
+However, in contrast to a highly reliable and homogeneous datacentre context, let's assume a distributed system consisting of a larger amount of heterogeneous nodes that are distributed at a much larger geographical areas.
 The network is unreliable since links can break down, and the bandwidth is heterogeneous. The nodes are not static, they can join and leave the system at any time.
 We observe that BSP and SSP are not suitable for this scenario, since both are centralised mechanisms: a single server is responsible for receiving updates from each node and declaring when the next iteration can proceed.
 
@@ -195,7 +243,7 @@ PSP shows another dimension of performance tuning. We set sample size $\beta$ to
 The same is also true when comparing pSSP and SSP.
 In both cases, PSP improves the iteration efficiency while limiting dispersion.
 
-![pBSP parameterised by different sample sizes, from 0 to 64.](images/distributed/exp_step_02.png){#fig:distributed:exp_step_02}
+![pBSP parameterised by different sample sizes, from 0 to 64.](images/distributed/exp_step_02.png){width=60%, #fig:distributed:exp_step_02}
 
 To further investigate the impact of sample size, we focus on BSP, and choose different sample sizes.
 In [@fig:distributed:exp_step_02] we vary the sample size from 0 to 64. As we increase the sample size step by step, the curves start shifting from right to left with tighter and tighter spread, indicating less variance in nodes' progress.
@@ -269,6 +317,8 @@ let push kv_pairs =
       (k, value)
     ) kv_pairs
 ```
+
+TODO:  Explain the code
 
 
 ![MNIST training using Actor](images/distributed/exp_accuracy_01.png){#fig:distributed:exp_accuracy_01}

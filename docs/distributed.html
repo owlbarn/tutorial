@@ -2,23 +2,54 @@
 <h1>Distributed Computing</h1>
 <p>Background: decentralised computation</p>
 <p>In this chapter, we will cover two topics:</p>
+<ol type="1">
+<li>Actor Engine</li>
+<li>Barrier control, especially PSP</li>
+</ol>
+<p>Refer to <span data-cites="wang2017probabilistic" class="citation">(Wang, Catterall, and Mortier 2017)</span> for more detail.</p>
 <section class="level2" id="actor-system">
 <h2>Actor System</h2>
-<p>refer to <span data-cites="wang2017probabilistic" class="citation">(Wang, Catterall, and Mortier 2017)</span></p>
+<section class="level3" id="introduction">
+<h3>Introduction</h3>
+<p>Introduce the design of Actor, such as high order functions and composability with Owl.</p>
+<p>###&nbsp;Implementation</p>
+<p>(TODO: the design of actor’s functor stack; how network/barrier etc. are implemented as separated as different module. Connection with Mirage etc.)</p>
+<p>We have implemented PSP in the context of Owl. We use Owl in particular because we can use the OCaml functor system to build Actor, a system that abstracts over the computational model involved. The result is that composing Actor with Owl allows us to use functors to transform a sequential numerical application into a parallel version with minimal code modification.</p>
+<p>The Actor system has implemented core APIs in both map-reduce engine and parameter sever engine. Both map-reduce and parameter server engines need a (logical) centralised entity to coordinate all the nodes’ progress. To demonstrate PSP’s capability to transform an existing barrier control method into its fully distributed version, we also extended the parameter server engine to peer-to-peer (p2p) engine. The p2p engine can be used to implement both data and model parallel applications, both data and model parameters can be (although not necessarily) divided into multiple parts then distributed over different nodes.</p>
+<p>Each engine has its own set of APIs. E.g., map-reduce engine includes <code>map</code>, <code>reduce</code>, <code>join</code>, <code>collect</code>, and etc.; whilst the peer-to-peer engine provides four major APIs: push, pull, schedule, barrier. It is worth noting there is one function shared by all the engines, i.e.&nbsp;barrier function which implements various barrier control mechanisms.</p>
+<p>As an example, we briefly introduce the interfaces in peer-to-peer engine.</p>
+<ul>
+<li><p><code>schedule</code>: decide what model parameters should be computed to update in this step. It can be either a local decision or a central decision.</p></li>
+<li><p><code>pull</code>: retrieve the updates of model parameters from somewhere then applies them to the local model. Furthermore, the local updates will be computed based on the scheduled model parameter.</p></li>
+<li><p><code>push</code>: send the updates to the model plane. The updates can be sent to either a central server or to individual nodes depending on which engine is used(e.g., map-reduce, parameter server, or peer-to-peer).</p></li>
+<li><p><code>barrier</code>: decide whether to advance the local step. Various synchronisation methods can be implemented. Besides the classic BSP, SSP, and ASP, we also implement the proposed PSP within this interface.</p></li>
+</ul>
+<p>To obtain the aforementioned two pieces of information, we can organise the nodes into a structured overlay (e.g., chord or kademlia), the total number of nodes can be estimated by the density of each zone (i.e., a chunk of the name space with well-defined prefixes), given the node identifiers are uniformly distributed in the name space. Using a structured overlay in the design guarantees the following sampling process is correct, i.e., random sampling.</p>
+</section>
+</section>
+<section class="level2" id="actor-engines">
+<h2>Actor Engines</h2>
 <p>A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes. These compute nodes can be organised in various ways.</p>
+<section class="level3" id="map-reduce-engine">
+<h3>Map-Reduce Engine</h3>
+<p>Introduction + Application</p>
+<p>Simple example for readers to to understand</p>
+<p>Implementation</p>
+<p>Example of using Map-Reduce in Actor</p>
 </section>
-<section class="level2" id="map-reduce-engine">
-<h2>Map-Reduce Engine</h2>
-<p>Introduction</p>
-<p>All the</p>
+<section class="level3" id="parameter-server-engine">
+<h3>Parameter Server Engine</h3>
+<p>Introduction + Application</p>
+<p>Simple Example</p>
+<p>Implementation</p>
+<p>Example of using PS in Actor</p>
 </section>
-<section class="level2" id="parameter-server-engine">
-<h2>Parameter Server Engine</h2>
+<section class="level3" id="peer-to-peer-engine">
+<h3>Peer-to-Peer Engine</h3>
 <p>Introduction</p>
+<p>Implementation</p>
+<p>Example of using P2P in Actor</p>
 </section>
-<section class="level2" id="peer-to-peer-engine">
-<h2>Peer-to-Peer Engine</h2>
-<p>Introduction</p>
 </section>
 <section class="level2" id="classic-synchronise-parallel">
 <h2>Classic Synchronise Parallel</h2>
@@ -44,10 +75,10 @@
 <p>SSP relaxes consistency by allowing difference in iteration rate. The difference is controlled by the bounded staleness. SSP is supposed to mitigate the negative effects of stragglers. But the server still requires global state.</p>
 </section>
 </section>
-<section class="level2" id="probabilistic-sampling-in-synchronise-parallel">
-<h2>Probabilistic Sampling in Synchronise Parallel</h2>
+<section class="level2" id="probabilistic-synchronise-parallel">
+<h2>Probabilistic Synchronise Parallel</h2>
 <p>Existing barrier methods allow us to balance consistency against iteration rate in attempting to achieve a high rate of convergence. In particular, SSP parameterises the spectrum between ASP and BSP by introducing a staleness parameter, allowing some degree of asynchrony between nodes so long as no node lags too far behind. Figure~ depicts this trade-off.</p>
-<p>However, in contrast to a highly reliable and homogeneous datacenter context, let’s assume a distributed system consisting of a larger amount of heterogeneous nodes that are distributed at a much larger geographical areas. The network is unreliable since links can break down, and the bandwidth is heterogeneous. The nodes are not static, they can join and leave the system at any time. We observe that BSP and SSP are not suitable for this scenario, since both are centralised mechanisms: a single server is responsible for receiving updates from each node and declaring when the next iteration can proceed.</p>
+<p>However, in contrast to a highly reliable and homogeneous datacentre context, let’s assume a distributed system consisting of a larger amount of heterogeneous nodes that are distributed at a much larger geographical areas. The network is unreliable since links can break down, and the bandwidth is heterogeneous. The nodes are not static, they can join and leave the system at any time. We observe that BSP and SSP are not suitable for this scenario, since both are centralised mechanisms: a single server is responsible for receiving updates from each node and declaring when the next iteration can proceed.</p>
 <p>In contrast, ASP is fully distributed and no single node is responsible for the system making progress. We examine this trade-off in more detail, and suggest that the addition of a new <em>sampling</em> primitive exposes a second axis on which solutions can be placed, leading to greater flexibility in how barrier controls can be implemented. We call the resulting barrier control method (or, more precisely, family of barrier control methods) <em>Probabilistic Synchronous Parallel</em>, or PSP.</p>
 <section class="level3" id="basic-idea-sampling">
 <h3>Basic idea: sampling</h3>
@@ -179,6 +210,7 @@ let pull kv_pairs =
       (k, value)
     ) kv_pairs</code></pre>
 </div>
+<p>TODO: Explain the code</p>
 <figure>
 <img alt="" id="fig:distributed:exp_accuracy_01" src="images/distributed/exp_accuracy_01.png"><figcaption>Figure 7: MNIST training using Actor</figcaption>
 </figure>
