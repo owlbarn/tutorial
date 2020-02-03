@@ -2,6 +2,8 @@
 
 Refer to [@7462177] [@7840682]
 
+This chapter should be a popular version of the paper contents. Do not worry about OCaml code for now.
+
 ## Architecture {#arch}
 
 At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as \textit{frontend} and \textit{backend}. Figure \ref{fig:general} illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser. The browser extension only sends the page URL back to the KServer whenever a new tab/window is created. The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database. The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him. 
@@ -145,6 +147,8 @@ Our empirical results clearly show the benefits of using more trees instead of u
 
 refer to II.C in [@7840682]
 
+A very interesting part. Make sure you understand the paper and express the core idea concisely here.
+
 ![Illustration of parallelising the computation.](images/case-recommender/plot_05.png "plot_05"){ width=90% }
 
 Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.
@@ -163,6 +167,8 @@ onto i.i.d. random vectors ....
 
 
 ## Make It Live
+
+LWT-web etc. OCaml code.
 
 
 ## References
