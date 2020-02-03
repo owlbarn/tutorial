@@ -38,7 +38,7 @@ This chapter teaches you how to use visualisation functionality in Owl.
 
 The generated figure is as below.
 
-![Plot example 01](images/visualisation/plot_001.png "plot_01"){ width=70%, #fig:visualisation:plot_001}
+![Basic function plot](images/visualisation/plot_001.png "plot_01"){ width=70%, #fig:visualisation:plot_001}
 
 Another example follows,
 
@@ -69,7 +69,7 @@ Another example follows,
 - : unit = ()
 ```
 
-![Plot example 23](images/visualisation/plot_023.png "plot_23"){ width=90%,#fig:visualisation:plot_023}
+![Basic mesh plot](images/visualisation/plot_023.png "plot_23"){ width=90%,#fig:visualisation:plot_023}
 
 
 ## Specification
@@ -105,7 +105,7 @@ In the following, I will provide some examples to show how to use `spec` paramet
 - : unit = ()
 ```
 
-![Plot example 20](images/visualisation/plot_020.png "plot_20"){ width=90%, #fig:visualisation:plot_020}
+![Plot specification](images/visualisation/plot_020.png "plot_20"){ width=90%, #fig:visualisation:plot_020}
 
 The second example shows how to tune `surf` plotting function.
 
@@ -136,7 +136,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-![Plot example 21](images/visualisation/plot_021.png "plot_21"){ width=90%,#fig:visualisation:plot_021 }
+![surf plot](images/visualisation/plot_021.png "plot_21"){ width=90%,#fig:visualisation:plot_021 }
 
 
 ## Subplots
@@ -180,7 +180,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-![Plot example 02](images/visualisation/plot_002.png "plot_002"){ width=90%,#fig:visualisation:plot_002}
+![Subplots](images/visualisation/plot_002.png "plot_002"){ width=90%,#fig:visualisation:plot_002}
 
 
 ## Multiple Lines
@@ -196,7 +196,7 @@ You can certainly plot multiple lines (or other types of plots) on the same page
 - : unit = ()
 ```
 
-![Plot example 24](images/visualisation/plot_024.png "plot_24"){ width=70%, #fig:visualisation:plot_024 }
+![Plot multiple lines](images/visualisation/plot_024.png "plot_24"){ width=70%, #fig:visualisation:plot_024 }
 
 Here is another example which has both histogram and line plot in one figure.
 
@@ -216,7 +216,7 @@ Here is another example which has both histogram and line plot in one figure.
 - : unit = ()
 ```
 
-![Plot example 25](images/visualisation/plot_025.png "plot_25"){ width=90%,#fig:visualisation:plot_025 }
+![Mix line plot and histogram](images/visualisation/plot_025.png "plot_25"){ width=90%,#fig:visualisation:plot_025 }
 
 So as long as you "hold" the plot without calling `Plot.output`, you can plot many data sets in one figure.
 
@@ -260,7 +260,7 @@ Despite of its messy looking, the following example shows how to use legend in O
 - : unit = ()
 ```
 
-![Plot example 26](images/visualisation/plot_026.png "plot_26"){ width=90%, #fig:visualisation:plot_026 }
+![Plot with legends](images/visualisation/plot_026.png "plot_26"){ width=90%, #fig:visualisation:plot_026 }
 
 
 ## Drawing
@@ -283,7 +283,7 @@ Despite of its messy looking, the following example shows how to use legend in O
 - : unit = ()
 ```
 
-![Plot example 04](images/visualisation/plot_004.png "plot_24"){ width=90%, #fig:visualisation:plot_004 }
+![Draw lines](images/visualisation/plot_004.png "plot_24"){ width=90%, #fig:visualisation:plot_004 }
 
 This example demonstrates patterns.
 
@@ -301,7 +301,7 @@ This example demonstrates patterns.
 - : unit = ()
 ```
 
-![Plot example 05](images/visualisation/plot_005.png "plot_25"){ width=90%, #fig:visualisation:plot_025 }
+![Fill patterns](images/visualisation/plot_005.png "plot_25"){ width=90%, #fig:visualisation:plot_025 }
 
 ## Line Plot
 

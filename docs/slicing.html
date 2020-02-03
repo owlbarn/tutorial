@@ -65,12 +65,14 @@
 <section class="level2" id="conventions-in-definition">
 <h2>Conventions in Definition</h2>
 <p>Essentially, Owl’s slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.</p>
-<p>The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.</p>
+<p>The core building block is the slice definition. Slice definition is a <code>index list</code>. Each element within the <code>index list</code> corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors <code>I</code>, <code>L</code>, and <code>R</code> to let you specify single index, a list of indices, or a range of indices.</p>
 <ul>
-<li><p>Slice definition is a <code>index list</code>. Each element within the <code>index list</code> corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors <code>I</code>, <code>L</code>, and <code>R</code> to let you specify single index, a list of indices, or a range of indices.</p></li>
 <li><p>Constructor <code>I</code> is trivial, it specifies a specific index. E.g., <code>[ I 2; I 5 ]</code> returns the element at position <code>(2, 5)</code> in a matrix.</p></li>
 <li><p>Constructor <code>L</code> is used to specify a list of indices. E.g., <code>[ I 2; L [5;3] ]</code> returns a <code>1 x 2</code> matrix consists of the elements at <code>(2, 5)</code> and <code>(2, 3)</code> in the original matrix.</p></li>
 <li><p>Constructor <code>R</code> is for specifying a range of indices. It has more conventions but by no means complicated. The following text is dedicated for range conventions.</p></li>
+</ul>
+<p>The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.</p>
+<ul>
 <li><p>The format of the range definition follows <strong>R [ start; stop; step ]</strong>. Obviously, <code>start</code> specifies the starting index; <code>stop</code> specifies the stopping index (inclusive); and <code>step</code> specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.</p></li>
 <li><p>All three variables <code>start</code>, <code>stop</code>, and <code>step</code> can take both positive and negative values, but <code>step</code> is not allowed to take <code>0</code> value. Positive step indicates that indices will be visited in increasing order from <code>start</code> to <code>stop</code>; and vice versa.</p></li>
 <li><p>For <code>start</code> and <code>stop</code> variables, positive value refers to a specific index; whereas negative value <code>a</code> will be translated into <code>n + a</code> where <code>n</code> is the total number of indices. E.g., <code>[ -1; 0 ]</code> means from the last index to the first one.</p></li>

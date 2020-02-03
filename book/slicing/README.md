@@ -86,15 +86,15 @@ Note that both `get_basic` and `get_fancy` return a copy (rather than a view as 
 
 Essentially, Owl's slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.
 
-The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.
-
-* Slice definition is a `index list`. Each element within the `index list` corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors `I`, `L`, and `R` to let you specify single index, a list of indices, or a range of indices.
+The core building block is the slice definition. Slice definition is a `index list`. Each element within the `index list` corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors `I`, `L`, and `R` to let you specify single index, a list of indices, or a range of indices.
 
 * Constructor `I` is trivial, it specifies a specific index. E.g., `[ I 2; I 5 ]` returns the element at position `(2, 5)` in a matrix.
 
 * Constructor `L` is used to specify a list of indices. E.g., `[ I 2; L [5;3] ]` returns a `1 x 2` matrix consists of the elements at `(2, 5)` and `(2, 3)` in the original matrix.
 
 * Constructor `R` is for specifying a range of indices. It has more conventions but by no means complicated. The following text is dedicated for range conventions.
+
+The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.
 
 * The format of the range definition follows **R [ start; stop; step ]**. Obviously, `start` specifies the starting index; `stop` specifies the stopping index (inclusive); and `step` specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.
 
@@ -111,7 +111,7 @@ The following conventions require our attentions in order to write correct slice
   - if `start <= stop`, then it will be expanded to `[ start; stop; 1 ]`;
   - if `start > stop`, then it will be expanded to `[ start; stop; -1 ]`;
 
-- It is not necessary to specify all the definitions for all the dimensions, `get_slice` function will also expand it by assuming you will take all the data in higher dimensions. E.g., `x` has the shape `[ 2; 3; 4 ]`, if we define the slice as `[ [0] ]` then `get_slice` will expand the definition into `[ [0]; []; [] ]`
+* It is not necessary to specify all the definitions for all the dimensions, `get_slice` function will also expand it by assuming you will take all the data in higher dimensions. E.g., `x` has the shape `[ 2; 3; 4 ]`, if we define the slice as `[ [0] ]` then `get_slice` will expand the definition into `[ [0]; []; [] ]`
 
 OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.
 
