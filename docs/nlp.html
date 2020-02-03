@@ -216,6 +216,7 @@ let build_lda corpus topics =
 <section class="level2" id="latent-semantic-analysis-lsa">
 <h2>Latent Semantic Analysis (LSA)</h2>
 <p>Explain what is LSA, and how it differs from LDA wrt to derived topics.</p>
+<p>Read * https://en.wikipedia.org/wiki/Latent_semantic_analysis * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/</p>
 </section>
 <section class="level2" id="indexing-and-searching">
 <h2>Indexing and Searching</h2>
@@ -227,21 +228,35 @@ let build_lda corpus topics =
 </section>
 <section class="level3" id="liear-searching">
 <h3>Liear Searching</h3>
-<p>First implement linear search, in this case, we do not need index at all, but it is very slow.</p>
+<p>First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* TODO *)</code></pre>
+<pre><code class="language-ocaml">(* calculate pairwise distance for the whole model, format (id,dist) *)
+let all_pairwise_distance typ corpus x =
+  let dist_fun = Owl_nlp_similarity.distance typ in
+  let l = Array.mapi (fun i y -&gt; i, dist_fun x y) corpus in
+  Array.sort (fun a b -&gt; Stdlib.compare (snd a) (snd b)) l;
+  l
+
+(* return the k most relevant documents *)
+let query corpus doc k =
+  let typ = Owl_nlp_similarity.Cosine in
+  let l = all_pairwise_distance typ corpus doc in
+  Array.sub l 0 k</code></pre>
 </div>
 </section>
 <section class="level3" id="use-matrix-multiplication">
 <h3>Use Matrix Multiplication</h3>
-<p>Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation.</p>
+<p>Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation. We assume the corpus has been converted into a dense matrix, wherein each row vector represents a document.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* TODO *)</code></pre>
+<pre><code class="language-ocaml">let query corpus doc k =
+  let vec = Mat.transpose doc in
+  let l = Mat.(corpus *@ vec) in
+  Mat.bottom l k</code></pre>
 </div>
 </section>
 <section class="level3" id="random-projection">
 <h3>Random Projection</h3>
-<p>NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.</p>
+<p>NOTE: give an image illustration on what is random project, but no need to implement. We will reserve in-depth discussion in Recommender System Chapter.</p>
 <figure>
 <img alt="" style="width:90.0%" title="plot_01" src="images/nlp/plot_01.png"><figcaption>Random projection on 2D plane</figcaption>
 </figure>

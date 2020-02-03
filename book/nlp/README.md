@@ -257,6 +257,10 @@ let build_lda corpus topics =
 
 Explain what is LSA, and how it differs from LDA wrt to derived topics.
 
+Read
+  * https://en.wikipedia.org/wiki/Latent_semantic_analysis
+  * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/
+
 
 ## Indexing and Searching
 
@@ -271,25 +275,39 @@ TODO: use an image to illustrate.
 
 ### Liear Searching
 
-First implement linear search, in this case, we do not need index at all, but it is very slow.
+First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).
 
 ```ocaml
-(* TODO *)
+(* calculate pairwise distance for the whole model, format (id,dist) *)
+let all_pairwise_distance typ corpus x =
+  let dist_fun = Owl_nlp_similarity.distance typ in
+  let l = Array.mapi (fun i y -> i, dist_fun x y) corpus in
+  Array.sort (fun a b -> Stdlib.compare (snd a) (snd b)) l;
+  l
+
+(* return the k most relevant documents *)
+let query corpus doc k =
+  let typ = Owl_nlp_similarity.Cosine in
+  let l = all_pairwise_distance typ corpus doc in
+  Array.sub l 0 k
 ```
 
 
 ### Use Matrix Multiplication
 
-Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation.
+Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation. We assume the corpus has been converted into a dense matrix, wherein each row vector represents a document.
 
 ```ocaml
-(* TODO *)
+let query corpus doc k =
+  let vec = Mat.transpose doc in
+  let l = Mat.(corpus *@ vec) in
+  Mat.bottom l k
 ```
 
 
 ### Random Projection
 
-NOTE: give an image illustration on what is random project, but no need to implement. We will leave this in Recommender System Chapter.
+NOTE: give an image illustration on what is random project, but no need to implement. We will reserve in-depth discussion in Recommender System Chapter.
 
 ![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% }
 
