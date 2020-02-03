@@ -1,4 +1,4 @@
-# Case - Numerical Methods in Finance
+# Case - Applications in Finance
 
 ## Example 1: Bond Pricing
 
