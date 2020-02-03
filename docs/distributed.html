@@ -32,6 +32,7 @@
 <p>A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes. These compute nodes can be organised in various ways.</p>
 <section class="level3" id="map-reduce-engine">
 <h3>Map-Reduce Engine</h3>
+<p>Following MapReduce <span data-cites="dean2008mapreduce" class="citation">(Dean and Ghemawat 2008)</span>, nodes can be divided by tasks: either <em>map</em> or <em>reduce</em>. Mappers compute in parallel while Reducers receive the output from all mappers and combine to produce the accumulated result. This parameter update is then broadcast to all nodes.</p>
 <p>Introduction + Application</p>
 <p>Simple example for readers to to understand</p>
 <p>Implementation</p>
@@ -39,6 +40,7 @@
 </section>
 <section class="level3" id="parameter-server-engine">
 <h3>Parameter Server Engine</h3>
+<p>The Parameter Server topology proposed by <span data-cites="li2014scaling" class="citation">(Li et al. 2014)</span> is similar: nodes are divided into servers holding the shared global view of the up-to-date model parameters, and workers, each holding its own view of the model and executing training. The workers and servers communicate in the format of key-value pairs.</p>
 <p>Introduction + Application</p>
 <p>Simple Example</p>
 <p>Implementation</p>
@@ -46,6 +48,7 @@
 </section>
 <section class="level3" id="peer-to-peer-engine">
 <h3>Peer-to-Peer Engine</h3>
+<p>In the above approaches the model parameter storage is managed by a set of centralised servers. In contrast, Peer-to-Peer (P2P) is a fully distributed structure, where each node contains its own copy of the model and nodes communicate directly with each other.</p>
 <p>Introduction</p>
 <p>Implementation</p>
 <p>Example of using P2P in Actor</p>
@@ -220,6 +223,12 @@ let pull kv_pairs =
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-dean2008mapreduce">
+<p>Dean, Jeffrey, and Sanjay Ghemawat. 2008. “MapReduce: Simplified Data Processing on Large Clusters.” <em>Communications of the ACM</em> 51 (1): 107–13.</p>
+</div>
+<div id="ref-li2014scaling">
+<p>Li, Mu, David G Andersen, Jun Woo Park, Alexander J Smola, Amr Ahmed, Vanja Josifovski, James Long, Eugene J Shekita, and Bor-Yiing Su. 2014. “Scaling Distributed Machine Learning with the Parameter Server.” In <em>11th <span class="math inline">\(\{\)</span>Usenix<span class="math inline">\(\}\)</span> Symposium on Operating Systems Design and Implementation (<span class="math inline">\(\{\)</span>Osdi<span class="math inline">\(\}\)</span> 14)</em>, 583–98.</p>
+</div>
 <div id="ref-wang2017probabilistic">
 <p>Wang, Liang, Ben Catterall, and Richard Mortier. 2017. “Probabilistic Synchronous Parallel.” <em>arXiv Preprint arXiv:1709.07772</em>.</p>
 </div>

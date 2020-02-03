@@ -49,6 +49,9 @@ These compute nodes can be organised in various ways.
 
 ### Map-Reduce Engine
 
+Following MapReduce [@dean2008mapreduce], nodes can be divided by tasks: either *map* or *reduce*. Mappers compute in parallel while Reducers receive the output from all mappers and combine to produce the accumulated result. This parameter update is then broadcast to all nodes. 
+
+
 Introduction + Application
 
 Simple example for readers to to understand
@@ -59,6 +62,8 @@ Example of using Map-Reduce in Actor
 
 ### Parameter Server Engine
 
+The Parameter Server topology proposed by [@li2014scaling] is similar: nodes are divided into servers holding the shared global view of the up-to-date model parameters, and workers, each holding its own view of the model and executing training. The workers and servers communicate in the format of key-value pairs.
+
 Introduction + Application
 
 Simple Example
@@ -68,6 +73,8 @@ Implementation
 Example of using PS in Actor 
 
 ### Peer-to-Peer Engine
+
+In the above approaches the model parameter storage is managed by a set of centralised servers. In contrast, Peer-to-Peer (P2P) is a fully distributed structure, where each node contains its own copy of the model and nodes communicate directly with each other. 
 
 Introduction 
 
@@ -319,7 +326,6 @@ let push kv_pairs =
 ```
 
 TODO:  Explain the code
-
 
 ![MNIST training using Actor](images/distributed/exp_accuracy_01.png){#fig:distributed:exp_accuracy_01}
 
