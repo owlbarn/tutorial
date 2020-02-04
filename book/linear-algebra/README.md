@@ -719,3 +719,6 @@ The functions in [Owl_cblas](https://github.com/ryanrhymes/owl/blob/master/src/o
 How these low level functions are used in Owl Code. 
 
 
+## Sparse Matrices
+
+TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
