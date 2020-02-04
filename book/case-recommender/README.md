@@ -410,7 +410,63 @@ let count_votes nn =
 
 ## Make It Live
 
-LWT-web etc. OCaml code.
+LWT-web etc. OCaml code, split the following code into smaller snippets. ... require http, so use text first
+
+```text
+(* some simple preprocessing using regular expression. This needs some fine
+  tuning in the final product, but needs to be simple and fast.
+ *)
+let simple_preprocess_query_string s =
+  let regex = Str.regexp "[=+%0-9]+" in
+  Str.global_replace regex " " s
+
+(* parse the query and extract the parameters *)
+let extract_query_params s =
+  let regex = Str.regexp "num=\\([0-9]+\\)" in
+  let _ = Str.search_forward regex s 0 in
+  let num = Str.matched_group 1 s |> int_of_string in
+
+  let regex = Str.regexp "mode=\\([a-z]+\\)" in
+  let _ = Str.search_forward regex s 0 in
+  let mode = Str.matched_group 1 s in
+
+  let regex = Str.regexp "doc=\\(.+\\)" in
+  let _ = Str.search_forward regex s 0 in
+  let doc = Str.matched_group 1 s in
+
+  (num, mode, doc)
+
+(* core query service that runs forever *)
+let start_service lda idx =
+  let num_query = ref 0 in
+  let callback _conn req body =
+    body |> Cohttp_lwt_body.to_string >|= (fun body ->
+      let query_len = String.length body in
+      match query_len > 1 with
+      | true  -> (
+          try (
+            let num, mode, doc = extract_query_params body in
+            Log.info "process query #%i ... %i words" !num_query query_len;
+            num_query := !num_query + 1;
+
+            let doc = simple_preprocess_query_string doc in
+            match mode with
+            | "linear" -> query_linear_search ~k:num lda doc
+            | "kvasir" -> query_kvasir_idx ~k:num idx lda doc
+            | _        -> failwith "kvasir:unknown search mode"
+          )
+          with exn -> "something bad happened :("
+      )
+      | false -> (
+          (* ignore empty queries *)
+          Log.warn "ignore an empty query";
+          ""
+        )
+    )
+    >>= (fun body -> Server.respond_string ~status:`OK ~body ())
+  in
+  Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
+```
 
 
 ## References
