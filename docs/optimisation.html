@@ -3,9 +3,18 @@
 <p>(The basic idea of this chapter: give a general introduction of this topic regardless of Owl; when Owl has corresponding function, we provide a simple example.)</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<p>Mathematical optimization deals with the problem of finding numerically minimums, maximums or zeros of a function. In this context, the function is called cost function, or objective function.</p>
-<p>REFERENCE: Practical Methods of Optimization by Fletcher.</p>
-<p>Basic theories.</p>
+<p>Mathematical optimisation deals with the problem of finding numerically minimums, maximums (or zeros) of a function. An optimisation problem has the form:</p>
+<p><span class="math display">\[\textrm{minimise} f_0(\mathbf{x}),\]</span> <span id="eq:optimisation:def"><span class="math display">\[\textrm{subject to} f_i(\mathbf{x}) \leq b_i, i = 1, 2, \ldots, m. \qquad(1)\]</span></span></p>
+<p>Here <span class="math inline">\(\mathbf{x}\)</span> is a vector that contains all the <em>optimisation variable</em>: <span class="math inline">\(\mathbf{x} = [x_0, x_1, ... x_n]\)</span>. Function <span class="math inline">\(f_0 : \mathbf{R}^n \rightarrow \mathbf{R}\)</span> is the optimisation target, and is called an <em>objective function</em>, or <em>cost function</em>. A optimisation problem could be bounded by zero or more <em>constraints</em>. <span class="math inline">\(f_i : \mathbf{R}^n \rightarrow \mathbf{R}\)</span> in a constraint is called a <em>constraint function</em>, which are bounded by the <span class="math inline">\(b_i\)</span>’s. The target is to find the optimal variable values <span class="math inline">\(\mathbf{x}^{*}\)</span> so that <span class="math inline">\(f_0\)</span> can take on a maximum or minimum value.</p>
+<p>A optimisation problem formalises the idea “maximum benefit/minimise cost with given constraint”, which is a widely applicable topic in many real world problems: scheduling computation/network resources, optimisation of investment portfolio, fitting math model based on observed data, logistics, aero engineering, competitive games… Optimisation has already been applied in many areas.</p>
+<p>In eq.&nbsp;1, if for all the objective function and constraint function, we have:</p>
+<p><span id="eq:optimisation:linear"><span class="math display">\[ f_i(\alpha~x+\beta~y) = \alpha~f_i(x) + \beta~f_i(y),\qquad(2)\]</span></span></p>
+<p>the optimisation problem is then called <em>linear optimisation</em>. It is an important class of optimisation problems. If we change the “<span class="math inline">\(=\)</span>” to “<span class="math inline">\(\leq\)</span>” in eq.&nbsp;2 make all the functions to be <em>convex</em>, and the problem then becomes <em>convex optimisation</em>, which can be seen as a generalised linear optimisation.</p>
+<p>Linear optimisation is important because non-negativity is a usual constraint on real world quantities, and that people are often interested in additive bounds. Besides, many problems can be approximated by a linear model. Though still limited by actual problem size, the solution of most linear optimisation problems are already known and provided by off-the-shelf software tools. The text book <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> focus exclusively on the topic of convex optimisation.</p>
+<p>Compare to linear optimisation, finding solutions to <em>non-linear optimisation</em> problems are still very challenging. Finding a <em>global</em> solution that maximise or minimise the non-linear objective function can be quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary. For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough. Otherwise, a <em>local</em> maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough. Though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.</p>
+<p>Looking back at eq.&nbsp;1, if we remove the constraints, then it becomes an <em>unconstrained optimisation</em> problem. If <span class="math inline">\(f\)</span> is convex and differentiable, this problem can be seen as finding the root of the derivative of <span class="math inline">\(f\)</span> so that <span class="math inline">\(f'(x^*) = 0\)</span>. As for the constrained version, we have introduced the linear programming where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc. One subset of constrained optimisation, the <em>equality constrained optimisation</em> where all the constraints are expressed in the form of equality <span class="math inline">\(Ax=b\)</span>. This set of problem can be simplified into the corresponding unconstrained problems.</p>
+<p>You can see that the topic of optimisation covers a wide range of topics and we can only give a very brief introduction here. In this chapter, we mostly cover the unconstrained and local optimisation. We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> and <span data-cites="fletcher2013practical" class="citation">(Fletcher 2013)</span> for more information.</p>
+<p>(NOTE: if we decide to add optimisation later, we can extend the constrained)</p>
 </section>
 <section class="level2" id="scalar-functions">
 <h2>Scalar Functions</h2>
@@ -33,9 +42,17 @@
 </section>
 <section class="level2" id="optimisation-in-practice-training-neural-network">
 <h2>Optimisation in Practice: Training Neural Network</h2>
-<p>Adagrad etc in action; where do they fit in the previous theory?</p>
+<p>Adagrad etc in action where do they fit in the previous theory?</p>
 <p>NOTE: perhaps also add in global optimisation section. Linear Programming?…</p>
 <p>Also, I need to at least explain what is hessian/jacobian etc. in this chapter.</p>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-boyd2004convex">
+<p>Boyd, Stephen, and Lieven Vandenberghe. 2004. <em>Convex Optimization</em>. Cambridge university press.</p>
+</div>
+<div id="ref-fletcher2013practical">
+<p>Fletcher, Roger. 2013. <em>Practical Methods of Optimization</em>. John Wiley &amp; Sons.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="regression.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 13</small>Regression</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
