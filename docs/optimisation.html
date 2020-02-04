@@ -15,34 +15,48 @@
 <p>Looking back at eq.&nbsp;1, if we remove the constraints, then it becomes an <em>unconstrained optimisation</em> problem. If <span class="math inline">\(f\)</span> is convex and differentiable, this problem can be seen as finding the root of the derivative of <span class="math inline">\(f\)</span> so that <span class="math inline">\(f'(x^*) = 0\)</span>. As for the constrained version, we have introduced the linear programming where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc. One subset of constrained optimisation, the <em>equality constrained optimisation</em> where all the constraints are expressed in the form of equality <span class="math inline">\(Ax=b\)</span>. This set of problem can be simplified into the corresponding unconstrained problems.</p>
 <p>You can see that the topic of optimisation covers a wide range of topics and we can only give a very brief introduction here. In this chapter, we mostly cover the unconstrained and local optimisation. We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> and <span data-cites="fletcher2013practical" class="citation">(Fletcher 2013)</span> for more information.</p>
 <p>(NOTE: if we decide to add optimisation later, we can extend the constrained)</p>
+<p>REFERENCE: Numerical Recipes</p>
 </section>
-<section class="level2" id="scalar-functions">
-<h2>Scalar Functions</h2>
+<section class="level2" id="scalar-function-optimisation">
+<h2>Scalar Function Optimisation</h2>
+<section class="level3" id="golden-section-search">
+<h3>Golden Section Search</h3>
 </section>
-<section class="level2" id="multivariate-function">
-<h2>Multivariate Function</h2>
-<section class="level3" id="gradient-descent-method">
-<h3>Gradient Descent Method</h3>
+<section class="level3" id="brents-method">
+<h3>Brent’s Method</h3>
+<p>without and with derivative</p>
 </section>
-<section class="level3" id="conjugate-gradient-method">
-<h3>Conjugate Gradient Method</h3>
 </section>
-<section class="level3" id="newton-method">
-<h3>Newton Method</h3>
+<section class="level2" id="multivariate-function-optimisation">
+<h2>Multivariate Function Optimisation</h2>
+<section class="level3" id="nelder-mead-simplex-method">
+<h3>Nelder-Mead Simplex Method</h3>
+<p>And also Powell’s Method, since they both do not require gradient</p>
 </section>
-<section class="level3" id="l-bfgs">
-<h3>L-BFGS</h3>
+<section class="level3" id="gradient-descent-methods">
+<h3>Gradient Descent Methods</h3>
+<p>Also include Conjugate Gradient Method. We can decide how to divide sections later.</p>
 </section>
-<section class="level3" id="other-algorithms">
-<h3>Other Algorithms</h3>
+<section class="level3" id="quasi-newton-methods">
+<h3>Quasi-Newton Methods</h3>
+<p>BFGS</p>
 </section>
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
+<section class="level3" id="bisection">
+<h3>Bisection</h3>
+</section>
+<section class="level3" id="brent">
+<h3>Brent</h3>
+</section>
+<section class="level3" id="newton-method">
+<h3>Newton Method</h3>
+</section>
 </section>
 <section class="level2" id="optimisation-in-practice-training-neural-network">
 <h2>Optimisation in Practice: Training Neural Network</h2>
-<p>Adagrad etc in action where do they fit in the previous theory?</p>
+<p>Adagrad etc in action: they are all gradient descent algorithms.</p>
 <p>NOTE: perhaps also add in global optimisation section. Linear Programming?…</p>
 <p>Also, I need to at least explain what is hessian/jacobian etc. in this chapter.</p>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">

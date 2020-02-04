@@ -45,29 +45,42 @@ We will cover the other more advanced content briefly in the end of this chapter
 (NOTE: if we decide to add optimisation later, we can extend the constrained)
 
 
-## Scalar Functions 
+REFERENCE: Numerical Recipes
 
-## Multivariate Function
+## Scalar Function Optimisation
 
+### Golden Section Search 
 
-### Gradient Descent Method
+### Brent's Method
 
+without and with derivative
 
-### Conjugate Gradient Method
+## Multivariate Function Optimisation
 
+### Nelder-Mead Simplex Method
+
+And also Powell's Method, since they both do not require gradient
+
+### Gradient Descent Methods
+
+Also include Conjugate Gradient Method. We can decide how to divide sections later.
+
+### Quasi-Newton Methods
+
+BFGS
+
+## Root Finding
+
+### Bisection
+
+### Brent
 
 ### Newton Method
 
 
-### L-BFGS
-
-### Other Algorithms
-
-## Root Finding
-
 ## Optimisation in Practice: Training Neural Network
 
-Adagrad etc in action where do they fit in the previous theory?
+Adagrad etc in action: they are all gradient descent algorithms.
 
 
 NOTE: perhaps also add in global optimisation section. Linear Programming?...
