@@ -34,7 +34,7 @@ Here list a part of the data (TODO: link to csv file):
 | 18.94 | 22.63 |
 | 12.82 | 13.50 |
 | ... | ... |
-: Sample of input data {#tbl:regression:data01}
+: Sample of input data: single feature {#tbl:regression:data01}
 
 Visualising these data can present a clear view.
 
@@ -167,7 +167,7 @@ Part of the data are listed below:
 | 2526 | 3 | 469000  |
 | 2200 | 3 | 475000  |
 | ...  | ... | ...   |
-: Sample of input data {#tbl:regression:data02}
+: Sample of input data: multiple features {#tbl:regression:data02}
 
 The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
 ```

@@ -52,7 +52,7 @@ This module also supports saving the intermediate images to the same directory a
 That’s all it takes! If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
 I have to say I had a lot lot of fun playing with it -- please allow me to introduce you one of my work using the exemplar images:
 
-![Example](images/case-nst/nst_example.png){#fig:case-nst:example_01}
+![Example of applying neural style transfer on a street view picture](images/case-nst/nst_example.png){#fig:case-nst:example_01}
 
 More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 

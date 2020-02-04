@@ -180,7 +180,7 @@ Plot the result.
   Plot.output h 
 ```
 
-![Plot example 01](images/signal/plot_001.png "plot_001"){.align-center width=70%}
+![Using FFT to separate two sine signals from their mixed signal](images/signal/plot_001.png "plot_001"){.align-center width=70%}
 
 
 Next let's see `rfft` and `irfft`.

@@ -243,11 +243,9 @@ let make_network input_shape =
 <p>The Second example demonstrates how to plot figures in notebook. Because Owl’s Plot module does not support in-memory plotting, the figure needs to be written into a file first then passed to <code>Jupyter_notebook.display_file</code> to render.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">#use "topfind";;
-#require "owl-top, owl-plplot jupyter.notebook";;
+#require "owl-top, owl-plplot, jupyter.notebook";;
 open Owl;;
 open Owl_plplot;;
-&gt;Line 1, characters 6-16:
-&gt;Error: Unbound module Owl_plplot
 let f x = Maths.sin x /. x in
 let h = Plot.create "plot_00.png" in
 Plot.set_title h "Function: f(x) = sine x / x";
@@ -258,8 +256,7 @@ Plot.set_pen_size h 3.;
 Plot.plot_fun ~h f 1. 15.;
 Plot.output h
 ;;
-&gt;Line 2, characters 11-22:
-&gt;Error: Unbound module Plot
+&gt;- : unit = ()
 </code></pre>
 </div>
 <p>To load the image into browser, we need to call <code>Jupyter_notebook.display_file</code> function. Then we can see the plot fig.&nbsp;1 is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.</p>
@@ -267,7 +264,7 @@ Plot.output h
 <pre><code class="language-text">Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"</code></pre>
 </div>
 <figure>
-<img alt="" id="fig:introduction:example00" title="plot_00" src="images/introduction/plot_00.png"><figcaption>Figure 1: Plot example 00</figcaption>
+<img alt="" id="fig:introduction:example00" title="plot_00" src="images/introduction/plot_00.png"><figcaption>Figure 1: Plot example using Owl Notebook</figcaption>
 </figure>
 <p>Even though the extra call to <code>display_file</code> is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.</p>
 </section>
@@ -292,7 +289,7 @@ Plot.output h
 - : unit = ()</code></pre>
 </div>
 <figure>
-<img alt="" id="fig:introduction:plot01" title="plot_01" src="images/introduction/plot_01.png"><figcaption>Figure 2: Plot example 01</figcaption>
+<img alt="" id="fig:introduction:plot01" title="plot_01" src="images/introduction/plot_01.png"><figcaption>Figure 2: Plot example using Owl-Jupyter</figcaption>
 </figure>
 <p>From the example above, you can see Owl users’ experience can be significantly improved.</p>
 </section>

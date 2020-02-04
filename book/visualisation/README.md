@@ -136,7 +136,7 @@ The second example shows how to tune `surf` plotting function.
 - : unit = ()
 ```
 
-![surf plot](images/visualisation/plot_021.png "plot_21"){ width=90%,#fig:visualisation:plot_021 }
+![Surf plot](images/visualisation/plot_021.png "plot_21"){ width=90%,#fig:visualisation:plot_021 }
 
 
 ## Subplots
@@ -319,7 +319,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 22](images/visualisation/plot_022.png "plot_22"){ width=90%, #fig:visualisation:plot_022 }
+![Line plot with customised marker](images/visualisation/plot_022.png "plot_22"){ width=90%, #fig:visualisation:plot_022 }
 
 
 ## Scatter Plot
@@ -351,7 +351,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 006](images/visualisation/plot_006.png "plot_006"){ width=90%, #fig:visualisation:plot_006 }
+![Scatter plot](images/visualisation/plot_006.png "plot_006"){ width=90%, #fig:visualisation:plot_006 }
 
 
 ## Stairs Plot
@@ -371,7 +371,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 007](images/visualisation/plot_007.png "plot_007"){ width=90%, #fig:visualisation:plot_007 }
+![Stairs plot](images/visualisation/plot_007.png "plot_007"){ width=90%, #fig:visualisation:plot_007 }
 
 
 ## Box Plot
@@ -388,7 +388,7 @@ Line plot is the most basic function. You can specify the colour, marker, and li
 - : unit = ()
 ```
 
-![Plot example 008](images/visualisation/plot_008.png "plot_008"){ width=90%, #fig:visualisation:plot_008 }
+![Box plot](images/visualisation/plot_008.png "plot_008"){ width=90%, #fig:visualisation:plot_008 }
 
 
 ## Stem Plot
@@ -409,7 +409,7 @@ Stem plot is simple, as the following code shows.
 - : unit = ()
 ```
 
-![Plot example 009](images/visualisation/plot_009.png "plot_009"){ width=90%, #fig:visualisation:plot_009 }
+![Steam plot](images/visualisation/plot_009.png "plot_009"){ width=90%, #fig:visualisation:plot_009 }
 
 Stem plot is often used to show the autocorrelation of a variable, therefore Plot module already includes `autocorr` for your convenience.
 
@@ -428,7 +428,7 @@ Stem plot is often used to show the autocorrelation of a variable, therefore Plo
 - : unit = ()
 ```
 
-![Plot example 010](images/visualisation/plot_010.png "plot_010"){ width=90%, #fig:visualisation:plot_010 }
+![Stem plot with autocorrelation](images/visualisation/plot_010.png "plot_010"){ width=90%, #fig:visualisation:plot_010 }
 
 
 ## Area Plot
@@ -449,7 +449,7 @@ Area plot is similar to line plot but also fills the space between the line and 
 - : unit = ()
 ```
 
-![Plot example 011](images/visualisation/plot_011.png "plot_011"){ width=90%, #fig:visualisation:plot_011 }
+![Area plot](images/visualisation/plot_011.png "plot_011"){ width=90%, #fig:visualisation:plot_011 }
 
 
 ## Histogram & CDF Plot
@@ -469,7 +469,7 @@ Given a series of measurements, you can easily plot the histogram and empirical 
 - : unit = ()
 ```
 
-![Plot example 012](images/visualisation/plot_012.png "plot_012"){ width=90%, #fig:visualisation:plot_012 }
+![Histogram plot and CDF](images/visualisation/plot_012.png "plot_012"){ width=90%, #fig:visualisation:plot_012 }
 
 ## Log Plot
 
@@ -504,7 +504,7 @@ Plot with log-scale on either or both x and y axis.
 - : unit = ()
 ```
 
-![Plot example 013](images/visualisation/plot_013.png "plot_013"){ width=90%, #fig:visualisation:plot_013 }
+![Change plot scale on x- and y-axis to log](images/visualisation/plot_013.png "plot_013"){ width=90%, #fig:visualisation:plot_013 }
 
 
 ## 3D Plot
@@ -530,7 +530,7 @@ First, let's look at `mesh` and `surf` functions.
 - : unit = ()
 ```
 
-![Plot example 014](images/visualisation/plot_014.png "plot_014"){ width=90%, #fig:visualisation:plot_014 }
+![3D plot](images/visualisation/plot_014.png "plot_014"){ width=90%, #fig:visualisation:plot_014 }
 
 It is easy to control the viewpoint with `altitude` and `azimuth` parameters. Here is an example.
 
@@ -550,7 +550,7 @@ It is easy to control the viewpoint with `altitude` and `azimuth` parameters. He
 
 The generated figure is as below.
 
-![Plot example 015](images/visualisation/plot_015.png "plot_015"){ width=90%, #fig:visualisation:plot_015 }
+![Customised 3D Plot, example 1](images/visualisation/plot_015.png "plot_015"){ width=90%, #fig:visualisation:plot_015 }
 
 Here is another similar example with different data set.
 
@@ -580,7 +580,7 @@ Here is another similar example with different data set.
 - : unit = ()
 ```
 
-![Plot example 016](images/visualisation/plot_016.png "plot_016"){ width=90%, #fig:visualisation:plot_016 }
+![Customised 3D Plot, example 2](images/visualisation/plot_016.png "plot_016"){ width=90%, #fig:visualisation:plot_016 }
 
 
 Finally, let's look at how heatmap and contour look like.
@@ -607,7 +607,7 @@ Finally, let's look at how heatmap and contour look like.
 - : unit = ()
 ```
 
-![Plot example 017](images/visualisation/plot_017.png "plot_017"){ width=90%, #fig:visualisation:plot_017 }
+![Headmap and contour plot](images/visualisation/plot_017.png "plot_017"){ width=90%, #fig:visualisation:plot_017 }
 
 
 ## Advanced Statistical Plot
@@ -649,7 +649,7 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 - : unit = ()
 ```
 
-![Plot example 018](images/visualisation/plot_018.png "plot_018"){ width=90%, #fig:visualisation:plot_018 }
+![Advanced statistical plots with qqplot](images/visualisation/plot_018.png "plot_018"){ width=90%, #fig:visualisation:plot_018 }
 
 `probplot` is similar to `qqplot`. It contains two special cases: `normplot` for when the given theoretical distribution is Normal distribution, and `wblplot` for Weibull Distribution. Here is an example of them.
 
@@ -672,6 +672,6 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 - : unit = ()
 ```
 
-![Plot example 019](images/visualisation/plot_019.png "plot_019"){ width=90%, #fig:visualisation:plot_019 }
+![Advanced statistical plots with probplot](images/visualisation/plot_019.png "plot_019"){ width=90%, #fig:visualisation:plot_019 }
 
 ## References

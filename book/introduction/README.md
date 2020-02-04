@@ -317,11 +317,9 @@ The Second example demonstrates how to plot figures in notebook. Because Owl's P
 ```ocaml env=intro_01
 
 # #use "topfind"
-# #require "owl-top, owl-plplot jupyter.notebook"
+# #require "owl-top, owl-plplot, jupyter.notebook"
 # open Owl
 # open Owl_plplot
-Line 1, characters 6-16:
-Error: Unbound module Owl_plplot
 
 # let f x = Maths.sin x /. x in
   let h = Plot.create "plot_00.png" in
@@ -332,8 +330,7 @@ Error: Unbound module Owl_plplot
   Plot.set_pen_size h 3.;
   Plot.plot_fun ~h f 1. 15.;
   Plot.output h
-Line 2, characters 11-22:
-Error: Unbound module Plot
+- : unit = ()
 ```
 
 To load the image into browser, we need to call `Jupyter_notebook.display_file` function. Then we can see the plot [@fig:introduction:example00] is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
@@ -342,7 +339,7 @@ To load the image into browser, we need to call `Jupyter_notebook.display_file` 
 Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 ```
 
-![Plot example 00](images/introduction/plot_00.png "plot_00"){ width=90%, #fig:introduction:example00}
+![Plot example using Owl Notebook](images/introduction/plot_00.png "plot_00"){ width=90%, #fig:introduction:example00}
 
 Even though the extra call to `display_file` is not ideal, it is obvious that the tooling in OCaml ecosystem has been moving forward quickly. I believe we will soon have even better and more convenient tools for interactive data analytical applications.
 
@@ -369,6 +366,6 @@ For the time being, if you want to save that extra line to display a image in Ju
 - : unit = ()
 ```
 
-![Plot example 01](images/introduction/plot_01.png "plot_01"){ width=90%, #fig:introduction:plot01 }
+![Plot example using Owl-Jupyter](images/introduction/plot_01.png "plot_01"){ width=90%, #fig:introduction:plot01 }
 
 From the example above, you can see Owl users' experience can be significantly improved.

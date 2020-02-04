@@ -12,7 +12,7 @@
 <p>However, performance improvement does not come for free. Overhead of using OpenMP comes from time spent on scheduling chunks of work to each thread, managing locks on critical sections, and startup time of creating threads, etc. Therefore, when the input ndarray is small enough, these overheads might overtake the benefit of threading. What is a suitable input size to use OpenMP then? This question would be easy to solve if there is one single suitable input size threshold for every operation, but that’s not the case.</p>
 <p>In a small experiment, I compare the performance of two operations, <code>abs</code> (calculate absolute value) and <code>sin</code>, in three cases: running them without using OpenMP, with 2 threads OpenMP, and with 4 threads OpenMP.</p>
 <figure>
-<img alt="" id="fig:aeos:cross" src="images/aeos/cross.png"><figcaption>Figure 1: Observe the crospoints of OpenMP and non-OpenMP operation</figcaption>
+<img alt="" id="fig:aeos:cross" src="images/aeos/cross.png"><figcaption>Figure 1: Observe the crosspoints of OpenMP and non-OpenMP operation</figcaption>
 </figure>
 <p>The result above shows that, with growing input size, for sine operation, the OpenMP version outperforms the non-OpenMP version at a size of less than 1000, but for <code>abs</code> operation, that cross point is at about 1,000,000. The complexity of math operations varies greatly, and the difference is even starker when compare their performance on different machines. This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes. Thus one fixed threshold for several operations is not an ideal solution. Considering these factors, I need a fine-grained method to decide a suitable OpenMP threshold for each operation.</p>
 </section>
@@ -49,7 +49,7 @@ end</code></pre>
 <p>The table below presents the tuned threshold values of a five operations on a MacBook with a 1.1GHz Intel Core m3 CPU and a Raspberry Pi 3B. We can see that they vary across different operations and different machines, depending on their computation complexity. For example, on MacBook, the tuning result is “max int”, which means that for the relatively simple square root calculation OpenMP should not be used, but that’s not the case on Raspberry Pi. Also, note that the less powerful Raspberry Pi tends to get lower thresholds.</p>
 <div id="tbl:aeos:perf">
 <table>
-<caption>Table 1: Performance comparison</caption>
+<caption>Table 1: Tuned results using AEOS on different platforms</caption>
 <colgroup>
 <col style="width: 16%">
 <col style="width: 16%">
@@ -87,7 +87,9 @@ end</code></pre>
 </table>
 </div>
 <p>I then evaluate the performance improvement after applying AEOS. I compare each generated parameter with 30 random generated thresholds. These measured average ratios are then presented as a box plot, as shown in the figure below.</p>
-<p><img id="fig:aeso:perf" src="images/aeos/perf.png"></p>
+<figure>
+<img alt="" id="fig:aeso:perf" src="images/aeos/perf.png"><figcaption>Figure 2: Evaluation of the performance improvement of AEOS</figcaption>
+</figure>
 <p>It can be observed that in general more than 20% average performance improvement can be expected on the MacBook. The result on Raspberry Pi shows a larger deviation but also a higher performance gain (about 30% on average). One reason of this difference could be that a suitable threshold on Raspberry Pi tends to be smaller, leading to a larger probability to outperform a randomly generated value. Note that I cannot proclaim that the tuned parameters are always optimal, since the figure shows that in some rare cases where the improvement percentages are minus, the randomly found values indeed perform better. Also, the result seems to suggest that AEOS can provide a certain bound, albeit a loose one, on the performance improvement, regardless of the type of operation. These interesting issues require further investigation.</p>
 </section>
 </section>

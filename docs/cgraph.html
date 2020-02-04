@@ -7,7 +7,9 @@
 <h2>What Is A Computation Graph?</h2>
 <p>As a functional programmer, it is basic knowledge that a function takes an input then produces an output. The input of a function can be the output of another function which then creates dependency. If we view a function as one node in a graph, and its input and output as incoming and outgoing links respectively, as the computation continues, these functions are chained together to form a directed acyclic graph (DAG). Such a DAG is often referred to as a computation graph.</p>
 <p>Here is an example graph for calculating function <code>sin (x * y)</code>.</p>
-<p><img width="300px" title="Computation graph" alt="plot_cgraph_01" src="images/cgraph/plot_cgraph_01.png"> <img alt="Computation graph" id="fig:cgraph:plot_01" title="plot_cgraph_01.png" src="images/cgraph/plot_cgraph_01.png"></p>
+<figure>
+<img alt="" id="fig:cgraph:plot_01" title="plot_cgraph_01.png" src="images/cgraph/plot_cgraph_01.png"><figcaption>Figure 1: Computation graph of a simple function: sin(x*y)</figcaption>
+</figure>
 <p>The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector <code>y</code> of shape [1; 4] is broadcasted on the matrix <code>x</code> of shape [8; 4] in <code>Mul</code> operation.</p>
 <p>The computation graph can be either implicitly constructed or explicitly declared in the code. Often, implicit construction is done by operator overloading while explicit declaration uses domain specific languages (DSL). The two methods lead to two different kinds of computation graphs – <em>dynamic</em> and <em>static graph</em>, each has its own pros and cons.</p>
 <p>Dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language’s native constructs such as <code>if ... else ...</code> and <code>for</code> loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, static graphs sometimes make it difficult to express conditions and loops when using with native code together.</p>
@@ -43,7 +45,7 @@
 </ul>
 <p>The computation graph is implemented in a very self-contained stack. I have devised a good way to “inject” it into Owl’s original functor stack. If it sounds too abstract, please have a look at the final product in the following figure.</p>
 <figure>
-<img alt="" id="fig:cgraph:functor" title="owl_cgraph_functor_stack" src="images/cgraph/owl_cgraph_functor_stack.png"><figcaption>Figure 1: Computation graph stack</figcaption>
+<img alt="" id="fig:cgraph:functor" title="owl_cgraph_functor_stack" src="images/cgraph/owl_cgraph_functor_stack.png"><figcaption>Figure 2: Computation graph functor stack in Owl</figcaption>
 </figure>
 <p>The left figure shows part of Owl’s original functor stack, and the right one shows how the current one looks like after injection. We know the functor stack plays a central role in Owl’s architecture. In the old design, Ndarray implements a set of fundamental n-dimensional array operations, then Algodiff defines abstract mathematical operations for differentiation, finally Optimise engine glues low-level maths with high-level deep neural network applications. The whole stack is parameterised by the number type abstraction in Ndarray.</p>
 <ul>
@@ -70,15 +72,15 @@
 <p>The Optimiser functor searches for various structural patterns in a graph, removes unnecessary computations and fusing computation nodes if possible. All the patterns are defined in <a href="https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_optimiser.ml">owl_computation_optimiser.ml</a>, and it is very straightforward to plug in more patterns to extend Optimiser’s capability. Here are some example patterns.</p>
 <p><em>Constant folding</em> is a very basic pattern to reduce graph size. We can pre-calculate some subgraphs. For example, the inputs which node <code>#241</code> depends on are all constants, so the value of <code>#241</code> is already decided. We can fold all the constants to node <code>#241</code> before evaluating the whole graph.</p>
 <figure>
-<img alt="" id="fig:cgraph:opt_0" title="owl_cgraph_opt_0" src="images/cgraph/owl_cgraph_opt_0.png"><figcaption>Figure 2: Computation graph</figcaption>
+<img alt="" id="fig:cgraph:opt_0" title="owl_cgraph_opt_0" src="images/cgraph/owl_cgraph_opt_0.png"><figcaption>Figure 3: Optimisation techniques in computation graph: constant folding</figcaption>
 </figure>
 <p><em>Fusing operations</em> can effectively reduce the round trips to the memory, which saves a lot of time when operating large ndarrys. In the figure below, nodes <code>#421</code>, <code>#463</code>, and <code>#464</code> are fused into one <code>fma</code> node (i.e.&nbsp;fused-multiply-add operation), which also improves numerical accuracy. Owl also recognises quite complicated patterns, e.g.&nbsp;pattern formed by nodes <code>#511</code> – <code>#515</code> appears a lot in DNN training that uses Adagrad (Adaptive Subgradient Methods), the Optimiser is able to fuse all these operations into one-pass calculation.</p>
 <figure>
-<img alt="" id="fig:cgraph:opt_1" title="owl_cgraph_opt_1" src="images/cgraph/owl_cgraph_opt_1.png"><figcaption>Figure 3: Computation graph</figcaption>
+<img alt="" id="fig:cgraph:opt_1" title="owl_cgraph_opt_1" src="images/cgraph/owl_cgraph_opt_1.png"><figcaption>Figure 4: Optimisation techniques in computation graph: fusing operations</figcaption>
 </figure>
 <p>In the next example, <em>Adding zero</em> pattern is firstly detected hence <code>#164</code> and <code>#166</code> are removed and others are folded. Moreover, nodes <code>#255</code> for <code>repeat</code> operation is also removed because <code>add</code> operation already supports broadcasting operation. Removing <code>#255</code> can save some runtime memory in the evaluation.</p>
 <figure>
-<img alt="" id="fig:cgraph:opt_2" title="owl_cgraph_opt_2" src="images/cgraph/owl_cgraph_opt_2.png"><figcaption>Figure 4: Computation graph</figcaption>
+<img alt="" id="fig:cgraph:opt_2" title="owl_cgraph_opt_2" src="images/cgraph/owl_cgraph_opt_2.png"><figcaption>Figure 5: Optimisation techniques in computation graph: remove zero</figcaption>
 </figure>
 <p>To understand how effective the Optimiser works, I present both the <a href="images/cgraph/owl_cgraph_mnist_raw.png">original computation graph</a> and the <a href="images/cgraph/owl_cgraph_mnist_opt.png">optimised graph</a> taken from <a href="https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml">lazy_mnist.ml</a>. Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.</p>
 <p>Engine functor sits on top of the stack, this is where a computation graph finally gets executed. Engine functor contains two sub modules, one for initialising the graph and the other for evaluating graph.</p>
@@ -150,7 +152,9 @@
 </ol>
 <p>The goal of the game is to place a pebble at least once on some fixed output vertices of the graph.</p>
 <p>Here is an example of an optimal pebbling strategy using the previous computation graph (gray nodes are pebbled), using moves 1 -&gt; 2 -&gt; 3 -&gt; 1 -&gt; 2 -&gt; 2. We assume that the goal is to pebble node 5:</p>
-<p><img id="fig:cgraph:pebble" src="images/cgraph/owl_vision_pebble.png"></p>
+<figure>
+<img alt="" id="fig:cgraph:pebble" src="images/cgraph/owl_vision_pebble.png"><figcaption>Figure 6: Modelling computation graph memory optimisation problem as a pebble game</figcaption>
+</figure>
 <p>This relates to the memory allocation of the computation graph if we see pebbles as memory blocks used to store the output value of a node. We assume that the values of the inputs are known (move 1). We can only compute the value of a vertex if all its predecessors are simultaneously stored in memory (move 2). The <em>sliding</em> move means that the memory of a node can be overwritten by its successor during its computation (<em>inplace reuse</em>). We can always reuse a memory block from any other node (move 3). Given a graph, the idea is thus to find a strategy to pebble it using a minimum number of pebbles (in other words, using as little memory as possible).</p>
 <p>We also want to avoid pebbling any node twice (in order the keep the execution time as low as possible, because that would mean that we compute the same node twice). Given these constraints, finding a strategy using the least amount of pebbles is unfortunately <a href="http://perso.ens-lyon.fr/loris.marchal/scheduling/sethi_complete_register_allocation.pdf">NP-complete</a>. Since computation graphs can have a few thousand nodes, we will be looking for a fast heuristic instead of an exact algorithm.</p>
 </section>
@@ -166,7 +170,7 @@
 <p>Then we just have to be careful that some operations cannot overwrite their inputs while they are being computed (the <em>sliding</em> move from the pebble game is forbidden) and that some nodes cannot be overwritten for practical purposes (typically constant nodes or neural network weights). Implementing this effectively reduced the memory consumption of Mask R-CNN from 7 GB to 1 GB for a 1024x1024 picture, making it as efficient as the TensorFlow implementation! A summary of the changes can be found in <a href="https://github.com/owlbarn/owl/pull/318">this pull request</a>. Here are some more statistics illustrating what the computation graph with this new algorithm achieves:</p>
 <div id="tbl:cgraph:perf">
 <table style="width:98%;">
-<caption>Table 1: Performance Comparison</caption>
+<caption>Table 1: Evaluation of the effect of CGraph memory optimisation using different DNN architectures</caption>
 <colgroup>
 <col style="width: 18%">
 <col style="width: 14%">
@@ -214,7 +218,7 @@
 </table>
 </div>
 <p>InceptionV3 and ResNet50 networks are tested with a 299x299 image; Mask R-CNN is tested with a 768x768 image. The MNIST line refers to a small neural network trained to recognize hand-written digits whose implementation can be found <a href="https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml">in this code repository</a>. The time is the average over 30 evaluations, without reusing pre-computed nodes when a computation graph is used. The graph building phase includes graph construction, optimisation and memory initialisation. The memory is the maximum resident set size of the program. This was evaluated on a laptop with an Intel i5-6300HQ and 8 GB of RAM.</p>
-<p>For instance, when evaluated in the right order, the following computation graph, which can be used to recognise hand-written digits, needs only two different blocks of memory (each colour corresponds to a memory block, white nodes always need to be kept in memory): <img id="fig:cgraph:lazy" src="images/cgraph/owl_vision_lazymnistinf.png"></p>
+<p>For instance, when evaluated in the right order, the following computation graph, which can be used to recognise hand-written digits, needs only two different blocks of memory (each colour corresponds to a memory block, white nodes always need to be kept in memory): <img alt="Optimised memory allocation" id="fig:cgraph:lazy" src="images/cgraph/owl_vision_lazymnistinf.png"></p>
 <p>You can find bigger visualisations of the allocation performed by <a href="https://drive.google.com/drive/folders/12KCY9OC6GjuHiH2pRiAjqNi-pz2sNcc1?usp=sharing">the new algorithm</a>. You can also check <a href="http://demo.ocaml.xyz/mrcnn.html">this page</a> for a demo of this Owl-powered network. If you want to apply it on videos, large images or experiment a bit more, see the <a href="https://github.com/pvdhove/owl-mask-rcnn">GitHub repository</a>. Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.</p>
 </section>
 </section>

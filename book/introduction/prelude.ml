@@ -1,4 +1,4 @@
-#require "owl-top";;
+#require "owl-top,owl-plplot";;
 
 open Owl
 

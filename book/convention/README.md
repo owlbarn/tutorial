@@ -75,7 +75,7 @@ mul_scalar        `*$`              `*$=`
 
 div_scalar        `/$`              `/$=`
 --------------    --------------    --------------
-: Function alias {#tbl:convention:pure}
+: Alias of pure and impure binary math functions  {#tbl:convention:pure}
 
 
 ##  Ndarray vs. Scalar
@@ -277,7 +277,7 @@ Operator      Example       Operation                 Dense/Sparse  Ndarray/Matr
 
 `@||`         `x @|| y`     concatenate horizontally  Dense         both
 ------------  ------------  ------------------------  ------------  -----------------
-: Infix Operators {#tbl:convention:infix}
+: Infix operators in ndarray and matrix modules {#tbl:convention:infix}
 
 
 There is a list of things worth your attention as below.

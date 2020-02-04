@@ -25,7 +25,7 @@ What is a suitable input size to use OpenMP then? This question would be easy to
 
 In a small experiment, I compare the performance of two operations, `abs` (calculate absolute value) and `sin`, in three cases: running them without using OpenMP, with 2 threads OpenMP, and with 4 threads OpenMP.
 
-![Observe the crospoints of OpenMP and non-OpenMP operation](images/aeos/cross.png){#fig:aeos:cross}
+![Observe the crosspoints of OpenMP and non-OpenMP operation](images/aeos/cross.png){#fig:aeos:cross}
 
 The result above shows that, with growing input size, for sine operation, the OpenMP version outperforms the non-OpenMP version at a size of less than 1000, but for `abs` operation, that cross point is at about 1,000,000. The complexity of math operations varies greatly, and the difference is even starker when compare their performance on different machines.
 This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes. 
@@ -85,11 +85,11 @@ MacBook     1632        max\_int    1294        123         1880
 Raspberry   1189        209         41          0           0
 Pi                                                          
 ----------- ----------- ----------- ----------- ----------- -------------
-: Performance comparison {#tbl:aeos:perf}
+: Tuned results using AEOS on different platforms  {#tbl:aeos:perf}
 
 I then evaluate the performance improvement after applying AEOS. I compare each generated parameter with 30 random generated thresholds. These measured average ratios are then presented as a box plot, as shown in the figure below. 
 
-![](images/aeos/perf.png){#fig:aeso:perf}
+![Evaluation of the performance improvement of AEOS](images/aeos/perf.png){#fig:aeso:perf}
 
 It can be observed that in general more than 20% average performance improvement can be expected on the MacBook. 
 The result on Raspberry Pi shows a larger deviation but also a higher performance gain (about 30% on average). 
