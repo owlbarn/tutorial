@@ -109,13 +109,39 @@ For the rest of this chapter, we prefer to use the algorithm differentiation to 
 
 ## Root Finding
 
-Root Finding is not exactly optimisation, however, the two topics are closely related. Both need to find target on a function iteratively.
+We have seen some examples of root finding in the Math chapter.
+*Root finding* is the process by which to find zeroes or *roots* of continuous functions. 
+It is not an optimisation problem, but these two topics are closely related.
+I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g. how to the root by bracketing and how to find target in an iterative manner.
 
-Understanding the method used in root finding is very helpful for understanding the method in optimisation.
+### Bisect, Newton, Secant, and IQI
 
-### Newton, Secant, and IQI
+First, the Bisection method. Use $\sqrt{2}$ as an example, just show the string of number here:$1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots$. (DETAIL)
+Owl provides `Owl_maths_root.bisec` method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let's keep thing concise for now.)
+This method converges slowly, but it is a solid and reliable method.
 
-First, bisect method. 
+Newton method utilises the derivative of objective function $f$. It starts with a initial value $x_0$, and follows this process:
+
+$$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimsation:newton}
+
+We can use the Algorithm Differential module in Owl to do that:
+
+```ocaml
+(* Update this example to be clearer *)
+open Owl
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
+
+let _ =
+  (* [f] must be [f : vector -> scalar]. *)
+  let f x = Maths.(cos x |> sum') in
+  let y = newton f (Mat.uniform 1 2) in
+  Mat.print y
+```
 
 In Newton, we use algodiff to compute the derivative; actually we can use the owl example here.
 

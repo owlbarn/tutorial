@@ -60,11 +60,29 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
-<p>Root Finding is not exactly optimisation, however, the two topics are closely related. Both need to find target on a function iteratively.</p>
-<p>Understanding the method used in root finding is very helpful for understanding the method in optimisation.</p>
-<section class="level3" id="newton-secant-and-iqi">
-<h3>Newton, Secant, and IQI</h3>
-<p>First, bisect method.</p>
+<p>We have seen some examples of root finding in the Math chapter. <em>Root finding</em> is the process by which to find zeroes or <em>roots</em> of continuous functions. It is not an optimisation problem, but these two topics are closely related. I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g.&nbsp;how to the root by bracketing and how to find target in an iterative manner.</p>
+<section class="level3" id="bisect-newton-secant-and-iqi">
+<h3>Bisect, Newton, Secant, and IQI</h3>
+<p>First, the Bisection method. Use <span class="math inline">\(\sqrt{2}\)</span> as an example, just show the string of number here:<span class="math inline">\(1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots\)</span>. (DETAIL) Owl provides <code>Owl_maths_root.bisec</code> method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let’s keep thing concise for now.) This method converges slowly, but it is a solid and reliable method.</p>
+<p>Newton method utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and follows this process:</p>
+<p><span id="eq:optimsation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(4)\]</span></span></p>
+<p>We can use the Algorithm Differential module in Owl to do that:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* Update this example to be clearer *)
+open Owl
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
+
+let _ =
+  (* [f] must be [f : vector -&gt; scalar]. *)
+  let f x = Maths.(cos x |&gt; sum') in
+  let y = newton f (Mat.uniform 1 2) in
+  Mat.print y</code></pre>
+</div>
 <p>In Newton, we use algodiff to compute the derivative; actually we can use the owl example here.</p>
 <p>If derivative is not available, Secant replaces the derivative evaluation in Newton.</p>
 <p>In Secant, we use two points to get to the next one; IQI, we use three.</p>
