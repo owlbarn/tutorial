@@ -19,23 +19,47 @@
 </section>
 <section class="level2" id="numerical-differentiation-vs.-algorithm-differentiation">
 <h2>Numerical Differentiation VS. Algorithm Differentiation</h2>
-<p>The idea of derivative/gradient will be used extensively in optimisation.</p>
-<p>We have talked about Algodiff in the previous chapter.</p>
-<p>What is numerical differentiation? It’s simple …</p>
+<p>The derivative/gradient will be used extensively in solving optimisation problems. Therefore, it would do no harm to start this chapter with understanding the difference of the two ways to compute derivatives: <em>algorithm differentiation</em> and <em>numerical differentiation</em>.</p>
+<p>We have talked about algorithm differentiation* in detail in the previous chapter. What is this numerical differentiation then? It’s actually simple according to the definition of derivative itself:</p>
+<p><span id="eq:optimisation:numdiff"><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.\qquad(3)\]</span></span></p>
+<p>This method is pretty easy to follow: evaluate the given <span class="math inline">\(f\)</span> at point <span class="math inline">\(x\)</span>, and then choose a suitable small amount <span class="math inline">\(\delta\)</span>, add it to the original <span class="math inline">\(x\)</span> and then re-evaluate the function. Then the derivative can be calculated using eq.&nbsp;3. We can implement this method easily using OCaml:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let _eps = 0.00001
+
+let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _ep2</code></pre>
+</div>
+<p>We can apply it to a simple case:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE</code></pre>
+</div>
+<p>Looks good.</p>
 <p>Owl has provided numerical differentiation. It’s close to the interface of that of Algodiff:</p>
 <div class="highlight">
 <pre><code class="language-clike">val diff : (elt -&gt; elt) -&gt; elt -&gt; elt
+(** derivative of ``f : scalar -&gt; scalar``. *)
+
+val diff2 : (elt -&gt; elt) -&gt; elt -&gt; elt
+(** second order derivative of ``f : float -&gt; float``. *)
 
 val grad : (arr -&gt; elt) -&gt; arr -&gt; arr
-</code></pre>
+(** gradient of ``f : vector -&gt; scalar``. *)
+
+val jacobian : (arr -&gt; arr) -&gt; arr -&gt; arr
+(** jacobian of ``f : vector -&gt; vector``. *)
+
+val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
+(** transposed jacobian of ``f : vector -&gt; vector``. *)</code></pre>
 </div>
-<p>So what’s their difference? What’s the pro’s and con’s?</p>
-<p>EXAMPLE to show the accumulating round-off/truncating error.</p>
-<p>For the rest of this chapter, whenever we need to compute gradient/derivatives, we prefer Algodiff, but of course you can also use the numerical differentiation.</p>
+<p>Looks nice, much easier than Algodiff’s approach, right?</p>
+<p>No.&nbsp;</p>
+<p>There are two source of errors: truncating error (explain) and roundoff error (explain). You must be very careful and apply some numerical techniques. While Algodiff guarantees a true derivative value without loss of accuracy. you can see the difference in this example:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE (how to show the difference)?</code></pre>
+</div>
+<p>For the rest of this chapter, we prefer to use the algorithm differentiation to compute gradient/derivatives when required, but of course you can also use the numerical differentiation.</p>
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
-<p>(Reference: Matlab NC book.)</p>
 <p>Root Finding is not exactly optimisation, however, the two topics are closely related. Both need to find target on a function iteratively.</p>
 <p>Understanding the method used in root finding is very helpful for understanding the method in optimisation.</p>
 <section class="level3" id="newton-secant-and-iqi">
