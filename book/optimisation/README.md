@@ -122,7 +122,7 @@ This method converges slowly, but it is a solid and reliable method.
 
 Newton method utilises the derivative of objective function $f$. It starts with a initial value $x_0$, and follows this process:
 
-$$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimsation:newton}
+$$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
 We can use the Algorithm Differential module in Owl to do that:
 
@@ -143,24 +143,31 @@ let _ =
   Mat.print y
 ```
 
-In Newton, we use algodiff to compute the derivative; actually we can use the owl example here.
+The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. 
+It is the basis of many powerful numerical methods (such as?)
 
-If derivative is not available, Secant replaces the derivative evaluation in Newton. 
+If $f$ is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a *Secant Method*:
 
-In Secant, we use two points to get to the next one; IQI, we use three.
+$$ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}$$.
+
+In the Secant method, two points are used at each iteration, the *Inverse Quadratic Interpolation* (IQI) method then uses three points to do that. 
+DETAIL.
+Benefit/Limit.
 
 ### Brent's Method
 
-It's a combination of those three. 
-Generally considered the best of the root-finding routines.
+The *Brent's Method* is generally considered the best of the root-finding routines.
+It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods. 
+The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt.
 
-We implement it in Owl (put some Code here..?)
+A description of this method. 
 
-It is also what we use in the examples in "Math" chapter.
+This method is what we use in the examples in "Math" chapter.
+We have also implemented it in Owl. (Paste the code if necessary, but for now just keep the root-finding section short)
 
-## Scalar Function Optimisation
+## Univariate Function Optimisation
 
-Now after we understand the root-finding, let's look at optimisation problem. 
+Now that we have briefly introduced how root-finding works and some classic methods, let's move on to the main topic of this chapter: unconstrained optimisation problems. 
 Let's start with the simple case that only one variable in the objective function.
 
 ### Use Derivative
@@ -176,6 +183,8 @@ A simple example.
 ### Golden Section Search
 
 But what if derivative is not available?
+
+It is a close analogue of bisection in solving optimisation problems.
 
 It's an optimisation method that does NOT require computing derivative.
 
@@ -211,3 +220,8 @@ In the rest of this chapter we will give a very very brief introduction to globa
 The basic idea of global optimisation.
 
 The type of problems covered constrained optimisation; applications. Currently can they be solved and how to solve them with existing tools.
+
+
+## Exercise 
+
+1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|} $ in the range of [0, 4]. And try to apply the secant method on the same problem.
