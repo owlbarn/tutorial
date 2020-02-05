@@ -52,6 +52,8 @@
         images/matrix/plot_00.png
         images/neural-network/plot_01.png
         images/nlp/plot_01.png
+        images/optimisation/gd.png
+        images/optimisation/gradient.png
         images/signal/conv.png
         images/signal/lena.png
         images/signal/plot_001.png

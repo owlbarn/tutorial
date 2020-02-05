@@ -148,7 +148,7 @@ It is the basis of many powerful numerical methods (such as?)
 
 If $f$ is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a *Secant Method*:
 
-$$ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}$$.
+$$ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.$${#eq:optimisation:secant}
 
 In the Secant method, two points are used at each iteration, the *Inverse Quadratic Interpolation* (IQI) method then uses three points to do that. 
 DETAIL.
@@ -218,9 +218,85 @@ We will not talk about this method in detail.
 
 ### Gradient Descent Methods
 
-Find the zero point: Gradient Descent.
+Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter). 
+
+It is an iterative optimisation algorithm that utilised gradient of functions. 
+The idea is to start from a initial value, and then find a "correct direction" along a function to decrease the value until it converges to a local minimum. 
+This process can be illustrated in [@fig:optimisation:gradient].
+
+![Reach the local minimum by iteratively moving downhill](images/optimisation/gradient.png){#fig:optimisation:gradient}
+
+In classic gradient descent, the decrease follows:
+
+$$x_{n+1} = x_n - \alpha~\nabla~f(x_n),$$ {#eq:optimisation:gd}
+
+where $\nabla$ means the gradient, and the distance $\alpha$ it moves along certain direction is called the *learning rate*.
+It's similar to the newton method in root finding.
+When looking for the minimum, you always follow the direction that is against the direction (represented by the negative gradient), which is assumed to be the fastest, as shown in [@fig:optimisation:gd].
+
+![Example of gradient descent process](images/optimisation/gd.png){width=50%, #fig:optimisation:gd}
+
+In Owl we provide a `minimise_fun` function to do that. 
+
+```
+val minimise_fun :  ?state:Checkpoint.state -> Params.typ -> (t -> t) -> t  -> Checkpoint.state * t
+```
+
+This function minimises `f : x -> y` w.r.t `x`; `x` is a ndarray, and ``y`` is a scalar value.
+This function is implemented using gradient descent. 
+
+Let's look at an example: 
+
+```
+CODE: show example using minimise_fun. It would be idea to use Rosenbrock function, but it does not support multivariate model.
+```
+
+EXPLAIN in detail, such as checkpoint etc. 
+
+TODO: explain, perhaps with a bit theory or visual aid, to show why gradient descent is much more efficient that the previous non-gradient methods.
 
 ### Conjugate Gradient Method
+
+One problem with the Gradient Descent is that it does not perform well on all functions.
+For example, if the function forms a steep and narrow value, then using gradient descent will take many small steps to reach the minimum, even if the function is in a perfect quadratic form.
+
+The *Conjugate Gradient* method can solve this problem. 
+(HISTORY.)
+It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
+
+EXPLAIN in detail.
+
+EQUATION of CG
+
+Both GD and CG are abstracted in a module in Owl:
+
+Let's look at an example.
+
+```
+CODE: it's good if we can minimise a two dimensional example an visualise it, comparing GD and CG.
+```
+
+IMAGE: compare the optimisation route of two methods.
+
+Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG.... 
+
+```
+let run = function
+    | GD -> fun _ _ _ _ g' -> Maths.neg g'
+    | CG ->
+        fun _ _ g p g' ->
+          let y = Maths.(g' - g) in
+          let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
+          Maths.(neg g' + (b * p))
+    | CD ->
+        fun _ _ g p g' ->
+          let b = Maths.(l2norm_sqr' g' / sum' (neg p * g)) in
+          Maths.(neg g' + (b * p))
+    ...
+```
+Explain
+
+We also Give them a brief introduction here, but refer to paper and book for more details. 
 
 ### Quasi-Newton Methods
 

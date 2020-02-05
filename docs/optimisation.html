@@ -85,7 +85,7 @@ let _ =
 </div>
 <p>The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
 <p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
-<p><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}\]</span>.</p>
+<p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(5)\]</span></span></p>
 <p>In the Secant method, two points are used at each iteration, the <em>Inverse Quadratic Interpolation</em> (IQI) method then uses three points to do that. DETAIL. Benefit/Limit.</p>
 </section>
 <section class="level3" id="brents-method">
@@ -126,10 +126,58 @@ let _ =
 </section>
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
-<p>Find the zero point: Gradient Descent.</p>
+<p>Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter).</p>
+<p>It is an iterative optimisation algorithm that utilised gradient of functions. The idea is to start from a initial value, and then find a “correct direction” along a function to decrease the value until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1.</p>
+<figure>
+<img alt="" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
+</figure>
+<p>In classic gradient descent, the decrease follows:</p>
+<p><span id="eq:optimisation:gd"><span class="math display">\[x_{n+1} = x_n - \alpha~\nabla~f(x_n),\qquad(6)\]</span></span></p>
+<p>where <span class="math inline">\(\nabla\)</span> means the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is called the <em>learning rate</em>. It’s similar to the newton method in root finding. When looking for the minimum, you always follow the direction that is against the direction (represented by the negative gradient), which is assumed to be the fastest, as shown in fig.&nbsp;2.</p>
+<figure>
+<img alt="" id="fig:optimisation:gd" src="images/optimisation/gd.png"><figcaption>Figure 2: Example of gradient descent process</figcaption>
+</figure>
+<p>In Owl we provide a <code>minimise_fun</code> function to do that.</p>
+<div class="highlight">
+<pre><code class="language-clike">val minimise_fun :  ?state:Checkpoint.state -&gt; Params.typ -&gt; (t -&gt; t) -&gt; t  -&gt; Checkpoint.state * t</code></pre>
+</div>
+<p>This function minimises <code>f : x -&gt; y</code> w.r.t <code>x</code>; <code>x</code> is a ndarray, and <code>y</code> is a scalar value. This function is implemented using gradient descent.</p>
+<p>Let’s look at an example:</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: show example using minimise_fun. It would be idea to use Rosenbrock function, but it does not support multivariate model.</code></pre>
+</div>
+<p>EXPLAIN in detail, such as checkpoint etc.</p>
+<p>TODO: explain, perhaps with a bit theory or visual aid, to show why gradient descent is much more efficient that the previous non-gradient methods.</p>
 </section>
 <section class="level3" id="conjugate-gradient-method">
 <h3>Conjugate Gradient Method</h3>
+<p>One problem with the Gradient Descent is that it does not perform well on all functions. For example, if the function forms a steep and narrow value, then using gradient descent will take many small steps to reach the minimum, even if the function is in a perfect quadratic form.</p>
+<p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
+<p>EXPLAIN in detail.</p>
+<p>EQUATION of CG</p>
+<p>Both GD and CG are abstracted in a module in Owl:</p>
+<p>Let’s look at an example.</p>
+<div class="highlight">
+<pre><code class="language-clike">CODE: it's good if we can minimise a two dimensional example an visualise it, comparing GD and CG.</code></pre>
+</div>
+<p>IMAGE: compare the optimisation route of two methods.</p>
+<p>Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
+<div class="highlight">
+<pre><code class="language-clike">let run = function
+    | GD -&gt; fun _ _ _ _ g' -&gt; Maths.neg g'
+    | CG -&gt;
+        fun _ _ g p g' -&gt;
+          let y = Maths.(g' - g) in
+          let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
+          Maths.(neg g' + (b * p))
+    | CD -&gt;
+        fun _ _ g p g' -&gt;
+          let b = Maths.(l2norm_sqr' g' / sum' (neg p * g)) in
+          Maths.(neg g' + (b * p))
+    ...</code></pre>
+</div>
+<p>Explain</p>
+<p>We also Give them a brief introduction here, but refer to paper and book for more details.</p>
 </section>
 <section class="level3" id="quasi-newton-methods">
 <h3>Quasi-Newton Methods</h3>
