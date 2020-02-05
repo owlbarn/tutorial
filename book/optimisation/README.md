@@ -169,38 +169,52 @@ We have also implemented it in Owl. (Paste the code if necessary, but for now ju
 
 Now that we have briefly introduced how root-finding works and some classic methods, let's move on to the main topic of this chapter: unconstrained optimisation problems. 
 Let's start with the simple case that only one variable in the objective function.
+We will introduce the optimisation methods for multivariate functions in the next section, and they all apply for the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.
 
-### Use Derivative
+### Use Derivatives
 
-Extreme value can be found where the derivatives equals 0:
+If a function is continuous and differentiable, then one obvious solution to find extreme values is to locate where the derivatives equals 0:
 
 $$f'(x) = 0$$
 
-Let's use algodiff to do that. 
+This leads us back to our root finding solutions. 
+Let's look at an example:
 
-A simple example.
+```
+CODE (with Algodiff) with explanation/images.
+```
 
 ### Golden Section Search
 
-But what if derivative is not available?
+Here we face the similar question again: what if computing derivative of the function is difficult or not available? (NOTE: give specific examples.)
 
-It is a close analogue of bisection in solving optimisation problems.
+There is a close analogue of bisection method in solving optimisation problems: *Gold Section Search*.
+It's an optimisation method that does not require computing derivative.
+It is one choice to do optimisation if your function has a discontinuous first or second derivative.
 
-It's an optimisation method that does NOT require computing derivative.
+Explain the basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that. 
 
-Basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that. 
-
-If your function has a discontinuous first or second derivative, then use this.
+The Brent method in root finding can also be applied here. 
+EXPLAIN
 
 ## Multivariate Function Optimisation
 
-When things become more complex...
+The methods for univariate scenarios can be extended to solving multivariate optimisation problems. 
+The analogue of derivative here is a ndarray called *gradient*.
+Similarly, you have two options: to use gradient, or not.
 
 ### Nelder-Mead Simplex Method
 
-Gradient is the popular way, but first, let's briefly look at the method that does not require gradient.
+First, similar to the Golden Section Search or Brent's, you can always opt for a non-gradient method, which is as slow as it is robust.
+One such method we can use is the *Nelder-Mead Simplex Method*. 
+As its name shows, it is probably the simplest way to minimize a fairly well-behaved function.
+It simply goes downhill in a straightforward way, without special assumptions about the objective function. 
 
-Also mention Powell's Method if we have space left
+EXPLAIN the algorithm in detail, perhaps with illustration.
+
+There are some other method that does not rely on computing gradients such as Powell's method.
+If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method. 
+We will not talk about this method in detail.
 
 ### Gradient Descent Methods
 
@@ -224,4 +238,4 @@ The type of problems covered constrained optimisation; applications. Currently c
 
 ## Exercise 
 
-
+1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}$ in the range of [0, 4]. And try to apply the secant method on the same problem.
