@@ -26,7 +26,7 @@
 <div class="highlight">
 <pre><code class="language-ocaml">let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _ep2</code></pre>
+let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _eps</code></pre>
 </div>
 <p>We can apply it to a simple case:</p>
 <div class="highlight">
@@ -95,9 +95,9 @@ let _ =
 <p>This method is what we use in the examples in “Math” chapter. We have also implemented it in Owl. (Paste the code if necessary, but for now just keep the root-finding section short)</p>
 </section>
 </section>
-<section class="level2" id="scalar-function-optimisation">
-<h2>Scalar Function Optimisation</h2>
-<p>Now after we understand the root-finding, let’s look at optimisation problem. Let’s start with the simple case that only one variable in the objective function.</p>
+<section class="level2" id="univariate-function-optimisation">
+<h2>Univariate Function Optimisation</h2>
+<p>Now that we have briefly introduced how root-finding works and some classic methods, let’s move on to the main topic of this chapter: unconstrained optimisation problems. Let’s start with the simple case that only one variable in the objective function.</p>
 <section class="level3" id="use-derivative">
 <h3>Use Derivative</h3>
 <p>Extreme value can be found where the derivatives equals 0:</p>
@@ -108,6 +108,7 @@ let _ =
 <section class="level3" id="golden-section-search">
 <h3>Golden Section Search</h3>
 <p>But what if derivative is not available?</p>
+<p>It is a close analogue of bisection in solving optimisation problems.</p>
 <p>It’s an optimisation method that does NOT require computing derivative.</p>
 <p>Basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that.</p>
 <p>If your function has a discontinuous first or second derivative, then use this.</p>
@@ -139,11 +140,8 @@ let _ =
 <p>The basic idea of global optimisation.</p>
 <p>The type of problems covered constrained optimisation; applications. Currently can they be solved and how to solve them with existing tools.</p>
 </section>
-<section class="level2" id="exercise">
-<h2>Exercise</h2>
-<ol type="1">
-<li>Newton method can be unstable and trapped in a loop: try to solve $f(x) = (x-2) $ in the range of [0, 4]. And try to apply the secant method on the same problem.</li>
-</ol>
+<section class="level2 unnumbered" id="exercise">
+<h2 class="unnumbered">Exercise</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-boyd2004convex">
 <p>Boyd, Stephen, and Lieven Vandenberghe. 2004. <em>Convex Optimization</em>. Cambridge university press.</p>

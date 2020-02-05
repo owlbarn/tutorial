@@ -63,7 +63,7 @@ We can implement this method easily using OCaml:
 ```ocaml
 let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _ep2
+let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _eps
 ```
 
 We can apply it to a simple case:
@@ -224,4 +224,4 @@ The type of problems covered constrained optimisation; applications. Currently c
 
 ## Exercise 
 
-1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|} $ in the range of [0, 4]. And try to apply the secant method on the same problem.
+
