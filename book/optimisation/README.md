@@ -42,47 +42,111 @@ You can see that the topic of optimisation covers a wide range of topics and we 
 In this chapter, we mostly cover the unconstrained and local optimisation. 
 We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as [@boyd2004convex] and [@fletcher2013practical] for more information.
 
-(NOTE: if we decide to add optimisation later, we can extend the constrained)
+(NOTE: if we decide to add linear programming later, we can extend the constrained)
 
 
-REFERENCE: Numerical Recipes
+(NOTE: We need a lot of illustrations to show the gradient process)
 
-## Scalar Function Optimisation
+## Numerical Differentiation VS. Algorithm Differentiation
 
-### Golden Section Search 
+The idea of derivative/gradient will be used extensively in optimisation. 
+
+We have talked about Algodiff in the previous chapter. 
+
+What is numerical differentiation? It's simple ...
+
+Owl has provided numerical differentiation. It's close to the interface of that of Algodiff:
+
+```
+val diff : (elt -> elt) -> elt -> elt
+
+val grad : (arr -> elt) -> arr -> arr
+
+```
+
+So what's their difference? What's the pro's and con's?
+
+EXAMPLE to show the accumulating round-off/truncating error.
+
+For the rest of this chapter, whenever we need to compute gradient/derivatives, we prefer Algodiff, but of course you can also use the numerical differentiation.
+
+## Root Finding
+
+(Reference: Matlab NC book.)
+
+Root Finding is not exactly optimisation, however, the two topics are closely related. Both need to find target on a function iteratively.
+
+Understanding the method used in root finding is very helpful for understanding the method in optimisation.
+
+### Newton, Secant, and IQI
+
+First, bisect method. 
+
+In Newton, we use algodiff to compute the derivative; actually we can use the owl example here.
+
+If derivative is not available, Secant replaces the derivative evaluation in Newton. 
+
+In Secant, we use two points to get to the next one; IQI, we use three.
 
 ### Brent's Method
 
-without and with derivative
+It's a combination of those three. 
+Generally considered the best of the root-finding routines.
+
+We implement it in Owl (put some Code here..?)
+
+It is also what we use in the examples in "Math" chapter.
+
+## Scalar Function Optimisation
+
+Now after we understand the root-finding, let's look at optimisation problem. 
+Let's start with the simple case that only one variable in the objective function.
+
+### Use Derivative
+
+Extreme value can be found where the derivatives equals 0:
+
+$$f'(x) = 0$$
+
+Let's use algodiff to do that. 
+
+A simple example.
+
+### Golden Section Search
+
+But what if derivative is not available?
+
+It's an optimisation method that does NOT require computing derivative.
+
+Basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that. 
+
+If your function has a discontinuous first or second derivative, then use this.
 
 ## Multivariate Function Optimisation
 
+When things become more complex...
+
 ### Nelder-Mead Simplex Method
 
-And also Powell's Method, since they both do not require gradient
+Gradient is the popular way, but first, let's briefly look at the method that does not require gradient.
+
+Also mention Powell's Method if we have space left
 
 ### Gradient Descent Methods
 
-Also include Conjugate Gradient Method. We can decide how to divide sections later.
+Find the zero point: Gradient Descent.
+
+### Conjugate Gradient Method
 
 ### Quasi-Newton Methods
 
 BFGS
 
-## Root Finding
+## Global Optimisation and Constrained Optimisation
 
-### Bisection
+So far we have talked about unconstrained optimisation, mostly to find local optimal.
+In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation 
 
-### Brent
+The basic idea of global optimisation.
 
-### Newton Method
-
-
-## Optimisation in Practice: Training Neural Network
-
-Adagrad etc in action: they are all gradient descent algorithms.
-
-
-NOTE: perhaps also add in global optimisation section. Linear Programming?...
-
-Also, I need to at least explain what is hessian/jacobian etc. in this chapter.
+The type of problems covered constrained optimisation; applications. Currently can they be solved and how to solve them with existing tools.

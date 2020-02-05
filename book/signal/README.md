@@ -88,7 +88,7 @@ Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun]
 We then show how to use these functions with some simple example. 
 More complex and interesting will follow in the next section.
 
-#### 1-D Discrete Fourier transforms
+**1-D Discrete Fourier transforms**
 
 Let start with the most basic `fft` and it reverse transform function `ifft`.
 
@@ -230,7 +230,7 @@ R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 
 Notice that the rfft of odd and even length signals are of the same shape. (?)
 
-#### N-D Discrete Fourier transforms
+**N-D Discrete Fourier transforms**
 
 ( TODO: This is not the real N-D FFT. Verify it with SciPy examples.
 IMPLEMENTATION required.

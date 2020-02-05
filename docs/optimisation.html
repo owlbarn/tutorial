@@ -14,51 +14,87 @@
 <p>Compare to linear optimisation, finding solutions to <em>non-linear optimisation</em> problems are still very challenging. Finding a <em>global</em> solution that maximise or minimise the non-linear objective function can be quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary. For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough. Otherwise, a <em>local</em> maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough. Though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.</p>
 <p>Looking back at eq.&nbsp;1, if we remove the constraints, then it becomes an <em>unconstrained optimisation</em> problem. If <span class="math inline">\(f\)</span> is convex and differentiable, this problem can be seen as finding the root of the derivative of <span class="math inline">\(f\)</span> so that <span class="math inline">\(f'(x^*) = 0\)</span>. As for the constrained version, we have introduced the linear programming where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc. One subset of constrained optimisation, the <em>equality constrained optimisation</em> where all the constraints are expressed in the form of equality <span class="math inline">\(Ax=b\)</span>. This set of problem can be simplified into the corresponding unconstrained problems.</p>
 <p>You can see that the topic of optimisation covers a wide range of topics and we can only give a very brief introduction here. In this chapter, we mostly cover the unconstrained and local optimisation. We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> and <span data-cites="fletcher2013practical" class="citation">(Fletcher 2013)</span> for more information.</p>
-<p>(NOTE: if we decide to add optimisation later, we can extend the constrained)</p>
-<p>REFERENCE: Numerical Recipes</p>
+<p>(NOTE: if we decide to add linear programming later, we can extend the constrained)</p>
+<p>(NOTE: We need a lot of illustrations to show the gradient process)</p>
 </section>
-<section class="level2" id="scalar-function-optimisation">
-<h2>Scalar Function Optimisation</h2>
-<section class="level3" id="golden-section-search">
-<h3>Golden Section Search</h3>
+<section class="level2" id="numerical-differentiation-vs.-algorithm-differentiation">
+<h2>Numerical Differentiation VS. Algorithm Differentiation</h2>
+<p>The idea of derivative/gradient will be used extensively in optimisation.</p>
+<p>We have talked about Algodiff in the previous chapter.</p>
+<p>What is numerical differentiation? It’s simple …</p>
+<p>Owl has provided numerical differentiation. It’s close to the interface of that of Algodiff:</p>
+<div class="highlight">
+<pre><code class="language-clike">val diff : (elt -&gt; elt) -&gt; elt -&gt; elt
+
+val grad : (arr -&gt; elt) -&gt; arr -&gt; arr
+</code></pre>
+</div>
+<p>So what’s their difference? What’s the pro’s and con’s?</p>
+<p>EXAMPLE to show the accumulating round-off/truncating error.</p>
+<p>For the rest of this chapter, whenever we need to compute gradient/derivatives, we prefer Algodiff, but of course you can also use the numerical differentiation.</p>
+</section>
+<section class="level2" id="root-finding">
+<h2>Root Finding</h2>
+<p>(Reference: Matlab NC book.)</p>
+<p>Root Finding is not exactly optimisation, however, the two topics are closely related. Both need to find target on a function iteratively.</p>
+<p>Understanding the method used in root finding is very helpful for understanding the method in optimisation.</p>
+<section class="level3" id="newton-secant-and-iqi">
+<h3>Newton, Secant, and IQI</h3>
+<p>First, bisect method.</p>
+<p>In Newton, we use algodiff to compute the derivative; actually we can use the owl example here.</p>
+<p>If derivative is not available, Secant replaces the derivative evaluation in Newton.</p>
+<p>In Secant, we use two points to get to the next one; IQI, we use three.</p>
 </section>
 <section class="level3" id="brents-method">
 <h3>Brent’s Method</h3>
-<p>without and with derivative</p>
+<p>It’s a combination of those three. Generally considered the best of the root-finding routines.</p>
+<p>We implement it in Owl (put some Code here..?)</p>
+<p>It is also what we use in the examples in “Math” chapter.</p>
+</section>
+</section>
+<section class="level2" id="scalar-function-optimisation">
+<h2>Scalar Function Optimisation</h2>
+<p>Now after we understand the root-finding, let’s look at optimisation problem. Let’s start with the simple case that only one variable in the objective function.</p>
+<section class="level3" id="use-derivative">
+<h3>Use Derivative</h3>
+<p>Extreme value can be found where the derivatives equals 0:</p>
+<p><span class="math display">\[f'(x) = 0\]</span></p>
+<p>Let’s use algodiff to do that.</p>
+<p>A simple example.</p>
+</section>
+<section class="level3" id="golden-section-search">
+<h3>Golden Section Search</h3>
+<p>But what if derivative is not available?</p>
+<p>It’s an optimisation method that does NOT require computing derivative.</p>
+<p>Basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that.</p>
+<p>If your function has a discontinuous first or second derivative, then use this.</p>
 </section>
 </section>
 <section class="level2" id="multivariate-function-optimisation">
 <h2>Multivariate Function Optimisation</h2>
+<p>When things become more complex…</p>
 <section class="level3" id="nelder-mead-simplex-method">
 <h3>Nelder-Mead Simplex Method</h3>
-<p>And also Powell’s Method, since they both do not require gradient</p>
+<p>Gradient is the popular way, but first, let’s briefly look at the method that does not require gradient.</p>
+<p>Also mention Powell’s Method if we have space left</p>
 </section>
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
-<p>Also include Conjugate Gradient Method. We can decide how to divide sections later.</p>
+<p>Find the zero point: Gradient Descent.</p>
+</section>
+<section class="level3" id="conjugate-gradient-method">
+<h3>Conjugate Gradient Method</h3>
 </section>
 <section class="level3" id="quasi-newton-methods">
 <h3>Quasi-Newton Methods</h3>
 <p>BFGS</p>
 </section>
 </section>
-<section class="level2" id="root-finding">
-<h2>Root Finding</h2>
-<section class="level3" id="bisection">
-<h3>Bisection</h3>
-</section>
-<section class="level3" id="brent">
-<h3>Brent</h3>
-</section>
-<section class="level3" id="newton-method">
-<h3>Newton Method</h3>
-</section>
-</section>
-<section class="level2" id="optimisation-in-practice-training-neural-network">
-<h2>Optimisation in Practice: Training Neural Network</h2>
-<p>Adagrad etc in action: they are all gradient descent algorithms.</p>
-<p>NOTE: perhaps also add in global optimisation section. Linear Programming?…</p>
-<p>Also, I need to at least explain what is hessian/jacobian etc. in this chapter.</p>
+<section class="level2" id="global-optimisation-and-constrained-optimisation">
+<h2>Global Optimisation and Constrained Optimisation</h2>
+<p>So far we have talked about unconstrained optimisation, mostly to find local optimal. In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation</p>
+<p>The basic idea of global optimisation.</p>
+<p>The type of problems covered constrained optimisation; applications. Currently can they be solved and how to solve them with existing tools.</p>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-boyd2004convex">
 <p>Boyd, Stephen, and Lieven Vandenberghe. 2004. <em>Convex Optimization</em>. Cambridge university press.</p>

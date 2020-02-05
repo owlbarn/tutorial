@@ -62,8 +62,7 @@
 <section class="level3" id="examples">
 <h3>Examples</h3>
 <p>We then show how to use these functions with some simple example. More complex and interesting will follow in the next section.</p>
-<section class="level4" id="d-discrete-fourier-transforms">
-<h4>1-D Discrete Fourier transforms</h4>
+<p><strong>1-D Discrete Fourier transforms</strong></p>
 <p>Let start with the most basic <code>fft</code> and it reverse transform function <code>ifft</code>.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = [|1.;2.;1.;-1.;1.5;1.0|];;
@@ -186,9 +185,7 @@ R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 </code></pre>
 </div>
 <p>Notice that the rfft of odd and even length signals are of the same shape. (?)</p>
-</section>
-<section class="level4" id="n-d-discrete-fourier-transforms">
-<h4>N-D Discrete Fourier transforms</h4>
+<p><strong>N-D Discrete Fourier transforms</strong></p>
 <p>( TODO: This is not the real N-D FFT. Verify it with SciPy examples. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )</p>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
 <div class="highlight">
@@ -214,7 +211,6 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 </code></pre>
 </div>
 <p>IMAGE: plot x and y in to circle-like shape</p>
-</section>
 </section>
 </section>
 <section class="level2" id="applications-of-fft">
