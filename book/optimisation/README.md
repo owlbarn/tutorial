@@ -437,13 +437,24 @@ The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
 
 ## Global Optimisation and Constrained Optimisation
 
-So far we have talked about unconstrained optimisation, mostly to find local optimal.
+This chapter mainly focuses on unconstrained optimisation, mostly to find local optimal.
 In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation 
 
-The basic idea of global optimisation.
+The basic idea of global optimisation is to provide effective search methods and heuristics to traverse the search space effectively. 
+One method is to start from sufficient number of initial points and find the local optimal, the choose the smallest/largest value from them. 
+Another heuristic is to try stepping away from a local optimal value by taking a finite amplitude step away from it, perform the optimisation method, and see if it leads to a better solution or still the same. 
 
-The type of problems covered constrained optimisation; applications. Currently can they be solved and how to solve them with existing tools.
+One example of algorithm: Simulated Annealing Methods.
 
+The constrained optimisation is another large topic we haven't covered in this chapter.
+
+Application of linear programming and non-linear programming. 
+
+Their current status (how difficult to solve etc.), classic methods, and some existing tools.
+
+Their connection with the unconstrained method we have introduced. 
+
+Refer to these book for more detail.
 
 ## Exercise 
 
