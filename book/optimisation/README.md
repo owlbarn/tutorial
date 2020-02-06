@@ -189,7 +189,11 @@ If a function is continuous and differentiable, then one obvious solution to fin
 $$f'(x) = 0$$
 
 This leads us back to our root finding solutions. 
-Let's look at an example:
+If you already know the analytical form of $f'(x)$, it's good. For example, if $f(x) = x^2 - x$, then you can directly find root for $g(x) = 2x-1$.
+Otherwise, you can use the differentiation functions in owl.
+Let's look at an example. The objective function is in a hump shape:
+
+$$f(x) = \frac{1}{(x-0.3)^2 + 0.01} + \frac{1}{(x-0.9)^2 + 0.04} -6$$
 
 ```ocaml env=optimisation_00
 open Algodiff.D
@@ -222,6 +226,19 @@ let _ =
 ```
 
 ![The hump function and its derivative function](images/optimisation/plot_hump.png)
+
+And then you can find the extreme values using the root finding algorithm, such as Brent's:
+
+```ocaml env=optimisation_00
+# Owl_maths_root.brent g' 0. 0.4
+- : float = 0.30037562625819042
+# Owl_maths_root.brent g' 0.4 0.7
+- : float = 0.63700940626897
+# Owl_maths_root.brent g' 0.7 1.0
+- : float = 0.892716303287079405
+```
+
+The issue is that you cannot be certain which is maximum and which is minimum.
 
 ### Golden Section Search
 
@@ -261,9 +278,9 @@ Compared to the previous solutions, gradient descent is one of the most widely u
 
 A *descent method* is an iterative optimisation process.
 The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum. 
-This process can be illustrated in [@fig:optimisation:gradient].
+This process can be illustrated in [@fig:optimisation:gradient]([source](https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf)).
 
-![Reach the local minimum by iteratively moving downhill](images/optimisation/gradient.png){#fig:optimisation:gradient}
+![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){#fig:optimisation:gradient} 
 
 Therefore, we can describe the $n$-th iteration of descent method as:
 
@@ -281,9 +298,9 @@ The precess can be described as:
 3. update the location: $x_{n+1} = x_n + \alpha~\nabla~f(x_n)$.
 
 Here $\nabla$ denotes the gradient, and the distance $\alpha$ it moves along certain direction is also called *learning rate*.
-In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in [@fig:optimisation:gd].
+In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in the next figure.
 
-![Example of gradient descent process](images/optimisation/gd.png){width=50%, #fig:optimisation:gd}
+IMAGEL: Example of gradient descent process which looks like [this one](https://en.wikipedia.org/wiki/Gradient_descent#/media/File:Gradient_descent.svg).
 
 We can easily implement this process with the algorithm differentiation module in Owl. 
 Let's look at an example.
@@ -369,6 +386,7 @@ let run = function
           Maths.(neg g' + (b * p))
     ...
 ```
+
 Explain
 
 We also Give them a brief introduction here, but refer to paper and book for more details. 
@@ -389,7 +407,6 @@ $$x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).$$
 This can also be implemented in Owl with algorithm differentiation.
 
 ```ocaml
-(* Update this example to be clearer *)
 open Owl
 open Algodiff.D
 

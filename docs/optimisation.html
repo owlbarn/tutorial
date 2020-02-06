@@ -110,7 +110,8 @@ The resulting sequence is very short compared to the bisection method:
 <h3>Use Derivatives</h3>
 <p>If a function is continuous and differentiable, then one obvious solution to find extreme values is to locate where the derivatives equals 0:</p>
 <p><span class="math display">\[f'(x) = 0\]</span></p>
-<p>This leads us back to our root finding solutions. Let’s look at an example:</p>
+<p>This leads us back to our root finding solutions. If you already know the analytical form of <span class="math inline">\(f'(x)\)</span>, it’s good. For example, if <span class="math inline">\(f(x) = x^2 - x\)</span>, then you can directly find root for <span class="math inline">\(g(x) = 2x-1\)</span>. Otherwise, you can use the differentiation functions in owl. Let’s look at an example. The objective function is in a hump shape:</p>
+<p><span class="math display">\[f(x) = \frac{1}{(x-0.3)^2 + 0.01} + \frac{1}{(x-0.9)^2 + 0.04} -6\]</span></p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -141,6 +142,17 @@ let _ =
 <figure>
 <img alt="" src="images/optimisation/plot_hump.png"><figcaption>The hump function and its derivative function</figcaption>
 </figure>
+<p>And then you can find the extreme values using the root finding algorithm, such as Brent’s:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_maths_root.brent g' 0. 0.4;;
+&gt;- : float = 0.30037562625819042
+Owl_maths_root.brent g' 0.4 0.7;;
+&gt;- : float = 0.63700940626897
+Owl_maths_root.brent g' 0.7 1.0;;
+&gt;- : float = 0.892716303287079405
+</code></pre>
+</div>
+<p>The issue is that you cannot be certain which is maximum and which is minimum.</p>
 </section>
 <section class="level3" id="golden-section-search">
 <h3>Golden Section Search</h3>
@@ -162,7 +174,7 @@ let _ =
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
 <p>Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter).</p>
-<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1.</p>
+<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
 <figure>
 <img alt="" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
 </figure>
@@ -179,10 +191,8 @@ let _ =
 <li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
 <li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~\nabla~f(x_n)\)</span>.</li>
 </ol>
-<p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in fig.&nbsp;2.</p>
-<figure>
-<img alt="" id="fig:optimisation:gd" src="images/optimisation/gd.png"><figcaption>Figure 2: Example of gradient descent process</figcaption>
-</figure>
+<p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in the next figure.</p>
+<p>IMAGEL: Example of gradient descent process which looks like <a href="https://en.wikipedia.org/wiki/Gradient_descent#/media/File:Gradient_descent.svg">this one</a>.</p>
 <p>We can easily implement this process with the algorithm differentiation module in Owl. Let’s look at an example.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.S
@@ -259,8 +269,7 @@ let _ = desc f0 a |&gt; unpack_arr</code></pre>
 <p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).\]</span></p>
 <p>This can also be implemented in Owl with algorithm differentiation.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* Update this example to be clearer *)
-open Owl
+<pre><code class="language-ocaml">open Owl
 open Algodiff.D
 
 let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
