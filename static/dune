@@ -91,6 +91,9 @@
         images/visualisation/plot_024.png
         images/visualisation/plot_025.png
         images/visualisation/plot_026.png
+        images/zoo/gd_x86.png
+        images/zoo/map_fold.png
+        images/zoo/workflow.png
         js/_functions.js
         js/app.js
         js/discourse.js
