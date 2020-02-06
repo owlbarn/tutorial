@@ -124,10 +124,34 @@ Newton method utilises the derivative of objective function $f$. It starts with 
 
 $$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
-We can use the Algorithm Differential module in Owl to do that:
+We can use the Algorithm Differential module in Owl to do that.
+In the next example we find the root of $x^2 - 2 = 0$, i.e., find an approximate value of $\sqrt{2}$.
+The Owl code is just a plain translation of [@eq:optimisation:newton].
 
+```ocaml
+open Algodiff.D
+
+let f x = Maths.(x ** (F 2.) - (F 2.))
+
+let _ = 
+	let x = ref 1. in
+	for _ = 0 to 6 do
+		let g = diff f (F !x) |> unpack_elt in 
+		let v = f (F !x) |> unpack_elt in 
+		x := !x -. v /. g;
+		Printf.printf "%.15f\n" !x
+	done
 ```
-CODE
+
+The resulting sequence is very short compared to the bisection method:
+```
+1.500000000000000
+1.416666666666667
+1.414215686274510
+1.414213562374690
+1.414213562373095
+1.414213562373095
+1.414213562373095
 ```
 
 The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. 

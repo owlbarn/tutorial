@@ -66,9 +66,30 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 <p>First, the Bisection method. Use <span class="math inline">\(\sqrt{2}\)</span> as an example, just show the string of number here:<span class="math inline">\(1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots\)</span>. (DETAIL) Owl provides <code>Owl_maths_root.bisec</code> method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let’s keep thing concise for now.) This method converges slowly, but it is a solid and reliable method.</p>
 <p>Newton method utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and follows this process:</p>
 <p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(4)\]</span></span></p>
-<p>We can use the Algorithm Differential module in Owl to do that:</p>
+<p>We can use the Algorithm Differential module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;4.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
+<pre><code class="language-ocaml">open Algodiff.D
+
+let f x = Maths.(x ** (F 2.) - (F 2.))
+
+let _ = 
+    let x = ref 1. in
+    for _ = 0 to 6 do
+        let g = diff f (F !x) |&gt; unpack_elt in 
+        let v = f (F !x) |&gt; unpack_elt in 
+        x := !x -. v /. g;
+        Printf.printf "%.15f\n" !x
+    done</code></pre>
+</div>
+The resulting sequence is very short compared to the bisection method:
+<div class="highlight">
+<pre><code class="language-clike">1.500000000000000
+1.416666666666667
+1.414215686274510
+1.414213562374690
+1.414213562373095
+1.414213562373095
+1.414213562373095</code></pre>
 </div>
 <p>The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
 <p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
