@@ -191,9 +191,37 @@ $$f'(x) = 0$$
 This leads us back to our root finding solutions. 
 Let's look at an example:
 
+```ocaml env=optimisation_00
+open Algodiff.D
+
+let f x = Maths.(
+	(F 1.) / ((x - F 0.3) ** (F 2.) + F 0.01) + 
+	(F 1.) / ((x - F 0.9) ** (F 2.) + F 0.04) - F 6.)
+
+let g = diff f
+
+let f' x = f (F x) |> unpack_flt 
+
+let g' x = g (F x) |> unpack_flt 
 ```
-CODE (with Algodiff) with explanation/images.
+
+Visualise the image:
+
+```ocaml env=optimisation_00
+
+let _ = 
+  let h = Plot.create ~m:1 ~n:2 "plot_hump.png" in
+  Plot.set_pen_size h 1.5;
+  Plot.subplot h 0 0;
+  Plot.plot_fun ~h f' 0. 2.;
+  Plot.set_ylabel h "f(x)";
+  Plot.subplot h 0 1;
+  Plot.plot_fun ~h g' 0. 2.;
+  Plot.set_ylabel h "f'(x)";
+  Plot.output h
 ```
+
+![The hump function and its derivative function](images/optimisation/plot_hump.png)
 
 ### Golden Section Search
 

@@ -112,8 +112,35 @@ The resulting sequence is very short compared to the bisection method:
 <p><span class="math display">\[f'(x) = 0\]</span></p>
 <p>This leads us back to our root finding solutions. Let’s look at an example:</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE (with Algodiff) with explanation/images.</code></pre>
+<pre><code class="language-ocaml">open Algodiff.D
+
+let f x = Maths.(
+    (F 1.) / ((x - F 0.3) ** (F 2.) + F 0.01) + 
+    (F 1.) / ((x - F 0.9) ** (F 2.) + F 0.04) - F 6.)
+
+let g = diff f
+
+let f' x = f (F x) |&gt; unpack_flt 
+
+let g' x = g (F x) |&gt; unpack_flt </code></pre>
 </div>
+<p>Visualise the image:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+let _ = 
+  let h = Plot.create ~m:1 ~n:2 "plot_hump.png" in
+  Plot.set_pen_size h 1.5;
+  Plot.subplot h 0 0;
+  Plot.plot_fun ~h f' 0. 2.;
+  Plot.set_ylabel h "f(x)";
+  Plot.subplot h 0 1;
+  Plot.plot_fun ~h g' 0. 2.;
+  Plot.set_ylabel h "f'(x)";
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" src="images/optimisation/plot_hump.png"><figcaption>The hump function and its derivative function</figcaption>
+</figure>
 </section>
 <section class="level3" id="golden-section-search">
 <h3>Golden Section Search</h3>
