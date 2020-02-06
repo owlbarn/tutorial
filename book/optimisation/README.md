@@ -126,21 +126,8 @@ $$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
 We can use the Algorithm Differential module in Owl to do that:
 
-```ocaml
-(* Update this example to be clearer *)
-open Owl
-open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |> unpack_flt) < eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
-
-let _ =
-  (* [f] must be [f : vector -> scalar]. *)
-  let f x = Maths.(cos x |> sum') in
-  let y = newton f (Mat.uniform 1 2) in
-  Mat.print y
+```
+CODE
 ```
 
 The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. 
@@ -246,6 +233,36 @@ In a gradient descent process, when looking for the minimum, the point always fo
 
 ![Example of gradient descent process](images/optimisation/gd.png){width=50%, #fig:optimisation:gd}
 
+We can easily implement this process with the algorithm differentiation module in Owl. 
+Let's look at an example.
+
+```ocaml
+open Algodiff.S
+module N = Dense.Ndarray.S
+
+let a = Mat.uniform 1 2
+
+(* the first simple test function *)
+let f0 x = Maths.(sin x |> sum')
+
+(* the Rosenbrock function *)
+let f1 a =
+	let x = Mat.get a 0 0 in 
+	let y = Mat.get a 0 1 in
+	Maths.( (F 100.) * (y - (x ** (F 2.))) ** (F 2.) + (F 1. - x) ** (F 2.) |> sum')
+
+let rec desc ?(eta=F 0.01) ?(eps=2e-5) f x =
+  let g = grad f x in
+  let arr = unpack_arr g in 
+  (* N.print arr; *)
+  if (N.sum' arr) < eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g)
+
+let _ = desc f0 a |> unpack_arr
+```
+
+IMAGE: contour image, how the circles, and how the dots moves.
+
 In Owl we provide a `minimise_fun` function to do that. 
 
 ```
@@ -254,12 +271,6 @@ val minimise_fun :  ?state:Checkpoint.state -> Params.typ -> (t -> t) -> t  -> C
 
 This function minimises `f : x -> y` w.r.t `x`; `x` is a ndarray, and ``y`` is a scalar value.
 This function is implemented using gradient descent. 
-
-Let's look at an example: 
-
-```
-CODE: show example using minimise_fun. It would be idea to use Rosenbrock function, but it does not support multivariate model.
-```
 
 EXPLAIN in detail, such as checkpoint etc. 
 
@@ -322,6 +333,25 @@ Here $\nabla^{2}~f(x_n)$ denotes the second-order derivatives of function $f$.
 For a scalar-valued function, it can be represented by a square matrix called *Hessian matrix*, denoted by $\mathbf{H}$. Therefore the update process of newton method can be expressed as:
 
 $$x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).$$
+
+This can also be implemented in Owl with algorithm differentiation.
+
+```ocaml
+(* Update this example to be clearer *)
+open Owl
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
+
+let _ =
+  (* [f] must be [f : vector -> scalar]. *)
+  let f x = Maths.(cos x |> sum') in
+  let y = newton f (Mat.uniform 1 2) in
+  Mat.print y
+```
 
 EXPLAIN: benefit of newton method.
 

@@ -68,20 +68,7 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 <p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(4)\]</span></span></p>
 <p>We can use the Algorithm Differential module in Owl to do that:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* Update this example to be clearer *)
-open Owl
-open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
-
-let _ =
-  (* [f] must be [f : vector -&gt; scalar]. *)
-  let f x = Maths.(cos x |&gt; sum') in
-  let y = newton f (Mat.uniform 1 2) in
-  Mat.print y</code></pre>
+<pre><code class="language-clike">CODE</code></pre>
 </div>
 <p>The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
 <p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
@@ -148,15 +135,37 @@ let _ =
 <figure>
 <img alt="" id="fig:optimisation:gd" src="images/optimisation/gd.png"><figcaption>Figure 2: Example of gradient descent process</figcaption>
 </figure>
+<p>We can easily implement this process with the algorithm differentiation module in Owl. Let’s look at an example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.S
+module N = Dense.Ndarray.S
+
+let a = Mat.uniform 1 2
+
+(* the first simple test function *)
+let f0 x = Maths.(sin x |&gt; sum')
+
+(* the Rosenbrock function *)
+let f1 a =
+    let x = Mat.get a 0 0 in 
+    let y = Mat.get a 0 1 in
+    Maths.( (F 100.) * (y - (x ** (F 2.))) ** (F 2.) + (F 1. - x) ** (F 2.) |&gt; sum')
+
+let rec desc ?(eta=F 0.01) ?(eps=2e-5) f x =
+  let g = grad f x in
+  let arr = unpack_arr g in 
+  (* N.print arr; *)
+  if (N.sum' arr) &lt; eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g)
+
+let _ = desc f0 a |&gt; unpack_arr</code></pre>
+</div>
+<p>IMAGE: contour image, how the circles, and how the dots moves.</p>
 <p>In Owl we provide a <code>minimise_fun</code> function to do that.</p>
 <div class="highlight">
 <pre><code class="language-clike">val minimise_fun :  ?state:Checkpoint.state -&gt; Params.typ -&gt; (t -&gt; t) -&gt; t  -&gt; Checkpoint.state * t</code></pre>
 </div>
 <p>This function minimises <code>f : x -&gt; y</code> w.r.t <code>x</code>; <code>x</code> is a ndarray, and <code>y</code> is a scalar value. This function is implemented using gradient descent.</p>
-<p>Let’s look at an example:</p>
-<div class="highlight">
-<pre><code class="language-clike">CODE: show example using minimise_fun. It would be idea to use Rosenbrock function, but it does not support multivariate model.</code></pre>
-</div>
 <p>EXPLAIN in detail, such as checkpoint etc.</p>
 <p>TODO: explain, perhaps with a bit theory or visual aid, to show why gradient descent is much more efficient that the previous non-gradient methods.</p>
 </section>
@@ -200,6 +209,23 @@ let _ =
 </ol>
 <p>Here <span class="math inline">\(\nabla^{2}~f(x_n)\)</span> denotes the second-order derivatives of function <span class="math inline">\(f\)</span>. For a scalar-valued function, it can be represented by a square matrix called <em>Hessian matrix</em>, denoted by <span class="math inline">\(\mathbf{H}\)</span>. Therefore the update process of newton method can be expressed as:</p>
 <p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).\]</span></p>
+<p>This can also be implemented in Owl with algorithm differentiation.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">(* Update this example to be clearer *)
+open Owl
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
+
+let _ =
+  (* [f] must be [f : vector -&gt; scalar]. *)
+  let f x = Maths.(cos x |&gt; sum') in
+  let y = newton f (Mat.uniform 1 2) in
+  Mat.print y</code></pre>
+</div>
 <p>EXPLAIN: benefit of newton method.</p>
 <p>However, one big problem with the newton method is the problem size. In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.</p>
 <p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix. The most important method in this category is BFGS, named after its four authors.</p>
