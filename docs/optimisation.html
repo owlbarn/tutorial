@@ -127,13 +127,24 @@ let _ =
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
 <p>Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter).</p>
-<p>It is an iterative optimisation algorithm that utilised gradient of functions. The idea is to start from a initial value, and then find a “correct direction” along a function to decrease the value until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1.</p>
+<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1.</p>
 <figure>
 <img alt="" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
 </figure>
-<p>In classic gradient descent, the decrease follows:</p>
-<p><span id="eq:optimisation:gd"><span class="math display">\[x_{n+1} = x_n - \alpha~\nabla~f(x_n),\qquad(6)\]</span></span></p>
-<p>where <span class="math inline">\(\nabla\)</span> means the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is called the <em>learning rate</em>. It’s similar to the newton method in root finding. When looking for the minimum, you always follow the direction that is against the direction (represented by the negative gradient), which is assumed to be the fastest, as shown in fig.&nbsp;2.</p>
+<p>Therefore, we can describe the <span class="math inline">\(n\)</span>-th iteration of descent method as:</p>
+<ol type="1">
+<li>calculate a descent direction <span class="math inline">\(d\)</span>;</li>
+<li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
+<li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~d\)</span>.</li>
+</ol>
+<p>Repeat this process until a stop condition is met, such as the update is smaller than a threshold.</p>
+<p>Based on this process, <em>Gradient Descent</em> method uses the function gradient to decide its direction <span class="math inline">\(d\)</span>. The precess can be described as:</p>
+<ol type="1">
+<li>calculate a descent direction <span class="math inline">\(-\nabla~f(x_n)\)</span>;</li>
+<li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
+<li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~\nabla~f(x_n)\)</span>.</li>
+</ol>
+<p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in fig.&nbsp;2.</p>
 <figure>
 <img alt="" id="fig:optimisation:gd" src="images/optimisation/gd.png"><figcaption>Figure 2: Example of gradient descent process</figcaption>
 </figure>
@@ -154,7 +165,7 @@ let _ =
 <p>One problem with the Gradient Descent is that it does not perform well on all functions. For example, if the function forms a steep and narrow value, then using gradient descent will take many small steps to reach the minimum, even if the function is in a perfect quadratic form.</p>
 <p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
 <p>EXPLAIN in detail.</p>
-<p>EQUATION of CG</p>
+<p>Instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, CG choose another way to calculate the descent direction: EQUATION of CG</p>
 <p>Both GD and CG are abstracted in a module in Owl:</p>
 <p>Let’s look at an example.</p>
 <div class="highlight">
@@ -179,9 +190,21 @@ let _ =
 <p>Explain</p>
 <p>We also Give them a brief introduction here, but refer to paper and book for more details.</p>
 </section>
-<section class="level3" id="quasi-newton-methods">
-<h3>Quasi-Newton Methods</h3>
-<p>BFGS</p>
+<section class="level3" id="newton-and-quasi-newton-methods">
+<h3>Newton and Quasi-Newton Methods</h3>
+<p>There is also a Newton Method in optimisation (it is not to be confused with the newton method used in root-finding). Still following the basic process of descent method, newton method starts from a initial point and then repeat the process:</p>
+<ol type="1">
+<li>compute the descent direction: <span class="math inline">\(d = -\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}\)</span></li>
+<li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
+<li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~d\)</span>.</li>
+</ol>
+<p>Here <span class="math inline">\(\nabla^{2}~f(x_n)\)</span> denotes the second-order derivatives of function <span class="math inline">\(f\)</span>. For a scalar-valued function, it can be represented by a square matrix called <em>Hessian matrix</em>, denoted by <span class="math inline">\(\mathbf{H}\)</span>. Therefore the update process of newton method can be expressed as:</p>
+<p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).\]</span></p>
+<p>EXPLAIN: benefit of newton method.</p>
+<p>However, one big problem with the newton method is the problem size. In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.</p>
+<p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix. The most important method in this category is BFGS, named after its four authors.</p>
+<p>EXPLAIN briefly.</p>
+<p>The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.</p>
 </section>
 </section>
 <section class="level2" id="global-optimisation-and-constrained-optimisation">
@@ -195,6 +218,9 @@ let _ =
 <ol type="1">
 <li>Newton method can be unstable and trapped in a loop: try to solve <span class="math inline">\(f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}\)</span> in the range of [0, 4]. And try to apply the secant method on the same problem.</li>
 </ol>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-boyd2004convex">
 <p>Boyd, Stephen, and Lieven Vandenberghe. 2004. <em>Convex Optimization</em>. Cambridge university press.</p>

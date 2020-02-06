@@ -220,19 +220,29 @@ We will not talk about this method in detail.
 
 Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter). 
 
-It is an iterative optimisation algorithm that utilised gradient of functions. 
-The idea is to start from a initial value, and then find a "correct direction" along a function to decrease the value until it converges to a local minimum. 
+A *descent method* is an iterative optimisation process.
+The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum. 
 This process can be illustrated in [@fig:optimisation:gradient].
 
 ![Reach the local minimum by iteratively moving downhill](images/optimisation/gradient.png){#fig:optimisation:gradient}
 
-In classic gradient descent, the decrease follows:
+Therefore, we can describe the $n$-th iteration of descent method as:
 
-$$x_{n+1} = x_n - \alpha~\nabla~f(x_n),$$ {#eq:optimisation:gd}
+1. calculate a descent direction $d$;
+2. choose a step size $\alpha$;
+3. update the location: $x_{n+1} = x_n + \alpha~d$.
 
-where $\nabla$ means the gradient, and the distance $\alpha$ it moves along certain direction is called the *learning rate*.
-It's similar to the newton method in root finding.
-When looking for the minimum, you always follow the direction that is against the direction (represented by the negative gradient), which is assumed to be the fastest, as shown in [@fig:optimisation:gd].
+Repeat this process until a stop condition is met, such as the update is smaller than a threshold. 
+
+Based on this process, *Gradient Descent* method uses the function gradient to decide its direction $d$.
+The precess can be described as:
+
+1. calculate a descent direction $-\nabla~f(x_n)$;
+2. choose a step size $\alpha$;
+3. update the location: $x_{n+1} = x_n + \alpha~\nabla~f(x_n)$.
+
+Here $\nabla$ denotes the gradient, and the distance $\alpha$ it moves along certain direction is also called *learning rate*.
+In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in [@fig:optimisation:gd].
 
 ![Example of gradient descent process](images/optimisation/gd.png){width=50%, #fig:optimisation:gd}
 
@@ -264,8 +274,10 @@ The *Conjugate Gradient* method can solve this problem.
 (HISTORY.)
 It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
 
+
 EXPLAIN in detail.
 
+Instead of $-\nabla~f(x_n)$, CG choose another way to calculate the descent direction:
 EQUATION of CG
 
 Both GD and CG are abstracted in a module in Owl:
@@ -298,9 +310,31 @@ Explain
 
 We also Give them a brief introduction here, but refer to paper and book for more details. 
 
-### Quasi-Newton Methods
+### Newton and Quasi-Newton Methods
 
-BFGS
+There is also a Newton Method in optimisation (it is not to be confused with the newton method used in root-finding). Still following the basic process of descent method, newton method starts from a initial point and then repeat the process:
+
+1. compute the descent direction: $d = -\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}$
+2. choose a step size $\alpha$;
+3. update the location: $x_{n+1} = x_n + \alpha~d$.
+
+Here $\nabla^{2}~f(x_n)$ denotes the second-order derivatives of function $f$. 
+For a scalar-valued function, it can be represented by a square matrix called *Hessian matrix*, denoted by $\mathbf{H}$. Therefore the update process of newton method can be expressed as:
+
+$$x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).$$
+
+EXPLAIN: benefit of newton method.
+
+However, one big problem with the newton method is the problem size. 
+In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse. 
+
+Towards this end, the *Quasi-newton* methods are proposed. 
+The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix.
+The most important method in this category is BFGS, named after its four authors. 
+
+EXPLAIN briefly.
+
+The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
 
 ## Global Optimisation and Constrained Optimisation
 
@@ -315,3 +349,5 @@ The type of problems covered constrained optimisation; applications. Currently c
 ## Exercise 
 
 1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}$ in the range of [0, 4]. And try to apply the secant method on the same problem.
+
+## References
