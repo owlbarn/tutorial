@@ -461,3 +461,5 @@ Refer to these book for more detail.
 1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}$ in the range of [0, 4]. And try to apply the secant method on the same problem.
 
 ## References
+
+REFERENCE BOOK in writing: Numerical methods in engineering with Python 3, by Jaan Kiusalaas.

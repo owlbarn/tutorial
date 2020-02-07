@@ -1,8 +1,75 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Internal Utility Modules - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="internal-utility-modules">
 <h1>Internal Utility Modules</h1>
-<p>The countmin_sketch is also included in this section</p>
+<p>During development of Owl, we find some utility modules are immensely handy. In this chapter, we share some of them. These are not the main feature of Owl, and perhaps you can implement your own version very quickly. But we hope to present how these features are used in Owl.</p>
 <section class="level2" id="dataset-module">
 <h2>Dataset Module</h2>
+<p>The dataset modules provides easy access to various datasets to be used in Owl, mainly the MNSIT and CIFAR10 datasets. You can get all these data in Owl by executing: <code>Dataset.download_all ()</code>. The data are downloaded in the home directory, for example, <code>~/.owl/dataset</code> on Linux.</p>
+<section class="level3" id="mnist">
+<h3>MNIST</h3>
+<p>The <a href="http://yann.lecun.com/exdb/mnist/">MNIST database</a> of handwritten digits has a training set of 60,000 examples, and a test set of 10,000 examples. Each example is of size 28 x 28. It is a good starting point for deep neural network related tasks.</p>
+<p>You can get MNIST data via these Owl functions:</p>
+<ul>
+<li><p><code>Dataset.load_mnist_train_data ()</code>: returns a triplet <code>x, y, y'</code>.</p>
+<ul>
+<li><code>x</code> is a [60000, 784] ndarray (<code>Owl_dense_ndarray.S.mat</code>) where each row represents a [28, 28] image.</li>
+<li><code>y</code> is a [60000, 1] label ndarray. Each row is an integer ranging from 0 to 9, indicating the digit on each image.</li>
+<li><code>y'</code> is a [60000, 10] label ndarray. Each one-hot row vector corresponds to one label.</li>
+</ul></li>
+<li><p><code>Dataset.load_mnist_test_data ()</code>: returns a triplet. Similar to <code>load_mnist_train_data</code>, only that it returns the test set, so the example size is 10,000 instead of 60,000.</p></li>
+<li><p><code>Dataset.load_mnist_train_data_arr ()</code>: similar to <code>load_mnist_train_data</code>, but returns <code>x</code> as [60000,28,28,1] ndarray</p></li>
+<li><p><code>Dataset.load_mnist_test_data_arr ()</code>: similar to <code>load_mnist_train_data_arr</code>, but it returns the test set, so the example size is 10, 000 instead of 60, 000.</p></li>
+<li><p><code>Dataset.draw_samples x y n</code> draws <code>n</code> random examples from images ndarray <code>x</code> and label ndarray <code>y</code>.</p></li>
+</ul>
+<p>You can find the MNIST dataset used in training and testing a DNN in Owl:</p>
+<div class="highlight">
+<pre><code class="language-clike">let train network =
+  let x, _, y = Dataset.load_mnist_train_data_arr () in
+  Graph.train network x y |&gt; ignore;
+  network
+
+let test network =
+  let imgs, _, labels = Dataset.load_mnist_test_data () in
+  let m = Dense.Matrix.S.row_num imgs in
+  let imgs = Dense.Ndarray.S.reshape imgs [|m;28;28;1|] in
+
+  let mat2num x = Dense.Matrix.S.of_array (
+      x |&gt; Dense.Matrix.Generic.max_rows
+        |&gt; Array.map (fun (_,_,num) -&gt; float_of_int num)
+    ) 1 m
+  in
+
+  let pred = mat2num (Graph.model network imgs) in
+  let fact = mat2num labels in
+  let accu = Dense.Matrix.S.(elt_equal pred fact |&gt; sum') in
+  Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))</code></pre>
+</div>
+</section>
+<section class="level3" id="cifar-10">
+<h3>CIFAR-10</h3>
+<p>The <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10 dataset</a> include small scale color images for more realistic complex image classification tasks. It includes 10 classes of images: aeroplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck. It consists of 60,000 32 x 32 colour images in 10 classes, with 6,000 images per class. There are 50,000 training images and 10,000 test images.</p>
+<p>Due to the limit of file size on Github, the training set is cut into 5 smaller batch. You can get CIFAR-10 data using <code>Owl</code>:</p>
+<ul>
+<li><p><code>Dataset.load_cifar_train_data batch</code>: returns a triplet <code>x, y, y'</code>.</p>
+<ul>
+<li>The input paramter <code>batch</code> can range from 1 to 5, indicating which training set batch to choose.</li>
+<li><code>x</code> is an [10000, 32, 32, 3] ndarray (<code>Owl_dense_ndarray.S.arr</code>). The last dimension indicates color channels (first Red, then Green, finally Blue).</li>
+<li><code>y</code> is an [10000, 1] label ndarray, each number representing an image class.</li>
+<li><code>y'</code> is the corresponding [10000, 10] one-hot label ndarray.</li>
+</ul></li>
+<li><p><code>Dataset.load_cifar_test_data ()</code>: similar to <code>load_cifar_train_data</code>, only that it loads test data.</p></li>
+<li><p><code>Dataset.draw_samples_cifar x y n</code> draws <code>n</code> random examples from images ndarray <code>x</code> and label ndarray <code>y</code>.</p></li>
+</ul>
+<p>Note that all elements in the loaded matrices and ndarrays are of <code>float32</code> format.</p>
+<p>The CIFAR10 dataset is similar to MNIST in training DNN:</p>
+<div class="highlight">
+<pre><code class="language-clike">let train network =
+  let x, _, y = Dataset.load_cifar_train_data 1 in
+  Graph.train network x y</code></pre>
+</div>
+</section>
+<section class="level3" id="text-datasets">
+<h3>Text Datasets</h3>
+</section>
 </section>
 <section class="level2" id="graph-module">
 <h2>Graph Module</h2>
