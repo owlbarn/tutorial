@@ -38,6 +38,41 @@ You can get MNIST data via these Owl functions:
 
 - `Dataset.draw_samples x y n` draws `n` random examples from images ndarray `x` and label ndarray `y`.  
 
+Here is what the dataset looks like when loaded into Owl:
+
+```
+# let x, _, y = Dataset.load_mnist_train_data_arr ();;
+val x : Owl_dense_ndarray.S.arr =
+
+                C0
+      R[0,0,0]   0
+      R[0,0,1]   0
+      R[0,0,2]   0
+      R[0,0,3]   0
+      R[0,0,4]   0
+               ...
+R[59999,27,23]   0
+R[59999,27,24]   0
+R[59999,27,25]   0
+R[59999,27,26]   0
+R[59999,27,27]   0
+
+val y : Owl_dense_matrix.S.mat =
+
+        C0  C1  C2  C3  C4  C5  C6  C7  C8  C9
+    R0   0   0   0   0   0   1   0   0   0   0
+    R1   1   0   0   0   0   0   0   0   0   0
+    R2   0   0   0   0   1   0   0   0   0   0
+    R3   0   1   0   0   0   0   0   0   0   0
+    R4   0   0   0   0   0   0   0   0   0   1
+       ... ... ... ... ... ... ... ... ... ...
+R59995   0   0   0   0   0   0   0   0   1   0
+R59996   0   0   0   1   0   0   0   0   0   0
+R59997   0   0   0   0   0   1   0   0   0   0
+R59998   0   0   0   0   0   0   1   0   0   0
+R59999   0   0   0   0   0   0   0   0   1   0
+```
+
 You can find the MNIST dataset used in training and testing a DNN in Owl:
 
 ```
@@ -184,26 +219,12 @@ val set_attr : 'a node -> 'a -> unit
 
 Similarly, you can get other properties of a graph use the other functions: 
 
-```
-
-val indegree : 'a node -> int
-(** ``indegree x`` returns the in-degree of node ``x``. *)
-
-val outdegree : 'a node -> int
-(** ``outdegree x`` returns the out-degree of node ``x``. *)
-
-val degree : 'a node -> int
-(** ``degree x`` returns the total number of links of ``x``. *)
-
-val num_ancestor : 'a node array -> int
-(** ``num_ancestor x`` returns the number of ancestors of ``x``. *)
-
-val num_descendant : 'a node array -> int
-(** ``num_descendant x`` returns the number of descendants of ``x``. *)
-
-val length : 'a node array -> int
-(** ``length x`` returns the total number of ancestors and descendants of ``x``. *)
-```
+- `indegree x` returns the in-degree of node 
+- `outdegree x` returns the out-degree of node 
+- `degree x` returns the total number of links of `x`
+- `num_ancestor x` returns the number of ancestors of `x`
+- `num_descendant x` returns the number of descendants of `x`
+- `length x` returns the total number of ancestors and descendants of `x`
 
 Finally, we provide functions for traversing the graph in either Breadth-First order or Depth-First order. 
 You can also choose to iterate the descendants or ancestors of a given node. 
@@ -241,6 +262,8 @@ Within Owl, the Graph module is heavily use to facilitate the Computation Graph 
 
 TODO: Explain how it is used in CGraph.
 
+TODO: Use examples and text, not just code.
+
 ## Stack and Heap Modules
 
 Both *Stack* and *Heap* are two common abstract data types for collection of elements.
@@ -256,15 +279,19 @@ type 'a t =
   }
 ```
 
-The stack module supports four standards operations:
+The stack and heap modules support four standards operations:
 
-- `push`: push element into a stack
-- `pop`: pops the top element in stack. It returns None if the stack is empty
-- `peek`: returns the value of top element in stack but it does not remove the element from the stack. `None` is returned if the stack is empty.
-- `is_empty`: returns true if the stack is empty
+- `push`: push element into a stack/heap
+- `pop`: pops the top element in stack/heap. It returns None if the container is empty
+- `peek`: returns the value of top element in stack/heap but it does not remove the element from the stack. `None` is returned if the container is empty.
+- `is_empty`: returns true if the stack/heap is empty
 
-The stack data structure is used in many places in Owl. 
-In the `filteri` operation in ndarray module, 
+The stack data structure is used in many places in Owl:
+the `filteri` operation in ndarray module,
+the topological sort in graph,
+the reading file IO operation for keeping the content from all the lines,
+the data frame...
+The heap structure is used in key functions such as `search_top_elements` in the Ndarray module, which searches the indices of top values in input ndarray according to the comparison function.
 
 ## Count-Min Sketch
 

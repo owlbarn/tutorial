@@ -20,6 +20,39 @@
 <li><p><code>Dataset.load_mnist_test_data_arr ()</code>: similar to <code>load_mnist_train_data_arr</code>, but it returns the test set, so the example size is 10, 000 instead of 60, 000.</p></li>
 <li><p><code>Dataset.draw_samples x y n</code> draws <code>n</code> random examples from images ndarray <code>x</code> and label ndarray <code>y</code>.</p></li>
 </ul>
+<p>Here is what the dataset looks like when loaded into Owl:</p>
+<div class="highlight">
+<pre><code class="language-clike"># let x, _, y = Dataset.load_mnist_train_data_arr ();;
+val x : Owl_dense_ndarray.S.arr =
+
+                C0
+      R[0,0,0]   0
+      R[0,0,1]   0
+      R[0,0,2]   0
+      R[0,0,3]   0
+      R[0,0,4]   0
+               ...
+R[59999,27,23]   0
+R[59999,27,24]   0
+R[59999,27,25]   0
+R[59999,27,26]   0
+R[59999,27,27]   0
+
+val y : Owl_dense_matrix.S.mat =
+
+        C0  C1  C2  C3  C4  C5  C6  C7  C8  C9
+    R0   0   0   0   0   0   1   0   0   0   0
+    R1   1   0   0   0   0   0   0   0   0   0
+    R2   0   0   0   0   1   0   0   0   0   0
+    R3   0   1   0   0   0   0   0   0   0   0
+    R4   0   0   0   0   0   0   0   0   0   1
+       ... ... ... ... ... ... ... ... ... ...
+R59995   0   0   0   0   0   0   0   0   1   0
+R59996   0   0   0   1   0   0   0   0   0   0
+R59997   0   0   0   0   0   1   0   0   0   0
+R59998   0   0   0   0   0   0   1   0   0   0
+R59999   0   0   0   0   0   0   0   0   1   0</code></pre>
+</div>
 <p>You can find the MNIST dataset used in training and testing a DNN in Owl:</p>
 <div class="highlight">
 <pre><code class="language-clike">let train network =
@@ -128,26 +161,14 @@ val set_attr : 'a node -&gt; 'a -&gt; unit
 (** ``set_attr x`` sets the ``attr`` field of node ``x``. *)</code></pre>
 </div>
 <p>Similarly, you can get other properties of a graph use the other functions:</p>
-<div class="highlight">
-<pre><code class="language-clike">
-val indegree : 'a node -&gt; int
-(** ``indegree x`` returns the in-degree of node ``x``. *)
-
-val outdegree : 'a node -&gt; int
-(** ``outdegree x`` returns the out-degree of node ``x``. *)
-
-val degree : 'a node -&gt; int
-(** ``degree x`` returns the total number of links of ``x``. *)
-
-val num_ancestor : 'a node array -&gt; int
-(** ``num_ancestor x`` returns the number of ancestors of ``x``. *)
-
-val num_descendant : 'a node array -&gt; int
-(** ``num_descendant x`` returns the number of descendants of ``x``. *)
-
-val length : 'a node array -&gt; int
-(** ``length x`` returns the total number of ancestors and descendants of ``x``. *)</code></pre>
-</div>
+<ul>
+<li><code>indegree x</code> returns the in-degree of node</li>
+<li><code>outdegree x</code> returns the out-degree of node</li>
+<li><code>degree x</code> returns the total number of links of <code>x</code></li>
+<li><code>num_ancestor x</code> returns the number of ancestors of <code>x</code></li>
+<li><code>num_descendant x</code> returns the number of descendants of <code>x</code></li>
+<li><code>length x</code> returns the total number of ancestors and descendants of <code>x</code></li>
+</ul>
 <p>Finally, we provide functions for traversing the graph in either Breadth-First order or Depth-First order. You can also choose to iterate the descendants or ancestors of a given node.</p>
 <div class="highlight">
 <pre><code class="language-clike">val iter_ancestors
@@ -178,6 +199,7 @@ val topo_sort : 'a node array -&gt; 'a node array
 <p>You can also use functions: <code>filter_ancestors</code>, <code>filter_descendants</code>, <code>fold_ancestors</code>, <code>fold_descendants</code>, <code>fold_in_edges</code>, and <code>fold_out_edges</code> to perform fold or filter operations when iterating the graph.</p>
 <p>Within Owl, the Graph module is heavily use to facilitate the Computation Graph module.</p>
 <p>TODO: Explain how it is used in CGraph.</p>
+<p>TODO: Use examples and text, not just code.</p>
 </section>
 <section class="level2" id="stack-and-heap-modules">
 <h2>Stack and Heap Modules</h2>
@@ -189,14 +211,14 @@ val topo_sort : 'a node array -&gt; 'a node array
   ; mutable data : 'a array
   }</code></pre>
 </div>
-<p>The stack module supports four standards operations:</p>
+<p>The stack and heap modules support four standards operations:</p>
 <ul>
-<li><code>push</code>: push element into a stack</li>
-<li><code>pop</code>: pops the top element in stack. It returns None if the stack is empty</li>
-<li><code>peek</code>: returns the value of top element in stack but it does not remove the element from the stack. <code>None</code> is returned if the stack is empty.</li>
-<li><code>is_empty</code>: returns true if the stack is empty</li>
+<li><code>push</code>: push element into a stack/heap</li>
+<li><code>pop</code>: pops the top element in stack/heap. It returns None if the container is empty</li>
+<li><code>peek</code>: returns the value of top element in stack/heap but it does not remove the element from the stack. <code>None</code> is returned if the container is empty.</li>
+<li><code>is_empty</code>: returns true if the stack/heap is empty</li>
 </ul>
-<p>The stack data structure is used in many places in Owl. In the <code>filteri</code> operation in ndarray module,</p>
+<p>The stack data structure is used in many places in Owl: the <code>filteri</code> operation in ndarray module, the topological sort in graph, the reading file IO operation for keeping the content from all the lines, the data frame… The heap structure is used in key functions such as <code>search_top_elements</code> in the Ndarray module, which searches the indices of top values in input ndarray according to the comparison function.</p>
 </section>
 <section class="level2" id="count-min-sketch">
 <h2>Count-Min Sketch</h2>
