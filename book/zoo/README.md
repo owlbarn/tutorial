@@ -434,6 +434,10 @@ $[0, 10]$. For both $sin(x)$ and $x^3 -2x^2 + 2$, we can see that
 JavaScript runs the slowest, but this time the `base-lib` slightly
 outperforms `owl-lib`.
 
+We further compare the performance of DNN, which requires large amount of computation. 
+We compare SqueezeNet and a VGG-like convolution network. 
+They have different sizes of weight and networks structure complexities.
+
     Time (ms) VGG                     SqueezeNet
 ------------- ----------------------- --------------------------
    owl-native 7.96 ($\pm$ 0.93)       196.26($\pm$ 1.12)
@@ -443,14 +447,9 @@ outperforms `owl-lib`.
    mirage-owl 8.09($\pm$ 0.08)        190.26($\pm$ 0.89)
   mirage-base 743.18 ($\pm$ 13.29)    13478.53 ($\pm$ 13.29)
    JavaScript 4325.50($\pm$ 447.22)   65545.75 ($\pm$ 629.10)
+
 : Inference Speed of Deep Neural Networks {#tbl:zoo:dnn}
 
-
-We further compare the performance of DNN, which requires large amount
-of computation. We compare SqueezeNet and a VGG-like convolution
-network. They have different sizes of weight and networks structure
-complexities.
-Table.
 
 [@tbl:zoo:dnn] shows that, though the performance difference
 between `owl-lib` and `base-lib` is not obvious, the former is much

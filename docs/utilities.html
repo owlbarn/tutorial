@@ -179,11 +179,24 @@ val topo_sort : 'a node array -&gt; 'a node array
 <p>Within Owl, the Graph module is heavily use to facilitate the Computation Graph module.</p>
 <p>TODO: Explain how it is used in CGraph.</p>
 </section>
-<section class="level2" id="stack-module">
-<h2>Stack Module</h2>
-</section>
-<section class="level2" id="heap-module">
-<h2>Heap Module</h2>
+<section class="level2" id="stack-and-heap-modules">
+<h2>Stack and Heap Modules</h2>
+<p>Both <em>Stack</em> and <em>Heap</em> are two common abstract data types for collection of elements. They are also used in Owl code. Similar to graph, they use generic types so that any data type can be plugged in. Here is the definition of a stack:</p>
+<div class="highlight">
+<pre><code class="language-clike">type 'a t =
+  { mutable used : int
+  ; mutable size : int
+  ; mutable data : 'a array
+  }</code></pre>
+</div>
+<p>The stack module supports four standards operations:</p>
+<ul>
+<li><code>push</code>: push element into a stack</li>
+<li><code>pop</code>: pops the top element in stack. It returns None if the stack is empty</li>
+<li><code>peek</code>: returns the value of top element in stack but it does not remove the element from the stack. <code>None</code> is returned if the stack is empty.</li>
+<li><code>is_empty</code>: returns true if the stack is empty</li>
+</ul>
+<p>The stack data structure is used in many places in Owl. In the <code>filteri</code> operation in ndarray module,</p>
 </section>
 <section class="level2" id="count-min-sketch">
 <h2>Count-Min Sketch</h2>

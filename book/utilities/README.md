@@ -241,11 +241,30 @@ Within Owl, the Graph module is heavily use to facilitate the Computation Graph 
 
 TODO: Explain how it is used in CGraph.
 
-## Stack Module
+## Stack and Heap Modules
 
+Both *Stack* and *Heap* are two common abstract data types for collection of elements.
+They are also used in Owl code.
+Similar to graph, they use generic types so that any data type can be plugged in. 
+Here is the definition of a stack:
 
-## Heap Module
+```
+type 'a t =
+  { mutable used : int
+  ; mutable size : int
+  ; mutable data : 'a array
+  }
+```
 
+The stack module supports four standards operations:
+
+- `push`: push element into a stack
+- `pop`: pops the top element in stack. It returns None if the stack is empty
+- `peek`: returns the value of top element in stack but it does not remove the element from the stack. `None` is returned if the stack is empty.
+- `is_empty`: returns true if the stack is empty
+
+The stack data structure is used in many places in Owl. 
+In the `filteri` operation in ndarray module, 
 
 ## Count-Min Sketch
 
