@@ -99,6 +99,147 @@ let train network =
 
 ## Graph Module
 
+The Graph module in Owl provides a general data structure to manipulate graphs. It is defined as:
+
+```ocaml
+type 'a node =
+  { mutable id : int
+  ; (* unique identifier *)
+    mutable name : string
+  ; (* name of the node *)
+    mutable prev : 'a node array
+  ; (* parents of the node *)
+    mutable next : 'a node array
+  ; (* children of the node *)
+    mutable attr : 'a (* indicate the validity *)
+  }
+```
+
+The attribution here is generic so that you can define your own graph where each node contains an integer, a string, or any data type you define. 
+This make the graph module extremely flexible. 
+
+Graph module provides a rich set of APIs.
+First, you can build a Graph using these methods:
+
+- `node ~id ~name ~prev ~next attr` creates a node with given id and name
+string. The created node is also connected to parents in ``prev`` and children
+in ``next``. The ``attr`` will be saved in ``attr`` field.
+
+- `connect parents children` connects a set of parents to a set of children.
+The created links are the Cartesian product of parents and children. In other
+words, they are bidirectional links between parents and children.
+Note that this function does not eliminate any duplicates in the array.
+
+- `connect_descendants parents children` connects parents to their children.
+This function creates unidirectional links from parents to children. In other
+words, this function save `children` to `parent.next` field.
+
+- `connect_ancestors parents children` connects children to their parents.
+This function creates unidirectional links from children to parents. In other
+words, this function save `parents` to `child.prev` field.
+
+- `remove_node x` removes node `x` from the graph by disconnecting itself
+from all its parent nodes and child nodes.
+
+- `remove_edge src dst` removes a link `src -> dst` from the graph. Namely,
+the corresponding entry of `dst` in `src.next` and `src` in `dst.prev`
+will be removed. Note that it does not remove [dst -> src] if there exists one.
+
+- `replace_child x y` replaces `x` with `y` in `x` parents. Namely, `x`
+parents now make link to `y` rather than `x` in `next` field.
+Note that the function does note make link from `y` to `x` children. Namely,
+the `next` field of `y` remains intact.
+
+
+Then, to obtain and update properties of a graph:
+
+```
+val id : 'a node -> int
+(** ``id x`` returns the id of node ``x``. *)
+
+val name : 'a node -> string
+(** ``name x`` returns the name string of node ``x``. *)
+
+val set_name : 'a node -> string -> unit
+(** ``set_name x s`` sets the name string of node ``x`` to ``s``. *)
+
+val parents : 'a node -> 'a node array
+(** ``parents x`` returns the parents of node ``x``. *)
+
+val set_parents : 'a node -> 'a node array -> unit
+(** ``set_parents x parents`` set ``x`` parents to ``parents``. *)
+
+val children : 'a node -> 'a node array
+(** ``children x`` returns the children of node ``x``. *)
+
+val set_children : 'a node -> 'a node array -> unit
+(** ``set_children x children`` sets ``x`` children to ``children``. *)
+
+val attr : 'a node -> 'a
+(** ``attr x`` returns the ``attr`` field of node ``x``. *)
+
+val set_attr : 'a node -> 'a -> unit
+(** ``set_attr x`` sets the ``attr`` field of node ``x``. *)
+```
+
+Similarly, you can get other properties of a graph use the other functions: 
+
+```
+
+val indegree : 'a node -> int
+(** ``indegree x`` returns the in-degree of node ``x``. *)
+
+val outdegree : 'a node -> int
+(** ``outdegree x`` returns the out-degree of node ``x``. *)
+
+val degree : 'a node -> int
+(** ``degree x`` returns the total number of links of ``x``. *)
+
+val num_ancestor : 'a node array -> int
+(** ``num_ancestor x`` returns the number of ancestors of ``x``. *)
+
+val num_descendant : 'a node array -> int
+(** ``num_descendant x`` returns the number of descendants of ``x``. *)
+
+val length : 'a node array -> int
+(** ``length x`` returns the total number of ancestors and descendants of ``x``. *)
+```
+
+Finally, we provide functions for traversing the graph in either Breadth-First order or Depth-First order. 
+You can also choose to iterate the descendants or ancestors of a given node. 
+
+```
+val iter_ancestors
+  :  ?order:order
+  -> ?traversal:traversal
+  -> ('a node -> unit)
+  -> 'a node array
+  -> unit
+(** Iterate the ancestors of a given node. *)
+
+val iter_descendants
+  :  ?order:order
+  -> ?traversal:traversal
+  -> ('a node -> unit)
+  -> 'a node array
+  -> unit
+(** Iterate the descendants of a given node. *)
+
+val iter_in_edges : ?order:order -> ('a node -> 'a node -> unit) -> 'a node array -> unit
+(** Iterate all the in-edges of a given node. *)
+
+val iter_out_edges : ?order:order -> ('a node -> 'a node -> unit) -> 'a node array -> unit
+(** Iterate all the out-edges of a given node. *)
+
+val topo_sort : 'a node array -> 'a node array
+(** Topological sort of a given graph using a DFS order. Assumes that the graph is acyclic.*)
+```
+
+You can also use functions: `filter_ancestors`, `filter_descendants`, `fold_ancestors`, `fold_descendants`, `fold_in_edges`, and `fold_out_edges` to perform fold or filter operations when iterating the graph.
+
+Within Owl, the Graph module is heavily use to facilitate the Computation Graph module. 
+
+TODO: Explain how it is used in CGraph.
 
 ## Stack Module
 
