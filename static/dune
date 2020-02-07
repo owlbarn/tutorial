@@ -43,6 +43,7 @@
         images/distributed/exp_accuracy_01.png
         images/distributed/exp_step_01.png
         images/distributed/exp_step_02.png
+        images/distributed/param_server.png
         images/distributed/proof_exp.png
         images/distributed/psp_00.png
         images/distributed/psp_01.png

@@ -11,24 +11,93 @@ Refer to [@wang2017probabilistic] for more detail.
 
 ## Actor System
 
+Introduction: Distributed computing engines etc.
 
-### Introduction
-
-Introduce the design of Actor, such as high order functions and composability with Owl.
-
-### Implementation
+### Design
 
 (TODO: the design of actor's functor stack; how network/barrier etc. are implemented as separated as different module. Connection with Mirage etc.)
 
-We have implemented PSP in the context of Owl.
-We use Owl in particular because we can use the OCaml functor system to build Actor, a system that abstracts over the computational model involved. The result is that composing Actor with Owl allows us to use functors to transform a sequential numerical application into a parallel version with minimal code modification.
+### Actor Engines 
 
+A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes.
+These compute nodes can be organised in various ways. 
 
 The Actor system has implemented core APIs in both map-reduce engine and parameter sever engine. Both map-reduce and parameter server engines need a (logical) centralised entity to coordinate all the nodes' progress.  To demonstrate PSP's capability to transform an existing barrier control method into its fully distributed version, we also extended the parameter server engine to peer-to-peer (p2p) engine. The p2p engine can be used to implement both data and model parallel applications, both data and model parameters can be (although not necessarily) divided into multiple parts then distributed over different nodes.
 
 Each engine has its own set of APIs. E.g., map-reduce engine includes `map`, `reduce`, `join`, `collect`, and etc.; whilst the peer-to-peer engine provides four major APIs: push, pull, schedule, barrier. It is worth noting there is one function shared by all the engines, i.e. barrier function which implements various barrier control mechanisms.
 
-As an example, we briefly introduce the interfaces in peer-to-peer engine.
+Next we will introduce these three different kinds of engines of Actor.
+
+### Map-Reduce Engine
+
+Following MapReduce [@dean2008mapreduce] programming model, nodes can be divided by tasks: either *map* or *reduce*. 
+A map function processes a key/value pair to generate a set of intermediate key/value pairs, and a reduce function aggregates all the intermediate key/value paris with the same key.
+Execution of this model can automatically be paralleled. Mappers compute in parallel while reducers receive the output from all mappers and combine to produce the accumulated result. 
+This parameter update is then broadcast to all nodes. 
+Details such as distributed scheduling, data divide, and communication in the cluster  are mostly transparent to the programmers so that they can focus on the logic of mappers and reducers in solving a problem within a large distributed system.
+
+
+We can use a simple example to demonstrate this point. (with illustration, not code)
+
+This simple functional style can be applied to a surprisingly wide range of applications. 
+
+Interfaces in Actor:
+
+```
+val map : ('a -> 'b) -> string -> string
+
+val reduce : ('a -> 'a -> 'a) -> string -> 'a option
+
+val fold : ('a -> 'b -> 'a) -> 'a -> string -> 'a
+
+val filter : ('a -> bool) -> string -> string
+
+val shuffle : string -> string
+
+val union : string -> string -> string
+
+val join : string -> string -> string
+
+val collect : string -> 'a list
+```
+
+
+Example of using Map-Reduce in Actor: we use the classic wordcount example.
+
+```
+module Ctx = Actor.Mapre
+
+let print_result x = List.iter (fun (k,v) -> Printf.printf "%s : %i\n" k v) x
+
+let stop_words = ["a";"are";"is";"in";"it";"that";"this";"and";"to";"of";"so";
+  "will";"can";"which";"for";"on";"in";"an";"with";"the";"-"]
+
+let wordcount () =
+  Ctx.init Sys.argv.(1) "tcp://localhost:5555";
+  Ctx.load "unix://data/wordcount.data"
+  |> Ctx.flatmap Str.(split (regexp "[ \t\n]"))
+  |> Ctx.map String.lowercase_ascii
+  |> Ctx.filter (fun x -> (String.length x) > 0)
+  |> Ctx.filter (fun x -> not (List.mem x stop_words))
+  |> Ctx.map (fun k -> (k,1))
+  |> Ctx.reduce_by_key (+)
+  |> Ctx.collect
+  |> List.flatten |> print_result;
+  Ctx.terminate ()
+
+let _ = wordcount ()
+```
+
+### Parameter Server Engine
+
+The Parameter Server topology proposed by [@li2014scaling] is similar: nodes are divided into servers holding the shared global view of the up-to-date model parameters, and workers, each holding its own view of the model and executing training. The workers and servers communicate in the format of key-value pairs.
+It is proposed to address of challenge of sharing large amount of parameters within a cluster. 
+The parameter server paradigm applies an asynchronous task model to educe the overall network bandwidth, and also allows for flexible consistency, resource management, and fault tolerance.
+
+Simple Example (distributed training) with illustration:
+[IMAGE](https://miro.medium.com/max/371/1*6VRMmXkY3On-PJh8vNRHww.png): Distributed training with Parameter Server (Src:[@li2014scaling])
+
+According to this example, we can see that the Parameter Server paradigm mainly consists of four APIs for the users.
 
 - `schedule`: decide what model parameters should be computed to update in this step. It can be either a local decision or a central decision.
 
@@ -38,49 +107,162 @@ As an example, we briefly introduce the interfaces in peer-to-peer engine.
 
 - `barrier`: decide whether to advance the local step. Various synchronisation methods can be implemented. Besides the classic BSP, SSP, and ASP, we also implement the proposed PSP within this interface.
 
-To obtain the aforementioned two pieces of information, we can organise the nodes into a structured overlay (e.g., chord or kademlia), the total number of nodes can be estimated by the density of each zone (i.e., a chunk of the name space with well-defined prefixes), given the node identifiers are uniformly distributed in the name space. Using a structured overlay in the design guarantees the following sampling process is correct, i.e., random sampling.
 
+The interfaces in Actor:
 
-## Actor Engines 
+```
+val start : ?barrier:barrier -> string -> string -> unit
+(** start running the model loop *)
 
-A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes.
-These compute nodes can be organised in various ways. 
+val register_barrier : ps_barrier_typ -> unit
+(** register user-defined barrier function at p2p server *)
 
+val register_schedule : ('a, 'b, 'c) ps_schedule_typ -> unit
+(** register user-defined scheduler *)
 
-### Map-Reduce Engine
+val register_pull : ('a, 'b, 'c) ps_pull_typ -> unit
+(** register user-defined pull function executed at master *)
 
-Following MapReduce [@dean2008mapreduce], nodes can be divided by tasks: either *map* or *reduce*. Mappers compute in parallel while Reducers receive the output from all mappers and combine to produce the accumulated result. This parameter update is then broadcast to all nodes. 
+val register_push : ('a, 'b, 'c) ps_push_typ -> unit
+(** register user-defined push function executed at worker *)
 
+val register_stop : ps_stop_typ -> unit
+(** register stopping criterion function *)
 
-Introduction + Application
+val get : 'a -> 'b * int
+(** given a key, get its value and timestamp *)
 
-Simple example for readers to to understand
+val set : 'a -> 'b -> unit
+(** given a key, set its value at master *)
 
-Implementation
+val keys : unit -> 'a list
+(** return all the keys in a parameter server *)
 
-Example of using Map-Reduce in Actor
+val worker_num : unit -> int
+(** return the number of workers, only work at server side *)
+```
 
-### Parameter Server Engine
+EXPLAIN
 
-The Parameter Server topology proposed by [@li2014scaling] is similar: nodes are divided into servers holding the shared global view of the up-to-date model parameters, and workers, each holding its own view of the model and executing training. The workers and servers communicate in the format of key-value pairs.
+Example of using PS in Actor :
 
-Introduction + Application
+```
+module PS = Actor_param
 
-Simple Example
+let schedule workers =
+  let tasks = List.map (fun x ->
+    let k, v = Random.int 100, Random.int 1000 in (x, [(k,v)])
+  ) workers in tasks
 
-Implementation
+let push id vars =
+  let updates = List.map (fun (k,v) ->
+    Owl_log.info "working on %i" v;
+    (k,v) ) vars in
+  updates
 
-Example of using PS in Actor 
+let test_context () =
+  PS.register_schedule schedule;
+  PS.register_push push;
+  PS.start Sys.argv.(1) Actor_config.manager_addr;
+  Owl_log.info "do some work at master node"
+
+let _ = test_context ()
+```
 
 ### Peer-to-Peer Engine
 
 In the above approaches the model parameter storage is managed by a set of centralised servers. In contrast, Peer-to-Peer (P2P) is a fully distributed structure, where each node contains its own copy of the model and nodes communicate directly with each other. 
+The benefit of this approach. 
 
-Introduction 
+Illustrate how distributed computing can be finished with P2P model, using a figure. 
 
-Implementation
+To obtain the aforementioned two pieces of information, we can organise the nodes into a structured overlay (e.g., chord or kademlia), the total number of nodes can be estimated by the density of each zone (i.e., a chunk of the name space with well-defined prefixes), given the node identifiers are uniformly distributed in the name space. Using a structured overlay in the design guarantees the following sampling process is correct, i.e., random sampling.
 
-Example of using P2P in Actor
+Implementation in Actor:
+
+```
+open Actor_types
+
+(** start running the model loop *)
+val start : string -> string -> unit
+
+(** register user-defined barrier function at p2p server *)
+val register_barrier : p2p_barrier_typ -> unit
+
+(** register user-defined pull function at p2p server *)
+val register_pull : ('a, 'b) p2p_pull_typ -> unit
+
+(** register user-defined scheduler at p2p client *)
+val register_schedule : 'a p2p_schedule_typ -> unit
+
+(** register user-defined push function at p2p client *)
+val register_push : ('a, 'b) p2p_push_typ -> unit
+
+(** register stopping criterion function at p2p client *)
+val register_stop : p2p_stop_typ -> unit
+
+(** given a key, get its value and timestamp *)
+val get : 'a -> 'b * int
+
+(** given a key, set its value at master *)
+val set : 'a -> 'b -> unit
+```
+
+EXPLAIN
+
+Example of using P2P in Actor (SGD):
+
+```
+open Owl
+open Actor_types
+
+
+module MX = Mat
+module P2P = Actor_peer
+
+...
+
+let schedule _context =
+  Owl_log.debug "%s: scheduling ..." !_context.master_addr;
+  let n = MX.col_num !_model in
+  let k = Stats.Rnd.uniform_int ~a:0 ~b:(n - 1) () in
+  [ k ]
+
+let push _context params =
+  List.map (fun (k,v) ->
+    Owl_log.debug "%s: working on %i ..." !_context.master_addr k;
+    let y = MX.col !data_y k in
+    let d = calculate_gradient 10 !data_x y v !gradfn !lossfn in
+    let d = MX.(d *$ !step_t) in
+    (k, d)
+  ) params
+
+let barrier _context =
+  Owl_log.debug "checking barrier ...";
+  true
+
+let pull _context updates =
+  Owl_log.debug "pulling updates ...";
+  List.map (fun (k,v,t) ->
+    let v0, _ = P2P.get k in
+    let v1 = MX.(v0 - v) in
+    k, v1, t
+  ) updates
+
+let stop _context = false
+
+let start jid =
+  P2P.register_barrier barrier;
+  P2P.register_schedule schedule;
+  P2P.register_push push;
+  P2P.register_pull pull;
+  P2P.register_stop stop;
+  Owl_log.info "P2P: sdg algorithm starts running ...";
+  P2P.start jid Actor_config.manager_addr
+```
+
+EXPLAIN
+
 
 ## Classic Synchronise Parallel 
 
