@@ -163,6 +163,10 @@
   {\par}
 % liang: pandoc pdf reference support stop
 
+% liang: other packages start
+\usepackage{wrapfig}
+% liang: other packages stop
+
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
 \makeatletter
@@ -198,7 +202,7 @@
   \texttt{liang.wang@cl.cam.ac.uk}
   \vspace{2em}
   \\
-  Zhao, Jianxin\\
+  Zhaoooo, Jianxin\\
   \texttt{jianxin.zhao@cl.cam.ac.uk}
 }
 
@@ -209,7 +213,9 @@
 
 \input{../book/dedication.tex}
 \newpage
-%\printindex
+
+\input{../book/author_bio.tex}
+\newpage
 
 \pdfbookmark{\contentsname}{toc}
 %%%\addtocontents{toc}{\protect{\pdfbookmark[0]{\contentsname}{toc}}}
