@@ -1,11 +1,20 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Differential Equations - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="differential-equations">
 <h1>Differential Equations</h1>
-<p>TODO: https://github.com/owlbarn/owl_ode</p>
 <section class="level2" id="what-is-an-ode">
 <h2>What Is An ODE</h2>
+<p>A differential equation is an equation for a function that relates the values of tfunction to the values of its derivatives. An <em>Ordinary Differential Equation</em> (ODE) is a differential equation that contains functions and their derivatives of a single variable.</p>
+<p>The <em>order</em> of an ODE is the highest order of derivatives included. A first-order differential equation can be generally written as:</p>
+<p><span class="math display">\[\frac{dy}{dx}=f(x,y),\]</span></p>
+<p>where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
 <section class="level3" id="exact-solutions">
 <h3>Exact Solutions</h3>
 <p>Some differential equations have solutions that can be written in an exact and closed form. We list 1-2 as example, but more can be seen in math textbooks.</p>
+<p><strong>Separable equations</strong>:</p>
+<p><span class="math display">\[P(y)\frac{dy}{dx} + Q(x) = 0,\]</span></p>
+<p>and it’s close form solution is:</p>
+<p><span class="math display">\[\int^{y}P(y)dy + \int^{x}Q(x)dx = C\]</span>.</p>
+<p><strong>Linear first-order equations</strong>:</p>
+<p><span class="math display">\[\frac{dy}{dx} + P(x)y = Q(x)\]</span></p>
 </section>
 </section>
 <section class="level2" id="how-to-solve-an-ode-numerically">
@@ -28,6 +37,7 @@
 <h2>A Concrete Example</h2>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
+<p>For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so. Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)</p>
 <p>REFER: matlab doc</p>
 </section>
 <section class="level3" id="solve-non-stiff-odes">
