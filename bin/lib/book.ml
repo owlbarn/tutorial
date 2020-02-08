@@ -258,7 +258,7 @@ let make_tex_inputs_page ?(repo_root=".") () : string Deferred.t =
   let to_tex t : Tex.t list =
       match t with
       | `part (part: Toc_tex.part) ->
-          [Tex.part part.title]::(List.map ~f:to_input part.chapters)
+          [Tex.part part.title; Tex.newpage]::(List.map ~f:to_input part.chapters)
       | `chapter s -> [to_input s]
   in
   List.map ~f:to_tex l
