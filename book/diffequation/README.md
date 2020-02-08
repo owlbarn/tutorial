@@ -35,6 +35,13 @@ $$\frac{dy}{dx} + P(x)y = Q(x)$$
 
 ## How To Solve An ODE Numerically
 
+This chapter should be built around examples:
+
+- make very clear what kind of problems we can solve at the beginning. Even MATLAB can only solve a certain kinds of ODEs, and that's no problem at all;
+- a lot of examples 
+- explain how these solvers work 
+- finally, real problems: compound interest, chemical reactions etc. and solve them.
+
 ### Owl-ODE
 
 TODO: how to use ODE; simple example of using Owl-ODE
