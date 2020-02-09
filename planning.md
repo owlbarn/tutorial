@@ -59,9 +59,3 @@ Our time is very limited. Pushing 5% a week should merely suffice for the very f
 - Matlab Tutorials https://www.mathworks.com/moler/chapters.html
 
 - Anything else 
-
-
-## Progress
-
-- 2020.02.08 ---- 317
-- 2020.02.09 ---- 319
