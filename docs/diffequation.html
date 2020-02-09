@@ -1,47 +1,53 @@
-<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Differential Equations - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="differential-equations">
-<h1>Differential Equations</h1>
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Ordinary Differential Equations - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="ordinary-differential-equations">
+<h1>Ordinary Differential Equations</h1>
 <section class="level2" id="what-is-an-ode">
 <h2>What Is An ODE</h2>
-<p>A differential equation is an equation for a function that relates the values of tfunction to the values of its derivatives. An <em>Ordinary Differential Equation</em> (ODE) is a differential equation that contains functions and their derivatives of a single variable.</p>
-<p>The <em>order</em> of an ODE is the highest order of derivatives included. A first-order differential equation can be generally written as:</p>
-<p><span class="math display">\[\frac{dy}{dx}=f(x,y),\]</span></p>
-<p>where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+<p>A <em>differential equation</em> is an equation that contains a function and one or more of its derivatives. It is studied ever since the invention of calculus, driven by the applications in mechanics, astronomy, and geometry. Currently it has become a important branch of mathematics study and its application is widely extended to biology, engineering, economics, and much more fields.</p>
+<p>In a differential equation, if the function and its derivatives are about only one variable, we call it an <em>Ordinary Differential Equation</em>(ODE). It is often used to model one-dimensional dynamical systems. Otherwise it is an <em>Partial Differential Equation</em>(PDE). In this chapter we focus on the former one.</p>
+<p>Generally, a ODE can be expressed as:</p>
+<p><span id="eq:diffequation:ode-def"><span class="math display">\[ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.\qquad(1)\]</span></span></p>
+<p>The differential equations model dynamic systems, and the initial status of the system is often known. That is called <em>initial values</em>. They can be represented as:</p>
+<p><span id="eq:diffequation:init"><span class="math display">\[y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,\qquad(2)\]</span></span></p>
+<p>where the <span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>, etc. are known. The highest order of derivatives that are used in eq.&nbsp;1 is the <em>order</em> of this differential equation. A first-order differential equation can be generally expressed as: <span class="math inline">\(\frac{dy}{dx}=f(x,y)\)</span>, where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
+<p>Solving eq.&nbsp;1 that fits given initial values as in eq.&nbsp;2 is called the <em>initial value problem</em>. Solving this kind of problems is the main target of many numerical ODE solvers.</p>
 <section class="level3" id="exact-solutions">
 <h3>Exact Solutions</h3>
-<p>Some differential equations have solutions that can be written in an exact and closed form. We list 1-2 as example, but more can be seen in math textbooks.</p>
+<p>Solving a differential equation is often complex, but we do not how to solve part of them. Before looking at the the solvers to a random ODEs, let’s turn to the math first and look at some ODE forms that we already have analytical close-form solution.</p>
 <p><strong>Separable equations</strong>:</p>
 <p><span class="math display">\[P(y)\frac{dy}{dx} + Q(x) = 0,\]</span></p>
 <p>and it’s close form solution is:</p>
 <p><span class="math display">\[\int^{y}P(y)dy + \int^{x}Q(x)dx = C\]</span>.</p>
 <p><strong>Linear first-order equations</strong>:</p>
 <p><span class="math display">\[\frac{dy}{dx} + P(x)y = Q(x)\]</span></p>
+<p>Solving ODE analytically is not the focus of solvers. REFER to classical math book (reference required) or full course for more detail.</p>
 </section>
 </section>
-<section class="level2" id="how-to-solve-an-ode-numerically">
-<h2>How To Solve An ODE Numerically</h2>
+<section class="level2" id="solving-an-ode-numerically">
+<h2>Solving An ODE Numerically</h2>
 <p>This chapter should be built around examples:</p>
 <ul>
 <li>make very clear what kind of problems we can solve at the beginning. Even MATLAB can only solve a certain kinds of ODEs, and that’s no problem at all;</li>
 <li>a lot of examples</li>
 <li>explain how these solvers work</li>
-<li>finally, real problems: compound interest, chemical reactions etc. and solve them.</li>
+<li>finally, real problems: compound interest, chemical reactions etc. and solve them. From textbooks; compare with analytical solutions.</li>
 </ul>
+<section class="level3" id="basic-methods">
+<h3>Basic Methods</h3>
+<p>REFER: NR book chapter. The basic methods to solve and ODE numrically.</p>
+</section>
 <section class="level3" id="owl-ode">
 <h3>Owl-ODE</h3>
 <p>TODO: how to use ODE; simple example of using Owl-ODE</p>
+<p>Install</p>
 </section>
 <section class="level3" id="choose-ode-solvers">
 <h3>Choose ODE solvers</h3>
-<p>TODO: introduce various solvers in Owl-ODE</p>
+<p>TODO: introduce various solvers in Owl-ODE with a lot of examples</p>
 </section>
 </section>
-<section class="level2" id="numerical-integration-of-ode">
-<h2>Numerical Integration of ODE</h2>
-<p>REFER: NR book chapter</p>
-<p>(Could be removed if not yet implemented)</p>
-</section>
-<section class="level2" id="a-concrete-example">
-<h2>A Concrete Example</h2>
+<section class="level2" id="solvers-in-action">
+<h2>Solvers in Action</h2>
+<p>Explain stiff vs.&nbsp;non-Stiff</p>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
 <p>For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so. Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)</p>
