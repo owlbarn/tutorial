@@ -39,6 +39,7 @@
         images/cgraph/owl_vision_pebble.png
         images/cgraph/plot_cgraph_01.png
         images/constant/metric_001.png
+        images/diffequation/plot_rk01.png
         images/distributed/barriers.png
         images/distributed/exp_accuracy_01.png
         images/distributed/exp_step_01.png

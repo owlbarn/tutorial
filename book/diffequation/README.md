@@ -114,35 +114,51 @@ Therefore, we can modify the Euler's method to use a "midpoint" in stepping, hop
 
 $$ s_1 = f(x_n, y_n),$$
 $$ s_2 = f(x_n + h/2, yn + s_1~h/2),$$ {#eq:diffequation:rk2}
-$$ y_{n+1} = y_n + \Delta~\frac{s_1/ + s_2}{2}.$$
+$$ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.$$
 
-This method is called the *Midpoint Method*, and we can also implement it in OCaml similarly:
+This method is called the *Midpoint Method*, and we can also implement it in OCaml similarly.
+Let's compare the performance of Euler and Midpoint in approximating the true result in [@eq:diffequation:example01_solution]:
 
 ```ocaml
-let x = ref 0.
-let y = ref 0.
-let step = 0.001
 let f x y = 2. *. x *. y +. x
+let f' x = 0.5 *. (Maths.exp (x *. x) -. 1.)
 
-let _ =
-  while !x <= 2. do 
-	let s1 = f !x !y in 
-	let s2 = f (!x +. step /. 2.) (!y +. step /. 2. *. s1) in 
-	y := !y +. step *. (s1 +. s2) /. 2.;
-	x := !x +. step
-  done 
+let euler step target = 
+	let x = ref 0. in
+	let y = ref 0. in
+	while !x <= target do 
+		y := !y +. step *. (f !x !y);
+		x := !x +. step
+	done;
+	!y
+
+let midpoint step target = 
+	let x = ref 0. in
+	let y = ref 0. in
+	while !x <= target do 
+		let s1 = f !x !y in 
+		let s2 = f (!x +. step /. 2.) (!y +. step /. 2. *. s1) in 
+		y := !y +. step *. (s1 +. s2) /. 2.;
+		x := !x +. step
+	done;
+	!y
+
+let _ = 
+	let target = 2.6 in 
+	let h = Plot.create "plot_rk01.png" in 
+	Plot.(plot_fun ~h ~spec:[ RGB (66,133,244); LineStyle 1; LineWidth 2.; Marker "*" ] f' 2. target);
+	Plot.(plot_fun ~h ~spec:[ RGB (219,68,55); LineStyle 2; LineWidth 2.; Marker "+" ] (euler 0.01) 2. target);
+	Plot.(plot_fun ~h ~spec:[ RGB (219,68,55); LineStyle 2; LineWidth 2.; Marker "." ] (euler 0.001) 2. target);
+	Plot.(plot_fun ~h ~spec:[ RGB (244,180,0); LineStyle 3; LineWidth 2.; Marker "+" ] (midpoint 0.01) 2. target);
+	Plot.(plot_fun ~h ~spec:[ RGB (244,180,0); LineStyle 3; LineWidth 2.; Marker "." ] (midpoint 0.001) 2. target);
+	Plot.(legend_on h ~position:NorthWest [|"Close-Form Solution"; "Euler (step = 0.01)"; 
+		"Euler (step = 0.001)"; "Midpoint (step = 0.01)"; "Midpoint (step = 0.001)"|]);
+	Plot.output h
 ```
 
-In 
+Let's see the result.
 
-
-Let's improve it a bit (Equations).
-
-```
-CODE
-```
-
-Let's see the result. Much better.
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png){widht=80%, #fig:diffequation:rk01}
 
 This is called a "midpoint" method.
 It has error estimation.
