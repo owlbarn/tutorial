@@ -65,7 +65,7 @@ let _ =
 <p>and the solution given by the previous numerical code is about <code>0.8591862</code>, which is pretty close to the true answer.</p>
 <p>However, this method is as easy as it is unsuitable to be used in practical applications. One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon. Also, it is not very stable, nor does it provide error estimate.</p>
 <p>Therefore, we can modify the Euler’s method to use a “midpoint” in stepping, hoping to curb the error in the update process:</p>
-<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span id="eq:diffequation:rk2"><span class="math display">\[ s_2 = f(x_n + h/2, yn + s_1~h/2),\qquad(5)\]</span></span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.\]</span></p>
+<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span id="eq:diffequation:rk2"><span class="math display">\[ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),\qquad(5)\]</span></span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.\]</span></p>
 <p>This method is called the <em>Midpoint Method</em>, and we can also implement it in OCaml similarly. Let’s compare the performance of Euler and Midpoint in approximating the true result in eq.&nbsp;4:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f x y = 2. *. x *. y +. x
@@ -105,11 +105,13 @@ let _ =
 </div>
 <p>Let’s see the result.</p>
 <figure>
-<img alt="" data-widht="80%," id="fig:diffequation:rk01" src="images/diffequation/plot_rk01.png"><figcaption>Figure 1: Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE</figcaption>
+<img alt="" id="fig:diffequation:rk01" title="plot_rk01" src="images/diffequation/plot_rk01.png"><figcaption>Figure 1: Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE</figcaption>
 </figure>
-<p>This is called a “midpoint” method. It has error estimation.</p>
-<p>Obviously, we don’t have to stop here. We can go to use four steps: Equations. We leave the implementation as exercise.</p>
-<p>What you have seen is the the <em>Runge-Kutta Method</em>. Its benefit: basic but competitive with other methods; stable and always succeeds; a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
+<p>We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method.</p>
+<p>Should we stop now? Do we find a perfect solution in midpoint method? Surely no! We can follow the existing trend and add more intermediate stages in the update sequence. For example, we can do this:</p>
+<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span class="math display">\[ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),\]</span> <span id="eq:diffequation:rk4"><span class="math display">\[ s_3 = f(x_n + \Delta~/2, yn + s_2~\Delta~/2),\qquad(6)\]</span></span> <span class="math display">\[ s_4 = f(x_n + \Delta, yn + s_3~\Delta),\]</span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.\]</span></p>
+<p>We won’t keep going on but you have seen the pattern. All these methods are called <em>Runge-Kutta Method</em>.</p>
+<p>Its benefit: basic but competitive with other methods; stable and always succeeds; a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
 <p>More advanced methods.</p>
 <p><code>ODE45</code>: explain how this method works; it’s always a good first choice.</p>
 <p>Bulirsch-Stoer: introduce briefly with one paragraph. We are not going to introduce them any further. Refer to NR book. Now it’s finally the time we use some tools.</p>

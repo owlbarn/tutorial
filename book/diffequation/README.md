@@ -113,7 +113,7 @@ Also, it is not very stable, nor does it provide error estimate.
 Therefore, we can modify the Euler's method to use a "midpoint" in stepping, hoping to curb the error in the update process:
 
 $$ s_1 = f(x_n, y_n),$$
-$$ s_2 = f(x_n + h/2, yn + s_1~h/2),$$ {#eq:diffequation:rk2}
+$$ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),$$ {#eq:diffequation:rk2}
 $$ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.$$
 
 This method is called the *Midpoint Method*, and we can also implement it in OCaml similarly.
@@ -158,18 +158,24 @@ let _ =
 
 Let's see the result.
 
-![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png){widht=80%, #fig:diffequation:rk01}
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=80%, #fig:diffequation:rk01}
 
-This is called a "midpoint" method.
-It has error estimation.
+We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method. 
+
+Should we stop now? Do we find a perfect solution in midpoint method? Surely no!
+We can follow the existing trend and add more intermediate stages in the update sequence. 
+For example, we can do this:
+
+$$ s_1 = f(x_n, y_n),$$
+$$ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),$$
+$$ s_3 = f(x_n + \Delta~/2, yn + s_2~\Delta~/2),$$ {#eq:diffequation:rk4}
+$$ s_4 = f(x_n + \Delta, yn + s_3~\Delta),$$
+$$ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.$$
 
 
-Obviously, we don't have to stop here. We can go to use four steps:
-Equations. 
-We leave the implementation as exercise. 
+We won't keep going on but you have seen the pattern.
+All these methods are called *Runge-Kutta Method*. 
 
-
-What you have seen is the the *Runge-Kutta Method*.
 Its benefit: basic but competitive with other methods; stable and always succeeds; a good choice especially when computing $f$ is not expensive. 
 
 More advanced methods. 
