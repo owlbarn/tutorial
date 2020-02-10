@@ -158,7 +158,7 @@ let _ =
 
 Let's see the result.
 
-![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=80%, #fig:diffequation:rk01}
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=70%}
 
 We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method. 
 
@@ -172,22 +172,31 @@ $$ s_3 = f(x_n + \Delta~/2, yn + s_2~\Delta~/2),$$ {#eq:diffequation:rk4}
 $$ s_4 = f(x_n + \Delta, yn + s_3~\Delta),$$
 $$ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.$$
 
+Here in each iteration four intermediate steps are computed, once at the initial point, once at the end, and twice at the midpoints.
+This method often more accurate than the midpoint method.
 
 We won't keep going on but you have seen the pattern.
-All these methods are called *Runge-Kutta Method*. 
+These seemingly mystical parameters are related to the term in Taylor series expansions.
+In the previous methods, e.g. Euler method, every time you update $y_n$ to $y_{n+1}$, an error is introduced into the approximation.
+The *order* of a method is the exponent of the smallest power of $\Delta$ that cannot be matched.
+All these methods are called *Runge-Kutta Method*.
+It's basic idea is to remove the errors order by order, using the correct set of coefficients.
+A higher order of error indicates smaller error.
 
-Its benefit: basic but competitive with other methods; stable and always succeeds; a good choice especially when computing $f$ is not expensive. 
+The Euler is the most basic form of Runge-Kutta method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2). 
+What [@eq:diffequation:rk4] shows is a fourth-order Runge-Kutta method (rk4).
+It is the most often used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing $f$ is not expensive. 
 
-More advanced methods. 
+However, as powerful as it may be, the classical `rk4` is still a native implementation, and a modern ODE solvers, though largely follows the same idea, adds more "ingredients". 
+For example, the step size should be adaptively updated instead of being const in our example. 
+Also, you may have seen solvers with names such as `ode45` in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.
 
-`ODE45`: explain how this method works; it's always a good first choice.
-
-Bulirsch-Stoer: introduce briefly with one paragraph.
-We are not going to introduce them any further. Refer to NR book.
-Now it's finally the time we use some tools. 
-
+Besides, other methods also exists. For example, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise.
+Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to [@press2007numerical] for more information.
 
 ### Owl-ODE
+
+Now it's finally the time we use some tools. 
 
 A general introduction of Owl-ODE. Its functionality and limit.
 
