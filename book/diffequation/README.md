@@ -60,20 +60,76 @@ This chapter should be built around examples:
 
 ### Basic Methods
 
-REFER: NR book chapter. The basic methods to solve and ODE numrically.
+Let's start with an example:
+
+equation 
+
+analytical solution
+
+Now how can we solve it numerically?
+
+The Euler method. Equations.
+
+Why it works. 
+
+Let's see an simple example:
+
+```
+CODE
+```
+
+Hmm, the result is ... kind of OK, but still large error, but the euler method does not provide an error estimate
+
+Let's improve it a bit (Equations).
+
+```
+CODE
+```
+
+Let's see the result. Much better.
+
+This is called a "midpoint" method.
+It has error estimation.
+
+
+Obviously, we don't have to stop here. We can go to use four steps:
+Equations. 
+We leave the implementation as exercise. 
+
+
+What you have seen is the the *Runge-Kutta Method*.
+Its benefit: basic but competitive with other methods; stable and always succeeds; a good choice especially when computing $f$ is not expensive. 
+
+More advanced methods. 
+
+`ODE45`: explain how this method works; it's always a good first choice.
+
+Bulirsch-Stoer: introduce briefly with one paragraph.
+We are not going to introduce them any further. Refer to NR book.
+Now it's finally the time we use some tools. 
 
 
 ### Owl-ODE
 
-TODO: how to use ODE; simple example of using Owl-ODE
+A general introduction of Owl-ODE. Its functionality and limit.
+
+The methods we have introduced are all included. 
 
 Install
 
+TODO: how to use ODE 
+
+One simple example
+
 ### Choose ODE solvers
 
-TODO: introduce various solvers in Owl-ODE with a lot of examples
+Question: "why cannot I just use a 'best' solver for all the questions?"
+
+Introduce various solvers in Owl-ODE with examples to show their pros and cons. 
 
 ## Solvers in Action
+
+Examples. A LOT of examples.
 
 Explain stiff vs. non-Stiff
 
@@ -87,3 +143,9 @@ REFER: matlab doc
 ### Solve Non-stiff ODEs
 
 REFER: matlab doc 
+
+## Exercise
+
+1. Implement `rk4` manually and apply to the same problem to compare it's effect.
+
+## References
