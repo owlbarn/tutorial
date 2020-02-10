@@ -45,6 +45,10 @@ $$\int^{y}P(y)dy + \int^{x}Q(x)dx = C$$.
 
 $$\frac{dy}{dx} + P(x)y = Q(x)$$
 
+It's solution is:
+
+EQUATION
+
 Solving ODE analytically is not the focus of solvers.
 REFER to classical math book (reference required) or full course for more detail.
 
@@ -62,23 +66,75 @@ This chapter should be built around examples:
 
 Let's start with an example:
 
-equation 
+$$y' = 2xy + x,$$ {#eq:diffequation:example01}
 
-analytical solution
+where the initial value is $y(0) = 0$.
+Without going deep into the whole math calculation process (hint: it's a separable first-order ODE), we give its analytical close-form solution:
 
-Now how can we solve it numerically?
+$$y = 0.5(\exp{x^2} - 1).$$ {#eq:diffequation:example01_solution}
 
-The Euler method. Equations.
+Now, pretending we don't know the solution in [@eq:diffequation:example01_solution], and we want to answer the question: what is $y$'s value when $x = 1$ (or any other value)?
+How can we solve it numerically?
 
-Why it works. 
+Meet the *Euler Method*, a first-order numerical procedure to solve initial value problems. This method proposes to approximate the function $y$ using a sequence of iterative steps:
 
-Let's see an simple example:
+$$ y_{n+1} = y_n + \Delta~f(x_n, y_n),$$
 
+where $\Delta$ is a certain step size.
+This method is really easy to be implemented in OCaml, as shown below. 
+
+```ocaml
+let x = ref 0.
+let y = ref 0.
+let target = 1.
+let step = 0.001
+let f x y = 2. *. x *. y +. x
+
+let _ = 
+  while !x <= target do 
+	y := !y +. step *. (f !x !y);
+	x := !x +. step
+  done
 ```
-CODE
+
+In this case, we know that the analytical solution at $x=1$ is $0.5(\exp{1^2} - 1$:
+
+```ocaml
+# (Owl_const.e -. 1.)/. 2.
+- : float = 0.859140914229522545
 ```
 
-Hmm, the result is ... kind of OK, but still large error, but the euler method does not provide an error estimate
+and the solution given by the previous numerical code is about `0.8591862`, which is pretty close to the true answer.
+
+However, this method is as easy as it is unsuitable to be used in practical applications.
+One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon.
+Also, it is not very stable, nor does it provide error estimate.
+
+Therefore, we can modify the Euler's method to use a "midpoint" in stepping, hoping to curb the error in the update process:
+
+$$ s_1 = f(x_n, y_n),$$
+$$ s_2 = f(x_n + h/2, yn + s_1~h/2),$$ {#eq:diffequation:rk2}
+$$ y_{n+1} = y_n + \Delta~\frac{s_1/ + s_2}{2}.$$
+
+This method is called the *Midpoint Method*, and we can also implement it in OCaml similarly:
+
+```ocaml
+let x = ref 0.
+let y = ref 0.
+let step = 0.001
+let f x y = 2. *. x *. y +. x
+
+let _ =
+  while !x <= 2. do 
+	let s1 = f !x !y in 
+	let s2 = f (!x +. step /. 2.) (!y +. step /. 2. *. s1) in 
+	y := !y +. step *. (s1 +. s2) /. 2.;
+	x := !x +. step
+  done 
+```
+
+In 
+
 
 Let's improve it a bit (Equations).
 
