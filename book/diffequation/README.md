@@ -113,7 +113,7 @@ Also, it is not very stable, nor does it provide error estimate.
 Therefore, we can modify the Euler's method to use a "midpoint" in stepping, hoping to curb the error in the update process:
 
 $$ s_1 = f(x_n, y_n),$$
-$$ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),$$ {#eq:diffequation:rk2}
+$$ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),$$ {#eq:diffequation:rk2}
 $$ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.$$
 
 This method is called the *Midpoint Method*, and we can also implement it in OCaml similarly.
@@ -167,9 +167,9 @@ We can follow the existing trend and add more intermediate stages in the update 
 For example, we can do this:
 
 $$ s_1 = f(x_n, y_n),$$
-$$ s_2 = f(x_n + \Delta~/2, yn + s_1~\Delta~/2),$$
-$$ s_3 = f(x_n + \Delta~/2, yn + s_2~\Delta~/2),$$ {#eq:diffequation:rk4}
-$$ s_4 = f(x_n + \Delta, yn + s_3~\Delta),$$
+$$ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),$$
+$$ s_3 = f(x_n + \Delta~/2, y_n + s_2~\Delta~/2),$$ {#eq:diffequation:rk4}
+$$ s_4 = f(x_n + \Delta, y_n + s_3~\Delta),$$
 $$ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.$$
 
 Here in each iteration four intermediate steps are computed, once at the initial point, once at the end, and twice at the midpoints.
