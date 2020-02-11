@@ -52,18 +52,20 @@ EQUATION
 Solving ODE analytically is not the focus of solvers.
 REFER to classical math book (reference required) or full course for more detail.
 
+### Reduce High-Order Equations
+
+Enough to support the examples in the rest of this chapters.
+
+### Linear Systems
+
+Many system involves not just one unknown functions $y$. 
+
+System of equations 
+Oscillator, two-body problem.
+
 ## Solving An ODE Numerically
 
-This chapter should be built around examples:
-
-- make very clear what kind of problems we can solve at the beginning. Even MATLAB can only solve a certain kinds of ODEs, and that's no problem at all;
-- a lot of examples 
-- explain how these solvers work 
-- finally, real problems: compound interest, chemical reactions etc. and solve them. From textbooks; compare with analytical solutions.
-
-
-### Basic Methods
-
+This section introduces the basic idea of solving the initial value problem numerically.
 Let's start with an example:
 
 $$y' = 2xy + x,$$ {#eq:diffequation:example01}
@@ -195,10 +197,6 @@ Besides, other methods also exists. For example, the Bulirsch-Stoer method is kn
 (TODO: Brief introduction of Adam and BDF.)
 Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to [@press2007numerical] for more information.
 
-### Linear Systems
-
-Oscillator, two-body problem
-
 ## Owl-ODE
 
 Obviously, we cannot just relies on these manual solutions every time in practical use. It's time we use some tools. 
@@ -207,6 +205,8 @@ Based on the computation functionalities and ndarray data structures in Owl, we 
 Without further due, let's see it how `owl-ode` package can be used to solve ODE problem.
 
 ### Example: Linear Oscillator System
+
+EXPLAIN: how the equation of Oscillator becomes this linear representation.
 
 Let's see how to solve a time independent linear dynamic system that contains two states:
 
@@ -259,7 +259,53 @@ We can visualise the oscillation according to the result:
 
 IMAGE
 
-### Example: Explicit ODE
+### Solver Structure
+
+Hope that you have gotten the gist of how to use `Owl-ode`.
+From these example, we can see that the `owl-ode` abstracts the initial value problems as four different parts:
+
+1. a function $f$ to shows how the system evolves in equation $y'(t) = f(y, t)$;
+2. a specification of the timespan;
+3. system initial values;
+4. and most importantly, a solver. 
+
+If you look at the signature of a solver:
+
+```
+val rk4 : (module Types.Solver
+    with type state = M.arr
+    and type f = M.arr -> float -> M.arr
+    and type step_output = M.arr * float
+    and type solve_output = M.arr * M.arr)
+```
+
+it clear indicates these different parts.
+Based on this uniform abstraction, you can choose a suitable solver and use it to solve many complex and practical ODE problems. 
+Note that due to the difference of solvers, the requirement of different solver varies. 
+Some requires the state to be two matrices, while others process data in a more general ndarray format.
+
+
+Here is a table that lists all the solvers that are currently supported by `owl-ode`.
+
+### Features and Limits 
+
+
+Its functionality and limit.
+
+The methods we have introduced are all included:
+The interfaces
+
+Install
+
+Limit 
+Explicit vs Implicit 
+
+## Examples of using Owl-ODE
+
+As with many good things in the world, Mastering solving ODE requires practice. 
+After getting to know `owl-ode` in the previous section, in this section we will demonstrate more examples of using this tool.
+
+### Explicit ODE
 
 Now that we have this powerful tool, we can use the solver in `owl-ode` to solve the motivative problem in [@eq:diffequation:example01] with simple code.
 
@@ -290,45 +336,21 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 
 (TODO: the result is not as expected from [@eq:diffequation:example01_solution] and previous manual solution. Find the reason)
 
-### Example: Two Body Problem
+### Another Explicit ODE
+
+Options: logistic equation, or compound interest, or both.
+
+### Two Body Problem
 
 ```
-
+CODE
 ```
 
-### Solver Structure
-
-From these example, we can see that the `owl-ode` abstracts the initial value problems as four different parts:
-
-1. a function $f$ to shows how the system evolves in equation $y'(t) = f(y, t)$;
-2. a specification of the timespan;
-3. system initial values;
-4. and most importantly, a solver. 
-
-If you look at the signature of a solver:
+### Lorenz Attractor
 
 ```
-  val rk4
-    : (module Types.Solver
-         with type state = M.arr
-          and type f = M.arr -> float -> M.arr
-          and type step_output = M.arr * float
-          and type solve_output = M.arr * M.arr)
+CODE
 ```
-
-### Features and Limits 
-
-Hope that you have gotten the gist of how to use `Owl-ode`.
-
-Its functionality and limit.
-
-The methods we have introduced are all included:
-The interfaces
-
-Install
-
-Limit 
-Explicit vs Implicit 
 
 ## Stiffness
 
