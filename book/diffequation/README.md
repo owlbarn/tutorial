@@ -52,6 +52,8 @@ EQUATION
 Solving ODE analytically is not the focus of solvers.
 REFER to classical math book (reference required) or full course for more detail.
 
+Explicit vs Implicit etc.: The three types of equations. This is important.
+
 ### Reduce High-Order Equations
 
 Enough to support the examples in the rest of this chapters.
@@ -285,20 +287,53 @@ Note that due to the difference of solvers, the requirement of different solver 
 Some requires the state to be two matrices, while others process data in a more general ndarray format.
 
 
-Here is a table that lists all the solvers that are currently supported by `owl-ode`.
-
 ### Features and Limits 
 
+`Owl-ode` provides a wide range to solvers. It implements native solvers and symplectic solvers which are based on the step-by-step update basic idea we have discussed. 
+Currently there are already many mature off-the-shelf tools for solving ODEs, we choose two of them: [sundials]((https://computing.llnl.gov/projects/sundials),) and [ODEPACK](https://computing.llnl.gov/casc/odepack/).
+Both methods are well implemented and widely used in practical use. (TODO: more information.)
 
-Its functionality and limit.
+- `sundials`: a SUite of Nonlinear and DIfferential/ALgebraic equation Solvers. It contains six solvers, and we interface to its `CVODE` solver for solving initial value problems for ordinary differential equation systems.
 
-The methods we have introduced are all included:
-The interfaces
+- `odepack`: ODEPACK is a collection of Fortran solvers for the initial value problem for ordinary differential equation systems. We interface to its LSODA solver which is for solving the explicit form ODE.
 
-Install
+For all these solvers, `owl-ode` provides an easy-to-use unified interface, as you have seen in the examples.
+[@tbl:diffequation:solvers] is a table that lists all the solvers that are currently supported by `owl-ode`.
 
-Limit 
-Explicit vs Implicit 
+| Solvers | Type | State | Function | Step | Note |
+| ------- | ---- | ----- | -------- | ---- | ---- |
+| `rk4`   | Native | `M.arr` | `M.arr -> float -> M.arr` | `M.arr * float` | |
+
+: Solvers provided by owl-ode and their types. {#tbl:diffequation:solvers}
+
+**Automatic inference of state dimensionality**
+
+(COPY)
+
+All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
+
+We also support temporal integration of matrices. That is, cases in which the state $y$ is a matrix of dimensions of dimensions `NxM`. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function `Native.D.to_state_array` which can be used to unflatten $ys$ into an array of matrices.
+
+**Custom Solvers**
+
+We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use `custom_cvode` as follows:
+
+```
+let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4 
+(* usage *)
+let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()
+```
+
+Here, we use the `cvode` function construct a solver module `Custom_Owl_Cvode`. 
+Similar helper functions like cvode have been also defined for native and symplectic solvers.
+
+**Multiple Backends**
+
+The owl-ode-base contains implementations that are purely written in OCaml. As such, they are compatible for use in Mirage OS or in conjunction with js_of_ocaml, where C library linking is not supported.
+
+**Limit**
+
+Note that currently the `owl-ode` is still at development phase. Due to lack of vector-valued root finding functions, it is limited to solving initial value problems for the explicit ODE of form $y' = f(y, x)$. 
 
 ## Examples of using Owl-ODE
 
@@ -359,7 +394,8 @@ Explain stiff vs. non-Stiff
 For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so.
 Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)
 
-**van der Pol Equation**
+**van der Pol Equation**:
+
 
 Sundails and odepack 
 

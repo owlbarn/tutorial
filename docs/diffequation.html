@@ -22,6 +22,7 @@
 <p>It’s solution is:</p>
 <p>EQUATION</p>
 <p>Solving ODE analytically is not the focus of solvers. REFER to classical math book (reference required) or full course for more detail.</p>
+<p>Explicit vs Implicit etc.: The three types of equations. This is important.</p>
 </section>
 <section class="level3" id="reduce-high-order-equations">
 <h3>Reduce High-Order Equations</h3>
@@ -175,14 +176,56 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
     and type solve_output = M.arr * M.arr)</code></pre>
 </div>
 <p>it clear indicates these different parts. Based on this uniform abstraction, you can choose a suitable solver and use it to solve many complex and practical ODE problems. Note that due to the difference of solvers, the requirement of different solver varies. Some requires the state to be two matrices, while others process data in a more general ndarray format.</p>
-<p>Here is a table that lists all the solvers that are currently supported by <code>owl-ode</code>.</p>
 </section>
 <section class="level3" id="features-and-limits">
 <h3>Features and Limits</h3>
-<p>Its functionality and limit.</p>
-<p>The methods we have introduced are all included: The interfaces</p>
-<p>Install</p>
-<p>Limit Explicit vs Implicit</p>
+<p><code>Owl-ode</code> provides a wide range to solvers. It implements native solvers and symplectic solvers which are based on the step-by-step update basic idea we have discussed. Currently there are already many mature off-the-shelf tools for solving ODEs, we choose two of them: <a href="(https://computing.llnl.gov/projects/sundials),">sundials</a> and <a href="https://computing.llnl.gov/casc/odepack/">ODEPACK</a>. Both methods are well implemented and widely used in practical use. (TODO: more information.)</p>
+<ul>
+<li><p><code>sundials</code>: a SUite of Nonlinear and DIfferential/ALgebraic equation Solvers. It contains six solvers, and we interface to its <code>CVODE</code> solver for solving initial value problems for ordinary differential equation systems.</p></li>
+<li><p><code>odepack</code>: ODEPACK is a collection of Fortran solvers for the initial value problem for ordinary differential equation systems. We interface to its LSODA solver which is for solving the explicit form ODE.</p></li>
+</ul>
+<p>For all these solvers, <code>owl-ode</code> provides an easy-to-use unified interface, as you have seen in the examples. tbl.&nbsp;1 is a table that lists all the solvers that are currently supported by <code>owl-ode</code>.</p>
+<div id="tbl:diffequation:solvers">
+<table>
+<caption>Table 1: Solvers provided by owl-ode and their types.</caption>
+<thead>
+<tr class="header">
+<th>Solvers</th>
+<th>Type</th>
+<th>State</th>
+<th>Function</th>
+<th>Step</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rk4</code></td>
+<td>Native</td>
+<td><code>M.arr</code></td>
+<td><code>M.arr -&gt; float -&gt; M.arr</code></td>
+<td><code>M.arr * float</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Automatic inference of state dimensionality</strong></p>
+<p>(COPY)</p>
+<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
+<p>We also support temporal integration of matrices. That is, cases in which the state <span class="math inline">\(y\)</span> is a matrix of dimensions of dimensions <code>NxM</code>. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function <code>Native.D.to_state_array</code> which can be used to unflatten <span class="math inline">\(ys\)</span> into an array of matrices.</p>
+<p><strong>Custom Solvers</strong></p>
+<p>We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
+<div class="highlight">
+<pre><code class="language-clike">let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4 
+(* usage *)
+let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()</code></pre>
+</div>
+<p>Here, we use the <code>cvode</code> function construct a solver module <code>Custom_Owl_Cvode</code>. Similar helper functions like cvode have been also defined for native and symplectic solvers.</p>
+<p><strong>Multiple Backends</strong></p>
+<p>The owl-ode-base contains implementations that are purely written in OCaml. As such, they are compatible for use in Mirage OS or in conjunction with js_of_ocaml, where C library linking is not supported.</p>
+<p><strong>Limit</strong></p>
+<p>Note that currently the <code>owl-ode</code> is still at development phase. Due to lack of vector-valued root finding functions, it is limited to solving initial value problems for the explicit ODE of form <span class="math inline">\(y' = f(y, x)\)</span>.</p>
 </section>
 </section>
 <section class="level2" id="examples-of-using-owl-ode">
@@ -233,7 +276,7 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 <h2>Stiffness</h2>
 <p>Explain stiff vs.&nbsp;non-Stiff</p>
 <p>For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so. Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)</p>
-<p><strong>van der Pol Equation</strong></p>
+<p><strong>van der Pol Equation</strong>:</p>
 <p>Sundails and odepack</p>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
