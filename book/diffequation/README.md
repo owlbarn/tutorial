@@ -81,7 +81,7 @@ Meet the *Euler Method*, a first-order numerical procedure to solve initial valu
 $$ y_{n+1} = y_n + \Delta~f(x_n, y_n),$$
 
 where $\Delta$ is a certain step size.
-This method is really easy to be implemented in OCaml, as shown below. 
+This method is really easy to be implemented in OCamla, as shown below. 
 
 ```ocaml
 let x = ref 0.
@@ -192,11 +192,132 @@ For example, the step size should be adaptively updated instead of being const i
 Also, you may have seen solvers with names such as `ode45` in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.
 
 Besides, other methods also exists. For example, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise.
+(TODO: Brief introduction of Adam and BDF.)
 Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to [@press2007numerical] for more information.
+
+### Linear Systems
+
+Oscillator, two-body problem
 
 ### Owl-ODE
 
-Now it's finally the time we use some tools. 
+Obviously, we cannot just relies on these manual solutions every time in practical use. It's time we use some tools. 
+Based on the computation functionalities and ndarray data structures in Owl, we provide the package *[owl_ode](https://github.com/owlbarn/owl_ode)" to perform the tasks of solving initial value problems.
+
+**Example 01: Linear Systems**
+
+Without further due, let's see it how `owl-ode` package can be used to solve ODE problem.
+
+Let's see how to solve a time independent linear dynamic system that contains two states:
+
+$$\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 & -1 \\ 2 & -3 \end{matrix} \right].$$ {#eq:diffequation:example_01}
+
+This equation represents an oscillator system.
+In this system, $y$ is the state of the system, and $t$ is time.
+The initial state at $t=0$ is $y_0 = \left[ -1, 1\right]^T$.
+Now we want to know the system state at $t=2$.
+The function can be expressed in Owl using the matrix module.
+
+```ocaml env=diffequation_example01
+let f y t = 
+  let a = [|[|1.; -1.|];[|2.; -3.|]|]|> Mat.of_arrays in
+  Mat.(a *@ y)
+```
+
+Next, we want to specify the timespan of this problem: from 0 to 2, at a step of 0.001.
+
+```
+let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 2.; dt=1E-3})
+```
+
+One last thing to solve the problem is of course the initial values:
+
+```ocaml env=diffequation_example01
+let y0 = Mat.of_array [|-1.; 1.|] 2 1
+```
+
+And finally we can provide all these information to the `rk4` solver in `Owl_ode` and get the answer:
+
+```
+let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.rk4 f x0 tspec ()
+
+val ts : Owl_dense_matrix_d.mat =
+
+   C0    C1    C2    C3    C4     C1996 C1997 C1998 C1999 C2000
+R0  0 0.001 0.002 0.003 0.004 ... 1.996 1.997 1.998 1.999     2
+
+val ys : Owl_dense_matrix_d.mat =
+
+   C0       C1       C2       C3       C4        C1996    C1997    C1998    C1999    C2000
+R0 -1   -1.002 -1.00399 -1.00599 -1.00798 ... -3.56302 -3.56451   -3.566 -3.56749 -3.56898
+R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.07707 -2.07798
+```
+
+The `rk4` solver is short for "forth-order Runge-Kutta Method" that we have introduced before.
+The results shows both the steps $ts$ and the system values at each step $ys$. 
+We can visualise the oscillation according to the result:
+
+IMAGE
+
+**Example 02: Simple ODE**
+
+Now that we have this powerful tool, we can use the solver in `owl-ode` to solve the motivative problem in [@eq:diffequation:example01] with simple code.
+
+```
+let f y t = Mat.(2. $* y *$ t +$ t)
+
+let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 1.; dt=1E-3})
+
+let y0 = Mat.zeros 1 1
+
+let solver = Owl_ode.Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
+
+let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()
+```
+
+The code is mostly similar to previous example, the only difference is that we can now try another solver provided: the `rk45` solver, with certain parameters specified. 
+You don't have to worry about what the `tol` or `dtmax` means for now.
+Note that this solver (and the previous one) requires input to be of type `mat` in Owl, and the function $f$ be of type `mat -> float -> mat`.
+The result is as expected:
+
+```
+# Mat.transpose ys
+- : Mat.mat =
+
+   C0    C1          C2          C3          C4        C996    C997    C998    C999   C1000
+R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71285 1.71828
+```
+
+(TODO: the result is not as expected from [@eq:diffequation:example01_solution] and previous manual solution. Find the reason)
+
+**Example 03: Linear ODE**
+
+```
+
+```
+
+**Solver Structure**
+
+From this example, we can see that the `owl-ode` abstract the initial value problems as four different parts:
+
+1. a function $f$ to shows how the system evolves in equation $y'(t) = f(y, t)$;
+2. a specification of the timespan;
+3. system initial values;
+4. and most importantly, a solver. 
+
+If you look at the signature of a solver:
+
+```
+  val rk4
+    : (module Types.Solver
+         with type state = M.arr
+          and type f = M.arr -> float -> M.arr
+          and type step_output = M.arr * float
+          and type solve_output = M.arr * M.arr)
+```
+
+Hope that you have gotten the gist of how to use `Owl-ode`.
+
 
 A general introduction of Owl-ODE. Its functionality and limit.
 
@@ -204,9 +325,6 @@ The methods we have introduced are all included.
 
 Install
 
-TODO: how to use ODE 
-
-One simple example
 
 ### Choose ODE solvers
 
