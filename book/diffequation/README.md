@@ -199,14 +199,14 @@ Discussion of these advanced numerical methods and techniques are beyond this bo
 
 Oscillator, two-body problem
 
-### Owl-ODE
+## Owl-ODE
 
 Obviously, we cannot just relies on these manual solutions every time in practical use. It's time we use some tools. 
 Based on the computation functionalities and ndarray data structures in Owl, we provide the package *[owl_ode](https://github.com/owlbarn/owl_ode)" to perform the tasks of solving initial value problems.
 
-**Example 01: Linear Systems**
-
 Without further due, let's see it how `owl-ode` package can be used to solve ODE problem.
+
+### Example: Linear Oscillator System
 
 Let's see how to solve a time independent linear dynamic system that contains two states:
 
@@ -259,7 +259,7 @@ We can visualise the oscillation according to the result:
 
 IMAGE
 
-**Example 02: Simple ODE**
+### Example: Explicit ODE
 
 Now that we have this powerful tool, we can use the solver in `owl-ode` to solve the motivative problem in [@eq:diffequation:example01] with simple code.
 
@@ -290,15 +290,15 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 
 (TODO: the result is not as expected from [@eq:diffequation:example01_solution] and previous manual solution. Find the reason)
 
-**Example 03: Linear ODE**
+### Example: Two Body Problem
 
 ```
 
 ```
 
-**Solver Structure**
+### Solver Structure
 
-From this example, we can see that the `owl-ode` abstract the initial value problems as four different parts:
+From these example, we can see that the `owl-ode` abstracts the initial value problems as four different parts:
 
 1. a function $f$ to shows how the system evolves in equation $y'(t) = f(y, t)$;
 2. a specification of the timespan;
@@ -316,38 +316,44 @@ If you look at the signature of a solver:
           and type solve_output = M.arr * M.arr)
 ```
 
+### Features and Limits 
+
 Hope that you have gotten the gist of how to use `Owl-ode`.
 
+Its functionality and limit.
 
-A general introduction of Owl-ODE. Its functionality and limit.
-
-The methods we have introduced are all included. 
+The methods we have introduced are all included:
+The interfaces
 
 Install
 
+Limit 
+Explicit vs Implicit 
 
-### Choose ODE solvers
-
-Question: "why cannot I just use a 'best' solver for all the questions?"
-
-Introduce various solvers in Owl-ODE with examples to show their pros and cons. 
-
-## Solvers in Action
-
-Examples. A LOT of examples.
+## Stiffness
 
 Explain stiff vs. non-Stiff
-
-### Solve Stiff ODEs
 
 For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so.
 Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)
 
-REFER: matlab doc 
+**van der Pol Equation**
+
+Sundails and odepack 
+
+### Solve Stiff ODEs
+
+example code and illustration
 
 ### Solve Non-stiff ODEs
 
-REFER: matlab doc 
+example code and illustration
+
+## Choose ODE solvers
+
+Question: "why cannot I just use a 'best' solver for all the questions?"
+
+Introduce various solvers in Owl-ODE and states their pros and cons. 
 
 ## Exercise
 

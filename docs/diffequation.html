@@ -120,11 +120,13 @@ let _ =
 <h3>Linear Systems</h3>
 <p>Oscillator, two-body problem</p>
 </section>
-<section class="level3" id="owl-ode">
-<h3>Owl-ODE</h3>
+</section>
+<section class="level2" id="owl-ode">
+<h2>Owl-ODE</h2>
 <p>Obviously, we cannot just relies on these manual solutions every time in practical use. It’s time we use some tools. Based on the computation functionalities and ndarray data structures in Owl, we provide the package *<a href="https://github.com/owlbarn/owl_ode">owl_ode</a>" to perform the tasks of solving initial value problems.</p>
-<p><strong>Example 01: Linear Systems</strong></p>
 <p>Without further due, let’s see it how <code>owl-ode</code> package can be used to solve ODE problem.</p>
+<section class="level3" id="example-linear-oscillator-system">
+<h3>Example: Linear Oscillator System</h3>
 <p>Let’s see how to solve a time independent linear dynamic system that contains two states:</p>
 <p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(7)\]</span></span></p>
 <p>This equation represents an oscillator system. In this system, <span class="math inline">\(y\)</span> is the state of the system, and <span class="math inline">\(t\)</span> is time. The initial state at <span class="math inline">\(t=0\)</span> is <span class="math inline">\(y_0 = \left[ -1, 1\right]^T\)</span>. Now we want to know the system state at <span class="math inline">\(t=2\)</span>. The function can be expressed in Owl using the matrix module.</p>
@@ -158,7 +160,9 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 </div>
 <p>The <code>rk4</code> solver is short for “forth-order Runge-Kutta Method” that we have introduced before. The results shows both the steps <span class="math inline">\(ts\)</span> and the system values at each step <span class="math inline">\(ys\)</span>. We can visualise the oscillation according to the result:</p>
 <p>IMAGE</p>
-<p><strong>Example 02: Simple ODE</strong></p>
+</section>
+<section class="level3" id="example-explicit-ode">
+<h3>Example: Explicit ODE</h3>
 <p>Now that we have this powerful tool, we can use the solver in <code>owl-ode</code> to solve the motivative problem in eq.&nbsp;3 with simple code.</p>
 <div class="highlight">
 <pre><code class="language-clike">let f y t = Mat.(2. $* y *$ t +$ t)
@@ -180,12 +184,16 @@ let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()</code></pre>
 R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71285 1.71828</code></pre>
 </div>
 <p>(TODO: the result is not as expected from eq.&nbsp;4 and previous manual solution. Find the reason)</p>
-<p><strong>Example 03: Linear ODE</strong></p>
+</section>
+<section class="level3" id="example-two-body-problem">
+<h3>Example: Two Body Problem</h3>
 <div class="highlight">
 <pre><code class="language-clike"></code></pre>
 </div>
-<p><strong>Solver Structure</strong></p>
-<p>From this example, we can see that the <code>owl-ode</code> abstract the initial value problems as four different parts:</p>
+</section>
+<section class="level3" id="solver-structure">
+<h3>Solver Structure</h3>
+<p>From these example, we can see that the <code>owl-ode</code> abstracts the initial value problems as four different parts:</p>
 <ol type="1">
 <li>a function <span class="math inline">\(f\)</span> to shows how the system evolves in equation <span class="math inline">\(y'(t) = f(y, t)\)</span>;</li>
 <li>a specification of the timespan;</li>
@@ -201,30 +209,35 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
           and type step_output = M.arr * float
           and type solve_output = M.arr * M.arr)</code></pre>
 </div>
+</section>
+<section class="level3" id="features-and-limits">
+<h3>Features and Limits</h3>
 <p>Hope that you have gotten the gist of how to use <code>Owl-ode</code>.</p>
-<p>A general introduction of Owl-ODE. Its functionality and limit.</p>
-<p>The methods we have introduced are all included.</p>
+<p>Its functionality and limit.</p>
+<p>The methods we have introduced are all included: The interfaces</p>
 <p>Install</p>
-</section>
-<section class="level3" id="choose-ode-solvers">
-<h3>Choose ODE solvers</h3>
-<p>Question: “why cannot I just use a ‘best’ solver for all the questions?”</p>
-<p>Introduce various solvers in Owl-ODE with examples to show their pros and cons.</p>
+<p>Limit Explicit vs Implicit</p>
 </section>
 </section>
-<section class="level2" id="solvers-in-action">
-<h2>Solvers in Action</h2>
-<p>Examples. A LOT of examples.</p>
+<section class="level2" id="stiffness">
+<h2>Stiffness</h2>
 <p>Explain stiff vs.&nbsp;non-Stiff</p>
+<p>For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so. Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)</p>
+<p><strong>van der Pol Equation</strong></p>
+<p>Sundails and odepack</p>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
-<p>For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so. Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)</p>
-<p>REFER: matlab doc</p>
+<p>example code and illustration</p>
 </section>
 <section class="level3" id="solve-non-stiff-odes">
 <h3>Solve Non-stiff ODEs</h3>
-<p>REFER: matlab doc</p>
+<p>example code and illustration</p>
 </section>
+</section>
+<section class="level2" id="choose-ode-solvers">
+<h2>Choose ODE solvers</h2>
+<p>Question: “why cannot I just use a ‘best’ solver for all the questions?”</p>
+<p>Introduce various solvers in Owl-ODE and states their pros and cons.</p>
 </section>
 <section class="level2" id="exercise">
 <h2>Exercise</h2>
