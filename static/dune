@@ -40,6 +40,7 @@
         images/cgraph/plot_cgraph_01.png
         images/constant/metric_001.png
         images/diffequation/plot_rk01.png
+        images/diffequation/vdp_odepack_stiff.png
         images/diffequation/vdp_sundials_nonstiff.png
         images/distributed/barriers.png
         images/distributed/exp_accuracy_01.png

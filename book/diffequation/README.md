@@ -162,7 +162,7 @@ let _ =
 
 Let's see the result.
 
-![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=70%}
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=50%, #fig:diffequation:plot_rk01}
 
 We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method. 
 
@@ -428,16 +428,18 @@ let van_der_pol mu =
     let y = Mat.to_array y in
     [| [| y.(1); mu *. (1. -. Maths.sqr y.(0)) *. y.(1) -.y.(0) |] |]
     |> Mat.of_arrays
-
-let y0 = Mat.of_array [| 0.02; 0.03 |] 1 2
-
-let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 ```
 
 
 ### Solve Non-Stiff ODEs
 
 ```
+let f_non_stiff = van_der_pol 1.
+
+let y0 = Mat.of_array [| 0.02; 0.03 |] 1 2
+
+let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
+
 let () =
   let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () in
   let fname = "vdp_sundials_nonstiff.png" in
@@ -458,7 +460,28 @@ let () =
 
 ### Solve Stiff ODEs
 
-example code and illustration
+Change the parameters to 
+
+```
+let f_stiff = van_der_pol 1000.
+let y0 = Mat.of_array [| 2.; 0. |] 1 2
+let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 3000.0 }
+
+let () =
+  let ts, ys = Ode.odeint (module Owl_ode_odepack.Lsoda) f_stiff y0 tspec () in
+  let fname = "vdp_odepack_stiff.png" in
+  let h = Plot.create fname in
+  let open Plot in
+  set_foreground_color h 0 0 0;
+  set_background_color h 255 255 255;
+  set_yrange h (-2.) 2.;
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] ts Mat.(col ys 1);
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 3 ] ts Mat.(col ys 0);
+  output h
+
+```
+
+![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=60%, #fig:diffequation:stiff }
 
 ## Choose ODE solvers
 
