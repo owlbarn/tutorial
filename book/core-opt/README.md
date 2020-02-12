@@ -8,6 +8,10 @@ Performance; everybody else do that: NumPy, julia
 
 ## How to Interface to C
 
+Using one detailed example to show the top-down way;
+
+Then use a new example to show what if you want to add a new operation, in a bottom-up way.
+
 ### Categorisation of Operations
 
 ### Template 

@@ -394,16 +394,69 @@ Explain stiff vs. non-Stiff
 For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so.
 Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)
 
-**van der Pol Equation**:
+TODO: explain clearly this idea and its implication.
+
+**Van der Pol Equation**:
+
+The Van der Pol equation is a good example to show both non-stiff and stiff cases.
+In dynamics, the Van der Pol oscillator is a non-conservative oscillator with non-linear damping.
+Its behaviour with time can be described with a high order ODE:
+
+$$y^{''} - \mu~(1-y^2)y' + y = 0,$$ {#eq:diffequation:vanderpol_0}
+
+where $\mu$ is a scalar parameter indicating the non-linearity and the strength of the damping.
+To make it solvable using our tool, we can change it into a pair of explicit one-order ODEs in a linear system:
+
+$$y_0^{'} = y_1,$$
+$$y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.$$ {#eq:diffequation:vanderpol_1}
+
+As we will show shortly, by varying the damping parameter, this group of equations can be either non-still or stiff. 
+
+We provide both stiff (`Owl_Cvode_Stiff`) and non-still (`Owl_Cvode`) solver by interfacing to Sundials, and the `LSODA` solver of ODEPACK can automatically switch between stiff and non-stiff algorithms.
+We will try both in the example.
+
+Here we provide the basic code that are shared by both cases, including the van der pol linear system, the initial states, and the timespan. 
+
+```
+open Owl
+open Owl_ode
+open Owl_ode.Types
+open Owl_plplot
+
+let van_der_pol mu =
+  fun y _t ->
+    let y = Mat.to_array y in
+    [| [| y.(1); mu *. (1. -. Maths.sqr y.(0)) *. y.(1) -.y.(0) |] |]
+    |> Mat.of_arrays
+
+let y0 = Mat.of_array [| 0.02; 0.03 |] 1 2
+
+let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
+```
 
 
-Sundails and odepack 
+### Solve Non-Stiff ODEs
+
+```
+let () =
+  let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () in
+  let fname = "vdp_sundials_nonstiff.png" in
+  let h = Plot.create ~n:2 ~m:1 fname in
+  let open Plot in
+  set_foreground_color h 0 0 0;
+  set_background_color h 255 255 255;
+  subplot h 0 0;
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] (Mat.col ys 0) (Mat.col ys 1);
+  subplot h 0 1;
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] ts Mat.(col ys 1);
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 3 ] ts Mat.(col ys 0);
+  output h
+
+```
+
+![Solving Non-Stiff Van der Pol equations with Sundial CVode solver.](images/diffequation/vdp_sundials_nonstiff.png "vdp_sundials_nonstiff"){#fig:diffequation:nonstiff}
 
 ### Solve Stiff ODEs
-
-example code and illustration
-
-### Solve Non-stiff ODEs
 
 example code and illustration
 
