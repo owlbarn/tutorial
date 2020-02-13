@@ -261,9 +261,42 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 </section>
 <section class="level3" id="two-body-problem">
 <h3>Two Body Problem</h3>
+<p>In classical mechanics, the <em>two-body problem</em> is to predict the motion of two massive objects. It is assumed that the only force that are considered comes from each other, and both objects are not affected by any other object. This problem can be seen in the astrodynamics where the objects of interests are planets, satellites, etc. under the influence of only gravitation. Another case is the trajectory of electron around Atomic nucleus in a atom.</p>
+<p>This classic problem is one of the earliest investigated mechanics problems, and was long solved from the age of Newton. It is also a typical integrable problem in classical mechanics. In this example, let’s consider a simplified version of this problem. We assume that the two objects interact on a 2-dimensional plane, and one of them is so much more massive than the other one that it can be thought of as being static (think about electron and nucleus) and sits at the zero point of a Cartesian coordinate system (0, 0) in the plane. In this system, let’s consider the trajectory of the lighter object. This “one-body” problem is basis of the two body problem. For many forces, including gravitational ones, a two-body problem can be divided into a pair of one-body problems.</p>
+<p>Given the previous assumption and newton’s equation, it can be <a href="https://people.sc.fsu.edu/~jburkardt/m_src/two_body_simulation/two_body_simulation.html">proved</a> that the location of the lighter object [<span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>] with regard to time <span class="math inline">\(t\)</span> can be described by:</p>
+<p><span class="math display">\[y_0^{''}(t) = -\frac{y_0}{r^3},\]</span> <span id="eq:diffequation:twobody"><span class="math display">\[y_1^{''}(t) = -\frac{y_1}{r^3},\qquad(8)\]</span></span></p>
+<p>where <span class="math inline">\(r=\sqrt{y_0^2 + y_1^2}\)</span>. These are a second-order ODEs, and to make it solvable using our tool, we need to make them into a first-order explicit ordinary differential equation system:</p>
+<p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:diffequation:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(9)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
+<p>Based on eq.&nbsp;9, we can build up our code as below:</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
+<pre><code class="language-clike">let f y _t = 
+  let y = Mat.to_array y in 
+  let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in 
+  let y0' = y.(2) in 
+  let y1' = y.(3) in
+  let y2' = -.y.(0) /. (Maths.pow r 3.) in 
+  let y3' = -.y.(1) /. (Maths.pow r 3.) in
+  [| [|y0'; y1'; y2'; y3'|] |] |&gt; Mat.of_arrays
+
+let y0 = Mat.of_array [|-1.; 0.; 0.5; 0.5|] 1 4
+let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 20.; dt=1E-2})
+let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 </div>
+<p>Here the <code>y0</code> provides initial status of the system: first two numbers denote the initial location of object, and the next two numbers indicate the initial momentum to this object. (TODO: check if this is true or a better word should be used.) After building the function, initial status, timespan, and solver, we can then solve the system and visualise it.</p>
+<div class="highlight">
+<pre><code class="language-clike">let _ = 
+  let ts, ys = Ode.odeint custom_solver f y0 tspec () in
+  let h = Plot.create "two_body.png" in
+  let open Plot in
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] (Mat.col ys 0) (Mat.col ys 1);
+  scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] (Mat.zeros 1 1) (Mat.zeros 1 1);
+  text ~h ~spec:[ RGB (51,51,51)] (-.0.3) 0. "Massive Object";
+  output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:50.0%" title="two-body" src="images/diffequation/two-body.png"><figcaption>The trajectory of lighter object orbiting the massive object in a simplified two-body problem</figcaption>
+</figure>
+<p>One example of this simplified two-body problem is the “planet-sun” system where a planet orbits the sun. Kepler’s law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse. The orbiting trajectory in the result visually follows this theory.</p>
 </section>
 <section class="level3" id="lorenz-attractor">
 <h3>Lorenz Attractor</h3>
@@ -279,9 +312,9 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 <p>TODO: explain clearly this idea and its implication.</p>
 <p><strong>Van der Pol Equation</strong>:</p>
 <p>The Van der Pol equation is a good example to show both non-stiff and stiff cases. In dynamics, the Van der Pol oscillator is a non-conservative oscillator with non-linear damping. Its behaviour with time can be described with a high order ODE:</p>
-<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(8)\]</span></span></p>
+<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(10)\]</span></span></p>
 <p>where <span class="math inline">\(\mu\)</span> is a scalar parameter indicating the non-linearity and the strength of the damping. To make it solvable using our tool, we can change it into a pair of explicit one-order ODEs in a linear system:</p>
-<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(9)\]</span></span></p>
+<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(11)\]</span></span></p>
 <p>As we will show shortly, by varying the damping parameter, this group of equations can be either non-still or stiff.</p>
 <p>We provide both stiff (<code>Owl_Cvode_Stiff</code>) and non-still (<code>Owl_Cvode</code>) solver by interfacing to Sundials, and the <code>LSODA</code> solver of ODEPACK can automatically switch between stiff and non-stiff algorithms. We will try both in the example.</p>
 <p>Here we provide the basic code that are shared by both cases, including the van der pol linear system, the initial states, and the timespan.</p>

@@ -377,9 +377,66 @@ Options: logistic equation, or compound interest, or both.
 
 ### Two Body Problem
 
+In classical mechanics, the *two-body problem* is to predict the motion of two massive objects. It is assumed that the only force that are considered comes from each other, and both objects are not affected by any other object. 
+This problem can be seen in the astrodynamics where the objects of interests are planets, satellites, etc. under the influence of only gravitation.
+Another case is the trajectory of electron around Atomic nucleus in a atom.
+
+This classic problem is one of the earliest investigated mechanics problems, and was long solved from the age of Newton. It is also a typical integrable problem in classical mechanics.
+In this example, let's consider a simplified version of this problem.
+We assume that the two objects interact on a 2-dimensional plane, and one of them is so much more massive than the other one that it can be thought of as being static (think about electron and nucleus) and sits at the zero point of a Cartesian coordinate system (0, 0) in the plane.
+In this system, let's consider the trajectory of the lighter object. 
+This "one-body" problem is basis of the two body problem. For many forces, including gravitational ones, a two-body problem can be divided into a pair of one-body problems. 
+
+Given the previous assumption and newton's equation, it can be [proved](https://people.sc.fsu.edu/~jburkardt/m_src/two_body_simulation/two_body_simulation.html) that the location of the lighter object [$y_0$, $y_1$] with regard to time $t$ can be described by:
+
+$$y_0^{''}(t) = -\frac{y_0}{r^3},$$
+$$y_1^{''}(t) = -\frac{y_1}{r^3},$$ {#eq:diffequation:twobody}
+
+where $r=\sqrt{y_0^2 + y_1^2}$. 
+These are a second-order ODEs, and to make it solvable using our tool, we need to make them into a first-order explicit ordinary differential equation system:
+
+$$y_0^{'} = y_2,$$
+$$y_1^{'} = y_3,$$
+$$y_2^{'} = -\frac{y_0}{r^3},$$ {#eq:diffequation:twobody_system}
+$$y_3^{'} = -\frac{y_1}{r^3},$$
+
+Based on [@eq:diffequation:twobody_system], we can build up our code as below:
+
 ```
-CODE
+let f y _t = 
+  let y = Mat.to_array y in 
+  let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in 
+  let y0' = y.(2) in 
+  let y1' = y.(3) in
+  let y2' = -.y.(0) /. (Maths.pow r 3.) in 
+  let y3' = -.y.(1) /. (Maths.pow r 3.) in
+  [| [|y0'; y1'; y2'; y3'|] |] |> Mat.of_arrays
+
+let y0 = Mat.of_array [|-1.; 0.; 0.5; 0.5|] 1 4
+let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 20.; dt=1E-2})
+let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
 ```
+
+Here the `y0` provides initial status of the system: first two numbers denote the initial location of object, and the next two numbers indicate the initial momentum to this object. (TODO: check if this is true or a better word should be used.)
+After building the function, initial status, timespan, and solver, we can then solve the system and visualise it.
+
+```
+let _ = 
+  let ts, ys = Ode.odeint custom_solver f y0 tspec () in
+  let h = Plot.create "two_body.png" in
+  let open Plot in
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] (Mat.col ys 0) (Mat.col ys 1);
+  scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] (Mat.zeros 1 1) (Mat.zeros 1 1);
+  text ~h ~spec:[ RGB (51,51,51)] (-.0.3) 0. "Massive Object";
+  output h
+```
+
+![The trajectory of lighter object orbiting the massive object in a simplified two-body problem](images/diffequation/two-body.png "two-body"){ width=60% #fig:diffequation:two-body }
+
+One example of this simplified two-body problem is the "planet-sun" system where a planet orbits the sun.
+Kepler's law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse.
+The orbiting trajectory in the result visually follows this theory.
+
 
 ### Lorenz Attractor
 
