@@ -18,6 +18,11 @@ RUN opam update -q && opam pin --dev-repo owl-symbolic
 
 RUN apt-get install -y texlive-full
 
+# install ode related stuff
+
+RUN apt-get install -y gfortran libsundials-dev
+RUN opam pin https://github.com/owlbarn/owl_ode.git
+
 # install owl-tutorials
 
 WORKDIR /home/opam/book
