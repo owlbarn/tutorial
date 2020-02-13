@@ -431,7 +431,7 @@ let _ =
   output h
 ```
 
-![The trajectory of lighter object orbiting the massive object in a simplified two-body problem](images/diffequation/two-body.png "two-body"){ width=60% #fig:diffequation:two-body }
+![The trajectory of lighter object orbiting the massive object in a simplified two-body problem](images/diffequation/two-body.png "two-body"){ width=80% #fig:diffequation:two-body }
 
 One example of this simplified two-body problem is the "planet-sun" system where a planet orbits the sun.
 Kepler's law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse.
@@ -440,9 +440,135 @@ The orbiting trajectory in the result visually follows this theory.
 
 ### Lorenz Attractor
 
+Lorenz equations are one of the most thoroughly studied ODEs. 
+This system of ODEs is proposed by Edward Lorenz in 1963 to model flow of fluid (the air in particular) from hot area to cold area. 
+Lorenz simplified the numerous atmosphere factors into the simple equations below.
+
+$$x'(t) = \sigma~(y(t)- x(t))$$
+$$y'(t) = x(t)(\rho - z(t)) - y(t)$$ {#eq:diffequation:lorenz}
+$$z'(t) = x(t)y(t) - \beta~z(t)$$
+
+Here $x$ is proportional to the rate of convection in the atmospheric flow, $y$ and $z$ are proportional to the horizontal and vertical temperature variation. 
+Parameter $\sigma$ is the Prandtl number, and $\rho$ is the normalised Rayleigh number. 
+$\beta$ is related to the geometry of the domain.
+The most commonly used parameter values are: $\sigma = 10, \rho=20$, and $\beta = \frac{8}{3}$.
+Based on these information, we can use `owl-ode` to express the Lorenz equations with code. 
+
+```ocaml
+let sigma = 10.
+let beta = 8. /. 3.
+let rho = 28.
+
+let f y _t = 
+  let y = Mat.to_array y in 
+  let y0' = sigma *. (y.(1) -. y.(0)) in
+  let y1' = y.(0) *. (rho -. y.(2)) -. y.(1) in
+  let y2' = y.(0) *. y.(1) -. beta *. y.(2) in
+  [| [|y0'; y1'; y2'|] |] |> Mat.of_arrays
 ```
-CODE
+
+We set the initial values of the system to `-1`, `-1`, and `1` respectively. 
+The simulation timespan is set to 30 seconds, and keep using the `rk45` solver. 
+
 ```
+let y0 = Mat.of_array [|-1.; -1.; 1.|] 1 3
+let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 30.; dt=1E-2})
+let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
+```
+
+Now, we can solve the ODEs system and visualise the results. 
+In the plots, we first show how the value of $x$, $y$ and $z$ changes with time; next we show the phase plane plots between each two of them. 
+
+```
+let _ = 
+  let ts, ys = Ode.odeint custom_solver f y0 tspec () in
+  let h = Plot.create ~m:2 ~n:2 "lorenz_01.png" in
+  let open Plot in
+  subplot h 0 0;
+  set_xlabel h "time";
+  set_ylabel h "value on three axes";
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] ts (Mat.col ys 2);
+  plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 1 ] ts (Mat.col ys 1);
+  plot ~h ~spec:[ RGB (244, 180,  0); LineStyle 1 ] ts (Mat.col ys 0);
+  subplot h 0 1;
+  set_xlabel h "x-axis";
+  set_ylabel h "y-axis";
+  plot ~h ~spec:[ RGB (66, 133, 244) ] (Mat.col ys 0) (Mat.col ys 1);
+  subplot h 1 0;
+  set_xlabel h "y-axis";
+  set_ylabel h "z-axis";
+  plot ~h ~spec:[ RGB (66, 133, 244) ] (Mat.col ys 1) (Mat.col ys 2);
+  subplot h 1 1;
+  set_xlabel h "x-axis";
+  set_ylabel h "z-axis";
+  plot ~h ~spec:[ RGB (66, 133, 244) ] (Mat.col ys 0) (Mat.col ys 2);
+  output h
+```
+
+![Three components and phase plane plots of Lorenz attractor](images/diffequation/lorenz_01.png "lorenz_01"){ width=100% #fig:diffequation:lorenz_01 }
+
+From [@fig:diffequation:lorenz_01], we can image that the status of system keep going towards two "voids" in a three dimensional space, jumping from one to the other. 
+These two voids are a certain type of *attractors* in this dynamic system, where a system tends to evolve towards.
+
+Now, about Lorenz equation, there is an interesting question: "what would happen if I change the initial value slightly?" 
+For some systems, such as a pendulum, that wouldn't make much a difference, but not here. We can see that clearly in Owl.
+Keep function and timespan the same, let's change only 0.1% of initial value and then solve the system.
+
+```
+let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
+let y01 = Mat.of_array [|-1.001; -1.001; 1.001|] 1 3
+let ts0, ys0 = Ode.odeint custom_solver f y00 tspec ()
+let ts1, ys1 = Ode.odeint custom_solver f y01 tspec ()
+```
+
+To make later calculation easier, we can make the two resulting matrices to be of the same shape using slicing. 
+
+```
+let r0, c0 = Mat.shape ys0
+let r1, c1 = Mat.shape ys1
+let r  = if (r0 < r1) then r0 else r1
+let ts = if (r0 < r1) then ts0 else ts1
+let ys0 = Mat.get_slice [[0; r-1]; []] ys0
+let ys1 = Mat.get_slice [[0; r-1]; []] ys1
+```
+
+Now, we can compare the euclidean distance between the status of these two systems at certain time. Also, we shows the value change of three components with time after changing initial values.
+
+```
+let _ = 
+  (* plot the distance between two systems *)
+  let h = Plot.create ~m:1 ~n:2 "lorenz_02.png" in
+  let open Plot in
+  subplot h 0 0;
+  set_xlabel h "time";
+  set_ylabel h "value on three axes";
+  plot ~h ~spec:[ RGB (244, 180,  0); LineStyle 1 ] ts (Mat.col ys1 0);
+  plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 1 ] ts (Mat.col ys1 1);
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] ts (Mat.col ys1 2);
+  subplot h 0 1;
+  let diff = Mat.( 
+    sqr ((col ys0 0) - (col ys1 0)) +
+    sqr ((col ys0 1) - (col ys1 1)) +
+    sqr ((col ys0 2) - (col ys1 2)) 
+    |> sqrt
+  )
+  in 
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] ts diff;
+  set_xlabel h "time";
+  set_ylabel h "distance of two systems";
+  output h
+```
+
+![Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.](images/diffequation/lorenz_02.png "lorenz_02"){ width=100% #fig:diffequation:lorenz_02 }
+
+According to [@fig:diffequation:lorenz_02], the first figure shows that, initially the systems looks quite like that in [@fig:diffequation:lorenz_01], but after about 15 seconds, the system state begins to change. 
+This change is then quantified using the euclidean distance between these two systems. 
+Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. 
+You can try to extend the timespan longer, and the conclusion will still be similar.
+
+This result shows that, in the Lorenz system, even a tiny bit of change in the initial state can lead to a large and chaotic change of future state after a while. 
+It partly explains why weather prediction is difficult to do: you can only accurately predict the weather for a certain period of time, any day longer and the weather will be extremely sensitive to a tiny bit of perturbations at the beginning, such as ..., well, such as the flapping of the wings of a distant butterfly several weeks earlier. 
+You are right, the Lorenz equation is closely related to the idea we now call "butterfly effect" in the pop culture. 
 
 ## Stiffness
 

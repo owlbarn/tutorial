@@ -39,6 +39,8 @@
         images/cgraph/owl_vision_pebble.png
         images/cgraph/plot_cgraph_01.png
         images/constant/metric_001.png
+        images/diffequation/lorenz_01.png
+        images/diffequation/lorenz_02.png
         images/diffequation/plot_rk01.png
         images/diffequation/two-body.png
         images/diffequation/vdp_odepack_stiff.png
