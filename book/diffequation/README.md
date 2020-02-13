@@ -289,6 +289,8 @@ Some requires the state to be two matrices, while others process data in a more 
 
 ### Features and Limits 
 
+TODO: *EXPLAIN what is symplectic solver and how it can be fit into existing framework*.
+
 `Owl-ode` provides a wide range to solvers. It implements native solvers and symplectic solvers which are based on the step-by-step update basic idea we have discussed. 
 Currently there are already many mature off-the-shelf tools for solving ODEs, we choose two of them: [sundials]((https://computing.llnl.gov/projects/sundials),) and [ODEPACK](https://computing.llnl.gov/casc/odepack/).
 Both methods are well implemented and widely used in practical use. (TODO: more information.)
@@ -308,7 +310,7 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 
 **Automatic inference of state dimensionality**
 
-(COPY)
+(COPY ALERT)
 
 All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
 
@@ -371,9 +373,49 @@ R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71
 
 (TODO: the result is not as expected from [@eq:diffequation:example01_solution] and previous manual solution. Find the reason)
 
-### Another Explicit ODE
+### Damped Oscillation
 
-Options: logistic equation, or compound interest, or both.
+(TODO: check if the section title is suitable)
+
+TODO: explain the problem; explain why the symplectic solver is used.
+
+```
+let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
+  Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
+
+
+let a = 1.0
+let dt = 0.1
+
+let plot_sol fname t sol1 sol2 sol3 =
+  let open Owl in
+  let h = Plot.create fname in
+  let open Plot in
+  set_foreground_color h 0 0 0;
+  set_background_color h 255 255 255;
+  set_title h fname;
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
+  plot ~h ~spec:[ RGB (0, 255, 0); LineStyle 1 ] t (Mat.col sol2 0);
+  plot ~h ~spec:[ RGB (255, 0, 0); LineStyle 1 ] t (Mat.col sol3 0);
+  legend_on h ~position:NorthEast [| "Leapfrog"; "Ruth3"; "Symplectic Euler" |];
+  output h
+
+
+let () =
+  let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
+  let p0 = Owl.Mat.of_array [| 0.75 |] 1 1 in
+  let t0, duration = 0.0, 15.0 in
+  let f = damped_noforcing a in
+  let tspec = T1 { t0; duration; dt } in
+  let t, sol1, _ = Ode.odeint (module Symplectic.D.Leapfrog) f (x0, p0) tspec () in
+  let _, sol2, _ = Ode.odeint Symplectic.D.ruth3 f (x0, p0) tspec () in
+  let _, sol3, _ =
+    Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
+  in
+  plot_sol "damped.png" t sol1 sol2 sol3
+```
+
+IMAGE
 
 ### Two Body Problem
 
@@ -572,16 +614,13 @@ You are right, the Lorenz equation is closely related to the idea we now call "b
 
 ## Stiffness
 
-Explain stiff vs. non-Stiff
+*Stiffness* is an important concept in the numerical solution of ODE. 
+Think about a function that has a "cliff" where at a point its nearby value changes rapidly. 
+Therefore, to find the solution with normal method as we have used, it may requires such a extremely small stepping size that traversing the whole timespan may takes a very long time and lot of computation. 
 
-For some ODE problems, the step size taken by the solver is forced down to an unreasonably small level in comparison to the interval of integration, even in a region where the solution curve is smooth. These step sizes can be so small that traversing a short time interval might require millions of evaluations. This can lead to the solver failing the integration, but even if it succeeds it will take a very long time to do so.
-Equations that cause this behaviour in ODE solvers are said to be stiff. (Copy alert)
+TODO: the very basic idea of stiff algorithms. 
 
-TODO: explain clearly this idea and its implication.
-
-**Van der Pol Equation**:
-
-The Van der Pol equation is a good example to show both non-stiff and stiff cases.
+The **Van der Pol equation** is a good example to show both non-stiff and stiff cases.
 In dynamics, the Van der Pol oscillator is a non-conservative oscillator with non-linear damping.
 Its behaviour with time can be described with a high order ODE:
 
@@ -598,7 +637,7 @@ As we will show shortly, by varying the damping parameter, this group of equatio
 We provide both stiff (`Owl_Cvode_Stiff`) and non-still (`Owl_Cvode`) solver by interfacing to Sundials, and the `LSODA` solver of ODEPACK can automatically switch between stiff and non-stiff algorithms.
 We will try both in the example.
 
-Here we provide the basic code that are shared by both cases, including the van der pol linear system, the initial states, and the timespan. 
+Here we start with the basic function code that are shared by both cases.
 
 ```
 open Owl
@@ -616,6 +655,8 @@ let van_der_pol mu =
 
 ### Solve Non-Stiff ODEs
 
+When set the parameter to 1, the equation is a normal non-stiff one, and let's try to use the `Cvode` solver from sundials to do this job.
+
 ```
 let f_non_stiff = van_der_pol 1.
 
@@ -623,8 +664,14 @@ let y0 = Mat.of_array [| 0.02; 0.03 |] 1 2
 
 let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 
+let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () 
+```
+
+Everything seems normal. To see the "non-stiffness" clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. 
+The result is shown in [@fig:diffequation:nonstiff]. 
+
+```
 let () =
-  let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () in
   let fname = "vdp_sundials_nonstiff.png" in
   let h = Plot.create ~n:2 ~m:1 fname in
   let open Plot in
@@ -643,7 +690,10 @@ let () =
 
 ### Solve Stiff ODEs
 
-Change the parameters to 
+Change the parameters to 1000, and now this function becomes *stiff*. 
+We follow the same procedure as before, but now we use the `Lsoda` solver from odepack, and the timespan is extended to 3000.
+From [@fig:diffequation:stiff] we can see clearly what "stiff" means.
+Both lines in this figure contain very sharp "cliffs". 
 
 ```
 let f_stiff = van_der_pol 1000.
@@ -664,16 +714,19 @@ let () =
 
 ```
 
-![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=50% #fig:diffequation:stiff }
+![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=70% #fig:diffequation:stiff }
 
 ## Choose ODE solvers
 
 Question: "why cannot I just use a 'best' solver for all the questions?"
 
-Introduce various solvers in Owl-ODE and states their pros and cons. 
+TODO: Introduce the basic principles of how to choose solvers
+
 
 ## Exercise
 
 1. Implement `rk4` manually and apply to the same problem to compare it's effect.
+
+2. Solve logistic equation, or compound interest, or both. [Ref: Differential Equations by Jeffrey R. Chasnov]
 
 ## References
