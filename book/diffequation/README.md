@@ -664,7 +664,7 @@ let () =
 
 ```
 
-![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=60%, #fig:diffequation:stiff }
+![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=50% #fig:diffequation:stiff }
 
 ## Choose ODE solvers
 
