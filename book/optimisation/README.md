@@ -225,7 +225,7 @@ let _ =
   Plot.output h
 ```
 
-![The hump function and its derivative function](images/optimisation/plot_hump.png)
+![The hump function and its derivative function](images/optimisation/plot_hump.png)[ width=90% #fig:optimisation:hump ]
 
 And then you can find the extreme values using the root finding algorithm, such as Brent's:
 
@@ -280,7 +280,7 @@ A *descent method* is an iterative optimisation process.
 The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum. 
 This process can be illustrated in [@fig:optimisation:gradient]([source](https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf)).
 
-![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){#fig:optimisation:gradient} 
+![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){width=80% #fig:optimisation:gradient} 
 
 Therefore, we can describe the $n$-th iteration of descent method as:
 

@@ -314,7 +314,7 @@ NOTE: give an image illustration on what is random project, but no need to imple
 Only give a teaser here which goes like:
 "Linear Search does not rely on data structure, but is slow; matrix multiplication is paralleled version LS, faster, but still compute all the pairwise. If you want to simplify computation, you need to use index, and Random Projection is a widely used index method in industry. It is a big topic, and we will cover that in detail in the case chapter."
 
-![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% }
+![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% #fig:nlp:plot_01 }
 
 
 ## Conclusion

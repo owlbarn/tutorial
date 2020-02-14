@@ -205,7 +205,7 @@ For example, you can use Zoo to perform DNN-based image classification in only 6
 Based on these basic functionalities, we extend the Zoo system to address the composition and deployment challenges.
 First, we would like to briefly introduce the workflow of Zoo as shown in [@fig:zoo:workflow]. 
 
-![Zoo System Architecture](images/zoo/workflow.png){width=70%, #fig:zoo:workflow}
+![Zoo System Architecture](images/zoo/workflow.png){width=70% #fig:zoo:workflow}
 
 
 ### Services

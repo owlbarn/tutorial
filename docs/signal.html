@@ -249,7 +249,7 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 <p>FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.</p>
 <p>We use the famous Lena image as example:</p>
 <figure>
-<img alt="" id="fig:signal:lena" src="images/signal/lena.png"><figcaption>Figure 1: Lena</figcaption>
+<img alt="" style="width:50.0%" id="fig:signal:lena" src="images/signal/lena.png"><figcaption>Figure 1: Lena</figcaption>
 </figure>
 <p>As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.</p>
 <div class="highlight">
@@ -323,7 +323,7 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 <h3>FFT and Image Convolution</h3>
 <p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;2 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
-<img alt="" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 2: Image convolution illustration</figcaption>
+<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 2: Image convolution illustration</figcaption>
 </figure>
 <p>Owl has provided thorough support of convolution operation:</p>
 <div class="highlight">

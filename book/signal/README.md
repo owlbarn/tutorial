@@ -327,7 +327,7 @@ FFT on multi-dimensional signal is effective for image compression, because many
 
 We use the famous Lena image as example:
 
-![Lena](images/signal/lena.png){#fig:signal:lena}
+![Lena](images/signal/lena.png){width=50% #fig:signal:lena}
 
 As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1. 
 
@@ -456,7 +456,7 @@ The convolution in DNN is often applied on ndarrays.
 It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called "kernel" to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray.
 This process can be best illustrated with the [@fig:signal:conv] created by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
 
-![Image convolution illustration](images/signal/conv.png "conv"){width=90%, #fig:signal:conv}
+![Image convolution illustration](images/signal/conv.png "conv"){width=90% #fig:signal:conv}
 
 Owl has provided thorough support of convolution operation:
 

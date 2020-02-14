@@ -17,7 +17,7 @@ Though Owl currently does not plan to improve the low-level libraries it depends
 Currently many computers contain shared memory multiprocessors. OpenMP is used in key operations in libraries such as Eigen and MKL. Owl has also utilised OpenMP on many mathematical operations to boost their performance by threading calculation.
 For example, the figure below shows that when I apply the sine function on an ndarray in Owl, on a 4-core CPU MacBook, the OpenMP version only takes about a third of the execution time compared with the non-OpenMP version.
 
-![Compare performance of sin operations](images/aeos/sin_perf.png){#fig:aeos:sin_perf}
+![Compare performance of sin operations](images/aeos/sin_perf.png){width=80% #fig:aeos:sin_perf}
 
 However, performance improvement does not come for free. Overhead of using OpenMP comes from time spent on scheduling chunks of work to each thread, managing locks on critical sections, and startup time of creating threads, etc.
 Therefore, when the input ndarray is small enough, these overheads might overtake the benefit of threading.

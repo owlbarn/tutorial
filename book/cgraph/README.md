@@ -14,7 +14,7 @@ As a functional programmer, it is basic knowledge that a function takes an input
 
 Here is an example graph for calculating function `sin (x * y)`.
 
-![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=90%, #fig:cgraph:plot_01 }
+![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=90% #fig:cgraph:plot_01 }
 
 
 The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcasted on the matrix `x` of shape [8; 4] in `Mul` operation.
@@ -61,7 +61,7 @@ Owl implements the computation graph in a very unique and interesting way. Let's
 
 The computation graph is implemented in a very self-contained stack. I have devised a good way to "inject" it into Owl's original functor stack. If it sounds too abstract, please have a look at the final product in the following figure.
 
-![Computation graph functor stack in Owl](images/cgraph/owl_cgraph_functor_stack.png "owl_cgraph_functor_stack"){ width=90%, #fig:cgraph:functor }
+![Computation graph functor stack in Owl](images/cgraph/owl_cgraph_functor_stack.png "owl_cgraph_functor_stack"){ width=90% #fig:cgraph:functor }
 
 
 The left figure shows part of Owl's original functor stack, and the right one shows how the current one looks like after injection. We know the functor stack plays a central role in Owl's architecture. In the old design, Ndarray implements a set of fundamental n-dimensional array operations, then Algodiff defines abstract mathematical operations for differentiation, finally Optimise engine glues low-level maths with high-level deep neural network applications. The whole stack is parameterised by the number type abstraction in Ndarray.
@@ -96,15 +96,15 @@ The Optimiser functor searches for various structural patterns in a graph, remov
 
 *Constant folding* is a very basic pattern to reduce graph size. We can pre-calculate some subgraphs. For example, the inputs which node `#241` depends on are all constants, so the value of `#241` is already decided. We can fold all the constants to node `#241` before evaluating the whole graph.
 
-![Optimisation techniques in computation graph: constant folding](images/cgraph/owl_cgraph_opt_0.png "owl_cgraph_opt_0"){ width=90%, #fig:cgraph:opt_0 }
+![Optimisation techniques in computation graph: constant folding](images/cgraph/owl_cgraph_opt_0.png "owl_cgraph_opt_0"){ width=90% #fig:cgraph:opt_0 }
 
 *Fusing operations* can effectively reduce the round trips to the memory, which saves a lot of time when operating large ndarrys. In the figure below, nodes `#421`, `#463`, and `#464` are fused into one `fma` node (i.e. fused-multiply-add operation), which also improves numerical accuracy. Owl also recognises quite complicated patterns, e.g. pattern formed by nodes `#511` -- `#515` appears a lot in DNN training that uses Adagrad (Adaptive Subgradient Methods), the Optimiser is able to fuse all these operations into one-pass calculation.
 
-![Optimisation techniques in computation graph: fusing operations](images/cgraph/owl_cgraph_opt_1.png "owl_cgraph_opt_1"){ width=90%, #fig:cgraph:opt_1 }
+![Optimisation techniques in computation graph: fusing operations](images/cgraph/owl_cgraph_opt_1.png "owl_cgraph_opt_1"){ width=90% #fig:cgraph:opt_1 }
 
 In the next example, *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for `repeat` operation is also removed because `add` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
 
-![Optimisation techniques in computation graph: remove zero](images/cgraph/owl_cgraph_opt_2.png "owl_cgraph_opt_2"){ width=90%, #fig:cgraph:opt_2}
+![Optimisation techniques in computation graph: remove zero](images/cgraph/owl_cgraph_opt_2.png "owl_cgraph_opt_2"){ width=90% #fig:cgraph:opt_2}
 
 To understand how effective the Optimiser works, I present both the [original computation graph](images/cgraph/owl_cgraph_mnist_raw.png) and the [optimised graph](images/cgraph/owl_cgraph_mnist_opt.png) taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
 

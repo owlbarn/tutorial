@@ -45,7 +45,7 @@ Plot.output h;;</code></pre>
 </div>
 <p>Start your <code>utop</code>, then load and open <code>Owl</code> library. Copy and past the code above, the generated figure will look like this.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot00" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>Figure 1: Higher order derivatives</figcaption>
+<img alt="" style="width:90.0%" id="fig:algodiff:plot00" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>Figure 1: Higher order derivatives</figcaption>
 </figure>
 <p>If you replace <code>f0</code> in the previous example with the following definition, then you will have another good-looking figure :)</p>
 <div class="highlight">
@@ -117,7 +117,7 @@ Plot.plot_fun ~h g (-5.) 5.;
 Plot.output h;;</code></pre>
 </div>
 <figure>
-<img alt="" id="fig:algodiff:plot01" title="plot 01" src="images/algodiff/plot_01.png"><figcaption>Figure 2: Gradient descent</figcaption>
+<img alt="" style="width:90.0%" id="fig:algodiff:plot01" title="plot 01" src="images/algodiff/plot_01.png"><figcaption>Figure 2: Gradient descent</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-newtons-algorithm">
@@ -259,7 +259,7 @@ newton f (Mat.uniform 1 2)
 </div>
 <p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl’s example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot34" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>Figure 3: Mnist experiments on back propagation</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot34" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>Figure 3: Mnist experiments on back propagation</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-simple-functions">
@@ -280,7 +280,7 @@ newton f (Mat.uniform 1 2)
 </div>
 <p>The generated computation graph looks like this.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 4: Computation graph of a simple math function</figcaption>
+<img alt="" style="width:90.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 4: Computation graph of a simple math function</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-vgg-like-neural-network">
@@ -327,7 +327,7 @@ let make_network wndsz vocabsz =
 </div>
 <p>However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot30" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>Figure 6: Computation graph of LSTM network</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot30" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>Figure 6: Computation graph of LSTM network</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-googles-inception">
@@ -335,7 +335,7 @@ let make_network wndsz vocabsz =
 <p>If the computation graph above hasn’t scared you yet, here is another one generated from Google’s Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl’s zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
 <p>The image below is too small to check details, please download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf">PDF file 2</a>.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot31" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>Figure 7: Computation graph of the InceptionV3 neural network</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot31" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>Figure 7: Computation graph of the InceptionV3 neural network</figcaption>
 </figure>
 </section>
 </section>

@@ -162,7 +162,7 @@ let _ =
 
 Let's see the result.
 
-![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=50%, #fig:diffequation:plot_rk01}
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=80% #fig:diffequation:plot_rk01}
 
 We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method. 
 
@@ -686,7 +686,7 @@ let () =
 
 ```
 
-![Solving Non-Stiff Van der Pol equations with Sundial CVode solver.](images/diffequation/vdp_sundials_nonstiff.png "vdp_sundials_nonstiff"){#fig:diffequation:nonstiff}
+![Solving Non-Stiff Van der Pol equations with Sundial CVode solver](images/diffequation/vdp_sundials_nonstiff.png "vdp_sundials_nonstiff"){width=100% #fig:diffequation:nonstiff}
 
 ### Solve Stiff ODEs
 

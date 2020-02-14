@@ -139,9 +139,7 @@ let _ =
   Plot.set_ylabel h "f'(x)";
   Plot.output h</code></pre>
 </div>
-<figure>
-<img alt="" src="images/optimisation/plot_hump.png"><figcaption>The hump function and its derivative function</figcaption>
-</figure>
+<p><img alt="The hump function and its derivative function" src="images/optimisation/plot_hump.png">[ width=90% #fig:optimisation:hump ]</p>
 <p>And then you can find the extreme values using the root finding algorithm, such as Brent’s:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_maths_root.brent g' 0. 0.4;;
@@ -176,7 +174,7 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <p>Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter).</p>
 <p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
 <figure>
-<img alt="" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
+<img alt="" style="width:80.0%" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
 </figure>
 <p>Therefore, we can describe the <span class="math inline">\(n\)</span>-th iteration of descent method as:</p>
 <ol type="1">

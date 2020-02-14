@@ -50,7 +50,7 @@ Plot.output h;;
 
 Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
 
-![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90%, #fig:algodiff:plot00 }
+![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% #fig:algodiff:plot00 }
 
 If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
 
@@ -135,7 +135,7 @@ Plot.plot_fun ~h g (-5.) 5.;
 Plot.output h;;
 ```
 
-![Gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90%, #fig:algodiff:plot01 }
+![Gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90% #fig:algodiff:plot01 }
 
 ### Example : Newton's Algorithm
 
@@ -293,7 +293,7 @@ let backprop nn eta x y =
 
 Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in [backprop.ml](https://github.com/owlbarb/owl/blob/master/examples/backprop.ml).
 
-![Mnist experiments on back propagation](images/algodiff/plot_034.png "plot 034"){ width=100%, #fig:algodiff:plot34 }
+![Mnist experiments on back propagation](images/algodiff/plot_034.png "plot 034"){ width=100% #fig:algodiff:plot34 }
 
 
 ### Example: Computation Graph of Simple Functions
@@ -320,7 +320,7 @@ let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum
 
 The generated computation graph looks like this.
 
-![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=90%, #fig:algodiff:plot28 }
+![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=90% #fig:algodiff:plot28 }
 
 
 ### Example: Computation Graph of VGG-like Neural Network
@@ -371,7 +371,7 @@ let make_network wndsz vocabsz =
 
 However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
-![Computation graph of LSTM network ](images/algodiff/plot_030.png "plot 030"){ width=100%, #fig:algodiff:plot30}
+![Computation graph of LSTM network ](images/algodiff/plot_030.png "plot 030"){ width=100% #fig:algodiff:plot30}
 
 
 ### Example: Computation Graph of Google's Inception
@@ -381,4 +381,4 @@ If the computation graph above hasn't scared you yet, here is another one genera
 The image below is too small to check details, please download the [PDF file 2](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf).
 
 
-![Computation graph of the InceptionV3 neural network](images/algodiff/plot_031.png "plot 031"){ width=100%, #fig:algodiff:plot31}
+![Computation graph of the InceptionV3 neural network](images/algodiff/plot_031.png "plot 031"){ width=100% #fig:algodiff:plot31}

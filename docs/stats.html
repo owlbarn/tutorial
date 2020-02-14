@@ -46,7 +46,7 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 </div>
 <p>In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.</p>
 <figure>
-<img alt="" id="fig:stats:plot_02" title="plot 02" src="images/stats/plot_02.png"><figcaption>Figure 1: Probability density functions of two data sets</figcaption>
+<img alt="" style="width:90.0%" id="fig:stats:plot_02" title="plot 02" src="images/stats/plot_02.png"><figcaption>Figure 1: Probability density functions of two data sets</figcaption>
 </figure>
 <p>As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.</p>
 </section>
@@ -120,7 +120,7 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 </div>
 <p>The subfigure 1 shows the functional relation between <code>x</code> and <code>y</code> whilst the subfiture 2 shows the relation between <code>x</code> and <code>z</code>. Because we have added higher-level noise to <code>z</code>, the points in the second figure are more diffused.</p>
 <figure>
-<img alt="" id="fig:stats:plot_01" title="plot 01" src="images/stats/plot_01.png"><figcaption>Figure 2: Functional relation between <code>x</code> and the other two variables.</figcaption>
+<img alt="" style="width:90.0%" id="fig:stats:plot_01" title="plot 01" src="images/stats/plot_01.png"><figcaption>Figure 2: Functional relation between <code>x</code> and the other two variables.</figcaption>
 </figure>
 <p>Intuitively, we can easily see there is stronger relation between <code>x</code> and <code>y</code> from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between <code>x</code> and <code>y</code>, as well as the correlation between <code>x</code> and <code>z</code>. As we see, the smaller correlation value indicates weaker linear relation between <code>x</code> and <code>z</code> comparing to that between <code>x</code> and <code>y</code>.</p>
 <div class="highlight">

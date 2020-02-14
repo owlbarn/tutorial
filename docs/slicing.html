@@ -356,29 +356,86 @@ rotate90 x
 <section class="level3" id="supported-operations">
 <h3>Supported Operations</h3>
 <p>The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the following operations in Owl support broadcasting:</p>
-<div class="highlight">
-<pre><code class="language-text">
-==========================    ===========
-Function Name                 Operators
-==========================    ===========
-`add`                       `+`
-`sub`                       `-`
-`mul`                       `*`
-`div`                       `/`
-`pow`                       `**`
-`min2`
-`max2`
-`atan2`
-`hypot`
-`fmod`
-`elt_equal`                 `=.`
-`elt_not_equal`             `!=.` `&lt;&gt;.`
-`elt_less`                  `&lt;.`
-`elt_greater`               `&gt;.`
-`elt_less_equal`            `&lt;=.`
-`elt_greater_equal`         `&gt;=.`
-==========================    ===========
-</code></pre>
+<div id="tbl:slicing:broadcast">
+<table style="width:56%;">
+<caption>Table 1: Operators that supports broadcasting</caption>
+<colgroup>
+<col style="width: 38%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function Name</th>
+<th style="text-align: left;">Operators</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>add</code></td>
+<td style="text-align: left;"><code>+</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sub</code></td>
+<td style="text-align: left;"><code>-</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>mul</code></td>
+<td style="text-align: left;"><code>*</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div</code></td>
+<td style="text-align: left;"><code>/</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>pow</code></td>
+<td style="text-align: left;"><code>**</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>min2</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>max2</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>atan2</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>hypot</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>fmod</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>elt_equal</code></td>
+<td style="text-align: left;"><code>=.</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>elt_not_equal</code></td>
+<td style="text-align: left;"><code>!=.</code> <code>&lt;&gt;.</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>elt_less</code></td>
+<td style="text-align: left;"><code>&lt;.</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>elt_greater</code></td>
+<td style="text-align: left;"><code>&gt;.</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>elt_less_equal</code></td>
+<td style="text-align: left;"><code>&lt;=.</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>elt_greater_equal</code></td>
+<td style="text-align: left;"><code>&gt;=.</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 </section>

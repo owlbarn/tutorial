@@ -106,7 +106,7 @@ let _ =
 </div>
 <p>Let’s see the result.</p>
 <figure>
-<img alt="" id="fig:diffequation:plot_rk01" title="plot_rk01" src="images/diffequation/plot_rk01.png"><figcaption>Figure 1: Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE</figcaption>
+<img alt="" style="width:80.0%" id="fig:diffequation:plot_rk01" title="plot_rk01" src="images/diffequation/plot_rk01.png"><figcaption>Figure 1: Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE</figcaption>
 </figure>
 <p>We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method.</p>
 <p>Should we stop now? Do we find a perfect solution in midpoint method? Surely no! We can follow the existing trend and add more intermediate stages in the update sequence. For example, we can do this:</p>
@@ -489,7 +489,7 @@ let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () 
 </code></pre>
 </div>
 <figure>
-<img alt="" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 5: Solving Non-Stiff Van der Pol equations with Sundial CVode solver.</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 5: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
 </figure>
 </section>
 <section class="level3" id="solve-stiff-odes">

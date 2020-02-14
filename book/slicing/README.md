@@ -436,27 +436,39 @@ You can try `expand` by yourself, as below.
 
 The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the following operations in Owl support broadcasting:
 
-```text
-
-==========================    ===========
-Function Name                 Operators
-==========================    ===========
+--------------------------  -----------
+Function Name               Operators
+--------------------------  -----------
 `add`                       `+`
-`sub`                       `-`
-`mul`                       `*`
-`div`                       `/`
-`pow`                       `**`
-`min2`
-`max2`
-`atan2`
-`hypot`
-`fmod`
-`elt_equal`                 `=.`
-`elt_not_equal`             `!=.` `<>.`
-`elt_less`                  `<.`
-`elt_greater`               `>.`
-`elt_less_equal`            `<=.`
-`elt_greater_equal`         `>=.`
-==========================    ===========
 
-```
+`sub`                       `-`
+
+`mul`                       `*`
+
+`div`                       `/`
+
+`pow`                       `**`
+
+`min2`
+
+`max2`
+
+`atan2`
+
+`hypot`
+
+`fmod`
+
+`elt_equal`                 `=.`
+
+`elt_not_equal`             `!=.` `<>.`
+
+`elt_less`                  `<.`
+
+`elt_greater`               `>.`
+
+`elt_less_equal`            `<=.`
+
+`elt_greater_equal`         `>=.`
+--------------------------  -----------
+: Operators that supports broadcasting {#tbl:slicing:broadcast}

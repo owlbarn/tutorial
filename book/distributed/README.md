@@ -432,7 +432,7 @@ PSP shows another dimension of performance tuning. We set sample size $\beta$ to
 The same is also true when comparing pSSP and SSP.
 In both cases, PSP improves the iteration efficiency while limiting dispersion.
 
-![pBSP parameterised by different sample sizes, from 0 to 64.](images/distributed/exp_step_02.png){width=60%, #fig:distributed:exp_step_02}
+![pBSP parameterised by different sample sizes, from 0 to 64.](images/distributed/exp_step_02.png){width=60% #fig:distributed:exp_step_02}
 
 To further investigate the impact of sample size, we focus on BSP, and choose different sample sizes.
 In [@fig:distributed:exp_step_02] we vary the sample size from 0 to 64. As we increase the sample size step by step, the curves start shifting from right to left with tighter and tighter spread, indicating less variance in nodes' progress.
