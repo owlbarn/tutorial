@@ -193,19 +193,24 @@
 % liang: align title, authors to the left stop
 
 % liang: add draft waterprint to background start
-\usepackage{background}
-%\backgroundsetup{scale = 1, angle = 0, opacity = 0.2,
-%   contents = {\includegraphics[width = \paperwidth,
-%   height = \paperheight, keepaspectratio]
-%   {../../../static/images/asset/lorenz_cover.pdf}}}
+%\usepackage{background}
+\usepackage[pages=some, placement=bottom]{background}
+\backgroundsetup{scale = 1, angle = 0, opacity = 0.2,
+   contents = {\includegraphics[width = \paperwidth,
+   height = \paperheight, keepaspectratio]
+   {../../../static/images/asset/lorenz_cover.pdf}}}
 % liang: add draft waterprint to background stop
+
+% liang: add cover background start
+\usepackage{tikz}
+\usetikzlibrary{backgrounds,calc}
+% liang: add cover background stop
 
 
 \title{%
   \textbf{\fontsize{24}{24}\bfseries OCaml Scientific Computing}\\
   \vspace{5mm}
-  \large Functional Programming Meets Data Science \\
-  \large Version 1, PDF edition (WIP)
+  \large Functional Programming Meets Data Science
   \vspace{8cm}
   }
 
@@ -218,25 +223,38 @@
 
 \begin{document}
 
+% cover page
 \maketitle
+%\begin{tikzpicture}[remember picture,overlay]
+%  \begin{pgfonlayer}{background}
+%    \node[anchor=south east,outer sep=0pt,inner sep=0pt] at ($(current page.south east) +(-1in,1in)$) 
+%      {\includegraphics[width=12cm]{../../../static/images/asset/lorenz_cover.pdf}};
+%  \end{pgfonlayer}
+%\end{tikzpicture}
+\BgThispage
 \newpage
 
+% dedication page
 \input{../book/dedication.tex}
 \newpage
 
+% author bio page
 \input{../book/author_bio.tex}
 \newpage
 
+% table of content page
 \pdfbookmark{\contentsname}{toc}
 %%%\addtocontents{toc}{\protect{\pdfbookmark[0]{\contentsname}{toc}}}
 \tableofcontents
 \newpage
 
+% list of figures and tables page
 \listoffigures
 \newpage
 \listoftables
 \newpage
 
+% chapter pages
 \input{inputs.tex}
 \printindex
 
