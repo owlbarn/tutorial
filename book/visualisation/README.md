@@ -2,6 +2,8 @@
 
 TODO: refer to book [@tufte2001visual]
 
+TODO: some basic theory of color
+
 Owl is an OCaml numerical library. Besides its extensive supports to matrix operations, it also has a flexible plotting module. Owl's `Plot` module is designed to help you in making fairly complicated plots with minimal coding efforts. It is built atop of [Plplot[](http://plplot.sourceforge.net/index.php) but hides its complexity from users.
 
 The module is cross-platform since `Plplot` calls the underlying graphics device driver to plot. However, based on my experience, the [Cairo Package](https://cran.r-project.org/web/packages/Cairo/index.html) provides the best quality and most accurate figure so I recommend installing Cairo.

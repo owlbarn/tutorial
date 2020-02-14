@@ -271,7 +271,7 @@ They are also used in Owl code.
 Similar to graph, they use generic types so that any data type can be plugged in. 
 Here is the definition of a stack:
 
-```
+```ocaml
 type 'a t =
   { mutable used : int
   ; mutable size : int
@@ -291,7 +291,85 @@ the `filteri` operation in ndarray module,
 the topological sort in graph,
 the reading file IO operation for keeping the content from all the lines,
 the data frame...
-The heap structure is used in key functions such as `search_top_elements` in the Ndarray module, which searches the indices of top values in input ndarray according to the comparison function.
+The heap structure is used in key functions such as `search_top_elements` in the `Ndarray` module, which searches the indices of top values in input ndarray according to the comparison function.
 
 ## Count-Min Sketch
 
+*Count-Min Sketch* is a probabilistic data structure for computing approximate counts. It is particularly ideal for use when the space is limited and exact results are not required. 
+Imagine that we want to count how frequent certain elements are in a realtime stream, what would you do?
+An intuitive answer is that you can create a hash table, with the element as key and its count as value.
+The problem with this solution is that the stream could have millions and billions of elements. Even if you somehow manage to cut the long tail (such as the unique elements), the storage requirement is still terribly large. 
+
+Now that you think about it, you don't really care about the precise count of an element from the stream. What you really need is an estimation that is not very far away from the true. 
+That leaves space for optimising the solution.
+First, apply a hashing function and use `h(e)` as the key, instead of the element `e` itself. 
+Besides, the total number of key-value pairs cab be limited. 
+Towards the end, this approach can be summarised as three steps:
+
+1. initialised an array of $n$ elements, each set to 0;
+2. when processing one element $e$, increase the count of the hashed index: `count[h(e)] += 1`;
+3. when querying the count for certain element, just return `count[h(e)]`.
+
+Obviously, this approach tends to give an overestimated answer because of the inevitable collision in hash table. 
+Here the *Count-Min Sketch* method comes to help. 
+It's basic idea is simple: follow the process stated above, but the only difference is that now instead of maintaining a vector of length $n$, we now need to maintain a matrix of shape $dxn$, i.e. $d$ rows and $n$ columns. 
+Each row is assigned with a different hash function, and when processing one element $e$, apply $h_0, h_1, \ldots, h_d$ to it, and make $count[i][h_i(e)] += 1$, for each $i = 0, 1, 2, \ldots, d$.
+At any time if you want to know the count of an element $e$, you again apply the same set of hash functions, retrieve the $d$ counts of this element from all the rows, and choose the smallest count to return.
+This process is shown in [@fig:utilities:count-min] ([Src](https://blog.csdn.net/u012315428/article/details/79338773)).
+
+![Use Count-Min Sketch method for counting](images/utilities/count-min.png "count-min"){width=90% #fig:utilities:count-min }
+
+In this way, the effect of collision is reduced in the counting.
+The reason is simple: if these different hashing functions are independent, then the probability that the same element leads to collision in multiple lines can be exponentially reduced with more hash function used.
+
+Even though this method looks like just a heuristic, it actually provides an theoretical guarantee of its counting error.
+Specifically, we have two error bounds parameter: failure probability $\sigma$, and the approximation ratio $\epsilon$, and let $s$ be the sum of all counts stored in the data structure. 
+It can be proved that with a probability of $1-\sigma$, the error between the the estimated count and the true count is $\epsilon~s$ at most.
+The detailed proof can be see in the original paper [@cormode2005improved].
+
+Owl has provided this probabilistic data structure. 
+It is implemented by [Pratap Singh](https://pratap.dev/ocaml/owl/count-min-sketch/sublinear-algorithms/countmin-sketch/).
+Owl provides these interfaces for use:
+
+```
+module type Sig = sig
+  type 'a sketch
+  (** The type of Count-Min sketches *)
+
+  (** {6 Core functions} *)
+
+  val init : epsilon:float -> delta:float -> 'a sketch
+  (**
+``init epsilon delta`` initializes a sketch with approximation ratio
+``(1 + epsilon)`` and failure probability ``delta``.
+  *)
+
+  val incr : 'a sketch -> 'a -> unit
+  (** ``incr s x`` increments the frequency count of ``x`` in sketch ``s`` in-place. *)
+
+  val count : 'a sketch -> 'a -> int
+  (** ``count s x`` returns the estimated frequency of element ``x`` in ``s``. *)
+
+  val init_from : 'a sketch -> 'a sketch
+  (** 
+  ``init_from s`` initializes a new empty sketch with the same parameters as ``s``, which
+  can later be merged with ``s``.
+  *)
+
+  val merge : 'a sketch -> 'a sketch -> 'a sketch
+  (** 
+  ``merge s1 s2`` returns a new sketch whose counts are the sum of those in ``s1`` and ``s2``.
+  Raises ``INVALID_ARGUMENT`` if the parameters of ``s1`` and ``s2`` do not match.
+  *)
+end
+```
+
+TODO: a simple example of using it. (Perhaps also the benchmarking from blog)
+
+```
+CODE
+```
+
+
+Count-Min Sketch is a useful data structure when we are interested in the approximate counting of important objects in a group of things. 
+One such application is to find *heavy hitters*. For example, finding out the most popular web pages given a large website access log with a long history. (DETAIL)
