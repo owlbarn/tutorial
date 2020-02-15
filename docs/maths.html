@@ -1,24 +1,528 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Mathematical Functions - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="mathematical-functions">
 <h1>Mathematical Functions</h1>
+<p>Though the central data structure in Owl is <code>ndarray</code>, we provide support for scalar math functions.</p>
 <section class="level2" id="basic-functions">
 <h2>Basic Functions</h2>
+<p>Binary functions:</p>
+<div class="highlight">
+<pre><code class="language-clike">val add : float -&gt; float -&gt; float
+(** ``add x y`` returns :math:`x + y`. *)
+
+val sub : float -&gt; float -&gt; float
+(** ``sub x y`` returns :math:`x - y`. *)
+
+val mul : float -&gt; float -&gt; float
+(** ``mul x y`` returns :math:`x * y`. *)
+
+val div : float -&gt; float -&gt; float
+(** ``div x y`` returns :math:`x / y`. *)
+
+val fmod : float -&gt; float -&gt; float
+(** ``fmod x y`` returns :math:`x % y`. *)
+
+val atan2 : float -&gt; float -&gt; float
+(** ``atan2 y x`` returns :math:`\arctan(y/x)`, accounting for the sign of the arguments;
+ this is the angle to the vector :math:`(x, y)` counting from the x-axis. *)
+</code></pre>
+</div>
+<p>Unary functions with signature <code>val f : float -&gt; float</code></p>
+<table style="width:82%;">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>abs</code></td>
+<td style="text-align: left;"><code>|x|</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>neg</code></td>
+<td style="text-align: left;"><code>-x</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>reci</code></td>
+<td style="text-align: left;"><code>1/x</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>floor</code></td>
+<td style="text-align: left;">the largest integer that is smaller than <code>x</code></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight">
+<pre><code class="language-clike">al ceil : float -&gt; float
+(** ``ceil x`` returns the smallest integer :math:`\geq x`. *)
+
+val round : float -&gt; float
+(** ``round x`` rounds, towards the bigger integer when on the fence. *)
+
+val trunc : float -&gt; float
+(** ``trunc x`` integer part. *)
+
+val sqr : float -&gt; float
+(** ``sqr x`` square. *)
+
+val sqrt : float -&gt; float
+(** ``sqrt x`` square root. *)
+
+val pow : float -&gt; float -&gt; float
+(** ``pow x y`` returns :math:`x^y`. *)
+
+val exp : float -&gt; float
+(** ``exp x`` exponential. *)
+
+val exp2 : float -&gt; float
+(** ``exp2 x`` exponential. *)
+
+val exp10 : float -&gt; float
+(** ``exp10 x`` exponential. *)
+
+val expm1 : float -&gt; float
+(** ``expm1 x`` returns :math:`\exp(x) - 1` but more accurate for :math:`x \sim 0`. *)
+
+val log : float -&gt; float
+(** ``log x`` natural logarithm *)
+
+val log2 : float -&gt; float
+(** ``log2 x`` base-2 logarithm. *)
+
+val log10 : float -&gt; float
+(** ``log10 x`` base-10 logarithm. *)
+
+val logn : float -&gt; float -&gt; float
+(** ``logn x`` base-n logarithm. *)
+
+val log1p : float -&gt; float
+(** ``log1p x`` returns :math:`\log (x + 1)` but more accurate for :math:`x \sim 0`.
+ Inverse of ``expm1``. *)
+
+val logabs : float -&gt; float
+(** ``logabs x`` returns :math:`\log(|x|)`. *)
+
+val sigmoid : float -&gt; float
+(** ``sigmoid x`` returns the logistic sigmoid function
+:math:`1 / (1 + \exp(-x))`. *)
+
+val signum : float -&gt; float
+(** ``signum x`` returns the sign of :math:`x`: -1, 0 or 1. *)
+
+val softsign : float -&gt; float
+(** Smoothed sign function. *)
+
+val softplus : float -&gt; float
+(** ``softplus x`` returns :math:`\log(1 + \exp(x))`. *)
+
+val relu : float -&gt; float
+(** ``relu x`` returns :math:`\max(0, x)`. *)
+
+val sin : float -&gt; float
+(** ``sin x`` returns :math:`\sin(x)`. *)
+
+val cos : float -&gt; float
+(** ``cos x`` returns :math:`\cos(x)`. *)
+
+val tan : float -&gt; float
+(** ``tan x`` returns :math:`\tan(x)`. *)
+
+val cot : float -&gt; float
+(** ``cot x`` returns :math:`1/\tan(x)`. *)
+
+val sec : float -&gt; float
+(** ``sec x`` returns :math:`1/\cos(x)`. *)
+
+val csc : float -&gt; float
+(** ``csc x`` returns :math:`1/\sin(x)`. *)
+
+val asin : float -&gt; float
+(** ``asin x`` returns :math:`\arcsin(x)`. *)
+
+val acos : float -&gt; float
+(** ``acos x`` returns :math:`\arccos(x)`. *)
+
+val atan : float -&gt; float
+(** ``atan x`` returns :math:`\arctan(x)`. *)
+
+val acot : float -&gt; float
+(** Inverse function of ``cot``. *)
+
+val asec : float -&gt; float
+(** Inverse function of ``sec``. *)
+
+val acsc : float -&gt; float
+(** Inverse function of ``csc``. *)
+
+val sinh : float -&gt; float
+(** Returns :math:`\sinh(x)`. *)
+
+val cosh : float -&gt; float
+(** ``cosh x`` returns :math:`\cosh(x)`. *)
+
+val tanh : float -&gt; float
+(** ``tanh x`` returns :math:`\tanh(x)`. *)
+
+val coth : float -&gt; float
+(** ``coth x`` returns :math:`\coth(x)`. *)
+
+val sech : float -&gt; float
+(** ``sech x`` returns :math:`1/\cosh(x)`. *)
+
+val csch : float -&gt; float
+(** ``csch x`` returns :math:`1/\sinh(x)`. *)
+
+val asinh : float -&gt; float
+(** Inverse function of ``sinh``. *)
+
+val acosh : float -&gt; float
+(** Inverse function of ``cosh``. *)
+
+val atanh : float -&gt; float
+(** Inverse function of ``tanh``. *)
+
+val acoth : float -&gt; float
+(** Inverse function of ``coth``. *)
+
+val asech : float -&gt; float
+(** Inverse function of ``sech``. *)
+
+val acsch : float -&gt; float
+(** Inverse function of ``csch``. *)
+
+val sinc : float -&gt; float
+(** ``sinc x`` returns :math:`\sin(x)/x` and :math:`1` for :math:`x=0`. *)
+
+val logsinh : float -&gt; float
+(** ``logsinh x`` returns :math:`\log(\sinh(x))` but handles large :math:`|x|`. *)
+
+val logcosh : float -&gt; float
+(** ``logcosh x`` returns :math:`\log(\cosh(x))` but handles large :math:`|x|`. *)
+
+val sindg : float -&gt; float
+(** Sine of angle given in degrees. *)
+
+val cosdg : float -&gt; float
+(** Cosine of the angle given in degrees. *)
+
+val tandg : float -&gt; float
+(** Tangent of angle given in degrees. *)
+
+val cotdg : float -&gt; float
+(** Cotangent of the angle given in degrees. *)
+
+val hypot : float -&gt; float -&gt; float
+(** ``hypot x y`` returns :math:`\sqrt{x^2 + y^2}`. *)
+
+val xlogy : float -&gt; float -&gt; float
+(** ``xlogy(x, y)`` returns :math:`x \log(y)`. *)
+
+val xlog1py : float -&gt; float -&gt; float
+(** ``xlog1py(x, y)`` returns :math:`x \log(y+1)`. *)
+
+val logit : float -&gt; float
+(** ``logit(x)`` returns :math:`\log[p/(1-p)]`. *)
+
+val expit : float -&gt; float
+(** ``expit(x)`` returns :math:`1/(1+\exp(-x))`. *)
+
+val log1mexp : float -&gt; float
+(** ``log1mexp(x)`` returns :math:`log(1-exp(x))`. *)
+
+val log1pexp : float -&gt; float</code></pre>
+</div>
 </section>
 <section class="level2" id="special-functions">
 <h2>Special Functions</h2>
+<section class="level3" id="airy-functions">
+<h3>Airy Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val airy : float -&gt; float * float * float * float
+(**
+Airy function ``airy x`` returns ``(Ai, Ai', Bi, Bi')`` evaluated at :math:`x`.
+``Ai'`` is the derivative of ``Ai`` whilst ``Bi'`` is the derivative of ``Bi``.
+*)</code></pre>
+</div>
+</section>
+<section class="level3" id="bessel-functions">
+<h3>Bessel Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val j0 : float -&gt; float
+(** Bessel function of the first kind of order 0. *)
+
+val j1 : float -&gt; float
+(** Bessel function of the first kind of order 1. *)
+
+val jv : float -&gt; float -&gt; float
+(** Bessel function of real order. *)
+
+val y0 : float -&gt; float
+(** Bessel function of the second kind of order 0. *)
+
+val y1 : float -&gt; float
+(** Bessel function of the second kind of order 1. *)
+
+val yv : float -&gt; float -&gt; float
+(** Bessel function of the second kind of real order. *)
+
+val yn : int -&gt; float -&gt; float
+(** Bessel function of the second kind of integer order. *)
+
+val i0 : float -&gt; float
+(** Modified Bessel function of order 0. *)
+
+val i0e : float -&gt; float
+(** Exponentially scaled modified Bessel function of order 0. *)
+
+val i1 : float -&gt; float
+(** Modified Bessel function of order 1. *)
+
+val i1e : float -&gt; float
+(** Exponentially scaled modified Bessel function of order 1. *)
+
+val iv : float -&gt; float -&gt; float
+(** Modified Bessel function of the first kind of real order. *)
+
+val k0 : float -&gt; float
+(** Modified Bessel function of the second kind of order 0, :math:`K_0`.*)
+
+val k0e : float -&gt; float
+(** Exponentially scaled modified Bessel function K of order 0. *)
+
+val k1 : float -&gt; float
+(** Modified Bessel function of the second kind of order 1, :math:`K_1(x)`. *)
+
+val k1e : float -&gt; float
+(** Exponentially scaled modified Bessel function K of order 1. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="elliptic-functions">
+<h3>Elliptic Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val ellipj : float -&gt; float -&gt; float * float * float * float
+(** Jacobian Elliptic function ``ellipj u m`` returns ``(sn, cn, dn, phi)``. *)
+
+val ellipk : float -&gt; float
+(** ``ellipk m`` returns the complete elliptic integral of the first kind. *)
+
+val ellipkm1 : float -&gt; float
+(** FIXME. Complete elliptic integral of the first kind around :math:`m = 1`. *)
+
+val ellipkinc : float -&gt; float -&gt; float
+(** ``ellipkinc phi m`` incomplete elliptic integral of the first kind. *)
+
+val ellipe : float -&gt; float
+(** ``ellipe m`` complete elliptic integral of the second kind. *)
+
+val ellipeinc : float -&gt; float -&gt; float
+(** ``ellipeinc phi m`` incomplete elliptic integral of the second kind. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="gamma-functions">
+<h3>Gamma Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val gamma : float -&gt; float
+(**
+``gamma z`` returns the value of the Gamma function.
+The gamma function is often referred to as the generalized factorial since
+:math:`z\ gamma(z) = \gamma(z+1)` and :math:`gamma(n+1) = n!`
+for natural number :math:`n`.
+ *)
+
+val rgamma : float -&gt; float
+(** Reciprocal Gamma function. *)
+
+val loggamma : float -&gt; float
+(** Logarithm of the gamma function. *)
+
+val gammainc : float -&gt; float -&gt; float
+(** Incomplete gamma function. *)
+
+val gammaincinv : float -&gt; float -&gt; float
+(** Inverse function of ``gammainc``. *)
+
+val gammaincc : float -&gt; float -&gt; float
+(** Complemented incomplete gamma integral. *)
+
+val gammainccinv : float -&gt; float -&gt; float
+(** Inverse function of ``gammaincc``. *)
+
+val psi : float -&gt; float
+(** The digamma function. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="beta-functions">
+<h3>Beta Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val beta : float -&gt; float -&gt; float
+(**
+Beta function.
+ *)
+
+val betainc : float -&gt; float -&gt; float -&gt; float
+(** Incomplete beta integral. *)
+
+val betaincinv : float -&gt; float -&gt; float -&gt; float
+(** Inverse function of ``betainc``. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="factorials">
+<h3>Factorials</h3>
+<div class="highlight">
+<pre><code class="language-clike">val fact : int -&gt; float
+(** Factorial function ``fact n`` calculates :math:`n!`. *)
+
+val log_fact : int -&gt; float
+(** Logarithm of factorial function ``log_fact n`` calculates :math:`\log n!`. *)
+
+val doublefact : int -&gt; float
+(** Double factorial function ``doublefact n`` calculates
+:math:`n!! = n(n-2)(n-4)\dots 2` or :math:`\dots 1` *)
+
+val log_doublefact : int -&gt; float
+(** Logarithm of double factorial function. *)
+
+val permutation : int -&gt; int -&gt; int
+(** ``permutation n k`` returns the number :math:`n!/(n-k)!` of ordered subsets
+ * of length :math:`k`, taken from a set of :math:`n` elements. *)
+
+val permutation_float : int -&gt; int -&gt; float
+(**
+``permutation_float`` is like ``permutation`` but deals with larger range.
+ *)
+
+val combination : int -&gt; int -&gt; int
+(** ``combination n k`` returns the number :math:`n!/(k!(n-k)!)` of subsets of k elements
+    of a set of n elements. This is the binomial coefficient
+    :math:`\binom{n}{k}` *)
+
+val combination_float : int -&gt; int -&gt; float
+(** ``combination_float`` is like ``combination`` but can deal with a larger range. *)
+
+val log_combination : int -&gt; int -&gt; float
+(** ``log_combination n k`` returns the logarithm of :math:`\binom{n}{k}`. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="error-functions">
+<h3>Error Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val erf : float -&gt; float
+(** Error function. :math:`\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
+
+val erfc : float -&gt; float
+(** Complementary error function, :math:`\int^{\infty}_x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
+
+val erfcx : float -&gt; float
+(** Scaled complementary error function, :math:`\exp(x^2) \mathrm{erfc}(x)`. *)
+
+val erfinv : float -&gt; float
+(** Inverse function of ``erf``. *)
+
+val erfcinv : float -&gt; float
+(** Inverse function of ``erfc``. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="struve-functions">
+<h3>Struve Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val struve : float -&gt; float -&gt; float
+(** ``struve v x`` returns the value of the Struve function of
+order :math:`v` at :math:`x`. The Struve function is defined as,
+
+.. math::
+  H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},
+
+where :math:`\Gamma` is the gamma function. :math:`x` must be positive unless :math:`v` is an integer
+
+ *)</code></pre>
+</div>
+</section>
+<section class="level3" id="zeta-functions">
+<h3>Zeta Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val zeta : float -&gt; float -&gt; float
+(** ``zeta x q`` returns the Hurwitz zeta function :math:`\zeta(x, q)`, which
+    reduces to the Riemann zeta function :math:`\zeta(x)` when :math:`q=1`. *)
+
+val zetac : float -&gt; float
+(** Riemann zeta function minus 1. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="other-functions">
+<h3>Other Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val is_prime : int -&gt; bool
+(** returns true if x is a prime number. 
+The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
+*)
+
+val fermat_fact : int -&gt; int * int
+(**
+``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
+roughly equal factors. ``x`` must be an odd number.
+ *)
+
+val nextafter : float -&gt; float -&gt; float
+(** ``nextafter from to`` returns the next representable double precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+
+val nextafterf : float -&gt; float -&gt; float
+(** ``nextafter from to`` returns the next representable single precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+</code></pre>
+</div>
+</section>
 </section>
 <section class="level2" id="interpolation-and-extrapolation">
 <h2>Interpolation and Extrapolation</h2>
 </section>
 <section class="level2" id="integration">
 <h2>Integration</h2>
+<section class="level3" id="dawson-and-fresnel-integrals">
+<h3>Dawson and Fresnel Integrals</h3>
+<div class="highlight">
+<pre><code class="language-clike">val dawsn : float -&gt; float
+(** Dawson's integral. *)
+
+val fresnel : float -&gt; float * float
+(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
+``(Fresnel sin integral, Fresnel cos integral)``. *)</code></pre>
+</div>
 </section>
-<section class="level2" id="root-finding">
-<h2>Root-finding</h2>
-<p>Owl provides <code>root</code> to find root of functions.</p>
-<p>Example 01</p>
-<p>Example 02</p>
-<p>Example 03</p>
-<p>Rooting is closely related to the optimisation topic. We will discuss it in detail in that chapter.</p>
+<section class="level3" id="other-special-integrals">
+<h3>Other Special Integrals</h3>
+<div class="highlight">
+<pre><code class="language-clike">val expn : int -&gt; float -&gt; float
+(** Exponential integral :math:`E_n`. *)
+
+val shichi : float -&gt; float * float
+(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
+ * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
+
+val shi : float -&gt; float
+(** Hyperbolic sine integral. *)
+
+val chi : float -&gt; float
+(** Hyperbolic cosine integral. *)
+
+val sici : float -&gt; float * float
+(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
+
+val si : float -&gt; float
+(** Sine integral. *)
+
+val ci : float -&gt; float
+(** Cosine integral. *)</code></pre>
+</div>
+</section>
 </section>
 </section>
 </article></div><a href="stats.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 05</small>Statistical Functions</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
