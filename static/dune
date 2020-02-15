@@ -2,6 +2,7 @@
   (name site)
   (deps css/app.css
         css/prism.css
+        images/book-cover.png
         images/aeos/cross.png
         images/aeos/perf.png
         images/aeos/sin_perf.png
