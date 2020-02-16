@@ -1,6 +1,6 @@
 # Introduction
 
-This chapter briefly introduces the outline of the whole book, and then the installation of Owl. 
+This chapter briefly introduces the outline of the whole book, targeted audience, how to use the book, then the installation of Owl. 
 There are different ways to interact with Owl, including `utop`, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us. 
 
 ## What Is Scientific Computing
@@ -55,11 +55,13 @@ Different from other data science book, this book can be a good learning materia
 
 The book is divided into three parts, and each part focusses on different areas.
 
-The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natrual language processing, probabilistic programming, and etc. There are no strict orders, you can simply jump to the topic that interests you.
+The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natrual language processing, probabilistic programming, and etc. The chapters are loosely organised on their dependency, e.g. you need to know optimisation before studying regression and deep neural networks.
 
 The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core compoment and show how we build it and optimise it. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key compoenents needed in complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
 
 The Part III is a collection of case studies. This part might be the most interesting one for those who are practitioners. We will demonstrate how you can build a complete numerical application quicly from scracth using Owl. The cases include computer vision, recommendr systems, financial technology, and etc.
+
+The book does not enforce any strict order in reading, you can simply jump to the topic that interests you most. If you are compleletely new to the Owl system, we still strongly recommend you to start with the first two chapters of the book so that you know how to set up a working environment and start programming. All the code snippets included in this book can be compiled with the most recent master branch of Owl, our tooling guarantees the book material stay up-to-date with the software.
 
 
 ## Installation
