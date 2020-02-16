@@ -46,6 +46,10 @@ There is a long way to go from simple math calculation to those large use cases.
 
 TBD: Function programming is ... but do we want to use a functional programming language to do scientific computing?
 
+Explain the fundamental difference between imperative languages (e.g. C) and functional languages is the underlying model of computation. The imperative one is based Alan Turing model, whereas the functional one is based on Alonzo Church. Mention that Church was Turing's teacher. 
+
+Spend dome words on lambda calculus ...
+
 
 ## Who Is This Book For
 
@@ -386,3 +390,8 @@ For the time being, if you want to save that extra line to display a image in Ju
 ![Plot example using Owl-Jupyter](images/introduction/plot_01.png "plot_01"){ width=90% #fig:introduction:plot01 }
 
 From the example above, you can see Owl users' experience can be significantly improved.
+
+
+## Start The Adventure
+
+At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. Often, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its tooling. Anyway, it is time to move foward, so roll up your sleeves and let's march into the wonderful scientific computing world
