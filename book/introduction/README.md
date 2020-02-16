@@ -44,7 +44,11 @@ There is a long way to go from simple math calculation to those large use cases.
 
 ## Who Is This Book For
 
-TBD
+We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, it is quite a challenge to write a book that satisfies everyone. If you are reading this book now, we assume you are interested in analytical stuff and enthusiatic in gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with at least some numerical algorithms.
+
+We want this book to be relatively general so we have covered many important topics in scientific computing. This means we cannot dive very deep in each topic, and many chapters by itself is worth a book. We will try out best to list sufficient references to lead our readers to read further. 
+
+Different from other data science book, this book serves as a good learning material for those who are hardcore software architect who wants to build a modern numerical platform. The Part II of this book is dedicated to the underlying details of Owl. We will not only give you a bird-eye's-view of the overall Owl system, but teach you how to build it up and optimise the system step-by-step.
 
 
 ## Structure of the Book
