@@ -4,33 +4,55 @@
 <section class="level2" id="basic-functions">
 <h2>Basic Functions</h2>
 <p><strong>GUIDE</strong>: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used.</p>
-<p>Binary functions:</p>
-<div class="highlight">
-<pre><code class="language-clike">val add : float -&gt; float -&gt; float
-(** ``add x y`` returns :math:`x + y`. *)
-
-val sub : float -&gt; float -&gt; float
-(** ``sub x y`` returns :math:`x - y`. *)
-
-val mul : float -&gt; float -&gt; float
-(** ``mul x y`` returns :math:`x * y`. *)
-
-val div : float -&gt; float -&gt; float
-(** ``div x y`` returns :math:`x / y`. *)
-
-val fmod : float -&gt; float -&gt; float
-(** ``fmod x y`` returns :math:`x % y`. *)
-
-val atan2 : float -&gt; float -&gt; float
-(** ``atan2 y x`` returns :math:`\arctan(y/x)`, accounting for the sign of the arguments;
- this is the angle to the vector :math:`(x, y)` counting from the x-axis. *)
-</code></pre>
-</div>
-<p>Unary functions with signature <code>val f : float -&gt; float</code></p>
-<table style="width:82%;">
+<section class="level3" id="binary-functions">
+<h3>Binary Functions</h3>
+<p>Binary functions <code>f x y</code> has the signature in the form of <code>val f : float -&gt; float -&gt; float</code></p>
+<table style="width:97%;">
 <colgroup>
 <col style="width: 19%">
-<col style="width: 62%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>add</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sub</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>mul</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>fmod</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>atan2</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\arctan(y/x)\)</span>, accounting for the sign of the arguments; this is the angle to the vector <span class="math inline">\((x, y)\)</span> counting from the x-axis.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="basic-unary-math-functions">
+<h3>Basic Unary Math Functions</h3>
+<p>Unary functions with signature <code>val f : float -&gt; float</code></p>
+<table style="width:97%;">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -55,59 +77,265 @@ val atan2 : float -&gt; float -&gt; float
 <td style="text-align: left;"><code>floor</code></td>
 <td style="text-align: left;">the largest integer that is smaller than <code>x</code></td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ceil</code></td>
+<td style="text-align: left;">the smallest integer that is larger than <code>x</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>round</code></td>
+<td style="text-align: left;">rounds <code>x</code> towards the bigger integer when on the fence</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>trunc</code></td>
+<td style="text-align: left;">integer part of <code>x</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sqr</code></td>
+<td style="text-align: left;"><span class="math inline">\(x^2\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sqrt</code></td>
+<td style="text-align: left;"><span class="math inline">\(\sqrt{x}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>pow</code></td>
+<td style="text-align: left;"><span class="math inline">\(x^y\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>hypot</code></td>
+<td style="text-align: left;"><span class="math inline">\(\sqrt{x^2 + y^2}\)</span></td>
+</tr>
 </tbody>
 </table>
+</section>
+<section class="level3" id="exponential-and-logarithmic-functions">
+<h3>Exponential and Logarithmic Functions</h3>
+<p>Introduction to exponential and logarithm functions</p>
+<table style="width:97%;">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>exp</code></td>
+<td style="text-align: left;">exponential <span class="math inline">\(e^x\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>exp2</code></td>
+<td style="text-align: left;"><span class="math inline">\(2^x\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>exp10</code></td>
+<td style="text-align: left;"><span class="math inline">\(10^x\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>expm1</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\exp(x) - 1\)</span> but more accurate for <span class="math inline">\(x \sim 0\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>log</code></td>
+<td style="text-align: left;"><span class="math inline">\(log_e~x\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>log2</code></td>
+<td style="text-align: left;"><span class="math inline">\(log_2~x\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>log10</code></td>
+<td style="text-align: left;"><span class="math inline">\(log_10~x\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>logn</code></td>
+<td style="text-align: left;"><span class="math inline">\(log_n~x\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>log1p</code></td>
+<td style="text-align: left;">Inverse of <code>expm1</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>logabs</code></td>
+<td style="text-align: left;"><span class="math inline">\(\log(|x|)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>xlogy</code></td>
+<td style="text-align: left;"><span class="math inline">\(x \log(y)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>xlog1py</code></td>
+<td style="text-align: left;"><span class="math inline">\(x \log(y+1)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>logit</code></td>
+<td style="text-align: left;"><span class="math inline">\(\log(p/(1-p))\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>expit</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/(1+\exp(-x))\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>log1mexp</code></td>
+<td style="text-align: left;"><span class="math inline">\(log(1-exp(x))\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>log1pexp</code></td>
+<td style="text-align: left;"><span class="math inline">\(log(1+exp(x))\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="triangular-functions">
+<h3>Triangular Functions</h3>
+<p>Introduction of triangular functions</p>
+<table style="width:97%;">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>sin</code></td>
+<td style="text-align: left;"><span class="math inline">\(\sin(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>cos</code></td>
+<td style="text-align: left;"><span class="math inline">\(\cos(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>tan</code></td>
+<td style="text-align: left;"><span class="math inline">\(\tan(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>cot</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/\tan(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sec</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/\cos(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>csc</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/\sin(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>asin</code></td>
+<td style="text-align: left;"><span class="math inline">\(\arcsin(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acos</code></td>
+<td style="text-align: left;"><span class="math inline">\(\arcsin(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>atan</code></td>
+<td style="text-align: left;"><span class="math inline">\(\arctan(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acot</code></td>
+<td style="text-align: left;">Inverse function of <code>cot</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>asec</code></td>
+<td style="text-align: left;">Inverse function of <code>sec</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acsc</code></td>
+<td style="text-align: left;">Inverse function of <code>csc</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sinh</code></td>
+<td style="text-align: left;"><span class="math inline">\(\sinh(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>cosh</code></td>
+<td style="text-align: left;"><span class="math inline">\(\cosh(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>tanh</code></td>
+<td style="text-align: left;"><span class="math inline">\(\tanh(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>coth</code></td>
+<td style="text-align: left;"><span class="math inline">\(\coth(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sech</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/\cosh(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>csch</code></td>
+<td style="text-align: left;"><span class="math inline">\(1/\sinh(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>asinh</code></td>
+<td style="text-align: left;">Inverse function of <code>sinh</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acosh</code></td>
+<td style="text-align: left;">Inverse function of <code>cosh</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>atanh</code></td>
+<td style="text-align: left;">Inverse function of <code>tanh</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acoth</code></td>
+<td style="text-align: left;">Inverse function of <code>coth</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>asech</code></td>
+<td style="text-align: left;">Inverse function of <code>sech</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>acsch</code></td>
+<td style="text-align: left;">Inverse function of <code>csch</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>sinc</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\sin(x)/x\)</span> and 1 for <span class="math inline">\(x=0\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>logsinh</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\log(\sinh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>logcosh</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\log(\cosh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sindg</code></td>
+<td style="text-align: left;">Sine of angle given in degrees</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cosdg</code></td>
+<td style="text-align: left;">Cosine of the angle given in degrees</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>tandg</code></td>
+<td style="text-align: left;">Tangent of angle given in degrees</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>cotdg</code></td>
+<td style="text-align: left;">Cotangent of the angle given in degrees</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level3" id="other-unary-math-functions">
+<h3>Other Unary Math Functions</h3>
 <div class="highlight">
-<pre><code class="language-clike">al ceil : float -&gt; float
-(** ``ceil x`` returns the smallest integer :math:`\geq x`. *)
-
-val round : float -&gt; float
-(** ``round x`` rounds, towards the bigger integer when on the fence. *)
-
-val trunc : float -&gt; float
-(** ``trunc x`` integer part. *)
-
-val sqr : float -&gt; float
-(** ``sqr x`` square. *)
-
-val sqrt : float -&gt; float
-(** ``sqrt x`` square root. *)
-
-val pow : float -&gt; float -&gt; float
-(** ``pow x y`` returns :math:`x^y`. *)
-
-val exp : float -&gt; float
-(** ``exp x`` exponential. *)
-
-val exp2 : float -&gt; float
-(** ``exp2 x`` exponential. *)
-
-val exp10 : float -&gt; float
-(** ``exp10 x`` exponential. *)
-
-val expm1 : float -&gt; float
-(** ``expm1 x`` returns :math:`\exp(x) - 1` but more accurate for :math:`x \sim 0`. *)
-
-val log : float -&gt; float
-(** ``log x`` natural logarithm *)
-
-val log2 : float -&gt; float
-(** ``log2 x`` base-2 logarithm. *)
-
-val log10 : float -&gt; float
-(** ``log10 x`` base-10 logarithm. *)
-
-val logn : float -&gt; float -&gt; float
-(** ``logn x`` base-n logarithm. *)
-
-val log1p : float -&gt; float
-(** ``log1p x`` returns :math:`\log (x + 1)` but more accurate for :math:`x \sim 0`.
- Inverse of ``expm1``. *)
-
-val logabs : float -&gt; float
-(** ``logabs x`` returns :math:`\log(|x|)`. *)
-
-val sigmoid : float -&gt; float
+<pre><code class="language-clike">val sigmoid : float -&gt; float
 (** ``sigmoid x`` returns the logistic sigmoid function
 :math:`1 / (1 + \exp(-x))`. *)
 
@@ -121,126 +349,15 @@ val softplus : float -&gt; float
 (** ``softplus x`` returns :math:`\log(1 + \exp(x))`. *)
 
 val relu : float -&gt; float
-(** ``relu x`` returns :math:`\max(0, x)`. *)
-
-val sin : float -&gt; float
-(** ``sin x`` returns :math:`\sin(x)`. *)
-
-val cos : float -&gt; float
-(** ``cos x`` returns :math:`\cos(x)`. *)
-
-val tan : float -&gt; float
-(** ``tan x`` returns :math:`\tan(x)`. *)
-
-val cot : float -&gt; float
-(** ``cot x`` returns :math:`1/\tan(x)`. *)
-
-val sec : float -&gt; float
-(** ``sec x`` returns :math:`1/\cos(x)`. *)
-
-val csc : float -&gt; float
-(** ``csc x`` returns :math:`1/\sin(x)`. *)
-
-val asin : float -&gt; float
-(** ``asin x`` returns :math:`\arcsin(x)`. *)
-
-val acos : float -&gt; float
-(** ``acos x`` returns :math:`\arccos(x)`. *)
-
-val atan : float -&gt; float
-(** ``atan x`` returns :math:`\arctan(x)`. *)
-
-val acot : float -&gt; float
-(** Inverse function of ``cot``. *)
-
-val asec : float -&gt; float
-(** Inverse function of ``sec``. *)
-
-val acsc : float -&gt; float
-(** Inverse function of ``csc``. *)
-
-val sinh : float -&gt; float
-(** Returns :math:`\sinh(x)`. *)
-
-val cosh : float -&gt; float
-(** ``cosh x`` returns :math:`\cosh(x)`. *)
-
-val tanh : float -&gt; float
-(** ``tanh x`` returns :math:`\tanh(x)`. *)
-
-val coth : float -&gt; float
-(** ``coth x`` returns :math:`\coth(x)`. *)
-
-val sech : float -&gt; float
-(** ``sech x`` returns :math:`1/\cosh(x)`. *)
-
-val csch : float -&gt; float
-(** ``csch x`` returns :math:`1/\sinh(x)`. *)
-
-val asinh : float -&gt; float
-(** Inverse function of ``sinh``. *)
-
-val acosh : float -&gt; float
-(** Inverse function of ``cosh``. *)
-
-val atanh : float -&gt; float
-(** Inverse function of ``tanh``. *)
-
-val acoth : float -&gt; float
-(** Inverse function of ``coth``. *)
-
-val asech : float -&gt; float
-(** Inverse function of ``sech``. *)
-
-val acsch : float -&gt; float
-(** Inverse function of ``csch``. *)
-
-val sinc : float -&gt; float
-(** ``sinc x`` returns :math:`\sin(x)/x` and :math:`1` for :math:`x=0`. *)
-
-val logsinh : float -&gt; float
-(** ``logsinh x`` returns :math:`\log(\sinh(x))` but handles large :math:`|x|`. *)
-
-val logcosh : float -&gt; float
-(** ``logcosh x`` returns :math:`\log(\cosh(x))` but handles large :math:`|x|`. *)
-
-val sindg : float -&gt; float
-(** Sine of angle given in degrees. *)
-
-val cosdg : float -&gt; float
-(** Cosine of the angle given in degrees. *)
-
-val tandg : float -&gt; float
-(** Tangent of angle given in degrees. *)
-
-val cotdg : float -&gt; float
-(** Cotangent of the angle given in degrees. *)
-
-val hypot : float -&gt; float -&gt; float
-(** ``hypot x y`` returns :math:`\sqrt{x^2 + y^2}`. *)
-
-val xlogy : float -&gt; float -&gt; float
-(** ``xlogy(x, y)`` returns :math:`x \log(y)`. *)
-
-val xlog1py : float -&gt; float -&gt; float
-(** ``xlog1py(x, y)`` returns :math:`x \log(y+1)`. *)
-
-val logit : float -&gt; float
-(** ``logit(x)`` returns :math:`\log[p/(1-p)]`. *)
-
-val expit : float -&gt; float
-(** ``expit(x)`` returns :math:`1/(1+\exp(-x))`. *)
-
-val log1mexp : float -&gt; float
-(** ``log1mexp(x)`` returns :math:`log(1-exp(x))`. *)
-
-val log1pexp : float -&gt; float</code></pre>
+(** ``relu x`` returns :math:`\max(0, x)`. *)</code></pre>
 </div>
+</section>
 </section>
 <section class="level2" id="special-functions">
 <h2>Special Functions</h2>
 <section class="level3" id="airy-functions">
 <h3>Airy Functions</h3>
+<p>In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)</p>
 <div class="highlight">
 <pre><code class="language-clike">val airy : float -&gt; float * float * float * float
 (**
@@ -251,6 +368,7 @@ Airy function ``airy x`` returns ``(Ai, Ai', Bi, Bi')`` evaluated at :math:`x`.
 </section>
 <section class="level3" id="bessel-functions">
 <h3>Bessel Functions</h3>
+<p>Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel’s differential equation.</p>
 <div class="highlight">
 <pre><code class="language-clike">val j0 : float -&gt; float
 (** Bessel function of the first kind of order 0. *)

@@ -6,35 +6,34 @@ Though the central data structure in Owl is `ndarray`, we provide support for sc
 
 **GUIDE**: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used. 
 
-Binary functions:
+### Binary Functions
 
-```
-val add : float -> float -> float
-(** ``add x y`` returns :math:`x + y`. *)
+Binary functions `f x y` has the signature in the form of `val f : float -> float -> float`
 
-val sub : float -> float -> float
-(** ``sub x y`` returns :math:`x - y`. *)
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
+`add`         `x + y`
 
-val mul : float -> float -> float
-(** ``mul x y`` returns :math:`x * y`. *)
+`sub`         `x - y`
 
-val div : float -> float -> float
-(** ``div x y`` returns :math:`x / y`. *)
+`mul`         `x * y`
 
-val fmod : float -> float -> float
-(** ``fmod x y`` returns :math:`x % y`. *)
+`div`         `x / y`
 
-val atan2 : float -> float -> float
-(** ``atan2 y x`` returns :math:`\arctan(y/x)`, accounting for the sign of the arguments;
- this is the angle to the vector :math:`(x, y)` counting from the x-axis. *)
+`fmod`        `x % y`
 
-```
+`atan2`       returns $\arctan(y/x)$, accounting for the sign of the 
+              arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
+------------  -------------------------------------------------------
+
+### Basic Unary Math Functions 
 
 Unary functions with signature `val f : float -> float`
 
-------------  --------------------------------------------
+------------  -------------------------------------------------------
 Function      Explanation  
-------------  --------------------------------------------
+------------  -------------------------------------------------------
 `abs`         `|x|`
 
 `neg`         `-x`
@@ -42,58 +41,137 @@ Function      Explanation
 `reci`        `1/x`
 
 `floor`       the largest integer that is smaller than `x`
-------------  --------------------------------------------
+
+`ceil`        the smallest integer that is larger than `x`
+
+`round`       rounds `x` towards the bigger integer when on the fence
+
+`trunc`       integer part of `x`
+
+`sqr`         $x^2$
+
+`sqrt`        $\sqrt{x}$
+
+`pow`         $x^y$
+
+`hypot`       $\sqrt{x^2 + y^2}$
+------------  -------------------------------------------------------
+
+
+### Exponential and Logarithmic Functions
+
+Introduction to exponential and logarithm functions 
+
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
+`exp`         exponential $e^x$
+
+`exp2`        $2^x$
+
+`exp10`       $10^x$
+
+`expm1`       returns $\exp(x) - 1$ but more accurate for $x \sim 0$ 
+
+`log`         $log_e~x$
+
+`log2`        $log_2~x$
+
+`log10`       $log_10~x$
+
+`logn`        $log_n~x$
+
+`log1p`       Inverse of `expm1`
+
+`logabs`      $\log(|x|)$
+
+`xlogy`       $x \log(y)$
+
+`xlog1py`     $x \log(y+1)$
+
+`logit`       $\log(p/(1-p))$
+
+`expit`       $1/(1+\exp(-x))$
+
+`log1mexp`    $log(1-exp(x))$
+
+`log1pexp`    $log(1+exp(x))$
+------------  -------------------------------------------------------
+
+
+### Triangular Functions
+
+Introduction of triangular functions
+
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
+`sin`         $\sin(x)$
+
+`cos`         $\cos(x)$
+
+`tan`         $\tan(x)$
+
+`cot`         $1/\tan(x)$
+
+`sec`         $1/\cos(x)$
+
+`csc`         $1/\sin(x)$
+
+`asin`        $\arcsin(x)$
+
+`acos`        $\arcsin(x)$
+
+`atan`        $\arctan(x)$
+
+`acot`        Inverse function of `cot`
+
+`asec`        Inverse function of `sec`
+
+`acsc`        Inverse function of `csc`
+
+`sinh`        $\sinh(x)$
+
+`cosh`        $\cosh(x)$
+
+`tanh`        $\tanh(x)$
+
+`coth`        $\coth(x)$
+
+`sech`        $1/\cosh(x)$
+
+`csch`        $1/\sinh(x)$
+
+`asinh`       Inverse function of `sinh`
+
+`acosh`       Inverse function of `cosh`
+
+`atanh`       Inverse function of `tanh`
+
+`acoth`       Inverse function of `coth`
+
+`asech`       Inverse function of `sech`
+
+`acsch`       Inverse function of `csch`
+
+`sinc`        returns $\sin(x)/x$ and 1 for $x=0$
+
+`logsinh`     returns $\log(\sinh(x))$ but handles large $|x|$
+
+`logcosh`     returns $\log(\cosh(x))$ but handles large $|x|$
+
+`sindg`       Sine of angle given in degrees
+
+`cosdg`       Cosine of the angle given in degrees
+
+`tandg`       Tangent of angle given in degrees
+
+`cotdg`       Cotangent of the angle given in degrees
+------------  -------------------------------------------------------
+
+### Other Unary Math Functions
 
 ```
-al ceil : float -> float
-(** ``ceil x`` returns the smallest integer :math:`\geq x`. *)
-
-val round : float -> float
-(** ``round x`` rounds, towards the bigger integer when on the fence. *)
-
-val trunc : float -> float
-(** ``trunc x`` integer part. *)
-
-val sqr : float -> float
-(** ``sqr x`` square. *)
-
-val sqrt : float -> float
-(** ``sqrt x`` square root. *)
-
-val pow : float -> float -> float
-(** ``pow x y`` returns :math:`x^y`. *)
-
-val exp : float -> float
-(** ``exp x`` exponential. *)
-
-val exp2 : float -> float
-(** ``exp2 x`` exponential. *)
-
-val exp10 : float -> float
-(** ``exp10 x`` exponential. *)
-
-val expm1 : float -> float
-(** ``expm1 x`` returns :math:`\exp(x) - 1` but more accurate for :math:`x \sim 0`. *)
-
-val log : float -> float
-(** ``log x`` natural logarithm *)
-
-val log2 : float -> float
-(** ``log2 x`` base-2 logarithm. *)
-
-val log10 : float -> float
-(** ``log10 x`` base-10 logarithm. *)
-
-val logn : float -> float -> float
-(** ``logn x`` base-n logarithm. *)
-
-val log1p : float -> float
-(** ``log1p x`` returns :math:`\log (x + 1)` but more accurate for :math:`x \sim 0`.
- Inverse of ``expm1``. *)
-
-val logabs : float -> float
-(** ``logabs x`` returns :math:`\log(|x|)`. *)
-
 val sigmoid : float -> float
 (** ``sigmoid x`` returns the logistic sigmoid function
 :math:`1 / (1 + \exp(-x))`. *)
@@ -109,124 +187,14 @@ val softplus : float -> float
 
 val relu : float -> float
 (** ``relu x`` returns :math:`\max(0, x)`. *)
-
-val sin : float -> float
-(** ``sin x`` returns :math:`\sin(x)`. *)
-
-val cos : float -> float
-(** ``cos x`` returns :math:`\cos(x)`. *)
-
-val tan : float -> float
-(** ``tan x`` returns :math:`\tan(x)`. *)
-
-val cot : float -> float
-(** ``cot x`` returns :math:`1/\tan(x)`. *)
-
-val sec : float -> float
-(** ``sec x`` returns :math:`1/\cos(x)`. *)
-
-val csc : float -> float
-(** ``csc x`` returns :math:`1/\sin(x)`. *)
-
-val asin : float -> float
-(** ``asin x`` returns :math:`\arcsin(x)`. *)
-
-val acos : float -> float
-(** ``acos x`` returns :math:`\arccos(x)`. *)
-
-val atan : float -> float
-(** ``atan x`` returns :math:`\arctan(x)`. *)
-
-val acot : float -> float
-(** Inverse function of ``cot``. *)
-
-val asec : float -> float
-(** Inverse function of ``sec``. *)
-
-val acsc : float -> float
-(** Inverse function of ``csc``. *)
-
-val sinh : float -> float
-(** Returns :math:`\sinh(x)`. *)
-
-val cosh : float -> float
-(** ``cosh x`` returns :math:`\cosh(x)`. *)
-
-val tanh : float -> float
-(** ``tanh x`` returns :math:`\tanh(x)`. *)
-
-val coth : float -> float
-(** ``coth x`` returns :math:`\coth(x)`. *)
-
-val sech : float -> float
-(** ``sech x`` returns :math:`1/\cosh(x)`. *)
-
-val csch : float -> float
-(** ``csch x`` returns :math:`1/\sinh(x)`. *)
-
-val asinh : float -> float
-(** Inverse function of ``sinh``. *)
-
-val acosh : float -> float
-(** Inverse function of ``cosh``. *)
-
-val atanh : float -> float
-(** Inverse function of ``tanh``. *)
-
-val acoth : float -> float
-(** Inverse function of ``coth``. *)
-
-val asech : float -> float
-(** Inverse function of ``sech``. *)
-
-val acsch : float -> float
-(** Inverse function of ``csch``. *)
-
-val sinc : float -> float
-(** ``sinc x`` returns :math:`\sin(x)/x` and :math:`1` for :math:`x=0`. *)
-
-val logsinh : float -> float
-(** ``logsinh x`` returns :math:`\log(\sinh(x))` but handles large :math:`|x|`. *)
-
-val logcosh : float -> float
-(** ``logcosh x`` returns :math:`\log(\cosh(x))` but handles large :math:`|x|`. *)
-
-val sindg : float -> float
-(** Sine of angle given in degrees. *)
-
-val cosdg : float -> float
-(** Cosine of the angle given in degrees. *)
-
-val tandg : float -> float
-(** Tangent of angle given in degrees. *)
-
-val cotdg : float -> float
-(** Cotangent of the angle given in degrees. *)
-
-val hypot : float -> float -> float
-(** ``hypot x y`` returns :math:`\sqrt{x^2 + y^2}`. *)
-
-val xlogy : float -> float -> float
-(** ``xlogy(x, y)`` returns :math:`x \log(y)`. *)
-
-val xlog1py : float -> float -> float
-(** ``xlog1py(x, y)`` returns :math:`x \log(y+1)`. *)
-
-val logit : float -> float
-(** ``logit(x)`` returns :math:`\log[p/(1-p)]`. *)
-
-val expit : float -> float
-(** ``expit(x)`` returns :math:`1/(1+\exp(-x))`. *)
-
-val log1mexp : float -> float
-(** ``log1mexp(x)`` returns :math:`log(1-exp(x))`. *)
-
-val log1pexp : float -> float
 ```
 
 ## Special Functions
 
 ### Airy Functions
+
+In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)
+
 
 ```
 val airy : float -> float * float * float * float
@@ -237,6 +205,8 @@ Airy function ``airy x`` returns ``(Ai, Ai', Bi, Bi')`` evaluated at :math:`x`.
 ```
 
 ### Bessel Functions 
+
+Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation.
 
 ```
 val j0 : float -> float
