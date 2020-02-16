@@ -259,14 +259,14 @@ Similarly, you can try to use backward mode to differentiate `g`. I will just th
 
 In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 
-## Design of the Algorithm Differentiation Module 
+## Design of the Algorithmic Differentiation Module 
 
 ### Lazy Evaluation 
 
 ### "There Is No Spoon": Extend AD Module 
 
 
-## Algorithm Differentiation: The Engine of Neural Network
+## Algorithmic Differentiation: The Engine of Neural Network
 
 In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.
 
@@ -320,7 +320,7 @@ let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum
 
 The generated computation graph looks like this.
 
-![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=90% #fig:algodiff:plot28 }
+![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
 
 
 ### Example: Computation Graph of VGG-like Neural Network

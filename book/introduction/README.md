@@ -5,6 +5,8 @@ There are different ways to interact with Owl, including `utop`, notebook, and t
 
 ## What Is Scientific Computing
 
+**GUIDE**: 2 pages. I'm yet to stress the importance of (applications) of scientific computing.
+
 Scientific Computing is a rapidly growing multidisciplinary field that uses advanced computing capabilities to understand and solve complex problems. 
 The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation).
 The former uses numerical approximation to solve mathematical problems, while the latter requires an exact exact representation of computation and manipulates symbols that are not assigned specific values. 
@@ -42,7 +44,9 @@ The third part contains interesting use cases of Owl. They are not toy examples,
 There is a long way to go from simple math calculation to those large use cases. Now let's start from the very first step: installing Owl.
 
 
-## Why Compute With Functional Programming
+## What is Functional Programming
+
+**GUIDE:** Two pages. Have to include at least: imperative (procedure, OO); different computational model, one follows Church, the other Turing (who is the student of Church); basic lambda calculus. 
 
 TBD: Function programming is ... but do we want to use a functional programming language to do scientific computing?
 

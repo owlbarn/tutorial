@@ -14,7 +14,7 @@ As a functional programmer, it is basic knowledge that a function takes an input
 
 Here is an example graph for calculating function `sin (x * y)`.
 
-![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=90% #fig:cgraph:plot_01 }
+![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=50% #fig:cgraph:plot_01 }
 
 
 The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcasted on the matrix `x` of shape [8; 4] in `Mul` operation.

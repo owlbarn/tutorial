@@ -4,6 +4,8 @@ Though the central data structure in Owl is `ndarray`, we provide support for sc
 
 ## Basic Functions
 
+**GUIDE**: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used. 
+
 Binary functions:
 
 ```
@@ -506,3 +508,5 @@ val si : float -> float
 val ci : float -> float
 (** Cosine integral. *)
 ```
+
+## Complex Number

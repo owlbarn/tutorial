@@ -227,8 +227,8 @@ newton f (Mat.uniform 1 2)
 <p>Similarly, you can try to use backward mode to differentiate <code>g</code>. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.</p>
 <p>In reality, you don’t really need to worry about forward or backward mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.</p>
 </section>
-<section class="level2" id="design-of-the-algorithm-differentiation-module">
-<h2>Design of the Algorithm Differentiation Module</h2>
+<section class="level2" id="design-of-the-algorithmic-differentiation-module">
+<h2>Design of the Algorithmic Differentiation Module</h2>
 <section class="level3" id="lazy-evaluation">
 <h3>Lazy Evaluation</h3>
 </section>
@@ -236,8 +236,8 @@ newton f (Mat.uniform 1 2)
 <h3>“There Is No Spoon”: Extend AD Module</h3>
 </section>
 </section>
-<section class="level2" id="algorithm-differentiation-the-engine-of-neural-network">
-<h2>Algorithm Differentiation: The Engine of Neural Network</h2>
+<section class="level2" id="algorithmic-differentiation-the-engine-of-neural-network">
+<h2>Algorithmic Differentiation: The Engine of Neural Network</h2>
 <p>In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.</p>
 <section class="level3" id="backpropagation-in-neural-network">
 <h3>Backpropagation in Neural Network</h3>
@@ -280,7 +280,7 @@ newton f (Mat.uniform 1 2)
 </div>
 <p>The generated computation graph looks like this.</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 4: Computation graph of a simple math function</figcaption>
+<img alt="" style="width:60.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 4: Computation graph of a simple math function</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-vgg-like-neural-network">
