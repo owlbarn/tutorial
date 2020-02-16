@@ -42,6 +42,11 @@ The third part contains interesting use cases of Owl. They are not toy examples,
 There is a long way to go from simple math calculation to those large use cases. Now let's start from the very first step: installing Owl.
 
 
+## Why Compute With Functional Programming
+
+TBD: Function programming is ... but do we want to use a functional programming language to do scientific computing?
+
+
 ## Who Is This Book For
 
 We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, therefore it is quite a challenge to write a book that satisfies most of people. If you are reading this book now, we assume you are interested in analytical tasks and enthusiatic about gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with the core concepts of functional programming.
