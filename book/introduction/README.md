@@ -44,16 +44,22 @@ There is a long way to go from simple math calculation to those large use cases.
 
 ## Who Is This Book For
 
-We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, it is quite a challenge to write a book that satisfies everyone. If you are reading this book now, we assume you are interested in analytical stuff and enthusiatic in gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with at least some numerical algorithms.
+We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, therefore it is quite a challenge to write a book that satisfies most of people. If you are reading this book now, we assume you are interested in analytical tasks and enthusiatic about gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with the core concepts of functional programming.
 
-We want this book to be relatively general so we have covered many important topics in scientific computing. This means we cannot dive very deep in each topic, and many chapters by itself is worth a book. We will try out best to list sufficient references to lead our readers to read further. 
+We want this book to be relatively general so we have covered many topics in scientific computing. However, this means we cannot dive very deep in each topic, and each of them per se is worth a book. When designing the chapters, we select those topics which are either classic (e.g. statistics, linear algebra) or populur and prove-to-be-effective in industry (e.g. deep neural network, probabilistic programming, and etc.). We strive to reach a good balance between breadth and depth of the book. For each topic, we will try out best to list sufficient references to lead our readers to study further.
 
-Different from other data science book, this book serves as a good learning material for those who are hardcore software architect who wants to build a modern numerical platform. The Part II of this book is dedicated to the underlying details of Owl. We will not only give you a bird-eye's-view of the overall Owl system, but teach you how to build it up and optimise the system step-by-step.
+Different from other data science book, this book can be a good learning material for those hardcore software architects who want to build a modern and industry-level numerical software system. A big part of this book is dedicated to explaining the underlying details of Owl. We will not only give you a bird's-eye-view of the overall Owl system, but also teaches you how to build the system up and optimises each component step-by-step. If you use Owl frequently to build applications, this book can serve as a useful reference manual as well.
 
 
 ## Structure of the Book
 
-TBD
+The book is divided into three parts, and each part focusses on different areas.
+
+The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natrual language processing, probabilistic programming, and etc. There are no strict orders, you can simply jump to the topic that interests you.
+
+The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core compoment and show how we build it and optimise it. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key compoenents needed in complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
+
+The Part III is a collection of case studies. This part might be the most interesting one for those who are practitioners. We will demonstrate how you can build a complete numerical application quicly from scracth using Owl. The cases include computer vision, recommendr systems, financial technology, and etc.
 
 
 ## Installation
