@@ -1,19 +1,89 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Algorithmic Differentiation - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="algorithmic-differentiation">
 <h1>Algorithmic Differentiation</h1>
+<p>TBD</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<p>Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields, especially useful for fast prototyping in machine learning research. Comparing to numerical differentiation which can only provides approximate results, AD can calculates the exact derivative of a given function.</p>
-<section class="level3" id="applications-of-differentiation-in-scientific-computing">
-<h3>Applications of Differentiation in Scientific Computing</h3>
-<p>The gradient</p>
-<p>Derivatives for Systems of Nonlinear Equations, Nonlinear Programming, etc.</p>
+<p>Computing derivatives (differentiation) is crucial in many scientific related fields: find maximum or minimum values using gradient descent (see later chapter); ODE (see later chapter); Non-linear optimisation such as KKT optimality conditions is still a prime application.</p>
+<p>One new crucial application is in machine learning.</p>
+<section class="level3" id="chain-rule">
+<h3>Chain Rule</h3>
+<p>Before diving into how to do differentiation on computers, let’s recall how to do it manually from our Calculus 101.</p>
+<p>Liang: <em>you need to talk about derivative, gradient, hessian, etc.</em></p>
+<p>Explain the Chain rule</p>
+<p>Example</p>
 </section>
-<section class="level3" id="manual-differentiation">
-<h3>Manual Differentiation</h3>
-<p>Liang: consider to rename it to Chain Rule, you need to talk about derivative, gradient, hessian, etc.</p>
+<section class="level3" id="differentiation-methods">
+<h3>Differentiation Methods</h3>
+<p>As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation. Therefore, we turn to computer-based automated computation methods. There are three: numerical differentiation, symbolic differentiation, and algorithmic differentiation.</p>
+<p><strong>Numerical Differentiation</strong></p>
+<p>Simple intro; see later chapter</p>
+<p><strong>Symbolic Differentiation</strong></p>
+<p>Example</p>
+<p><strong>Algorithmic Differentiation</strong></p>
+<p>Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields.</p>
+<p>It’s advantage compared with the other two.</p>
+<p>Now let’s talk about AD.</p>
 </section>
-<section class="level3" id="motivative-example-higher-order-derivatives">
-<h3>Motivative Example: Higher-Order Derivatives</h3>
+</section>
+<section class="level2" id="how-algorithmic-differentiation-works">
+<h2>How Algorithmic Differentiation Works</h2>
+<p>REFER: <em>Evaluating Derivatives</em>, Chapter 3.</p>
+<section class="level3" id="theoretical-basis">
+<h3>Theoretical Basis</h3>
+<p>Tangent, Adjoint, first derivative, higher derivative, etc.</p>
+</section>
+<section class="level3" id="forward-modes">
+<h3>Forward Modes</h3>
+</section>
+<section class="level3" id="reverse-modes">
+<h3>Reverse Modes</h3>
+</section>
+</section>
+<section class="level2" id="forward-or-reverse">
+<h2>Forward or Reverse?</h2>
+<p>Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.</p>
+<p>In general, given a function that you want to differentiate, the rule of thumb is:</p>
+<ul>
+<li>if input variables &gt;&gt; output variables, then use backward mode;</li>
+<li>if input variables &lt;&lt; output variables, then use forward mode.</li>
+</ul>
+<p>Later we will show example of this point.</p>
+</section>
+<section class="level2" id="high-level-apis">
+<h2>High-level APIs</h2>
+<p>The design of AD in Owl.</p>
+<p>Owl provides both numerical differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli">Algodiff.Generic</a> module).</p>
+<p><code>Algodiff.Generic</code> is a functor which is able to support both <code>float32</code> and <code>float64</code> precision <code>AD</code>. However, you do not need to deal with <code>Algodiff.Generic.Make</code> directly since there are already two ready-made modules.</p>
+<ul>
+<li><code>Algodiff.S</code> supports <code>float32</code> precision;</li>
+<li><code>Algodiff.D</code> supports <code>float64</code> precision;</li>
+</ul>
+<p><code>Algodiff</code> has implemented both forward and backward mode of AD. The complete list of APIs can be found in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli">owl_algodiff_generic.mli</a>. The core APIs are listed below.</p>
+<div class="highlight">
+<pre><code class="language-text">
+  val diff : (t -&gt; t) -&gt; t -&gt; t
+  (* calculate derivative for f : scalar -&gt; scalar *)
+
+  val grad : (t -&gt; t) -&gt; t -&gt; t
+  (* calculate gradient for f : vector -&gt; scalar *)
+
+  val jacobian : (t -&gt; t) -&gt; t -&gt; t
+  (* calculate jacobian for f : vector -&gt; vector *)
+
+  val hessian : (t -&gt; t) -&gt; t -&gt; t
+  (* calculate hessian for f : scalar -&gt; scalar *)
+
+  val laplacian : (t -&gt; t) -&gt; t -&gt; t
+  (* calculate laplacian for f : scalar -&gt; scalar *)
+</code></pre>
+</div>
+<p>Besides, there are also more helper functions such as <code>jacobianv</code> for calculating jacobian vector product; <code>diff'</code> for calculating both <code>f x</code> and <code>diff f x</code>, and etc.</p>
+</section>
+<section class="level2" id="examples">
+<h2>Examples</h2>
+<p>Mastering AD requires practice. Let’s see some examples.</p>
+<section class="level3" id="higher-order-derivatives">
+<h3>Higher-Order Derivatives</h3>
 <p>The following code first defines a function <code>f0</code>, then calculates from the first to the fourth derivative by calling <code>Algodiff.AD.diff</code> function.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D;;
@@ -60,108 +130,9 @@ Plot.output h;;</code></pre>
 </div>
 <p>The code above will give you the fourth derivative of <code>f</code>, i.e.&nbsp;<code>f''''</code>.</p>
 </section>
-</section>
-<section class="level2" id="high-level-apis">
-<h2>High-level APIs</h2>
-<p>Owl provides both numerical differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli">Algodiff.Generic</a> module).</p>
-<p><code>Algodiff.Generic</code> is a functor which is able to support both <code>float32</code> and <code>float64</code> precision <code>AD</code>. However, you do not need to deal with <code>Algodiff.Generic.Make</code> directly since there are already two ready-made modules.</p>
-<ul>
-<li><code>Algodiff.S</code> supports <code>float32</code> precision;</li>
-<li><code>Algodiff.D</code> supports <code>float64</code> precision;</li>
-</ul>
-<p><code>Algodiff</code> has implemented both forward and backward mode of AD. The complete list of APIs can be found in <a href="https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli">owl_algodiff_generic.mli</a>. The core APIs are listed below.</p>
-<div class="highlight">
-<pre><code class="language-text">
-  val diff : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate derivative for f : scalar -&gt; scalar *)
-
-  val grad : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate gradient for f : vector -&gt; scalar *)
-
-  val jacobian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate jacobian for f : vector -&gt; vector *)
-
-  val hessian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate hessian for f : scalar -&gt; scalar *)
-
-  val laplacian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate laplacian for f : scalar -&gt; scalar *)
-</code></pre>
-</div>
-<p>Besides, there are also more helper functions such as <code>jacobianv</code> for calculating jacobian vector product; <code>diff'</code> for calculating both <code>f x</code> and <code>diff f x</code>, and etc.</p>
-<section class="level3" id="example-simple-jacobian-and-gradient">
-<h3>Example: Simple Jacobian and Gradient</h3>
-<p>REFER: Automatic Differentiation in MATLAB using ADMAT with Applications</p>
-</section>
-<section class="level3" id="example-gradient-descent-algorithm">
-<h3>Example: Gradient Descent Algorithm</h3>
-<p>Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function <code>f</code> before plugging into gradient descendent algorithm. With <code>Algodiff</code>, derivation can be done easily. The following several lines of code define the skeleton of GD.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">open Algodiff.D
-
-let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g = (diff f) x in
-  if (unpack_flt g) &lt; eps then x
-  else desc ~eta ~eps f Maths.(x - eta * g);;</code></pre>
-</div>
-<p>Now let’s define a function we want to optimise, then plug it into <code>desc</code> function.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let f x = Maths.(sin x + cos x);;
-let x_min = desc f (F 0.1);;</code></pre>
-</div>
-<p>Because we started searching from <code>0.</code>, the <code>desc</code> function successfully found the local minimum at <code>-2.35619175250552448</code>. You can visually verify that by plotting it out.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let g x = sin x +. cos x in
-let h = Plot.create "plot_01.png" in
-Plot.plot_fun ~h g (-5.) 5.;
-Plot.output h;;</code></pre>
-</div>
-<figure>
-<img alt="" style="width:90.0%" id="fig:algodiff:plot01" title="plot 01" src="images/algodiff/plot_01.png"><figcaption>Figure 2: Gradient descent</figcaption>
-</figure>
-</section>
-<section class="level3" id="example-newtons-algorithm">
-<h3>Example : Newton’s Algorithm</h3>
-<p>Newton’s method is a root-finding algorithm by successively searching for better approximation of the root. The Newton’s method converges faster than gradient descent. The following implementation calculates the exact hessian of <code>f</code> which in practice is very expensive operation.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;</code></pre>
-</div>
-<p>Now we can apply <code>newton</code> to find the extreme value of <code>Maths.(cos x |&gt; sum')</code>.</p>
-<div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = Maths.(cos x |&gt; sum') in
-newton f (Mat.uniform 1 2)
-;;
-&gt;- : t = [Arr(1,2)]
-</code></pre>
-</div>
-</section>
-</section>
-<section class="level2" id="a-brief-theoretical-basis">
-<h2>A Brief Theoretical Basis</h2>
-<p>REFER: The Art of Differentiating Computer Programs</p>
-<section class="level3" id="first-derivative-code">
-<h3>First Derivative Code</h3>
-<p>Tangent, Adjoint, etc.</p>
-</section>
-<section class="level3" id="higher-derivative-code">
-<h3>Higher Derivative Code</h3>
-</section>
-</section>
-<section class="level2" id="forward-or-backward">
-<h2>Forward or Backward?</h2>
-<p>REFER: <em>Evaluating Derivatives</em>, Chapter 3.</p>
-<p>There are two modes in algorithmic differentiation - forward mode and backward mode. Owl has implemented both. Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function :)</p>
-<p>In general, given a function that you want to differentiate, the rule of thumb is:</p>
-<ul>
-<li>if input variables &gt;&gt; output variables, then use backward mode;</li>
-<li>if input variables &lt;&lt; output variables, then use forward mode.</li>
-</ul>
-<p>E.g., let’s look at the two simple functions <code>f</code> and <code>g</code> defined below. <code>f</code> falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst <code>g</code> falls into the second category.</p>
+<section class="level3" id="choosing-forward-or-reverse-mode">
+<h3>Choosing Forward or Reverse Mode</h3>
+<p>Let’s look at the two simple functions <code>f</code> and <code>g</code> defined below. <code>f</code> falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst <code>g</code> falls into the second category.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   open Algodiff.D;;
@@ -226,6 +197,58 @@ newton f (Mat.uniform 1 2)
 <p>As we can see, for each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for <code>f</code>. One real-world example of <code>f</code> is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.</p>
 <p>Similarly, you can try to use backward mode to differentiate <code>g</code>. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.</p>
 <p>In reality, you don’t really need to worry about forward or backward mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.</p>
+</section>
+<section class="level3" id="simple-jacobian-and-gradient">
+<h3>Simple Jacobian and Gradient</h3>
+<p>REFER: Automatic Differentiation in MATLAB using ADMAT with Applications</p>
+</section>
+<section class="level3" id="gradient-descent-algorithm">
+<h3>Gradient Descent Algorithm</h3>
+<p>Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function <code>f</code> before plugging into gradient descendent algorithm. With <code>Algodiff</code>, derivation can be done easily. The following several lines of code define the skeleton of GD.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = (diff f) x in
+  if (unpack_flt g) &lt; eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g);;</code></pre>
+</div>
+<p>Now let’s define a function we want to optimise, then plug it into <code>desc</code> function.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let f x = Maths.(sin x + cos x);;
+let x_min = desc f (F 0.1);;</code></pre>
+</div>
+<p>Because we started searching from <code>0.</code>, the <code>desc</code> function successfully found the local minimum at <code>-2.35619175250552448</code>. You can visually verify that by plotting it out.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let g x = sin x +. cos x in
+let h = Plot.create "plot_01.png" in
+Plot.plot_fun ~h g (-5.) 5.;
+Plot.output h;;</code></pre>
+</div>
+<figure>
+<img alt="" style="width:90.0%" id="fig:algodiff:plot01" title="plot 01" src="images/algodiff/plot_01.png"><figcaption>Figure 2: Gradient descent</figcaption>
+</figure>
+</section>
+<section class="level3" id="newtons-algorithm">
+<h3>Newton’s Algorithm</h3>
+<p>Newton’s method is a root-finding algorithm by successively searching for better approximation of the root. The Newton’s method converges faster than gradient descent. The following implementation calculates the exact hessian of <code>f</code> which in practice is very expensive operation.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;</code></pre>
+</div>
+<p>Now we can apply <code>newton</code> to find the extreme value of <code>Maths.(cos x |&gt; sum')</code>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = Maths.(cos x |&gt; sum') in
+newton f (Mat.uniform 1 2)
+;;
+&gt;- : t = [Arr(1,2)]
+</code></pre>
+</div>
+</section>
 </section>
 <section class="level2" id="design-of-the-algorithmic-differentiation-module">
 <h2>Design of the Algorithmic Differentiation Module</h2>

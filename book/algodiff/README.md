@@ -1,21 +1,112 @@
 # Algorithmic Differentiation
 
+TBD
 
 ## Introduction
 
-Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields, especially useful for fast prototyping in machine learning research. Comparing to numerical differentiation which can only provides approximate results, AD can calculates the exact derivative of a given function.
+Computing derivatives (differentiation) is crucial in many scientific related fields:
+find maximum or minimum values using gradient descent (see later chapter);
+ODE (see later chapter);
+Non-linear optimisation such as KKT optimality conditions is still a prime application.
 
-### Applications of Differentiation in Scientific Computing
+One new crucial application is in machine learning.
 
-The gradient
+### Chain Rule
 
-Derivatives for Systems of Nonlinear Equations, Nonlinear Programming, etc.
+Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
 
-### Manual Differentiation
+Liang: *you need to talk about derivative, gradient, hessian, etc.*
 
-Liang: consider to rename it to Chain Rule, you need to talk about derivative, gradient, hessian, etc.
+Explain the Chain rule
 
-### Motivative Example: Higher-Order Derivatives
+Example 
+
+### Differentiation Methods 
+
+As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation.
+Therefore, we turn to computer-based automated computation methods. 
+There are three: numerical differentiation, symbolic differentiation, and algorithmic differentiation.
+
+**Numerical Differentiation**
+
+Simple intro; see later chapter
+
+**Symbolic Differentiation**
+
+Example
+
+**Algorithmic Differentiation**
+
+Algorithmic differentiation (AD) is also known as automatic differentiation. 
+It is a powerful tool in many fields.
+
+It's advantage compared with the other two.
+
+Now let's talk about AD.
+
+## How Algorithmic Differentiation Works
+
+REFER: *Evaluating Derivatives*, Chapter 3.
+
+### Theoretical Basis
+
+Tangent, Adjoint, first derivative, higher derivative, etc.
+
+### Forward Modes
+
+### Reverse Modes
+
+## Forward or Reverse?
+
+Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
+
+In general, given a function that you want to differentiate, the rule of thumb is:
+
+* if input variables >> output variables, then use backward mode;
+* if input variables << output variables, then use forward mode.
+
+Later we will show example of this point.
+
+
+## High-level APIs
+
+The design of AD in Owl.
+
+Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
+
+`Algodiff.Generic` is a functor which is able to support both `float32` and `float64` precision `AD`. However, you do not need to deal with `Algodiff.Generic.Make` directly since there are already two ready-made modules.
+
+- `Algodiff.S` supports `float32` precision;
+- `Algodiff.D` supports `float64` precision;
+
+`Algodiff` has implemented both forward and backward mode of AD. The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
+
+```text
+
+  val diff : (t -> t) -> t -> t
+  (* calculate derivative for f : scalar -> scalar *)
+
+  val grad : (t -> t) -> t -> t
+  (* calculate gradient for f : vector -> scalar *)
+
+  val jacobian : (t -> t) -> t -> t
+  (* calculate jacobian for f : vector -> vector *)
+
+  val hessian : (t -> t) -> t -> t
+  (* calculate hessian for f : scalar -> scalar *)
+
+  val laplacian : (t -> t) -> t -> t
+  (* calculate laplacian for f : scalar -> scalar *)
+
+```
+
+Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
+
+## Examples
+
+Mastering AD requires practice. Let's see some examples.
+
+### Higher-Order Derivatives
 
 The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
 
@@ -69,118 +160,9 @@ let f'''' f = f |> diff |> diff |> diff |> diff
 
 The code above will give you the fourth derivative of `f`, i.e. `f''''`.
 
-## High-level APIs
+### Choosing Forward or Reverse Mode
 
-Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
-
-`Algodiff.Generic` is a functor which is able to support both `float32` and `float64` precision `AD`. However, you do not need to deal with `Algodiff.Generic.Make` directly since there are already two ready-made modules.
-
-- `Algodiff.S` supports `float32` precision;
-- `Algodiff.D` supports `float64` precision;
-
-`Algodiff` has implemented both forward and backward mode of AD. The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
-
-```text
-
-  val diff : (t -> t) -> t -> t
-  (* calculate derivative for f : scalar -> scalar *)
-
-  val grad : (t -> t) -> t -> t
-  (* calculate gradient for f : vector -> scalar *)
-
-  val jacobian : (t -> t) -> t -> t
-  (* calculate jacobian for f : vector -> vector *)
-
-  val hessian : (t -> t) -> t -> t
-  (* calculate hessian for f : scalar -> scalar *)
-
-  val laplacian : (t -> t) -> t -> t
-  (* calculate laplacian for f : scalar -> scalar *)
-
-```
-
-Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
-
-
-### Example: Simple Jacobian and Gradient 
-
-REFER: Automatic Differentiation in MATLAB using ADMAT with Applications
-
-### Example: Gradient Descent Algorithm
-
-Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
-
-```ocaml env=algodiff_01
-open Algodiff.D
-
-let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g = (diff f) x in
-  if (unpack_flt g) < eps then x
-  else desc ~eta ~eps f Maths.(x - eta * g);;
-```
-
-Now let's define a function we want to optimise, then plug it into `desc` function.
-
-```ocaml env=algodiff_01
-let f x = Maths.(sin x + cos x);;
-let x_min = desc f (F 0.1);;
-```
-
-Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
-
-```ocaml env=algodiff_01
-let g x = sin x +. cos x in
-let h = Plot.create "plot_01.png" in
-Plot.plot_fun ~h g (-5.) 5.;
-Plot.output h;;
-```
-
-![Gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90% #fig:algodiff:plot01 }
-
-### Example : Newton's Algorithm
-
-Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
-
-```ocaml env=algodiff_02
-open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |> unpack_flt) < eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
-```
-
-Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
-
-```ocaml env=algodiff_02
-# let f x = Maths.(cos x |> sum') in
-  newton f (Mat.uniform 1 2)
-- : t = [Arr(1,2)]
-```
-
-## A Brief Theoretical Basis
-
-REFER: The Art of Differentiating Computer Programs
-
-### First Derivative Code 
-
-Tangent, Adjoint, etc.
-
-### Higher Derivative Code 
-
-
-## Forward or Backward?
-
-REFER: *Evaluating Derivatives*, Chapter 3.
-
-There are two modes in algorithmic differentiation - forward mode and backward mode. Owl has implemented both. Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function :)
-
-In general, given a function that you want to differentiate, the rule of thumb is:
-
-* if input variables >> output variables, then use backward mode;
-* if input variables << output variables, then use forward mode.
-
-E.g., let's look at the two simple functions `f` and `g` defined below. `f` falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst `g` falls into the second category.
+Let's look at the two simple functions `f` and `g` defined below. `f` falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst `g` falls into the second category.
 
 ```ocaml
 
@@ -258,6 +240,64 @@ As we can see, for each input variable, we need to seed individual variable and 
 Similarly, you can try to use backward mode to differentiate `g`. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
 
 In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
+
+### Simple Jacobian and Gradient 
+
+REFER: Automatic Differentiation in MATLAB using ADMAT with Applications
+
+
+### Gradient Descent Algorithm
+
+Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
+
+```ocaml env=algodiff_01
+open Algodiff.D
+
+let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = (diff f) x in
+  if (unpack_flt g) < eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g);;
+```
+
+Now let's define a function we want to optimise, then plug it into `desc` function.
+
+```ocaml env=algodiff_01
+let f x = Maths.(sin x + cos x);;
+let x_min = desc f (F 0.1);;
+```
+
+Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
+
+```ocaml env=algodiff_01
+let g x = sin x +. cos x in
+let h = Plot.create "plot_01.png" in
+Plot.plot_fun ~h g (-5.) 5.;
+Plot.output h;;
+```
+
+![Gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90% #fig:algodiff:plot01 }
+
+### Newton's Algorithm
+
+Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
+
+```ocaml env=algodiff_02
+open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g, h = (gradhessian f) x in
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
+```
+
+Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
+
+```ocaml env=algodiff_02
+# let f x = Maths.(cos x |> sum') in
+  newton f (Mat.uniform 1 2)
+- : t = [Arr(1,2)]
+```
+
 
 ## Design of the Algorithmic Differentiation Module 
 
