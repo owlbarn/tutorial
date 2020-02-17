@@ -7,47 +7,58 @@
 <p>One new crucial application is in machine learning.</p>
 <section class="level3" id="chain-rule">
 <h3>Chain Rule</h3>
-<p>Before diving into how to do differentiation on computers, let’s recall how to do it manually from our Calculus 101.</p>
 <p>Liang: <em>you need to talk about derivative, gradient, hessian, etc.</em></p>
-<p>Explain the Chain rule</p>
-<p>Example</p>
+<p>Before diving into how to do differentiation on computers, let’s recall how to do it manually from our Calculus 101. In calculus, the chain rule is a formula to compute the derivative of a composite function. Suppose we have two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>, then the Chain rule states that:</p>
+<p><span id="eq:algodiff:chainrule01"><span class="math display">\[F'(x)=f'(g(x))g'(x).\qquad(1)\]</span></span></p>
+<p>This seemingly simple rule is one of the basic rule in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let $y=e<sup>{ln~x</sup>a} = e^{a<sub>ln</sub>x}, and then we can set <span class="math inline">\(u= alnx\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
+<p><span class="math display">\[y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.\]</span></p>
+<p>Also, it’s helpful to remember some rules:</p>
+<p><span class="math display">\[(u(x) + v(x))' = u'(x) + v'(x),\]</span> <span class="math display">\[(C*u(x))' = C*u'(x),\]</span> <span id="eq:algodiff:chainrule02"><span class="math display">\[(u(x)v(x))' = u'(x)v(x) + u(x)v'(x),\qquad(2)\]</span></span> <span class="math display">\[(\frac{u(x)}{v(x)})' = \frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}.\]</span></p>
+<p>Using these basic rules, we can solve many derivative questions.</p>
 </section>
 <section class="level3" id="differentiation-methods">
 <h3>Differentiation Methods</h3>
 <p>As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation. Therefore, we turn to computer-based automated computation methods. There are three: numerical differentiation, symbolic differentiation, and algorithmic differentiation.</p>
 <p><strong>Numerical Differentiation</strong></p>
-<p>Simple intro; see later chapter</p>
+<p>The numerical differentiation comes from the definition of derivative:</p>
+<p><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.\]</span></p>
+<p>We’ll discuss it in the Optimisation chapter, since optimisation using gradient is a very important application of differentiation. This method is easy in coding, but is subject to numerical errors. (EXPLAIN)</p>
 <p><strong>Symbolic Differentiation</strong></p>
-<p>Example</p>
+<p>This method gives exact solution, but in most cases, this solution gives a long list of symbols that will take much memory. Finding symbolic representation also cannot utilise common intermediate result, and is slow.</p>
 <p><strong>Algorithmic Differentiation</strong></p>
-<p>Algorithmic differentiation (AD) is also known as automatic differentiation. It is a powerful tool in many fields.</p>
+<p>Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme. It is also known as automatic differentiation. It is a powerful tool in many fields.</p>
 <p>It’s advantage compared with the other two.</p>
+<p>Especially, it is not symbolic differentiation.</p>
 <p>Now let’s talk about AD.</p>
 </section>
 </section>
 <section class="level2" id="how-algorithmic-differentiation-works">
 <h2>How Algorithmic Differentiation Works</h2>
 <p>REFER: <em>Evaluating Derivatives</em>, Chapter 3.</p>
-<section class="level3" id="theoretical-basis">
-<h3>Theoretical Basis</h3>
-<p>Tangent, Adjoint, first derivative, higher derivative, etc.</p>
+<p><strong>Theoretical Basis:</strong> Tangent, adjoint, dual number, first derivative, higher derivative, etc.</p>
+<p>A common example:</p>
+<p><span class="math display">\[y(x) = (1 + \exp{-(x_1~x_2) + sin(x_3)})^{-1}\]</span></p>
+<p>IMAGE</p>
+<section class="level3" id="forward-mode">
+<h3>Forward Mode</h3>
+<p>Computation Steps and figure</p>
+<p>Also called “tangent linear” mode.</p>
 </section>
-<section class="level3" id="forward-modes">
-<h3>Forward Modes</h3>
+<section class="level3" id="reverse-mode">
+<h3>Reverse Mode</h3>
+<p>Computation Steps and figure</p>
+<p>Also called “adjoint” mode.</p>
 </section>
-<section class="level3" id="reverse-modes">
-<h3>Reverse Modes</h3>
-</section>
-</section>
-<section class="level2" id="forward-or-reverse">
-<h2>Forward or Reverse?</h2>
+<section class="level3" id="forward-or-reverse">
+<h3>Forward or Reverse?</h3>
 <p>Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.</p>
 <p>In general, given a function that you want to differentiate, the rule of thumb is:</p>
 <ul>
-<li>if input variables &gt;&gt; output variables, then use backward mode;</li>
+<li>if input variables &gt;&gt; output variables, then use reverse mode;</li>
 <li>if input variables &lt;&lt; output variables, then use forward mode.</li>
 </ul>
 <p>Later we will show example of this point.</p>
+</section>
 </section>
 <section class="level2" id="high-level-apis">
 <h2>High-level APIs</h2>
@@ -262,8 +273,10 @@ newton f (Mat.uniform 1 2)
 <section class="level2" id="algorithmic-differentiation-the-engine-of-neural-network">
 <h2>Algorithmic Differentiation: The Engine of Neural Network</h2>
 <p>In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.</p>
+<p>Reference: PyTorch</p>
 <section class="level3" id="backpropagation-in-neural-network">
 <h3>Backpropagation in Neural Network</h3>
+<p>AD was proposed in 1970, and backpropagation was proposed in 1980s. They are different, but backprop is frequently implemented using the reverse mode AD.</p>
 <p>Now let’s talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
 <div class="highlight">
 <pre><code class="language-text">let backprop nn eta x y =

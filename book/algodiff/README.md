@@ -13,13 +13,28 @@ One new crucial application is in machine learning.
 
 ### Chain Rule
 
-Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
-
 Liang: *you need to talk about derivative, gradient, hessian, etc.*
 
-Explain the Chain rule
+Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
+In calculus, the chain rule is a formula to compute the derivative of a composite function.
+Suppose we have two functions $f$ and $g$, then the Chain rule states that:
 
-Example 
+$$F'(x)=f'(g(x))g'(x).$$ {#eq:algodiff:chainrule01}
+
+This seemingly simple rule is one of the basic rule in calculating derivatives.
+For example, let $y = x^a$, where $a$ is a real number, and then we can get $y'$ using the chain rule.
+Specifically, let $y=e^{ln~x^a} = e^{a~ln~x}, and then we can set $u= alnx$ so that now $y=e^u$. By applying the chain rule, we have:
+
+$$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$ 
+
+Also, it's helpful to remember some rules:
+
+$$(u(x) + v(x))' = u'(x) + v'(x),$$
+$$(C*u(x))' = C*u'(x),$$
+$$(u(x)v(x))' = u'(x)v(x) + u(x)v'(x),$$ {#eq:algodiff:chainrule02}
+$$(\frac{u(x)}{v(x)})' = \frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}.$$
+
+Using these basic rules, we can solve many derivative questions.
 
 ### Differentiation Methods 
 
@@ -29,18 +44,28 @@ There are three: numerical differentiation, symbolic differentiation, and algori
 
 **Numerical Differentiation**
 
-Simple intro; see later chapter
+The numerical differentiation comes from the definition of derivative:
+
+$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ 
+
+We'll discuss it in the Optimisation chapter, since optimisation using gradient is a very important application of differentiation.
+This method is easy in coding, but is subject to numerical errors. (EXPLAIN)
+
 
 **Symbolic Differentiation**
 
-Example
+This method gives exact solution, but in most cases, this solution gives a long list of symbols that will take much memory.
+Finding symbolic representation also cannot utilise common intermediate result, and is slow.
 
 **Algorithmic Differentiation**
 
-Algorithmic differentiation (AD) is also known as automatic differentiation. 
+Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme.
+It is also known as automatic differentiation. 
 It is a powerful tool in many fields.
 
-It's advantage compared with the other two.
+It's advantage compared with the other two. 
+
+Especially, it is not symbolic differentiation.
 
 Now let's talk about AD.
 
@@ -48,21 +73,35 @@ Now let's talk about AD.
 
 REFER: *Evaluating Derivatives*, Chapter 3.
 
-### Theoretical Basis
+**Theoretical Basis:**
+Tangent, adjoint, dual number, first derivative, higher derivative, etc.
 
-Tangent, Adjoint, first derivative, higher derivative, etc.
+A common example: 
 
-### Forward Modes
+$$y(x) = (1 + \exp{-(x_1~x_2) + sin(x_3)})^{-1}$$
 
-### Reverse Modes
+IMAGE
 
-## Forward or Reverse?
+
+### Forward Mode
+
+Computation Steps and figure
+
+Also called "tangent linear" mode.
+
+### Reverse Mode
+
+Computation Steps and figure
+
+Also called "adjoint" mode.
+
+### Forward or Reverse?
 
 Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 
 In general, given a function that you want to differentiate, the rule of thumb is:
 
-* if input variables >> output variables, then use backward mode;
+* if input variables >> output variables, then use reverse mode;
 * if input variables << output variables, then use forward mode.
 
 Later we will show example of this point.
@@ -310,8 +349,12 @@ Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
 
 In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.
 
+Reference: PyTorch
+
 
 ### Backpropagation in Neural Network
+
+AD was proposed in 1970, and backpropagation was proposed in 1980s. They are different, but backprop is frequently implemented using the reverse mode AD.
 
 Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
 
