@@ -26,6 +26,7 @@ Function      Explanation
 `atan2`       returns $\arctan(y/x)$, accounting for the sign of the 
               arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
 ------------  -------------------------------------------------------
+: Binary math functions {#tbl:maths:binary}
 
 ### Basic Unary Math Functions 
 
@@ -56,6 +57,7 @@ Function      Explanation
 
 `hypot`       $\sqrt{x^2 + y^2}$
 ------------  -------------------------------------------------------
+: Basic unary math functions {#tbl:maths:basic_unary}
 
 
 ### Exponential and Logarithmic Functions
@@ -97,7 +99,7 @@ Function      Explanation
 
 `log1pexp`    $log(1+exp(x))$
 ------------  -------------------------------------------------------
-
+: Exponential and logarithmic math functions {#tbl:maths:explog}
 
 ### Triangular Functions
 
@@ -168,6 +170,7 @@ Function      Explanation
 
 `cotdg`       Cotangent of the angle given in degrees
 ------------  -------------------------------------------------------
+: Triangular math functions {#tbl:maths:triangular}
 
 ### Other Unary Math Functions
 
