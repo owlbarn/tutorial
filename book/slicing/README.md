@@ -96,22 +96,22 @@ The core building block is the slice definition. Slice definition is a `index li
 
 The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.
 
-* The format of the range definition follows **R [ start; stop; step ]**. Obviously, `start` specifies the starting index; `stop` specifies the stopping index (inclusive); and `step` specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.
+**Rule #1**: The format of the range definition follows **R [ start; stop; step ]**. Obviously, `start` specifies the starting index; `stop` specifies the stopping index (inclusive); and `step` specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.
 
-* All three variables `start`, `stop`, and `step` can take both positive and negative values, but `step` is not allowed to take `0` value. Positive step indicates that indices will be visited in increasing order from `start` to `stop`; and vice versa.
+**Rule #2**: All three variables `start`, `stop`, and `step` can take both positive and negative values, but `step` is not allowed to take `0` value. Positive step indicates that indices will be visited in increasing order from `start` to `stop`; and vice versa.
 
-* For `start` and `stop` variables, positive value refers to a specific index; whereas negative value `a` will be translated into `n + a` where `n` is the total number of indices. E.g., `[ -1; 0 ]` means from the last index to the first one.
+**Rule #3**: For `start` and `stop` variables, positive value refers to a specific index; whereas negative value `a` will be translated into `n + a` where `n` is the total number of indices. E.g., `[ -1; 0 ]` means from the last index to the first one.
 
-* If you pass in an empty list `R []`, this will be expanded into `[ 0; n - 1; 1 ]` which means all the indices will be visited in increasing order with step size `1`.
+**Rule #4**: If you pass in an empty list `R []`, this will be expanded into `[ 0; n - 1; 1 ]` which means all the indices will be visited in increasing order with step size `1`.
 
-* If you only specify one variable such as `[ start ]`, then `get_slice` function assumes that you will take one specific index by automatically extending it into `[ start; start; 1 ]`. As we can see, `start` and `stop` are the same, with step size 1.
+**Rule #5**: If you only specify one variable such as `[ start ]`, then `get_slice` function assumes that you will take one specific index by automatically extending it into `[ start; start; 1 ]`. As we can see, `start` and `stop` are the same, with step size 1.
 
-* If you only specify two variables then `slice` function assumes they are `[ start; stop ]` which defines the range of indices. However, how `get_slice` will expand this slice definition depends, as we can see in the below, `slice` will visit the indices in different orders.
+**Rule #6**: If you only specify two variables then `slice` function assumes they are `[ start; stop ]` which defines the range of indices. However, how `get_slice` will expand this slice definition depends, as we can see in the below, `slice` will visit the indices in different orders.
 
-  - if `start <= stop`, then it will be expanded to `[ start; stop; 1 ]`;
-  - if `start > stop`, then it will be expanded to `[ start; stop; -1 ]`;
+  * if `start <= stop`, then it will be expanded to `[ start; stop; 1 ]`;
+  * if `start > stop`, then it will be expanded to `[ start; stop; -1 ]`;
 
-* It is not necessary to specify all the definitions for all the dimensions, `get_slice` function will also expand it by assuming you will take all the data in higher dimensions. E.g., `x` has the shape `[ 2; 3; 4 ]`, if we define the slice as `[ [0] ]` then `get_slice` will expand the definition into `[ [0]; []; [] ]`
+**Rule #7**: It is not necessary to specify all the definitions for all the dimensions, `get_slice` function will also expand it by assuming you will take all the data in higher dimensions. E.g., `x` has the shape `[ 2; 3; 4 ]`, if we define the slice as `[ [0] ]` then `get_slice` will expand the definition into `[ [0]; []; [] ]`
 
 OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.
 
