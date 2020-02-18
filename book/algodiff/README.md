@@ -4,6 +4,8 @@ TBD
 
 ## Introduction
 
+Introductory examples: speed and thermal field --> definition/format of derivative and gradient. (Ref: Feynman lecture)
+
 Computing derivatives (differentiation) is crucial in many scientific related fields:
 find maximum or minimum values using gradient descent (see later chapter);
 ODE (see later chapter);
@@ -13,7 +15,7 @@ One new crucial application is in machine learning.
 
 ### Chain Rule
 
-Liang: *you need to talk about derivative, gradient, hessian, etc.*
+Liang: *you need to talk about hessian, etc.*
 
 Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
 In calculus, the chain rule is a formula to compute the derivative of a composite function.
@@ -23,7 +25,7 @@ $$F'(x)=f'(g(x))g'(x).$$ {#eq:algodiff:chainrule01}
 
 This seemingly simple rule is one of the basic rule in calculating derivatives.
 For example, let $y = x^a$, where $a$ is a real number, and then we can get $y'$ using the chain rule.
-Specifically, let $y=e^{ln~x^a} = e^{a~ln~x}, and then we can set $u= alnx$ so that now $y=e^u$. By applying the chain rule, we have:
+Specifically, let $y=e^{ln~x^a} = e^{a~ln~x}$, and then we can set $u= alnx$ so that now $y=e^u$. By applying the chain rule, we have:
 
 $$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$ 
 
@@ -57,6 +59,8 @@ This method is easy in coding, but is subject to numerical errors. (EXPLAIN)
 This method gives exact solution, but in most cases, this solution gives a long list of symbols that will take much memory.
 Finding symbolic representation also cannot utilise common intermediate result, and is slow.
 
+[Duplication](https://alexey.radul.name/ideas/2013/introduction-to-automatic-differentiation/)
+
 **Algorithmic Differentiation**
 
 Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme.
@@ -71,14 +75,27 @@ Now let's talk about AD.
 
 ## How Algorithmic Differentiation Works
 
-REFER: *Evaluating Derivatives*, Chapter 3.
+We have seen the chain rules being applied on simple functions such as $y=x^a$. Now let's check how this rule can be applied on more complex computations. 
+Let's look at the function below: 
+
+$$y(x_0, x_1) = (1 + e^{(x_0~x_1) + sin(x_1)})^{-1}.$$ {#eq:algodiff:example}
+
+This functions is based on a sigmoid function. Our goal is to compute the partial derivative $\frac{\partial~y}{\partial~x_0}$,$\frac{\partial~y}{\partial~x_1}$.
+To better illustrate this process, we express [@eq:algodiff:example] as a graph, as shown in [@fig:algodiff:example_01].
+At the right side of the figure, we have the final output $y$, and at the roots of this graph are input variables.
+The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as `sine`.
+All nodes are labelled by $v_i$. 
+An edge between two nodes represents an explicit dependency in the computation.
+
+![Graph expression of function](images/algodiff/example_01.png "example_01"){ width=100% #fig:algodiff:example_01}
+
+
 
 **Theoretical Basis:**
 Tangent, adjoint, dual number, first derivative, higher derivative, etc.
 
 A common example: 
 
-$$y(x) = (1 + \exp{-(x_1~x_2) + sin(x_3)})^{-1}$$
 
 IMAGE
 
