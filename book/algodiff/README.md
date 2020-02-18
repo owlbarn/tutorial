@@ -31,10 +31,18 @@ $$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$
 
 Also, it's helpful to remember some rules:
 
-$$(u(x) + v(x))' = u'(x) + v'(x),$$
-$$(C*u(x))' = C*u'(x),$$
-$$(u(x)v(x))' = u'(x)v(x) + u(x)v'(x),$$ {#eq:algodiff:chainrule02}
-$$(\frac{u(x)}{v(x)})' = \frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}.$$
+----------------------  --------------------------------------
+Function                Derivatives
+----------------------  --------------------------------------
+$(u(x) + v(x))'$        $u'(x) + v'(x)$
+
+$(C\times~u(x))'$       $C\times~u'(x)$
+
+$(u(x)v(x))'$           $u'(x)v(x) + u(x)v'(x)$ 
+
+$(\frac{u(x)}{v(x)})'$  $\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}$
+----------------------  --------------------------------------
+: A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}
 
 Using these basic rules, we can solve many derivative questions.
 
@@ -78,9 +86,9 @@ Now let's talk about AD.
 We have seen the chain rules being applied on simple functions such as $y=x^a$. Now let's check how this rule can be applied on more complex computations. 
 Let's look at the function below: 
 
-$$y(x_0, x_1) = (1 + e^{(x_0~x_1) + sin(x_1)})^{-1}.$$ {#eq:algodiff:example}
+$$y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.$$ {#eq:algodiff:example}
 
-This functions is based on a sigmoid function. Our goal is to compute the partial derivative $\frac{\partial~y}{\partial~x_0}$,$\frac{\partial~y}{\partial~x_1}$.
+This functions is based on a sigmoid function. Our goal is to compute the partial derivative $\frac{\partial~y}{\partial~x_0}$ and $\frac{\partial~y}{\partial~x_1}$.
 To better illustrate this process, we express [@eq:algodiff:example] as a graph, as shown in [@fig:algodiff:example_01].
 At the right side of the figure, we have the final output $y$, and at the roots of this graph are input variables.
 The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as `sine`.
@@ -89,22 +97,75 @@ An edge between two nodes represents an explicit dependency in the computation.
 
 ![Graph expression of function](images/algodiff/example_01.png "example_01"){ width=100% #fig:algodiff:example_01}
 
-
-
-**Theoretical Basis:**
-Tangent, adjoint, dual number, first derivative, higher derivative, etc.
-
-A common example: 
-
-
-IMAGE
-
+Based on this graphic representation, there are two major ways to apply the chain rules: the forward differentiation mode, and the reverse differentiation mode (not "backward differentiation", which is a method used for solving ordinary differential equations).
+Next, we introduce these two methods. 
 
 ### Forward Mode
 
-Computation Steps and figure
+Our target is to calculate $\frac{\partial~y}{\partial~x_0}$ (partial derivative regarding $x_1$ should be similar).
+But don't be so hurry, let's start with some earlier intermediate results that might be helpful.
+For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 1, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 0$. It's just elementary.
+Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? Not is a good time to use the chain rule:
 
-Also called "tangent linear" mode.
+$$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.$$
+
+After calculating $\frac{\partial~v_3}{\partial~x_0}$, we can then processed with derivatives of $v_5$, $v_6$, all the way to that of $v_9$ which is also the output $y$ we are looking for. 
+This process starts with the input variables, and ends with output variables. Therefore, it is called *forward differentiation*.
+We can do simplify the math notations in this process by letting $\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}$. 
+The $\dot{v_i}$ here is called *tangent* of function $v_i(x_0, x_1, \ldots, x_n)$ with regard to input variable $x_0$.
+The forward differentiation mode is sometimes also called "tangent linear" mode.
+
+Now we can present the full forward differentiation calculation process, as shown in [@tbl:algodiff:forward].
+Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by [@eq:algodiff:example]; 
+on the right side shows computation of derivative for each intermediate variable with regard to $x_0$.
+Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
+
+---- --------------------------  --------------------------------- 
+Step Intermediate computation    Derivative computation            
+---- --------------------------  ---------------------------------
+0    $v_0 = x_0 = 1$             $\dot{v_0}=1$ 
+
+1    $v_1 = x_1 = 1$             $\dot{v_1}=0$
+
+2    $v_2 = sin(v_0) = 0.84$     $\dot{v_2} = cos(v_2)*\dot{v_0} = 0.84 * 1 = 0.84$   
+
+3    $v_3 = v_0~v_1 = 1$         $\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1$
+
+4    $v_4 = v_2 + v3 = 1.84$     $\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.84$
+
+5    $v_5 = 1$                   $\dot{v_5} = 0$
+
+6    $v_6 = \exp{(v_4)} = 6.30$    $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.84 = 11.59$
+
+7    $v_7 = 1$                   $\dot{v_7} = 0$
+
+8    $v_8 = v_5 + v_6 = 7.30$    $\dot{v_8} = \dot{v_5} + \dot{v_6} = 11.59$
+
+9    $y = v_9 = \frac{1}{v_8}$   $\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.22$
+---- --------------------------  ---------------------------------
+: Computation process of forward differentiation {#tbl:algodiff:forward}
+
+
+We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the detail of this module in detail later.
+
+```ocaml
+# open Algodiff.D
+
+# let f x = 
+    let x1 = Mat.get x 0 0 in 
+    let x2 = Mat.get x 0 1 in 
+    Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin x1))))
+val f : t -> t = <fun>
+
+# let x = Mat.zeros 1 2 
+val x : t = [Arr(1,2)]
+
+# let _ = grad f x |> unpack_arr
+- : A.arr =
+      C0 C1
+R0 -0.25  0
+
+```
 
 ### Reverse Mode
 
@@ -123,6 +184,8 @@ In general, given a function that you want to differentiate, the rule of thumb i
 
 Later we will show example of this point.
 
+**Theoretical Basis:**
+adjoint, dual number, first derivative, higher derivative, etc.
 
 ## High-level APIs
 
@@ -363,6 +426,8 @@ Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
 
 
 ## Algorithmic Differentiation: The Engine of Neural Network
+
+TODO: Remove this part 
 
 In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.
 

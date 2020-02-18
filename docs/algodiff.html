@@ -14,7 +14,39 @@
 <p>This seemingly simple rule is one of the basic rule in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let <span class="math inline">\(y=e^{ln~x^a} = e^{a~ln~x}\)</span>, and then we can set <span class="math inline">\(u= alnx\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
 <p><span class="math display">\[y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.\]</span></p>
 <p>Also, it’s helpful to remember some rules:</p>
-<p><span class="math display">\[(u(x) + v(x))' = u'(x) + v'(x),\]</span> <span class="math display">\[(C*u(x))' = C*u'(x),\]</span> <span id="eq:algodiff:chainrule02"><span class="math display">\[(u(x)v(x))' = u'(x)v(x) + u(x)v'(x),\qquad(2)\]</span></span> <span class="math display">\[(\frac{u(x)}{v(x)})' = \frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}.\]</span></p>
+<div id="tbl:algodiff:chainrule02">
+<table style="width:88%;">
+<caption>Table 1: A Short Table of Basic Derivatives</caption>
+<colgroup>
+<col style="width: 33%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Derivatives</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((u(x) + v(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(u'(x) + v'(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((C\times~u(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(C\times~u'(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((u(x)v(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(u'(x)v(x) + u(x)v'(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((\frac{u(x)}{v(x)})'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>Using these basic rules, we can solve many derivative questions.</p>
 </section>
 <section class="level3" id="differentiation-methods">
@@ -37,18 +69,104 @@
 <section class="level2" id="how-algorithmic-differentiation-works">
 <h2>How Algorithmic Differentiation Works</h2>
 <p>We have seen the chain rules being applied on simple functions such as <span class="math inline">\(y=x^a\)</span>. Now let’s check how this rule can be applied on more complex computations. Let’s look at the function below:</p>
-<p><span id="eq:algodiff:example"><span class="math display">\[y(x_0, x_1) = (1 + e^{(x_0~x_1) + sin(x_1)})^{-1}.\qquad(3)\]</span></span></p>
-<p>This functions is based on a sigmoid function. Our goal is to compute the partial derivative <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>,<span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span>. To better illustrate this process, we express eq.&nbsp;3 as a graph, as shown in fig.&nbsp;1. At the right side of the figure, we have the final output <span class="math inline">\(y\)</span>, and at the roots of this graph are input variables. The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as <code>sine</code>. All nodes are labelled by <span class="math inline">\(v_i\)</span>. An edge between two nodes represents an explicit dependency in the computation.</p>
+<p><span id="eq:algodiff:example"><span class="math display">\[y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.\qquad(2)\]</span></span></p>
+<p>This functions is based on a sigmoid function. Our goal is to compute the partial derivative <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span>. To better illustrate this process, we express eq.&nbsp;2 as a graph, as shown in fig.&nbsp;1. At the right side of the figure, we have the final output <span class="math inline">\(y\)</span>, and at the roots of this graph are input variables. The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as <code>sine</code>. All nodes are labelled by <span class="math inline">\(v_i\)</span>. An edge between two nodes represents an explicit dependency in the computation.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:algodiff:example_01" title="example_01" src="images/algodiff/example_01.png"><figcaption>Figure 1: Graph expression of function</figcaption>
 </figure>
-<p><strong>Theoretical Basis:</strong> Tangent, adjoint, dual number, first derivative, higher derivative, etc.</p>
-<p>A common example:</p>
-<p>IMAGE</p>
+<p>Based on this graphic representation, there are two major ways to apply the chain rules: the forward differentiation mode, and the reverse differentiation mode (not “backward differentiation”, which is a method used for solving ordinary differential equations). Next, we introduce these two methods.</p>
 <section class="level3" id="forward-mode">
 <h3>Forward Mode</h3>
-<p>Computation Steps and figure</p>
-<p>Also called “tangent linear” mode.</p>
+<p>Our target is to calculate <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> (partial derivative regarding <span class="math inline">\(x_1\)</span> should be similar). But don’t be so hurry, let’s start with some earlier intermediate results that might be helpful. For example, what is <span class="math inline">\(\frac{\partial~x_0}{\partial~x_1}\)</span>? 1, obviously. Equally obvious is <span class="math inline">\(\frac{\partial~x_1}{\partial~x_1} = 0\)</span>. It’s just elementary. Now, things gets a bit trickier: what is <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>? Not is a good time to use the chain rule:</p>
+<p><span class="math display">\[\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.\]</span></p>
+<p>After calculating <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>, we can then processed with derivatives of <span class="math inline">\(v_5\)</span>, <span class="math inline">\(v_6\)</span>, all the way to that of <span class="math inline">\(v_9\)</span> which is also the output <span class="math inline">\(y\)</span> we are looking for. This process starts with the input variables, and ends with output variables. Therefore, it is called <em>forward differentiation</em>. We can do simplify the math notations in this process by letting <span class="math inline">\(\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}\)</span>. The <span class="math inline">\(\dot{v_i}\)</span> here is called <em>tangent</em> of function <span class="math inline">\(v_i(x_0, x_1, \ldots, x_n)\)</span> with regard to input variable <span class="math inline">\(x_0\)</span>. The forward differentiation mode is sometimes also called “tangent linear” mode.</p>
+<p>Now we can present the full forward differentiation calculation process, as shown in tbl.&nbsp;2. Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by eq.&nbsp;2; on the right side shows computation of derivative for each intermediate variable with regard to <span class="math inline">\(x_0\)</span>. Let’s find out <span class="math inline">\(\dot{y}\)</span> when setting <span class="math inline">\(x_0 = 1\)</span>, and <span class="math inline">\(x_1 = 1\)</span>.</p>
+<div id="tbl:algodiff:forward">
+<table style="width:93%;">
+<caption>Table 2: Computation process of forward differentiation</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 38%">
+<col style="width: 47%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: left;">Intermediate computation</th>
+<th style="text-align: left;">Derivative computation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td style="text-align: left;"><span class="math inline">\(v_0 = x_0 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_0}=1\)</span></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td style="text-align: left;"><span class="math inline">\(v_1 = x_1 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_1}=0\)</span></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td style="text-align: left;"><span class="math inline">\(v_2 = sin(v_0) = 0.84\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_2} = cos(v_2)*\dot{v_0} = 0.84 * 1 = 0.84\)</span></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td style="text-align: left;"><span class="math inline">\(v_3 = v_0~v_1 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td style="text-align: left;"><span class="math inline">\(v_4 = v_2 + v3 = 1.84\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.84\)</span></td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td style="text-align: left;"><span class="math inline">\(v_5 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_5} = 0\)</span></td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td style="text-align: left;"><span class="math inline">\(v_6 = \exp{(v_4)} = 6.30\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.84 = 11.59\)</span></td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td style="text-align: left;"><span class="math inline">\(v_7 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_7} = 0\)</span></td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td style="text-align: left;"><span class="math inline">\(v_8 = v_5 + v_6 = 7.30\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_8} = \dot{v_5} + \dot{v_6} = 11.59\)</span></td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td style="text-align: left;"><span class="math inline">\(y = v_9 = \frac{1}{v_8}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.22\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>We can validate this result with algorithmic differentiation module in Owl. If you don’t understand the code, don’t worry. We will cover the detail of this module in detail later.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">open Algodiff.D;;
+let f x = 
+  let x1 = Mat.get x 0 0 in 
+  let x2 = Mat.get x 0 1 in 
+  Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin x1))))
+;;
+&gt;val f : t -&gt; t = &lt;fun&gt;
+let x = Mat.zeros 1 2 ;;
+&gt;val x : t = [Arr(1,2)]
+let _ = grad f x |&gt; unpack_arr;;
+&gt;- : A.arr =
+&gt;      C0 C1
+&gt;R0 -0.25  0
+</code></pre>
+</div>
 </section>
 <section class="level3" id="reverse-mode">
 <h3>Reverse Mode</h3>
@@ -64,6 +182,7 @@
 <li>if input variables &lt;&lt; output variables, then use forward mode.</li>
 </ul>
 <p>Later we will show example of this point.</p>
+<p><strong>Theoretical Basis:</strong> adjoint, dual number, first derivative, higher derivative, etc.</p>
 </section>
 </section>
 <section class="level2" id="high-level-apis">
@@ -278,6 +397,7 @@ newton f (Mat.uniform 1 2)
 </section>
 <section class="level2" id="algorithmic-differentiation-the-engine-of-neural-network">
 <h2>Algorithmic Differentiation: The Engine of Neural Network</h2>
+<p>TODO: Remove this part</p>
 <p>In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.</p>
 <p>Reference: PyTorch</p>
 <section class="level3" id="backpropagation-in-neural-network">
