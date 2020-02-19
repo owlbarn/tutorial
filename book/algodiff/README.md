@@ -121,7 +121,7 @@ on the right side shows computation of derivative for each intermediate variable
 Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
 
 ---- --------------------------  --------------------------------- 
-Step Intermediate computation    Derivative computation            
+Step Intermediate computation    Tangent computation            
 ---- --------------------------  ---------------------------------
 0    $v_0 = x_0 = 1$             $\dot{v_0}=1$ 
 
@@ -135,7 +135,7 @@ Step Intermediate computation    Derivative computation
 
 5    $v_5 = 1$                   $\dot{v_5} = 0$
 
-6    $v_6 = \exp{(v_4)} = 6.30$    $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.84 = 11.59$
+6    $v_6 = \exp{(v_4)} = 6.30$  $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.84 = 11.59$
 
 7    $v_7 = 1$                   $\dot{v_7} = 0$
 
@@ -169,11 +169,102 @@ R0 -0.25  0
 
 ### Reverse Mode
 
-Computation Steps and figure
+Now let's think this problem from the other direction, literally.
+The same questions: to calculate $\frac{\partial~y}{\partial~x_0}$. 
+We still follow the same "step by step" idea from the forward mode, but the difference is that, we think it backward. 
+For example, here we reduce the problem in this way: since in this graph $y = v_7 / v_8$, if only we can have $\frac{\partial~y}{\partial~v_7}$ and $\frac{\partial~y}{\partial~v_8}$, then this problem should be one step closer towards my target problem.
 
-Also called "adjoint" mode.
+First of course, we have $\frac{\partial~y}{\partial~v_9} = 1$, since $y$ and $v_9$ are the same. 
+Then how do we get $\frac{\partial~y}{\partial~v_7}$? Again, time for chain rule:
+
+$$\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.$$ {#eq:algodiff:reverse_01}
+
+Hmm, let's try to apply a notation to simplify this process. Let 
+
+$$\bar{v_i} = \frac{\partial~y}{\partial~v_i}$$
+
+be the derivative of output variable $y$ with regard to intermediate node $v_i$. 
+It is called the *adjoint* of variable $v_i$ with respect to the output variable $y$.
+Using this notation, [@eq:algodiff:reverse_01] can be expressed as:
+
+$$\bar{v_7} = \bar{v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{1}{v_8}.$$
+
+Note the difference between tangent and adjoint.
+In the forward mode, we know $\dot{v_0}$ and $\dot{v_1}$, then we calculate $\dot{v_2}$, $\dot{v3}$, .... and then finally we have $\dot{v_9}$, which is the target. 
+Here, we start with knowing $\bar{v_9} = 1$, and then we calculate $\bar{v_8}$, $\bar{v_7}$, .... and then finally we have $\bar{v_0} = \frac{\partial~y}{\partial~v_0} = \frac{\partial~y}{\partial~x_0}$, which is also exactly our target. 
+Again, $\dot{v_9} = \bar{v_0}$ in this example, given that we are talking about derivative regarding $x_0$ when we use $\dot{v_9}$.
+Following this line of calculation, the reverse differentiation mode is also called *adjoint mode*.
+
+
+**TODO**: Beware of those nodes that "branch out", such as $v_0$ in this example.
+
+
+With that in mind, let's see the full steps of performing reverse differentiation. 
+First, we need to perform a forward pass to compute the required intermediate values, as shown in [@tbl:algodiff:reverse_01].
+
+---- -------------------------- 
+Step Intermediate computation    
+---- --------------------------
+0    $v_0 = x_0 = 1$           
+
+1    $v_1 = x_1 = 1$           
+
+2    $v_2 = sin(v_0) = 0.84$   
+
+3    $v_3 = v_0~v_1 = 1$       
+
+4    $v_4 = v_2 + v3 = 1.84$   
+
+5    $v_5 = 1$                 
+
+6    $v_6 = \exp{(v_4)} = 6.30$
+
+7    $v_7 = 1$                  
+
+8    $v_8 = v_5 + v_6 = 7.30$  
+
+9    $y = v_9 = \frac{1}{v_8}$ 
+---- --------------------------
+: Forward pass in the reverse differentiation mode {#tbl:algodiff:reverse_01}
+
+You might be wondering, this looks the same as the left side of [@tbl:algodiff:forward].
+You are right. These two are exactly the same, and we repeat it again to make the point that, this time you cannot perform the calculation with one pass. 
+You must compute the required intermediate results first, and then perform the other "backward pass", which is the key point in reverse mode.
+
+---- ---------------------------------------------------------------------------------
+Step Adjoint computation 
+---- ---------------------------------------------------------------------------------
+10   $\bar{v_9} = 1$
+
+11   $\bar{v_8} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_8} = 1 * \frac{-v_7}{v_8^2} = \frac{-1}{7.30^2} = 0.019$
+
+12   $\bar{v_7} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_7} = \frac{1}{v_8} = 0.137$   
+
+13   $\bar{v_6} = \bar{v_8}\frac{\partial~v_8}{\partial~v_6} = 0.137 * \frac{\partial~(v_6 + v5)}{\partial~v_6} = 0.137$
+
+14   $\bar{v_5} = \bar{v_8}\frac{\partial~v_8}{\partial~v_5} = 0.137 * \frac{\partial~(v_6 + v5)}{\partial~v_5} = 0.137$
+
+15   $\bar{v_4} = \bar{v_6}\frac{\partial~v_6}{\partial~v_4} = 0.137 * \frac{\partial~\exp{(v_4)}}{\partial~v_4} = 0.137 * e^{v_4} = 0.863$
+
+16   $\bar{v_3} = \bar{v_4}\frac{\partial~v_4}{\partial~v_3} = 0.863 * \frac{\partial~(v_2 + v_3)}{\partial~v_3} = 0.863$
+
+17   $\bar{v_2} = \bar{v_4}\frac{\partial~v_4}{\partial~v_2} = 0.863 * \frac{\partial~(v_2 + v_3)}{\partial~v_2} = 0.863$
+
+18   $\bar{v_1} = \bar{v_3}\frac{\partial~v_3}{\partial~v_1} = 0.863 * \frac{\partial~(v_0*v_1)}{\partial~v_1} = 0.863 * v_0 = 0.863$
+
+19   $\bar{v_0^{(a)}} = \bar{v_2}\frac{\partial~v_2}{\partial~v_0} = 0.863 * \frac{\partial~(sin(v_0))}{\partial~v_0} = 0.863 * cos(v_0) = 0.466$
+
+20   $\bar{v_0^{(b)}} = \bar{v_3}\frac{\partial~v_3}{\partial~v_0} = 0.863 * \frac{\partial~(sin(v_0 * v_1))}{\partial~v_0} = 0.863 * v_1 = 0.863$
+
+21   $\bar{v_0} = \bar{v_0^{(a)}} + \bar{v_0^{(b)}} = 1.40$
+---- ---------------------------------------------------------------------------------
+: Computation process of the backward pass in reverse differentiation {#tbl:algodiff:reverse_02}
+
+TODO: the results are definitely wrong! Check again.
 
 ### Forward or Reverse?
+
+Jacobian: one column or one row at a time.
 
 Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 
