@@ -391,5 +391,111 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <p>There is a great space for optimisation. There are also some new neurons need to be added, e.g., upsampling, transposed convolution, and etc. Anyway, things will get better and better.</p>
 </section>
 </section>
+<section class="level2" id="algorithmic-differentiation-the-engine-of-neural-network">
+<h2>Algorithmic Differentiation: The Engine of Neural Network</h2>
+<p>TODO: This section to be rescheduled.</p>
+<section class="level3" id="backpropagation-in-neural-network">
+<h3>Backpropagation in Neural Network</h3>
+<p>AD was proposed in 1970, and backpropagation was proposed in 1980s. They are different, but backprop is frequently implemented using the reverse mode AD.</p>
+<p>Now let’s talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
+<div class="highlight">
+<pre><code class="language-text">let backprop nn eta x y =
+  let t = tag () in
+  Array.iter (fun l -&gt;
+    l.w &lt;- make_reverse l.w t;
+    l.b &lt;- make_reverse l.b t;
+  ) nn.layers;
+  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |&gt; float_of_int))) in
+  reverse_prop (F 1.) loss;
+  Array.iter (fun l -&gt;
+    l.w &lt;- Maths.((primal l.w) - (eta * (adjval l.w))) |&gt; primal;
+    l.b &lt;- Maths.((primal l.b) - (eta * (adjval l.b))) |&gt; primal;
+  ) nn.layers;
+  loss |&gt; unpack_flt</code></pre>
+</div>
+<p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl’s example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot34" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>Figure 2: Mnist experiments on back propagation</figcaption>
+</figure>
+</section>
+<section class="level3" id="example-computation-graph-of-simple-functions">
+<h3>Example: Computation Graph of Simple Functions</h3>
+<p>Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.</p>
+<div class="highlight">
+<pre><code class="language-text">  val to_trace: t list -&gt; string
+  (* print out the trace in human-readable format *)
+
+  val to_dot : tlist -&gt; string
+  (* print out the computation graph in dot format *)</code></pre>
+</div>
+<p><code>to_trace</code> is useful when the graph is small and you can print it out on the terminal then observe it directly. <code>to_dot</code> is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.</p>
+<p>In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the <a href="https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml">computation_graph.ml</a>.</p>
+<p>Let’s start with a simple function as below.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D;;
+
+let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |&gt; sum)</code></pre>
+</div>
+<p>The generated computation graph looks like this.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 3: Computation graph of a simple math function</figcaption>
+</figure>
+</section>
+<section class="level3" id="example-computation-graph-of-vgg-like-neural-network">
+<h3>Example: Computation Graph of VGG-like Neural Network</h3>
+<p>Let’s define a VGG-like neural network as below.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Neural.S
+open Neural.S.Graph
+
+let make_network input_shape =
+  input input_shape
+  |&gt; normalisation ~decay:0.9
+  |&gt; conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
+  |&gt; conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+  |&gt; max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+  |&gt; dropout 0.1
+  |&gt; conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
+  |&gt; conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
+  |&gt; max_pool2d [|2;2|] [|2;2|] ~padding:VALID
+  |&gt; dropout 0.1
+  |&gt; fully_connected 512 ~act_typ:Activation.Relu
+  |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+  |&gt; get_network</code></pre>
+</div>
+<p>The computation graph for this neural network become a bit more complicated now.</p>
+<figure>
+<img alt="" id="fig:algodiff:plot29" title="plot 029" src="images/algodiff/plot_029.png"><figcaption>Figure 4: Computation graph of the VGG neural network</figcaption>
+</figure>
+</section>
+<section class="level3" id="example-computation-graph-of-lstm-network">
+<h3>Example: Computation Graph of LSTM Network</h3>
+<p>How about LSTM network? The following definition seems much lighter than convolutional neural network in the previous example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Neural.S
+open Neural.S.Graph
+
+let make_network wndsz vocabsz =
+  input [|wndsz|]
+  |&gt; embedding vocabsz 40
+  |&gt; lstm 128
+  |&gt; linear 512 ~act_typ:Activation.Relu
+  |&gt; linear vocabsz ~act_typ:Activation.(Softmax 1)
+  |&gt; get_network</code></pre>
+</div>
+<p>However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot30" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>Figure 5: Computation graph of LSTM network</figcaption>
+</figure>
+</section>
+<section class="level3" id="example-computation-graph-of-googles-inception">
+<h3>Example: Computation Graph of Google’s Inception</h3>
+<p>If the computation graph above hasn’t scared you yet, here is another one generated from Google’s Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl’s zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
+<p>The image below is too small to check details, please download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf">PDF file 2</a>.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot31" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>Figure 6: Computation graph of the InceptionV3 neural network</figcaption>
+</figure>
+</section>
+</section>
 </section>
 </article></div><a href="nlp.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 15</small>Natural Language Processing</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

@@ -4,20 +4,34 @@ TBD
 
 ## Introduction
 
-Introductory examples: speed and thermal field --> definition/format of derivative and gradient. (Ref: Feynman lecture)
+In science and engineering it is often necessary to study the relationship between two or more quantities, where change of one quantity leads to change of others. 
+For example, in describing the motion an object, we describe velocity $v$ of an object with the change of the distance regarding time:
 
-Computing derivatives (differentiation) is crucial in many scientific related fields:
+$$v = \lim_{\Delta~t}\frac{\Delta~s}{\Delta~t} = \frac{ds}{dt}.$$ {#eq:algodiff:def}
+
+This relationship $\frac{ds}{dt}$ can be called "*derivative* of $s$ with respect to $t$".
+This process can be extended to higher dimensional space. 
+For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature $T$ at different position of this block: $T(x, y, z)$. 
+In this field, we can describe this change with partial derivatives along each axis: 
+
+$$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$
+
+Here, the call the vector $\nabla~T$ *gradient* of $T$.
+The procedure to calculating derivatives and gradients is called *differentiating*.
+
+Differentiation is crucial in many scientific related fields:
 find maximum or minimum values using gradient descent (see later chapter);
 ODE (see later chapter);
 Non-linear optimisation such as KKT optimality conditions is still a prime application.
-
 One new crucial application is in machine learning.
+
+TODO: detail description of application.
 
 ### Chain Rule
 
-Liang: *you need to talk about hessian, etc.*
-
 Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
+
+One of the most rule in performing differentiation is the *chain rule*.
 In calculus, the chain rule is a formula to compute the derivative of a composite function.
 Suppose we have two functions $f$ and $g$, then the Chain rule states that:
 
@@ -29,7 +43,10 @@ Specifically, let $y=e^{ln~x^a} = e^{a~ln~x}$, and then we can set $u= alnx$ so 
 
 $$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$ 
 
-Also, it's helpful to remember some rules:
+Besides the chain rule, it's helpful to remember some basic differentiation equations, as shown in [@tbl:algodiff:chainrule02]. 
+Here $x$ is variable and both $u$ and $v$ are functions with regard to $x$. $C$ is constant.
+Of course, this very short list is incomplete. Please refer to calculus textbooks for more information.
+Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine. 
 
 ----------------------  --------------------------------------
 Function                Derivatives
@@ -41,10 +58,14 @@ $(C\times~u(x))'$       $C\times~u'(x)$
 $(u(x)v(x))'$           $u'(x)v(x) + u(x)v'(x)$ 
 
 $(\frac{u(x)}{v(x)})'$  $\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}$
+
+$\sin(x)$               $\cos(x)$
+
+$e^x$                   $e^x$
+
+$log_a(x)$              $\frac{1}{x~\textrm{ln}~a}$
 ----------------------  --------------------------------------
 : A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}
-
-Using these basic rules, we can solve many derivative questions.
 
 ### Differentiation Methods 
 
@@ -54,32 +75,47 @@ There are three: numerical differentiation, symbolic differentiation, and algori
 
 **Numerical Differentiation**
 
-The numerical differentiation comes from the definition of derivative:
+The numerical differentiation comes from the definition of derivative in [@eq:algodiff:def].
+It uses a small step $\delta$ to approximate the limit in the definition:
 
 $$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ 
 
-We'll discuss it in the Optimisation chapter, since optimisation using gradient is a very important application of differentiation.
-This method is easy in coding, but is subject to numerical errors. (EXPLAIN)
+As long as you knows how to evaluate function $f$, this method can be applied, and coding this method is also straightforward.
+However, the problem with this method is prone to truncation errors and round-off errors. 
+The truncation errors is introduced by truncating an infinite sum and approximating it by a finite sum;
+the round-off error is then caused by representing numbers approximately in numerical computation during this process. 
+Besides, this method is also slow due to requiring multiple evaluation of function $f$.
+We'll discuss it later in the optimisation chapter, since optimisation using gradient is a very important application of differentiation.
+Some discussion about numerically solving derivative related problems is also covered in the Ordinary Differentiation Equation chapter, where we focus on introducing solving these equations numerically, and how the impact of these errors can be reduced.
 
 
 **Symbolic Differentiation**
 
-This method gives exact solution, but in most cases, this solution gives a long list of symbols that will take much memory.
-Finding symbolic representation also cannot utilise common intermediate result, and is slow.
+Symbolic Differentiation is the opposite of numerical solution. It does not involve numerical computation, only math symbol manipulation. 
+The rules we have introduced in [@tbl:algodiff:chainrule02] are actually expressed in symbols. 
+Think about this function: $f(x_0, x_1, x_2) = x_0 * x_1 * x_2$. If we compute $\nabla~f$ symbolically, we end up with:
 
-[Duplication](https://alexey.radul.name/ideas/2013/introduction-to-automatic-differentiation/)
+$$\nabla~f = (\frac{\partial~f}{\partial~x_0}, \frac{\partial~f}{\partial~x_1}, \frac{\partial~f}{\partial~x_2}) = (x_1 * x_2, x_0 * x_2, x_1 * x_2).$$
+
+It is nice and accurate, leaving limited space for numerical errors.
+However, you can try to extend the number of variables from 3 to a large number $n$, which means $f(x) = \prod_{i=0}^{n-1}x_i$, and then try to perform the symbolic differentiation again. 
+
+The point is that, symbolic computations tends to give a very large result for even not very complex functions. 
+It's easy to have duplicated common sub computations, and produce exponentially large symbolic expressions.
+Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and is slow.
 
 **Algorithmic Differentiation**
 
 Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme.
-It is also known as automatic differentiation. 
-It is a powerful tool in many fields.
+It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can lead to inefficient code.
 
-It's advantage compared with the other two. 
+It is important to realise that AD is not symbolic differentiation, as we will see in the next section.
+Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results. 
+Therefore, AD can generate exact results with acceptable speed and memory usage, and therefore highly applicable in various real world applications. 
+Actually, according to [@griewank1989automatic], the reverse mode of AD yields any gradient vector at no more than five times the cost of evaluating the function $f$ itself.
+AD has already been implemented in various popular languages, including the [`ad`](https://pythonhosted.org/ad/) in Python, [`JuliaDiff`](https://www.juliadiff.org/) in Julia, and [`ADMAT`](http://www.cayugaresearch.com/admat.html) in MATLAB, etc.
+In the rest of this chapter, we focus on introducing the AD module in Owl. 
 
-Especially, it is not symbolic differentiation.
-
-Now let's talk about AD.
 
 ## How Algorithmic Differentiation Works
 
@@ -145,6 +181,10 @@ Step Intermediate computation    Tangent computation
 ---- --------------------------  ---------------------------------
 : Computation process of forward differentiation {#tbl:algodiff:forward}
 
+This procedure show in this table can be illustrated in [@fig:algodiff:example_01_forward]. (**IMAGE PLACEHOLDER**)
+
+![Example of forward accumulation with computational graph](images/algodiff/example_01.png "example_01"){ width=100% #fig:algodiff:example_01_forward}
+
 Of course, all the numerical computation here are approximated with only two significant figures.  
 We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the detail of this module in detail later.
 
@@ -166,6 +206,8 @@ val x : t = [Arr(1,2)]
 R0 -0.181974 -0.118142
 
 ```
+
+**TODO:** introduce dual number 
 
 ### Reverse Mode
 
@@ -194,10 +236,6 @@ In the forward mode, we know $\dot{v_0}$ and $\dot{v_1}$, then we calculate $\do
 Here, we start with knowing $\bar{v_9} = 1$, and then we calculate $\bar{v_8}$, $\bar{v_7}$, .... and then finally we have $\bar{v_0} = \frac{\partial~y}{\partial~v_0} = \frac{\partial~y}{\partial~x_0}$, which is also exactly our target. 
 Again, $\dot{v_9} = \bar{v_0}$ in this example, given that we are talking about derivative regarding $x_0$ when we use $\dot{v_9}$.
 Following this line of calculation, the reverse differentiation mode is also called *adjoint mode*.
-
-
-**TODO**: Beware of those nodes that "branch out", such as $v_0$ in this example.
-
 
 With that in mind, let's see the full steps of performing reverse differentiation. 
 First, we need to perform a forward pass to compute the required intermediate values, as shown in [@tbl:algodiff:reverse_01].
@@ -260,10 +298,43 @@ Step Adjoint computation
 ---- ---------------------------------------------------------------------------------
 : Computation process of the backward pass in reverse differentiation {#tbl:algodiff:reverse_02}
 
+Note that things a bit different for $x_0$. It is used in both intermediate variables $v_2$ and $v_3$. 
+Therefore, we compute the adjoint of $v_0$ with regard to $v_2$ (step 19) and $v_3$ (step 20), and accumulate them together (step 20).
+(TODO: Explain why adding these two adjoints.)
+
+
+Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure [@fig:algodiff:example_01_reverse]. (**IMAGE PLACEHOLDER**)
+
+![Example of reverse accumulation with computational graph](images/algodiff/example_01.png "example_01_reverse"){ width=100% #fig:algodiff:example_01_reverse}
+
+This result $\bar{v_0} = -0.18$ agrees what we have have gotten using the forward mode.
+However, if you still need another fold of insurance, we can use Owl to perform a numerical differentiation. 
+The code would be similar to that of using algorithmic differentiation as shown before. 
+
+```ocaml env=algodiff_reverse_example_00
+module D = Owl_numdiff_generic.Make (Dense.Ndarray.D);;
+
+let x = Arr.ones [|2|] 
+
+let f x = 
+	let x1 = Arr.get x [|0|] in 
+	let x2 = Arr.get x [|1|] in 
+	Maths.(div 1. (1. +. exp (x1 *. x2 +. (sin x1))))
+```
+
+And then we can get the differentiation result at the point $(x_0, x_1) = (0, 0)$, and it agrees with the previous results.
+
+```ocaml env=algodiff_reverse_example_00
+# D.grad f x
+- : D.arr =
+         C0        C1
+R -0.181973 -0.118142
+
+```
 
 ### Forward or Reverse?
 
-Jacobian: one column or one row at a time.
+**TODO**: Jacobian: one column or one row at a time.
 
 Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 
@@ -275,9 +346,31 @@ In general, given a function that you want to differentiate, the rule of thumb i
 Later we will show example of this point.
 
 **Theoretical Basis:**
-adjoint, dual number, first derivative, higher derivative, etc.
+first derivative, higher derivative, etc.
 
-## High-level APIs
+## Implementing Algorithmic Differentiation
+
+### Native Implementation 
+
+A most simple one, `toy_forward`, `toy_reverse`, support only small number of operators. 
+
+### Updated Implementations 
+
+2-3 times of updates
+
+### Design of Algorithmic Differentiation in Owl 
+
+The structure of main engine: recursive, node, module, etc.
+
+### Advanced feature: Lazy Evaluation 
+
+### Advanced feature: Extend AD module
+
+"There is no spoon"
+
+## How to use Algorithmic Differentiation in Owl
+
+### High-level APIs
 
 The design of AD in Owl.
 
@@ -311,11 +404,10 @@ Owl provides both numerical differentiation (in [Numdiff.Generic](https://github
 
 Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
 
-## Examples
 
 Mastering AD requires practice. Let's see some examples.
 
-### Higher-Order Derivatives
+### Example: Higher-Order Derivatives
 
 The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
 
@@ -369,7 +461,7 @@ let f'''' f = f |> diff |> diff |> diff |> diff
 
 The code above will give you the fourth derivative of `f`, i.e. `f''''`.
 
-### Choosing Forward or Reverse Mode
+### Example: Choosing Forward or Reverse Mode
 
 Let's look at the two simple functions `f` and `g` defined below. `f` falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst `g` falls into the second category.
 
@@ -450,190 +542,17 @@ Similarly, you can try to use backward mode to differentiate `g`. I will just th
 
 In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 
-### Simple Jacobian and Gradient 
+### Example: Simple Jacobian and Gradient 
 
-REFER: Automatic Differentiation in MATLAB using ADMAT with Applications
+The principle is to cover most of what we have listed in the API with examples.
 
+### More Examples in Book
 
-### Gradient Descent Algorithm
+Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book.
+We use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter.
+It is also used in the Regression chapter to solve the linear regression problem with gradient descent. 
+More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch.
+The neural network module in Owl benefit a lot from our solid AD module. 
+We will elaborate these aspects in the following chapters. Stay tuned! 
 
-Gradient Descent (GD) is a popular numerical method for calculating the optimal value for a given function. Often you need to hand craft the derivative of your function `f` before plugging into gradient descendent algorithm. With `Algodiff`, derivation can be done easily. The following several lines of code define the skeleton of GD.
-
-```ocaml env=algodiff_01
-open Algodiff.D
-
-let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g = (diff f) x in
-  if (unpack_flt g) < eps then x
-  else desc ~eta ~eps f Maths.(x - eta * g);;
-```
-
-Now let's define a function we want to optimise, then plug it into `desc` function.
-
-```ocaml env=algodiff_01
-let f x = Maths.(sin x + cos x);;
-let x_min = desc f (F 0.1);;
-```
-
-Because we started searching from `0.`, the `desc` function successfully found the local minimum at `-2.35619175250552448`. You can visually verify that by plotting it out.
-
-```ocaml env=algodiff_01
-let g x = sin x +. cos x in
-let h = Plot.create "plot_01.png" in
-Plot.plot_fun ~h g (-5.) 5.;
-Plot.output h;;
-```
-
-![Gradient descent](images/algodiff/plot_01.png "plot 01"){ width=90% #fig:algodiff:plot01 }
-
-### Newton's Algorithm
-
-Newton's method is a root-finding algorithm by successively searching for better approximation of the root. The Newton's method converges faster than gradient descent. The following implementation calculates the exact hessian of `f` which in practice is very expensive operation.
-
-```ocaml env=algodiff_02
-open Algodiff.D
-
-let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
-  let g, h = (gradhessian f) x in
-  if (Maths.l2norm' g |> unpack_flt) < eps then x
-  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h));;
-```
-
-Now we can apply `newton` to find the extreme value of `Maths.(cos x |> sum')`.
-
-```ocaml env=algodiff_02
-# let f x = Maths.(cos x |> sum') in
-  newton f (Mat.uniform 1 2)
-- : t = [Arr(1,2)]
-```
-
-
-## Design of the Algorithmic Differentiation Module 
-
-### Lazy Evaluation 
-
-### "There Is No Spoon": Extend AD Module 
-
-
-## Algorithmic Differentiation: The Engine of Neural Network
-
-TODO: Remove this part 
-
-In order to understand AD, you need to practice enough, especially if you are interested in the knowing the mechanisms under the hood. I provide some small but representative examples to help you start.
-
-Reference: PyTorch
-
-
-### Backpropagation in Neural Network
-
-AD was proposed in 1970, and backpropagation was proposed in 1980s. They are different, but backprop is frequently implemented using the reverse mode AD.
-
-Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
-
-```text
-let backprop nn eta x y =
-  let t = tag () in
-  Array.iter (fun l ->
-    l.w <- make_reverse l.w t;
-    l.b <- make_reverse l.b t;
-  ) nn.layers;
-  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |> float_of_int))) in
-  reverse_prop (F 1.) loss;
-  Array.iter (fun l ->
-    l.w <- Maths.((primal l.w) - (eta * (adjval l.w))) |> primal;
-    l.b <- Maths.((primal l.b) - (eta * (adjval l.b))) |> primal;
-  ) nn.layers;
-  loss |> unpack_flt
-```
-
-Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in [backprop.ml](https://github.com/owlbarb/owl/blob/master/examples/backprop.ml).
-
-![Mnist experiments on back propagation](images/algodiff/plot_034.png "plot 034"){ width=100% #fig:algodiff:plot34 }
-
-
-### Example: Computation Graph of Simple Functions
-
-Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
-
-```text
-  val to_trace: t list -> string
-  (* print out the trace in human-readable format *)
-
-  val to_dot : tlist -> string
-  (* print out the computation graph in dot format *)
-```
-
-`to_trace` is useful when the graph is small and you can print it out on the terminal then observe it directly. `to_dot` is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.
-
-In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the [computation_graph.ml](https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml).
-
-Let's start with a simple function as below.
-
-```ocaml env=algodiff_00
-let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
-```
-
-The generated computation graph looks like this.
-
-![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
-
-
-### Example: Computation Graph of VGG-like Neural Network
-
-Let's define a VGG-like neural network as below.
-
-```ocaml
-open Neural.S
-open Neural.S.Graph
-
-let make_network input_shape =
-  input input_shape
-  |> normalisation ~decay:0.9
-  |> conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
-  |> conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-  |> dropout 0.1
-  |> conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
-  |> conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-  |> dropout 0.1
-  |> fully_connected 512 ~act_typ:Activation.Relu
-  |> linear 10 ~act_typ:Activation.(Softmax 1)
-  |> get_network
-```
-
-The computation graph for this neural network become a bit more complicated now.
-
-![Computation graph of the VGG neural network](images/algodiff/plot_029.png "plot 029"){ width=100%, #fig:algodiff:plot29 }
-
-
-### Example: Computation Graph of LSTM Network
-
-How about LSTM network? The following definition seems much lighter than convolutional neural network in the previous example.
-
-```ocaml
-open Neural.S
-open Neural.S.Graph
-
-let make_network wndsz vocabsz =
-  input [|wndsz|]
-  |> embedding vocabsz 40
-  |> lstm 128
-  |> linear 512 ~act_typ:Activation.Relu
-  |> linear vocabsz ~act_typ:Activation.(Softmax 1)
-  |> get_network
-```
-
-However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
-
-![Computation graph of LSTM network ](images/algodiff/plot_030.png "plot 030"){ width=100% #fig:algodiff:plot30}
-
-
-### Example: Computation Graph of Google's Inception
-
-If the computation graph above hasn't scared you yet, here is another one generated from Google's Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl's zoo system `#zoo "6dfed11c521fb2cd286f2519fb88d3bf"`.
-
-The image below is too small to check details, please download the [PDF file 2](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf).
-
-
-![Computation graph of the InceptionV3 neural network](images/algodiff/plot_031.png "plot 031"){ width=100% #fig:algodiff:plot31}
+## References

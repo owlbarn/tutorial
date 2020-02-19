@@ -15,3 +15,4 @@ book/*.lof
 book/*.log
 book/*.lot
 book/*.toc
+book/*.ilg
