@@ -127,25 +127,25 @@ Step Intermediate computation    Tangent computation
 
 1    $v_1 = x_1 = 1$             $\dot{v_1}=0$
 
-2    $v_2 = sin(v_0) = 0.84$     $\dot{v_2} = cos(v_2)*\dot{v_0} = 0.84 * 1 = 0.84$   
+2    $v_2 = sin(v_0) = 0.84$     $\dot{v_2} = cos(v_0)*\dot{v_0} = 0.54 * 1 = 0.54$   
 
 3    $v_3 = v_0~v_1 = 1$         $\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1$
 
-4    $v_4 = v_2 + v3 = 1.84$     $\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.84$
+4    $v_4 = v_2 + v3 = 1.84$     $\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.54$
 
 5    $v_5 = 1$                   $\dot{v_5} = 0$
 
-6    $v_6 = \exp{(v_4)} = 6.30$  $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.84 = 11.59$
+6    $v_6 = \exp{(v_4)} = 6.30$  $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.54 = 9.70$
 
 7    $v_7 = 1$                   $\dot{v_7} = 0$
 
-8    $v_8 = v_5 + v_6 = 7.30$    $\dot{v_8} = \dot{v_5} + \dot{v_6} = 11.59$
+8    $v_8 = v_5 + v_6 = 7.30$    $\dot{v_8} = \dot{v_5} + \dot{v_6} = 9.70$
 
-9    $y = v_9 = \frac{1}{v_8}$   $\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.22$
+9    $y = v_9 = \frac{1}{v_8}$   $\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.18$
 ---- --------------------------  ---------------------------------
 : Computation process of forward differentiation {#tbl:algodiff:forward}
 
-
+Of course, all the numerical computation here are approximated with only two significant figures.  
 We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the detail of this module in detail later.
 
 ```ocaml
@@ -157,13 +157,13 @@ We can validate this result with algorithmic differentiation module in Owl. If y
     Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin x1))))
 val f : t -> t = <fun>
 
-# let x = Mat.zeros 1 2 
+# let x = Mat.ones 1 2 
 val x : t = [Arr(1,2)]
 
 # let _ = grad f x |> unpack_arr
 - : A.arr =
-      C0 C1
-R0 -0.25  0
+          C0        C1
+R0 -0.181974 -0.118142
 
 ```
 
@@ -236,31 +236,30 @@ Step Adjoint computation
 ---- ---------------------------------------------------------------------------------
 10   $\bar{v_9} = 1$
 
-11   $\bar{v_8} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_8} = 1 * \frac{-v_7}{v_8^2} = \frac{-1}{7.30^2} = 0.019$
+11   $\bar{v_8} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_8} = 1 * \frac{-v_7}{v_8^2} = \frac{-1}{7.30^2} = -0.019$
 
 12   $\bar{v_7} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_7} = \frac{1}{v_8} = 0.137$   
 
-13   $\bar{v_6} = \bar{v_8}\frac{\partial~v_8}{\partial~v_6} = 0.137 * \frac{\partial~(v_6 + v5)}{\partial~v_6} = 0.137$
+13   $\bar{v_6} = \bar{v_8}\frac{\partial~v_8}{\partial~v_6} = \bar{v_8} * \frac{\partial~(v_6 + v5)}{\partial~v_6} =  \bar{v_8}$
 
-14   $\bar{v_5} = \bar{v_8}\frac{\partial~v_8}{\partial~v_5} = 0.137 * \frac{\partial~(v_6 + v5)}{\partial~v_5} = 0.137$
+14   $\bar{v_5} = \bar{v_8}\frac{\partial~v_8}{\partial~v_5} = \bar{v_8} * \frac{\partial~(v_6 + v5)}{\partial~v_5} = \bar{v_8}$
 
-15   $\bar{v_4} = \bar{v_6}\frac{\partial~v_6}{\partial~v_4} = 0.137 * \frac{\partial~\exp{(v_4)}}{\partial~v_4} = 0.137 * e^{v_4} = 0.863$
+15   $\bar{v_4} = \bar{v_6}\frac{\partial~v_6}{\partial~v_4} = \bar{v_8} * \frac{\partial~\exp{(v_4)}}{\partial~v_4} = \bar{v_8} * e^{v_4}$
 
-16   $\bar{v_3} = \bar{v_4}\frac{\partial~v_4}{\partial~v_3} = 0.863 * \frac{\partial~(v_2 + v_3)}{\partial~v_3} = 0.863$
+16   $\bar{v_3} = \bar{v_4}\frac{\partial~v_4}{\partial~v_3} = \bar{v_4} * \frac{\partial~(v_2 + v_3)}{\partial~v_3} = \bar{v_4}$
 
-17   $\bar{v_2} = \bar{v_4}\frac{\partial~v_4}{\partial~v_2} = 0.863 * \frac{\partial~(v_2 + v_3)}{\partial~v_2} = 0.863$
+17   $\bar{v_2} = \bar{v_4}\frac{\partial~v_4}{\partial~v_2} = \bar{v_4} * \frac{\partial~(v_2 + v_3)}{\partial~v_2} = \bar{v_4}$
 
-18   $\bar{v_1} = \bar{v_3}\frac{\partial~v_3}{\partial~v_1} = 0.863 * \frac{\partial~(v_0*v_1)}{\partial~v_1} = 0.863 * v_0 = 0.863$
+18   $\bar{v_1} = \bar{v_3}\frac{\partial~v_3}{\partial~v_1} = \bar{v_3} * \frac{\partial~(v_0*v_1)}{\partial~v_1} = \bar{v_4} * v_0 = \bar{v_4}$
 
-19   $\bar{v_0^{(a)}} = \bar{v_2}\frac{\partial~v_2}{\partial~v_0} = 0.863 * \frac{\partial~(sin(v_0))}{\partial~v_0} = 0.863 * cos(v_0) = 0.466$
+19   $\bar{v_{02}} = \bar{v_2}\frac{\partial~v_2}{\partial~v_0} = \bar{v_2} * \frac{\partial~(sin(v_0))}{\partial~v_0} = \bar{v_4} * cos(v_0)$
 
-20   $\bar{v_0^{(b)}} = \bar{v_3}\frac{\partial~v_3}{\partial~v_0} = 0.863 * \frac{\partial~(sin(v_0 * v_1))}{\partial~v_0} = 0.863 * v_1 = 0.863$
+20   $\bar{v_{03}} = \bar{v_3}\frac{\partial~v_3}{\partial~v_0} = \bar{v_3} * \frac{\partial~(v_0 * v_1)}{\partial~v_0} = \bar{v_4} * v_1$
 
-21   $\bar{v_0} = \bar{v_0^{(a)}} + \bar{v_0^{(b)}} = 1.40$
+21   $\bar{v_0} = \bar{v_{02}} + \bar{v_{03}} = \bar{v_4}(cos(v_0) + v_1) = \bar{v_8} * e^{v_4}(0.54 + 1) = -0.019 * e^{1.84} * 1.54 = -0.18$
 ---- ---------------------------------------------------------------------------------
 : Computation process of the backward pass in reverse differentiation {#tbl:algodiff:reverse_02}
 
-TODO: the results are definitely wrong! Check again.
 
 ### Forward or Reverse?
 
