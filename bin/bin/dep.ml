@@ -91,6 +91,7 @@ let dune_for_pdf () =
            (:x ../book/book.tex)
            ../book/dedication.tex
            ../book/author_bio.tex
+           ../book/appendix.tex
            inputs.tex)
   (action  (system "pdflatex -interaction=nonstopmode %%{x} -draftmode")))
 
@@ -107,6 +108,7 @@ let dune_for_pdf () =
            (:x ../book/book.tex)
            ../book/dedication.tex
            ../book/author_bio.tex
+           ../book/appendix.tex
            inputs.tex
            book.aux
            book.ind

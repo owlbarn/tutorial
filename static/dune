@@ -498,6 +498,7 @@
            (:x ../book/book.tex)
            ../book/dedication.tex
            ../book/author_bio.tex
+           ../book/appendix.tex
            inputs.tex)
   (action  (system "pdflatex -interaction=nonstopmode %{x} -draftmode")))
 
@@ -514,6 +515,7 @@
            (:x ../book/book.tex)
            ../book/dedication.tex
            ../book/author_bio.tex
+           ../book/appendix.tex
            inputs.tex
            book.aux
            book.ind
