@@ -181,9 +181,9 @@ Step Intermediate computation    Tangent computation
 ---- --------------------------  ---------------------------------
 : Computation process of forward differentiation {#tbl:algodiff:forward}
 
-This procedure show in this table can be illustrated in [@fig:algodiff:example_01_forward]. (**IMAGE PLACEHOLDER**)
+This procedure show in this table can be illustrated in [@fig:algodiff:example_01_forward].
 
-![Example of forward accumulation with computational graph](images/algodiff/example_01.png "example_01"){ width=100% #fig:algodiff:example_01_forward}
+![Example of forward accumulation with computational graph](images/algodiff/example_01_forward.png "example_01_forward"){ width=100% #fig:algodiff:example_01_forward}
 
 Of course, all the numerical computation here are approximated with only two significant figures.  
 We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the detail of this module in detail later.
@@ -303,9 +303,9 @@ Therefore, we compute the adjoint of $v_0$ with regard to $v_2$ (step 19) and $v
 (TODO: Explain why adding these two adjoints.)
 
 
-Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure [@fig:algodiff:example_01_reverse]. (**IMAGE PLACEHOLDER**)
+Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure [@fig:algodiff:example_01_reverse].
 
-![Example of reverse accumulation with computational graph](images/algodiff/example_01.png "example_01_reverse"){ width=100% #fig:algodiff:example_01_reverse}
+![Example of reverse accumulation with computational graph](images/algodiff/example_01_reverse.png "example_01_reverse"){ width=100% #fig:algodiff:example_01_reverse}
 
 This result $\bar{v_0} = -0.18$ agrees what we have have gotten using the forward mode.
 However, if you still need another fold of insurance, we can use Owl to perform a numerical differentiation. 

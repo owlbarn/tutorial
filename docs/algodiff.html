@@ -165,9 +165,9 @@
 </tbody>
 </table>
 </div>
-<p>This procedure show in this table can be illustrated in fig.&nbsp;2. (<strong>IMAGE PLACEHOLDER</strong>)</p>
+<p>This procedure show in this table can be illustrated in fig.&nbsp;2.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:example_01_forward" title="example_01" src="images/algodiff/example_01.png"><figcaption>Figure 2: Example of forward accumulation with computational graph</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:example_01_forward" title="example_01_forward" src="images/algodiff/example_01_forward.png"><figcaption>Figure 2: Example of forward accumulation with computational graph</figcaption>
 </figure>
 <p>Of course, all the numerical computation here are approximated with only two significant figures.<br>
 We can validate this result with algorithmic differentiation module in Owl. If you don’t understand the code, don’t worry. We will cover the detail of this module in detail later.</p>
@@ -324,9 +324,9 @@ let _ = grad f x |&gt; unpack_arr;;
 </table>
 </div>
 <p>Note that things a bit different for <span class="math inline">\(x_0\)</span>. It is used in both intermediate variables <span class="math inline">\(v_2\)</span> and <span class="math inline">\(v_3\)</span>. Therefore, we compute the adjoint of <span class="math inline">\(v_0\)</span> with regard to <span class="math inline">\(v_2\)</span> (step 19) and <span class="math inline">\(v_3\)</span> (step 20), and accumulate them together (step 20). (TODO: Explain why adding these two adjoints.)</p>
-<p>Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure fig.&nbsp;3. (<strong>IMAGE PLACEHOLDER</strong>)</p>
+<p>Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure fig.&nbsp;3.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:example_01_reverse" title="example_01_reverse" src="images/algodiff/example_01.png"><figcaption>Figure 3: Example of reverse accumulation with computational graph</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:example_01_reverse" title="example_01_reverse" src="images/algodiff/example_01_reverse.png"><figcaption>Figure 3: Example of reverse accumulation with computational graph</figcaption>
 </figure>
 <p>This result <span class="math inline">\(\bar{v_0} = -0.18\)</span> agrees what we have have gotten using the forward mode. However, if you still need another fold of insurance, we can use Owl to perform a numerical differentiation. The code would be similar to that of using algorithmic differentiation as shown before.</p>
 <div class="highlight">
