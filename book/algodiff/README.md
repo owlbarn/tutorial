@@ -334,8 +334,6 @@ R -0.181973 -0.118142
 
 ### Forward or Reverse?
 
-**TODO**: Jacobian: one column or one row at a time.
-
 Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 
 In general, given a function that you want to differentiate, the rule of thumb is:
@@ -368,100 +366,35 @@ The structure of main engine: recursive, node, module, etc.
 
 "There is no spoon"
 
-## How to use Algorithmic Differentiation in Owl
+## APIs of Algorithmic Differentiation Module
 
-### High-level APIs
+Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
+We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.
 
-The design of AD in Owl.
-
-Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_numdiff_generic.mli) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli) module).
-
-`Algodiff.Generic` is a functor which is able to support both `float32` and `float64` precision `AD`. However, you do not need to deal with `Algodiff.Generic.Make` directly since there are already two ready-made modules.
-
-- `Algodiff.S` supports `float32` precision;
-- `Algodiff.D` supports `float64` precision;
-
-`Algodiff` has implemented both forward and backward mode of AD. The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
-
-```text
-
-  val diff : (t -> t) -> t -> t
-  (* calculate derivative for f : scalar -> scalar *)
-
-  val grad : (t -> t) -> t -> t
-  (* calculate gradient for f : vector -> scalar *)
-
-  val jacobian : (t -> t) -> t -> t
-  (* calculate jacobian for f : vector -> vector *)
-
-  val hessian : (t -> t) -> t -> t
-  (* calculate hessian for f : scalar -> scalar *)
-
-  val laplacian : (t -> t) -> t -> t
-  (* calculate laplacian for f : scalar -> scalar *)
+`Algodiff.Generic` is a functor that accept a Ndarray module.
+By plugging in `Dense.Ndarray.S` and `Dense.Ndarray.D` modules we can have AD modules that support `float32` and `float64` precision respectively. 
 
 ```
-
-Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
-
-
-Mastering AD requires practice. Let's see some examples.
-
-### Example: Higher-Order Derivatives
-
-The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
-
-```ocaml env=algodiff_00
-open Algodiff.D;;
-
-let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
-
-(* calculate derivatives of f0 *)
-let f0 x = Maths.(tanh x);;
-let f1 = diff f0;;
-let f2 = diff f1;;
-let f3 = diff f2;;
-let f4 = diff f3;;
-
-let x = Owl.Mat.linspace (-4.) 4. 200;;
-let y0 = map f0 x;;
-let y1 = map f1 x;;
-let y2 = map f2 x;;
-let y3 = map f3 x;;
-let y4 = map f4 x;;
-
-(* plot the values of all functions *)
-let h = Plot.create "plot_00.png" in
-Plot.plot ~h x y0;
-Plot.plot ~h x y1;
-Plot.plot ~h x y2;
-Plot.plot ~h x y3;
-Plot.plot ~h x y4;
-Plot.output h;;
+module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
+module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 ```
 
-Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
+In this section, we will use examples to demonstrate some of the most important APIs that the Algorithmic Differentiation module provides. 
+We first introduce the *low level APIs*, i.e. those for performing forward and reverse propagations.
+We then introduce some of the most important *high level APIs*, including `diff`, `grad`, `jacobian`, `hessian`, and `laplacian`.
+We will mostly use the double precision `Algodiff.D` module, but of course using other choices is also perfectly fine.
 
-![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% #fig:algodiff:plot00 }
+### APIs for Forward and Reverse Modes
 
-If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
+`Algodiff` has implemented both forward and backward mode of AD. 
 
-```ocaml env=algodiff_00
-let f0 x = Maths.(
-  let y = exp (neg x) in
-  (F 1. - y) / (F 1. + y)
-);;
 ```
+val make_forward : t -> t -> int -> t
 
-As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
+val make_reverse : t -> int -> t
 
-```ocaml env=algodiff_00
-let f'''' f = f |> diff |> diff |> diff |> diff
+val reverse_prop : t -> t -> unit
 ```
-
-The code above will give you the fourth derivative of `f`, i.e. `f''''`.
-
-### Example: Choosing Forward or Reverse Mode
 
 Let's look at the two simple functions `f` and `g` defined below. `f` falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst `g` falls into the second category.
 
@@ -542,9 +475,159 @@ Similarly, you can try to use backward mode to differentiate `g`. I will just th
 
 In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 
-### Example: Simple Jacobian and Gradient 
 
-The principle is to cover most of what we have listed in the API with examples.
+### Derivative
+
+```
+val diff : (t -> t) -> t -> t
+  (* calculate derivative for f : scalar -> scalar *)
+```
+
+The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
+
+```ocaml env=algodiff_00
+open Algodiff.D;;
+
+let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
+
+(* calculate derivatives of f0 *)
+let f0 x = Maths.(tanh x);;
+let f1 = diff f0;;
+let f2 = diff f1;;
+let f3 = diff f2;;
+let f4 = diff f3;;
+
+let x = Owl.Mat.linspace (-4.) 4. 200;;
+let y0 = map f0 x;;
+let y1 = map f1 x;;
+let y2 = map f2 x;;
+let y3 = map f3 x;;
+let y4 = map f4 x;;
+
+(* plot the values of all functions *)
+let h = Plot.create "plot_00.png" in
+Plot.plot ~h x y0;
+Plot.plot ~h x y1;
+Plot.plot ~h x y2;
+Plot.plot ~h x y3;
+Plot.plot ~h x y4;
+Plot.output h;;
+```
+
+Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
+
+![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% #fig:algodiff:plot00 }
+
+If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
+
+```ocaml env=algodiff_00
+let f0 x = Maths.(
+  let y = exp (neg x) in
+  (F 1. - y) / (F 1. + y)
+);;
+```
+
+As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
+
+```ocaml env=algodiff_00
+let f'''' f = f |> diff |> diff |> diff |> diff
+```
+
+The code above will give you the fourth derivative of `f`, i.e. `f''''`.
+
+
+### Gradient
+
+```
+val grad : (t -> t) -> t -> t
+(* calculate gradient for f : vector -> scalar *)
+```
+
+Example: Gradient Descent, only briefly.
+
+
+### Jacobian 
+
+```
+ val jacobian : (t -> t) -> t -> t
+  (* calculate jacobian for f : vector -> vector *)
+```
+
+Example: ??? 
+
+
+### Hessian and Laplacian 
+
+```
+  val hessian : (t -> t) -> t -> t
+  (* calculate hessian for f : scalar -> scalar *)
+
+  val laplacian : (t -> t) -> t -> t
+  (* calculate laplacian for f : scalar -> scalar *)
+```
+
+Example: 
+1) Newton method 
+2) Laplacian: ???
+
+
+### Other APIs
+
+Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
+
+The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
+
+
+```
+  val diff' : (t -> t) -> t -> t * t
+  (** similar to ``diff``, but return ``(f x, diff f x)``. *)
+
+  val grad' : (t -> t) -> t -> t * t
+  (** similar to ``grad``, but return ``(f x, grad f x)``. *)
+
+  val jacobian' : (t -> t) -> t -> t * t
+  (** similar to ``jacobian``, but return ``(f x, jacobian f x)`` *)
+
+  val jacobianv : (t -> t) -> t -> t -> t
+  (** jacobian vector product of ``f`` : (vector -> vector) at ``x`` along ``v``, forward
+      ad. Namely, it calcultes ``(jacobian x) v`` *)
+
+  val jacobianv' : (t -> t) -> t -> t -> t * t
+  (** similar to ``jacobianv'``, but return ``(f x, jacobianv f x v)`` *)
+
+  val jacobianTv : (t -> t) -> t -> t -> t
+  (** transposed jacobian vector product of ``f : (vector -> vector)`` at ``x`` along
+      ``v``, backward ad. Namely, it calculates ``transpose ((jacobianv f x v))``. *)
+
+  val jacobianTv' : (t -> t) -> t -> t -> t * t
+  (** similar to ``jacobianTv``, but return ``(f x, transpose (jacobianv f x v))`` *)
+
+  val hessian' : (t -> t) -> t -> t * t
+  (** simiarl to ``hessian``, but return ``(f x, hessian f x)`` *)
+
+  val hessianv : (t -> t) -> t -> t -> t
+  (** hessian vector product of ``f`` : (scalar -> scalar) at ``x`` along ``v``. Namely,
+      it calculates ``(hessian x) v``. *)
+
+  val hessianv' : (t -> t) -> t -> t -> t * t
+  (** similar to ``hessianv``, but return ``(f x, hessianv f x v)``. *)
+
+  val laplacian' : (t -> t) -> t -> t * t
+  (** simiar to ``laplacian``, but return ``(f x, laplacian f x)``. *)
+
+  val gradhessian : (t -> t) -> t -> t * t
+  (** return ``(grad f x, hessian f x)``, ``f : (scalar -> scalar)`` *)
+
+  val gradhessian' : (t -> t) -> t -> t * t * t
+  (** return ``(f x, grad f x, hessian f x)`` *)
+
+  val gradhessianv : (t -> t) -> t -> t -> t * t
+  (** return ``(grad f x v, hessian f x v)`` *)
+
+  val gradhessianv' : (t -> t) -> t -> t -> t * t * t
+  (** return ``(f x, grad f x v, hessian f x v)`` *)
+```
+
 
 ### More Examples in Book
 
