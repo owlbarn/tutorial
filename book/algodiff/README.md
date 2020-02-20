@@ -346,26 +346,6 @@ Later we will show example of this point.
 **Theoretical Basis:**
 first derivative, higher derivative, etc.
 
-## Implementing Algorithmic Differentiation
-
-### Native Implementation 
-
-A most simple one, `toy_forward`, `toy_reverse`, support only small number of operators. 
-
-### Updated Implementations 
-
-2-3 times of updates
-
-### Design of Algorithmic Differentiation in Owl 
-
-The structure of main engine: recursive, node, module, etc.
-
-### Advanced feature: Lazy Evaluation 
-
-### Advanced feature: Extend AD module
-
-"There is no spoon"
-
 ## APIs of Algorithmic Differentiation Module
 
 Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
@@ -637,5 +617,27 @@ It is also used in the Regression chapter to solve the linear regression problem
 More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch.
 The neural network module in Owl benefit a lot from our solid AD module. 
 We will elaborate these aspects in the following chapters. Stay tuned! 
+
+## Implementation: A Simple AD Engine 
+
+### Native Implementation 
+
+A most simple one, `toy_forward`, `toy_reverse`, support only small number of operators. 
+
+### Updated Implementations 
+
+2-3 times of updates
+
+## Implementing Algorithmic Differentiation in Owl
+
+### Design 
+
+The structure of main engine: recursive, node, module, etc.
+
+### Advanced feature: Lazy Evaluation 
+
+### Advanced feature: Extend AD module
+
+"There is no spoon"
 
 ## References

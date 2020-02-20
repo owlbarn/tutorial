@@ -360,28 +360,6 @@ let f x =
 <p><strong>Theoretical Basis:</strong> first derivative, higher derivative, etc.</p>
 </section>
 </section>
-<section class="level2" id="implementing-algorithmic-differentiation">
-<h2>Implementing Algorithmic Differentiation</h2>
-<section class="level3" id="native-implementation">
-<h3>Native Implementation</h3>
-<p>A most simple one, <code>toy_forward</code>, <code>toy_reverse</code>, support only small number of operators.</p>
-</section>
-<section class="level3" id="updated-implementations">
-<h3>Updated Implementations</h3>
-<p>2-3 times of updates</p>
-</section>
-<section class="level3" id="design-of-algorithmic-differentiation-in-owl">
-<h3>Design of Algorithmic Differentiation in Owl</h3>
-<p>The structure of main engine: recursive, node, module, etc.</p>
-</section>
-<section class="level3" id="advanced-feature-lazy-evaluation">
-<h3>Advanced feature: Lazy Evaluation</h3>
-</section>
-<section class="level3" id="advanced-feature-extend-ad-module">
-<h3>Advanced feature: Extend AD module</h3>
-<p>“There is no spoon”</p>
-</section>
-</section>
 <section class="level2" id="apis-of-algorithmic-differentiation-module">
 <h2>APIs of Algorithmic Differentiation Module</h2>
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.</p>
@@ -603,6 +581,31 @@ Plot.output h;;</code></pre>
 <section class="level3" id="more-examples-in-book">
 <h3>More Examples in Book</h3>
 <p>Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book. We use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter. It is also used in the Regression chapter to solve the linear regression problem with gradient descent. More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch. The neural network module in Owl benefit a lot from our solid AD module. We will elaborate these aspects in the following chapters. Stay tuned!</p>
+</section>
+</section>
+<section class="level2" id="implementation-a-simple-ad-engine">
+<h2>Implementation: A Simple AD Engine</h2>
+<section class="level3" id="native-implementation">
+<h3>Native Implementation</h3>
+<p>A most simple one, <code>toy_forward</code>, <code>toy_reverse</code>, support only small number of operators.</p>
+</section>
+<section class="level3" id="updated-implementations">
+<h3>Updated Implementations</h3>
+<p>2-3 times of updates</p>
+</section>
+</section>
+<section class="level2" id="implementing-algorithmic-differentiation-in-owl">
+<h2>Implementing Algorithmic Differentiation in Owl</h2>
+<section class="level3" id="design">
+<h3>Design</h3>
+<p>The structure of main engine: recursive, node, module, etc.</p>
+</section>
+<section class="level3" id="advanced-feature-lazy-evaluation">
+<h3>Advanced feature: Lazy Evaluation</h3>
+</section>
+<section class="level3" id="advanced-feature-extend-ad-module">
+<h3>Advanced feature: Extend AD module</h3>
+<p>“There is no spoon”</p>
 </section>
 </section>
 <section class="level2 unnumbered" id="references">
