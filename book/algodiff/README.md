@@ -544,32 +544,73 @@ $$\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^
 
 ### Jacobian 
 
-Just like gradient extends derivative, the gradient can also be extended to something called *Jacobian matrix*.
+Just like gradient extends derivative, the gradient can also be extended to the *Jacobian matrix*.
 The `grad` can be applied on functions with vector as input and scalar as output. 
 The `jacobian` function on the hand, deals with functions that has both input and output of vectors. 
 Suppose the input vector is of length $n$, and contains $m$ output variables, the jacobian matrix is defined as:
 
-EQUATION of Jacobian
+$$ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_0}{\partial~x_0} & \frac{\partial~y_0}{\partial~x_1} & \ldots & \frac{\partial~y_0}{\partial~x_n} \\ \frac{\partial~y_1}{\partial~x_0} & \frac{\partial~y_1}{\partial~x_1} & \ldots & \frac{\partial~y_1}{\partial~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial~y_m}{\partial~x_0} & \frac{\partial~y_m}{\partial~x_1} & \ldots & \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]$$
 
-**TODO**: the intuition of Jacobian
-
+The intuition of Jacobian is similar to that of the gradient. 
+At a particular point in the domain of the target function, If you give it a small change in the input vector, the Jacobian matrix shows how the output vector changes.
 One application field of Jacobian is in the analysis of dynamical systems.
 In a dynamic system $\vec{y}=f(\vec{x})$, suppose $f: \mathbf{R}^n \rightarrow \mathbf{R}^m$ is differentiable and its jacobian is $\mathbf{J}$.
-
 
 According to the [Hartman-Grobman](https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem) theorem, the behaviour of the system near a stationary point is related to the eigenvalues of $\mathbf{J}$.
 Specifically, if the eigenvalues all have real parts that are negative, then the system is stable near the stationary point, if any eigenvalue has a real part that is positive, then the point is unstable. If the largest real part of the eigenvalues is zero, the Jacobian matrix does not allow for an evaluation of the stability. (COPY ALERT)
 
-Let's look at the Two-body problem from Ordinary Differential Equation Chapter again. 
+Let's revise the two-body problem from Ordinary Differential Equation Chapter. This dynamic system is described by a group of differential equations:
 
-EQUATION: TWO-BODY
+$$y_0^{'} = y_2,$$
+$$y_1^{'} = y_3,$$
+$$y_2^{'} = -\frac{y_0}{r^3},$$ {#eq:algodiff:twobody_system}
+$$y_3^{'} = -\frac{y_1}{r^3},$$
 
-It's jacobian, expressed symbolically as a given.
+We can express this system with code:
 
-Validate with CODE
+```ocaml env=algodiff_jacobian
+open Algodiff.D
 
-Conclusion: not stable.
+let f y =
+  let y0 = Mat.get y 0 0 in 
+  let y1 = Mat.get y 0 1 in 
+  let y2 = Mat.get y 0 2 in 
+  let y3 = Mat.get y 0 3 in 
 
+  let r = Maths.(sqrt ((sqr y0) + (sqr y1))) in
+  let y0' = y2 in
+  let y1' = y3 in
+  let y2' = Maths.( neg y0 / pow r (F 3.)) in
+  let y3' = Maths.( neg y1 / pow r (F 3.)) in
+
+  let y' = Mat.ones 1 4 in
+  let y' = Mat.set y' 0 0 y0' in
+  let y' = Mat.set y' 0 1 y1' in
+  let y' = Mat.set y' 0 2 y2' in
+  let y' = Mat.set y' 0 3 y3' in
+  y'
+```
+
+For this functions $f: \mathbf{R}^4 \rightarrow \mathbf{R}^4$, we can then find its Jacobian matrix. Suppose the given point of interest of where all four input variables equals one. Then we can use the `Algodiff.D.jacobian` function in this way.
+
+```text
+let y = Mat.ones 1 4 
+let result = jacobian f y 
+```
+
+**TODO**: This example does NOT work!!!
+
+Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter. 
+
+```text
+let eig = Linalg.D.eigvals result 
+```
+
+It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions os growing.
+One eigenvalue is real and negative, indicating a decaying component. 
+The other two eigenvalues are pure imaginary numbers. representing oscillatory components.
+(COPY ALERT)
+The analysis result shows that at current point the system is unstable. 
 
 ### Hessian and Laplacian
 

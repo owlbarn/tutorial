@@ -506,16 +506,46 @@ Plot.output h;;</code></pre>
 </section>
 <section class="level3" id="jacobian">
 <h3>Jacobian</h3>
-<p>Just like gradient extends derivative, the gradient can also be extended to something called <em>Jacobian matrix</em>. The <code>grad</code> can be applied on functions with vector as input and scalar as output. The <code>jacobian</code> function on the hand, deals with functions that has both input and output of vectors. Suppose the input vector is of length <span class="math inline">\(n\)</span>, and contains <span class="math inline">\(m\)</span> output variables, the jacobian matrix is defined as:</p>
-<p>EQUATION of Jacobian</p>
-<p><strong>TODO</strong>: the intuition of Jacobian</p>
-<p>One application field of Jacobian is in the analysis of dynamical systems. In a dynamic system <span class="math inline">\(\vec{y}=f(\vec{x})\)</span>, suppose <span class="math inline">\(f: \mathbf{R}^n \rightarrow \mathbf{R}^m\)</span> is differentiable and its jacobian is <span class="math inline">\(\mathbf{J}\)</span>.</p>
+<p>Just like gradient extends derivative, the gradient can also be extended to the <em>Jacobian matrix</em>. The <code>grad</code> can be applied on functions with vector as input and scalar as output. The <code>jacobian</code> function on the hand, deals with functions that has both input and output of vectors. Suppose the input vector is of length <span class="math inline">\(n\)</span>, and contains <span class="math inline">\(m\)</span> output variables, the jacobian matrix is defined as:</p>
+<p><span class="math display">\[ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_0}{\partial~x_0} &amp; \frac{\partial~y_0}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_0}{\partial~x_n} \\ \frac{\partial~y_1}{\partial~x_0} &amp; \frac{\partial~y_1}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_1}{\partial~x_n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ \frac{\partial~y_m}{\partial~x_0} &amp; \frac{\partial~y_m}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]\]</span></p>
+<p>The intuition of Jacobian is similar to that of the gradient. At a particular point in the domain of the target function, If you give it a small change in the input vector, the Jacobian matrix shows how the output vector changes. One application field of Jacobian is in the analysis of dynamical systems. In a dynamic system <span class="math inline">\(\vec{y}=f(\vec{x})\)</span>, suppose <span class="math inline">\(f: \mathbf{R}^n \rightarrow \mathbf{R}^m\)</span> is differentiable and its jacobian is <span class="math inline">\(\mathbf{J}\)</span>.</p>
 <p>According to the <a href="https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem">Hartman-Grobman</a> theorem, the behaviour of the system near a stationary point is related to the eigenvalues of <span class="math inline">\(\mathbf{J}\)</span>. Specifically, if the eigenvalues all have real parts that are negative, then the system is stable near the stationary point, if any eigenvalue has a real part that is positive, then the point is unstable. If the largest real part of the eigenvalues is zero, the Jacobian matrix does not allow for an evaluation of the stability. (COPY ALERT)</p>
-<p>Let’s look at the Two-body problem from Ordinary Differential Equation Chapter again.</p>
-<p>EQUATION: TWO-BODY</p>
-<p>It’s jacobian, expressed symbolically as a given.</p>
-<p>Validate with CODE</p>
-<p>Conclusion: not stable.</p>
+<p>Let’s revise the two-body problem from Ordinary Differential Equation Chapter. This dynamic system is described by a group of differential equations:</p>
+<p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:algodiff:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(6)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
+<p>We can express this system with code:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let f y =
+  let y0 = Mat.get y 0 0 in 
+  let y1 = Mat.get y 0 1 in 
+  let y2 = Mat.get y 0 2 in 
+  let y3 = Mat.get y 0 3 in 
+
+  let r = Maths.(sqrt ((sqr y0) + (sqr y1))) in
+  let y0' = y2 in
+  let y1' = y3 in
+  let y2' = Maths.( neg y0 / pow r (F 3.)) in
+  let y3' = Maths.( neg y1 / pow r (F 3.)) in
+
+  let y' = Mat.ones 1 4 in
+  let y' = Mat.set y' 0 0 y0' in
+  let y' = Mat.set y' 0 1 y1' in
+  let y' = Mat.set y' 0 2 y2' in
+  let y' = Mat.set y' 0 3 y3' in
+  y'</code></pre>
+</div>
+<p>For this functions <span class="math inline">\(f: \mathbf{R}^4 \rightarrow \mathbf{R}^4\)</span>, we can then find its Jacobian matrix. Suppose the given point of interest of where all four input variables equals one. Then we can use the <code>Algodiff.D.jacobian</code> function in this way.</p>
+<div class="highlight">
+<pre><code class="language-text">let y = Mat.ones 1 4 
+let result = jacobian f y </code></pre>
+</div>
+<p><strong>TODO</strong>: This example does NOT work!!!</p>
+<p>Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter.</p>
+<div class="highlight">
+<pre><code class="language-text">let eig = Linalg.D.eigvals result </code></pre>
+</div>
+<p>It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions os growing. One eigenvalue is real and negative, indicating a decaying component. The other two eigenvalues are pure imaginary numbers. representing oscillatory components. (COPY ALERT) The analysis result shows that at current point the system is unstable.</p>
 </section>
 <section class="level3" id="hessian-and-laplacian">
 <h3>Hessian and Laplacian</h3>
