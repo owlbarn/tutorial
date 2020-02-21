@@ -348,7 +348,7 @@ first derivative, higher derivative, etc.
 
 TODO: More detail
 
-## APIs of Algorithmic Differentiation Module
+## Forward and Reverse Propagation with Owl
 
 So far we have talked about what is AD and how it works.
 Now let's turn to how to use it in Owl. 
@@ -371,8 +371,6 @@ In this section, we will use examples to demonstrate some of the most important 
 We first introduce the *low level APIs*, i.e. those for performing forward and reverse propagations.
 We then introduce some of the most important *high level APIs*, including `diff`, `grad`, `jacobian`, `hessian`, and `laplacian`.
 We will mostly use the double precision `Algodiff.D` module, but of course using other choices is also perfectly fine.
-
-### APIs for Forward and Reverse Modes
 
 `Algodiff` has implemented both forward and backward mode of AD. 
 
@@ -461,8 +459,15 @@ As we can see, for each input variable, we need to seed individual variable and 
 
 Similarly, you can try to use backward mode to differentiate `g`. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
 
-In reality, you don't really need to worry about forward or backward mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. However, there might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 
+## High-Level APIs of Algorithmic Differentiation Module
+
+What we have seen is the basic of AD modules.
+There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
+However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task.
+In reality, you don't really need to worry about forward or reverse mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc. 
+They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users.
+In this chapter we will introduce how to use these core high level APIs with examples.
 
 ### Derivative
 
@@ -518,7 +523,7 @@ Plot.plot ~h x y4;
 Plot.output h;;
 ```
 
-![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% #fig:algodiff:plot00 }
+![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=70% #fig:algodiff:plot00 }
 
 If you want, you can play with other functions, such as $\frac{1-e^{-x}}{1+e^{-x}}$ to see what its derivatives look like. 
 
@@ -549,7 +554,7 @@ The `grad` can be applied on functions with vector as input and scalar as output
 The `jacobian` function on the hand, deals with functions that has both input and output of vectors. 
 Suppose the input vector is of length $n$, and contains $m$ output variables, the jacobian matrix is defined as:
 
-$$ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_0}{\partial~x_0} & \frac{\partial~y_0}{\partial~x_1} & \ldots & \frac{\partial~y_0}{\partial~x_n} \\ \frac{\partial~y_1}{\partial~x_0} & \frac{\partial~y_1}{\partial~x_1} & \ldots & \frac{\partial~y_1}{\partial~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial~y_m}{\partial~x_0} & \frac{\partial~y_m}{\partial~x_1} & \ldots & \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]$$
+$$ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_1}{\partial~x_1} & \frac{\partial~y_1}{\partial~x_1} & \ldots & \frac{\partial~y_1}{\partial~x_n} \\ \frac{\partial~y_2}{\partial~x_0} & \frac{\partial~y_2}{\partial~x_1} & \ldots & \frac{\partial~y_2}{\partial~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial~y_m}{\partial~x_0} & \frac{\partial~y_m}{\partial~x_1} & \ldots & \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]$$
 
 The intuition of Jacobian is similar to that of the gradient. 
 At a particular point in the domain of the target function, If you give it a small change in the input vector, the Jacobian matrix shows how the output vector changes.
@@ -617,21 +622,43 @@ The analysis result shows that at current point the system is unstable.
 Another way to extend the gradient is to find the second order derivative of a multivariate function which takes $n$ input variables and outputs a scalar. 
 Its second order derivatives can be organised as a matrix:
 
-EQUATION: Hessian
+$$ \mathbf{H}(y) = \left[ \begin{matrix} \frac{\partial^2~y_1}{\partial~x_1^2} & \frac{\partial^2~y_1}{\partial~x_1~x_2} & \ldots & \frac{\partial^2~y_1}{\partial~x_1~x_n} \\ \frac{\partial^2~y_2}{\partial~x_2~x_1} & \frac{\partial^2~y_2}{\partial~x_2^2} & \ldots & \frac{\partial^2~y_2}{\partial~x_2~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial^2~y_m}{\partial^2~x_n~x_1} & \frac{\partial^2~y_m}{\partial~x_n~x_2} & \ldots & \frac{\partial^2~y_m}{\partial~x_n^2} \end{matrix} \right]$$
 
-In the Optimisation chapter we will see a method call "newton's method" to solve the optimisation problem, and it requires to find the Hessian matrix of $f$:
+TODO: intuition of hessian. 
 
-EQUATION: newton 
+As an example of using Hessian matrix, consider the *newton's method*. 
+It is also used for solving the optimisation problem, i.e. to find the minimum value on a function.
+Instead of following the direction of the gradient, the newton method combines gradient and second order gradients: $\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}$.
+Specifically, starting from a random position $x_0$, and it can be iteratively updated by repeating this procedure until converge, as shown in [@eq:algodiff:newtons].
 
-The AD module provides `hessian` function to do this work.
+$$x_(n+1) = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)$$ {#eq:algodiff:newtons}
 
-CODE: only shows a single step of newton.
+This process can be easily represented using the `Algodiff.D.hessian` function.
 
-More detail will be introduced in the Optimisation chapter.
+```ocaml env=algodiff_hessian_example
+open Algodiff.D
 
-Another useful function is `laplacian`, it calculate the *Laplacian operator*, which is the the trace of the Hessian matrix:
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = grad f x in 
+  let h = hessian f x in 
+  if (Maths.l2norm' g |> unpack_flt) < eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
+```
 
-EQUATION.
+We can then apply this method on a two dimensional triangular function to find one of the local minimum values, staring from a random initial point. 
+Note that here the functions has to take a vector as input and output a scalar.
+
+```ocaml env=algodiff_hessian_example
+let _ =
+  let f x = Maths.(cos x |> sum') in
+  newton f (Mat.uniform 1 2)
+```
+
+We will come back to this example in the in Optimisation chapter with more details.
+
+Another useful and related function is `laplacian`, it calculate the *Laplacian operator* $\nabla^2~f$, which is the the trace of the Hessian matrix:
+
+$$\nabla^2~f=trace(H_f)= \sum_{i=1}^{n}\frac{\partial^2f}{\partial~x_i^2}.$$
 
 The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics. The Laplacian represents the flux density of the gradient flow of a function. For instance, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena. (COPY ALERT)
 
@@ -694,10 +721,9 @@ The complete list of APIs can be found in [owl_algodiff_generic.mli](https://git
 ```
 
 
-### More Examples in Book
-
+**More Examples in Book**
 Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book.
-We use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter.
+As we have already shown in previous examples, we use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter.
 It is also used in the Regression chapter to solve the linear regression problem with gradient descent. 
 More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch.
 The neural network module in Owl benefit a lot from our solid AD module. 
