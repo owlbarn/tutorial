@@ -6,7 +6,7 @@
 <p>In science and engineering it is often necessary to study the relationship between two or more quantities, where change of one quantity leads to change of others. For example, in describing the motion an object, we describe velocity <span class="math inline">\(v\)</span> of an object with the change of the distance regarding time:</p>
 <p><span id="eq:algodiff:def"><span class="math display">\[v = \lim_{\Delta~t}\frac{\Delta~s}{\Delta~t} = \frac{ds}{dt}.\qquad(1)\]</span></span></p>
 <p>This relationship <span class="math inline">\(\frac{ds}{dt}\)</span> can be called “<em>derivative</em> of <span class="math inline">\(s\)</span> with respect to <span class="math inline">\(t\)</span>”. This process can be extended to higher dimensional space. For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature <span class="math inline">\(T\)</span> at different position of this block: <span class="math inline">\(T(x, y, z)\)</span>. In this field, we can describe this change with partial derivatives along each axis:</p>
-<p><span class="math display">\[\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).\]</span></p>
+<p><span id="eq:algodiff:grad"><span class="math display">\[\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).\qquad(2)\]</span></span></p>
 <p>Here, the call the vector <span class="math inline">\(\nabla~T\)</span> <em>gradient</em> of <span class="math inline">\(T\)</span>. The procedure to calculating derivatives and gradients is called <em>differentiating</em>.</p>
 <p>Differentiation is crucial in many scientific related fields: find maximum or minimum values using gradient descent (see later chapter); ODE (see later chapter); Non-linear optimisation such as KKT optimality conditions is still a prime application. One new crucial application is in machine learning.</p>
 <p>TODO: detail description of application.</p>
@@ -14,7 +14,7 @@
 <h3>Chain Rule</h3>
 <p>Before diving into how to do differentiation on computers, let’s recall how to do it manually from our Calculus 101.</p>
 <p>One of the most rule in performing differentiation is the <em>chain rule</em>. In calculus, the chain rule is a formula to compute the derivative of a composite function. Suppose we have two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>, then the Chain rule states that:</p>
-<p><span id="eq:algodiff:chainrule01"><span class="math display">\[F'(x)=f'(g(x))g'(x).\qquad(2)\]</span></span></p>
+<p><span id="eq:algodiff:chainrule01"><span class="math display">\[F'(x)=f'(g(x))g'(x).\qquad(3)\]</span></span></p>
 <p>This seemingly simple rule is one of the basic rule in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let <span class="math inline">\(y=e^{ln~x^a} = e^{a~ln~x}\)</span>, and then we can set <span class="math inline">\(u= alnx\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
 <p><span class="math display">\[y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.\]</span></p>
 <p>Besides the chain rule, it’s helpful to remember some basic differentiation equations, as shown in tbl.&nbsp;1. Here <span class="math inline">\(x\)</span> is variable and both <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are functions with regard to <span class="math inline">\(x\)</span>. <span class="math inline">\(C\)</span> is constant. Of course, this very short list is incomplete. Please refer to calculus textbooks for more information. Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine.</p>
@@ -84,8 +84,8 @@
 <section class="level2" id="how-algorithmic-differentiation-works">
 <h2>How Algorithmic Differentiation Works</h2>
 <p>We have seen the chain rules being applied on simple functions such as <span class="math inline">\(y=x^a\)</span>. Now let’s check how this rule can be applied on more complex computations. Let’s look at the function below:</p>
-<p><span id="eq:algodiff:example"><span class="math display">\[y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.\qquad(3)\]</span></span></p>
-<p>This functions is based on a sigmoid function. Our goal is to compute the partial derivative <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span>. To better illustrate this process, we express eq.&nbsp;3 as a graph, as shown in fig.&nbsp;1. At the right side of the figure, we have the final output <span class="math inline">\(y\)</span>, and at the roots of this graph are input variables. The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as <code>sine</code>. All nodes are labelled by <span class="math inline">\(v_i\)</span>. An edge between two nodes represents an explicit dependency in the computation.</p>
+<p><span id="eq:algodiff:example"><span class="math display">\[y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.\qquad(4)\]</span></span></p>
+<p>This functions is based on a sigmoid function. Our goal is to compute the partial derivative <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span>. To better illustrate this process, we express eq.&nbsp;4 as a graph, as shown in fig.&nbsp;1. At the right side of the figure, we have the final output <span class="math inline">\(y\)</span>, and at the roots of this graph are input variables. The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as <code>sine</code>. All nodes are labelled by <span class="math inline">\(v_i\)</span>. An edge between two nodes represents an explicit dependency in the computation.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:algodiff:example_01" title="example_01" src="images/algodiff/example_01.png"><figcaption>Figure 1: Graph expression of function</figcaption>
 </figure>
@@ -95,7 +95,7 @@
 <p>Our target is to calculate <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> (partial derivative regarding <span class="math inline">\(x_1\)</span> should be similar). But don’t be so hurry, let’s start with some earlier intermediate results that might be helpful. For example, what is <span class="math inline">\(\frac{\partial~x_0}{\partial~x_1}\)</span>? 1, obviously. Equally obvious is <span class="math inline">\(\frac{\partial~x_1}{\partial~x_1} = 0\)</span>. It’s just elementary. Now, things gets a bit trickier: what is <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>? Not is a good time to use the chain rule:</p>
 <p><span class="math display">\[\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.\]</span></p>
 <p>After calculating <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>, we can then processed with derivatives of <span class="math inline">\(v_5\)</span>, <span class="math inline">\(v_6\)</span>, all the way to that of <span class="math inline">\(v_9\)</span> which is also the output <span class="math inline">\(y\)</span> we are looking for. This process starts with the input variables, and ends with output variables. Therefore, it is called <em>forward differentiation</em>. We can do simplify the math notations in this process by letting <span class="math inline">\(\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}\)</span>. The <span class="math inline">\(\dot{v_i}\)</span> here is called <em>tangent</em> of function <span class="math inline">\(v_i(x_0, x_1, \ldots, x_n)\)</span> with regard to input variable <span class="math inline">\(x_0\)</span>. The forward differentiation mode is sometimes also called “tangent linear” mode.</p>
-<p>Now we can present the full forward differentiation calculation process, as shown in tbl.&nbsp;2. Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by eq.&nbsp;3; on the right side shows computation of derivative for each intermediate variable with regard to <span class="math inline">\(x_0\)</span>. Let’s find out <span class="math inline">\(\dot{y}\)</span> when setting <span class="math inline">\(x_0 = 1\)</span>, and <span class="math inline">\(x_1 = 1\)</span>.</p>
+<p>Now we can present the full forward differentiation calculation process, as shown in tbl.&nbsp;2. Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by eq.&nbsp;4; on the right side shows computation of derivative for each intermediate variable with regard to <span class="math inline">\(x_0\)</span>. Let’s find out <span class="math inline">\(\dot{y}\)</span> when setting <span class="math inline">\(x_0 = 1\)</span>, and <span class="math inline">\(x_1 = 1\)</span>.</p>
 <div id="tbl:algodiff:forward">
 <table style="width:93%;">
 <caption>Table 2: Computation process of forward differentiation</caption>
@@ -193,10 +193,10 @@ let _ = grad f x |&gt; unpack_arr;;
 <h3>Reverse Mode</h3>
 <p>Now let’s think this problem from the other direction, literally. The same questions: to calculate <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. We still follow the same “step by step” idea from the forward mode, but the difference is that, we think it backward. For example, here we reduce the problem in this way: since in this graph <span class="math inline">\(y = v_7 / v_8\)</span>, if only we can have <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~v_8}\)</span>, then this problem should be one step closer towards my target problem.</p>
 <p>First of course, we have <span class="math inline">\(\frac{\partial~y}{\partial~v_9} = 1\)</span>, since <span class="math inline">\(y\)</span> and <span class="math inline">\(v_9\)</span> are the same. Then how do we get <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span>? Again, time for chain rule:</p>
-<p><span id="eq:algodiff:reverse_01"><span class="math display">\[\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.\qquad(4)\]</span></span></p>
+<p><span id="eq:algodiff:reverse_01"><span class="math display">\[\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.\qquad(5)\]</span></span></p>
 <p>Hmm, let’s try to apply a notation to simplify this process. Let</p>
 <p><span class="math display">\[\bar{v_i} = \frac{\partial~y}{\partial~v_i}\]</span></p>
-<p>be the derivative of output variable <span class="math inline">\(y\)</span> with regard to intermediate node <span class="math inline">\(v_i\)</span>. It is called the <em>adjoint</em> of variable <span class="math inline">\(v_i\)</span> with respect to the output variable <span class="math inline">\(y\)</span>. Using this notation, eq.&nbsp;4 can be expressed as:</p>
+<p>be the derivative of output variable <span class="math inline">\(y\)</span> with regard to intermediate node <span class="math inline">\(v_i\)</span>. It is called the <em>adjoint</em> of variable <span class="math inline">\(v_i\)</span> with respect to the output variable <span class="math inline">\(y\)</span>. Using this notation, eq.&nbsp;5 can be expressed as:</p>
 <p><span class="math display">\[\bar{v_7} = \bar{v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{1}{v_8}.\]</span></p>
 <p>Note the difference between tangent and adjoint. In the forward mode, we know <span class="math inline">\(\dot{v_0}\)</span> and <span class="math inline">\(\dot{v_1}\)</span>, then we calculate <span class="math inline">\(\dot{v_2}\)</span>, <span class="math inline">\(\dot{v3}\)</span>, …. and then finally we have <span class="math inline">\(\dot{v_9}\)</span>, which is the target. Here, we start with knowing <span class="math inline">\(\bar{v_9} = 1\)</span>, and then we calculate <span class="math inline">\(\bar{v_8}\)</span>, <span class="math inline">\(\bar{v_7}\)</span>, …. and then finally we have <span class="math inline">\(\bar{v_0} = \frac{\partial~y}{\partial~v_0} = \frac{\partial~y}{\partial~x_0}\)</span>, which is also exactly our target. Again, <span class="math inline">\(\dot{v_9} = \bar{v_0}\)</span> in this example, given that we are talking about derivative regarding <span class="math inline">\(x_0\)</span> when we use <span class="math inline">\(\dot{v_9}\)</span>. Following this line of calculation, the reverse differentiation mode is also called <em>adjoint mode</em>.</p>
 <p>With that in mind, let’s see the full steps of performing reverse differentiation. First, we need to perform a forward pass to compute the required intermediate values, as shown in tbl.&nbsp;3.</p>
@@ -358,16 +358,19 @@ let f x =
 </ul>
 <p>Later we will show example of this point.</p>
 <p><strong>Theoretical Basis:</strong> first derivative, higher derivative, etc.</p>
+<p>TODO: More detail</p>
 </section>
 </section>
 <section class="level2" id="apis-of-algorithmic-differentiation-module">
 <h2>APIs of Algorithmic Differentiation Module</h2>
+<p>So far we have talked about what is AD and how it works. Now let’s turn to how to use it in Owl.</p>
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.</p>
-<p><code>Algodiff.Generic</code> is a functor that accept a Ndarray module. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that support <code>float32</code> and <code>float64</code> precision respectively.</p>
+<p>Algorithmic Differentiation is a core module built in Owl, which is one of Owl’s special feature among other similar numerical libraries. <code>Algodiff.Generic</code> is a functor that accept a Ndarray modules. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that support <code>float32</code> and <code>float64</code> precision respectively.</p>
 <div class="highlight">
 <pre><code class="language-clike">module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)</code></pre>
 </div>
+<p>EXPLAIN what is this <code>Owl_algodiff_primal_ops</code> thing.</p>
 <p>In this section, we will use examples to demonstrate some of the most important APIs that the Algorithmic Differentiation module provides. We first introduce the <em>low level APIs</em>, i.e.&nbsp;those for performing forward and reverse propagations. We then introduce some of the most important <em>high level APIs</em>, including <code>diff</code>, <code>grad</code>, <code>jacobian</code>, <code>hessian</code>, and <code>laplacian</code>. We will mostly use the double precision <code>Algodiff.D</code> module, but of course using other choices is also perfectly fine.</p>
 <section class="level3" id="apis-for-forward-and-reverse-modes">
 <h3>APIs for Forward and Reverse Modes</h3>
@@ -447,22 +450,29 @@ val reverse_prop : t -&gt; t -&gt; unit</code></pre>
 </section>
 <section class="level3" id="derivative">
 <h3>Derivative</h3>
+<p>The most basic and commonly used differentiation functions is used for calculating the <em>derivative</em> of a function. The AD module provides <code>diff</code> function for this task. Given a function <code>f</code> that takes a scalar as input and also returns a scalar value, we can calculate its derivative at a point <code>x</code> by <code>diff f x</code>, as shown in this function signature.</p>
 <div class="highlight">
-<pre><code class="language-clike">val diff : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate derivative for f : scalar -&gt; scalar *)</code></pre>
+<pre><code class="language-clike">val diff : (t -&gt; t) -&gt; t -&gt; t</code></pre>
 </div>
-<p>The following code first defines a function <code>f0</code>, then calculates from the first to the fourth derivative by calling <code>Algodiff.AD.diff</code> function.</p>
+<p>The physical meaning of derivative is intuitive. The function <code>f</code> can be expressed as a curve in a cartesian coordinate system, and the derivative at a point is the tangent on a function at this point. It also indicate the rate of change at this point.</p>
+<p>Suppose we define a function <code>f0</code> to be the triangular function <code>tanh</code>, we can calculate its derivative at position <span class="math inline">\(x=0.1\)</span> by simply calling:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">open Algodiff.D;;
+<pre><code class="language-ocaml">open Algodiff.D
 
-let map f x = Owl.Mat.map (fun a -&gt; a |&gt; pack_flt |&gt; f |&gt; unpack_flt) x;;
-
-(* calculate derivatives of f0 *)
-let f0 x = Maths.(tanh x);;
+let f0 x = Maths.(tanh x)
+let d = diff f0 (F 0.1)</code></pre>
+</div>
+<p>Moreover, the AD module is much more than that; we can easily chains multiple <code>diff</code> together to get a function’s high order derivatives. For example, we can get the first to fourth order derivatives of <code>f0</code> by using the code below.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let f0 x = Maths.(tanh x);;
 let f1 = diff f0;;
 let f2 = diff f1;;
 let f3 = diff f2;;
-let f4 = diff f3;;
+let f4 = diff f3;;</code></pre>
+</div>
+<p>We can further plot these five functions using Owl, and the result is show in fig.&nbsp;4.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let map f x = Owl.Mat.map (fun a -&gt; a |&gt; pack_flt |&gt; f |&gt; unpack_flt) x;;
 
 let x = Owl.Mat.linspace (-4.) 4. 200;;
 let y0 = map f0 x;;
@@ -471,7 +481,6 @@ let y2 = map f2 x;;
 let y3 = map f3 x;;
 let y4 = map f4 x;;
 
-(* plot the values of all functions *)
 let h = Plot.create "plot_00.png" in
 Plot.plot ~h x y0;
 Plot.plot ~h x y1;
@@ -480,49 +489,46 @@ Plot.plot ~h x y3;
 Plot.plot ~h x y4;
 Plot.output h;;</code></pre>
 </div>
-<p>Start your <code>utop</code>, then load and open <code>Owl</code> library. Copy and past the code above, the generated figure will look like this.</p>
 <figure>
 <img alt="" style="width:90.0%" id="fig:algodiff:plot00" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>Figure 4: Higher order derivatives</figcaption>
 </figure>
-<p>If you replace <code>f0</code> in the previous example with the following definition, then you will have another good-looking figure :)</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let f0 x = Maths.(
-  let y = exp (neg x) in
-  (F 1. - y) / (F 1. + y)
-);;</code></pre>
-</div>
-<p>As you see, you can just keep calling <code>diff</code> to get higher and higher-order derivatives. E.g.,</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let f'''' f = f |&gt; diff |&gt; diff |&gt; diff |&gt; diff</code></pre>
-</div>
-<p>The code above will give you the fourth derivative of <code>f</code>, i.e.&nbsp;<code>f''''</code>.</p>
+<p>If you want, you can play with other functions, such as <span class="math inline">\(\frac{1-e^{-x}}{1+e^{-x}}\)</span> to see what its derivatives look like.</p>
 </section>
 <section class="level3" id="gradient">
 <h3>Gradient</h3>
-<div class="highlight">
-<pre><code class="language-clike">val grad : (t -&gt; t) -&gt; t -&gt; t
-(* calculate gradient for f : vector -&gt; scalar *)</code></pre>
-</div>
-<p>Example: Gradient Descent, only briefly.</p>
+<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. For example, fig.&nbsp;5 shows the gradients at different points on a 3D surface (<a href="https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html">src</a>). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
+</figure>
+<p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
+<p>As an example, we calculate the gradient of a physical function. The fourth chapter of <span data-cites="feynman1964feynman" class="citation">(Feynman 1964)</span> describes an electronic fields. It consists two point charges, <code>+q</code> and <code>-q</code>, separated by the distance <span class="math inline">\(d\)</span>. The z axis goes through the charges, and the origin is set to halfway between these two charges. The potential from the two charges can be described by</p>
+<p><span class="math display">\[\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)\]</span></p>
 </section>
 <section class="level3" id="jacobian">
 <h3>Jacobian</h3>
-<div class="highlight">
-<pre><code class="language-clike"> val jacobian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate jacobian for f : vector -&gt; vector *)</code></pre>
-</div>
-<p>Example: ???</p>
+<p>Just like gradient extends derivative, the gradient can also be extended to something called <em>Jacobian matrix</em>. The <code>grad</code> can be applied on functions with vector as input and scalar as output. The <code>jacobian</code> function on the hand, deals with functions that has both input and output of vectors. Suppose the input vector is of length <span class="math inline">\(n\)</span>, and contains <span class="math inline">\(m\)</span> output variables, the jacobian matrix is defined as:</p>
+<p>EQUATION of Jacobian</p>
+<p><strong>TODO</strong>: the intuition of Jacobian</p>
+<p>One application field of Jacobian is in the analysis of dynamical systems. In a dynamic system <span class="math inline">\(\vec{y}=f(\vec{x})\)</span>, suppose <span class="math inline">\(f: \mathbf{R}^n \rightarrow \mathbf{R}^m\)</span> is differentiable and its jacobian is <span class="math inline">\(\mathbf{J}\)</span>.</p>
+<p>According to the <a href="https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem">Hartman-Grobman</a> theorem, the behaviour of the system near a stationary point is related to the eigenvalues of <span class="math inline">\(\mathbf{J}\)</span>. Specifically, if the eigenvalues all have real parts that are negative, then the system is stable near the stationary point, if any eigenvalue has a real part that is positive, then the point is unstable. If the largest real part of the eigenvalues is zero, the Jacobian matrix does not allow for an evaluation of the stability. (COPY ALERT)</p>
+<p>Let’s look at the Two-body problem from Ordinary Differential Equation Chapter again.</p>
+<p>EQUATION: TWO-BODY</p>
+<p>It’s jacobian, expressed symbolically as a given.</p>
+<p>Validate with CODE</p>
+<p>Conclusion: not stable.</p>
 </section>
 <section class="level3" id="hessian-and-laplacian">
 <h3>Hessian and Laplacian</h3>
-<div class="highlight">
-<pre><code class="language-clike">  val hessian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate hessian for f : scalar -&gt; scalar *)
-
-  val laplacian : (t -&gt; t) -&gt; t -&gt; t
-  (* calculate laplacian for f : scalar -&gt; scalar *)</code></pre>
-</div>
-<p>Example: 1) Newton method 2) Laplacian: ???</p>
+<p>Another way to extend the gradient is to find the second order derivative of a multivariate function which takes <span class="math inline">\(n\)</span> input variables and outputs a scalar. Its second order derivatives can be organised as a matrix:</p>
+<p>EQUATION: Hessian</p>
+<p>In the Optimisation chapter we will see a method call “newton’s method” to solve the optimisation problem, and it requires to find the Hessian matrix of <span class="math inline">\(f\)</span>:</p>
+<p>EQUATION: newton</p>
+<p>The AD module provides <code>hessian</code> function to do this work.</p>
+<p>CODE: only shows a single step of newton.</p>
+<p>More detail will be introduced in the Optimisation chapter.</p>
+<p>Another useful function is <code>laplacian</code>, it calculate the <em>Laplacian operator</em>, which is the the trace of the Hessian matrix:</p>
+<p>EQUATION.</p>
+<p>The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics. The Laplacian represents the flux density of the gradient flow of a function. For instance, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena. (COPY ALERT)</p>
 </section>
 <section class="level3" id="other-apis">
 <h3>Other APIs</h3>
@@ -611,6 +617,9 @@ Plot.output h;;</code></pre>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-feynman1964feynman">
+<p>Feynman, Richard P. 1964. “Feynman Lectures on Physics. Volume 2: Mainly Electromagnetism and Matter.” <em>Reading, Ma.: Addison-Wesley, 1964, Edited by Feynman, Richard P.; Leighton, Robert B.; Sands, Matthew</em>.</p>
+</div>
 <div id="ref-griewank1989automatic">
 <p>Griewank, Andreas, and others. 1989. “On Automatic Differentiation.” <em>Mathematical Programming: Recent Developments and Applications</em> 6 (6): 83–107.</p>
 </div>

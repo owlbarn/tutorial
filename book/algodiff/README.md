@@ -14,7 +14,7 @@ This process can be extended to higher dimensional space.
 For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature $T$ at different position of this block: $T(x, y, z)$. 
 In this field, we can describe this change with partial derivatives along each axis: 
 
-$$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$
+$$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$ {#eq:algodiff:grad}
 
 Here, the call the vector $\nabla~T$ *gradient* of $T$.
 The procedure to calculating derivatives and gradients is called *differentiating*.
@@ -346,18 +346,26 @@ Later we will show example of this point.
 **Theoretical Basis:**
 first derivative, higher derivative, etc.
 
+TODO: More detail
+
 ## APIs of Algorithmic Differentiation Module
+
+So far we have talked about what is AD and how it works.
+Now let's turn to how to use it in Owl. 
 
 Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
 We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.
 
-`Algodiff.Generic` is a functor that accept a Ndarray module.
+Algorithmic Differentiation is a core module built in Owl, which is one of Owl's special feature among other similar numerical libraries.
+`Algodiff.Generic` is a functor that accept a Ndarray modules.
 By plugging in `Dense.Ndarray.S` and `Dense.Ndarray.D` modules we can have AD modules that support `float32` and `float64` precision respectively. 
 
 ```
 module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 ```
+
+EXPLAIN what is this `Owl_algodiff_primal_ops` thing.
 
 In this section, we will use examples to demonstrate some of the most important APIs that the Algorithmic Differentiation module provides. 
 We first introduce the *low level APIs*, i.e. those for performing forward and reverse propagations.
@@ -458,24 +466,41 @@ In reality, you don't really need to worry about forward or backward mode if you
 
 ### Derivative
 
+The most basic and commonly used differentiation functions is used for calculating the *derivative* of a function. 
+The AD module provides `diff` function for this task. 
+Given a function `f` that takes a scalar as input and also returns a scalar value, we can calculate its derivative at a point `x` by `diff f x`, as shown in this function signature.
+
 ```
 val diff : (t -> t) -> t -> t
-  (* calculate derivative for f : scalar -> scalar *)
 ```
 
-The following code first defines a function `f0`, then calculates from the first to the fourth derivative by calling `Algodiff.AD.diff` function.
+The physical meaning of derivative is intuitive. The function `f` can be expressed as a curve in a cartesian coordinate system, and the derivative at a point is the tangent on a function at this point.
+It also indicate the rate of change at this point. 
+
+Suppose we define a function `f0` to be the triangular function `tanh`, we can calculate its derivative at position $x=0.1$ by simply calling:
 
 ```ocaml env=algodiff_00
-open Algodiff.D;;
+open Algodiff.D
 
-let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
+let f0 x = Maths.(tanh x)
+let d = diff f0 (F 0.1)
+```
 
-(* calculate derivatives of f0 *)
+Moreover, the AD module is much more than that; we can easily chains multiple `diff` together to get a function's high order derivatives. 
+For example, we can get the first to fourth order derivatives of `f0` by using the code below.
+
+```ocaml env=algodiff_00
 let f0 x = Maths.(tanh x);;
 let f1 = diff f0;;
 let f2 = diff f1;;
 let f3 = diff f2;;
 let f4 = diff f3;;
+```
+
+We can further plot these five functions using Owl, and the result is show in [@fig:algodiff:plot00].
+
+```ocaml env=algodiff_00
+let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
 
 let x = Owl.Mat.linspace (-4.) 4. 200;;
 let y0 = map f0 x;;
@@ -484,7 +509,6 @@ let y2 = map f2 x;;
 let y3 = map f3 x;;
 let y4 = map f4 x;;
 
-(* plot the values of all functions *)
 let h = Plot.create "plot_00.png" in
 Plot.plot ~h x y0;
 Plot.plot ~h x y1;
@@ -494,61 +518,81 @@ Plot.plot ~h x y4;
 Plot.output h;;
 ```
 
-Start your `utop`, then load and open `Owl` library. Copy and past the code above, the generated figure will look like this.
-
 ![Higher order derivatives](images/algodiff/plot_00.png "plot 00"){ width=90% #fig:algodiff:plot00 }
 
-If you replace `f0` in the previous example with the following definition, then you will have another good-looking figure :)
-
-```ocaml env=algodiff_00
-let f0 x = Maths.(
-  let y = exp (neg x) in
-  (F 1. - y) / (F 1. + y)
-);;
-```
-
-As you see, you can just keep calling `diff` to get higher and higher-order derivatives. E.g., 
-
-```ocaml env=algodiff_00
-let f'''' f = f |> diff |> diff |> diff |> diff
-```
-
-The code above will give you the fourth derivative of `f`, i.e. `f''''`.
-
+If you want, you can play with other functions, such as $\frac{1-e^{-x}}{1+e^{-x}}$ to see what its derivatives look like. 
 
 ### Gradient
 
-```
-val grad : (t -> t) -> t -> t
-(* calculate gradient for f : vector -> scalar *)
-```
+As we have introduced in [@eq:algodiff:grad], gradient generalise derivatives to multivariate functions. 
+Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the `grad` function to find it gradient at a point. 
+For example, [@fig:algodiff:gradient_example] shows the gradients at different points on a 3D surface ([src](https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html)). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis.
+This vector shows the direction and magnitude of maximum change of a multivariate function.
 
-Example: Gradient Descent, only briefly.
+![Gradient field on a 3D surface](images/algodiff/gradient.png "gradient_example"){ width=60% #fig:algodiff:gradient_example}
+
+One important application of gradient is the *gradient descent*, a widely used technique to find minimum values on a function. 
+The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved.
+We will talk about it in detail in the Regression an Optimisation chapters in our book. 
+
+As an example, we calculate the gradient of a physical function.
+The fourth chapter of [@feynman1964feynman] describes an electronic fields. It consists two point charges, `+q` and `-q`, separated by the distance $d$. The z axis goes through the charges, and the origin is set to halfway between these two charges.
+The potential from the two charges can be described by 
+
+$$\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)$$
 
 
 ### Jacobian 
 
-```
- val jacobian : (t -> t) -> t -> t
-  (* calculate jacobian for f : vector -> vector *)
-```
+Just like gradient extends derivative, the gradient can also be extended to something called *Jacobian matrix*.
+The `grad` can be applied on functions with vector as input and scalar as output. 
+The `jacobian` function on the hand, deals with functions that has both input and output of vectors. 
+Suppose the input vector is of length $n$, and contains $m$ output variables, the jacobian matrix is defined as:
 
-Example: ??? 
+EQUATION of Jacobian
+
+**TODO**: the intuition of Jacobian
+
+One application field of Jacobian is in the analysis of dynamical systems.
+In a dynamic system $\vec{y}=f(\vec{x})$, suppose $f: \mathbf{R}^n \rightarrow \mathbf{R}^m$ is differentiable and its jacobian is $\mathbf{J}$.
 
 
-### Hessian and Laplacian 
+According to the [Hartman-Grobman](https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem) theorem, the behaviour of the system near a stationary point is related to the eigenvalues of $\mathbf{J}$.
+Specifically, if the eigenvalues all have real parts that are negative, then the system is stable near the stationary point, if any eigenvalue has a real part that is positive, then the point is unstable. If the largest real part of the eigenvalues is zero, the Jacobian matrix does not allow for an evaluation of the stability. (COPY ALERT)
 
-```
-  val hessian : (t -> t) -> t -> t
-  (* calculate hessian for f : scalar -> scalar *)
+Let's look at the Two-body problem from Ordinary Differential Equation Chapter again. 
 
-  val laplacian : (t -> t) -> t -> t
-  (* calculate laplacian for f : scalar -> scalar *)
-```
+EQUATION: TWO-BODY
 
-Example: 
-1) Newton method 
-2) Laplacian: ???
+It's jacobian, expressed symbolically as a given.
+
+Validate with CODE
+
+Conclusion: not stable.
+
+
+### Hessian and Laplacian
+
+Another way to extend the gradient is to find the second order derivative of a multivariate function which takes $n$ input variables and outputs a scalar. 
+Its second order derivatives can be organised as a matrix:
+
+EQUATION: Hessian
+
+In the Optimisation chapter we will see a method call "newton's method" to solve the optimisation problem, and it requires to find the Hessian matrix of $f$:
+
+EQUATION: newton 
+
+The AD module provides `hessian` function to do this work.
+
+CODE: only shows a single step of newton.
+
+More detail will be introduced in the Optimisation chapter.
+
+Another useful function is `laplacian`, it calculate the *Laplacian operator*, which is the the trace of the Hessian matrix:
+
+EQUATION.
+
+The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics. The Laplacian represents the flux density of the gradient flow of a function. For instance, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena. (COPY ALERT)
 
 
 ### Other APIs
