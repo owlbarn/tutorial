@@ -343,15 +343,16 @@ In general, given a function that you want to differentiate, the rule of thumb i
 
 Later we will show example of this point.
 
-**Theoretical Basis:**
-first derivative, higher derivative, etc.
+For each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for `f`. One real-world example of `f` is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.
+
+Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
 
 TODO: More detail
 
 ## Forward and Reverse Propagation with Owl
 
-So far we have talked about what is AD and how it works.
-Now let's turn to how to use it in Owl. 
+So far we have talked a lot about what is Algorithmic Differentiation and how it works.
+Now finally let's turn to how to use it in Owl. 
 
 Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
 We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.
@@ -366,55 +367,86 @@ module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 ```
 
 EXPLAIN what is this `Owl_algodiff_primal_ops` thing.
-
-In this section, we will use examples to demonstrate some of the most important APIs that the Algorithmic Differentiation module provides. 
-We first introduce the *low level APIs*, i.e. those for performing forward and reverse propagations.
-We then introduce some of the most important *high level APIs*, including `diff`, `grad`, `jacobian`, `hessian`, and `laplacian`.
 We will mostly use the double precision `Algodiff.D` module, but of course using other choices is also perfectly fine.
 
-`Algodiff` has implemented both forward and backward mode of AD. 
+### Expressing Computation in AD
+
+Express the computation in previous example:
+
+```ocaml
+open Owl 
+
+let f x = 
+	let x0 = Mat.get x 0 0 in 
+	let x1 = Mat.get x 0 1 in
+	Owl_maths.(1. /. (1. +. exp (sin x0 +. x0 *. x1)))
+```
+
+We cannot directly differentiate this programme. Instead, we need to do some minor but important change:
+
+```ocaml env=algodiff_example_02
+module AD = Algodiff.D
+
+let f x = 
+	let x0 = AD.Mat.get x 0 0 in 
+	let x1 = AD.Mat.get x 0 1 in
+	AD.Maths.((F 1.) / (F 1. + exp (sin x0 + x0 * x1)))
+```
+
+Very similar, but now we are using the operators provided in the AD module.
+
+In AD, all the input/output are of type `AD.t`. No difference between scalar, matrix, or ndarray in type checking.
+
+The `F` is special packing mechanism in AD... Also similar is the `Arr` operator...
+And as you can guess, there are also unpacking mechanisms, as can be illustrated in the figure below. 
+
+IMAGE: a box with packing and unpacking channels 
+
+For example, we can directly execute the AD functions, and the results need to be unpacked before being used. 
+
+```
+CODE: a forward execution in AD, and unpack the result.
+```
+
+As a trade with this slightly cumbersome packing mechanism, we can now perform.
+
+### Example: Forward Mode in AD
+
+The forward mode is implemented with the `make_forward` function:
 
 ```
 val make_forward : t -> t -> int -> t
 
+val tangent : t -> t 
+```
+
+How about function `g` then, the function represents those having a small amount of inputs but a large amount of outputs. According to the rule of thumb, we are suppose to use the forward pass to calculate the derivatives of the outputs w.r.t its inputs.
+
+```
+  let x = make_forward (F 1.) (F 1.) (tag ());;  (* seed the input *)
+  let y = f x;;                                  (* forward pass *)
+  let y' = tangent y;;                           (* get all derivatives *)
+```
+
+All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in `y`. 
+We can retrieve the derivatives using `tangent` function.
+
+(SHOW this point!)
+
+
+### Example: Reverse Mode in AD 
+
+The reverse mode consists of two parts:
+
+```
 val make_reverse : t -> int -> t
 
 val reverse_prop : t -> t -> unit
 ```
 
-Let's look at the two simple functions `f` and `g` defined below. `f` falls into the first category we mentioned before, i.e., inputs is more than outputs; whilst `g` falls into the second category.
-
-```ocaml
-
-  open Algodiff.D;;
-
-  (* f : vector -> scalar *)
-  let f x =
-    let a = Mat.get x 0 0 in
-    let b = Mat.get x 0 1 in
-    let c = Mat.get x 0 2 in
-    Maths.((sin a) + (cos b) + (sqr c))
-  ;;
-
-  (* g : scalar -> vector *)
-  let g x =
-    let a = Maths.sin x in
-    let b = Maths.cos x in
-    let c = Maths.sqr x in
-
-    let y = Mat.zeros 1 3 in
-    let y = Mat.set y 0 0 a in
-    let y = Mat.set y 0 1 b in
-    let y = Mat.set y 0 2 c in
-    y
-  ;;
+Let's look at the code snippet below.
 
 ```
-
-According to the rule of thumb, we need to use backward mode to differentiate `f`, i.e., calculate the gradient of `f`. How to do that then? Let's look at the code snippet below.
-
-```ocaml
-
   let x = Mat.uniform 1 3;;           (* generate random input *)
   let x' = make_reverse x (tag ());;  (* init the backward mode *)
   let y = f x';;                      (* forward pass to build computation graph *)
@@ -423,41 +455,11 @@ According to the rule of thumb, we need to use backward mode to differentiate `f
 
 ```
 
-`make_reverse` function does two things for us: 1) wrap `x` into type `t` that Algodiff can process using type constructor `DF`; 2) generate a unique tag for the input so that input numbers can have nested structure. By calling `f x'`, we construct the computation graph of `f` and the graph structure is maintained in the returned result `y`. Finally, `reverse_prop` function propagates the error back to the inputs.
-
+`make_reverse` function does two things for us: 1) wrap `x` into type `t` that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure. 
+By calling `f x'`, we construct the computation graph of `f` and the graph structure is maintained in the returned result `y`. Finally, `reverse_prop` function propagates the error back to the inputs.
 In the end, the gradient of `f` is stored in the adjacent value of `x'`, and we can retrieve that with `adjval` function.
 
-How about function `g` then, the function represents those having a small amount of inputs but a large amount of outputs. According to the rule of thumb, we are suppose to use the forward pass to calculate the derivatives of the outputs w.r.t its inputs.
-
-```ocaml
-
-  let x = make_forward (F 1.) (F 1.) (tag ());;  (* seed the input *)
-  let y = g x;;                                  (* forward pass *)
-  let y' = tangent y;;                           (* get all derivatives *)
-
-```
-
-Forward mode appears much simpler than the backward mode. `make_forward` function does almost the same thing as `make_reverse` does for us, the only exception is that `make_forward` uses `DF` type constructor to wrap up the input. All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in `y`. We can retrieve the derivatives using `tangent` function, as we used `adjval` in the backward mode.
-
-OK, how about we abandon the rule of thumb? In other words, let's use forward mode to differentiate `f` rather than using backward mode. Please check the solution below.
-
-```text
-  Need to be fixed!
-
-  let x0 = make_forward x (Arr Vec.(unit_basis 3 0)) (tag ());;  (* seed the first input variable *)
-  let t0 = tangent (f x0);;                                      (* forward pass for the first variable *)
-
-  let x1 = make_forward x (Arr Vec.(unit_basis 3 1)) (tag ());;  (* seed the second input variable *)
-  let t1 = tangent (f x1);;                                      (* forward pass for the second variable *)
-
-  let x2 = make_forward x (Arr Vec.(unit_basis 3 2)) (tag ());;  (* seed the third input variable *)
-  let t2 = tangent (f x2);;                                      (* forward pass for the third variable *)
-
-```
-
-As we can see, for each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for `f`. One real-world example of `f` is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.
-
-Similarly, you can try to use backward mode to differentiate `g`. I will just this as an exercise for you. One last thing I want to mention is: backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
+Show some numbers that fit with previous manual results.
 
 
 ## High-Level APIs of Algorithmic Differentiation Module
@@ -665,10 +667,9 @@ The Laplacian occurs in differential equations that describe many physical pheno
 
 ### Other APIs
 
-Besides, there are also more helper functions such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
-
-The complete list of APIs can be found in [owl_algodiff_generic.mli](https://github.com/ryanrhymes/owl/blob/ppl/src/base/optimise/owl_algodiff_generic.mli). The core APIs are listed below.
-
+Besides, there are also many helper functions, such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
+They will come handy in certain cases for the programmers. 
+Besides the functions we have already introduced, the complete list of APIs can be found below.
 
 ```
   val diff' : (t -> t) -> t -> t * t
@@ -739,7 +740,7 @@ A most simple one, `toy_forward`, `toy_reverse`, support only small number of op
 
 2-3 times of updates
 
-## Implementing Algorithmic Differentiation in Owl
+## Implementation: Algorithmic Differentiation in Owl
 
 ### Design 
 
