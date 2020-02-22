@@ -148,7 +148,7 @@ $$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = 
 After calculating $\frac{\partial~v_3}{\partial~x_0}$, we can then processed with derivatives of $v_5$, $v_6$, all the way to that of $v_9$ which is also the output $y$ we are looking for. 
 This process starts with the input variables, and ends with output variables. Therefore, it is called *forward differentiation*.
 We can do simplify the math notations in this process by letting $\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}$. 
-The $\dot{v_i}$ here is called *tangent* of function $v_i(x_0, x_1, \ldots, x_n)$ with regard to input variable $x_0$.
+The $\dot{v_i}$ here is called *tangent* of function $v_i(x_0, x_1, \ldots, x_n)$ with regard to input variable $x_0$, and the original computation results at each intermediate point is called *primal* values.
 The forward differentiation mode is sometimes also called "tangent linear" mode.
 
 Now we can present the full forward differentiation calculation process, as shown in [@tbl:algodiff:forward].
@@ -157,7 +157,7 @@ on the right side shows computation of derivative for each intermediate variable
 Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
 
 ---- --------------------------  --------------------------------- 
-Step Intermediate computation    Tangent computation            
+Step Primal computation          Tangent computation            
 ---- --------------------------  ---------------------------------
 0    $v_0 = x_0 = 1$             $\dot{v_0}=1$ 
 
@@ -241,7 +241,7 @@ With that in mind, let's see the full steps of performing reverse differentiatio
 First, we need to perform a forward pass to compute the required intermediate values, as shown in [@tbl:algodiff:reverse_01].
 
 ---- -------------------------- 
-Step Intermediate computation    
+Step Primal computation        
 ---- --------------------------
 0    $v_0 = x_0 = 1$           
 
@@ -347,9 +347,34 @@ For each input variable, we need to seed individual variable and perform one for
 
 Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
 
-TODO: More detail
 
-## Forward and Reverse Propagation with Owl
+## A Straw man AD Engine 
+
+Surely you don't want to make these tables every time you are faced with a new computation.
+Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let's look at how to do it with computer programmes. 
+In this section, we will introduce how to implement the differentiation modes using OCaml code. 
+Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.
+
+We will again use the function in [@eq:algodiff:example] as example, and we limit the computation in our small AD engine to only these operations: `add`, `div`, `mul`, 
+
+### Traversing Graph 
+
+First, how to traverse the graph. 
+
+We build each operator as a single module.
+
+### Simple Forward Implementation
+
+How can we represent [@tbl:algodiff:forward]? A intuitive answer is to build a table when traversing the computation graph. 
+However, that's not a scalable: what if there are hundreds and thousands of computation steps?
+
+### Simple Reverse Implementation
+
+### Unified Implementations 
+
+
+
+## Forward and Reverse Propagation 
 
 So far we have talked a lot about what is Algorithmic Differentiation and how it works.
 Now finally let's turn to how to use it in Owl. 
@@ -369,7 +394,7 @@ module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 EXPLAIN what is this `Owl_algodiff_primal_ops` thing.
 We will mostly use the double precision `Algodiff.D` module, but of course using other choices is also perfectly fine.
 
-### Expressing Computation in AD
+### Expressing Computation 
 
 Let's look at the the previous example of [@eq:algodiff:example], and express it in the AD module. 
 Normally, the code below should do. 
@@ -419,7 +444,7 @@ open AD
 As a trade with this slightly cumbersome packing mechanism, we can now perform.
 Next, we show how to perform the forward and reverse propagation on this computation in Owl.
 
-### Example: Forward Mode in AD
+### Example: Forward Mode
 
 The forward mode is implemented with the `make_forward` and `tangent` function:
 
@@ -442,7 +467,7 @@ open AD
 All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in `y`. 
 We can retrieve the derivatives using `tangent` function.
 
-### Example: Reverse Mode in AD 
+### Example: Reverse Mode 
 
 The reverse mode consists of two parts:
 
@@ -473,7 +498,7 @@ By calling `f x'`, we construct the computation graph of `f` and the graph struc
 In the end, the gradient of `f` is stored in the adjacent value of `x'`, and we can retrieve that with `adjval` function.
 The result agrees with what we have calculated manually.
 
-## High-Level APIs of Algorithmic Differentiation Module
+## High-Level APIs 
 
 What we have seen is the basic of AD modules.
 There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
@@ -548,6 +573,8 @@ For example, [@fig:algodiff:gradient_example] shows the gradients at different p
 This vector shows the direction and magnitude of maximum change of a multivariate function.
 
 ![Gradient field on a 3D surface](images/algodiff/gradient.png "gradient_example"){ width=60% #fig:algodiff:gradient_example}
+
+TODO: replace this image with that of owl-plplot
 
 One important application of gradient is the *gradient descent*, a widely used technique to find minimum values on a function. 
 The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved.
@@ -753,17 +780,7 @@ More importantly, the algorithmic differentiation is core module in many modern 
 The neural network module in Owl benefit a lot from our solid AD module. 
 We will elaborate these aspects in the following chapters. Stay tuned! 
 
-## Implementation: A Simple AD Engine 
-
-### Native Implementation 
-
-A most simple one, `toy_forward`, `toy_reverse`, support only small number of operators. 
-
-### Updated Implementations 
-
-2-3 times of updates
-
-## Implementation: Algorithmic Differentiation in Owl
+## Implementing Algorithmic Differentiation 
 
 ### Design 
 

@@ -94,7 +94,7 @@
 <h3>Forward Mode</h3>
 <p>Our target is to calculate <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> (partial derivative regarding <span class="math inline">\(x_1\)</span> should be similar). But don’t be so hurry, let’s start with some earlier intermediate results that might be helpful. For example, what is <span class="math inline">\(\frac{\partial~x_0}{\partial~x_1}\)</span>? 1, obviously. Equally obvious is <span class="math inline">\(\frac{\partial~x_1}{\partial~x_1} = 0\)</span>. It’s just elementary. Now, things gets a bit trickier: what is <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>? Not is a good time to use the chain rule:</p>
 <p><span class="math display">\[\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.\]</span></p>
-<p>After calculating <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>, we can then processed with derivatives of <span class="math inline">\(v_5\)</span>, <span class="math inline">\(v_6\)</span>, all the way to that of <span class="math inline">\(v_9\)</span> which is also the output <span class="math inline">\(y\)</span> we are looking for. This process starts with the input variables, and ends with output variables. Therefore, it is called <em>forward differentiation</em>. We can do simplify the math notations in this process by letting <span class="math inline">\(\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}\)</span>. The <span class="math inline">\(\dot{v_i}\)</span> here is called <em>tangent</em> of function <span class="math inline">\(v_i(x_0, x_1, \ldots, x_n)\)</span> with regard to input variable <span class="math inline">\(x_0\)</span>. The forward differentiation mode is sometimes also called “tangent linear” mode.</p>
+<p>After calculating <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>, we can then processed with derivatives of <span class="math inline">\(v_5\)</span>, <span class="math inline">\(v_6\)</span>, all the way to that of <span class="math inline">\(v_9\)</span> which is also the output <span class="math inline">\(y\)</span> we are looking for. This process starts with the input variables, and ends with output variables. Therefore, it is called <em>forward differentiation</em>. We can do simplify the math notations in this process by letting <span class="math inline">\(\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}\)</span>. The <span class="math inline">\(\dot{v_i}\)</span> here is called <em>tangent</em> of function <span class="math inline">\(v_i(x_0, x_1, \ldots, x_n)\)</span> with regard to input variable <span class="math inline">\(x_0\)</span>, and the original computation results at each intermediate point is called <em>primal</em> values. The forward differentiation mode is sometimes also called “tangent linear” mode.</p>
 <p>Now we can present the full forward differentiation calculation process, as shown in tbl.&nbsp;2. Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by eq.&nbsp;4; on the right side shows computation of derivative for each intermediate variable with regard to <span class="math inline">\(x_0\)</span>. Let’s find out <span class="math inline">\(\dot{y}\)</span> when setting <span class="math inline">\(x_0 = 1\)</span>, and <span class="math inline">\(x_1 = 1\)</span>.</p>
 <div id="tbl:algodiff:forward">
 <table style="width:93%;">
@@ -107,7 +107,7 @@
 <thead>
 <tr class="header">
 <th>Step</th>
-<th style="text-align: left;">Intermediate computation</th>
+<th style="text-align: left;">Primal computation</th>
 <th style="text-align: left;">Tangent computation</th>
 </tr>
 </thead>
@@ -210,7 +210,7 @@ let _ = grad f x |&gt; unpack_arr;;
 <thead>
 <tr class="header">
 <th>Step</th>
-<th style="text-align: left;">Intermediate computation</th>
+<th style="text-align: left;">Primal computation</th>
 </tr>
 </thead>
 <tbody>
@@ -359,11 +359,30 @@ let f x =
 <p>Later we will show example of this point.</p>
 <p>For each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for <code>f</code>. One real-world example of <code>f</code> is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.</p>
 <p>Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.</p>
-<p>TODO: More detail</p>
 </section>
 </section>
-<section class="level2" id="forward-and-reverse-propagation-with-owl">
-<h2>Forward and Reverse Propagation with Owl</h2>
+<section class="level2" id="a-straw-man-ad-engine">
+<h2>A Straw man AD Engine</h2>
+<p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using OCaml code. Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.</p>
+<p>We will again use the function in eq.&nbsp;4 as example, and we limit the computation in our small AD engine to only these operations: <code>add</code>, <code>div</code>, <code>mul</code>,</p>
+<section class="level3" id="traversing-graph">
+<h3>Traversing Graph</h3>
+<p>First, how to traverse the graph.</p>
+<p>We build each operator as a single module.</p>
+</section>
+<section class="level3" id="simple-forward-implementation">
+<h3>Simple Forward Implementation</h3>
+<p>How can we represent tbl.&nbsp;2? A intuitive answer is to build a table when traversing the computation graph. However, that’s not a scalable: what if there are hundreds and thousands of computation steps?</p>
+</section>
+<section class="level3" id="simple-reverse-implementation">
+<h3>Simple Reverse Implementation</h3>
+</section>
+<section class="level3" id="unified-implementations">
+<h3>Unified Implementations</h3>
+</section>
+</section>
+<section class="level2" id="forward-and-reverse-propagation">
+<h2>Forward and Reverse Propagation</h2>
 <p>So far we have talked a lot about what is Algorithmic Differentiation and how it works. Now finally let’s turn to how to use it in Owl.</p>
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.</p>
 <p>Algorithmic Differentiation is a core module built in Owl, which is one of Owl’s special feature among other similar numerical libraries. <code>Algodiff.Generic</code> is a functor that accept a Ndarray modules. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that support <code>float32</code> and <code>float64</code> precision respectively.</p>
@@ -372,8 +391,8 @@ let f x =
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)</code></pre>
 </div>
 <p>EXPLAIN what is this <code>Owl_algodiff_primal_ops</code> thing. We will mostly use the double precision <code>Algodiff.D</code> module, but of course using other choices is also perfectly fine.</p>
-<section class="level3" id="expressing-computation-in-ad">
-<h3>Expressing Computation in AD</h3>
+<section class="level3" id="expressing-computation">
+<h3>Expressing Computation</h3>
 <p>Let’s look at the the previous example of eq.&nbsp;4, and express it in the AD module. Normally, the code below should do.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl 
@@ -406,8 +425,8 @@ let f x =
 </div>
 <p>As a trade with this slightly cumbersome packing mechanism, we can now perform. Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
 </section>
-<section class="level3" id="example-forward-mode-in-ad">
-<h3>Example: Forward Mode in AD</h3>
+<section class="level3" id="example-forward-mode">
+<h3>Example: Forward Mode</h3>
 <p>The forward mode is implemented with the <code>make_forward</code> and <code>tangent</code> function:</p>
 <div class="highlight">
 <pre><code class="language-clike">val make_forward : t -&gt; t -&gt; int -&gt; t
@@ -424,8 +443,8 @@ val tangent : t -&gt; t </code></pre>
 </div>
 <p>All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in <code>y</code>. We can retrieve the derivatives using <code>tangent</code> function.</p>
 </section>
-<section class="level3" id="example-reverse-mode-in-ad">
-<h3>Example: Reverse Mode in AD</h3>
+<section class="level3" id="example-reverse-mode">
+<h3>Example: Reverse Mode</h3>
 <p>The reverse mode consists of two parts:</p>
 <div class="highlight">
 <pre><code class="language-clike">val make_reverse : t -&gt; int -&gt; t
@@ -449,8 +468,8 @@ R0 -0.181974 -0.118142</code></pre>
 <p><code>make_reverse</code> function does two things for us: 1) wrap <code>x</code> into type <code>t</code> that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure. By calling <code>f x'</code>, we construct the computation graph of <code>f</code> and the graph structure is maintained in the returned result <code>y</code>. Finally, <code>reverse_prop</code> function propagates the error back to the inputs. In the end, the gradient of <code>f</code> is stored in the adjacent value of <code>x'</code>, and we can retrieve that with <code>adjval</code> function. The result agrees with what we have calculated manually.</p>
 </section>
 </section>
-<section class="level2" id="high-level-apis-of-algorithmic-differentiation-module">
-<h2>High-Level APIs of Algorithmic Differentiation Module</h2>
+<section class="level2" id="high-level-apis">
+<h2>High-Level APIs</h2>
 <p>What we have seen is the basic of AD modules. There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus. However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task. In reality, you don’t really need to worry about forward or reverse mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users. In this chapter we will introduce how to use these core high level APIs with examples.</p>
 <section class="level3" id="derivative">
 <h3>Derivative</h3>
@@ -504,6 +523,7 @@ Plot.output h;;</code></pre>
 <figure>
 <img alt="" style="width:60.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
 </figure>
+<p>TODO: replace this image with that of owl-plplot</p>
 <p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
 <p>As an example, we calculate the gradient of a physical function. The fourth chapter of <span data-cites="feynman1964feynman" class="citation">(Feynman 1964)</span> describes an electronic fields. It consists two point charges, <code>+q</code> and <code>-q</code>, separated by the distance <span class="math inline">\(d\)</span>. The z axis goes through the charges, and the origin is set to halfway between these two charges. The potential from the two charges can be described by</p>
 <p><span class="math display">\[\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)\]</span></p>
@@ -647,19 +667,8 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <p><strong>More Examples in Book</strong> Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book. As we have already shown in previous examples, we use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter. It is also used in the Regression chapter to solve the linear regression problem with gradient descent. More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch. The neural network module in Owl benefit a lot from our solid AD module. We will elaborate these aspects in the following chapters. Stay tuned!</p>
 </section>
 </section>
-<section class="level2" id="implementation-a-simple-ad-engine">
-<h2>Implementation: A Simple AD Engine</h2>
-<section class="level3" id="native-implementation">
-<h3>Native Implementation</h3>
-<p>A most simple one, <code>toy_forward</code>, <code>toy_reverse</code>, support only small number of operators.</p>
-</section>
-<section class="level3" id="updated-implementations">
-<h3>Updated Implementations</h3>
-<p>2-3 times of updates</p>
-</section>
-</section>
-<section class="level2" id="implementation-algorithmic-differentiation-in-owl">
-<h2>Implementation: Algorithmic Differentiation in Owl</h2>
+<section class="level2" id="implementing-algorithmic-differentiation">
+<h2>Implementing Algorithmic Differentiation</h2>
 <section class="level3" id="design">
 <h3>Design</h3>
 <p>The structure of main engine: recursive, node, module, etc.</p>
