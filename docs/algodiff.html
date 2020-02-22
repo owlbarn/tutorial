@@ -374,7 +374,7 @@ module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)</code></pre>
 <p>EXPLAIN what is this <code>Owl_algodiff_primal_ops</code> thing. We will mostly use the double precision <code>Algodiff.D</code> module, but of course using other choices is also perfectly fine.</p>
 <section class="level3" id="expressing-computation-in-ad">
 <h3>Expressing Computation in AD</h3>
-<p>Express the computation in previous example:</p>
+<p>Let’s look at the the previous example of eq.&nbsp;4, and express it in the AD module. Normally, the code below should do.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl 
 
@@ -383,7 +383,7 @@ let f x =
     let x1 = Mat.get x 0 1 in
     Owl_maths.(1. /. (1. +. exp (sin x0 +. x0 *. x1)))</code></pre>
 </div>
-<p>We cannot directly differentiate this programme. Instead, we need to do some minor but important change:</p>
+<p>This function accept a vector and returns a float value; exactly what we are looking for. However, the problem is that we cannot directly differentiate this programme. Instead, we need to do some minor but important change:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">module AD = Algodiff.D
 
@@ -392,32 +392,37 @@ let f x =
     let x1 = AD.Mat.get x 0 1 in
     AD.Maths.((F 1.) / (F 1. + exp (sin x0 + x0 * x1)))</code></pre>
 </div>
-<p>Very similar, but now we are using the operators provided in the AD module.</p>
-<p>In AD, all the input/output are of type <code>AD.t</code>. No difference between scalar, matrix, or ndarray in type checking.</p>
-<p>The <code>F</code> is special packing mechanism in AD… Also similar is the <code>Arr</code> operator… And as you can guess, there are also unpacking mechanisms, as can be illustrated in the figure below.</p>
+<p>This function looks very similar, but now we are using the operators provided in the AD module, including the <code>get</code> operation and math operations. In AD, all the input/output are of type <code>AD.t</code>. There is no difference between scalar, matrix, or ndarray for the type checking.</p>
+<p>The <code>F</code> is special packing mechanism in AD. It makes a type <code>t</code> float. Think about wrap a float number inside a container that can be recognised in this factory called “AD”. And then this factory can produce what differentiation result you want. The <code>Arr</code> operator is similar. It wraps an ndarray (or matrix) inside this same container. And as you can guess, there are also unpacking mechanisms. When this AD factory produces some result, to see the result you need to first unwrap this container with the functions <code>unpack_flt</code> and <code>unpack_arr</code>. It can be illustrated in the figure below.</p>
 <p>IMAGE: a box with packing and unpacking channels</p>
 <p>For example, we can directly execute the AD functions, and the results need to be unpacked before being used.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE: a forward execution in AD, and unpack the result.</code></pre>
+<pre><code class="language-clike">open AD 
+
+# let input = Arr (Dense.Matrix.D.ones 1 2)
+# let result = f input |&gt; unpack_flt
+
+# val result : float = 0.13687741466075895</code></pre>
 </div>
-<p>As a trade with this slightly cumbersome packing mechanism, we can now perform.</p>
+<p>As a trade with this slightly cumbersome packing mechanism, we can now perform. Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
 </section>
 <section class="level3" id="example-forward-mode-in-ad">
 <h3>Example: Forward Mode in AD</h3>
-<p>The forward mode is implemented with the <code>make_forward</code> function:</p>
+<p>The forward mode is implemented with the <code>make_forward</code> and <code>tangent</code> function:</p>
 <div class="highlight">
 <pre><code class="language-clike">val make_forward : t -&gt; t -&gt; int -&gt; t
 
 val tangent : t -&gt; t </code></pre>
 </div>
-<p>How about function <code>g</code> then, the function represents those having a small amount of inputs but a large amount of outputs. According to the rule of thumb, we are suppose to use the forward pass to calculate the derivatives of the outputs w.r.t its inputs.</p>
+<p>The forward process is straightforward.</p>
 <div class="highlight">
-<pre><code class="language-clike">  let x = make_forward (F 1.) (F 1.) (tag ());;  (* seed the input *)
-  let y = f x;;                                  (* forward pass *)
-  let y' = tangent y;;                           (* get all derivatives *)</code></pre>
+<pre><code class="language-clike">open AD 
+
+# let x = make_forward input (F 1.) (tag ());;  (* seed the input *)
+# let y = f x;;                                  (* forward pass *)
+# let y' = tangent y;;                           (* get all derivatives *)</code></pre>
 </div>
 <p>All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in <code>y</code>. We can retrieve the derivatives using <code>tangent</code> function.</p>
-<p>(SHOW this point!)</p>
 </section>
 <section class="level3" id="example-reverse-mode-in-ad">
 <h3>Example: Reverse Mode in AD</h3>
@@ -429,15 +434,19 @@ val reverse_prop : t -&gt; t -&gt; unit</code></pre>
 </div>
 <p>Let’s look at the code snippet below.</p>
 <div class="highlight">
-<pre><code class="language-clike">  let x = Mat.uniform 1 3;;           (* generate random input *)
-  let x' = make_reverse x (tag ());;  (* init the backward mode *)
-  let y = f x';;                      (* forward pass to build computation graph *)
-  reverse_prop (F 1.) y;;             (* backward pass to propagate error *)
-  let y' = adjval x';;                (* get the gradient value of f *)
-</code></pre>
+<pre><code class="language-clike">open AD
+
+# let x = Mat.ones 1 2;;              (* generate random input *)
+# let x' = make_reverse x (tag ());;  (* init the reverse mode *)
+# let y = f x';;                      (* forward pass to build computation graph *)
+# let _ = reverse_prop (F 1.) y;;     (* backward pass to propagate error *)
+# let y' = adjval x';;                (* get the gradient value of f *)
+
+- : A.arr =
+          C0        C1
+R0 -0.181974 -0.118142</code></pre>
 </div>
-<p><code>make_reverse</code> function does two things for us: 1) wrap <code>x</code> into type <code>t</code> that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure. By calling <code>f x'</code>, we construct the computation graph of <code>f</code> and the graph structure is maintained in the returned result <code>y</code>. Finally, <code>reverse_prop</code> function propagates the error back to the inputs. In the end, the gradient of <code>f</code> is stored in the adjacent value of <code>x'</code>, and we can retrieve that with <code>adjval</code> function.</p>
-<p>Show some numbers that fit with previous manual results.</p>
+<p><code>make_reverse</code> function does two things for us: 1) wrap <code>x</code> into type <code>t</code> that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure. By calling <code>f x'</code>, we construct the computation graph of <code>f</code> and the graph structure is maintained in the returned result <code>y</code>. Finally, <code>reverse_prop</code> function propagates the error back to the inputs. In the end, the gradient of <code>f</code> is stored in the adjacent value of <code>x'</code>, and we can retrieve that with <code>adjval</code> function. The result agrees with what we have calculated manually.</p>
 </section>
 </section>
 <section class="level2" id="high-level-apis-of-algorithmic-differentiation-module">
@@ -533,14 +542,27 @@ let f y =
 <p>For this functions <span class="math inline">\(f: \mathbf{R}^4 \rightarrow \mathbf{R}^4\)</span>, we can then find its Jacobian matrix. Suppose the given point of interest of where all four input variables equals one. Then we can use the <code>Algodiff.D.jacobian</code> function in this way.</p>
 <div class="highlight">
 <pre><code class="language-text">let y = Mat.ones 1 4 
-let result = jacobian f y </code></pre>
+let result = jacobian f y 
+
+let j = unpack_arr result;;
+- : A.arr =
+
+         C0       C1 C2 C3
+R0        0        0  1  0
+R1        0        0  0  1
+R2 0.176777  0.53033  0  0
+R3  0.53033 0.176777  0  0</code></pre>
 </div>
-<p><strong>TODO</strong>: This example does NOT work!!!</p>
 <p>Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter.</p>
 <div class="highlight">
-<pre><code class="language-text">let eig = Linalg.D.eigvals result </code></pre>
+<pre><code class="language-text">let eig = Owl_linalg.D.eigvals j 
+
+val eig : Owl_dense_matrix_z.mat =
+
+               C0              C1             C2              C3
+R0 (0.840896, 0i) (-0.840896, 0i) (0, 0.594604i) (0, -0.594604i)</code></pre>
 </div>
-<p>It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions os growing. One eigenvalue is real and negative, indicating a decaying component. The other two eigenvalues are pure imaginary numbers. representing oscillatory components. (COPY ALERT) The analysis result shows that at current point the system is unstable.</p>
+<p>It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions is growing. One eigenvalue is real and negative, indicating a decaying component. The other two eigenvalues are pure imaginary numbers. representing oscillatory components. (COPY ALERT) The analysis result shows that at current point the system is unstable.</p>
 </section>
 <section class="level3" id="hessian-and-laplacian">
 <h3>Hessian and Laplacian</h3>

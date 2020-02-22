@@ -371,7 +371,8 @@ We will mostly use the double precision `Algodiff.D` module, but of course using
 
 ### Expressing Computation in AD
 
-Express the computation in previous example:
+Let's look at the the previous example of [@eq:algodiff:example], and express it in the AD module. 
+Normally, the code below should do. 
 
 ```ocaml
 open Owl 
@@ -382,7 +383,8 @@ let f x =
 	Owl_maths.(1. /. (1. +. exp (sin x0 +. x0 *. x1)))
 ```
 
-We cannot directly differentiate this programme. Instead, we need to do some minor but important change:
+This function accept a vector and returns a float value; exactly what we are looking for. 
+However, the problem is that we cannot directly differentiate this programme. Instead, we need to do some minor but important change:
 
 ```ocaml env=algodiff_example_02
 module AD = Algodiff.D
@@ -393,26 +395,33 @@ let f x =
 	AD.Maths.((F 1.) / (F 1. + exp (sin x0 + x0 * x1)))
 ```
 
-Very similar, but now we are using the operators provided in the AD module.
+This function looks very similar, but now we are using the operators provided in the AD module, including the `get` operation and math operations. 
+In AD, all the input/output are of type `AD.t`. There is no difference between scalar, matrix, or ndarray for the type checking.
 
-In AD, all the input/output are of type `AD.t`. No difference between scalar, matrix, or ndarray in type checking.
-
-The `F` is special packing mechanism in AD... Also similar is the `Arr` operator...
-And as you can guess, there are also unpacking mechanisms, as can be illustrated in the figure below. 
+The `F` is special packing mechanism in AD. It makes a type `t` float. Think about wrap a float number inside a container that can be recognised in this factory called "AD". And then this factory can produce what differentiation result you want.
+The `Arr` operator is similar. It wraps an ndarray (or matrix) inside this same container. 
+And as you can guess, there are also unpacking mechanisms. When this AD factory produces some result, to see the result you need to first unwrap this container with the functions `unpack_flt` and `unpack_arr`.
+It can be illustrated in the figure below. 
 
 IMAGE: a box with packing and unpacking channels 
 
 For example, we can directly execute the AD functions, and the results need to be unpacked before being used. 
 
 ```
-CODE: a forward execution in AD, and unpack the result.
+open AD 
+
+# let input = Arr (Dense.Matrix.D.ones 1 2)
+# let result = f input |> unpack_flt
+
+# val result : float = 0.13687741466075895
 ```
 
 As a trade with this slightly cumbersome packing mechanism, we can now perform.
+Next, we show how to perform the forward and reverse propagation on this computation in Owl.
 
 ### Example: Forward Mode in AD
 
-The forward mode is implemented with the `make_forward` function:
+The forward mode is implemented with the `make_forward` and `tangent` function:
 
 ```
 val make_forward : t -> t -> int -> t
@@ -420,19 +429,18 @@ val make_forward : t -> t -> int -> t
 val tangent : t -> t 
 ```
 
-How about function `g` then, the function represents those having a small amount of inputs but a large amount of outputs. According to the rule of thumb, we are suppose to use the forward pass to calculate the derivatives of the outputs w.r.t its inputs.
+The forward process is straightforward. 
 
 ```
-  let x = make_forward (F 1.) (F 1.) (tag ());;  (* seed the input *)
-  let y = f x;;                                  (* forward pass *)
-  let y' = tangent y;;                           (* get all derivatives *)
+open AD 
+
+# let x = make_forward input (F 1.) (tag ());;  (* seed the input *)
+# let y = f x;;                                  (* forward pass *)
+# let y' = tangent y;;                           (* get all derivatives *)
 ```
 
 All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in `y`. 
 We can retrieve the derivatives using `tangent` function.
-
-(SHOW this point!)
-
 
 ### Example: Reverse Mode in AD 
 
@@ -447,20 +455,23 @@ val reverse_prop : t -> t -> unit
 Let's look at the code snippet below.
 
 ```
-  let x = Mat.uniform 1 3;;           (* generate random input *)
-  let x' = make_reverse x (tag ());;  (* init the backward mode *)
-  let y = f x';;                      (* forward pass to build computation graph *)
-  reverse_prop (F 1.) y;;             (* backward pass to propagate error *)
-  let y' = adjval x';;                (* get the gradient value of f *)
+open AD
 
+# let x = Mat.ones 1 2;;              (* generate random input *)
+# let x' = make_reverse x (tag ());;  (* init the reverse mode *)
+# let y = f x';;                      (* forward pass to build computation graph *)
+# let _ = reverse_prop (F 1.) y;;     (* backward pass to propagate error *)
+# let y' = adjval x';;                (* get the gradient value of f *)
+
+- : A.arr =
+          C0        C1
+R0 -0.181974 -0.118142
 ```
 
 `make_reverse` function does two things for us: 1) wrap `x` into type `t` that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure. 
 By calling `f x'`, we construct the computation graph of `f` and the graph structure is maintained in the returned result `y`. Finally, `reverse_prop` function propagates the error back to the inputs.
 In the end, the gradient of `f` is stored in the adjacent value of `x'`, and we can retrieve that with `adjval` function.
-
-Show some numbers that fit with previous manual results.
-
+The result agrees with what we have calculated manually.
 
 ## High-Level APIs of Algorithmic Differentiation Module
 
@@ -603,17 +614,29 @@ For this functions $f: \mathbf{R}^4 \rightarrow \mathbf{R}^4$, we can then find 
 ```text
 let y = Mat.ones 1 4 
 let result = jacobian f y 
-```
 
-**TODO**: This example does NOT work!!!
+let j = unpack_arr result;;
+- : A.arr =
+
+         C0       C1 C2 C3
+R0        0        0  1  0
+R1        0        0  0  1
+R2 0.176777  0.53033  0  0
+R3  0.53033 0.176777  0  0
+```
 
 Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter. 
 
 ```text
-let eig = Linalg.D.eigvals result 
+let eig = Owl_linalg.D.eigvals j 
+
+val eig : Owl_dense_matrix_z.mat =
+
+               C0              C1             C2              C3
+R0 (0.840896, 0i) (-0.840896, 0i) (0, 0.594604i) (0, -0.594604i)
 ```
 
-It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions os growing.
+It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions is growing.
 One eigenvalue is real and negative, indicating a decaying component. 
 The other two eigenvalues are pure imaginary numbers. representing oscillatory components.
 (COPY ALERT)
