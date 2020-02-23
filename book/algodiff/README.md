@@ -457,9 +457,8 @@ We know the tangent of x1 with regard to x0 is zero, and so are the other consta
     v9
 val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
 
-# let result = tangent v9
-Line 1, characters 22-24:
-Error: Unbound value v9
+# let result = tangent computation 
+val result : float = -0.181974376561731321
 ```
 
 Just as expected.

@@ -446,9 +446,8 @@ let x1 = {p=1.; t=0.}</code></pre>
   v9
 ;;
 &gt;val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
-let result = tangent v9;;
-&gt;Line 1, characters 22-24:
-&gt;Error: Unbound value v9
+let result = tangent computation ;;
+&gt;val result : float = -0.181974376561731321
 </code></pre>
 </div>
 <p>Just as expected.</p>
