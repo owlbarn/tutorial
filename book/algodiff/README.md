@@ -357,16 +357,112 @@ Of course, these will be elementary straw man implementation compared to the ind
 
 We will again use the function in [@eq:algodiff:example] as example, and we limit the computation in our small AD engine to only these operations: `add`, `div`, `mul`, 
 
-### Traversing Graph 
-
-First, how to traverse the graph. 
-
-We build each operator as a single module.
-
 ### Simple Forward Implementation
 
 How can we represent [@tbl:algodiff:forward]? A intuitive answer is to build a table when traversing the computation graph. 
 However, that's not a scalable: what if there are hundreds and thousands of computation steps?
+A closer look at the [@tbl:algodiff:forward] shows that a intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results. 
+Based on this observation, we can define a data type that preserve these two values:
+
+```ocaml env=algodiff_simple_impl_forward
+type df = {
+ 	mutable p: float;
+ 	mutable t: float 
+}
+
+let primal df = df.p 
+let tangent df = df.t
+```
+
+And now we can define operators that accept type `df` as input and outputs the same type:
+
+```ocaml env=algodiff_simple_impl_forward
+let sin_ad df = 
+    let p = primal df in 
+    let t = tangent df in 
+    let p' = Owl_maths.sin p in 
+    let t' = (Owl_maths.cos p) *. t in 
+    {p=p'; t=t'}
+```
+
+EXPLAIN
+
+Now you can easily extend towards the `exp` operation:
+
+
+```ocaml env=algodiff_simple_impl_forward
+let exp_ad df = 
+    let p = primal df in 
+    let t = tangent df in 
+    let p' = Owl_maths.exp p in 
+    let t' = p' *. t in 
+    {p=p'; t=t'} 
+```
+
+But what about operators that accept multiple inputs? Let's see multiplication. 
+
+```ocaml env=algodiff_simple_impl_forward
+let mul_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa *. pb in
+    let t' = pa *. tb +. ta *. pb in 
+    {p=p'; t=t'}
+```
+
+Similarly, you can extend that towards similar operations: the `add` and `div`.
+
+```ocaml env=algodiff_simple_impl_forward
+let add_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa +. pb in
+    let t' = ta +. tb in 
+    {p=p'; t=t'}
+
+let div_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa /. pb in
+    let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in 
+    {p=p'; t=t'}
+```
+
+And that's all! Now we can do differentiation on our previous example.
+
+```ocaml env=algodiff_simple_impl_forward
+let x0 = {p=1.; t=1.}
+let x1 = {p=1.; t=0.}
+```
+
+These are inputs. 
+We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.
+
+```ocaml env=algodiff_simple_impl_forward
+# let computation = 
+    let v2 = sin_ad x0 in 
+    let v3 = mul_ad x0 x1 in 
+    let v4 = add_ad v2 v3 in 
+    let v5 = {p=1.; t=0.} in 
+    let v6 = exp_ad v4 in 
+    let v7 = {p=1.; t=0.} in 
+    let v8 = add_ad v5 v6 in 
+    let v9 = div_ad v7 v8 in 
+    v9
+val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
+
+# let result = tangent v9
+Line 1, characters 22-24:
+Error: Unbound value v9
+```
+
+Just as expected.
 
 ### Simple Reverse Implementation
 

@@ -365,14 +365,93 @@ let f x =
 <h2>A Straw man AD Engine</h2>
 <p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using OCaml code. Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.</p>
 <p>We will again use the function in eq.&nbsp;4 as example, and we limit the computation in our small AD engine to only these operations: <code>add</code>, <code>div</code>, <code>mul</code>,</p>
-<section class="level3" id="traversing-graph">
-<h3>Traversing Graph</h3>
-<p>First, how to traverse the graph.</p>
-<p>We build each operator as a single module.</p>
-</section>
 <section class="level3" id="simple-forward-implementation">
 <h3>Simple Forward Implementation</h3>
-<p>How can we represent tbl.&nbsp;2? A intuitive answer is to build a table when traversing the computation graph. However, that’s not a scalable: what if there are hundreds and thousands of computation steps?</p>
+<p>How can we represent tbl.&nbsp;2? A intuitive answer is to build a table when traversing the computation graph. However, that’s not a scalable: what if there are hundreds and thousands of computation steps? A closer look at the tbl.&nbsp;2 shows that a intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results. Based on this observation, we can define a data type that preserve these two values:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type df = {
+    mutable p: float;
+    mutable t: float 
+}
+
+let primal df = df.p 
+let tangent df = df.t</code></pre>
+</div>
+<p>And now we can define operators that accept type <code>df</code> as input and outputs the same type:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad df = 
+    let p = primal df in 
+    let t = tangent df in 
+    let p' = Owl_maths.sin p in 
+    let t' = (Owl_maths.cos p) *. t in 
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>EXPLAIN</p>
+<p>Now you can easily extend towards the <code>exp</code> operation:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let exp_ad df = 
+    let p = primal df in 
+    let t = tangent df in 
+    let p' = Owl_maths.exp p in 
+    let t' = p' *. t in 
+    {p=p'; t=t'} </code></pre>
+</div>
+<p>But what about operators that accept multiple inputs? Let’s see multiplication.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mul_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa *. pb in
+    let t' = pa *. tb +. ta *. pb in 
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>Similarly, you can extend that towards similar operations: the <code>add</code> and <code>div</code>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let add_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa +. pb in
+    let t' = ta +. tb in 
+    {p=p'; t=t'}
+
+let div_ad dfa dfb =
+    let pa = primal dfa in 
+    let ta = tangent dfa in 
+    let pb = primal dfb in 
+    let tb = tangent dfb in 
+    let p' = pa /. pb in
+    let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in 
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>And that’s all! Now we can do differentiation on our previous example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x0 = {p=1.; t=1.}
+let x1 = {p=1.; t=0.}</code></pre>
+</div>
+<p>These are inputs. We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let computation = 
+  let v2 = sin_ad x0 in 
+  let v3 = mul_ad x0 x1 in 
+  let v4 = add_ad v2 v3 in 
+  let v5 = {p=1.; t=0.} in 
+  let v6 = exp_ad v4 in 
+  let v7 = {p=1.; t=0.} in 
+  let v8 = add_ad v5 v6 in 
+  let v9 = div_ad v7 v8 in 
+  v9
+;;
+&gt;val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
+let result = tangent v9;;
+&gt;Line 1, characters 22-24:
+&gt;Error: Unbound value v9
+</code></pre>
+</div>
+<p>Just as expected.</p>
 </section>
 <section class="level3" id="simple-reverse-implementation">
 <h3>Simple Reverse Implementation</h3>
