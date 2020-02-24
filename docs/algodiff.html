@@ -597,11 +597,235 @@ x1;;
 </section>
 <section class="level3" id="unified-implementations">
 <h3>Unified Implementations</h3>
+<p>Both methods seems OK, but in the real world application we often need a system that supports both differentiation modes. How can we build it then? We start with combining the previous two record data types <code>df</code> and <code>dr</code> into a new data type <code>t</code>:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type t = 
+    | DF of float * float  
+    | DR of float * float ref * adjoint
+    
+and adjoint = float ref -&gt; (float * t) list -&gt; (float * t) list
+
+let primal = function 
+  | DF (p, _) -&gt; p 
+  | DR (p, _, _) -&gt; p 
+
+let tangent = function
+  | DF (_, t) -&gt; t
+  | DR (_, _, _) -&gt; failwith "error: no tangent for DR"
+
+let adjoint = function 
+  | DF (_, _) -&gt;  failwith "error: no adjoint for DF"
+  | DR (_, a, _) -&gt; a 
+
+
+let make_forward p a = DF (p, a)
+
+let make_reverse p = 
+    let a = ref 0. in 
+    let adj_fun _a t = t in 
+    DR (p, a, adj_fun)
+
+let rec reverse_push xs =
+  match xs with 
+  | [] -&gt; ()
+  | (v, x) :: t -&gt;
+    (match x with 
+    | DR (_, a, adjfun) -&gt;
+      a := !a +. v;
+      let stack = adjfun a t in 
+      reverse_push stack
+    | _ -&gt; failwith "error: unsupported type")</code></pre>
+</div>
+<p>Now we operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a <code>match</code> clause.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad x =
+  let ff = Owl_maths.sin in 
+  let df p t = (Owl_maths.cos p) *. t in
+  let dr p a = !a *. (Owl_maths.cos p) in 
+  match x with 
+  | DF (p, t) -&gt; 
+    let p' = ff p in 
+    let t' = df p t in 
+    DF (p', t') 
+  | DR (p, _, _) -&gt;
+    let p' = ff p in 
+    let adjfun' a t = 
+      let r = dr p a in 
+      (r, x) :: t 
+    in 
+    DR (p', ref 0., adjfun')</code></pre>
+</div>
+<p>The code is mostly taken from the previous two implementations, so should be not very alien to you now. Similarly we can also build the multiplication operator:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mul_ad xa xb = 
+  let ff = Owl_maths.mul in 
+  let df pa pb ta tb = pa *. tb +. ta *. pb in 
+  let dr pa pb a = !a *. pb, !a *. pa in
+  match xa, xb with 
+  | DF (pa, ta), DF (pb, tb) -&gt;
+    let p' = ff pa pb in 
+    let t' = df pa pb ta tb in 
+    DF (p', t') 
+  | DR (pa, _, _), DR (pb, _, _) -&gt;
+    let p' = ff pa pb in 
+    let adjfun' a t = 
+      let ra, rb = dr pa pb a in 
+      (ra, xa) :: (rb, xb) :: t
+    in 
+    DR (p', ref 0., adjfun')
+  | _, _ -&gt; failwith "unsupported op"</code></pre>
+</div>
+<p>Now before moving forward, let’s pause and think about what’s so different among different math functions. First, they may take different number of input arguments; they could be unary functions or binary functions. Second, they have different computation rules. Specifically, three type of computations are involved: <code>ff</code>, which computes the primal value; <code>df</code>, which computes the tangent value; and <code>dr</code>, which computes the adjoint value. The rest are mostly fixed.</p>
+<p>Based on this observation, we can utilise the first-class citizen in OCaml: module, to reduce a lot of copy and paste in code. We can start with two types of modules: unary and binary:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module type Unary = sig
+  val ff : float -&gt; float
+
+  val df : float -&gt; float -&gt; float 
+
+  val dr : float -&gt; float ref -&gt; float
+end
+
+module type Binary = sig
+  val ff : float -&gt; float -&gt; float
+
+  val df : float -&gt; float -&gt; float -&gt; float -&gt; float 
+
+  val dr : float -&gt; float -&gt; float ref -&gt; float * float
+end</code></pre>
+</div>
+<p>They express both points of difference: first, the two module differentiate between unary and binary ops; second, each module represents the three core operations: <code>ff</code>, <code>df</code>, and <code>dr</code>. We can focus on the computation logic of each computation in each module:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module Sin = struct 
+  let ff = Owl_maths.sin
+  let df p t = (Owl_maths.cos p) *. t
+  let dr p a = !a *. (Owl_maths.cos p)
+end
+
+module Exp = struct 
+  let ff = Owl_maths.exp
+  let df p t = (Owl_maths.exp p) *. t
+  let dr p a = !a *. (Owl_maths.exp p)
+end
+
+module Mul = struct 
+  let ff = Owl_maths.mul
+  let df pa pb ta tb = pa *. tb +. ta *. pb 
+  let dr pa pb a = !a *. pb, !a *. pa
+end
+
+module Add = struct 
+  let ff = Owl_maths.add
+  let df _pa _pb ta tb = ta +. tb
+  let dr _pa _pb a = !a, !a
+end
+
+module Div = struct 
+  let ff = Owl_maths.div
+  let df pa pb ta tb = (ta *. pb -. tb *. pa) /. (pb *. pb)
+  let dr pa pb a = 
+     !a /. pb, !a *. (-.pa) /. (pb *. pb) 
+end</code></pre>
+</div>
+<p>Now we can provide a template to build math functions:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let unary_op (module U: Unary) = fun x -&gt; 
+  match x with 
+  | DF (p, t) -&gt; 
+    let p' = U.ff p in 
+    let t' = U.df p t in 
+    DF (p', t') 
+  | DR (p, _, _) -&gt;
+    let p' = U.ff p in 
+    let adjfun' a t = 
+      let r = U.dr p a in 
+      (r, x) :: t 
+    in 
+    DR (p', ref 0., adjfun')
+
+
+let binary_op (module B: Binary) = fun xa xb -&gt;
+  match xa, xb with 
+  | DF (pa, ta), DF (pb, tb) -&gt;
+    let p' = B.ff pa pb in 
+    let t' = B.df pa pb ta tb in 
+    DF (p', t') 
+  | DR (pa, _, _), DR (pb, _, _) -&gt;
+    let p' = B.ff pa pb in 
+    let adjfun' a t = 
+      let ra, rb = B.dr pa pb a in 
+      (ra, xa) :: (rb, xb) :: t
+    in 
+    DR (p', ref 0., adjfun')
+  | _, _ -&gt; failwith "unsupported op"</code></pre>
+</div>
+<p>Each template accepts a module, and then returns the function we need. Let’s see how it works with concise code.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad = unary_op (module Sin : Unary)
+
+let exp_ad = unary_op (module Exp : Unary)
+
+let mul_ad = binary_op (module Mul : Binary)
+
+let add_ad = binary_op (module Add: Binary)
+
+let div_ad = binary_op (module Div : Binary)</code></pre>
+</div>
+<p>That’s all. We can move on once again to our familiar examples.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = make_forward 1. 1. ;;
+&gt;val x0 : t = DF (1., 1.)
+let x1 = make_forward 1. 0. ;;
+&gt;val x1 : t = DF (1., 0.)
+let computation_forward = 
+  let v2 = sin_ad x0 in 
+  let v3 = mul_ad x0 x1 in 
+  let v4 = add_ad v2 v3 in 
+  let v5 = make_forward 1. 0. in 
+  let v6 = exp_ad v4 in 
+  let v7 = make_forward 1. 0. in 
+  let v8 = add_ad v5 v6 in 
+  let v9 = div_ad v7 v8 in 
+  v9
+;;
+&gt;val computation_forward : t = DF (0.13687741466075895, -0.181974376561731321)
+tangent computation_forward ;;
+&gt;- : float = -0.181974376561731321
+</code></pre>
+</div>
+<p>That’s just forward mode. With only tiny change of how the variables are constructed, we can also do the reverse mode.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = make_reverse 1.;;
+&gt;val x0 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
+let x1 = make_reverse 1.;;
+&gt;val x1 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
+let computation_reverse = 
+  let v2 = sin_ad x0 in 
+  let v3 = mul_ad x0 x1 in 
+  let v4 = add_ad v2 v3 in 
+  let v5 = make_reverse 1. in 
+  let v6 = exp_ad v4 in 
+  let v7 = make_reverse 1. in 
+  let v8 = add_ad v5 v6 in 
+  let v9 = div_ad v7 v8 in 
+  v9
+;;
+&gt;val computation_reverse : t =
+&gt;  DR (0.13687741466075895, {contents = 0.}, &lt;fun&gt;)
+let _ = reverse_push [(1., computation_reverse)];;
+&gt;- : unit = ()
+x0 ;;
+&gt;- : t = DR (1., {contents = -0.181974376561731321}, &lt;fun&gt;)
+x1;;
+&gt;- : t = DR (1., {contents = -0.118141988016545588}, &lt;fun&gt;)
+</code></pre>
+</div>
+<p>Once again, the results agree and are just as expected.</p>
 </section>
 </section>
-<section class="level2" id="forward-and-reverse-propagation">
-<h2>Forward and Reverse Propagation</h2>
-<p>So far we have talked a lot about what is Algorithmic Differentiation and how it works. Now finally let’s turn to how to use it in Owl.</p>
+<section class="level2" id="forward-and-reverse-propagation-api">
+<h2>Forward and Reverse Propagation API</h2>
+<p>So far we have talked a lot about what is Algorithmic Differentiation and how it works, with theory, example illustration, and code. Now finally let’s turn to how to use it in Owl.</p>
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.</p>
 <p>Algorithmic Differentiation is a core module built in Owl, which is one of Owl’s special feature among other similar numerical libraries. <code>Algodiff.Generic</code> is a functor that accept a Ndarray modules. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that support <code>float32</code> and <code>float64</code> precision respectively.</p>
 <div class="highlight">

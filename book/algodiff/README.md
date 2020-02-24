@@ -646,11 +646,260 @@ Their adjoint values are just as expected.
 
 ### Unified Implementations 
 
+Both methods seems OK, but in the real world application we often need a system that supports both differentiation modes. How can we build it then?
+We start with combining the previous two record data types `df` and `dr` into a new data type `t`:
+
+```ocaml env=algodiff_simple_impl_unified_00
+type t = 
+    | DF of float * float  
+    | DR of float * float ref * adjoint
+    
+and adjoint = float ref -> (float * t) list -> (float * t) list
+
+let primal = function 
+  | DF (p, _) -> p 
+  | DR (p, _, _) -> p 
+
+let tangent = function
+  | DF (_, t) -> t
+  | DR (_, _, _) -> failwith "error: no tangent for DR"
+
+let adjoint = function 
+  | DF (_, _) ->  failwith "error: no adjoint for DF"
+  | DR (_, a, _) -> a 
 
 
-## Forward and Reverse Propagation 
+let make_forward p a = DF (p, a)
 
-So far we have talked a lot about what is Algorithmic Differentiation and how it works.
+let make_reverse p = 
+    let a = ref 0. in 
+    let adj_fun _a t = t in 
+    DR (p, a, adj_fun)
+
+let rec reverse_push xs =
+  match xs with 
+  | [] -> ()
+  | (v, x) :: t ->
+    (match x with 
+    | DR (_, a, adjfun) ->
+      a := !a +. v;
+      let stack = adjfun a t in 
+      reverse_push stack
+    | _ -> failwith "error: unsupported type")
+```
+
+Now we operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a `match` clause.
+
+```ocaml env=algodiff_simple_impl_unified_00
+let sin_ad x =
+  let ff = Owl_maths.sin in 
+  let df p t = (Owl_maths.cos p) *. t in
+  let dr p a = !a *. (Owl_maths.cos p) in 
+  match x with 
+  | DF (p, t) -> 
+    let p' = ff p in 
+    let t' = df p t in 
+    DF (p', t') 
+  | DR (p, _, _) ->
+    let p' = ff p in 
+    let adjfun' a t = 
+      let r = dr p a in 
+      (r, x) :: t 
+    in 
+    DR (p', ref 0., adjfun')
+```
+
+The code is mostly taken from the previous two implementations, so should be not very alien to you now. 
+Similarly we can also build the multiplication operator:
+
+```ocaml env=algodiff_simple_impl_unified_00
+let mul_ad xa xb = 
+  let ff = Owl_maths.mul in 
+  let df pa pb ta tb = pa *. tb +. ta *. pb in 
+  let dr pa pb a = !a *. pb, !a *. pa in
+  match xa, xb with 
+  | DF (pa, ta), DF (pb, tb) ->
+    let p' = ff pa pb in 
+    let t' = df pa pb ta tb in 
+    DF (p', t') 
+  | DR (pa, _, _), DR (pb, _, _) ->
+    let p' = ff pa pb in 
+    let adjfun' a t = 
+      let ra, rb = dr pa pb a in 
+      (ra, xa) :: (rb, xb) :: t
+    in 
+    DR (p', ref 0., adjfun')
+  | _, _ -> failwith "unsupported op"
+```
+
+Now before moving forward, let's pause and think about what's so different among different math functions.
+First, they may take different number of input arguments; they could be unary functions or binary functions. 
+Second, they have different computation rules. 
+Specifically, three type of computations are involved:
+`ff`, which computes the primal value; `df`, which computes the tangent value; and `dr`, which computes the adjoint value. 
+The rest are mostly fixed. 
+
+Based on this observation, we can utilise the first-class citizen in OCaml: module, to reduce a lot of copy and paste in code.
+We can start with two types of modules: unary and binary:
+
+```ocaml env=algodiff_simple_impl_unified_00
+module type Unary = sig
+  val ff : float -> float
+
+  val df : float -> float -> float 
+
+  val dr : float -> float ref -> float
+end
+
+module type Binary = sig
+  val ff : float -> float -> float
+
+  val df : float -> float -> float -> float -> float 
+
+  val dr : float -> float -> float ref -> float * float
+end
+```
+
+They express both points of difference: first, the two module differentiate between unary and binary ops; second, each module represents the three core operations: `ff`, `df`, and `dr`.
+We can focus on the computation logic of each computation in each module:
+
+
+```ocaml env=algodiff_simple_impl_unified_00
+module Sin = struct 
+  let ff = Owl_maths.sin
+  let df p t = (Owl_maths.cos p) *. t
+  let dr p a = !a *. (Owl_maths.cos p)
+end
+
+module Exp = struct 
+  let ff = Owl_maths.exp
+  let df p t = (Owl_maths.exp p) *. t
+  let dr p a = !a *. (Owl_maths.exp p)
+end
+
+module Mul = struct 
+  let ff = Owl_maths.mul
+  let df pa pb ta tb = pa *. tb +. ta *. pb 
+  let dr pa pb a = !a *. pb, !a *. pa
+end
+
+module Add = struct 
+  let ff = Owl_maths.add
+  let df _pa _pb ta tb = ta +. tb
+  let dr _pa _pb a = !a, !a
+end
+
+module Div = struct 
+  let ff = Owl_maths.div
+  let df pa pb ta tb = (ta *. pb -. tb *. pa) /. (pb *. pb)
+  let dr pa pb a = 
+     !a /. pb, !a *. (-.pa) /. (pb *. pb) 
+end
+```
+
+Now we can provide a template to build math functions:
+
+```ocaml env=algodiff_simple_impl_unified_00
+let unary_op (module U: Unary) = fun x -> 
+  match x with 
+  | DF (p, t) -> 
+    let p' = U.ff p in 
+    let t' = U.df p t in 
+    DF (p', t') 
+  | DR (p, _, _) ->
+    let p' = U.ff p in 
+    let adjfun' a t = 
+      let r = U.dr p a in 
+      (r, x) :: t 
+    in 
+    DR (p', ref 0., adjfun')
+
+
+let binary_op (module B: Binary) = fun xa xb ->
+  match xa, xb with 
+  | DF (pa, ta), DF (pb, tb) ->
+    let p' = B.ff pa pb in 
+    let t' = B.df pa pb ta tb in 
+    DF (p', t') 
+  | DR (pa, _, _), DR (pb, _, _) ->
+    let p' = B.ff pa pb in 
+    let adjfun' a t = 
+      let ra, rb = B.dr pa pb a in 
+      (ra, xa) :: (rb, xb) :: t
+    in 
+    DR (p', ref 0., adjfun')
+  | _, _ -> failwith "unsupported op"
+```
+
+Each template accepts a module, and then returns the function we need. Let's see how it works with concise code.
+
+```ocaml env=algodiff_simple_impl_unified_00
+let sin_ad = unary_op (module Sin : Unary)
+
+let exp_ad = unary_op (module Exp : Unary)
+
+let mul_ad = binary_op (module Mul : Binary)
+
+let add_ad = binary_op (module Add: Binary)
+
+let div_ad = binary_op (module Div : Binary)
+```
+
+That's all. We can move on once again to our familiar examples.
+
+```ocaml env=algodiff_simple_impl_unified_00
+# let x0 = make_forward 1. 1. 
+val x0 : t = DF (1., 1.)
+# let x1 = make_forward 1. 0. 
+val x1 : t = DF (1., 0.)
+# let computation_forward = 
+    let v2 = sin_ad x0 in 
+    let v3 = mul_ad x0 x1 in 
+    let v4 = add_ad v2 v3 in 
+    let v5 = make_forward 1. 0. in 
+    let v6 = exp_ad v4 in 
+    let v7 = make_forward 1. 0. in 
+    let v8 = add_ad v5 v6 in 
+    let v9 = div_ad v7 v8 in 
+    v9
+val computation_forward : t = DF (0.13687741466075895, -0.181974376561731321)
+# tangent computation_forward 
+- : float = -0.181974376561731321
+```
+
+That's just forward mode. With only tiny change of how the variables are constructed, we can also do the reverse mode.
+
+
+```ocaml env=algodiff_simple_impl_unified_00
+# let x0 = make_reverse 1.
+val x0 : t = DR (1., {contents = 0.}, <fun>)
+# let x1 = make_reverse 1.
+val x1 : t = DR (1., {contents = 0.}, <fun>)
+# let computation_reverse = 
+    let v2 = sin_ad x0 in 
+    let v3 = mul_ad x0 x1 in 
+    let v4 = add_ad v2 v3 in 
+    let v5 = make_reverse 1. in 
+    let v6 = exp_ad v4 in 
+    let v7 = make_reverse 1. in 
+    let v8 = add_ad v5 v6 in 
+    let v9 = div_ad v7 v8 in 
+    v9
+val computation_reverse : t =
+  DR (0.13687741466075895, {contents = 0.}, <fun>)
+# let _ = reverse_push [(1., computation_reverse)]
+- : unit = ()
+# x0 
+- : t = DR (1., {contents = -0.181974376561731321}, <fun>)
+# x1
+- : t = DR (1., {contents = -0.118141988016545588}, <fun>)
+```
+
+Once again, the results agree and are just as expected.
+
+## Forward and Reverse Propagation API
+
+So far we have talked a lot about what is Algorithmic Differentiation and how it works, with theory, example illustration, and code. 
 Now finally let's turn to how to use it in Owl. 
 
 Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
