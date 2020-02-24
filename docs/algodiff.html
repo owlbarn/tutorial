@@ -363,6 +363,7 @@ let f x =
 </section>
 <section class="level2" id="a-straw-man-ad-engine">
 <h2>A Straw man AD Engine</h2>
+<p>TODO: revise code, especially naming such as <code>sin_ad</code>.</p>
 <p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using OCaml code. Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.</p>
 <p>We will again use the function in eq.&nbsp;4 as example, and we limit the computation in our small AD engine to only these operations: <code>add</code>, <code>div</code>, <code>mul</code>,</p>
 <section class="level3" id="simple-forward-implementation">
@@ -427,6 +428,12 @@ let div_ad dfa dfb =
     let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in 
     {p=p'; t=t'}</code></pre>
 </div>
+<p>Based on these functions, we can provide a tiny wrapper named <code>diff</code>:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f x = 
+  let r = f x in 
+  primal r, tangent r</code></pre>
+</div>
 <p>And that’s all! Now we can do differentiation on our previous example.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x0 = {p=1.; t=1.}
@@ -434,20 +441,22 @@ let x1 = {p=1.; t=0.}</code></pre>
 </div>
 <p>These are inputs. We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let computation = 
-  let v2 = sin_ad x0 in 
-  let v3 = mul_ad x0 x1 in 
-  let v4 = add_ad v2 v3 in 
-  let v5 = {p=1.; t=0.} in 
-  let v6 = exp_ad v4 in 
-  let v7 = {p=1.; t=0.} in 
-  let v8 = add_ad v5 v6 in 
-  let v9 = div_ad v7 v8 in 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x =
+  let x0, x1 = x in 
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = {p=1.; t=0.} in
+  let v6 = exp_ad v4 in
+  let v7 = {p=1.; t=0.} in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
   v9
 ;;
-&gt;val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
-let result = tangent computation ;;
-&gt;val result : float = -0.181974376561731321
+&gt;val f : df * df -&gt; df = &lt;fun&gt;
+let pri, tan = diff f (x0, x1);;
+&gt;val pri : float = 0.13687741466075895
+&gt;val tan : float = -0.181974376561731321
 </code></pre>
 </div>
 <p>Just as expected.</p>
@@ -560,37 +569,45 @@ let div_ad dr1 dr2 =
     in 
     {p = p'; a = ref 0.; adj_fun = adjfun'}</code></pre>
 </div>
+<p>We can express the differentiation function <code>diff</code> with the reverse mode, with first a forward pass and then a backward pass.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f x = 
+  (* forward pass *)
+  let r = f x in 
+  (* backward pass *)
+  reverse_push [(1., r)];
+  (* get result values *)
+  let x0, x1 = x in 
+  primal x0, !(adjoint x0), primal x1, !(adjoint x1)</code></pre>
+</div>
 <p>Now we can do the calculation, which are the same as before, only difference is the way to build constant values.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x1 = make_reverse 1. ;;
 &gt;val x1 : dr = {p = 1.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
 let x0 = make_reverse 1. ;;
 &gt;val x0 : dr = {p = 1.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
-let computation = 
-  let v2 = sin_ad x0 in 
-  let v3 = mul_ad x0 x1 in 
-  let v4 = add_ad v2 v3 in 
-  let v5 = make_reverse 1. in 
-  let v6 = exp_ad v4 in 
-  let v7 = make_reverse 1. in 
-  let v8 = add_ad v5 v6 in 
-  let v9 = div_ad v7 v8 in 
+let f x =
+  let x0, x1 = x in 
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = make_reverse 1. in
+  let v6 = exp_ad v4 in
+  let v7 = make_reverse 1. in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
   v9
 ;;
-&gt;val computation : dr =
-&gt;  {p = 0.13687741466075895; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+&gt;val f : dr * dr -&gt; dr = &lt;fun&gt;
 </code></pre>
 </div>
-<p>Now let’s do the reverse pass:</p>
+<p>Now let’s do the differentiation:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let _ = reverse_push [(1., computation)] </code></pre>
-</div>
-<p>After this step, we can check the input <code>x0</code> and <code>x1</code> again.</p>
-<div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">x0;;
-&gt;- : dr = {p = 1.; a = {contents = -0.181974376561731321}; adj_fun = &lt;fun&gt;}
-x1;;
-&gt;- : dr = {p = 1.; a = {contents = -0.118141988016545588}; adj_fun = &lt;fun&gt;}
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let pri_x0, adj_x0, pri_x1, adj_x1 = diff f (x0, x1);;
+&gt;val pri_x0 : float = 1.
+&gt;val adj_x0 : float = -0.181974376561731321
+&gt;val pri_x1 : float = 1.
+&gt;val adj_x1 : float = -0.118141988016545588
 </code></pre>
 </div>
 <p>Their adjoint values are just as expected.</p>
@@ -771,13 +788,27 @@ let add_ad = binary_op (module Add: Binary)
 
 let div_ad = binary_op (module Div : Binary)</code></pre>
 </div>
+<p>As you can expect, the <code>diff</code> function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of <code>x0</code> only.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f x = 
+  let x0, x1 = x in 
+  match x0, x1 with 
+  | DF (_, _), DF (_, _)    -&gt;
+    f x |&gt; tangent  
+  | DR (_, _, _), DR (_, _, _) -&gt; 
+    let r = f x in 
+    reverse_push [(1., r)];
+    !(adjoint x0)
+  | _, _ -&gt; failwith "error: unsupported operator"</code></pre>
+</div>
 <p>That’s all. We can move on once again to our familiar examples.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = make_forward 1. 1. ;;
 &gt;val x0 : t = DF (1., 1.)
 let x1 = make_forward 1. 0. ;;
 &gt;val x1 : t = DF (1., 0.)
-let computation_forward = 
+let f_forward x = 
+  let x0, x1 = x in
   let v2 = sin_ad x0 in 
   let v3 = mul_ad x0 x1 in 
   let v4 = add_ad v2 v3 in 
@@ -788,8 +819,8 @@ let computation_forward =
   let v9 = div_ad v7 v8 in 
   v9
 ;;
-&gt;val computation_forward : t = DF (0.13687741466075895, -0.181974376561731321)
-tangent computation_forward ;;
+&gt;val f_forward : t * t -&gt; t = &lt;fun&gt;
+diff f_forward (x0, x1);;
 &gt;- : float = -0.181974376561731321
 </code></pre>
 </div>
@@ -799,7 +830,8 @@ tangent computation_forward ;;
 &gt;val x0 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
 let x1 = make_reverse 1.;;
 &gt;val x1 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
-let computation_reverse = 
+let f_reverse x =
+  let x0, x1 = x in 
   let v2 = sin_ad x0 in 
   let v3 = mul_ad x0 x1 in 
   let v4 = add_ad v2 v3 in 
@@ -810,14 +842,9 @@ let computation_reverse =
   let v9 = div_ad v7 v8 in 
   v9
 ;;
-&gt;val computation_reverse : t =
-&gt;  DR (0.13687741466075895, {contents = 0.}, &lt;fun&gt;)
-let _ = reverse_push [(1., computation_reverse)];;
-&gt;- : unit = ()
-x0 ;;
-&gt;- : t = DR (1., {contents = -0.181974376561731321}, &lt;fun&gt;)
-x1;;
-&gt;- : t = DR (1., {contents = -0.118141988016545588}, &lt;fun&gt;)
+&gt;val f_reverse : t * t -&gt; t = &lt;fun&gt;
+diff f_reverse (x0, x1) ;;
+&gt;- : float = -0.181974376561731321
 </code></pre>
 </div>
 <p>Once again, the results agree and are just as expected.</p>
@@ -1113,14 +1140,18 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <h2>Implementing Algorithmic Differentiation</h2>
 <section class="level3" id="design">
 <h3>Design</h3>
+<p>The similarity and difference between the naive implementation</p>
 <p>The structure of main engine: recursive, node, module, etc.</p>
+<p>Why we need tagging, how to deal with higher order functions etc.</p>
+<p>Do not touch detailed code.</p>
 </section>
 <section class="level3" id="advanced-feature-lazy-evaluation">
 <h3>Advanced feature: Lazy Evaluation</h3>
+<p>Examples</p>
 </section>
 <section class="level3" id="advanced-feature-extend-ad-module">
 <h3>Advanced feature: Extend AD module</h3>
-<p>“There is no spoon”</p>
+<p>Examples</p>
 </section>
 </section>
 <section class="level2 unnumbered" id="references">

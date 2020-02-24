@@ -350,6 +350,8 @@ Backward mode needs to maintain a directed computation graph in the memory so th
 
 ## A Straw man AD Engine 
 
+TODO: revise code, especially naming such as `sin_ad`.
+
 Surely you don't want to make these tables every time you are faced with a new computation.
 Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let's look at how to do it with computer programmes. 
 In this section, we will introduce how to implement the differentiation modes using OCaml code. 
@@ -434,6 +436,14 @@ let div_ad dfa dfb =
     {p=p'; t=t'}
 ```
 
+Based on these functions, we can provide a tiny wrapper named `diff`:
+
+```ocaml env=algodiff_simple_impl_forward
+let diff f x = 
+  let r = f x in 
+  primal r, tangent r
+```
+
 And that's all! Now we can do differentiation on our previous example.
 
 ```ocaml env=algodiff_simple_impl_forward
@@ -445,20 +455,22 @@ These are inputs.
 We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.
 
 ```ocaml env=algodiff_simple_impl_forward
-# let computation = 
-    let v2 = sin_ad x0 in 
-    let v3 = mul_ad x0 x1 in 
-    let v4 = add_ad v2 v3 in 
-    let v5 = {p=1.; t=0.} in 
-    let v6 = exp_ad v4 in 
-    let v7 = {p=1.; t=0.} in 
-    let v8 = add_ad v5 v6 in 
-    let v9 = div_ad v7 v8 in 
+# let f x =
+    let x0, x1 = x in 
+    let v2 = sin_ad x0 in
+    let v3 = mul_ad x0 x1 in
+    let v4 = add_ad v2 v3 in
+    let v5 = {p=1.; t=0.} in
+    let v6 = exp_ad v4 in
+    let v7 = {p=1.; t=0.} in
+    let v8 = add_ad v5 v6 in
+    let v9 = div_ad v7 v8 in
     v9
-val computation : df = {p = 0.13687741466075895; t = -0.181974376561731321}
+val f : df * df -> df = <fun>
 
-# let result = tangent computation 
-val result : float = -0.181974376561731321
+# let pri, tan = diff f (x0, x1)
+val pri : float = 0.13687741466075895
+val tan : float = -0.181974376561731321
 ```
 
 Just as expected.
@@ -605,6 +617,19 @@ let div_ad dr1 dr2 =
     {p = p'; a = ref 0.; adj_fun = adjfun'}
 ```
 
+We can express the differentiation function `diff` with the reverse mode, with first a forward pass and then a backward pass.
+
+```ocaml env=algodiff_simple_impl_reverse
+let diff f x = 
+  (* forward pass *)
+  let r = f x in 
+  (* backward pass *)
+  reverse_push [(1., r)];
+  (* get result values *)
+  let x0, x1 = x in 
+  primal x0, !(adjoint x0), primal x1, !(adjoint x1)
+```
+
 Now we can do the calculation, which are the same as before, only difference is the way to build constant values. 
 
 ```ocaml env=algodiff_simple_impl_reverse
@@ -613,33 +638,28 @@ val x1 : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
 # let x0 = make_reverse 1. 
 val x0 : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
 
-# let computation = 
-    let v2 = sin_ad x0 in 
-    let v3 = mul_ad x0 x1 in 
-    let v4 = add_ad v2 v3 in 
-    let v5 = make_reverse 1. in 
-    let v6 = exp_ad v4 in 
-    let v7 = make_reverse 1. in 
-    let v8 = add_ad v5 v6 in 
-    let v9 = div_ad v7 v8 in 
+# let f x =
+    let x0, x1 = x in 
+    let v2 = sin_ad x0 in
+    let v3 = mul_ad x0 x1 in
+    let v4 = add_ad v2 v3 in
+    let v5 = make_reverse 1. in
+    let v6 = exp_ad v4 in
+    let v7 = make_reverse 1. in
+    let v8 = add_ad v5 v6 in
+    let v9 = div_ad v7 v8 in
     v9
-val computation : dr =
-  {p = 0.13687741466075895; a = {contents = 0.}; adj_fun = <fun>}
+val f : dr * dr -> dr = <fun>
 ```
 
-Now let's do the reverse pass:
+Now let's do the differentiation:
 
 ```ocaml env=algodiff_simple_impl_reverse
-let _ = reverse_push [(1., computation)] 
-```
-
-After this step, we can check the input `x0` and `x1` again.
-
-```ocaml env=algodiff_simple_impl_reverse
-# x0
-- : dr = {p = 1.; a = {contents = -0.181974376561731321}; adj_fun = <fun>}
-# x1
-- : dr = {p = 1.; a = {contents = -0.118141988016545588}; adj_fun = <fun>}
+# let pri_x0, adj_x0, pri_x1, adj_x1 = diff f (x0, x1)
+val pri_x0 : float = 1.
+val adj_x0 : float = -0.181974376561731321
+val pri_x1 : float = 1.
+val adj_x1 : float = -0.118141988016545588
 ```
 
 Their adjoint values are just as expected.
@@ -845,6 +865,21 @@ let add_ad = binary_op (module Add: Binary)
 let div_ad = binary_op (module Div : Binary)
 ```
 
+As you can expect, the `diff` function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of `x0` only.
+
+```ocaml env=algodiff_simple_impl_unified_00
+let diff f x = 
+  let x0, x1 = x in 
+  match x0, x1 with 
+  | DF (_, _), DF (_, _)    ->
+  	f x |> tangent  
+  | DR (_, _, _), DR (_, _, _) -> 
+  	let r = f x in 
+  	reverse_push [(1., r)];
+  	!(adjoint x0)
+  | _, _ -> failwith "error: unsupported operator"
+```
+
 That's all. We can move on once again to our familiar examples.
 
 ```ocaml env=algodiff_simple_impl_unified_00
@@ -852,7 +887,8 @@ That's all. We can move on once again to our familiar examples.
 val x0 : t = DF (1., 1.)
 # let x1 = make_forward 1. 0. 
 val x1 : t = DF (1., 0.)
-# let computation_forward = 
+# let f_forward x = 
+    let x0, x1 = x in
     let v2 = sin_ad x0 in 
     let v3 = mul_ad x0 x1 in 
     let v4 = add_ad v2 v3 in 
@@ -862,8 +898,8 @@ val x1 : t = DF (1., 0.)
     let v8 = add_ad v5 v6 in 
     let v9 = div_ad v7 v8 in 
     v9
-val computation_forward : t = DF (0.13687741466075895, -0.181974376561731321)
-# tangent computation_forward 
+val f_forward : t * t -> t = <fun>
+# diff f_forward (x0, x1)
 - : float = -0.181974376561731321
 ```
 
@@ -875,7 +911,8 @@ That's just forward mode. With only tiny change of how the variables are constru
 val x0 : t = DR (1., {contents = 0.}, <fun>)
 # let x1 = make_reverse 1.
 val x1 : t = DR (1., {contents = 0.}, <fun>)
-# let computation_reverse = 
+# let f_reverse x =
+    let x0, x1 = x in 
     let v2 = sin_ad x0 in 
     let v3 = mul_ad x0 x1 in 
     let v4 = add_ad v2 v3 in 
@@ -885,14 +922,10 @@ val x1 : t = DR (1., {contents = 0.}, <fun>)
     let v8 = add_ad v5 v6 in 
     let v9 = div_ad v7 v8 in 
     v9
-val computation_reverse : t =
-  DR (0.13687741466075895, {contents = 0.}, <fun>)
-# let _ = reverse_push [(1., computation_reverse)]
-- : unit = ()
-# x0 
-- : t = DR (1., {contents = -0.181974376561731321}, <fun>)
-# x1
-- : t = DR (1., {contents = -0.118141988016545588}, <fun>)
+val f_reverse : t * t -> t = <fun>
+
+# diff f_reverse (x0, x1) 
+- : float = -0.181974376561731321
 ```
 
 Once again, the results agree and are just as expected.
@@ -1305,14 +1338,23 @@ We will elaborate these aspects in the following chapters. Stay tuned!
 
 ## Implementing Algorithmic Differentiation 
 
+
 ### Design 
+
+The similarity and difference between the naive implementation 
 
 The structure of main engine: recursive, node, module, etc.
 
+Why we need tagging, how to deal with higher order functions etc.
+
+Do not touch detailed code.
+
 ### Advanced feature: Lazy Evaluation 
+
+Examples 
 
 ### Advanced feature: Extend AD module
 
-"There is no spoon"
+Examples
 
 ## References
