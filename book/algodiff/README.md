@@ -465,6 +465,185 @@ Just as expected.
 
 ### Simple Reverse Implementation
 
+(TODO: revise the code e.g. naming; explain the code as clear as possible since the adjoint function is very tricky. Use graph if necessary.)
+
+The reverse mode is a bit more complex. 
+As shown in the previous section, forward mode only need one pass, but the reverse differentiation requires a forward pass and a backward pass.
+That means, besides computing primal values, we also need to "remember" the operations along the forward pass, and then utilise these information in the backward pass.
+There can be multiple ways to do that, e.g. a stack or graph structure. 
+What we choose here is bit different though.
+Start with the data types we use.
+
+
+```ocaml env=algodiff_simple_impl_reverse
+type dr = {
+ 	mutable p: float;
+ 	mutable a: float ref;
+  mutable adj_fun : float ref -> (float * dr) list -> (float * dr) list
+}
+
+let primal dr = dr.p 
+let adjoint dr = dr.a
+let adj_fun dr = dr.adj_fun
+```
+
+The `p` is for primal and `a` stands for adjoint. It's easy to understand. 
+The `adj_fun` is a bit tricky. Let's see an example:
+
+
+```ocaml env=algodiff_simple_impl_reverse
+let sin_ad dr = 
+    let p = primal dr in 
+    let p' = Owl_maths.sin p in 
+    let adjfun' ca t = 
+        let r = !ca *. (Owl_maths.cos p) in 
+        (r, dr) :: t
+    in
+    {p=p'; a=ref 0.; adj_fun=adjfun'}
+```
+
+It's an implementation of `sin` operation. 
+The `adj_fun` here is leaves placeholder for the adjoint value we don't know yet in the forward pass. 
+The `t` stands for a stack of intermediate nodes to be processed in the backward process.
+It says that, if I have the adjoint value `ca`, I can then get the new adjoint value of my parents `r`.
+This result, together with the original data `dr`, is pushed to the stack `t`.
+This stack is implemented in OCaml list.  
+
+Let's look at the `mul` operation:
+
+
+```ocaml env=algodiff_simple_impl_reverse
+let mul_ad dr1 dr2 = 
+    let p1 = primal dr1 in 
+    let p2 = primal dr2 in 
+
+    let p' = Owl_maths.mul p1 p2 in 
+    let adjfun' ca t = 
+        let r1 = !ca *. p2 in 
+        let r2 = !ca *. p1 in 
+        (r1, dr1) :: (r2, dr2) :: t
+    in 
+    {p = p'; a = ref 0.; adj_fun = adjfun'}
+```
+
+Both of its parents are added to the task stack.
+
+For the input data, we need a helper function:
+
+```ocaml env=algodiff_simple_impl_reverse
+let make_reverse v = 
+    let a = ref 0. in 
+    let adj_fun _a t = t in 
+    {p=v; a; adj_fun}
+```
+
+With this function, we can do the forward pass like this:
+
+```ocaml env=algodiff_simple_impl_reverse
+# let x = make_reverse 1. 
+val x : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
+# let y = make_reverse 2. 
+val y : dr = {p = 2.; a = {contents = 0.}; adj_fun = <fun>}
+# let v = mul_ad (sin_ad x) y
+val v : dr = {p = 1.68294196961579301; a = {contents = 0.}; adj_fun = <fun>}
+```
+
+After the forward pass, we have the primal values at each intermediate node, but their adjoint values are all set to zero, since we don't know them yet.
+And we have this adjoin function. Noting that executing this function would create a list of past computations, which in turn contains its own `adj_fun`. 
+This resulting `adj_fun` remembers all the required information, and know we need to recursively calculate the adjoint values we want. 
+
+```ocaml env=algodiff_simple_impl_reverse
+let rec reverse_push xs =
+    match xs with 
+    | [] -> ()
+    | (v, dr) :: t ->
+        let aa = adjoint dr in 
+        let adjfun = adj_fun dr in 
+        aa := !aa +. v;
+        let stack = adjfun aa t in 
+        reverse_push stack
+```
+
+The `reverse_push` does exactly that. Stating from a list, it get the top element `dr`, get the adjoint value we already calculated `aa`, update it with `v` (explain why), get the `adj_fun`. Now that we know the adjoint value, we can use that as input parameter to the `adj_fun` to execute the data of current task and recursively execute more nodes until the task stack is empty.
+
+Now, let's add the other required operations:
+
+
+```ocaml env=algodiff_simple_impl_reverse
+let exp_ad dr = 
+    let p = primal dr in 
+    let p' = Owl_maths.exp p in 
+    let adjfun' ca t = 
+        let r = !ca *. (Owl_maths.exp p) in 
+        (r, dr) :: t
+    in
+    {p=p'; a=ref 0.; adj_fun=adjfun'}
+
+
+let add_ad dr1 dr2 = 
+    let p1 = primal dr1 in 
+    let p2 = primal dr2 in 
+    let p' = Owl_maths.add p1 p2 in 
+    let adjfun' ca t = 
+        let r1 = !ca in 
+        let r2 = !ca in 
+        (r1, dr1) :: (r2, dr2) :: t
+    in 
+    {p = p'; a = ref 0.; adj_fun = adjfun'}
+
+
+let div_ad dr1 dr2 = 
+    let p1 = primal dr1 in 
+    let p2 = primal dr2 in 
+
+    let p' = Owl_maths.div p1 p2 in 
+    let adjfun' ca t = 
+        let r1 = !ca /. p2 in 
+        let r2 = !ca *. (-.p1) /. (p2 *. p2) in 
+        (r1, dr1) :: (r2, dr2) :: t
+    in 
+    {p = p'; a = ref 0.; adj_fun = adjfun'}
+```
+
+Now we can do the calculation, which are the same as before, only difference is the way to build constant values. 
+
+```ocaml env=algodiff_simple_impl_reverse
+# let x1 = make_reverse 1. 
+val x1 : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
+# let x0 = make_reverse 1. 
+val x0 : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
+
+# let computation = 
+    let v2 = sin_ad x0 in 
+    let v3 = mul_ad x0 x1 in 
+    let v4 = add_ad v2 v3 in 
+    let v5 = make_reverse 1. in 
+    let v6 = exp_ad v4 in 
+    let v7 = make_reverse 1. in 
+    let v8 = add_ad v5 v6 in 
+    let v9 = div_ad v7 v8 in 
+    v9
+val computation : dr =
+  {p = 0.13687741466075895; a = {contents = 0.}; adj_fun = <fun>}
+```
+
+Now let's do the reverse pass:
+
+```ocaml env=algodiff_simple_impl_reverse
+let _ = reverse_push [(1., computation)] 
+```
+
+After this step, we can check the input `x0` and `x1` again.
+
+```ocaml env=algodiff_simple_impl_reverse
+# x0
+- : dr = {p = 1.; a = {contents = -0.181974376561731321}; adj_fun = <fun>}
+# x1
+- : dr = {p = 1.; a = {contents = -0.118141988016545588}; adj_fun = <fun>}
+```
+
+Their adjoint values are just as expected.
+
 ### Unified Implementations 
 
 
