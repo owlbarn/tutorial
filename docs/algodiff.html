@@ -1138,20 +1138,104 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 </section>
 <section class="level2" id="implementing-algorithmic-differentiation">
 <h2>Implementing Algorithmic Differentiation</h2>
-<section class="level3" id="design">
-<h3>Design</h3>
-<p>The similarity and difference between the naive implementation</p>
-<p>The structure of main engine: recursive, node, module, etc.</p>
-<p>Why we need tagging, how to deal with higher order functions etc.</p>
-<p>Do not touch detailed code.</p>
+<section class="level3" id="go-beyond-simple-implementation">
+<h3>Go Beyond Simple Implementation</h3>
+<p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provided. You might be wondering, how are these APIs implemented in Owl?</p>
+<p>It turns out that, the simple implementation we have is not very far away from the industry-level implementation in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we will give an overview of some of the differences between the Owl implementation and the simple version.</p>
+<p>A FIGURE that covers five parts: basic type and helper functions (level 1), op, builder, reverse (level 2), and high-level API (level 3).</p>
+<p>This figure shows the structure of AD module in Owl. It consists of five parts. EXPLAIN.</p>
+<p>Let’s start with the type definition.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">  type t =
+    | F   of A.elt
+    | Arr of A.arr
+    (* primal, tangent, tag *)
+    | DF  of t * t * int
+    (* primal, adjoint, op, fanout, tag, tracker *)
+    | DR  of t * t ref * op * int ref * int * int ref
+  
+  and adjoint = t -&gt; t ref -&gt; (t * t) list -&gt; (t * t) list
+
+  and register = t list -&gt; t list
+
+  and label = string * t list
+
+  and op = adjoint * register * label</code></pre>
+</div>
+<p>You will notice some difference. First, besides DF and DR, it also contains two constructors: <code>F</code> and <code>Arr</code>. This points out one shortcoming of our simple implementation: we cannot process ndarray as input, only float. That’s why, if you look back how our computation is constructed, we have to explicitly say that the computation takes two variable as input. In a real-world application, we only need to pass in a <code>1x2</code> vector as input.</p>
+<p>You can also note that some extra information fields are included in the DF and DR data types. TODO: tagging to solve the problem of high order derivative (<a href="https://www.cambridge.org/core/journals/journal-of-functional-programming/article/perturbation-confusion-in-forward-automatic-differentiation-of-higherorder-functions/A808189A3875A2EDAC6E0D62CF2AD262">ref</a>) and nested DF/DR. Explain the problem and how tagging can solve this problem. Use code if possible.</p>
+<p>TODO: should the other fields also be discussed in length?</p>
+<p>Now we move on to the higher level. It’s structure should be familiar to you now. The <code>builder</code> module abstract out the general process of forward and reverse modes, while <code>ops</code> module contains all the specific calculation methods for each operations. Keep in mind that not all operation can follow exact math rules to perform differentiation. For example, what is the tangent and adjoint of the convolution or concatenation operations? These are all includes in the <code>ops.ml</code>.</p>
+<p>We have shown how the unary and binary operations can be built by providing two builder modules. But of course there are many operators that have other type of signatures. Owl abstracts more operation types according to their number of input variables and output variables. For example, the <code>qr</code> operations calculates QR decomposition of an input matrix. This operation uses the SIPO (single-input-pair-output) builder template.</p>
+<p>In <code>ops</code>, each operation specifies three kinds of functions for calculating the primal value (<code>ff</code>), the tangent value (<code>df</code>), and the adjoint value (<code>dr</code>). However, actually some variants are required. In our simple examples, all the constants are either <code>DF</code> or <code>DR</code>, and therefore we have to define two different functions <code>f_forward</code> and <code>f_reverse</code>, even though only the definition of constants are different. Now that the float number is included in the data type <code>t</code>, we can define only one computation function for both modes:</p>
+<div class="highlight">
+<pre><code class="language-clike"># let f_forward x = 
+    let x0, x1 = x in
+    let v2 = sin_ad x0 in 
+    let v3 = mul_ad x0 x1 in 
+    let v4 = add_ad v2 v3 in 
+    let v5 = F 1. in (* change *)
+    let v6 = exp_ad v4 in 
+    let v7 = F 1. in (* change *)
+    let v8 = add_ad v5 v6 in 
+    let v9 = div_ad v7 v8 in 
+    v9</code></pre>
+</div>
+<p>Now, we need to consider the question: how to compute <code>DR</code> and <code>F</code> data types together? To do that, we need to consider more cases in an operation. For example, in the previous implementation an multiplication use three functions:</p>
+<div class="highlight">
+<pre><code class="language-clike">module Mul = struct 
+  let ff a b = Owl_maths.mul a b
+  let df pa pb ta tb = pa *. tb +. ta *. pb 
+  let dr pa pb a = !a *. pb, !a *. pa
+end</code></pre>
+</div>
+<p>But now things get more complicated. For <code>ff a b</code>, we need to consider, e.g.&nbsp;what if <code>a</code> is float and <code>b</code> is an ndarray, or vice versa. For <code>df</code> and <code>dr</code>, we need to consider what happens if one of the input is constant (<code>F</code> or <code>Arr</code>). The builder module also has to take these factors into consideration accordingly.</p>
+<p>In <code>reverse.ml</code>, we have the <code>reverse_push</code> functions. Compared to the simple implementation, it performs an extra <code>shrink</code> step. This step checks adjoint <code>a</code> and its update <code>v</code>, ensuring rank of a must be larger than or equal with rank of <code>v</code>. Also, an extra <code>reverse_reset</code> functions is actually required before the reverse propagation begins to reset all adjoint values to the initial zero values.</p>
+<p>EXAMPLE: what happens if we don’t do that.</p>
+<p>For the high level APIs, one thing we need to notice is that although <code>diff</code> functions looks straightforward to be implemented using the forward and backward mode, the same cannot be said of other functions, especially <code>jacobian</code>.</p>
+<p>Another thing is that, in our simple implementation, we don’t support multiple precisions. It is solved by functors in Owl. In <code>Algodiff.Generic</code>, all the APIs are encapsulated in a module named <code>Make</code>. This module takes in an ndarray-like module and generate operations with corresponding precision. If it accepts a <code>Dense.Ndarray.S</code> module, it generate AD modules of single precision; if it is <code>Dense.Ndarray.D</code> passed in, the functor generates AD module that uses double precision. (This description is not correct actually; the required functions actually has to follow the signatures specified in <code>Owl_types_ndarray_algodiff.Sig</code>, which also contains operation about scalar, matrix, and linear algebra, besides ndarray operations.)</p>
 </section>
-<section class="level3" id="advanced-feature-lazy-evaluation">
-<h3>Advanced feature: Lazy Evaluation</h3>
-<p>Examples</p>
+<section class="level3" id="extend-ad-module">
+<h3>Extend AD module</h3>
+<p>The module design shown above brings one large benefit: it is very flexible in supporting adding new operations on the fly. Let’s look at an example: suppose the Owl does not provide the operation <code>sin</code> in AD module, and to finish our example in eq.&nbsp;4, what can we do?</p>
+<p>We can use the <code>Builder</code> module in AD.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+module Sin = struct
+  let label = "sin"
+  let ff_f a = F A.Scalar.(sin a)
+  let ff_arr a = Arr A.(sin a)
+  let df _cp ap at = Maths.(at * cos ap)
+  let dr a _cp ca = Maths.(!ca * cos (primal a))
+end </code></pre>
+</div>
+<p>As a user, you need to know how the three types of functions work for the new operation you want to add. These are defined in a module called <code>Sin</code> here. This module can be passed as parameters to the builder to build a required operation. We call it <code>sin_ad</code> to make it different from what the AD module actually provides.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad = Builder.build_siso (module Sin : Builder.Siso)</code></pre>
+</div>
+<p>That’s all! Now we can use this function as if it is an native operation.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x =
+  let x1 = Mat.get x 0 0 in
+  let x2 = Mat.get x 0 1 in
+  Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin_ad x1))))
+;;
+&gt;val f : t -&gt; t = &lt;fun&gt;
+let x = Mat.ones 1 2;;
+&gt;val x : t = [Arr(1,2)]
+let _ = grad f x |&gt; unpack_arr;;
+&gt;- : A.arr =
+&gt;          C0        C1
+&gt;R0 -0.181974 -0.118142
+</code></pre>
+</div>
+<p>This new operator works seamlessly with existing ones.</p>
 </section>
-<section class="level3" id="advanced-feature-extend-ad-module">
-<h3>Advanced feature: Extend AD module</h3>
+<section class="level3" id="lazy-evaluation">
+<h3>Lazy Evaluation</h3>
 <p>Examples</p>
+<p>There exists another form of lazy evaluation in AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as compuation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
 </section>
 </section>
 <section class="level2 unnumbered" id="references">
