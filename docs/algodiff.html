@@ -990,7 +990,7 @@ Plot.output h;;</code></pre>
 <h3>Gradient</h3>
 <p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. For example, fig.&nbsp;5 shows the gradients at different points on a 3D surface (<a href="https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html">src</a>). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
+<img alt="" style="width:60.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient_02.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
 </figure>
 <p>TODO: replace this image with that of owl-plplot</p>
 <p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
@@ -1143,6 +1143,9 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provided. You might be wondering, how are these APIs implemented in Owl?</p>
 <p>It turns out that, the simple implementation we have is not very far away from the industry-level implementation in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we will give an overview of some of the differences between the Owl implementation and the simple version.</p>
 <p>A FIGURE that covers five parts: basic type and helper functions (level 1), op, builder, reverse (level 2), and high-level API (level 3).</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:algodiff:architecture" title="architecture" src="images/algodiff/architecture.png"><figcaption>Figure 6: Architecture of the AD module</figcaption>
+</figure>
 <p>This figure shows the structure of AD module in Owl. It consists of five parts. EXPLAIN.</p>
 <p>Let’s start with the type definition.</p>
 <div class="highlight">
@@ -1169,7 +1172,7 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <p>We have shown how the unary and binary operations can be built by providing two builder modules. But of course there are many operators that have other type of signatures. Owl abstracts more operation types according to their number of input variables and output variables. For example, the <code>qr</code> operations calculates QR decomposition of an input matrix. This operation uses the SIPO (single-input-pair-output) builder template.</p>
 <p>In <code>ops</code>, each operation specifies three kinds of functions for calculating the primal value (<code>ff</code>), the tangent value (<code>df</code>), and the adjoint value (<code>dr</code>). However, actually some variants are required. In our simple examples, all the constants are either <code>DF</code> or <code>DR</code>, and therefore we have to define two different functions <code>f_forward</code> and <code>f_reverse</code>, even though only the definition of constants are different. Now that the float number is included in the data type <code>t</code>, we can define only one computation function for both modes:</p>
 <div class="highlight">
-<pre><code class="language-clike"># let f_forward x = 
+<pre><code class="language-clike">  let f_forward x = 
     let x0, x1 = x in
     let v2 = sin_ad x0 in 
     let v3 = mul_ad x0 x1 in 

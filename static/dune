@@ -6,10 +6,12 @@
         images/aeos/cross.png
         images/aeos/perf.png
         images/aeos/sin_perf.png
+        images/algodiff/architecture.png
         images/algodiff/example_01.png
         images/algodiff/example_01_forward.png
         images/algodiff/example_01_reverse.png
         images/algodiff/gradient.png
+        images/algodiff/gradient_02.png
         images/algodiff/plot_00.png
         images/algodiff/plot_01.png
         images/algodiff/plot_028.png

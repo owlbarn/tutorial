@@ -1128,7 +1128,7 @@ Therefore, for a function that accept a vector (where each element is a variable
 For example, [@fig:algodiff:gradient_example] shows the gradients at different points on a 3D surface ([src](https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html)). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis.
 This vector shows the direction and magnitude of maximum change of a multivariate function.
 
-![Gradient field on a 3D surface](images/algodiff/gradient.png "gradient_example"){ width=60% #fig:algodiff:gradient_example}
+![Gradient field on a 3D surface](images/algodiff/gradient_02.png "gradient_example"){ width=60% #fig:algodiff:gradient_example}
 
 TODO: replace this image with that of owl-plplot
 
@@ -1348,6 +1348,8 @@ Without digging too deep into the code details, in this section we will give an 
 
 
 A FIGURE that covers five parts: basic type and helper functions (level 1), op, builder, reverse (level 2), and high-level API (level 3).
+
+![Architecture of the AD module](images/algodiff/architecture.png "architecture"){width=90% #fig:algodiff:architecture}
 
 This figure shows the structure of AD module in Owl.
 It consists of five parts. EXPLAIN.
