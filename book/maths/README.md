@@ -197,69 +197,123 @@ val relu : float -> float
 ### Airy Functions
 
 In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)
+It is the solution of differential equation:
 
+$$y''(x) = xy(x).$$
+
+This differential equation has two linearly independent solutions `Ai` and `Bi`. 
+Owl provides the `airy` to do that:
 
 ```
 val airy : float -> float * float * float * float
-(**
-Airy function ``airy x`` returns ``(Ai, Ai', Bi, Bi')`` evaluated at :math:`x`.
-``Ai'`` is the derivative of ``Ai`` whilst ``Bi'`` is the derivative of ``Bi``.
-*)
 ```
+
+The four returned numbers are `Ai`, its derivative `Ai'`, `Bi`, and its derivative `Bi'`.
+Let's look at an example. 
+
+```ocaml
+let x = Mat.linspace (-15.) 5. 200
+
+let y0 = Mat.map (fun x -> 
+	let ai, _, _, _ = Maths.airy x in ai
+) x 
+
+let y1 = Mat.map (fun x -> 
+	let _, _, bi, _ = Maths.airy x in bi
+) x 
+
+let _ = 
+  let h = Plot.create "special_airy.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
+  Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
+  Plot.(set_yrange h (-0.5) 1.);
+  Plot.(legend_on h ~position:SouthEast [|"Ai"; "Bi"|]);
+  Plot.output h
+```
+
+![Examples of the two solutions of an Airy equation](images/maths/example_airy.png "airy"){width=75% #fig:algodiff:airy}
+
+APPLICATION description
 
 ### Bessel Functions 
 
-Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation.
+Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation:
 
+$$x^2y''+xy'+(x^2 - \alpha^2)y = 0.$$
+
+The complex number $\alpha$ is called the *order* of the bessel function.
+
+The Bessel functions can be divided into two "kinds". 
+Bessel functions of the first kind $J$ are solutions of Bessel's differential equation that are finite at $x=0$ integer or positive order and diverge as $x$ approaches zero for negative non-integer order.
+Bessel functions of the second kind are solutions of the Bessel differential equation that have a singularity at $x=0$ and are multivalued. (COPY ALERT)
+
+A special case is when $x$ is purely imaginary. In this case, the solutions to the Bessel equation are called the *modified Bessel functions*. These modified Bessel functions can also be categorised as first kind and second kind. 
+
+Based on these category, Owl provides these functions. 
+
+-------- ------------------------- ---------------------------------------------
+Function Interface                 Explanation  
+-------- ------------------------- ---------------------------------------------
+`j0`     `float -> float`          Bessel function of the first kind of order 0
+
+`j1`     `float -> float`          Bessel function of the first kind of order 1
+
+`jv`     `float -> float -> float` Bessel function of the first kind of real order
+
+`y0`     `float -> float`          Bessel function of the second kind of order 0
+
+`y1`     `float -> float`          Bessel function of the second kind of order 1
+
+`yv`     `float -> float -> float` Bessel function of the second kind of real order
+
+`yn`     `int -> float -> float`   Bessel function of the second kind of integer order
+
+`i0`     `float -> float`          Modified Bessel function of order 0
+
+`i1`     `float -> float`          Modified Bessel function of order 1
+
+`iv`     `float -> float -> float` Modified Bessel function of real order
+
+`i0e`    `float -> float`          Exponentially scaled modified Bessel function of order 0
+
+`i1e`    `float -> float`          Exponentially scaled modified Bessel function of order 1
+
+`k0`     `float -> float`          Modified Bessel function of the second kind of order 0
+
+`k1`     `float -> float`          Modified Bessel function of the second kind of order 1
+
+`k0e`    `float -> float`          Exponentially scaled modified Bessel function of the second kind of order 0
+
+`k1e`    `float -> float`          Exponentially scaled modified Bessel function of the second kind of order 1
+-------- ------------------------- ---------------------------------------------
+: Bessel functions {#tbl:maths:bessel}
+
+Let's look at one example.
+
+```ocaml
+let x = Mat.linspace (0.) 20. 200
+
+let y0 = Mat.map Maths.j0 x
+
+let y1 = Mat.map Maths.j1 x
+
+let y2 = Mat.map (Maths.jv 2.) x
+
+let _ =
+  let h = Plot.create "example_bessel.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
+  Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
+  Plot.(plot ~h ~spec:[ RGB (244, 180,  0); LineStyle 3; LineWidth 2. ] x y2);
+  Plot.(legend_on h ~position:NorthEast [|"j0"; "j1"; "j2"|]);
+  Plot.output h
 ```
-val j0 : float -> float
-(** Bessel function of the first kind of order 0. *)
 
-val j1 : float -> float
-(** Bessel function of the first kind of order 1. *)
+![Examples of Bessel function of the first kind, with different order](images/maths/example_bessel.png "bessel"){width=75% #fig:algodiff:bessel}
 
-val jv : float -> float -> float
-(** Bessel function of real order. *)
+(More examples can be added if we want to expand)
 
-val y0 : float -> float
-(** Bessel function of the second kind of order 0. *)
-
-val y1 : float -> float
-(** Bessel function of the second kind of order 1. *)
-
-val yv : float -> float -> float
-(** Bessel function of the second kind of real order. *)
-
-val yn : int -> float -> float
-(** Bessel function of the second kind of integer order. *)
-
-val i0 : float -> float
-(** Modified Bessel function of order 0. *)
-
-val i0e : float -> float
-(** Exponentially scaled modified Bessel function of order 0. *)
-
-val i1 : float -> float
-(** Modified Bessel function of order 1. *)
-
-val i1e : float -> float
-(** Exponentially scaled modified Bessel function of order 1. *)
-
-val iv : float -> float -> float
-(** Modified Bessel function of the first kind of real order. *)
-
-val k0 : float -> float
-(** Modified Bessel function of the second kind of order 0, :math:`K_0`.*)
-
-val k0e : float -> float
-(** Exponentially scaled modified Bessel function K of order 0. *)
-
-val k1 : float -> float
-(** Modified Bessel function of the second kind of order 1, :math:`K_1(x)`. *)
-
-val k1e : float -> float
-(** Exponentially scaled modified Bessel function K of order 1. *)
-```
+Bessel's equation arises when finding separable solutions to Laplace's equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. 
+For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc.  (COPY ALERT)
 
 ### Elliptic Functions 
 

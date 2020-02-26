@@ -369,67 +369,167 @@ val relu : float -&gt; float
 <h2>Special Functions</h2>
 <section class="level3" id="airy-functions">
 <h3>Airy Functions</h3>
-<p>In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)</p>
+<p>In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY) It is the solution of differential equation:</p>
+<p><span class="math display">\[y''(x) = xy(x).\]</span></p>
+<p>This differential equation has two linearly independent solutions <code>Ai</code> and <code>Bi</code>. Owl provides the <code>airy</code> to do that:</p>
 <div class="highlight">
-<pre><code class="language-clike">val airy : float -&gt; float * float * float * float
-(**
-Airy function ``airy x`` returns ``(Ai, Ai', Bi, Bi')`` evaluated at :math:`x`.
-``Ai'`` is the derivative of ``Ai`` whilst ``Bi'`` is the derivative of ``Bi``.
-*)</code></pre>
+<pre><code class="language-clike">val airy : float -&gt; float * float * float * float</code></pre>
 </div>
+<p>The four returned numbers are <code>Ai</code>, its derivative <code>Ai'</code>, <code>Bi</code>, and its derivative <code>Bi'</code>. Let’s look at an example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Mat.linspace (-15.) 5. 200
+
+let y0 = Mat.map (fun x -&gt; 
+    let ai, _, _, _ = Maths.airy x in ai
+) x 
+
+let y1 = Mat.map (fun x -&gt; 
+    let _, _, bi, _ = Maths.airy x in bi
+) x 
+
+let _ = 
+  let h = Plot.create "special_airy.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
+  Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
+  Plot.(set_yrange h (-0.5) 1.);
+  Plot.(legend_on h ~position:SouthEast [|"Ai"; "Bi"|]);
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:75.0%" id="fig:algodiff:airy" title="airy" src="images/maths/example_airy.png"><figcaption>Figure 1: Examples of the two solutions of an Airy equation</figcaption>
+</figure>
+<p>APPLICATION description</p>
 </section>
 <section class="level3" id="bessel-functions">
 <h3>Bessel Functions</h3>
-<p>Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel’s differential equation.</p>
-<div class="highlight">
-<pre><code class="language-clike">val j0 : float -&gt; float
-(** Bessel function of the first kind of order 0. *)
-
-val j1 : float -&gt; float
-(** Bessel function of the first kind of order 1. *)
-
-val jv : float -&gt; float -&gt; float
-(** Bessel function of real order. *)
-
-val y0 : float -&gt; float
-(** Bessel function of the second kind of order 0. *)
-
-val y1 : float -&gt; float
-(** Bessel function of the second kind of order 1. *)
-
-val yv : float -&gt; float -&gt; float
-(** Bessel function of the second kind of real order. *)
-
-val yn : int -&gt; float -&gt; float
-(** Bessel function of the second kind of integer order. *)
-
-val i0 : float -&gt; float
-(** Modified Bessel function of order 0. *)
-
-val i0e : float -&gt; float
-(** Exponentially scaled modified Bessel function of order 0. *)
-
-val i1 : float -&gt; float
-(** Modified Bessel function of order 1. *)
-
-val i1e : float -&gt; float
-(** Exponentially scaled modified Bessel function of order 1. *)
-
-val iv : float -&gt; float -&gt; float
-(** Modified Bessel function of the first kind of real order. *)
-
-val k0 : float -&gt; float
-(** Modified Bessel function of the second kind of order 0, :math:`K_0`.*)
-
-val k0e : float -&gt; float
-(** Exponentially scaled modified Bessel function K of order 0. *)
-
-val k1 : float -&gt; float
-(** Modified Bessel function of the second kind of order 1, :math:`K_1(x)`. *)
-
-val k1e : float -&gt; float
-(** Exponentially scaled modified Bessel function K of order 1. *)</code></pre>
+<p>Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel’s differential equation:</p>
+<p><span class="math display">\[x^2y''+xy'+(x^2 - \alpha^2)y = 0.\]</span></p>
+<p>The complex number <span class="math inline">\(\alpha\)</span> is called the <em>order</em> of the bessel function.</p>
+<p>The Bessel functions can be divided into two “kinds”. Bessel functions of the first kind <span class="math inline">\(J\)</span> are solutions of Bessel’s differential equation that are finite at <span class="math inline">\(x=0\)</span> integer or positive order and diverge as <span class="math inline">\(x\)</span> approaches zero for negative non-integer order. Bessel functions of the second kind are solutions of the Bessel differential equation that have a singularity at <span class="math inline">\(x=0\)</span> and are multivalued. (COPY ALERT)</p>
+<p>A special case is when <span class="math inline">\(x\)</span> is purely imaginary. In this case, the solutions to the Bessel equation are called the <em>modified Bessel functions</em>. These modified Bessel functions can also be categorised as first kind and second kind.</p>
+<p>Based on these category, Owl provides these functions.</p>
+<div id="tbl:maths:bessel">
+<table>
+<caption>Table 5: Bessel functions</caption>
+<colgroup>
+<col style="width: 11%">
+<col style="width: 32%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th style="text-align: left;">Interface</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>j0</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the first kind of order 0</td>
+</tr>
+<tr class="even">
+<td><code>j1</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the first kind of order 1</td>
+</tr>
+<tr class="odd">
+<td><code>jv</code></td>
+<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the first kind of real order</td>
+</tr>
+<tr class="even">
+<td><code>y0</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the second kind of order 0</td>
+</tr>
+<tr class="odd">
+<td><code>y1</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the second kind of order 1</td>
+</tr>
+<tr class="even">
+<td><code>yv</code></td>
+<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the second kind of real order</td>
+</tr>
+<tr class="odd">
+<td><code>yn</code></td>
+<td style="text-align: left;"><code>int -&gt; float -&gt; float</code></td>
+<td style="text-align: left;">Bessel function of the second kind of integer order</td>
+</tr>
+<tr class="even">
+<td><code>i0</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Modified Bessel function of order 0</td>
+</tr>
+<tr class="odd">
+<td><code>i1</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Modified Bessel function of order 1</td>
+</tr>
+<tr class="even">
+<td><code>iv</code></td>
+<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td style="text-align: left;">Modified Bessel function of real order</td>
+</tr>
+<tr class="odd">
+<td><code>i0e</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Exponentially scaled modified Bessel function of order 0</td>
+</tr>
+<tr class="even">
+<td><code>i1e</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Exponentially scaled modified Bessel function of order 1</td>
+</tr>
+<tr class="odd">
+<td><code>k0</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Modified Bessel function of the second kind of order 0</td>
+</tr>
+<tr class="even">
+<td><code>k1</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Modified Bessel function of the second kind of order 1</td>
+</tr>
+<tr class="odd">
+<td><code>k0e</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Exponentially scaled modified Bessel function of the second kind of order 0</td>
+</tr>
+<tr class="even">
+<td><code>k1e</code></td>
+<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td style="text-align: left;">Exponentially scaled modified Bessel function of the second kind of order 1</td>
+</tr>
+</tbody>
+</table>
 </div>
+<p>Let’s look at one example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Mat.linspace (0.) 20. 200
+
+let y0 = Mat.map Maths.j0 x
+
+let y1 = Mat.map Maths.j1 x
+
+let y2 = Mat.map (Maths.jv 2.) x
+
+let _ =
+  let h = Plot.create "example_bessel.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
+  Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
+  Plot.(plot ~h ~spec:[ RGB (244, 180,  0); LineStyle 3; LineWidth 2. ] x y2);
+  Plot.(legend_on h ~position:NorthEast [|"j0"; "j1"; "j2"|]);
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:75.0%" id="fig:algodiff:bessel" title="bessel" src="images/maths/example_bessel.png"><figcaption>Figure 2: Examples of Bessel function of the first kind, with different order</figcaption>
+</figure>
+<p>(More examples can be added if we want to expand)</p>
+<p>Bessel’s equation arises when finding separable solutions to Laplace’s equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc. (COPY ALERT)</p>
 </section>
 <section class="level3" id="elliptic-functions">
 <h3>Elliptic Functions</h3>
