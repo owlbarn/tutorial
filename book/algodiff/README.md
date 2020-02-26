@@ -1125,10 +1125,10 @@ If you want, you can play with other functions, such as $\frac{1-e^{-x}}{1+e^{-x
 
 As we have introduced in [@eq:algodiff:grad], gradient generalise derivatives to multivariate functions. 
 Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the `grad` function to find it gradient at a point. 
-For example, [@fig:algodiff:gradient_example] shows the gradients at different points on a 3D surface ([src](https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html)). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis.
+For example, [@fig:algodiff:gradient_example] shows the gradients at different points on a 3D surface. At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis.
 This vector shows the direction and magnitude of maximum change of a multivariate function.
 
-![Gradient field on a 3D surface](images/algodiff/gradient_02.png "gradient_example"){ width=60% #fig:algodiff:gradient_example}
+![Gradient field on a 3D surface](images/algodiff/gradient_02.png "gradient_example"){ width=70% #fig:algodiff:gradient_example}
 
 TODO: replace this image with that of owl-plplot
 
@@ -1336,7 +1336,7 @@ More importantly, the algorithmic differentiation is core module in many modern 
 The neural network module in Owl benefit a lot from our solid AD module. 
 We will elaborate these aspects in the following chapters. Stay tuned! 
 
-## Implementing Algorithmic Differentiation 
+## Internal of Algorithmic Differentiation 
 
 ### Go Beyond Simple Implementation
 
@@ -1495,10 +1495,71 @@ This new operator works seamlessly with existing ones.
 
 ### Lazy Evaluation 
 
-Examples 
+TODO: Check if current understanding of lazy evaluation is correct.
 
+Using the `Builder` enables users to build new operations conviniently, and it greatly improve the clarity of code.
+However, with this mechanism comes a new problem: efficiency.
 
-There exists another form of lazy evaluation in AD.
+Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, but in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as `add` and `mul` are repeated tens and hundreds of times. 
+With the current `Builder` approach, every time this operation is used, it has to be created by the builder again. This is apparently not effiient. 
+We need some mechanism of caching.
+
+This is where the *lazy evaluation* in OCaml comes to help.
+
+```
+val lazy: 'a -> 'a lazy_t
+
+module Lazy :
+  sig
+    type 'a t = 'a lazy_t
+    val force : 'a t -> 'a
+  end
+```
+
+OCaml provides a built-in function `lazy` that accept an input of type `'a` and returns a `'a lazy_t` object. 
+It is a value of type `'a` whose computation has been delayed. This lazy expression won't be evaluated until it is called by `Lazy.force`. 
+The first time it is called by `Lazy.force`, the expresion is evaluted and the result is saved; and thereafter every time it is called by `Lazy.force`, the saved results will be returned without evaluation.
+
+Here is an example:
+
+```
+(* TODO: check the code *)
+# let x = Printf.printf "hello world!"; 42
+# let lazy_x = lazy (Printf.printf "hello world!"; 42)
+# let _ = Lazy.force lazy_x
+# let _ = Lazy.force lazy_x
+# let _ = Lazy.force lazy_x
+```
+
+In this example you can see that building `lazy_x` does not evalute the content, which is delayed to ther first `Lazy.force`. After that, ever time `force` is called, only the value is returned, but the `x` itself, including the `printf` function, will not be evaluted. 
+
+We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a `sin` operation that the AD module supposedly "does not provide". We can still do:
+
+```ocaml env=algodiff_lazy
+open Algodiff.D
+
+module Sin = struct
+  let label = "sin"
+  let ff_f a = F A.Scalar.(sin a)
+  let ff_arr a = Arr A.(sin a)
+  let df _cp ap at = Maths.(at * cos ap)
+  let dr a _cp ca = Maths.(!ca * cos (primal a))
+end
+```
+
+This part is the same, but now we need to utilise the lazy evalutation:
+
+```
+let _sin_ad = lazy Builder.build_siso (module Sin : Builder.Siso)
+
+let sin_ad = Lazy.force _sin_ad
+```
+
+Int this way, reglardless how many times this `sin` function is called in a massive computation, the `Builder.build_siso` process is only invoked once.
+
+(TODO: maybe an example to show the performance before and after applying the lazy evaluation? The problem is that, the non-forced part is not visible to users.)
+
+What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD.
 Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable.
 This leads to delayed lazy evaluation.
 Remember that the AD functor takes an ndarray-like module to produce the `Algodiff.S` or `Algodiff.D` modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as compuation result. 

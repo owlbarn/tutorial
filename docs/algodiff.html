@@ -988,9 +988,9 @@ Plot.output h;;</code></pre>
 </section>
 <section class="level3" id="gradient">
 <h3>Gradient</h3>
-<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. For example, fig.&nbsp;5 shows the gradients at different points on a 3D surface (<a href="https://www.wolfram.com/mathematica/new-in-8/new-and-improved-scientific-and-information-visualization/show-the-gradient-field-on-a-surface.html">src</a>). At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
+<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. For example, fig.&nbsp;5 shows the gradients at different points on a 3D surface. At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient_02.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
+<img alt="" style="width:70.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient_02.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
 </figure>
 <p>TODO: replace this image with that of owl-plplot</p>
 <p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
@@ -1136,8 +1136,8 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <p><strong>More Examples in Book</strong> Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book. As we have already shown in previous examples, we use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter. It is also used in the Regression chapter to solve the linear regression problem with gradient descent. More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch. The neural network module in Owl benefit a lot from our solid AD module. We will elaborate these aspects in the following chapters. Stay tuned!</p>
 </section>
 </section>
-<section class="level2" id="implementing-algorithmic-differentiation">
-<h2>Implementing Algorithmic Differentiation</h2>
+<section class="level2" id="internal-of-algorithmic-differentiation">
+<h2>Internal of Algorithmic Differentiation</h2>
 <section class="level3" id="go-beyond-simple-implementation">
 <h3>Go Beyond Simple Implementation</h3>
 <p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provided. You might be wondering, how are these APIs implemented in Owl?</p>
@@ -1237,8 +1237,51 @@ let _ = grad f x |&gt; unpack_arr;;
 </section>
 <section class="level3" id="lazy-evaluation">
 <h3>Lazy Evaluation</h3>
-<p>Examples</p>
-<p>There exists another form of lazy evaluation in AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as compuation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
+<p>TODO: Check if current understanding of lazy evaluation is correct.</p>
+<p>Using the <code>Builder</code> enables users to build new operations conviniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency.</p>
+<p>Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, but in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times. With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not effiient. We need some mechanism of caching.</p>
+<p>This is where the <em>lazy evaluation</em> in OCaml comes to help.</p>
+<div class="highlight">
+<pre><code class="language-clike">val lazy: 'a -&gt; 'a lazy_t
+
+module Lazy :
+  sig
+    type 'a t = 'a lazy_t
+    val force : 'a t -&gt; 'a
+  end</code></pre>
+</div>
+<p>OCaml provides a built-in function <code>lazy</code> that accept an input of type <code>'a</code> and returns a <code>'a lazy_t</code> object. It is a value of type <code>'a</code> whose computation has been delayed. This lazy expression won’t be evaluated until it is called by <code>Lazy.force</code>. The first time it is called by <code>Lazy.force</code>, the expresion is evaluted and the result is saved; and thereafter every time it is called by <code>Lazy.force</code>, the saved results will be returned without evaluation.</p>
+<p>Here is an example:</p>
+<div class="highlight">
+<pre><code class="language-clike">(* TODO: check the code *)
+# let x = Printf.printf "hello world!"; 42
+# let lazy_x = lazy (Printf.printf "hello world!"; 42)
+# let _ = Lazy.force lazy_x
+# let _ = Lazy.force lazy_x
+# let _ = Lazy.force lazy_x</code></pre>
+</div>
+<p>In this example you can see that building <code>lazy_x</code> does not evalute the content, which is delayed to ther first <code>Lazy.force</code>. After that, ever time <code>force</code> is called, only the value is returned, but the <code>x</code> itself, including the <code>printf</code> function, will not be evaluted.</p>
+<p>We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a <code>sin</code> operation that the AD module supposedly “does not provide”. We can still do:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+module Sin = struct
+  let label = "sin"
+  let ff_f a = F A.Scalar.(sin a)
+  let ff_arr a = Arr A.(sin a)
+  let df _cp ap at = Maths.(at * cos ap)
+  let dr a _cp ca = Maths.(!ca * cos (primal a))
+end</code></pre>
+</div>
+<p>This part is the same, but now we need to utilise the lazy evalutation:</p>
+<div class="highlight">
+<pre><code class="language-clike">let _sin_ad = lazy Builder.build_siso (module Sin : Builder.Siso)
+
+let sin_ad = Lazy.force _sin_ad</code></pre>
+</div>
+<p>Int this way, reglardless how many times this <code>sin</code> function is called in a massive computation, the <code>Builder.build_siso</code> process is only invoked once.</p>
+<p>(TODO: maybe an example to show the performance before and after applying the lazy evaluation? The problem is that, the non-forced part is not visible to users.)</p>
+<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as compuation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
 </section>
 </section>
 <section class="level2 unnumbered" id="references">
