@@ -665,21 +665,200 @@ let _ =
 </section>
 <section class="level3" id="beta-functions">
 <h3>Beta Functions</h3>
+<p>Beta function is defined as:</p>
+<p><span class="math display">\[B(x,y) = \int_0^1t^{x-1}(1-t)^{y-1}dt = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x+y)}\]</span></p>
+<p>The incomplete beta function extends this definition to:</p>
+<p><span class="math display">\[B(x, a, b) = \int_0^xt^{a-1}(1-t)^{b-1}dt.\]</span></p>
+<p>They are both included in the special functions provided by Owl.</p>
+<div id="tbl:maths:beta">
+<table>
+<caption>Table 8: Beta functions</caption>
+<colgroup>
+<col style="width: 32%">
+<col style="width: 67%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>beta x y</code></td>
+<td style="text-align: left;">Beta function</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>betainc a b x</code></td>
+<td style="text-align: left;">Incomplete Beta integral</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>betaincinv a b y</code></td>
+<td style="text-align: left;">Inverse function of <code>betainc</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The Beta function has several properties:</p>
 <div class="highlight">
-<pre><code class="language-clike">val beta : float -&gt; float -&gt; float
-(**
-Beta function.
- *)
-
-val betainc : float -&gt; float -&gt; float -&gt; float
-(** Incomplete beta integral. *)
-
-val betaincinv : float -&gt; float -&gt; float -&gt; float
-(** Inverse function of ``betainc``. *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4. ;;
+&gt;val x : float = 0.0166666666666666664
+let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.))) ;;
+&gt;val y : float = 0.0166666666666666664
+</code></pre>
+</div>
+<p>This validate the relationship between beta funtion and gamma function. Another property of beta function is it is symmetric, which means <span class="math inline">\(B(x,y) = B(y, x)\)</span>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4. ;;
+&gt;val x : float = 0.0166666666666666664
+let y = Maths.beta 4. 3. ;;
+&gt;val y : float = 0.0166666666666666664
+</code></pre>
+</div>
+<p>Beta function is the first known scattering amplitude in String theory in physics. It can also be used to model a preferential attachment process, which describes the distribution of resources among individuals based on the resource amount they already have. (COPY)</p>
+</section>
+<section class="level3" id="struve-functions">
+<h3>Struve Functions</h3>
+<p>The Struve function is defined as: <span class="math display">\[H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},\]</span></p>
+<p>where <span class="math inline">\(\Gamma\)</span> is the gamma funcction. <span class="math inline">\(x\)</span> must be positive unless <span class="math inline">\(v\)</span> is an integer. The function <code>struve v x</code> returns the value of Struve function. The paramter <span class="math inline">\(v\)</span> is called the <em>order</em> of this Struve function. Here is an example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let _ =
+  let h = Plot.create "example_struve.png" in
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] (Maths.struve 0.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] (Maths.struve 1.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (244, 180,  0); LineStyle 3; LineWidth 2.] (Maths.struve 2.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (77,  81,  57); LineStyle 1; LineWidth 2.] (Maths.struve 3.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (111, 51, 129); LineStyle 2; LineWidth 2.] (Maths.struve 4.) (-12.) 12.);
+  Plot.(set_yrange h (-3.) 5.);
+  Plot.(legend_on h ~position:SouthEast [|"H0"; "H1"; "H2"; "H3"; "H4"|]);
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:75.0%" id="fig:algodiff:struve" title="struve" src="images/maths/example_struve.png"><figcaption>Figure 4: Examples of Struve function for different orders.</figcaption>
+</figure>
+<p>Struve functions have some specific uses across many different fields of physics in a wide variety of applications. For example, they can be found in water-wave and surface-wave problems (specifically flow of liquid near a turning ship) as well as calculations to do with the distribution of fluid pressure over a vibrating disk and other unsteady aerodynamics. They also crop up when considering aspects of optical diffraction, plasma stability (specifically resistive magnetohydrodynamics instability theory), quantum dynamical studies of spin decoherence and excitation in carbon nanotubes. (<a href="https://www.nag.co.uk/content/struve-functions">COPY</a>)</p>
+</section>
+<section class="level3" id="zeta-functions">
+<h3>Zeta Functions</h3>
+<p>The Hurwitz zeta function <code>zeta x q</code> returns the Hurwitz zeta function:</p>
+<p><span class="math display">\[\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.\]</span></p>
+<p>When <span class="math inline">\(q\)</span> is set to 1, this function is reduced to Riemann zeta function. The function <code>zetac x</code> returns Riemann zeta function minus 1. We can evaluate the zeta function at certain points, for example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.zeta 4. 1. ;;
+&gt;- : float = 1.08232323371113837
+(Maths.pow Owl_const.pi 4.) /. 90.;;
+&gt;- : float = 1.08232323371113792
+</code></pre>
+</div>
+<p>The Riemann zeta function plays a pivotal role in analytic number theory and has applications in physics, probability theory, and applied statistics. Zeta function regularization is used as one possible means of regularization of divergent series and divergent integrals in quantum field theory. In one notable example, the Riemann zeta-function shows up explicitly in one method of calculating the Casimir effect. The zeta function is also useful for the analysis of dynamical systems. (COPY)</p>
+</section>
+<section class="level3" id="error-functions">
+<h3>Error Functions</h3>
+<div id="tbl:maths:error">
+<table>
+<caption>Table 9: Error functions</caption>
+<colgroup>
+<col style="width: 32%">
+<col style="width: 67%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>erf x</code></td>
+<td style="text-align: left;"><span class="math inline">\(\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>erfc x</code></td>
+<td style="text-align: left;">Complementary error function: <span class="math inline">\(1 - \textrm{erf}(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>erfcx x</code></td>
+<td style="text-align: left;">Scaled complementary error function: <span class="math inline">\(\exp(x^2) \mathrm{erfc}(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>erfinv x</code></td>
+<td style="text-align: left;">Inverse function of <code>erf</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>erfcinv x</code></td>
+<td style="text-align: left;">Inverse function of <code>erfc</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section class="level3" id="factorials">
-<h3>Factorials</h3>
+<section class="level3" id="integral-functions">
+<h3>Integral Functions</h3>
+<p><strong>Dawson and Fresnel Integrals</strong></p>
+<div class="highlight">
+<pre><code class="language-clike">val dawsn : float -&gt; float
+(** Dawson's integral. *)
+
+val fresnel : float -&gt; float * float
+(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
+``(Fresnel sin integral, Fresnel cos integral)``. *)</code></pre>
+</div>
+<p><strong>Other Integrals</strong></p>
+<div class="highlight">
+<pre><code class="language-clike">val expn : int -&gt; float -&gt; float
+(** Exponential integral :math:`E_n`. *)
+
+val shichi : float -&gt; float * float
+(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
+ * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
+
+val shi : float -&gt; float
+(** Hyperbolic sine integral. *)
+
+val chi : float -&gt; float
+(** Hyperbolic cosine integral. *)
+
+val sici : float -&gt; float * float
+(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
+
+val si : float -&gt; float
+(** Sine integral. *)
+
+val ci : float -&gt; float
+(** Cosine integral. *)</code></pre>
+</div>
+</section>
+<section class="level3" id="other-special-functions">
+<h3>Other Special Functions</h3>
+<div class="highlight">
+<pre><code class="language-clike">val is_prime : int -&gt; bool
+(** returns true if x is a prime number. 
+The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
+*)
+
+val fermat_fact : int -&gt; int * int
+(**
+``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
+roughly equal factors. ``x`` must be an odd number.
+ *)
+
+val nextafter : float -&gt; float -&gt; float
+(** ``nextafter from to`` returns the next representable double precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+
+val nextafterf : float -&gt; float -&gt; float
+(** ``nextafter from to`` returns the next representable single precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+</code></pre>
+</div>
+</section>
+</section>
+<section class="level2" id="factorials">
+<h2>Factorials</h2>
 <div class="highlight">
 <pre><code class="language-clike">val fact : int -&gt; float
 (** Factorial function ``fact n`` calculates :math:`n!`. *)
@@ -715,122 +894,8 @@ val log_combination : int -&gt; int -&gt; float
 (** ``log_combination n k`` returns the logarithm of :math:`\binom{n}{k}`. *)</code></pre>
 </div>
 </section>
-<section class="level3" id="error-functions">
-<h3>Error Functions</h3>
-<div class="highlight">
-<pre><code class="language-clike">val erf : float -&gt; float
-(** Error function. :math:`\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
-
-val erfc : float -&gt; float
-(** Complementary error function, :math:`\int^{\infty}_x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
-
-val erfcx : float -&gt; float
-(** Scaled complementary error function, :math:`\exp(x^2) \mathrm{erfc}(x)`. *)
-
-val erfinv : float -&gt; float
-(** Inverse function of ``erf``. *)
-
-val erfcinv : float -&gt; float
-(** Inverse function of ``erfc``. *)</code></pre>
-</div>
-</section>
-<section class="level3" id="struve-functions">
-<h3>Struve Functions</h3>
-<div class="highlight">
-<pre><code class="language-clike">val struve : float -&gt; float -&gt; float
-(** ``struve v x`` returns the value of the Struve function of
-order :math:`v` at :math:`x`. The Struve function is defined as,
-
-.. math::
-  H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},
-
-where :math:`\Gamma` is the gamma function. :math:`x` must be positive unless :math:`v` is an integer
-
- *)</code></pre>
-</div>
-</section>
-<section class="level3" id="zeta-functions">
-<h3>Zeta Functions</h3>
-<div class="highlight">
-<pre><code class="language-clike">val zeta : float -&gt; float -&gt; float
-(** ``zeta x q`` returns the Hurwitz zeta function :math:`\zeta(x, q)`, which
-    reduces to the Riemann zeta function :math:`\zeta(x)` when :math:`q=1`. *)
-
-val zetac : float -&gt; float
-(** Riemann zeta function minus 1. *)</code></pre>
-</div>
-</section>
-<section class="level3" id="other-functions">
-<h3>Other Functions</h3>
-<div class="highlight">
-<pre><code class="language-clike">val is_prime : int -&gt; bool
-(** returns true if x is a prime number. 
-The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
-*)
-
-val fermat_fact : int -&gt; int * int
-(**
-``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
-roughly equal factors. ``x`` must be an odd number.
- *)
-
-val nextafter : float -&gt; float -&gt; float
-(** ``nextafter from to`` returns the next representable double precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-
-val nextafterf : float -&gt; float -&gt; float
-(** ``nextafter from to`` returns the next representable single precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-</code></pre>
-</div>
-</section>
-</section>
 <section class="level2" id="interpolation-and-extrapolation">
 <h2>Interpolation and Extrapolation</h2>
-</section>
-<section class="level2" id="integration">
-<h2>Integration</h2>
-<section class="level3" id="dawson-and-fresnel-integrals">
-<h3>Dawson and Fresnel Integrals</h3>
-<div class="highlight">
-<pre><code class="language-clike">val dawsn : float -&gt; float
-(** Dawson's integral. *)
-
-val fresnel : float -&gt; float * float
-(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
-``(Fresnel sin integral, Fresnel cos integral)``. *)</code></pre>
-</div>
-</section>
-<section class="level3" id="other-special-integrals">
-<h3>Other Special Integrals</h3>
-<div class="highlight">
-<pre><code class="language-clike">val expn : int -&gt; float -&gt; float
-(** Exponential integral :math:`E_n`. *)
-
-val shichi : float -&gt; float * float
-(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
- * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
-
-val shi : float -&gt; float
-(** Hyperbolic sine integral. *)
-
-val chi : float -&gt; float
-(** Hyperbolic cosine integral. *)
-
-val sici : float -&gt; float * float
-(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
-
-val si : float -&gt; float
-(** Sine integral. *)
-
-val ci : float -&gt; float
-(** Cosine integral. *)</code></pre>
-</div>
-</section>
 </section>
 <section class="level2" id="complex-number">
 <h2>Complex Number</h2>

@@ -419,20 +419,182 @@ let _ =
 
 ### Beta Functions
 
+Beta function is defined as:
+
+$$B(x,y) = \int_0^1t^{x-1}(1-t)^{y-1}dt = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x+y)}$$
+
+The incomplete beta function extends this definition to:
+
+$$B(x, a, b) = \int_0^xt^{a-1}(1-t)^{b-1}dt.$$
+
+They are both included in the special functions provided by Owl.
+
+------------------------- ------------------------------------------------------
+Function                  Explanation  
+------------------------- ------------------------------------------------------
+`beta x y`                Beta function     
+
+`betainc a b x`           Incomplete Beta integral
+
+`betaincinv a b y`        Inverse function of `betainc`
+------------------------- ------------------------------------------------------
+: Beta functions {#tbl:maths:beta}
+
+The Beta function has several properties:
+
+```ocaml
+# let x = Maths.beta 3. 4. 
+val x : float = 0.0166666666666666664
+# let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.))) 
+val y : float = 0.0166666666666666664
 ```
-val beta : float -> float -> float
+
+This validate the relationship between beta funtion and gamma function.
+Another property of beta function is it is symmetric, which means $B(x,y) = B(y, x)$.
+
+```ocaml
+# let x = Maths.beta 3. 4. 
+val x : float = 0.0166666666666666664
+# let y = Maths.beta 4. 3. 
+val y : float = 0.0166666666666666664
+```
+
+Beta function is the first known scattering amplitude in String theory in physics. It can also be used to model a preferential attachment process, which describes the distribution of resources among individuals based on the resource amount they already have. (COPY)
+
+### Struve Functions
+
+The Struve function is defined as:
+$$H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},$$
+
+where $\Gamma$ is the gamma funcction. $x$ must be positive unless $v$ is an integer.
+The function `struve v x` returns the value of Struve function. The paramter $v$ is called the *order* of this Struve function.
+Here is an example. 
+
+```ocaml
+let _ =
+  let h = Plot.create "example_struve.png" in
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] (Maths.struve 0.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] (Maths.struve 1.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (244, 180,  0); LineStyle 3; LineWidth 2.] (Maths.struve 2.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (77,  81,  57); LineStyle 1; LineWidth 2.] (Maths.struve 3.) (-12.) 12.);
+  Plot.(plot_fun ~h ~spec:[ RGB (111, 51, 129); LineStyle 2; LineWidth 2.] (Maths.struve 4.) (-12.) 12.);
+  Plot.(set_yrange h (-3.) 5.);
+  Plot.(legend_on h ~position:SouthEast [|"H0"; "H1"; "H2"; "H3"; "H4"|]);
+  Plot.output h
+```
+
+![Examples of Struve function for different orders.](images/maths/example_struve.png "struve"){width=75% #fig:algodiff:struve}
+
+Struve functions have some specific uses across many different fields of physics in a wide variety of applications. For example, they can be found in water-wave and surface-wave problems (specifically flow of liquid near a turning ship) as well as calculations to do with the distribution of fluid pressure over a vibrating disk and other unsteady aerodynamics. They also crop up when considering aspects of optical diffraction, plasma stability (specifically resistive magnetohydrodynamics instability theory), quantum dynamical studies of spin decoherence and excitation in carbon nanotubes. ([COPY](https://www.nag.co.uk/content/struve-functions))
+
+
+### Zeta Functions
+
+The Hurwitz zeta function `zeta x q` returns the Hurwitz zeta function:
+
+$$\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.$$
+
+When $q$ is set to 1, this function is reduced to Riemann zeta function. 
+The function `zetac x` returns Riemann zeta function minus 1.
+We can evaluate the zeta function at certain points, for example:
+
+```ocaml
+# Maths.zeta 4. 1. 
+- : float = 1.08232323371113837
+
+# (Maths.pow Owl_const.pi 4.) /. 90.
+- : float = 1.08232323371113792
+```
+
+The Riemann zeta function plays a pivotal role in analytic number theory and has applications in physics, probability theory, and applied statistics.
+Zeta function regularization is used as one possible means of regularization of divergent series and divergent integrals in quantum field theory. In one notable example, the Riemann zeta-function shows up explicitly in one method of calculating the Casimir effect. The zeta function is also useful for the analysis of dynamical systems. (COPY)
+
+### Error Functions 
+
+
+------------------------- ------------------------------------------------------
+Function                  Explanation  
+------------------------- ------------------------------------------------------
+`erf x`                   $\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy$
+
+`erfc x`                  Complementary error function: $1 - \textrm{erf}(x)$
+
+`erfcx x`                 Scaled complementary error function: $\exp(x^2) \mathrm{erfc}(x)$
+
+`erfinv x`                Inverse function of `erf`
+
+`erfcinv x`               Inverse function of `erfc`
+------------------------- ------------------------------------------------------
+: Error functions {#tbl:maths:error}
+
+### Integral Functions
+
+**Dawson and Fresnel Integrals**
+
+```
+val dawsn : float -> float
+(** Dawson's integral. *)
+
+val fresnel : float -> float * float
+(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
+``(Fresnel sin integral, Fresnel cos integral)``. *)
+```
+
+**Other Integrals**
+
+```
+val expn : int -> float -> float
+(** Exponential integral :math:`E_n`. *)
+
+val shichi : float -> float * float
+(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
+ * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
+
+val shi : float -> float
+(** Hyperbolic sine integral. *)
+
+val chi : float -> float
+(** Hyperbolic cosine integral. *)
+
+val sici : float -> float * float
+(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
+
+val si : float -> float
+(** Sine integral. *)
+
+val ci : float -> float
+(** Cosine integral. *)
+```
+
+### Other Special Functions
+
+```
+val is_prime : int -> bool
+(** returns true if x is a prime number. 
+The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
+*)
+
+val fermat_fact : int -> int * int
 (**
-Beta function.
+``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
+roughly equal factors. ``x`` must be an odd number.
  *)
 
-val betainc : float -> float -> float -> float
-(** Incomplete beta integral. *)
+val nextafter : float -> float -> float
+(** ``nextafter from to`` returns the next representable double precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
 
-val betaincinv : float -> float -> float -> float
-(** Inverse function of ``betainc``. *)
+val nextafterf : float -> float -> float
+(** ``nextafter from to`` returns the next representable single precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+
 ```
 
-### Factorials
+## Factorials
 
 ```
 val fact : int -> float
@@ -469,118 +631,8 @@ val log_combination : int -> int -> float
 (** ``log_combination n k`` returns the logarithm of :math:`\binom{n}{k}`. *)
 ```
 
-### Error Functions 
-
-```
-val erf : float -> float
-(** Error function. :math:`\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
-
-val erfc : float -> float
-(** Complementary error function, :math:`\int^{\infty}_x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy` *)
-
-val erfcx : float -> float
-(** Scaled complementary error function, :math:`\exp(x^2) \mathrm{erfc}(x)`. *)
-
-val erfinv : float -> float
-(** Inverse function of ``erf``. *)
-
-val erfcinv : float -> float
-(** Inverse function of ``erfc``. *)
-```
-
-### Struve Functions
-
-```
-val struve : float -> float -> float
-(** ``struve v x`` returns the value of the Struve function of
-order :math:`v` at :math:`x`. The Struve function is defined as,
-
-.. math::
-  H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},
-
-where :math:`\Gamma` is the gamma function. :math:`x` must be positive unless :math:`v` is an integer
-
- *)
-```
-
-### Zeta Functions 
-
-```
-val zeta : float -> float -> float
-(** ``zeta x q`` returns the Hurwitz zeta function :math:`\zeta(x, q)`, which
-    reduces to the Riemann zeta function :math:`\zeta(x)` when :math:`q=1`. *)
-
-val zetac : float -> float
-(** Riemann zeta function minus 1. *)
-```
-
-### Other Functions
-
-```
-val is_prime : int -> bool
-(** returns true if x is a prime number. 
-The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
-*)
-
-val fermat_fact : int -> int * int
-(**
-``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
-roughly equal factors. ``x`` must be an odd number.
- *)
-
-val nextafter : float -> float -> float
-(** ``nextafter from to`` returns the next representable double precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-
-val nextafterf : float -> float -> float
-(** ``nextafter from to`` returns the next representable single precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-
-```
 
 ## Interpolation and Extrapolation
 
-## Integration
-
-### Dawson and Fresnel Integrals
-
-```
-val dawsn : float -> float
-(** Dawson's integral. *)
-
-val fresnel : float -> float * float
-(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
-``(Fresnel sin integral, Fresnel cos integral)``. *)
-```
-
-### Other Special Integrals
-
-```
-val expn : int -> float -> float
-(** Exponential integral :math:`E_n`. *)
-
-val shichi : float -> float * float
-(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
- * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
-
-val shi : float -> float
-(** Hyperbolic sine integral. *)
-
-val chi : float -> float
-(** Hyperbolic cosine integral. *)
-
-val sici : float -> float * float
-(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
-
-val si : float -> float
-(** Sine integral. *)
-
-val ci : float -> float
-(** Cosine integral. *)
-```
 
 ## Complex Number
