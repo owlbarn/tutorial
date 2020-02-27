@@ -194,6 +194,9 @@ val relu : float -> float
 
 ## Special Functions
 
+The definition of numerous special functions of mathematical physics. 
+It interfaces to the [Cephes Mathematical Functions Library](http://www.netlib.org/cephes/).
+
 ### Airy Functions
 
 In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)
@@ -315,60 +318,104 @@ let _ =
 Bessel's equation arises when finding separable solutions to Laplace's equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. 
 For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc.  (COPY ALERT)
 
-### Elliptic Functions 
+### Elliptic Functions
 
-```
-val ellipj : float -> float -> float * float * float * float
-(** Jacobian Elliptic function ``ellipj u m`` returns ``(sn, cn, dn, phi)``. *)
+------------------------- ------------------------------------------------------
+Function                  Explanation  
+------------------------- ------------------------------------------------------
+`ellipj u m`              Jacobian elliptic functions of parameter `m` between 0 and 1, and real argument `u`.
 
-val ellipk : float -> float
-(** ``ellipk m`` returns the complete elliptic integral of the first kind. *)
+`ellipk m`                Complete elliptic integral of the first kind
 
-val ellipkm1 : float -> float
-(** FIXME. Complete elliptic integral of the first kind around :math:`m = 1`. *)
+`ellipkm1 p`              Complete elliptic integral of the first kind around m = 1
 
-val ellipkinc : float -> float -> float
-(** ``ellipkinc phi m`` incomplete elliptic integral of the first kind. *)
+`ellipkinc phi m`         Incomplete elliptic integral of the first kind
 
-val ellipe : float -> float
-(** ``ellipe m`` complete elliptic integral of the second kind. *)
+`ellipe m`                Complete elliptic integral of the second kind
 
-val ellipeinc : float -> float -> float
-(** ``ellipeinc phi m`` incomplete elliptic integral of the second kind. *)
+`ellipeinc phi m`         Incomplete elliptic integral of the second kind
+------------------------- ------------------------------------------------------
+: Elliptic functions {#tbl:maths:elliptic}
+
+
+The Jacobian elliptic functions are found in the description of the motion of a pendulum, as well as in the design of the electronic elliptic filters. These functions are periodic, with quarter-period on the real axis equal to the complete elliptic integral.
+There are twelve Jacobi elliptic functions and `ellipj` returns three of them: sn, cn, dn. And the fourth result `phi` is called the amplitude of `u`. (COPY)
+
+Elliptic integrals arose from the attempts to find the perimeter of an ellipse.
+elliptic integral. A Elliptic integral function can be expressed in the form of:
+$$f(x)=\int_c^xR(t, \sqrt(P(t)))dt,$$
+where $R$ is a rational function of its two arguments, $P$ is a polynomial of degree 3 or 4 with no repeated roots, and $c$ is a constant.
+Incomplete elliptic integrals are functions of two arguments; complete elliptic integrals are functions of a single argument. (COPY)
+
+In general, integrals in this form cannot be expressed in terms of elementary functions. Exceptions to this general rule are when P has repeated roots, or when $R(x,y)$ contains no odd powers of y. However, with the appropriate reduction formula, every elliptic integral can be brought into a form that involves integrals over rational functions and the three Legendre canonical forms (i.e. the elliptic integrals of the first, second and third kind). (COPY)
+
+We can use `ellipe` to compute the circumference of an ellipse. To compute that requires calculus, and the elliptic functions provides a solution.
+Suppose an ellipse has semi-major axis $a=4$ and semi-minor axis $b=3$. We an compute its circumference using $4a\textrm{ellipe}(1 - \frac{b^2}{a^2})$.
+
+```ocaml
+# let a = 4. 
+val a : float = 4.
+# let b = 3.
+val b : float = 3.
+# let c = 4. *. a *. Maths.(ellipe (1. -. pow (b /. a) 2.))
+val c : float = 22.1034921607095072
 ```
 
 ### Gamma Functions
 
+For a positive integer n, the Gamma function is the factorial function. 
+
+$$\Gamma(n) = (n-1)!$$
+
+For a complex numbers $z$ with a positive real part, 
+
+$$\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.$$
+
+The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. 
+The Gamma function and related function provided in Owl are list in [@tbl:maths:gamma].
+
+------------------------- ------------------------------------------------------
+Function                  Explanation  
+------------------------- ------------------------------------------------------
+`gamma z`                 Returns the value of the Gamma function
+
+`rgamma z`                Reciprocal of the Gamma function
+
+`loggamma z`              Principal branch of the logarithm of the Gamma function
+
+`gammainc a x`            Regularized lower incomplete gamma function
+
+`gammaincinv a y`         Inverse function of `gammainc`
+
+`gammaincc a x`           Complemented incomplete gamma integral
+
+`gammainccinv a y`        Inverse function of `gammaincc`
+
+`psi z`                   The digamma function
+------------------------- ------------------------------------------------------
+: Gamma functions {#tbl:maths:gamma}
+
+The incomplete gamma functions are similarly to the gamma function but with different or "incomplete" integral limits. The gamma function is defined as an integral from zero to infinity. This contrasts with the lower incomplete gamma function, which is defined as an integral from zero to a variable upper limit. Similarly, the upper incomplete gamma function is defined as an integral from a variable lower limit to infinity. 
+The digamma function is defined as the logarithmic derivative of the gamma function. (COPY)
+
+Here is an example of using `gamma`.
+
+```ocaml
+let x = Mat.linspace (-3.5) 5. 2000
+
+let y = Mat.map Maths.gamma x
+
+let _ =
+  let h = Plot.create "example_gamma.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y);
+  Plot.(set_yrange h (-10.) 20.);
+  Plot.output h
 ```
-val gamma : float -> float
-(**
-``gamma z`` returns the value of the Gamma function.
-The gamma function is often referred to as the generalized factorial since
-:math:`z\ gamma(z) = \gamma(z+1)` and :math:`gamma(n+1) = n!`
-for natural number :math:`n`.
- *)
 
-val rgamma : float -> float
-(** Reciprocal Gamma function. *)
+![Examples of Gamma function along part of the real axis](images/maths/example_gamma.png "gamma"){width=75% #fig:algodiff:gamma}
 
-val loggamma : float -> float
-(** Logarithm of the gamma function. *)
+(TODO: this figure should not have the vertical lines)
 
-val gammainc : float -> float -> float
-(** Incomplete gamma function. *)
-
-val gammaincinv : float -> float -> float
-(** Inverse function of ``gammainc``. *)
-
-val gammaincc : float -> float -> float
-(** Complemented incomplete gamma integral. *)
-
-val gammainccinv : float -> float -> float
-(** Inverse function of ``gammaincc``. *)
-
-val psi : float -> float
-(** The digamma function. *)
-```
 
 ### Beta Functions
 

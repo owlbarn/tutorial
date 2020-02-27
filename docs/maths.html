@@ -367,6 +367,7 @@ val relu : float -&gt; float
 </section>
 <section class="level2" id="special-functions">
 <h2>Special Functions</h2>
+<p>The definition of numerous special functions of mathematical physics. It interfaces to the <a href="http://www.netlib.org/cephes/">Cephes Mathematical Functions Library</a>.</p>
 <section class="level3" id="airy-functions">
 <h3>Airy Functions</h3>
 <p>In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY) It is the solution of differential equation:</p>
@@ -533,58 +534,134 @@ let _ =
 </section>
 <section class="level3" id="elliptic-functions">
 <h3>Elliptic Functions</h3>
+<div id="tbl:maths:elliptic">
+<table>
+<caption>Table 6: Elliptic functions</caption>
+<colgroup>
+<col style="width: 32%">
+<col style="width: 67%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>ellipj u m</code></td>
+<td style="text-align: left;">Jacobian elliptic functions of parameter <code>m</code> between 0 and 1, and real argument <code>u</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ellipk m</code></td>
+<td style="text-align: left;">Complete elliptic integral of the first kind</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ellipkm1 p</code></td>
+<td style="text-align: left;">Complete elliptic integral of the first kind around m = 1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ellipkinc phi m</code></td>
+<td style="text-align: left;">Incomplete elliptic integral of the first kind</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>ellipe m</code></td>
+<td style="text-align: left;">Complete elliptic integral of the second kind</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ellipeinc phi m</code></td>
+<td style="text-align: left;">Incomplete elliptic integral of the second kind</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The Jacobian elliptic functions are found in the description of the motion of a pendulum, as well as in the design of the electronic elliptic filters. These functions are periodic, with quarter-period on the real axis equal to the complete elliptic integral. There are twelve Jacobi elliptic functions and <code>ellipj</code> returns three of them: sn, cn, dn. And the fourth result <code>phi</code> is called the amplitude of <code>u</code>. (COPY)</p>
+<p>Elliptic integrals arose from the attempts to find the perimeter of an ellipse. elliptic integral. A Elliptic integral function can be expressed in the form of: <span class="math display">\[f(x)=\int_c^xR(t, \sqrt(P(t)))dt,\]</span> where <span class="math inline">\(R\)</span> is a rational function of its two arguments, <span class="math inline">\(P\)</span> is a polynomial of degree 3 or 4 with no repeated roots, and <span class="math inline">\(c\)</span> is a constant. Incomplete elliptic integrals are functions of two arguments; complete elliptic integrals are functions of a single argument. (COPY)</p>
+<p>In general, integrals in this form cannot be expressed in terms of elementary functions. Exceptions to this general rule are when P has repeated roots, or when <span class="math inline">\(R(x,y)\)</span> contains no odd powers of y. However, with the appropriate reduction formula, every elliptic integral can be brought into a form that involves integrals over rational functions and the three Legendre canonical forms (i.e.&nbsp;the elliptic integrals of the first, second and third kind). (COPY)</p>
+<p>We can use <code>ellipe</code> to compute the circumference of an ellipse. To compute that requires calculus, and the elliptic functions provides a solution. Suppose an ellipse has semi-major axis <span class="math inline">\(a=4\)</span> and semi-minor axis <span class="math inline">\(b=3\)</span>. We an compute its circumference using <span class="math inline">\(4a\textrm{ellipe}(1 - \frac{b^2}{a^2})\)</span>.</p>
 <div class="highlight">
-<pre><code class="language-clike">val ellipj : float -&gt; float -&gt; float * float * float * float
-(** Jacobian Elliptic function ``ellipj u m`` returns ``(sn, cn, dn, phi)``. *)
-
-val ellipk : float -&gt; float
-(** ``ellipk m`` returns the complete elliptic integral of the first kind. *)
-
-val ellipkm1 : float -&gt; float
-(** FIXME. Complete elliptic integral of the first kind around :math:`m = 1`. *)
-
-val ellipkinc : float -&gt; float -&gt; float
-(** ``ellipkinc phi m`` incomplete elliptic integral of the first kind. *)
-
-val ellipe : float -&gt; float
-(** ``ellipe m`` complete elliptic integral of the second kind. *)
-
-val ellipeinc : float -&gt; float -&gt; float
-(** ``ellipeinc phi m`` incomplete elliptic integral of the second kind. *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = 4. ;;
+&gt;val a : float = 4.
+let b = 3.;;
+&gt;val b : float = 3.
+let c = 4. *. a *. Maths.(ellipe (1. -. pow (b /. a) 2.));;
+&gt;val c : float = 22.1034921607095072
+</code></pre>
 </div>
 </section>
 <section class="level3" id="gamma-functions">
 <h3>Gamma Functions</h3>
-<div class="highlight">
-<pre><code class="language-clike">val gamma : float -&gt; float
-(**
-``gamma z`` returns the value of the Gamma function.
-The gamma function is often referred to as the generalized factorial since
-:math:`z\ gamma(z) = \gamma(z+1)` and :math:`gamma(n+1) = n!`
-for natural number :math:`n`.
- *)
-
-val rgamma : float -&gt; float
-(** Reciprocal Gamma function. *)
-
-val loggamma : float -&gt; float
-(** Logarithm of the gamma function. *)
-
-val gammainc : float -&gt; float -&gt; float
-(** Incomplete gamma function. *)
-
-val gammaincinv : float -&gt; float -&gt; float
-(** Inverse function of ``gammainc``. *)
-
-val gammaincc : float -&gt; float -&gt; float
-(** Complemented incomplete gamma integral. *)
-
-val gammainccinv : float -&gt; float -&gt; float
-(** Inverse function of ``gammaincc``. *)
-
-val psi : float -&gt; float
-(** The digamma function. *)</code></pre>
+<p>For a positive integer n, the Gamma function is the factorial function.</p>
+<p><span class="math display">\[\Gamma(n) = (n-1)!\]</span></p>
+<p>For a complex numbers <span class="math inline">\(z\)</span> with a positive real part,</p>
+<p><span class="math display">\[\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.\]</span></p>
+<p>The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. The Gamma function and related function provided in Owl are list in tbl.&nbsp;7.</p>
+<div id="tbl:maths:gamma">
+<table>
+<caption>Table 7: Gamma functions</caption>
+<colgroup>
+<col style="width: 32%">
+<col style="width: 67%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>gamma z</code></td>
+<td style="text-align: left;">Returns the value of the Gamma function</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>rgamma z</code></td>
+<td style="text-align: left;">Reciprocal of the Gamma function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>loggamma z</code></td>
+<td style="text-align: left;">Principal branch of the logarithm of the Gamma function</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>gammainc a x</code></td>
+<td style="text-align: left;">Regularized lower incomplete gamma function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>gammaincinv a y</code></td>
+<td style="text-align: left;">Inverse function of <code>gammainc</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>gammaincc a x</code></td>
+<td style="text-align: left;">Complemented incomplete gamma integral</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>gammainccinv a y</code></td>
+<td style="text-align: left;">Inverse function of <code>gammaincc</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>psi z</code></td>
+<td style="text-align: left;">The digamma function</td>
+</tr>
+</tbody>
+</table>
 </div>
+<p>The incomplete gamma functions are similarly to the gamma function but with different or “incomplete” integral limits. The gamma function is defined as an integral from zero to infinity. This contrasts with the lower incomplete gamma function, which is defined as an integral from zero to a variable upper limit. Similarly, the upper incomplete gamma function is defined as an integral from a variable lower limit to infinity. The digamma function is defined as the logarithmic derivative of the gamma function. (COPY)</p>
+<p>Here is an example of using <code>gamma</code>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Mat.linspace (-3.5) 5. 2000
+
+let y = Mat.map Maths.gamma x
+
+let _ =
+  let h = Plot.create "example_gamma.png" in
+  Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y);
+  Plot.(set_yrange h (-10.) 20.);
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:75.0%" id="fig:algodiff:gamma" title="gamma" src="images/maths/example_gamma.png"><figcaption>Figure 3: Examples of Gamma function along part of the real axis</figcaption>
+</figure>
+<p>(TODO: this figure should not have the vertical lines)</p>
 </section>
 <section class="level3" id="beta-functions">
 <h3>Beta Functions</h3>
