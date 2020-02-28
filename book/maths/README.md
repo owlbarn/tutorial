@@ -2,6 +2,8 @@
 
 Though the central data structure in Owl is `ndarray`, we provide support for scalar math functions. 
 
+Complex Number
+
 ## Basic Functions
 
 **GUIDE**: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used. 
@@ -174,27 +176,23 @@ Function      Explanation
 
 ### Other Unary Math Functions
 
-```
-val sigmoid : float -> float
-(** ``sigmoid x`` returns the logistic sigmoid function
-:math:`1 / (1 + \exp(-x))`. *)
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
+`sigmoid x`   $1 / (1 + \exp(-x))$
 
-val signum : float -> float
-(** ``signum x`` returns the sign of :math:`x`: -1, 0 or 1. *)
+`signum x`    Returns the sign of `x`: -1, 0, or 1.
 
-val softsign : float -> float
-(** Smoothed sign function. *)
+`softsign x`  Smoothed `sign` function
 
-val softplus : float -> float
-(** ``softplus x`` returns :math:`\log(1 + \exp(x))`. *)
-
-val relu : float -> float
-(** ``relu x`` returns :math:`\max(0, x)`. *)
-```
+`relu x`      $\max(0, x)$
+------------  -------------------------------------------------------
+: Other unary math functions {#tbl:maths:others}
 
 ## Special Functions
 
 The definition of numerous special functions of mathematical physics. 
+Special functions are particular mathematical functions that have more or less established names and notations due to their importance in mathematical analysis, functional analysis, physics, or other applications.(COPY)
 It interfaces to the [Cephes Mathematical Functions Library](http://www.netlib.org/cephes/).
 
 ### Airy Functions
@@ -468,7 +466,7 @@ $$H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \
 
 where $\Gamma$ is the gamma funcction. $x$ must be positive unless $v$ is an integer.
 The function `struve v x` returns the value of Struve function. The paramter $v$ is called the *order* of this Struve function.
-Here is an example. 
+Here is an example.
 
 ```ocaml
 let _ =
@@ -511,11 +509,14 @@ Zeta function regularization is used as one possible means of regularization of 
 
 ### Error Functions 
 
+The error functions are not about error processing in programming.
+In mathematics, it is defined as:
+$$\frac{2}{\sqrt{\pi}}\int_0^x e^{-t^2})dt.$$
 
 ------------------------- ------------------------------------------------------
 Function                  Explanation  
 ------------------------- ------------------------------------------------------
-`erf x`                   $\int_{-\infty}^x \frac{1}{\sqrt(2\pi)} \exp(-(1/2) y^2) dy$
+`erf x`                   Error function
 
 `erfc x`                  Complementary error function: $1 - \textrm{erf}(x)$
 
@@ -527,72 +528,70 @@ Function                  Explanation
 ------------------------- ------------------------------------------------------
 : Error functions {#tbl:maths:error}
 
+The error function is a sigmoid function. We can observe its shape by the code below.
+
+```ocaml
+let _ =
+  let h = Plot.create "example_erf.png" in
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] Maths.erf (-3.) 3.);
+  Plot.output h
+```
+
+![Plot of the Error function.](images/maths/example_erf.png "struve"){width=75% #fig:algodiff:erf}
+
+The error function occurs often in probability, statistics, and partial differential equations describing diffusion. In statistics, for nonnegative values of x, the error function has the following interpretation: for a random variable `Y` that is normally distributed with mean 0 and variance 0.5, then `erf x` is the probability that `Y` falls in the range `[-x, x]`. (COPY)
+
 ### Integral Functions
 
-**Dawson and Fresnel Integrals**
+Owl also provides several special integral functions. 
+The Dawson function is defined as:
+$$D(x) = e^{-x^2}\int_0^x~e^{t^2}dt$$
 
-```
-val dawsn : float -> float
-(** Dawson's integral. *)
+And the Fresnel trigonometric integral returns a tuple that contains two parts:
+$$S(x) = \int_0^x~sin(t^2)dt, C(x) = \int_0^x~cos(t^2)dt.$$
 
-val fresnel : float -> float * float
-(** Fresnel trigonometric integrals. ``fresnel x`` returns a tuple consisting of
-``(Fresnel sin integral, Fresnel cos integral)``. *)
-```
+We can observe the functions of these integrals with plots.
 
-**Other Integrals**
-
-```
-val expn : int -> float -> float
-(** Exponential integral :math:`E_n`. *)
-
-val shichi : float -> float * float
-(** Hyperbolic sine and cosine integrals, ``shichi x`` returns
- * :math:`(\mathrm{shi}, \mathrm{chi})``. *)
-
-val shi : float -> float
-(** Hyperbolic sine integral. *)
-
-val chi : float -> float
-(** Hyperbolic cosine integral. *)
-
-val sici : float -> float * float
-(** Sine and cosine integrals, ``sici x`` returns :math:`(\mathrm{si}, \mathrm{ci})`. *)
-
-val si : float -> float
-(** Sine integral. *)
-
-val ci : float -> float
-(** Cosine integral. *)
+```ocaml
+let _ =
+  let h = Plot.create ~m:1 ~n:2 "example_integrals.png" in
+  Plot.subplot h 0 0;
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] Maths.dawsn (-5.) 5.);
+  Plot.set_ylabel h "dawsn(x)";
+  Plot.subplot h 0 1;
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] (fun x -> let s, _ = Maths.fresnel x in s) 0. 5.);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] (fun x -> let _, c = Maths.fresnel x in c) 0. 5.);
+  Plot.(legend_on h ~position:SouthEast [|"S(x)"; "C(x)"|]);
+  Plot.set_ylabel h "fresnel(x)";
+  Plot.output h
 ```
 
-### Other Special Functions
+![Plot of the Dawson and Fresnel integral function.](images/maths/example_integrals.png "integrals"){width=100% #fig:algodiff:integrals}
 
-```
-val is_prime : int -> bool
-(** returns true if x is a prime number. 
-The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
-*)
+Besides these two, other type of special integral functions are also provided, as shown in [@tbl:maths:integral].
 
-val fermat_fact : int -> int * int
-(**
-``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
-roughly equal factors. ``x`` must be an odd number.
- *)
+----------------- -----------------------------------------------------------
+Function          Explanation  
+----------------- -----------------------------------------------------------
+`expn n x`        Generalized exponential integral $E_n(x) = x^{n-1}\int_x^{\infty}\frac{e^{-t}}{t^n}dt$
 
-val nextafter : float -> float -> float
-(** ``nextafter from to`` returns the next representable double precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
+`shi x`           Hyperbolic sine integral: $\int_0^x~\frac{\sinh~t}{t}dt$
 
-val nextafterf : float -> float -> float
-(** ``nextafter from to`` returns the next representable single precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
+`chi x`           Hyperbolic cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cosh~t -1}{t}dt$
 
-```
+`shichi x`        (`shi x`, `chi x`)
+
+`si x`            Sine integral: $\int_0^x~\frac{\sin~t}{t}dt$
+
+`ci x`            Cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cos~t -1}{t}dt$
+
+`sici x`          (`si x`, `ci x`)
+----------------- -----------------------------------------------------------
+: Integral functions {#tbl:maths:integral}
+
+Dawson integrals is motivated by research on the electromagnetic radiation propagation across the surface of earth.
+The Fresnel integrals were originally used in the calculation of the electromagnetic field intensity in an environment where light bends around opaque objects. More recently, they have been used in the design of highways and railways, specifically their curvature transition zones. Other applications are roller coasters or calculating the transitions on a velodrome track to allow rapid entry to the bends and gradual exit. ([COPY](https://en.wikipedia.org/wiki/Fresnel_integral))
+
 
 ## Factorials
 
@@ -635,4 +634,30 @@ val log_combination : int -> int -> float
 ## Interpolation and Extrapolation
 
 
-## Complex Number
+## Utility Functions
+
+```
+val is_prime : int -> bool
+(** returns true if x is a prime number. 
+The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
+*)
+
+val fermat_fact : int -> int * int
+(**
+``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
+roughly equal factors. ``x`` must be an odd number.
+ *)
+
+val nextafter : float -> float -> float
+(** ``nextafter from to`` returns the next representable double precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+
+val nextafterf : float -> float -> float
+(** ``nextafter from to`` returns the next representable single precision value
+of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+is returned.
+ *)
+
+```
