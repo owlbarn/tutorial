@@ -679,7 +679,68 @@ val x : int = 45
 val y : float = 45.
 ```
 
-## Interpolation and Extrapolation
+## Interpolation 
+
+Definition of Interpolation.
+Sometimes we don't know the full description of a function $f$, but only some points on it, and therefore we cannot calculate its value at an aribitrary point.
+The target is to esimate the $f(x)$ for an arbitrary $x$ by drawing a smooth curve through the given data. If $x$ is within the range of the given data, this taks is called *interpolation* (otherwise it's called extrapolation, which is much more difficult to do).
+
+The `Owl_maths_interpolate` module provides an `polint` function for interpolation:
+
+```
+val polint : float array -> float array -> float -> float * float
+```
+
+`polint xs ys x` performs polynomial interpolation of the given arrays `xs` and `ys`. Given arrays $xs[0 \ldots (n-1)]$ and $ys[0\ldots~(n-1)]$, and a value `x`. 
+The function returns a value `y`, and an error estimate `dy`.
+The paramter `xs` is an array of input `x` values of `P(x)`, and `ys` is an array of corresponding `y` values of `P(x)`.
+It returns `(y', dy)` wherein `y'` is the returned value `y' = P(x)`, and `dy` is the estimated error.
+
+
+
+As its name suggests, the `polint` approximate complicated curves with polynomial of lowest possible degree that passes the given points.
+We can show how this interplation method works for an example. 
+In the previous chapter we have introduced that the Gamma function is actually a interpolation solution to the integer function $y(x) = (n-1)!$. 
+So we can specify five nodes on a plane that are generated from this factorial functions.
+
+```ocaml env=maths:interp
+# let x = [|2; 3; 4; 5; 6|]
+val x : int array = [|2; 3; 4; 5; 6|]
+# let y = Array.map (fun x -> Maths.fact (x - 1)) x 
+val y : float array = [|1.; 2.; 6.; 24.; 120.|]
+# let x = Array.map float_of_int x
+val x : float array = [|2.; 3.; 4.; 5.; 6.|]
+```
+
+
+
+Now we can define the interpolation function `f` that accept on float number and returns another float number.
+Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
+
+```ocaml env=maths:interp
+let f a = 
+  let v, _ = Owl_maths_interpolate.polint x y a in
+  v 
+
+let xm = Mat.of_array x 1 5
+let ym = Mat.of_array y 1 5
+```
+
+Now we can plot the interpolation function. We compare it to the Gamma function. 
+As can be seen in [@fig:maths:interp], both lines cross the given nodes. We can see that the interpolated line fits well with the "true interpolation", i.e. the Gamma function. 
+
+```ocaml env=maths:interp
+let _ =
+  let h = Plot.create "interp.png" in
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.);
+  Plot.(scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] xm ym);
+  Plot.(legend_on h ~position:NorthWest [|"Interpolation"; "Gamma function"; "Given values"|]);
+  Plot.output h
+```
+
+![Plot of interpolation and corresponding Gamma function.](images/maths/interp.png "interp"){width=75% #fig:maths:interp}
+
 
 
 ## Utility Functions

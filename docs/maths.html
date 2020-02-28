@@ -998,8 +998,46 @@ let y = Maths.combination_float 10 2;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="interpolation-and-extrapolation">
-<h2>Interpolation and Extrapolation</h2>
+<section class="level2" id="interpolation">
+<h2>Interpolation</h2>
+<p>Definition of Interpolation. Sometimes we don’t know the full description of a function <span class="math inline">\(f\)</span>, but only some points on it, and therefore we cannot calculate its value at an aribitrary point. The target is to esimate the <span class="math inline">\(f(x)\)</span> for an arbitrary <span class="math inline">\(x\)</span> by drawing a smooth curve through the given data. If <span class="math inline">\(x\)</span> is within the range of the given data, this taks is called <em>interpolation</em> (otherwise it’s called extrapolation, which is much more difficult to do).</p>
+<p>The <code>Owl_maths_interpolate</code> module provides an <code>polint</code> function for interpolation:</p>
+<div class="highlight">
+<pre><code class="language-clike">val polint : float array -&gt; float array -&gt; float -&gt; float * float</code></pre>
+</div>
+<p><code>polint xs ys x</code> performs polynomial interpolation of the given arrays <code>xs</code> and <code>ys</code>. Given arrays <span class="math inline">\(xs[0 \ldots (n-1)]\)</span> and <span class="math inline">\(ys[0\ldots~(n-1)]\)</span>, and a value <code>x</code>. The function returns a value <code>y</code>, and an error estimate <code>dy</code>. The paramter <code>xs</code> is an array of input <code>x</code> values of <code>P(x)</code>, and <code>ys</code> is an array of corresponding <code>y</code> values of <code>P(x)</code>. It returns <code>(y', dy)</code> wherein <code>y'</code> is the returned value <code>y' = P(x)</code>, and <code>dy</code> is the estimated error.</p>
+<p>As its name suggests, the <code>polint</code> approximate complicated curves with polynomial of lowest possible degree that passes the given points. We can show how this interplation method works for an example. In the previous chapter we have introduced that the Gamma function is actually a interpolation solution to the integer function <span class="math inline">\(y(x) = (n-1)!\)</span>. So we can specify five nodes on a plane that are generated from this factorial functions.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = [|2; 3; 4; 5; 6|];;
+&gt;val x : int array = [|2; 3; 4; 5; 6|]
+let y = Array.map (fun x -&gt; Maths.fact (x - 1)) x ;;
+&gt;val y : float array = [|1.; 2.; 6.; 24.; 120.|]
+let x = Array.map float_of_int x;;
+&gt;val x : float array = [|2.; 3.; 4.; 5.; 6.|]
+</code></pre>
+</div>
+<p>Now we can define the interpolation function <code>f</code> that accept on float number and returns another float number. Also we convert the given data <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> into matrix format for plotting purpose.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let f a = 
+  let v, _ = Owl_maths_interpolate.polint x y a in
+  v 
+
+let xm = Mat.of_array x 1 5
+let ym = Mat.of_array y 1 5</code></pre>
+</div>
+<p>Now we can plot the interpolation function. We compare it to the Gamma function. As can be seen in fig.&nbsp;7, both lines cross the given nodes. We can see that the interpolated line fits well with the “true interpolation”, i.e.&nbsp;the Gamma function.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let _ =
+  let h = Plot.create "interp.png" in
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.);
+  Plot.(scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] xm ym);
+  Plot.(legend_on h ~position:NorthWest [|"Interpolation"; "Gamma function"; "Given values"|]);
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:75.0%" id="fig:maths:interp" title="interp" src="images/maths/interp.png"><figcaption>Figure 7: Plot of interpolation and corresponding Gamma function.</figcaption>
+</figure>
 </section>
 <section class="level2" id="utility-functions">
 <h2>Utility Functions</h2>
