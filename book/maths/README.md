@@ -16,6 +16,7 @@ You can use these unary functions easily from the `Maths` module. For example:
 # Maths.sqrt 2. 
 - : float = 1.41421356237309515
 ```
+
 ------------  -------------------------------------------------------
 Function      Explanation  
 ------------  -------------------------------------------------------
