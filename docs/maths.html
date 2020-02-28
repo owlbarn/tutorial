@@ -1,61 +1,20 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Mathematical Functions - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="mathematical-functions">
 <h1>Mathematical Functions</h1>
-<p>Though the central data structure in Owl is <code>ndarray</code>, we provide support for scalar math functions.</p>
-<p>Complex Number</p>
+<p>TBD</p>
 <section class="level2" id="basic-functions">
 <h2>Basic Functions</h2>
-<p><strong>GUIDE</strong>: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used.</p>
-<section class="level3" id="binary-functions">
-<h3>Binary Functions</h3>
-<p>Binary functions <code>f x y</code> has the signature in the form of <code>val f : float -&gt; float -&gt; float</code></p>
-<div id="tbl:maths:binary">
-<table style="width:97%;">
-<caption>Table 1: Binary math functions</caption>
-<colgroup>
-<col style="width: 19%">
-<col style="width: 77%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Function</th>
-<th style="text-align: left;">Explanation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>add</code></td>
-<td style="text-align: left;"><code>x + y</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>sub</code></td>
-<td style="text-align: left;"><code>x - y</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>mul</code></td>
-<td style="text-align: left;"><code>x * y</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>div</code></td>
-<td style="text-align: left;"><code>x / y</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>fmod</code></td>
-<td style="text-align: left;"><code>x % y</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>atan2</code></td>
-<td style="text-align: left;">returns <span class="math inline">\(\arctan(y/x)\)</span>, accounting for the sign of the arguments; this is the angle to the vector <span class="math inline">\((x, y)\)</span> counting from the x-axis.</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
+<p>Note that functions in this chapter works on scalar values. The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.</p>
 <section class="level3" id="basic-unary-math-functions">
 <h3>Basic Unary Math Functions</h3>
-<p>Unary functions with signature <code>val f : float -&gt; float</code></p>
+<p>Many basic math functions takes one float number as input and returns one float number. We call them <em>unary</em> functions. You can use these unary functions easily from the <code>Maths</code> module. For example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sqrt 2. ;;
+&gt;- : float = 1.41421356237309515
+</code></pre>
+</div>
 <div id="tbl:maths:basic_unary">
 <table style="width:97%;">
-<caption>Table 2: Basic unary math functions</caption>
+<caption>Table 1: Basic unary math functions</caption>
 <colgroup>
 <col style="width: 19%">
 <col style="width: 77%">
@@ -103,6 +62,47 @@
 <td style="text-align: left;"><code>sqrt</code></td>
 <td style="text-align: left;"><span class="math inline">\(\sqrt{x}\)</span></td>
 </tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="level3" id="basic-binary-functions">
+<h3>Basic Binary Functions</h3>
+<p>Binary functions takes two floats as inputs and returns one float as return. The most common arithmetic functions belong to this category.</p>
+<div id="tbl:maths:binary">
+<table style="width:97%;">
+<caption>Table 2: Binary math functions</caption>
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>add</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sub</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>mul</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>div</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>fmod</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+</tr>
 <tr class="even">
 <td style="text-align: left;"><code>pow</code></td>
 <td style="text-align: left;"><span class="math inline">\(x^y\)</span></td>
@@ -111,13 +111,21 @@
 <td style="text-align: left;"><code>hypot</code></td>
 <td style="text-align: left;"><span class="math inline">\(\sqrt{x^2 + y^2}\)</span></td>
 </tr>
+<tr class="even">
+<td style="text-align: left;"><code>atan2</code></td>
+<td style="text-align: left;">returns <span class="math inline">\(\arctan(y/x)\)</span>, accounting for the sign of the arguments; this is the angle to the vector <span class="math inline">\((x, y)\)</span> counting from the x-axis.</td>
+</tr>
 </tbody>
 </table>
 </div>
 </section>
 <section class="level3" id="exponential-and-logarithmic-functions">
 <h3>Exponential and Logarithmic Functions</h3>
-<p>Introduction to exponential and logarithm functions</p>
+<p>The constant <span class="math inline">\(e = \sum_{n=0}^{\infty}\frac{1}{n!}\)</span> is what we called the “natural constant”. It is called this way because the exponential function and it inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.</p>
+<p>We also have this beautiful Euler’s formula that connects the two most frequently used constants and the base of complex number and natural numbers:</p>
+<p><span class="math display">\[e^{i\pi}+ 1=0.\]</span></p>
+<p>As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function <span class="math inline">\(n(t) = Ce^rt\)</span> where <span class="math inline">\(C\)</span> is the initial population and <span class="math inline">\(r\)</span> is the daily increase rate. With this model, we can predict how the population of bacterial grows within certain time.</p>
+<p>The full list of exponential and logarithmic functions, together with some variants, are presented in tbl.&nbsp;3.</p>
 <div id="tbl:maths:explog">
 <table style="width:97%;">
 <caption>Table 3: Exponential and logarithmic math functions</caption>
@@ -200,9 +208,16 @@
 </table>
 </div>
 </section>
-<section class="level3" id="triangular-functions">
-<h3>Triangular Functions</h3>
-<p>Introduction of triangular functions</p>
+<section class="level3" id="trigonometric-functions">
+<h3>Trigonometric Functions</h3>
+<p>In mathematics, the trigonometric functions are real functions which relate an angle of a right-angled triangle to ratios of two side lengths. They are widely used in all sciences that are related to geometry, such as navigation, solid mechanics, celestial mechanics, geodesy, and many others. They are among the simplest periodic functions, and as such are also widely used for studying periodic phenomena, through Fourier analysis. The most widely used trigonometric functions are the sine, the cosine, and the tangent. Their reciprocals are respectively the cosecant, the secant, and the cotangent, which are less used in modern mathematics. (<a href="https://en.wikipedia.org/wiki/Trigonometric_functions">COPY</a>)</p>
+<p>The triangular functions are all unary functions, for example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sin (Owl_const.pi /. 2.);;
+&gt;- : float = 1.
+</code></pre>
+</div>
+<p>And they are all included in the math module in Owl, as shown in tbl.&nbsp;4.</p>
 <div id="tbl:maths:triangular">
 <table style="width:97%;">
 <caption>Table 4: Triangular math functions</caption>
@@ -345,11 +360,12 @@
 </table>
 </div>
 </section>
-<section class="level3" id="other-unary-math-functions">
-<h3>Other Unary Math Functions</h3>
+<section class="level3" id="other-math-functions">
+<h3>Other Math Functions</h3>
+<p>There are some other function that may not be very common in traditional math. Functions such as <code>sigmoid</code> and <code>relu</code> are frequently used in Deep Learning as the activation functions in a neural network. The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.</p>
 <div id="tbl:maths:others">
 <table style="width:97%;">
-<caption>Table 5: Other unary math functions</caption>
+<caption>Table 5: Other math functions</caption>
 <colgroup>
 <col style="width: 19%">
 <col style="width: 77%">
@@ -893,39 +909,93 @@ let y = Maths.beta 4. 3. ;;
 </section>
 <section class="level2" id="factorials">
 <h2>Factorials</h2>
+<p>The definition of <em>factorials</em> is simple:</p>
+<p><span class="math inline">\(F(n) = n! = n \times (n - 1) \times (n-2) \ldots \times 1\)</span></p>
+<p>The factorial function, together with several variants, are contained in the math module.</p>
+<div id="tbl:maths:factorial">
+<table>
+<caption>Table 12: Factorial functions</caption>
+<colgroup>
+<col style="width: 23%">
+<col style="width: 76%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>fact n</code></td>
+<td style="text-align: left;">Factorial function <span class="math inline">\(!n\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>log_fact n</code></td>
+<td style="text-align: left;">Logarithm of factorial function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>doublefact n</code></td>
+<td style="text-align: left;">Double factorial function calculates <span class="math inline">\(n!! = n(n-2)(n-4)\dots 2\)</span> (or 1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>log_doublefact n</code></td>
+<td style="text-align: left;">Logarithm of double factorial function</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The factorial functions accepts integer as input, for example:</p>
 <div class="highlight">
-<pre><code class="language-clike">val fact : int -&gt; float
-(** Factorial function ``fact n`` calculates :math:`n!`. *)
-
-val log_fact : int -&gt; float
-(** Logarithm of factorial function ``log_fact n`` calculates :math:`\log n!`. *)
-
-val doublefact : int -&gt; float
-(** Double factorial function ``doublefact n`` calculates
-:math:`n!! = n(n-2)(n-4)\dots 2` or :math:`\dots 1` *)
-
-val log_doublefact : int -&gt; float
-(** Logarithm of double factorial function. *)
-
-val permutation : int -&gt; int -&gt; int
-(** ``permutation n k`` returns the number :math:`n!/(n-k)!` of ordered subsets
- * of length :math:`k`, taken from a set of :math:`n` elements. *)
-
-val permutation_float : int -&gt; int -&gt; float
-(**
-``permutation_float`` is like ``permutation`` but deals with larger range.
- *)
-
-val combination : int -&gt; int -&gt; int
-(** ``combination n k`` returns the number :math:`n!/(k!(n-k)!)` of subsets of k elements
-    of a set of n elements. This is the binomial coefficient
-    :math:`\binom{n}{k}` *)
-
-val combination_float : int -&gt; int -&gt; float
-(** ``combination_float`` is like ``combination`` but can deal with a larger range. *)
-
-val log_combination : int -&gt; int -&gt; float
-(** ``log_combination n k`` returns the logarithm of :math:`\binom{n}{k}`. *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.fact 5 ;;
+&gt;- : float = 120.
+</code></pre>
+</div>
+<p>The factorials are applied in many areas of mathematics, most notably the combinatorics. The permutation and combination are both defined in factorials. The permutation returns the number <span class="math inline">\(n!/(n-k)!\)</span> of ordered subsets of length <span class="math inline">\(k\)</span>, taken from a set of <span class="math inline">\(n\)</span> elements. THe combination returns the number <span class="math inline">\({n\choose k} = n!/(k!(n-k)!)\)</span> of subsets of <span class="math inline">\(k\)</span> elements of a set of <span class="math inline">\(n\)</span> elements. tbl.&nbsp;13 provides the combinatorics functions you can use in the math module.</p>
+<div id="tbl:maths:perm">
+<table>
+<caption>Table 13: Permutation and combination functions</caption>
+<colgroup>
+<col style="width: 28%">
+<col style="width: 71%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>permutation n k</code></td>
+<td style="text-align: left;">Permutation number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>permutation_float n k</code></td>
+<td style="text-align: left;">Similar to <code>permutation</code> but deals with larger range and returns float</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>combination n k</code></td>
+<td style="text-align: left;">Combination number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>combination_float n k</code></td>
+<td style="text-align: left;">Similar to <code>combination</code> but deals with larger range and returns float</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>log_combination n k</code></td>
+<td style="text-align: left;">Returns the logarithm of <span class="math inline">\({n\choose k}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>We can see a simple example.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.combination 10 2;;
+&gt;val x : int = 45
+let y = Maths.combination_float 10 2;;
+&gt;val y : float = 45.
+</code></pre>
 </div>
 </section>
 <section class="level2" id="interpolation-and-extrapolation">
@@ -933,29 +1003,32 @@ val log_combination : int -&gt; int -&gt; float
 </section>
 <section class="level2" id="utility-functions">
 <h2>Utility Functions</h2>
+<p>Besides what we have mentioned, there are also some utitlity functions that worth mentioning.</p>
+<p>A prime number is a natural number greater than <code>1</code> that cannot be formed by multiplying two smaller natural numbers. The <code>is_prime</code> checks if an integer is a prime number. This function is deterministic for all numbers representable by an int. It is implemented using the <a href="https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test">Miller-Rabin primality test</a> method.</p>
 <div class="highlight">
-<pre><code class="language-clike">val is_prime : int -&gt; bool
-(** returns true if x is a prime number. 
-The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
-*)
-
-val fermat_fact : int -&gt; int * int
-(**
-``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
-roughly equal factors. ``x`` must be an odd number.
- *)
-
-val nextafter : float -&gt; float -&gt; float
-(** ``nextafter from to`` returns the next representable double precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-
-val nextafterf : float -&gt; float -&gt; float
-(** ``nextafter from to`` returns the next representable single precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.is_prime 997;;
+&gt;- : bool = true
+</code></pre>
+</div>
+<p>Primes are used in several routines in information technology, such as public-key cryptography, which relies on the difficulty of factoring large numbers into their prime factors. In abstract algebra, objects that behave in a generalized way like prime numbers include prime elements and prime ideals.(<a href="https://en.wikipedia.org/wiki/Prime_number">COPY</a>)</p>
+<p>Another number theory related idea is the <em>Fermat’s factorization</em>, which represents an odd integer as the difference of two squares: <span class="math inline">\(N = a^2 - b^2\)</span>, and therefore <code>N</code> can be factorised as <span class="math inline">\((a+b)(a-b)\)</span>. The function <code>fermat_fact</code> performs Fermat factorisation over odd number <code>N</code>, i.e.&nbsp;into two roughly equal factors <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> so that <span class="math inline">\(N=x\times~y\)</span>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.fermat_fact 6557;;
+&gt;- : int * int = (83, 79)
+83 * 79;;
+&gt;- : int = 6557
+</code></pre>
+</div>
+<p>Next two functions concerns the precision of float numbers in computer.</p>
+<p>TODO: Explain the mechansim of float number in a computer.</p>
+<p><code>nextafter from to</code> returns the next representable double precision value of <code>from</code> in the direction of <code>to</code>. If <code>from</code> equals <code>to</code>, this value is returned. The other is <code>nextafterf</code>. <code>nextafter from to</code> returns the next representable single precision value of <code>from</code> in the direction of <code>to</code>. If <code>from</code> equals <code>to</code>, this value is returned. For example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.nextafterf 1. 2.;;;;
+&gt;- : float = 1.00000011920928955
+Maths.nextafter 1. 2.;;;;
+&gt;- : float = 1.00000000000000022
+Maths.nextafter 1. 0.;;;;
+&gt;- : float = 0.999999999999999889
 </code></pre>
 </div>
 </section>

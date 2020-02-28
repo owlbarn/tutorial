@@ -1,39 +1,21 @@
 # Mathematical Functions
 
-Though the central data structure in Owl is `ndarray`, we provide support for scalar math functions. 
-
-Complex Number
+TBD
 
 ## Basic Functions
 
-**GUIDE**: categorise unary functions (basic, triangular, log, etc. ), each with some introduction of history and application etc.; not just how this function is used. 
+Note that functions in this chapter works on scalar values. 
+The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.
 
-### Binary Functions
+### Basic Unary Math Functions
 
-Binary functions `f x y` has the signature in the form of `val f : float -> float -> float`
+Many basic math functions takes one float number as input and returns one float number. We call them *unary* functions.
+You can use these unary functions easily from the `Maths` module. For example:
 
-------------  -------------------------------------------------------
-Function      Explanation  
-------------  -------------------------------------------------------
-`add`         `x + y`
-
-`sub`         `x - y`
-
-`mul`         `x * y`
-
-`div`         `x / y`
-
-`fmod`        `x % y`
-
-`atan2`       returns $\arctan(y/x)$, accounting for the sign of the 
-              arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
-------------  -------------------------------------------------------
-: Binary math functions {#tbl:maths:binary}
-
-### Basic Unary Math Functions 
-
-Unary functions with signature `val f : float -> float`
-
+```ocaml
+# Maths.sqrt 2. 
+- : float = 1.41421356237309515
+```
 ------------  -------------------------------------------------------
 Function      Explanation  
 ------------  -------------------------------------------------------
@@ -54,17 +36,49 @@ Function      Explanation
 `sqr`         $x^2$
 
 `sqrt`        $\sqrt{x}$
+------------  -------------------------------------------------------
+: Basic unary math functions {#tbl:maths:basic_unary}
+
+### Basic Binary Functions
+
+Binary functions takes two floats as inputs and returns one float as return. 
+The most common arithmetic functions belong to this category.
+
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
+`add`         `x + y`
+
+`sub`         `x - y`
+
+`mul`         `x * y`
+
+`div`         `x / y`
+
+`fmod`        `x % y`
 
 `pow`         $x^y$
 
 `hypot`       $\sqrt{x^2 + y^2}$
-------------  -------------------------------------------------------
-: Basic unary math functions {#tbl:maths:basic_unary}
 
+`atan2`       returns $\arctan(y/x)$, accounting for the sign of the 
+              arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
+------------  -------------------------------------------------------
+: Binary math functions {#tbl:maths:binary}
 
 ### Exponential and Logarithmic Functions
 
-Introduction to exponential and logarithm functions 
+The constant $e = \sum_{n=0}^{\infty}\frac{1}{n!}$ is what we called the "natural constant". 
+It is called this way because the exponential function and it inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.
+
+We also have this beautiful Euler's formula that connects the two most frequently used constants and the base of complex number and natural numbers:
+
+$$e^{i\pi}+ 1=0.$$
+
+As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function $n(t) = Ce^rt$ where $C$ is the initial population and $r$ is the daily increase rate. 
+With this model, we can predict how the population of bacterial grows within certain time.
+
+The full list of exponential and logarithmic functions, together with some variants, are presented in [@tbl:maths:explog].
 
 ------------  -------------------------------------------------------
 Function      Explanation  
@@ -103,9 +117,18 @@ Function      Explanation
 ------------  -------------------------------------------------------
 : Exponential and logarithmic math functions {#tbl:maths:explog}
 
-### Triangular Functions
+### Trigonometric Functions
 
-Introduction of triangular functions
+In mathematics, the trigonometric functions are real functions which relate an angle of a right-angled triangle to ratios of two side lengths. They are widely used in all sciences that are related to geometry, such as navigation, solid mechanics, celestial mechanics, geodesy, and many others. They are among the simplest periodic functions, and as such are also widely used for studying periodic phenomena, through Fourier analysis. The most widely used trigonometric functions are the sine, the cosine, and the tangent. Their reciprocals are respectively the cosecant, the secant, and the cotangent, which are less used in modern mathematics. ([COPY](https://en.wikipedia.org/wiki/Trigonometric_functions))
+
+The triangular functions are all unary functions, for example:
+
+```ocaml
+# Maths.sin (Owl_const.pi /. 2.)
+- : float = 1.
+```
+
+And they are all included in the math module in Owl, as shown in [@tbl:maths:triangular].
 
 ------------  -------------------------------------------------------
 Function      Explanation  
@@ -174,7 +197,11 @@ Function      Explanation
 ------------  -------------------------------------------------------
 : Triangular math functions {#tbl:maths:triangular}
 
-### Other Unary Math Functions
+### Other Math Functions
+
+There are some other function that may not be very common in traditional math.
+Functions such as `sigmoid` and `relu` are frequently used in Deep Learning as the activation functions in a neural network.
+The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.
 
 ------------  -------------------------------------------------------
 Function      Explanation  
@@ -187,7 +214,7 @@ Function      Explanation
 
 `relu x`      $\max(0, x)$
 ------------  -------------------------------------------------------
-: Other unary math functions {#tbl:maths:others}
+: Other math functions {#tbl:maths:others}
 
 ## Special Functions
 
@@ -595,69 +622,107 @@ The Fresnel integrals were originally used in the calculation of the electromagn
 
 ## Factorials
 
-```
-val fact : int -> float
-(** Factorial function ``fact n`` calculates :math:`n!`. *)
+The definition of *factorials* is simple:
 
-val log_fact : int -> float
-(** Logarithm of factorial function ``log_fact n`` calculates :math:`\log n!`. *)
+$F(n) = n! = n \times (n - 1) \times (n-2) \ldots \times 1$
 
-val doublefact : int -> float
-(** Double factorial function ``doublefact n`` calculates
-:math:`n!! = n(n-2)(n-4)\dots 2` or :math:`\dots 1` *)
+The factorial function, together with several variants, are contained in the math module.
 
-val log_doublefact : int -> float
-(** Logarithm of double factorial function. *)
+----------------- -----------------------------------------------------------
+Function          Explanation  
+----------------- -----------------------------------------------------------
+`fact n`          Factorial function $!n$
 
-val permutation : int -> int -> int
-(** ``permutation n k`` returns the number :math:`n!/(n-k)!` of ordered subsets
- * of length :math:`k`, taken from a set of :math:`n` elements. *)
+`log_fact n`      Logarithm of factorial function
 
-val permutation_float : int -> int -> float
-(**
-``permutation_float`` is like ``permutation`` but deals with larger range.
- *)
+`doublefact n`    Double factorial function calculates $n!! = n(n-2)(n-4)\dots 2$ (or 1)
 
-val combination : int -> int -> int
-(** ``combination n k`` returns the number :math:`n!/(k!(n-k)!)` of subsets of k elements
-    of a set of n elements. This is the binomial coefficient
-    :math:`\binom{n}{k}` *)
+`log_doublefact n` Logarithm of double factorial function
+----------------- -----------------------------------------------------------
+: Factorial functions {#tbl:maths:factorial}
 
-val combination_float : int -> int -> float
-(** ``combination_float`` is like ``combination`` but can deal with a larger range. *)
+The factorial functions accepts integer as input, for example:
 
-val log_combination : int -> int -> float
-(** ``log_combination n k`` returns the logarithm of :math:`\binom{n}{k}`. *)
+```ocaml
+# Maths.fact 5 
+- : float = 120.
 ```
 
+The factorials are applied in many areas of mathematics, most notably the combinatorics.
+The permutation and combination are both defined in factorials. 
+The permutation returns the number $n!/(n-k)!$ of ordered subsets of length $k$, taken from a set of $n$ elements. 
+THe combination returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of $k$ elements of a set of $n$ elements.
+[@tbl:maths:perm] provides the combinatorics functions you can use in the math module.
+
+
+----------------------  -----------------------------------------------------------
+Function                Explanation  
+----------------------  -----------------------------------------------------------
+`permutation n k`       Permutation number 
+
+`permutation_float n k` Similar to `permutation` but deals with larger range and returns float
+
+`combination n k`       Combination number
+
+`combination_float n k` Similar to `combination` but deals with larger range and returns float
+
+`log_combination n k`   Returns the logarithm of ${n\choose k}$
+----------------------  -----------------------------------------------------------
+: Permutation and combination functions {#tbl:maths:perm}
+
+We can see a simple example.
+
+```ocaml
+# let x = Maths.combination 10 2
+val x : int = 45
+# let y = Maths.combination_float 10 2
+val y : float = 45.
+```
 
 ## Interpolation and Extrapolation
 
 
 ## Utility Functions
 
+Besides what we have mentioned, there are also some utitlity functions that worth mentioning. 
+
+A prime number is a natural number greater than `1` that cannot be formed by multiplying two smaller natural numbers. 
+The `is_prime` checks if an integer is a prime number.
+This function is deterministic for all numbers representable by an int. It is implemented using the [Miller-Rabin primality test](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test) method.
+
+```ocaml
+# Maths.is_prime 997
+- : bool = true
 ```
-val is_prime : int -> bool
-(** returns true if x is a prime number. 
-The function is deterministic for all numbers representable by an int. The function uses the Rabin-Miller primality test.
-*)
 
-val fermat_fact : int -> int * int
-(**
-``fermat_fact x`` performs Fermat factorisation over ``x``, i.e. into two
-roughly equal factors. ``x`` must be an odd number.
- *)
+Primes are used in several routines in information technology, such as public-key cryptography, which relies on the difficulty of factoring large numbers into their prime factors. In abstract algebra, objects that behave in a generalized way like prime numbers include prime elements and prime ideals.([COPY](https://en.wikipedia.org/wiki/Prime_number))
 
-val nextafter : float -> float -> float
-(** ``nextafter from to`` returns the next representable double precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
+Another number theory related idea is the *Fermat's factorization*, which represents an odd integer as the difference of two squares: $N = a^2 - b^2$, and therefore `N` can be factorised as $(a+b)(a-b)$.
+The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.e. into two roughly equal factors $x$ and $y$ so that $N=x\times~y$.
+
+```ocaml
+# Maths.fermat_fact 6557
+- : int * int = (83, 79)
+# 83 * 79
+- : int = 6557
+```
+
+Next two functions concerns the precision of float numbers in computer.
+
+TODO: Explain the mechansim of float number in a computer. 
+
+`nextafter from to` returns the next representable double precision value of ``from`` in the direction of `to`. If `from` equals `to`, this value is returned.
+The other is `nextafterf`.
+`nextafter from to` returns the next representable single precision value
+of `from` in the direction of `to`. If `from` equals `to`, this value
 is returned.
- *)
+For example:
 
-val nextafterf : float -> float -> float
-(** ``nextafter from to`` returns the next representable single precision value
-of ``from`` in the direction of ``to``. If ``from`` equals ``to``, this value
-is returned.
- *)
-
+```ocaml
+# Maths.nextafterf 1. 2.;;
+- : float = 1.00000011920928955
+# Maths.nextafter 1. 2.;;
+- : float = 1.00000000000000022
+# Maths.nextafter 1. 0.;;
+- : float = 0.999999999999999889
 ```
