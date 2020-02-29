@@ -157,7 +157,17 @@ Function      Explanation
 `asec`        Inverse function of `sec`
 
 `acsc`        Inverse function of `csc`
+------------  -------------------------------------------------------
+: Trigonometric math functions {#tbl:maths:triangular}
 
+
+![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=80% #fig:algodiff:trio}
+
+([Figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0))
+
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
 `sinh`        $\sinh(x)$
 
 `cosh`        $\cosh(x)$
@@ -181,7 +191,15 @@ Function      Explanation
 `asech`       Inverse function of `sech`
 
 `acsch`       Inverse function of `csch`
+------------  -------------------------------------------------------
+: Hyperbolic Trigonometric math functions {#tbl:maths:triangular_hyper}
 
+
+![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=80% #fig:algodiff:hyper_trio}
+
+------------  -------------------------------------------------------
+Function      Explanation  
+------------  -------------------------------------------------------
 `sinc`        returns $\sin(x)/x$ and 1 for $x=0$
 
 `logsinh`     returns $\log(\sinh(x))$ but handles large $|x|$
@@ -196,7 +214,7 @@ Function      Explanation
 
 `cotdg`       Cotangent of the angle given in degrees
 ------------  -------------------------------------------------------
-: Triangular math functions {#tbl:maths:triangular}
+: Other Trigonometric math functions {#tbl:maths:triangular_other}
 
 ### Other Math Functions
 
@@ -216,6 +234,7 @@ Function      Explanation
 `relu x`      $\max(0, x)$
 ------------  -------------------------------------------------------
 : Other math functions {#tbl:maths:others}
+
 
 ## Special Functions
 
@@ -680,13 +699,12 @@ val x : int = 45
 val y : float = 45.
 ```
 
-## Interpolation 
+## Interpolation and Extrapolation
 
-Definition of Interpolation.
 Sometimes we don't know the full description of a function $f$, but only some points on it, and therefore we cannot calculate its value at an aribitrary point.
-The target is to esimate the $f(x)$ for an arbitrary $x$ by drawing a smooth curve through the given data. If $x$ is within the range of the given data, this taks is called *interpolation* (otherwise it's called extrapolation, which is much more difficult to do).
+The target is to esimate the $f(x)$ for an arbitrary $x$ by drawing a smooth curve through the given data. If $x$ is within the range of the given data, this taks is called *interpolation*, otherwise it's called *extrapolation*, which is much more difficult to do.
 
-The `Owl_maths_interpolate` module provides an `polint` function for interpolation:
+The `Owl_maths_interpolate` module provides an `polint` function for interpolation and extrapolation:
 
 ```
 val polint : float array -> float array -> float -> float * float
@@ -696,8 +714,6 @@ val polint : float array -> float array -> float -> float * float
 The function returns a value `y`, and an error estimate `dy`.
 The paramter `xs` is an array of input `x` values of `P(x)`, and `ys` is an array of corresponding `y` values of `P(x)`.
 It returns `(y', dy)` wherein `y'` is the returned value `y' = P(x)`, and `dy` is the estimated error.
-
-
 
 As its name suggests, the `polint` approximate complicated curves with polynomial of lowest possible degree that passes the given points.
 We can show how this interplation method works for an example. 
@@ -713,8 +729,6 @@ val y : float array = [|1.; 2.; 6.; 24.; 120.|]
 val x : float array = [|2.; 3.; 4.; 5.; 6.|]
 ```
 
-
-
 Now we can define the interpolation function `f` that accept on float number and returns another float number.
 Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
 
@@ -729,12 +743,13 @@ let ym = Mat.of_array y 1 5
 
 Now we can plot the interpolation function. We compare it to the Gamma function. 
 As can be seen in [@fig:maths:interp], both lines cross the given nodes. We can see that the interpolated line fits well with the "true interpolation", i.e. the Gamma function. 
+However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.
 
 ```ocaml env=maths:interp
 let _ =
   let h = Plot.create "interp.png" in
-  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.);
-  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.);
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.5);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.5);
   Plot.(scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] xm ym);
   Plot.(legend_on h ~position:NorthWest [|"Interpolation"; "Gamma function"; "Given values"|]);
   Plot.output h
@@ -742,7 +757,69 @@ let _ =
 
 ![Plot of interpolation and corresponding Gamma function.](images/maths/interp.png "interp"){width=75% #fig:maths:interp}
 
+## Integration
 
+Given a function $f$ that accepts a real variable and an interval $[a, b]$ of the real line, the integral of this function
+
+$$\int_a^bf(x)dx$$
+
+can be thought of as the sum of signed area of the region in the cartesian plane that is bounded by the curve of f, the x-axis within the x-axis range $[a, b]$. The area above the x-axis adds to the sum and that below the x-axis subtracts from the area sum.
+
+Owl provides several neumerical routines to help you to do integrations in `Owl_maths_quandrature` module. For example, we can compute  $\int_1^4x^2$ with the code below:
+
+```ocaml
+# Owl_maths_quadrature.trapz (fun x -> x ** 2.) 1. 4.
+- : float = 21.0001344681758439
+```
+
+We can verify this result using the fundamental theorem of calculus:
+
+$$\int_1^4x^2 = (4^3 -1^3) / 3 = 21$$.
+
+So you might be thinking, what is this `trapz`? Why the result is not exactly `21`?
+
+Using numerical methods (or *quadrature*) to do integration dates back to the invention of calculus or even earlier. 
+The basic idea is to use summation of small areas to approximate that of an integration, as shown in [@fig:maths:integration_basic] ([src](https://www.sciencedirect.com/topics/computer-science/numerical-integration)).
+
+![Basic method of numerical integration](images/maths/integration_basic.png "integration"){width=80% #fig:maths:integration_basic}
+
+There exists a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them. 
+This classical method divide a to b into $N$ equally spaced abscissas: $x_0, x_1, \ldots, x_N$. Each area between $x_i$ and $x_j$ is seen as an Trapezoid and the area formula is computed as:
+
+$$\int_{x_0}^{x_1}f(x)dx = h(\frac{f(x_0)}{2} + \frac{f(x_1)}{2}) + O(h^3f'').$$
+
+Here the error term $O(h^3f'')$ indicated that the error of approximation is related with that of abscissas size $h$ and second order derivative of the original function.
+
+Function `trapz` implements this method. It's interface is:
+
+```
+val trapz : ?n:int -> ?eps:float -> (float -> float) -> float -> float -> float
+```
+
+`trapz ~n ~eps f a b` computes the integral of `f` on the interval `[a,b]` using the trapezoidal rule.
+It works by iterating for several stages, each stage improving the accuracy by adding more interior points. 
+The argument $n$ specifies the maximum step which defaults to 20, and `eps` is the desired fractional accuracy threshold, which defaults to `1e-6`.
+
+The other methods are similar to `trapz` in interface, only different in implementation.
+For example, the `simpson` uses the Simpson formula:
+
+$$\int_{x_0}^{x_2}f(x)dx = h(\frac{f(x_0)}{3} + \frac{4f(x_1)}{3} + \frac{f(x_2)}{3}) + O(h^5f(4)).$$
+
+Then there is the *Romberg integration* (`romberg`) that can choose methods of different orders to give good accuracy, and the algorithms is normally much faster than the `trapz` and `simpson` methods.
+Moreover, if the abscissas can be varied, then there is the adaptive Gaussian quadrature of fixed tolerance `gaussian` and Gaussian quadrature of fixed order `gaussian`.
+
+As an example, we can compute the special integral function $Si(x)=\int_0^x\frac{sin(t)}{t}dt$ from previous section using the numerical integration method. Let's set $x=4$.
+
+```ocaml
+# let f t = Maths.(div (sin t) t)
+val f : float -> float = <fun>
+# Owl_maths_quadrature.gaussian f 0. 4.
+- : float = 1.75820313914469306
+# Owl_maths.si 4.
+- : float = 1.75820313894905289
+```
+
+We can see the numerical method `gaussian` works well to approximate this special integral function.
 
 ## Utility Functions
 

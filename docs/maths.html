@@ -220,7 +220,7 @@
 <p>And they are all included in the math module in Owl, as shown in tbl.&nbsp;4.</p>
 <div id="tbl:maths:triangular">
 <table style="width:97%;">
-<caption>Table 4: Triangular math functions</caption>
+<caption>Table 4: Trigonometric math functions</caption>
 <colgroup>
 <col style="width: 19%">
 <col style="width: 77%">
@@ -280,6 +280,27 @@
 <td style="text-align: left;"><code>acsc</code></td>
 <td style="text-align: left;">Inverse function of <code>csc</code></td>
 </tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img alt="" style="width:80.0%" id="fig:algodiff:trio" title="trio" src="images/maths/trio.png"><figcaption>Figure 1: Relationship between different trigonometric functions</figcaption>
+</figure>
+<p>(<a href="https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0">Figure src</a>)</p>
+<div id="tbl:maths:triangular_hyper">
+<table style="width:97%;">
+<caption>Table 5: Hyperbolic Trigonometric math functions</caption>
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>sinh</code></td>
 <td style="text-align: left;"><span class="math inline">\(\sinh(x)\)</span></td>
@@ -328,6 +349,26 @@
 <td style="text-align: left;"><code>acsch</code></td>
 <td style="text-align: left;">Inverse function of <code>csch</code></td>
 </tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img alt="" style="width:80.0%" id="fig:algodiff:hyper_trio" title="hyper_trio" src="images/maths/hyper_trio.png"><figcaption>Figure 2: Relationship between different hyperbolic trigonometric functions</figcaption>
+</figure>
+<div id="tbl:maths:triangular_other">
+<table style="width:97%;">
+<caption>Table 6: Other Trigonometric math functions</caption>
+<colgroup>
+<col style="width: 19%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>sinc</code></td>
 <td style="text-align: left;">returns <span class="math inline">\(\sin(x)/x\)</span> and 1 for <span class="math inline">\(x=0\)</span></td>
@@ -365,7 +406,7 @@
 <p>There are some other function that may not be very common in traditional math. Functions such as <code>sigmoid</code> and <code>relu</code> are frequently used in Deep Learning as the activation functions in a neural network. The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.</p>
 <div id="tbl:maths:others">
 <table style="width:97%;">
-<caption>Table 5: Other math functions</caption>
+<caption>Table 7: Other math functions</caption>
 <colgroup>
 <col style="width: 19%">
 <col style="width: 77%">
@@ -430,7 +471,7 @@ let _ =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:airy" title="airy" src="images/maths/example_airy.png"><figcaption>Figure 1: Examples of the two solutions of an Airy equation</figcaption>
+<img alt="" style="width:75.0%" id="fig:algodiff:airy" title="airy" src="images/maths/example_airy.png"><figcaption>Figure 3: Examples of the two solutions of an Airy equation</figcaption>
 </figure>
 <p>APPLICATION description</p>
 </section>
@@ -444,7 +485,7 @@ let _ =
 <p>Based on these category, Owl provides these functions.</p>
 <div id="tbl:maths:bessel">
 <table>
-<caption>Table 6: Bessel functions</caption>
+<caption>Table 8: Bessel functions</caption>
 <colgroup>
 <col style="width: 11%">
 <col style="width: 32%">
@@ -560,7 +601,7 @@ let _ =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:bessel" title="bessel" src="images/maths/example_bessel.png"><figcaption>Figure 2: Examples of Bessel function of the first kind, with different order</figcaption>
+<img alt="" style="width:75.0%" id="fig:algodiff:bessel" title="bessel" src="images/maths/example_bessel.png"><figcaption>Figure 4: Examples of Bessel function of the first kind, with different order</figcaption>
 </figure>
 <p>(More examples can be added if we want to expand)</p>
 <p>Bessel’s equation arises when finding separable solutions to Laplace’s equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc. (COPY ALERT)</p>
@@ -569,7 +610,7 @@ let _ =
 <h3>Elliptic Functions</h3>
 <div id="tbl:maths:elliptic">
 <table>
-<caption>Table 7: Elliptic functions</caption>
+<caption>Table 9: Elliptic functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -628,10 +669,10 @@ let c = 4. *. a *. Maths.(ellipe (1. -. pow (b /. a) 2.));;
 <p><span class="math display">\[\Gamma(n) = (n-1)!\]</span></p>
 <p>For a complex numbers <span class="math inline">\(z\)</span> with a positive real part,</p>
 <p><span class="math display">\[\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.\]</span></p>
-<p>The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. The Gamma function and related function provided in Owl are list in tbl.&nbsp;8.</p>
+<p>The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. The Gamma function and related function provided in Owl are list in tbl.&nbsp;10.</p>
 <div id="tbl:maths:gamma">
 <table>
-<caption>Table 8: Gamma functions</caption>
+<caption>Table 10: Gamma functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -692,7 +733,7 @@ let _ =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:gamma" title="gamma" src="images/maths/example_gamma.png"><figcaption>Figure 3: Examples of Gamma function along part of the real axis</figcaption>
+<img alt="" style="width:75.0%" id="fig:algodiff:gamma" title="gamma" src="images/maths/example_gamma.png"><figcaption>Figure 5: Examples of Gamma function along part of the real axis</figcaption>
 </figure>
 <p>(TODO: this figure should not have the vertical lines)</p>
 </section>
@@ -705,7 +746,7 @@ let _ =
 <p>They are both included in the special functions provided by Owl.</p>
 <div id="tbl:maths:beta">
 <table>
-<caption>Table 9: Beta functions</caption>
+<caption>Table 11: Beta functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -767,7 +808,7 @@ let y = Maths.beta 4. 3. ;;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:struve" title="struve" src="images/maths/example_struve.png"><figcaption>Figure 4: Examples of Struve function for different orders.</figcaption>
+<img alt="" style="width:75.0%" id="fig:algodiff:struve" title="struve" src="images/maths/example_struve.png"><figcaption>Figure 6: Examples of Struve function for different orders.</figcaption>
 </figure>
 <p>Struve functions have some specific uses across many different fields of physics in a wide variety of applications. For example, they can be found in water-wave and surface-wave problems (specifically flow of liquid near a turning ship) as well as calculations to do with the distribution of fluid pressure over a vibrating disk and other unsteady aerodynamics. They also crop up when considering aspects of optical diffraction, plasma stability (specifically resistive magnetohydrodynamics instability theory), quantum dynamical studies of spin decoherence and excitation in carbon nanotubes. (<a href="https://www.nag.co.uk/content/struve-functions">COPY</a>)</p>
 </section>
@@ -790,7 +831,7 @@ let y = Maths.beta 4. 3. ;;
 <p>The error functions are not about error processing in programming. In mathematics, it is defined as: <span class="math display">\[\frac{2}{\sqrt{\pi}}\int_0^x e^{-t^2})dt.\]</span></p>
 <div id="tbl:maths:error">
 <table>
-<caption>Table 10: Error functions</caption>
+<caption>Table 12: Error functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -833,7 +874,7 @@ let y = Maths.beta 4. 3. ;;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:erf" title="struve" src="images/maths/example_erf.png"><figcaption>Figure 5: Plot of the Error function.</figcaption>
+<img alt="" style="width:75.0%" id="fig:algodiff:erf" title="struve" src="images/maths/example_erf.png"><figcaption>Figure 7: Plot of the Error function.</figcaption>
 </figure>
 <p>The error function occurs often in probability, statistics, and partial differential equations describing diffusion. In statistics, for nonnegative values of x, the error function has the following interpretation: for a random variable <code>Y</code> that is normally distributed with mean 0 and variance 0.5, then <code>erf x</code> is the probability that <code>Y</code> falls in the range <code>[-x, x]</code>. (COPY)</p>
 </section>
@@ -856,12 +897,12 @@ let y = Maths.beta 4. 3. ;;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:integrals" title="integrals" src="images/maths/example_integrals.png"><figcaption>Figure 6: Plot of the Dawson and Fresnel integral function.</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:integrals" title="integrals" src="images/maths/example_integrals.png"><figcaption>Figure 8: Plot of the Dawson and Fresnel integral function.</figcaption>
 </figure>
-<p>Besides these two, other type of special integral functions are also provided, as shown in tbl.&nbsp;11.</p>
+<p>Besides these two, other type of special integral functions are also provided, as shown in tbl.&nbsp;13.</p>
 <div id="tbl:maths:integral">
 <table>
-<caption>Table 11: Integral functions</caption>
+<caption>Table 13: Integral functions</caption>
 <colgroup>
 <col style="width: 23%">
 <col style="width: 76%">
@@ -914,7 +955,7 @@ let y = Maths.beta 4. 3. ;;
 <p>The factorial function, together with several variants, are contained in the math module.</p>
 <div id="tbl:maths:factorial">
 <table>
-<caption>Table 12: Factorial functions</caption>
+<caption>Table 14: Factorial functions</caption>
 <colgroup>
 <col style="width: 23%">
 <col style="width: 76%">
@@ -951,10 +992,10 @@ let y = Maths.beta 4. 3. ;;
 &gt;- : float = 120.
 </code></pre>
 </div>
-<p>The factorials are applied in many areas of mathematics, most notably the combinatorics. The permutation and combination are both defined in factorials. The permutation returns the number <span class="math inline">\(n!/(n-k)!\)</span> of ordered subsets of length <span class="math inline">\(k\)</span>, taken from a set of <span class="math inline">\(n\)</span> elements. THe combination returns the number <span class="math inline">\({n\choose k} = n!/(k!(n-k)!)\)</span> of subsets of <span class="math inline">\(k\)</span> elements of a set of <span class="math inline">\(n\)</span> elements. tbl.&nbsp;13 provides the combinatorics functions you can use in the math module.</p>
+<p>The factorials are applied in many areas of mathematics, most notably the combinatorics. The permutation and combination are both defined in factorials. The permutation returns the number <span class="math inline">\(n!/(n-k)!\)</span> of ordered subsets of length <span class="math inline">\(k\)</span>, taken from a set of <span class="math inline">\(n\)</span> elements. THe combination returns the number <span class="math inline">\({n\choose k} = n!/(k!(n-k)!)\)</span> of subsets of <span class="math inline">\(k\)</span> elements of a set of <span class="math inline">\(n\)</span> elements. tbl.&nbsp;15 provides the combinatorics functions you can use in the math module.</p>
 <div id="tbl:maths:perm">
 <table>
-<caption>Table 13: Permutation and combination functions</caption>
+<caption>Table 15: Permutation and combination functions</caption>
 <colgroup>
 <col style="width: 28%">
 <col style="width: 71%">
@@ -998,10 +1039,10 @@ let y = Maths.combination_float 10 2;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="interpolation">
-<h2>Interpolation</h2>
-<p>Definition of Interpolation. Sometimes we don’t know the full description of a function <span class="math inline">\(f\)</span>, but only some points on it, and therefore we cannot calculate its value at an aribitrary point. The target is to esimate the <span class="math inline">\(f(x)\)</span> for an arbitrary <span class="math inline">\(x\)</span> by drawing a smooth curve through the given data. If <span class="math inline">\(x\)</span> is within the range of the given data, this taks is called <em>interpolation</em> (otherwise it’s called extrapolation, which is much more difficult to do).</p>
-<p>The <code>Owl_maths_interpolate</code> module provides an <code>polint</code> function for interpolation:</p>
+<section class="level2" id="interpolation-and-extrapolation">
+<h2>Interpolation and Extrapolation</h2>
+<p>Sometimes we don’t know the full description of a function <span class="math inline">\(f\)</span>, but only some points on it, and therefore we cannot calculate its value at an aribitrary point. The target is to esimate the <span class="math inline">\(f(x)\)</span> for an arbitrary <span class="math inline">\(x\)</span> by drawing a smooth curve through the given data. If <span class="math inline">\(x\)</span> is within the range of the given data, this taks is called <em>interpolation</em>, otherwise it’s called <em>extrapolation</em>, which is much more difficult to do.</p>
+<p>The <code>Owl_maths_interpolate</code> module provides an <code>polint</code> function for interpolation and extrapolation:</p>
 <div class="highlight">
 <pre><code class="language-clike">val polint : float array -&gt; float array -&gt; float -&gt; float * float</code></pre>
 </div>
@@ -1025,19 +1066,60 @@ let x = Array.map float_of_int x;;
 let xm = Mat.of_array x 1 5
 let ym = Mat.of_array y 1 5</code></pre>
 </div>
-<p>Now we can plot the interpolation function. We compare it to the Gamma function. As can be seen in fig.&nbsp;7, both lines cross the given nodes. We can see that the interpolated line fits well with the “true interpolation”, i.e.&nbsp;the Gamma function.</p>
+<p>Now we can plot the interpolation function. We compare it to the Gamma function. As can be seen in fig.&nbsp;9, both lines cross the given nodes. We can see that the interpolated line fits well with the “true interpolation”, i.e.&nbsp;the Gamma function. However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let _ =
   let h = Plot.create "interp.png" in
-  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.);
-  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.);
+  Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.5);
+  Plot.(plot_fun ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2.] Maths.gamma 2. 6.5);
   Plot.(scatter ~h ~spec:[ Marker "#[0x229a]"; MarkerSize 5. ] xm ym);
   Plot.(legend_on h ~position:NorthWest [|"Interpolation"; "Gamma function"; "Given values"|]);
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:maths:interp" title="interp" src="images/maths/interp.png"><figcaption>Figure 7: Plot of interpolation and corresponding Gamma function.</figcaption>
+<img alt="" style="width:75.0%" id="fig:maths:interp" title="interp" src="images/maths/interp.png"><figcaption>Figure 9: Plot of interpolation and corresponding Gamma function.</figcaption>
 </figure>
+</section>
+<section class="level2" id="integration">
+<h2>Integration</h2>
+<p>Given a function <span class="math inline">\(f\)</span> that accepts a real variable and an interval <span class="math inline">\([a, b]\)</span> of the real line, the integral of this function</p>
+<p><span class="math display">\[\int_a^bf(x)dx\]</span></p>
+<p>can be thought of as the sum of signed area of the region in the cartesian plane that is bounded by the curve of f, the x-axis within the x-axis range <span class="math inline">\([a, b]\)</span>. The area above the x-axis adds to the sum and that below the x-axis subtracts from the area sum.</p>
+<p>Owl provides several neumerical routines to help you to do integrations in <code>Owl_maths_quandrature</code> module. For example, we can compute <span class="math inline">\(\int_1^4x^2\)</span> with the code below:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_maths_quadrature.trapz (fun x -&gt; x ** 2.) 1. 4.;;
+&gt;- : float = 21.0001344681758439
+</code></pre>
+</div>
+<p>We can verify this result using the fundamental theorem of calculus:</p>
+<p><span class="math display">\[\int_1^4x^2 = (4^3 -1^3) / 3 = 21\]</span>.</p>
+<p>So you might be thinking, what is this <code>trapz</code>? Why the result is not exactly <code>21</code>?</p>
+<p>Using numerical methods (or <em>quadrature</em>) to do integration dates back to the invention of calculus or even earlier. The basic idea is to use summation of small areas to approximate that of an integration, as shown in fig.&nbsp;10 (<a href="https://www.sciencedirect.com/topics/computer-science/numerical-integration">src</a>).</p>
+<figure>
+<img alt="" style="width:80.0%" id="fig:maths:integration_basic" title="integration" src="images/maths/integration_basic.png"><figcaption>Figure 10: Basic method of numerical integration</figcaption>
+</figure>
+<p>There exists a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them. This classical method divide a to b into <span class="math inline">\(N\)</span> equally spaced abscissas: <span class="math inline">\(x_0, x_1, \ldots, x_N\)</span>. Each area between <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span> is seen as an Trapezoid and the area formula is computed as:</p>
+<p><span class="math display">\[\int_{x_0}^{x_1}f(x)dx = h(\frac{f(x_0)}{2} + \frac{f(x_1)}{2}) + O(h^3f'').\]</span></p>
+<p>Here the error term <span class="math inline">\(O(h^3f'')\)</span> indicated that the error of approximation is related with that of abscissas size <span class="math inline">\(h\)</span> and second order derivative of the original function.</p>
+<p>Function <code>trapz</code> implements this method. It’s interface is:</p>
+<div class="highlight">
+<pre><code class="language-clike">val trapz : ?n:int -&gt; ?eps:float -&gt; (float -&gt; float) -&gt; float -&gt; float -&gt; float</code></pre>
+</div>
+<p><code>trapz ~n ~eps f a b</code> computes the integral of <code>f</code> on the interval <code>[a,b]</code> using the trapezoidal rule. It works by iterating for several stages, each stage improving the accuracy by adding more interior points. The argument <span class="math inline">\(n\)</span> specifies the maximum step which defaults to 20, and <code>eps</code> is the desired fractional accuracy threshold, which defaults to <code>1e-6</code>.</p>
+<p>The other methods are similar to <code>trapz</code> in interface, only different in implementation. For example, the <code>simpson</code> uses the Simpson formula:</p>
+<p><span class="math display">\[\int_{x_0}^{x_2}f(x)dx = h(\frac{f(x_0)}{3} + \frac{4f(x_1)}{3} + \frac{f(x_2)}{3}) + O(h^5f(4)).\]</span></p>
+<p>Then there is the <em>Romberg integration</em> (<code>romberg</code>) that can choose methods of different orders to give good accuracy, and the algorithms is normally much faster than the <code>trapz</code> and <code>simpson</code> methods. Moreover, if the abscissas can be varied, then there is the adaptive Gaussian quadrature of fixed tolerance <code>gaussian</code> and Gaussian quadrature of fixed order <code>gaussian</code>.</p>
+<p>As an example, we can compute the special integral function <span class="math inline">\(Si(x)=\int_0^x\frac{sin(t)}{t}dt\)</span> from previous section using the numerical integration method. Let’s set <span class="math inline">\(x=4\)</span>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f t = Maths.(div (sin t) t);;
+&gt;val f : float -&gt; float = &lt;fun&gt;
+Owl_maths_quadrature.gaussian f 0. 4.;;
+&gt;- : float = 1.75820313914469306
+Owl_maths.si 4.;;
+&gt;- : float = 1.75820313894905289
+</code></pre>
+</div>
+<p>We can see the numerical method <code>gaussian</code> works well to approximate this special integral function.</p>
 </section>
 <section class="level2" id="utility-functions">
 <h2>Utility Functions</h2>
