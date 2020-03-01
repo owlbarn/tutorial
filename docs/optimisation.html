@@ -3,31 +3,32 @@
 <p>(The basic idea of this chapter: give a general introduction of this topic regardless of Owl; when Owl has corresponding function, we provide a simple example.)</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<p>Mathematical optimisation deals with the problem of finding numerically minimums, maximums (or zeros) of a function. An optimisation problem has the form:</p>
+<p>Mathematical optimisation deals with the problem of finding minimums or maximums of a function. The solution can be numerical if closed-form expression does not exist. An optimisation problem has the form:</p>
 <p><span class="math display">\[\textrm{minimise} f_0(\mathbf{x}),\]</span> <span id="eq:optimisation:def"><span class="math display">\[\textrm{subject to} f_i(\mathbf{x}) \leq b_i, i = 1, 2, \ldots, m. \qquad(1)\]</span></span></p>
 <p>Here <span class="math inline">\(\mathbf{x}\)</span> is a vector that contains all the <em>optimisation variable</em>: <span class="math inline">\(\mathbf{x} = [x_0, x_1, ... x_n]\)</span>. Function <span class="math inline">\(f_0 : \mathbf{R}^n \rightarrow \mathbf{R}\)</span> is the optimisation target, and is called an <em>objective function</em>, or <em>cost function</em>. A optimisation problem could be bounded by zero or more <em>constraints</em>. <span class="math inline">\(f_i : \mathbf{R}^n \rightarrow \mathbf{R}\)</span> in a constraint is called a <em>constraint function</em>, which are bounded by the <span class="math inline">\(b_i\)</span>’s. The target is to find the optimal variable values <span class="math inline">\(\mathbf{x}^{*}\)</span> so that <span class="math inline">\(f_0\)</span> can take on a maximum or minimum value.</p>
-<p>A optimisation problem formalises the idea “maximum benefit/minimise cost with given constraint”, which is a widely applicable topic in many real world problems: scheduling computation/network resources, optimisation of investment portfolio, fitting math model based on observed data, logistics, aero engineering, competitive games… Optimisation has already been applied in many areas.</p>
+<p>A optimisation problem formalises the idea “maximum benefit/minimise cost with given constraint”, which is a widely applicable topic in many real world problems: scheduling computation/network resources, optimisation of investment portfolio, fitting math model based on observed data, logistics, aero engineering, competitive games … Optimisation has already been applied in many areas.</p>
 <p>In eq.&nbsp;1, if for all the objective function and constraint function, we have:</p>
 <p><span id="eq:optimisation:linear"><span class="math display">\[ f_i(\alpha~x+\beta~y) = \alpha~f_i(x) + \beta~f_i(y),\qquad(2)\]</span></span></p>
-<p>the optimisation problem is then called <em>linear optimisation</em>. It is an important class of optimisation problems. If we change the “<span class="math inline">\(=\)</span>” to “<span class="math inline">\(\leq\)</span>” in eq.&nbsp;2 make all the functions to be <em>convex</em>, and the problem then becomes <em>convex optimisation</em>, which can be seen as a generalised linear optimisation.</p>
+<p>the optimisation problem is then called <em>linear optimisation</em>. It is an important class of optimisation problems. If we change the “<span class="math inline">\(=\)</span>” to “<span class="math inline">\(\leq\)</span>” in eq.&nbsp;2 make all the functions to be <em>convex</em>, and the problem then becomes <em>convex optimisation</em>, which can be seen as a generalised linear optimisation. In opimisation world, convexity is considerd as the wathershed between easy and difficult problems, because for most convex problems, there are efficient algorithmic solutions.</p>
 <p>Linear optimisation is important because non-negativity is a usual constraint on real world quantities, and that people are often interested in additive bounds. Besides, many problems can be approximated by a linear model. Though still limited by actual problem size, the solution of most linear optimisation problems are already known and provided by off-the-shelf software tools. The text book <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> focus exclusively on the topic of convex optimisation.</p>
-<p>Compare to linear optimisation, finding solutions to <em>non-linear optimisation</em> problems are still very challenging. Finding a <em>global</em> solution that maximise or minimise the non-linear objective function can be quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary. For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough. Otherwise, a <em>local</em> maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough. Though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.</p>
+<p>Compare to linear optimisation, sovling <em>non-linear optimisation</em> problems can still be very challenging. Finding a <em>global</em> solution that maximises or minimises the non-linear objective function is often quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary. For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough. Otherwise, a <em>local</em> maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough. Even though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.</p>
 <p>Looking back at eq.&nbsp;1, if we remove the constraints, then it becomes an <em>unconstrained optimisation</em> problem. If <span class="math inline">\(f\)</span> is convex and differentiable, this problem can be seen as finding the root of the derivative of <span class="math inline">\(f\)</span> so that <span class="math inline">\(f'(x^*) = 0\)</span>. As for the constrained version, we have introduced the linear programming where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc. One subset of constrained optimisation, the <em>equality constrained optimisation</em> where all the constraints are expressed in the form of equality <span class="math inline">\(Ax=b\)</span>. This set of problem can be simplified into the corresponding unconstrained problems.</p>
 <p>You can see that the topic of optimisation covers a wide range of topics and we can only give a very brief introduction here. In this chapter, we mostly cover the unconstrained and local optimisation. We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as <span data-cites="boyd2004convex" class="citation">(Boyd and Vandenberghe 2004)</span> and <span data-cites="fletcher2013practical" class="citation">(Fletcher 2013)</span> for more information.</p>
 <p>(NOTE: if we decide to add linear programming later, we can extend the constrained)</p>
 <p>(NOTE: We need a lot of illustrations to show the gradient process)</p>
 </section>
-<section class="level2" id="numerical-differentiation-vs.-algorithm-differentiation">
-<h2>Numerical Differentiation VS. Algorithm Differentiation</h2>
-<p>The derivative/gradient will be used extensively in solving optimisation problems. Therefore, it would do no harm to start this chapter with understanding the difference of the two ways to compute derivatives: <em>algorithm differentiation</em> and <em>numerical differentiation</em>.</p>
-<p>We have talked about algorithm differentiation* in detail in the previous chapter. What is this numerical differentiation then? It’s actually simple according to the definition of derivative itself:</p>
+<section class="level2" id="numerical-differentiation-vs.-algorithmic-differentiation">
+<h2>Numerical Differentiation VS. Algorithmic Differentiation</h2>
+<p>The derivative/gradient is used extensively in solving optimisation problems. Therefore, let’s start this chapter with understanding the difference of the two ways to compute derivatives: <em>algorithmic differentiation</em> and <em>numerical differentiation</em>.</p>
+<p>We have talked about algorithmic differentiation* in detail in the previous chapter. What is this numerical differentiation then? It’s actually simple according to the definition of derivative itself:</p>
 <p><span id="eq:optimisation:numdiff"><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.\qquad(3)\]</span></span></p>
 <p>This method is pretty easy to follow: evaluate the given <span class="math inline">\(f\)</span> at point <span class="math inline">\(x\)</span>, and then choose a suitable small amount <span class="math inline">\(\delta\)</span>, add it to the original <span class="math inline">\(x\)</span> and then re-evaluate the function. Then the derivative can be calculated using eq.&nbsp;3. We can implement this method easily using OCaml:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _eps</code></pre>
+let diff f x = (f (x +. _eps) -. f (x -. _eps)) /. _eps</code></pre>
 </div>
+<p><strong>liang: x can in the middle, left, and right. Show that it is optimal to be in the middle. Also, diff is not consistent with eq.27</strong> <span id="eq:optimisation:numdiff2"><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x-\delta)}{2\delta}.\qquad(4)\]</span></span></p>
 <p>We can apply it to a simple case:</p>
 <div class="highlight">
 <pre><code class="language-clike">CODE</code></pre>
@@ -51,22 +52,22 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 (** transposed jacobian of ``f : vector -&gt; vector``. *)</code></pre>
 </div>
 <p>Looks nice, much easier than Algodiff’s approach, right?</p>
-<p>No.&nbsp;</p>
+<p>No.&nbsp;Sadly, this naive numerical solution can lead to large errors in reality.</p>
 <p>There are two source of errors: truncating error (explain) and roundoff error (explain). You must be very careful and apply some numerical techniques. While Algodiff guarantees a true derivative value without loss of accuracy. you can see the difference in this example:</p>
 <div class="highlight">
 <pre><code class="language-clike">CODE (how to show the difference)?</code></pre>
 </div>
-<p>For the rest of this chapter, we prefer to use the algorithm differentiation to compute gradient/derivatives when required, but of course you can also use the numerical differentiation.</p>
+<p>For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.</p>
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
-<p>We have seen some examples of root finding in the Math chapter. <em>Root finding</em> is the process by which to find zeroes or <em>roots</em> of continuous functions. It is not an optimisation problem, but these two topics are closely related. I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g.&nbsp;how to the root by bracketing and how to find target in an iterative manner.</p>
+<p>We have seen some examples of root finding in the Math chapter. <em>Root finding</em> is the process which tries to find zeroes or <em>roots</em> of continuous functions. It is not an optimisation problem, but these two topics are closely related. I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g.&nbsp;how to the root by bracketing and how to find target in an iterative manner.</p>
 <section class="level3" id="bisect-newton-secant-and-iqi">
 <h3>Bisect, Newton, Secant, and IQI</h3>
 <p>First, the Bisection method. Use <span class="math inline">\(\sqrt{2}\)</span> as an example, just show the string of number here:<span class="math inline">\(1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots\)</span>. (DETAIL) Owl provides <code>Owl_maths_root.bisec</code> method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let’s keep thing concise for now.) This method converges slowly, but it is a solid and reliable method.</p>
 <p>Newton method utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and follows this process:</p>
-<p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(4)\]</span></span></p>
-<p>We can use the Algorithm Differential module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;4.</p>
+<p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(5)\]</span></span></p>
+<p>We can use the Algorithm Differention module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;5.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -91,9 +92,9 @@ The resulting sequence is very short compared to the bisection method:
 1.414213562373095
 1.414213562373095</code></pre>
 </div>
-<p>The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
+<p>The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
 <p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
-<p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(5)\]</span></span></p>
+<p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(6)\]</span></span></p>
 <p>In the Secant method, two points are used at each iteration, the <em>Inverse Quadratic Interpolation</em> (IQI) method then uses three points to do that. DETAIL. Benefit/Limit.</p>
 </section>
 <section class="level3" id="brents-method">
@@ -105,7 +106,7 @@ The resulting sequence is very short compared to the bisection method:
 </section>
 <section class="level2" id="univariate-function-optimisation">
 <h2>Univariate Function Optimisation</h2>
-<p>Now that we have briefly introduced how root-finding works and some classic methods, let’s move on to the main topic of this chapter: unconstrained optimisation problems. Let’s start with the simple case that only one variable in the objective function. We will introduce the optimisation methods for multivariate functions in the next section, and they all apply for the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.</p>
+<p>Now that we have briefly introduced how root-finding works and some classic methods, let’s move on to the main topic of this chapter: unconstrained optimisation problems. Let’s start with the simple case that only one variable in the objective function. We will introduce the optimisation methods for multivariate functions in the next section, and they all apply to the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.</p>
 <section class="level3" id="use-derivatives">
 <h3>Use Derivatives</h3>
 <p>If a function is continuous and differentiable, then one obvious solution to find extreme values is to locate where the derivatives equals 0:</p>
@@ -155,7 +156,7 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <section class="level3" id="golden-section-search">
 <h3>Golden Section Search</h3>
 <p>Here we face the similar question again: what if computing derivative of the function is difficult or not available? (NOTE: give specific examples.)</p>
-<p>There is a close analogue of bisection method in solving optimisation problems: <em>Gold Section Search</em>. It’s an optimisation method that does not require computing derivative. It is one choice to do optimisation if your function has a discontinuous first or second derivative.</p>
+<p>There is a close analogue of bisection method in solving optimisation problems: <em>Gold Section Search</em>. It’s an optimisation method that does not require calculating derivatives. It is one choice to do optimisation if your function has a discontinuous first or second derivative.</p>
 <p>Explain the basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that.</p>
 <p>The Brent method in root finding can also be applied here. EXPLAIN</p>
 </section>
@@ -182,7 +183,7 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
 <li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~d\)</span>.</li>
 </ol>
-<p>Repeat this process until a stop condition is met, such as the update is smaller than a threshold.</p>
+<p>Repeat this process until a stopping condition is met, such as the update is smaller than a threshold.</p>
 <p>Based on this process, <em>Gradient Descent</em> method uses the function gradient to decide its direction <span class="math inline">\(d\)</span>. The precess can be described as:</p>
 <ol type="1">
 <li>calculate a descent direction <span class="math inline">\(-\nabla~f(x_n)\)</span>;</li>
@@ -191,10 +192,10 @@ Owl_maths_root.brent g' 0.7 1.0;;
 </ol>
 <p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient, and the distance <span class="math inline">\(\alpha\)</span> it moves along certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in the next figure.</p>
 <p>IMAGEL: Example of gradient descent process which looks like <a href="https://en.wikipedia.org/wiki/Gradient_descent#/media/File:Gradient_descent.svg">this one</a>.</p>
-<p>We can easily implement this process with the algorithm differentiation module in Owl. Let’s look at an example.</p>
+<p>We can easily implement this process with the algorithmic differentiation module in Owl. Let’s look at an example.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">open Algodiff.S
-module N = Dense.Ndarray.S
+<pre><code class="language-ocaml">open Algodiff.D
+module N = Dense.Ndarray.D
 
 let a = Mat.uniform 1 2
 
@@ -265,7 +266,7 @@ let _ = desc f0 a |&gt; unpack_arr</code></pre>
 </ol>
 <p>Here <span class="math inline">\(\nabla^{2}~f(x_n)\)</span> denotes the second-order derivatives of function <span class="math inline">\(f\)</span>. For a scalar-valued function, it can be represented by a square matrix called <em>Hessian matrix</em>, denoted by <span class="math inline">\(\mathbf{H}\)</span>. Therefore the update process of newton method can be expressed as:</p>
 <p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).\]</span></p>
-<p>This can also be implemented in Owl with algorithm differentiation.</p>
+<p>This can also be implemented in Owl with algorithmic differentiation.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
 open Algodiff.D

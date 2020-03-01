@@ -64,8 +64,11 @@ We can implement this method easily using OCaml:
 ```ocaml
 let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) *. _eps
+let diff f x = (f (x +. _eps) -. f (x -. _eps)) /. _eps
 ```
+
+**liang: x can in the middle, left, and right. Show that it is optimal to be in the middle. Also, diff is not consistent with eq.27**
+$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x-\delta)}{2\delta}.$$ {#eq:optimisation:numdiff2}
 
 We can apply it to a simple case:
 
@@ -96,7 +99,7 @@ val jacobianT : (arr -> arr) -> arr -> arr
 
 Looks nice, much easier than Algodiff's approach, right?
 
-No. 
+No. Sadly, this naive numerical solution can lead to large errors in reality.
 
 There are two source of errors: truncating error (explain) and roundoff error (explain). You must be very careful and apply some numerical techniques. 
 While Algodiff guarantees a true derivative value without loss of accuracy.
@@ -106,12 +109,13 @@ you can see the difference in this example:
 CODE (how to show the difference)?
 ```
 
-For the rest of this chapter, we prefer to use the algorithmic differentiation to compute gradient/derivatives when required, but of course you can also use the numerical differentiation.
+For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
+
 
 ## Root Finding
 
 We have seen some examples of root finding in the Math chapter.
-*Root finding* is the process by which to find zeroes or *roots* of continuous functions. 
+*Root finding* is the process which tries to find zeroes or *roots* of continuous functions. 
 It is not an optimisation problem, but these two topics are closely related.
 I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g. how to the root by bracketing and how to find target in an iterative manner.
 
@@ -125,7 +129,7 @@ Newton method utilises the derivative of objective function $f$. It starts with 
 
 $$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
-We can use the Algorithm Differential module in Owl to do that.
+We can use the Algorithm Differention module in Owl to do that.
 In the next example we find the root of $x^2 - 2 = 0$, i.e., find an approximate value of $\sqrt{2}$.
 The Owl code is just a plain translation of [@eq:optimisation:newton].
 
@@ -155,7 +159,7 @@ The resulting sequence is very short compared to the bisection method:
 1.414213562373095
 ```
 
-The Newton method can is efficient: it is quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. 
+The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. 
 It is the basis of many powerful numerical methods (such as?)
 
 If $f$ is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a *Secant Method*:
@@ -181,7 +185,7 @@ We have also implemented it in Owl. (Paste the code if necessary, but for now ju
 
 Now that we have briefly introduced how root-finding works and some classic methods, let's move on to the main topic of this chapter: unconstrained optimisation problems. 
 Let's start with the simple case that only one variable in the objective function.
-We will introduce the optimisation methods for multivariate functions in the next section, and they all apply for the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.
+We will introduce the optimisation methods for multivariate functions in the next section, and they all apply to the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.
 
 ### Use Derivatives
 
@@ -246,7 +250,7 @@ The issue is that you cannot be certain which is maximum and which is minimum.
 Here we face the similar question again: what if computing derivative of the function is difficult or not available? (NOTE: give specific examples.)
 
 There is a close analogue of bisection method in solving optimisation problems: *Gold Section Search*.
-It's an optimisation method that does not require computing derivative.
+It's an optimisation method that does not require calculating derivatives.
 It is one choice to do optimisation if your function has a discontinuous first or second derivative.
 
 Explain the basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that. 
@@ -289,7 +293,7 @@ Therefore, we can describe the $n$-th iteration of descent method as:
 2. choose a step size $\alpha$;
 3. update the location: $x_{n+1} = x_n + \alpha~d$.
 
-Repeat this process until a stop condition is met, such as the update is smaller than a threshold. 
+Repeat this process until a stopping condition is met, such as the update is smaller than a threshold. 
 
 Based on this process, *Gradient Descent* method uses the function gradient to decide its direction $d$.
 The precess can be described as:
@@ -307,8 +311,8 @@ We can easily implement this process with the algorithmic differentiation module
 Let's look at an example.
 
 ```ocaml
-open Algodiff.S
-module N = Dense.Ndarray.S
+open Algodiff.D
+module N = Dense.Ndarray.D
 
 let a = Mat.uniform 1 2
 
