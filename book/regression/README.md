@@ -348,6 +348,8 @@ CODE using ridge.
 So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. 
 What if we don't care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
 
+**liang: logicstic regression is for categorical data analysis ... meaning your output var is categorical ... the point is to figure out the decision boundry, restructure your language**
+
 We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
 But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
 
