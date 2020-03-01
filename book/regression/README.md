@@ -53,7 +53,7 @@ Since modelling can hardly make a perfect match with the real data, we use $\eps
 Specifically, we represent the prediction part as $h(\theta_0, \theta_1)$:
 $$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$ {#eq:regression:eq01}
 
-The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plain. 
+The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plane. 
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively.
 Our target is to choose suitable parameters so that the line is *close* to data we observed. 
 
@@ -82,8 +82,8 @@ IMAGE (CODE if we can do that in Owl)
 We can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface. 
 It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.
 
-Recall from previous chapter that gradient descent works by starting at one point on the surface, and move gradually towards certain *direction* at some *step size*, and hopefully can converge at a local minimum. 
-Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be gotten by using partial derivative on the surface. 
+Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest desent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
+Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be obtained by using partial derivative on the surface. 
 Therefore, what we need to do is to apply this update process iteratively for both $\theta$ parameters:
 $$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
 where $i$ is 1 or 2.
@@ -365,8 +365,8 @@ Remember that in logistic regression we only care about the classification. So f
 
 ### Decision Boundary 
 
-The physical meaning of classification is to draw a decision boundary in a hyper-plain. 
-For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plain, as shown in the figure.  
+The physical meaning of classification is to draw a decision boundary in a hyperplane. 
+For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.  
 
 IMAGE
 
