@@ -1381,9 +1381,45 @@ In a real-world application, we only need to pass in a `1x2` vector as input.
 
 
 You can also note that some extra information fields are included in the DF and DR data types.
-TODO: tagging to solve the problem of high order derivative ([ref](https://www.cambridge.org/core/journals/journal-of-functional-programming/article/perturbation-confusion-in-forward-automatic-differentiation-of-higherorder-functions/A808189A3875A2EDAC6E0D62CF2AD262)) and nested DF/DR.
-Explain the problem and how tagging can solve this problem.
-Use code if possible.
+The most important one is `tag`, it is mainly used to solve the problem of high order derivative and nested forward and backward mode. This problem is called *perturbation confusion* and is important in any AD implementation.
+Here we only scratch the surface of this problem.
+
+Here is the example: what if I want to compute the derivative of:
+
+$$f(x) = x\frac{d(x+y)}{dy},$$
+
+i.e. a function that contains another derivative function? It's simple, since $\frac{d(x+y)}{dy} = 1$, so $f'(x) = x' = 1$. Elementary. There is no way we can do it wrong, right?
+
+Well, not exactly.
+Let's follow our previous simple implementation:
+
+```ocaml env=algodiff_simple_impl_unified_00
+# let diff f x =
+    match x with
+    | DF (_, _)    ->
+      f x |> tangent
+    | DR (_, _, _) ->
+      let r = f x in
+      reverse_push [(1., r)];
+      !(adjoint x)
+val diff : (t -> t) -> t -> float = <fun>
+
+# let f x = 
+    let g = diff (fun y -> add_ad x y) in 
+    mul_ad x (make_forward (g (make_forward 2. 1.)) 1.)
+val f : t -> t = <fun>
+
+# diff f (make_forward 2. 1.)
+- : float = 4.
+```
+
+Hmm, the result is 3 at point $(x=2, y=2)$ but the result should be 1 at any point as we have calculated, so what has gone wrong?
+
+Notice that `x=DF(2,1)`. The tangent value equals to 1, which means that $frac{dx}{dx}=1$. Now if we continue to use this same `x` value in function `g`, whose variable is y, the same `x=DF(2,1)` can be translated by the AD engine as $\frac{dx}{dy}=1$, which is apparently wrong. 
+Therefore, when used within function `g`, `x` should actually be treated as `DF(2,0)`.
+
+The tagging technique is proposed to solve this nested derivative problem. The basic idea is to distinguish derivative calculations and their associated attached values by using a unique tag for each application of the derivative operator.
+More details of method is explained in [@siskind2005perturbation].
 
 TODO: should the other fields also be discussed in length?
 

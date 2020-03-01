@@ -157,50 +157,28 @@ These functions also have corresponding inverse functions: `asin`, `acos`, `atan
 Another related idea is the *Hyperbolic functions*.
 Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola.
 Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace's equation in Cartesian coordinates. ([COPY](https://en.wikipedia.org/wiki/Hyperbolic_functions))
-[@tbl:maths:triangular_hyper] shows these functions in Owl.
 
-------------  ---------------------------- ---------------------- -------------------------------------------------
-Function      Explanation                  Derivatives            Taylor Expansion
-------------  ---------------------------- ---------------------- -------------------------------------------------
-`sinh`        $\frac{e^x - e^{-x}}{2}$     $\cosh(x)$             $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$
+These functions in Owl is shown below:
 
-`cosh`        $\frac{e^x + e^{-x}}{2}$     $\sinh(x)$             $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$
+- `sinh`: $\frac{e^x - e^{-x}}{2}$, derivative is $\cosh(x)$, and taylor expansion is $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$.
+- `cosh`: $\frac{e^x + e^{-x}}{2}$, derivative is $\sinh(x)$, and taylor expansion is $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$.
+- `tanh`: $\frac{\sinh{x}}{\cosh{x}}$, derivative is $1-\tanh^2(x)$, and taylor expansion is $\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}$.
+- `coth`: $\frac{\cosh{x}}{\sinh{x}}$, derivative is $1-\coth^2(x)$, and taylor expansion is $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}$.
+- `sech`: $1/\cosh(x)$, derivative is $-\tanh(x)/\cosh(x)$, and taylor expansion is $\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}$.
+- `csch`:$1/\sinh(x)$, derivative is $-\coth(x)/\sinh(x)$, and taylor expansion is $\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}$.
 
-`tanh`        $\frac{\sinh{x}}{\cosh{x}}$  $1-\tanh^2(x)$         $\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}$  
-
-`coth`        $\frac{\cosh{x}}{\sinh{x}}$  $1-\coth^2(x)$         $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}$ 
-
-`sech`        $1/\cosh(x)$                 $-\tanh(x)/\cosh(x)$   $\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}$
-
-`csch`        $1/\sinh(x)$                 $-\coth(x)/\sinh(x)$   $\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}$
-------------  ---------------------------- ---------------------- -------------------------------------------------
-: Hyperbolic Trigonometric math functions {#tbl:maths:triangular_hyper}
+(TODO: Change these information to table; beware that this table would lead to page overflow.)
 
 Similarly, each of these functions has corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
 The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
 ![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=80% #fig:algodiff:hyper_trio}
 
-Besides these functions, there are also some related functions that are listed in [@tbl:maths:triangular_other].
-
-------------  -------------------------------------------------------
-Function      Explanation  
-------------  -------------------------------------------------------
-`sinc`        returns $\sin(x)/x$ and 1 for $x=0$
-
-`logsinh`     returns $\log(\sinh(x))$ but handles large $|x|$
-
-`logcosh`     returns $\log(\cosh(x))$ but handles large $|x|$
-
-`sindg`       Sine of angle given in degrees
-
-`cosdg`       Cosine of the angle given in degrees
-
-`tandg`       Tangent of angle given in degrees
-
-`cotdg`       Cotangent of the angle given in degrees
-------------  -------------------------------------------------------
-: Other Trigonometric math functions {#tbl:maths:triangular_other}
+Besides these functions, there are also some related functions.
+`sinc` returns $\sin(x)/x$ and 1 for $x=0$.
+`logsinh` returns $\log(\sinh(x))$ but handles large $|x|$.
+`logcosh` returns $\log(\cosh(x))$ but handles large $|x|$.
+`sindg`/`cosdg`/`tandg`/`cotdg` are the sine/cosine/tangent/cotangent of the angle given in degrees.
 
 ### Other Math Functions
 
@@ -208,19 +186,10 @@ There are some other function that may not be very common in traditional math.
 Functions such as `sigmoid` and `relu` are frequently used in Deep Learning as the activation functions in a neural network.
 The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.
 
-------------  -------------------------------------------------------
-Function      Explanation  
-------------  -------------------------------------------------------
-`sigmoid x`   $1 / (1 + \exp(-x))$
-
-`signum x`    Returns the sign of `x`: -1, 0, or 1.
-
-`softsign x`  Smoothed `sign` function
-
-`relu x`      $\max(0, x)$
-------------  -------------------------------------------------------
-: Other math functions {#tbl:maths:others}
-
+- `sigmoid x`: $1 / (1 + \exp(-x))$
+- `signum x`: returns the sign of `x`: -1, 0, or 1
+- `softsign x`: smoothed `sign` function
+- `relu x`: $\max(0, x)$
 
 ## Special Functions
 
@@ -351,21 +320,21 @@ For example, electromagnetic waves in a cylindrical waveguide, pressure amplitud
 
 ### Elliptic Functions
 
-------------------------- ------------------------------------------------------
-Function                  Explanation  
-------------------------- ------------------------------------------------------
-`ellipj u m`              Jacobian elliptic functions of parameter `m` between 0 and 1, and real argument `u`.
+---------------------- -----------------------------------------------------------------------------------
+Function               Explanation  
+---------------------- -----------------------------------------------------------------------------------
+`ellipj u m`           Jacobian elliptic functions of parameter `m` between 0 and 1, and real argument `u`
 
-`ellipk m`                Complete elliptic integral of the first kind
+`ellipk m`             Complete elliptic integral of the first kind
 
-`ellipkm1 p`              Complete elliptic integral of the first kind around m = 1
+`ellipkm1 p`           Complete elliptic integral of the first kind around m = 1
 
-`ellipkinc phi m`         Incomplete elliptic integral of the first kind
+`ellipkinc phi m`      Incomplete elliptic integral of the first kind
 
-`ellipe m`                Complete elliptic integral of the second kind
+`ellipe m`             Complete elliptic integral of the second kind
 
-`ellipeinc phi m`         Incomplete elliptic integral of the second kind
-------------------------- ------------------------------------------------------
+`ellipeinc phi m`      Incomplete elliptic integral of the second kind
+---------------------- -----------------------------------------------------------------------------------
 : Elliptic functions {#tbl:maths:elliptic}
 
 

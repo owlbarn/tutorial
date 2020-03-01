@@ -279,151 +279,32 @@
 <figure>
 <img alt="" style="width:80.0%" id="fig:algodiff:trio" title="trio" src="images/maths/trio.png"><figcaption>Figure 1: Relationship between different trigonometric functions</figcaption>
 </figure>
-<p>Another related idea is the <em>Hyperbolic functions</em>. Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola. Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace’s equation in Cartesian coordinates. (<a href="https://en.wikipedia.org/wiki/Hyperbolic_functions">COPY</a>) tbl.&nbsp;5 shows these functions in Owl.</p>
-<div id="tbl:maths:triangular_hyper">
-<table>
-<caption>Table 5: Hyperbolic Trigonometric math functions</caption>
-<colgroup>
-<col style="width: 12%">
-<col style="width: 25%">
-<col style="width: 19%">
-<col style="width: 43%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Function</th>
-<th style="text-align: left;">Explanation</th>
-<th style="text-align: left;">Derivatives</th>
-<th style="text-align: left;">Taylor Expansion</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>sinh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{e^x - e^{-x}}{2}\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\cosh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>cosh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{e^x + e^{-x}}{2}\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\sinh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>tanh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{\sinh{x}}{\cosh{x}}\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(1-\tanh^2(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>coth</code></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{\cosh{x}}{\sinh{x}}\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(1-\coth^2(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>sech</code></td>
-<td style="text-align: left;"><span class="math inline">\(1/\cosh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(-\tanh(x)/\cosh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>csch</code></td>
-<td style="text-align: left;"><span class="math inline">\(1/\sinh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(-\coth(x)/\sinh(x)\)</span></td>
-<td style="text-align: left;"><span class="math inline">\(\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Another related idea is the <em>Hyperbolic functions</em>. Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola. Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace’s equation in Cartesian coordinates. (<a href="https://en.wikipedia.org/wiki/Hyperbolic_functions">COPY</a>)</p>
+<p>These functions in Owl is shown below:</p>
+<ul>
+<li><code>sinh</code>: <span class="math inline">\(\frac{e^x - e^{-x}}{2}\)</span>, derivative is <span class="math inline">\(\cosh(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span>.</li>
+<li><code>cosh</code>: <span class="math inline">\(\frac{e^x + e^{-x}}{2}\)</span>, derivative is <span class="math inline">\(\sinh(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span>.</li>
+<li><code>tanh</code>: <span class="math inline">\(\frac{\sinh{x}}{\cosh{x}}\)</span>, derivative is <span class="math inline">\(1-\tanh^2(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}\)</span>.</li>
+<li><code>coth</code>: <span class="math inline">\(\frac{\cosh{x}}{\sinh{x}}\)</span>, derivative is <span class="math inline">\(1-\coth^2(x)\)</span>, and taylor expansion is <span class="math inline">\(\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}\)</span>.</li>
+<li><code>sech</code>: <span class="math inline">\(1/\cosh(x)\)</span>, derivative is <span class="math inline">\(-\tanh(x)/\cosh(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}\)</span>.</li>
+<li><code>csch</code>:<span class="math inline">\(1/\sinh(x)\)</span>, derivative is <span class="math inline">\(-\coth(x)/\sinh(x)\)</span>, and taylor expansion is <span class="math inline">\(\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}\)</span>.</li>
+</ul>
+<p>(TODO: Change these information to table; beware that this table would lead to page overflow.)</p>
 <p>Similarly, each of these functions has corresponding inverse functions: <code>asinh</code>, <code>acosh</code>, <code>atanh</code>, <code>acoth</code>, <code>asech</code>, <code>acsch</code>. The relationship between these hyperbolic trigonometric functions are clearly depicted in fig.&nbsp;2.</p>
 <figure>
 <img alt="" style="width:80.0%" id="fig:algodiff:hyper_trio" title="hyper_trio" src="images/maths/hyper_trio.png"><figcaption>Figure 2: Relationship between different hyperbolic trigonometric functions</figcaption>
 </figure>
-<p>Besides these functions, there are also some related functions that are listed in tbl.&nbsp;6.</p>
-<div id="tbl:maths:triangular_other">
-<table style="width:97%;">
-<caption>Table 6: Other Trigonometric math functions</caption>
-<colgroup>
-<col style="width: 19%">
-<col style="width: 77%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Function</th>
-<th style="text-align: left;">Explanation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>sinc</code></td>
-<td style="text-align: left;">returns <span class="math inline">\(\sin(x)/x\)</span> and 1 for <span class="math inline">\(x=0\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>logsinh</code></td>
-<td style="text-align: left;">returns <span class="math inline">\(\log(\sinh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>logcosh</code></td>
-<td style="text-align: left;">returns <span class="math inline">\(\log(\cosh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>sindg</code></td>
-<td style="text-align: left;">Sine of angle given in degrees</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>cosdg</code></td>
-<td style="text-align: left;">Cosine of the angle given in degrees</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>tandg</code></td>
-<td style="text-align: left;">Tangent of angle given in degrees</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>cotdg</code></td>
-<td style="text-align: left;">Cotangent of the angle given in degrees</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Besides these functions, there are also some related functions. <code>sinc</code> returns <span class="math inline">\(\sin(x)/x\)</span> and 1 for <span class="math inline">\(x=0\)</span>. <code>logsinh</code> returns <span class="math inline">\(\log(\sinh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span>. <code>logcosh</code> returns <span class="math inline">\(\log(\cosh(x))\)</span> but handles large <span class="math inline">\(|x|\)</span>. <code>sindg</code>/<code>cosdg</code>/<code>tandg</code>/<code>cotdg</code> are the sine/cosine/tangent/cotangent of the angle given in degrees.</p>
 </section>
 <section class="level3" id="other-math-functions">
 <h3>Other Math Functions</h3>
 <p>There are some other function that may not be very common in traditional math. Functions such as <code>sigmoid</code> and <code>relu</code> are frequently used in Deep Learning as the activation functions in a neural network. The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.</p>
-<div id="tbl:maths:others">
-<table style="width:97%;">
-<caption>Table 7: Other math functions</caption>
-<colgroup>
-<col style="width: 19%">
-<col style="width: 77%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Function</th>
-<th style="text-align: left;">Explanation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><code>sigmoid x</code></td>
-<td style="text-align: left;"><span class="math inline">\(1 / (1 + \exp(-x))\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>signum x</code></td>
-<td style="text-align: left;">Returns the sign of <code>x</code>: -1, 0, or 1.</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>softsign x</code></td>
-<td style="text-align: left;">Smoothed <code>sign</code> function</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>relu x</code></td>
-<td style="text-align: left;"><span class="math inline">\(\max(0, x)\)</span></td>
-</tr>
-</tbody>
-</table>
-</div>
+<ul>
+<li><code>sigmoid x</code>: <span class="math inline">\(1 / (1 + \exp(-x))\)</span></li>
+<li><code>signum x</code>: returns the sign of <code>x</code>: -1, 0, or 1</li>
+<li><code>softsign x</code>: smoothed <code>sign</code> function</li>
+<li><code>relu x</code>: <span class="math inline">\(\max(0, x)\)</span></li>
+</ul>
 </section>
 </section>
 <section class="level2" id="special-functions">
@@ -472,7 +353,7 @@ let _ =
 <p>Based on these category, Owl provides these functions.</p>
 <div id="tbl:maths:bessel">
 <table style="width:76%;">
-<caption>Table 8: Bessel functions</caption>
+<caption>Table 5: Bessel functions</caption>
 <colgroup>
 <col style="width: 12%">
 <col style="width: 63%">
@@ -579,10 +460,10 @@ let _ =
 <h3>Elliptic Functions</h3>
 <div id="tbl:maths:elliptic">
 <table>
-<caption>Table 9: Elliptic functions</caption>
+<caption>Table 6: Elliptic functions</caption>
 <colgroup>
-<col style="width: 32%">
-<col style="width: 67%">
+<col style="width: 21%">
+<col style="width: 78%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -593,7 +474,7 @@ let _ =
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>ellipj u m</code></td>
-<td style="text-align: left;">Jacobian elliptic functions of parameter <code>m</code> between 0 and 1, and real argument <code>u</code>.</td>
+<td style="text-align: left;">Jacobian elliptic functions of parameter <code>m</code> between 0 and 1, and real argument <code>u</code></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>ellipk m</code></td>
@@ -638,10 +519,10 @@ let c = 4. *. a *. Maths.(ellipe (1. -. pow (b /. a) 2.));;
 <p><span class="math display">\[\Gamma(n) = (n-1)!\]</span></p>
 <p>For a complex numbers <span class="math inline">\(z\)</span> with a positive real part,</p>
 <p><span class="math display">\[\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.\]</span></p>
-<p>The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. The Gamma function and related function provided in Owl are list in tbl.&nbsp;10.</p>
+<p>The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. The Gamma function and related function provided in Owl are list in tbl.&nbsp;7.</p>
 <div id="tbl:maths:gamma">
 <table>
-<caption>Table 10: Gamma functions</caption>
+<caption>Table 7: Gamma functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -715,7 +596,7 @@ let _ =
 <p>They are both included in the special functions provided by Owl.</p>
 <div id="tbl:maths:beta">
 <table>
-<caption>Table 11: Beta functions</caption>
+<caption>Table 8: Beta functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -800,7 +681,7 @@ let y = Maths.beta 4. 3. ;;
 <p>The error functions are not about error processing in programming. In mathematics, it is defined as: <span class="math display">\[\frac{2}{\sqrt{\pi}}\int_0^x e^{-t^2})dt.\]</span></p>
 <div id="tbl:maths:error">
 <table>
-<caption>Table 12: Error functions</caption>
+<caption>Table 9: Error functions</caption>
 <colgroup>
 <col style="width: 32%">
 <col style="width: 67%">
@@ -868,10 +749,10 @@ let y = Maths.beta 4. 3. ;;
 <figure>
 <img alt="" style="width:100.0%" id="fig:algodiff:integrals" title="integrals" src="images/maths/example_integrals.png"><figcaption>Figure 8: Plot of the Dawson and Fresnel integral function.</figcaption>
 </figure>
-<p>Besides these two, other type of special integral functions are also provided, as shown in tbl.&nbsp;13.</p>
+<p>Besides these two, other type of special integral functions are also provided, as shown in tbl.&nbsp;10.</p>
 <div id="tbl:maths:integral">
 <table>
-<caption>Table 13: Integral functions</caption>
+<caption>Table 10: Integral functions</caption>
 <colgroup>
 <col style="width: 23%">
 <col style="width: 76%">
@@ -924,7 +805,7 @@ let y = Maths.beta 4. 3. ;;
 <p>The factorial function, together with several variants, are contained in the math module.</p>
 <div id="tbl:maths:factorial">
 <table>
-<caption>Table 14: Factorial functions</caption>
+<caption>Table 11: Factorial functions</caption>
 <colgroup>
 <col style="width: 23%">
 <col style="width: 76%">
@@ -961,10 +842,10 @@ let y = Maths.beta 4. 3. ;;
 &gt;- : float = 120.
 </code></pre>
 </div>
-<p>The factorials are applied in many areas of mathematics, most notably the combinatorics. The permutation and combination are both defined in factorials. The permutation returns the number <span class="math inline">\(n!/(n-k)!\)</span> of ordered subsets of length <span class="math inline">\(k\)</span>, taken from a set of <span class="math inline">\(n\)</span> elements. THe combination returns the number <span class="math inline">\({n\choose k} = n!/(k!(n-k)!)\)</span> of subsets of <span class="math inline">\(k\)</span> elements of a set of <span class="math inline">\(n\)</span> elements. tbl.&nbsp;15 provides the combinatorics functions you can use in the math module.</p>
+<p>The factorials are applied in many areas of mathematics, most notably the combinatorics. The permutation and combination are both defined in factorials. The permutation returns the number <span class="math inline">\(n!/(n-k)!\)</span> of ordered subsets of length <span class="math inline">\(k\)</span>, taken from a set of <span class="math inline">\(n\)</span> elements. THe combination returns the number <span class="math inline">\({n\choose k} = n!/(k!(n-k)!)\)</span> of subsets of <span class="math inline">\(k\)</span> elements of a set of <span class="math inline">\(n\)</span> elements. tbl.&nbsp;12 provides the combinatorics functions you can use in the math module.</p>
 <div id="tbl:maths:perm">
 <table>
-<caption>Table 15: Permutation and combination functions</caption>
+<caption>Table 12: Permutation and combination functions</caption>
 <colgroup>
 <col style="width: 28%">
 <col style="width: 71%">

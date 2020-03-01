@@ -1166,7 +1166,34 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
   and op = adjoint * register * label</code></pre>
 </div>
 <p>You will notice some difference. First, besides DF and DR, it also contains two constructors: <code>F</code> and <code>Arr</code>. This points out one shortcoming of our simple implementation: we cannot process ndarray as input, only float. That’s why, if you look back how our computation is constructed, we have to explicitly say that the computation takes two variable as input. In a real-world application, we only need to pass in a <code>1x2</code> vector as input.</p>
-<p>You can also note that some extra information fields are included in the DF and DR data types. TODO: tagging to solve the problem of high order derivative (<a href="https://www.cambridge.org/core/journals/journal-of-functional-programming/article/perturbation-confusion-in-forward-automatic-differentiation-of-higherorder-functions/A808189A3875A2EDAC6E0D62CF2AD262">ref</a>) and nested DF/DR. Explain the problem and how tagging can solve this problem. Use code if possible.</p>
+<p>You can also note that some extra information fields are included in the DF and DR data types. The most important one is <code>tag</code>, it is mainly used to solve the problem of high order derivative and nested forward and backward mode. This problem is called <em>perturbation confusion</em> and is important in any AD implementation. Here we only scratch the surface of this problem.</p>
+<p>Here is the example: what if I want to compute the derivative of:</p>
+<p><span class="math display">\[f(x) = x\frac{d(x+y)}{dy},\]</span></p>
+<p>i.e.&nbsp;a function that contains another derivative function? It’s simple, since <span class="math inline">\(\frac{d(x+y)}{dy} = 1\)</span>, so <span class="math inline">\(f'(x) = x' = 1\)</span>. Elementary. There is no way we can do it wrong, right?</p>
+<p>Well, not exactly. Let’s follow our previous simple implementation:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let diff f x =
+  match x with
+  | DF (_, _)    -&gt;
+    f x |&gt; tangent
+  | DR (_, _, _) -&gt;
+    let r = f x in
+    reverse_push [(1., r)];
+    !(adjoint x)
+;;
+&gt;val diff : (t -&gt; t) -&gt; t -&gt; float = &lt;fun&gt;
+let f x = 
+  let g = diff (fun y -&gt; add_ad x y) in 
+  mul_ad x (make_forward (g (make_forward 2. 1.)) 1.)
+;;
+&gt;val f : t -&gt; t = &lt;fun&gt;
+diff f (make_forward 2. 1.);;
+&gt;- : float = 4.
+</code></pre>
+</div>
+<p>Hmm, the result is 3 at point <span class="math inline">\((x=2, y=2)\)</span> but the result should be 1 at any point as we have calculated, so what has gone wrong?</p>
+<p>Notice that <code>x=DF(2,1)</code>. The tangent value equals to 1, which means that <span class="math inline">\(frac{dx}{dx}=1\)</span>. Now if we continue to use this same <code>x</code> value in function <code>g</code>, whose variable is y, the same <code>x=DF(2,1)</code> can be translated by the AD engine as <span class="math inline">\(\frac{dx}{dy}=1\)</span>, which is apparently wrong. Therefore, when used within function <code>g</code>, <code>x</code> should actually be treated as <code>DF(2,0)</code>.</p>
+<p>The tagging technique is proposed to solve this nested derivative problem. The basic idea is to distinguish derivative calculations and their associated attached values by using a unique tag for each application of the derivative operator. More details of method is explained in <span data-cites="siskind2005perturbation" class="citation">(Siskind and Pearlmutter 2005)</span>.</p>
 <p>TODO: should the other fields also be discussed in length?</p>
 <p>Now we move on to the higher level. It’s structure should be familiar to you now. The <code>builder</code> module abstract out the general process of forward and reverse modes, while <code>ops</code> module contains all the specific calculation methods for each operations. Keep in mind that not all operation can follow exact math rules to perform differentiation. For example, what is the tangent and adjoint of the convolution or concatenation operations? These are all includes in the <code>ops.ml</code>.</p>
 <p>We have shown how the unary and binary operations can be built by providing two builder modules. But of course there are many operators that have other type of signatures. Owl abstracts more operation types according to their number of input variables and output variables. For example, the <code>qr</code> operations calculates QR decomposition of an input matrix. This operation uses the SIPO (single-input-pair-output) builder template.</p>
@@ -1292,6 +1319,9 @@ let sin_ad = Lazy.force _sin_ad</code></pre>
 </div>
 <div id="ref-griewank1989automatic">
 <p>Griewank, Andreas, and others. 1989. “On Automatic Differentiation.” <em>Mathematical Programming: Recent Developments and Applications</em> 6 (6): 83–107.</p>
+</div>
+<div id="ref-siskind2005perturbation">
+<p>Siskind, Jeffrey Mark, and Barak A. Pearlmutter. 2005. “Perturbation Confusion and Referential Transparency: Correct Functional Implementation of Forward-Mode Ad.” In <em>17th International Workshop, Ifl’05 (2005)</em>, edited by Jerey Mark Siskind and Barak A. Pearlmutter. Springer. <a href="http://mural.maynoothuniversity.ie/566/">http://mural.maynoothuniversity.ie/566/</a>.</p>
 </div>
 </div>
 </section>

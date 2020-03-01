@@ -267,6 +267,7 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <section class="level2" id="logistic-regression">
 <h2>Logistic Regression</h2>
 <p>So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. What if we don’t care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.</p>
+<p><strong>liang: logicstic regression is for categorical data analysis … meaning your output var is categorical … the point is to figure out the decision boundry, restructure your language</strong></p>
 <p>We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result. But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?</p>
 <section class="level3" id="sigmoid-function">
 <h3>Sigmoid Function</h3>
