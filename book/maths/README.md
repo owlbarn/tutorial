@@ -131,71 +131,57 @@ The triangular functions are all unary functions, for example:
 
 And they are all included in the math module in Owl, as shown in [@tbl:maths:triangular].
 
-------------  -------------------------------------------------------
-Function      Explanation  
-------------  -------------------------------------------------------
-`sin`         $\sin(x)$
+------------  ---------------- -----------------                  ---------------------------------------------
+Function      Explanation      Derivatives                        Taylor Expansion
+------------  ---------------- -----------------                  ---------------------------------------------
+`sin`         $\sin(x)$        $\cos(x)$                          $\sum_{n=1}(-1)^{n+1}\frac{x^{2n+1}}{(2n+1)!}$
 
-`cos`         $\cos(x)$
+`cos`         $\cos(x)$        $-\sin(x)$                         $\sum_{n=1}(-1)^n\frac{x^{2n}}{(2n)!}$
 
-`tan`         $\tan(x)$
+`tan`         $\tan(x)$        $1 + \tan^2(x)$                    $\sum_{n=1}\frac{4^n(4^n-1)B_n~x^{2n-1}}{(2n)!}$  
 
-`cot`         $1/\tan(x)$
+`cot`         $1/\tan(x)$      $-(1 + \textrm{cot}^2(x))$         $\sum_{n=0}\frac{E_n~x^{2n}}{(2n)!}$
 
-`sec`         $1/\cos(x)$
+`sec`         $1/\cos(x)$      $\textrm{sec}(x)\tan(x)$           $\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}$ 
 
-`csc`         $1/\sin(x)$
-
-`asin`        $\arcsin(x)$
-
-`acos`        $\arcsin(x)$
-
-`atan`        $\arctan(x)$
-
-`acot`        Inverse function of `cot`
-
-`asec`        Inverse function of `sec`
-
-`acsc`        Inverse function of `csc`
-------------  -------------------------------------------------------
+`csc`         $1/\sin(x)$      $-\textrm{csc}(x)\textrm{cot}(x)$  $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}$  
+------------  ---------------- -----------------                  ---------------------------------------------
 : Trigonometric math functions {#tbl:maths:triangular}
 
+Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $E_n$ is the $n$th [Euler number](https://en.wikipedia.org/wiki/Euler_number). 
+The [@fig:algodiff:trio] shows the relationship between these trigonometric functions ([figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0)).
+These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $\sin(a) = b$, then $\textrm{asin}(b) = a$.
 
 ![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=80% #fig:algodiff:trio}
 
-([Figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0))
+Another related idea is the *Hyperbolic functions*.
+Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola.
+Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace's equation in Cartesian coordinates. ([COPY](https://en.wikipedia.org/wiki/Hyperbolic_functions))
+[@tbl:maths:triangular_hyper] shows these functions in Owl.
 
-------------  -------------------------------------------------------
-Function      Explanation  
-------------  -------------------------------------------------------
-`sinh`        $\sinh(x)$
+------------  ---------------------------- ---------------------- -------------------------------------------------
+Function      Explanation                  Derivatives            Taylor Expansion
+------------  ---------------------------- ---------------------- -------------------------------------------------
+`sinh`        $\frac{e^x - e^{-x}}{2}$     $\cosh(x)$             $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$
 
-`cosh`        $\cosh(x)$
+`cosh`        $\frac{e^x + e^{-x}}{2}$     $\sinh(x)$             $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$
 
-`tanh`        $\tanh(x)$
+`tanh`        $\frac{\sinh{x}}{\cosh{x}}$  $1-\tanh^2(x)$         $\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}$  
 
-`coth`        $\coth(x)$
+`coth`        $\frac{\cosh{x}}{\sinh{x}}$  $1-\coth^2(x)$         $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}$ 
 
-`sech`        $1/\cosh(x)$
+`sech`        $1/\cosh(x)$                 $-\tanh(x)/\cosh(x)$   $\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}$
 
-`csch`        $1/\sinh(x)$
-
-`asinh`       Inverse function of `sinh`
-
-`acosh`       Inverse function of `cosh`
-
-`atanh`       Inverse function of `tanh`
-
-`acoth`       Inverse function of `coth`
-
-`asech`       Inverse function of `sech`
-
-`acsch`       Inverse function of `csch`
-------------  -------------------------------------------------------
+`csch`        $1/\sinh(x)$                 $-\coth(x)/\sinh(x)$   $\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}$
+------------  ---------------------------- ---------------------- -------------------------------------------------
 : Hyperbolic Trigonometric math functions {#tbl:maths:triangular_hyper}
 
+Similarly, each of these functions has corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
+The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
 ![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=80% #fig:algodiff:hyper_trio}
+
+Besides these functions, there are also some related functions that are listed in [@tbl:maths:triangular_other].
 
 ------------  -------------------------------------------------------
 Function      Explanation  
@@ -299,41 +285,41 @@ A special case is when $x$ is purely imaginary. In this case, the solutions to t
 
 Based on these category, Owl provides these functions. 
 
--------- ------------------------- ---------------------------------------------
-Function Interface                 Explanation  
--------- ------------------------- ---------------------------------------------
-`j0`     `float -> float`          Bessel function of the first kind of order 0
+-------- ---------------------------------------------
+Function Explanation  
+-------- ---------------------------------------------
+`j0 x`   Bessel function of the first kind of order 0
 
-`j1`     `float -> float`          Bessel function of the first kind of order 1
+`j1 x`   Bessel function of the first kind of order 1
 
-`jv`     `float -> float -> float` Bessel function of the first kind of real order
+`jv x y` Bessel function of the first kind of real order
 
-`y0`     `float -> float`          Bessel function of the second kind of order 0
+`y0 x`   Bessel function of the second kind of order 0
 
-`y1`     `float -> float`          Bessel function of the second kind of order 1
+`y1 x`   Bessel function of the second kind of order 1
 
-`yv`     `float -> float -> float` Bessel function of the second kind of real order
+`yv x y` Bessel function of the second kind of real order
 
-`yn`     `int -> float -> float`   Bessel function of the second kind of integer order
+`yn a x` Bessel function of the second kind of integer order
 
-`i0`     `float -> float`          Modified Bessel function of order 0
+`i0 x`   Modified Bessel function of order 0
 
-`i1`     `float -> float`          Modified Bessel function of order 1
+`i1 x`   Modified Bessel function of order 1
 
-`iv`     `float -> float -> float` Modified Bessel function of real order
+`iv x y` Modified Bessel function of real order
 
-`i0e`    `float -> float`          Exponentially scaled modified Bessel function of order 0
+`i0e x`  Exponentially scaled modified Bessel function of order 0
 
-`i1e`    `float -> float`          Exponentially scaled modified Bessel function of order 1
+`i1e x`  Exponentially scaled modified Bessel function of order 1
 
-`k0`     `float -> float`          Modified Bessel function of the second kind of order 0
+`k0 x`   Modified Bessel function of the second kind of order 0
 
-`k1`     `float -> float`          Modified Bessel function of the second kind of order 1
+`k1`     Modified Bessel function of the second kind of order 1
 
-`k0e`    `float -> float`          Exponentially scaled modified Bessel function of the second kind of order 0
+`k0e`    Exponentially scaled modified Bessel function of the second kind of order 0
 
-`k1e`    `float -> float`          Exponentially scaled modified Bessel function of the second kind of order 1
--------- ------------------------- ---------------------------------------------
+`k1e`    Exponentially scaled modified Bessel function of the second kind of order 1
+-------- ---------------------------------------------
 : Bessel functions {#tbl:maths:bessel}
 
 Let's look at one example.

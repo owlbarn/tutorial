@@ -219,142 +219,129 @@
 </div>
 <p>And they are all included in the math module in Owl, as shown in tbl.&nbsp;4.</p>
 <div id="tbl:maths:triangular">
-<table style="width:97%;">
+<table>
 <caption>Table 4: Trigonometric math functions</caption>
 <colgroup>
-<col style="width: 19%">
-<col style="width: 77%">
+<col style="width: 12%">
+<col style="width: 15%">
+<col style="width: 31%">
+<col style="width: 41%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Function</th>
 <th style="text-align: left;">Explanation</th>
+<th style="text-align: left;">Derivatives</th>
+<th style="text-align: left;">Taylor Expansion</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>sin</code></td>
 <td style="text-align: left;"><span class="math inline">\(\sin(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\cos(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=1}(-1)^{n+1}\frac{x^{2n+1}}{(2n+1)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>cos</code></td>
 <td style="text-align: left;"><span class="math inline">\(\cos(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(-\sin(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=1}(-1)^n\frac{x^{2n}}{(2n)!}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>tan</code></td>
 <td style="text-align: left;"><span class="math inline">\(\tan(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(1 + \tan^2(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=1}\frac{4^n(4^n-1)B_n~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>cot</code></td>
 <td style="text-align: left;"><span class="math inline">\(1/\tan(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(-(1 + \textrm{cot}^2(x))\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{E_n~x^{2n}}{(2n)!}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>sec</code></td>
 <td style="text-align: left;"><span class="math inline">\(1/\cos(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\textrm{sec}(x)\tan(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>csc</code></td>
 <td style="text-align: left;"><span class="math inline">\(1/\sin(x)\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>asin</code></td>
-<td style="text-align: left;"><span class="math inline">\(\arcsin(x)\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acos</code></td>
-<td style="text-align: left;"><span class="math inline">\(\arcsin(x)\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>atan</code></td>
-<td style="text-align: left;"><span class="math inline">\(\arctan(x)\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acot</code></td>
-<td style="text-align: left;">Inverse function of <code>cot</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>asec</code></td>
-<td style="text-align: left;">Inverse function of <code>sec</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acsc</code></td>
-<td style="text-align: left;">Inverse function of <code>csc</code></td>
+<td style="text-align: left;"><span class="math inline">\(-\textrm{csc}(x)\textrm{cot}(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Here the <span class="math inline">\(B_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Bernoulli_number">Bernoulli number</a>, and <span class="math inline">\(E_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Euler_number">Euler number</a>. The fig.&nbsp;1 shows the relationship between these trigonometric functions (<a href="https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0">figure src</a>). These functions also have corresponding inverse functions: <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>acot</code>, <code>asec</code>, <code>acsc</code>. For example, if <span class="math inline">\(\sin(a) = b\)</span>, then <span class="math inline">\(\textrm{asin}(b) = a\)</span>.</p>
 <figure>
 <img alt="" style="width:80.0%" id="fig:algodiff:trio" title="trio" src="images/maths/trio.png"><figcaption>Figure 1: Relationship between different trigonometric functions</figcaption>
 </figure>
-<p>(<a href="https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0">Figure src</a>)</p>
+<p>Another related idea is the <em>Hyperbolic functions</em>. Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola. Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace’s equation in Cartesian coordinates. (<a href="https://en.wikipedia.org/wiki/Hyperbolic_functions">COPY</a>) tbl.&nbsp;5 shows these functions in Owl.</p>
 <div id="tbl:maths:triangular_hyper">
-<table style="width:97%;">
+<table>
 <caption>Table 5: Hyperbolic Trigonometric math functions</caption>
 <colgroup>
+<col style="width: 12%">
+<col style="width: 25%">
 <col style="width: 19%">
-<col style="width: 77%">
+<col style="width: 43%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Function</th>
 <th style="text-align: left;">Explanation</th>
+<th style="text-align: left;">Derivatives</th>
+<th style="text-align: left;">Taylor Expansion</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>sinh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\sinh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{e^x - e^{-x}}{2}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\cosh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>cosh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\cosh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{e^x + e^{-x}}{2}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sinh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>tanh</code></td>
-<td style="text-align: left;"><span class="math inline">\(\tanh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{\sinh{x}}{\cosh{x}}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(1-\tanh^2(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=1}\frac{4^n(4^n-1)B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>coth</code></td>
-<td style="text-align: left;"><span class="math inline">\(\coth(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{\cosh{x}}{\sinh{x}}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(1-\coth^2(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{x}-\sum_{n=1}\frac{4^n~B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>sech</code></td>
 <td style="text-align: left;"><span class="math inline">\(1/\cosh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(-\tanh(x)/\cosh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>csch</code></td>
 <td style="text-align: left;"><span class="math inline">\(1/\sinh(x)\)</span></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>asinh</code></td>
-<td style="text-align: left;">Inverse function of <code>sinh</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acosh</code></td>
-<td style="text-align: left;">Inverse function of <code>cosh</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>atanh</code></td>
-<td style="text-align: left;">Inverse function of <code>tanh</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acoth</code></td>
-<td style="text-align: left;">Inverse function of <code>coth</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><code>asech</code></td>
-<td style="text-align: left;">Inverse function of <code>sech</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>acsch</code></td>
-<td style="text-align: left;">Inverse function of <code>csch</code></td>
+<td style="text-align: left;"><span class="math inline">\(-\coth(x)/\sinh(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}\)</span></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Similarly, each of these functions has corresponding inverse functions: <code>asinh</code>, <code>acosh</code>, <code>atanh</code>, <code>acoth</code>, <code>asech</code>, <code>acsch</code>. The relationship between these hyperbolic trigonometric functions are clearly depicted in fig.&nbsp;2.</p>
 <figure>
 <img alt="" style="width:80.0%" id="fig:algodiff:hyper_trio" title="hyper_trio" src="images/maths/hyper_trio.png"><figcaption>Figure 2: Relationship between different hyperbolic trigonometric functions</figcaption>
 </figure>
+<p>Besides these functions, there are also some related functions that are listed in tbl.&nbsp;6.</p>
 <div id="tbl:maths:triangular_other">
 <table style="width:97%;">
 <caption>Table 6: Other Trigonometric math functions</caption>
@@ -484,99 +471,81 @@ let _ =
 <p>A special case is when <span class="math inline">\(x\)</span> is purely imaginary. In this case, the solutions to the Bessel equation are called the <em>modified Bessel functions</em>. These modified Bessel functions can also be categorised as first kind and second kind.</p>
 <p>Based on these category, Owl provides these functions.</p>
 <div id="tbl:maths:bessel">
-<table>
+<table style="width:76%;">
 <caption>Table 8: Bessel functions</caption>
 <colgroup>
-<col style="width: 11%">
-<col style="width: 32%">
-<col style="width: 56%">
+<col style="width: 12%">
+<col style="width: 63%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Function</th>
-<th style="text-align: left;">Interface</th>
 <th style="text-align: left;">Explanation</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>j0</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>j0 x</code></td>
 <td style="text-align: left;">Bessel function of the first kind of order 0</td>
 </tr>
 <tr class="even">
-<td><code>j1</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>j1 x</code></td>
 <td style="text-align: left;">Bessel function of the first kind of order 1</td>
 </tr>
 <tr class="odd">
-<td><code>jv</code></td>
-<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td><code>jv x y</code></td>
 <td style="text-align: left;">Bessel function of the first kind of real order</td>
 </tr>
 <tr class="even">
-<td><code>y0</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>y0 x</code></td>
 <td style="text-align: left;">Bessel function of the second kind of order 0</td>
 </tr>
 <tr class="odd">
-<td><code>y1</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>y1 x</code></td>
 <td style="text-align: left;">Bessel function of the second kind of order 1</td>
 </tr>
 <tr class="even">
-<td><code>yv</code></td>
-<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td><code>yv x y</code></td>
 <td style="text-align: left;">Bessel function of the second kind of real order</td>
 </tr>
 <tr class="odd">
-<td><code>yn</code></td>
-<td style="text-align: left;"><code>int -&gt; float -&gt; float</code></td>
+<td><code>yn a x</code></td>
 <td style="text-align: left;">Bessel function of the second kind of integer order</td>
 </tr>
 <tr class="even">
-<td><code>i0</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>i0 x</code></td>
 <td style="text-align: left;">Modified Bessel function of order 0</td>
 </tr>
 <tr class="odd">
-<td><code>i1</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>i1 x</code></td>
 <td style="text-align: left;">Modified Bessel function of order 1</td>
 </tr>
 <tr class="even">
-<td><code>iv</code></td>
-<td style="text-align: left;"><code>float -&gt; float -&gt; float</code></td>
+<td><code>iv x y</code></td>
 <td style="text-align: left;">Modified Bessel function of real order</td>
 </tr>
 <tr class="odd">
-<td><code>i0e</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>i0e x</code></td>
 <td style="text-align: left;">Exponentially scaled modified Bessel function of order 0</td>
 </tr>
 <tr class="even">
-<td><code>i1e</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>i1e x</code></td>
 <td style="text-align: left;">Exponentially scaled modified Bessel function of order 1</td>
 </tr>
 <tr class="odd">
-<td><code>k0</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
+<td><code>k0 x</code></td>
 <td style="text-align: left;">Modified Bessel function of the second kind of order 0</td>
 </tr>
 <tr class="even">
 <td><code>k1</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
 <td style="text-align: left;">Modified Bessel function of the second kind of order 1</td>
 </tr>
 <tr class="odd">
 <td><code>k0e</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
 <td style="text-align: left;">Exponentially scaled modified Bessel function of the second kind of order 0</td>
 </tr>
 <tr class="even">
 <td><code>k1e</code></td>
-<td style="text-align: left;"><code>float -&gt; float</code></td>
 <td style="text-align: left;">Exponentially scaled modified Bessel function of the second kind of order 1</td>
 </tr>
 </tbody>
