@@ -2,10 +2,76 @@
 
 Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.
 
-
 ## Random Variables
 
-Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. Here we use Gaussian distribution as an exmaple to illustrate the naming convention.
+### Discrete Random Variables
+
+### Continuous Random Variables
+
+### Descriptive Statistics
+
+Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+
+We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
+
+```ocaml env=stats_00
+let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
+```
+
+Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
+
+```ocaml env=stats_00
+# Stats.mean data
+- : float = 5.39282409364656168
+# Stats.std data
+- : float = 2.82512008501752376
+# Stats.var data
+- : float = 7.98130349476942147
+# Stats.skew data
+- : float = -0.100186978462459622
+# Stats.kurtosis data
+- : float = 1.90668234297861283
+```
+
+The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
+
+```ocaml env=stats_00
+# Stats.central_moment 0 data
+- : float = 1.
+# Stats.central_moment 1 data
+- : float = 5.3290705182007512e-17
+# Stats.central_moment 2 data
+- : float = 7.90149045982172549
+# Stats.central_moment 3 data
+- : float = -2.25903009746890815
+```
+
+### Order Statistics
+
+Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
+
+```ocaml
+Stats.min;; (* the mininum of the samples *)
+Stats.max;; (* the maximum of the samples *)
+Stats.median;; (* the median value of the samples *)
+Stats.quartile;; (* quartile of the samples *)
+Stats.first_quartile;; (* the first quartile of the samples *)
+Stats.third_quartile;; (* the third quartile of the samples *)
+Stats.interquartile;; (* the interquartile of the samples *)
+Stats.percentile;; (* percentile of the samples *)
+```
+
+In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
+
+## Special Distribution 
+
+Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. 
+
+### Poisson Distribution
+
+### Gaussian Distribution
+
+Here we use Gaussian distribution as an example to illustrate the naming convention.
 
 * `gaussian_rvs` : random number generator.
 * `gaussian_pdf` : probability density function.
@@ -56,47 +122,90 @@ In subplot 1, we can see the second data set has much wider spread. In subplot 2
 
 As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
 
+### Gamma Distribution
 
-## Descriptive Statistics
+### Beta Distribution
 
-Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+### Chi-Square Distribution
 
-We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
+### Student-t Distribution
 
-```ocaml env=stats_00
-let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
+### Cauchy Distribution
+
+## Hypothesis Tests
+
+### Basic Theory
+
+While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
+
+* Null hypothesis $H_0$: there is no relationship between two data sets.
+* Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
+
+Type I and Type II errors.
+
+### Gaussian Distribution in Hypothesis Testing
+
+The `Stats` module in Owl supports many different kinds of hypothesis tests.
+
+* Z-Test
+* Student's T-Test
+* Paired Sample T-Test
+* Unpaired Sample T-Test
+* Kolmogorov-Smirnov Test
+* Chi-Square Variance Test
+* Jarque-Bera Test
+* Fisher's Exact Test
+* Wald–Wolfowitz Runs Test
+* Mann-Whitney Rank Test
+* Wilcoxon Signed-rank Test
+
+Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
+
+```ocaml env=stats_03
+let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
+let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
 ```
 
-Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
+Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we genereated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
 
-```ocaml env=stats_00
-# Stats.mean data
-- : float = 5.31364843477812787
-# Stats.std data
-- : float = 2.84206433399567393
-# Stats.var data
-- : float = 8.0773296785702744
-# Stats.skew data
-- : float = -0.20440315951733054
-# Stats.kurtosis data
-- : float = 1.86457865927682298
+```ocaml env=stats_03
+# Stats.z_test ~mu:0. ~sigma:1. data_0
+- : Owl_stats.hypothesis =
+{Owl.Stats.reject = false; p_value = 0.226130273768103796;
+ score = 1.21038740185418425}
 ```
 
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
+The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
 
-```ocaml env=stats_00
-# Stats.central_moment 0 data
-- : float = 1.
-# Stats.central_moment 1 data
-- : float = -8.52651282912120191e-16
-# Stats.central_moment 2 data
-- : float = 7.99655638178457107
-# Stats.central_moment 3 data
-- : float = -4.69233832808677143
+```ocaml
+type hypothesis = {
+  reject : bool;
+  p_value : float;
+  score : float;
+}
 ```
 
+From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $\mathcal{N}(0, 1)$. How about the second data set then?
 
-## Correlations
+```ocaml env=stats_03
+# Stats.z_test ~mu:0. ~sigma:1. data_1
+- : Owl_stats.hypothesis =
+{Owl.Stats.reject = true; p_value = 5.50161535788588324e-16;
+ score = 8.09987396754499756}
+```
+
+As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
+
+### Two-Sample Inferences
+
+### Goodness-of-fit Tests
+
+### Non-parametric Statistics
+
+Wilcoxon Tests
+
+
+## Covariance and Correlations
 
 Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation. 
 
@@ -144,86 +253,9 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 
 ```ocaml env=stats_01
 # Stats.corrcoef x y
-- : float = 0.989229727850764129
+- : float = 0.990347906532983
 # Stats.corrcoef x z
-- : float = 0.722342652115260719
+- : float = 0.705481278204883822
 ```
 
-...
-
-
-## Hypothesis Tests
-
-While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
-
-* Null hypothesis $H_0$: there is no relationship between two data sets.
-* Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
-
-The `Stats` module in Owl supports many different kinds of hypothesis tests.
-
-* Z-Test
-* Student's T-Test
-* Paired Sample T-Test
-* Unpaired Sample T-Test
-* Kolmogorov-Smirnov Test
-* Chi-Square Variance Test
-* Jarque-Bera Test
-* Fisher's Exact Test
-* Wald–Wolfowitz Runs Test
-* Mann-Whitney Rank Test
-* Wilcoxon Signed-rank Test
-
-Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
-
-```ocaml env=stats_03
-let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
-let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
-```
-
-Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we genereated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
-
-```ocaml env=stats_03
-# Stats.z_test ~mu:0. ~sigma:1. data_0
-- : Owl_stats.hypothesis =
-{Owl.Stats.reject = false; p_value = 0.0984716313263263171;
- score = -1.65230872621158897}
-```
-
-The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
-
-```ocaml
-type hypothesis = {
-  reject : bool;
-  p_value : float;
-  score : float;
-}
-```
-
-From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $\mathcal{N}(0, 1)$. How about the second data set then?
-
-```ocaml env=stats_03
-# Stats.z_test ~mu:0. ~sigma:1. data_1
-- : Owl_stats.hypothesis =
-{Owl.Stats.reject = true; p_value = 1.24308805325057672e-22;
- score = 9.78998949198827439}
-```
-
-As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
-
-
-## Order Statistics
-
-Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
-
-```ocaml
-Stats.min;; (* the mininum of the samples *)
-Stats.max;; (* the maximum of the samples *)
-Stats.median;; (* the median value of the samples *)
-Stats.quartile;; (* quartile of the samples *)
-Stats.first_quartile;; (* the first quartile of the samples *)
-Stats.third_quartile;; (* the third quartile of the samples *)
-Stats.interquartile;; (* the interquartile of the samples *)
-Stats.percentile;; (* percentile of the samples *)
-```
-
-In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
+## Analysis of Variance
