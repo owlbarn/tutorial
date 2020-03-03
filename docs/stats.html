@@ -3,70 +3,19 @@
 <p>Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.</p>
 <section class="level2" id="random-variables">
 <h2>Random Variables</h2>
+<p>Definition</p>
+<p>Divide into two types: discrete and continuous</p>
 <section class="level3" id="discrete-random-variables">
 <h3>Discrete Random Variables</h3>
+<p>Definition</p>
+<p>Example: Binomial Distribution</p>
+<p>PDF, CDF, SF</p>
 </section>
 <section class="level3" id="continuous-random-variables">
 <h3>Continuous Random Variables</h3>
-</section>
-<section class="level3" id="descriptive-statistics">
-<h3>Descriptive Statistics</h3>
-<p>Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.</p>
-<p>We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let data = Array.init 100 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;</code></pre>
-</div>
-<p>Then We use <code>mean</code> function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.</p>
-<div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.mean data;;
-&gt;- : float = 5.39282409364656168
-Stats.std data;;
-&gt;- : float = 2.82512008501752376
-Stats.var data;;
-&gt;- : float = 7.98130349476942147
-Stats.skew data;;
-&gt;- : float = -0.100186978462459622
-Stats.kurtosis data;;
-&gt;- : float = 1.90668234297861283
-</code></pre>
-</div>
-<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
-<div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
-&gt;- : float = 1.
-Stats.central_moment 1 data;;
-&gt;- : float = 5.3290705182007512e-17
-Stats.central_moment 2 data;;
-&gt;- : float = 7.90149045982172549
-Stats.central_moment 3 data;;
-&gt;- : float = -2.25903009746890815
-</code></pre>
-</div>
-</section>
-<section class="level3" id="order-statistics">
-<h3>Order Statistics</h3>
-<p>Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">Stats.min;; (* the mininum of the samples *)
-Stats.max;; (* the maximum of the samples *)
-Stats.median;; (* the median value of the samples *)
-Stats.quartile;; (* quartile of the samples *)
-Stats.first_quartile;; (* the first quartile of the samples *)
-Stats.third_quartile;; (* the third quartile of the samples *)
-Stats.interquartile;; (* the interquartile of the samples *)
-Stats.percentile;; (* percentile of the samples *)</code></pre>
-</div>
-<p>In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.</p>
-</section>
-</section>
-<section class="level2" id="special-distribution">
-<h2>Special Distribution</h2>
-<p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.</p>
-<section class="level3" id="poisson-distribution">
-<h3>Poisson Distribution</h3>
-</section>
-<section class="level3" id="gaussian-distribution">
-<h3>Gaussian Distribution</h3>
+<p>Definition</p>
+<p>Example: Gaussian</p>
+<p>PDF, CDF, SF</p>
 <p>Here we use Gaussian distribution as an example to illustrate the naming convention.</p>
 <ul>
 <li><code>gaussian_rvs</code> : random number generator.</li>
@@ -114,8 +63,68 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 </figure>
 <p>As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.</p>
 </section>
+<section class="level3" id="descriptive-statistics">
+<h3>Descriptive Statistics</h3>
+<p>Mean, Variance: Definition, and math derivation of Gaussian as examples.</p>
+<p>The definition of moments, and higher moments.</p>
+<p>Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.</p>
+<p>We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let data = Array.init 100 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;</code></pre>
+</div>
+<p>Then We use <code>mean</code> function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.mean data;;
+&gt;- : float = 5.31364843477812787
+Stats.std data;;
+&gt;- : float = 2.84206433399567393
+Stats.var data;;
+&gt;- : float = 8.0773296785702744
+Stats.skew data;;
+&gt;- : float = -0.20440315951733054
+Stats.kurtosis data;;
+&gt;- : float = 1.86457865927682298
+</code></pre>
+</div>
+<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
+&gt;- : float = 1.
+Stats.central_moment 1 data;;
+&gt;- : float = -8.52651282912120191e-16
+Stats.central_moment 2 data;;
+&gt;- : float = 7.99655638178457107
+Stats.central_moment 3 data;;
+&gt;- : float = -4.69233832808677143
+</code></pre>
+</div>
+</section>
+<section class="level3" id="order-statistics">
+<h3>Order Statistics</h3>
+<p>Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Stats.min;; (* the mininum of the samples *)
+Stats.max;; (* the maximum of the samples *)
+Stats.median;; (* the median value of the samples *)
+Stats.quartile;; (* quartile of the samples *)
+Stats.first_quartile;; (* the first quartile of the samples *)
+Stats.third_quartile;; (* the third quartile of the samples *)
+Stats.interquartile;; (* the interquartile of the samples *)
+Stats.percentile;; (* percentile of the samples *)</code></pre>
+</div>
+<p>In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.</p>
+<p>IMAGE to show the difference of mean, median, mode, etc.</p>
+</section>
+</section>
+<section class="level2" id="special-distribution">
+<h2>Special Distribution</h2>
+<p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.</p>
+<p>TODO: Add Poisson Distribution Implementation</p>
 <section class="level3" id="gamma-distribution">
 <h3>Gamma Distribution</h3>
+<p>Definition</p>
+<p>PDF, CDF</p>
+<p>Application</p>
 </section>
 <section class="level3" id="beta-distribution">
 <h3>Beta Distribution</h3>
@@ -129,6 +138,13 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 <section class="level3" id="cauchy-distribution">
 <h3>Cauchy Distribution</h3>
 </section>
+</section>
+<section class="level2" id="multiple-variables">
+<h2>Multiple Variables</h2>
+<p>Joint Density</p>
+<p>Independence of random variables</p>
+<p>Mean and Variance</p>
+<p>Multinomial distribution</p>
 </section>
 <section class="level2" id="hypothesis-tests">
 <h2>Hypothesis Tests</h2>
@@ -166,8 +182,8 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_0;;
 &gt;- : Owl_stats.hypothesis =
-&gt;{Owl.Stats.reject = false; p_value = 0.226130273768103796;
-&gt; score = 1.21038740185418425}
+&gt;{Owl.Stats.reject = false; p_value = 0.242032046118101141;
+&gt; score = 1.16992277887512341}
 </code></pre>
 </div>
 <p>The returned result is a record with the following type definition. The fields are self-explained: <code>reject</code> field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.</p>
@@ -182,8 +198,8 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_1;;
 &gt;- : Owl_stats.hypothesis =
-&gt;{Owl.Stats.reject = true; p_value = 5.50161535788588324e-16;
-&gt; score = 8.09987396754499756}
+&gt;{Owl.Stats.reject = true; p_value = 3.53845276213587496e-17;
+&gt; score = 8.42726256918400729}
 </code></pre>
 </div>
 <p>As we expected, the null hypothesis is accepted with a very small p value. This indicates that <code>data_1</code> is drawn from a different distribution rather than assumed <span class="math inline">\(\mathcal{N}(0, 1)\)</span>.</p>
@@ -240,9 +256,9 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 <p>Intuitively, we can easily see there is stronger relation between <code>x</code> and <code>y</code> from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between <code>x</code> and <code>y</code>, as well as the correlation between <code>x</code> and <code>z</code>. As we see, the smaller correlation value indicates weaker linear relation between <code>x</code> and <code>z</code> comparing to that between <code>x</code> and <code>y</code>.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.corrcoef x y;;
-&gt;- : float = 0.990347906532983
+&gt;- : float = 0.989041010081050831
 Stats.corrcoef x z;;
-&gt;- : float = 0.705481278204883822
+&gt;- : float = 0.702162288791283395
 </code></pre>
 </div>
 </section>

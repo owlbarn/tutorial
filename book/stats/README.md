@@ -4,72 +4,25 @@ Statistics is an indispensable tool for data analysis, it helps us to gain the i
 
 ## Random Variables
 
+Definition
+
+Divide into two types: discrete and continuous
+
 ### Discrete Random Variables
+
+Definition
+
+Example: Binomial Distribution
+
+PDF, CDF, SF
 
 ### Continuous Random Variables
 
-### Descriptive Statistics
+Definition 
 
-Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+Example: Gaussian 
 
-We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
-
-```ocaml env=stats_00
-let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
-```
-
-Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
-
-```ocaml env=stats_00
-# Stats.mean data
-- : float = 5.39282409364656168
-# Stats.std data
-- : float = 2.82512008501752376
-# Stats.var data
-- : float = 7.98130349476942147
-# Stats.skew data
-- : float = -0.100186978462459622
-# Stats.kurtosis data
-- : float = 1.90668234297861283
-```
-
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
-
-```ocaml env=stats_00
-# Stats.central_moment 0 data
-- : float = 1.
-# Stats.central_moment 1 data
-- : float = 5.3290705182007512e-17
-# Stats.central_moment 2 data
-- : float = 7.90149045982172549
-# Stats.central_moment 3 data
-- : float = -2.25903009746890815
-```
-
-### Order Statistics
-
-Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
-
-```ocaml
-Stats.min;; (* the mininum of the samples *)
-Stats.max;; (* the maximum of the samples *)
-Stats.median;; (* the median value of the samples *)
-Stats.quartile;; (* quartile of the samples *)
-Stats.first_quartile;; (* the first quartile of the samples *)
-Stats.third_quartile;; (* the third quartile of the samples *)
-Stats.interquartile;; (* the interquartile of the samples *)
-Stats.percentile;; (* percentile of the samples *)
-```
-
-In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
-
-## Special Distribution 
-
-Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. 
-
-### Poisson Distribution
-
-### Gaussian Distribution
+PDF, CDF, SF
 
 Here we use Gaussian distribution as an example to illustrate the naming convention.
 
@@ -122,7 +75,80 @@ In subplot 1, we can see the second data set has much wider spread. In subplot 2
 
 As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
 
+### Descriptive Statistics
+
+Mean, Variance: Definition, and math derivation of Gaussian as examples.
+
+The definition of moments, and higher moments. 
+
+Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+
+We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
+
+```ocaml env=stats_00
+let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
+```
+
+Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
+
+```ocaml env=stats_00
+# Stats.mean data
+- : float = 5.31364843477812787
+# Stats.std data
+- : float = 2.84206433399567393
+# Stats.var data
+- : float = 8.0773296785702744
+# Stats.skew data
+- : float = -0.20440315951733054
+# Stats.kurtosis data
+- : float = 1.86457865927682298
+```
+
+The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
+
+```ocaml env=stats_00
+# Stats.central_moment 0 data
+- : float = 1.
+# Stats.central_moment 1 data
+- : float = -8.52651282912120191e-16
+# Stats.central_moment 2 data
+- : float = 7.99655638178457107
+# Stats.central_moment 3 data
+- : float = -4.69233832808677143
+```
+
+### Order Statistics
+
+Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
+
+```ocaml
+Stats.min;; (* the mininum of the samples *)
+Stats.max;; (* the maximum of the samples *)
+Stats.median;; (* the median value of the samples *)
+Stats.quartile;; (* quartile of the samples *)
+Stats.first_quartile;; (* the first quartile of the samples *)
+Stats.third_quartile;; (* the third quartile of the samples *)
+Stats.interquartile;; (* the interquartile of the samples *)
+Stats.percentile;; (* percentile of the samples *)
+```
+
+In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
+
+IMAGE to show the difference of mean, median, mode, etc.
+
+## Special Distribution 
+
+Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. 
+
+TODO: Add Poisson Distribution Implementation
+
 ### Gamma Distribution
+
+Definition
+
+PDF, CDF
+
+Application
 
 ### Beta Distribution
 
@@ -131,6 +157,16 @@ As an exercise, you can also try out other distributions like gamma, beta, chi2,
 ### Student-t Distribution
 
 ### Cauchy Distribution
+
+## Multiple Variables
+
+Joint Density
+
+Independence of random variables 
+
+Mean and Variance
+
+Multinomial distribution
 
 ## Hypothesis Tests
 
@@ -171,8 +207,8 @@ Our hypothesis is that the data set is drawn from Gaussian distribution $\mathca
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_0
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = false; p_value = 0.226130273768103796;
- score = 1.21038740185418425}
+{Owl.Stats.reject = false; p_value = 0.242032046118101141;
+ score = 1.16992277887512341}
 ```
 
 The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
@@ -190,8 +226,8 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_1
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = true; p_value = 5.50161535788588324e-16;
- score = 8.09987396754499756}
+{Owl.Stats.reject = true; p_value = 3.53845276213587496e-17;
+ score = 8.42726256918400729}
 ```
 
 As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
@@ -253,9 +289,9 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 
 ```ocaml env=stats_01
 # Stats.corrcoef x y
-- : float = 0.990347906532983
+- : float = 0.989041010081050831
 # Stats.corrcoef x z
-- : float = 0.705481278204883822
+- : float = 0.702162288791283395
 ```
 
 ## Analysis of Variance
