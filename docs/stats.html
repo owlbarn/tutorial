@@ -3,13 +3,48 @@
 <p>Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.</p>
 <section class="level2" id="random-variables">
 <h2>Random Variables</h2>
-<p>Definition</p>
-<p>Divide into two types: discrete and continuous</p>
+<p>We start from assigning probabilities to <em>events</em>. A event may comprise of finite or infinite number of possible outcomes. All possible output make up the <em>sample space</em>. To better capture this assigning processes, we need the idea of <em>Random Variables</em>.</p>
+<p>A random variable is a function that associate sample output of events with some numbers of interests. Imagine the classic tossing coin game, we toss the coin four times, and the result is “head”, “head”, “tail”, “head”. We are interested in the number of “head” in this outcome. So we make a Random Variable “X” to denote this number, and <code>X(["head", "head", "tail", "head"]) = 3</code>. You can see that using random variables can greatly reduce the event sample space.</p>
+<p>Depending on the number of values it can be, a random variable can be broadly categorised into <em>Discrete</em> Random Variable (with finite number of possible output), and <em>Continuous</em> Random Variable (with infinite number of possible output).</p>
 <section class="level3" id="discrete-random-variables">
 <h3>Discrete Random Variables</h3>
-<p>Definition</p>
-<p>Example: Binomial Distribution</p>
-<p>PDF, CDF, SF</p>
+<p>Back to the coin tossing example. Suppose that the coin is specially minted so that the probability of tossing head is <span class="math inline">\(p\)</span>. In this scenario, we toss for three times. Use the number of heads as a random variable <span class="math inline">\(X\)</span>, and it contains four possible outcomes: 0, 1, 2, or 3.</p>
+<p>We can calculate the possibility of each output result. Since each toss is a individual trial, the possibility of three heads <code>P(X=2)</code> is <span class="math inline">\(p^3\)</span>. Two heads includes three cases: HHT, HTH, THH, each has a probability of <span class="math inline">\(p^2(1-p)\)</span>, and together <span class="math inline">\(P(X=2) = 3p^2(1-p)\)</span>. Similarly <span class="math inline">\(P(X=1)=3p(1-p)^2\)</span>, and <span class="math inline">\(P(X=0)=(1-p)^3\)</span>.</p>
+<p>Formally, consider a series of <span class="math inline">\(n\)</span> independent trails, each trail containing two possible results, and the result of interest happens at a possibility of <span class="math inline">\(p\)</span>, then the possibility distribution of random variable <span class="math inline">\(X\)</span> is (<span class="math inline">\(X\)</span> being the number of result of interests):</p>
+<p><span id="eq:stats:binomial_pdf"><span class="math display">\[P(X=k) = {N\choose k} p^k(1-p)^{n-k}.\qquad(1)\]</span></span></p>
+<p>This type of distribution is called the <em>Binomial Probability Distribution</em>. We can stimulate this process of tossing coins with the <code>Stats.binomial_rvs</code> function. Suppose the probability of tossing head is 0.4, and for 10 times.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let _ = 
+  let toss = Array.make 10 0 in
+  Array.map (fun _ -&gt; Stats.binomial_rvs 0.3 1) toss
+;;
+&gt;- : int array = [|0; 0; 0; 0; 0; 0; 0; 0; 1; 0|]
+</code></pre>
+</div>
+<p>The equation eq.&nbsp;1 is called the <em>&amp;probability density function</em> (PDF) of this binomial distribution. Formally the PDF of random variable X is denoted with <span class="math inline">\(p_X(k)\)</span> and is defined as:</p>
+<p><span class="math display">\[p_X(k)=P({s \in S | X(s) = k}),\]</span></p>
+<p>where <span class="math inline">\(S\)</span> is the sample space. This can also be expressed with the code:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = [|0; 1; 2; 3|];;
+&gt;val x : int array = [|0; 1; 2; 3|]
+let p = Array.map (Stats.binomial_pdf ~p:0.3 ~n:3) x;;
+&gt;val p : float array =
+&gt;  [|0.342999999999999916; 0.440999999999999837; 0.188999999999999918;
+&gt;    0.0269999999999999823|]
+Array.fold_left (+.) 0. p;;
+&gt;- : float = 0.999999999999999778
+</code></pre>
+</div>
+<p>Aside from the PDF, another related and frequently used idea is to see the probability of random variable <span class="math inline">\(X\)</span> being within a certain range: <span class="math inline">\(P(a \leq X \leq b)\)</span>. It can be rewritten as <span class="math inline">\(P(X \leq b) - P(X \leq a - 1)\)</span>. Here the term <span class="math inline">\(P(X \leq t)\)</span> is called the <em>Cumulative Distribution Function</em> of random variable <span class="math inline">\(X\)</span>. For the binomial distribution, it CDF is:</p>
+<p><span class="math display">\[p(X\leq~k)=\sum_{i=0}^k{N\choose i} p^k(1-p)^{n-i}.\]</span></p>
+<p>We can calculate the CDF in the 3-tossing problem with code again.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = [|0; 1; 2; 3|];;
+&gt;val x : int array = [|0; 1; 2; 3|]
+let p = Array.map (Stats.binomial_cdf ~p:0.3 ~n:3) x;;
+&gt;val p : float array = [|0.342999999999999972; 0.784; 0.973; 1.|]
+</code></pre>
+</div>
 </section>
 <section class="level3" id="continuous-random-variables">
 <h3>Continuous Random Variables</h3>
@@ -75,15 +110,15 @@ let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 <p>Then We use <code>mean</code> function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.mean data;;
-&gt;- : float = 5.31364843477812787
+&gt;- : float = 5.18160409659184573
 Stats.std data;;
-&gt;- : float = 2.84206433399567393
+&gt;- : float = 2.92844832850280135
 Stats.var data;;
-&gt;- : float = 8.0773296785702744
+&gt;- : float = 8.57580961271085229
 Stats.skew data;;
-&gt;- : float = -0.20440315951733054
+&gt;- : float = -0.109699186612116223
 Stats.kurtosis data;;
-&gt;- : float = 1.86457865927682298
+&gt;- : float = 1.75165078829330856
 </code></pre>
 </div>
 <p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
@@ -91,11 +126,11 @@ Stats.kurtosis data;;
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
 &gt;- : float = 1.
 Stats.central_moment 1 data;;
-&gt;- : float = -8.52651282912120191e-16
+&gt;- : float = -3.13082892944294137e-15
 Stats.central_moment 2 data;;
-&gt;- : float = 7.99655638178457107
+&gt;- : float = 8.49005151658374224
 Stats.central_moment 3 data;;
-&gt;- : float = -4.69233832808677143
+&gt;- : float = -2.75496511397836663
 </code></pre>
 </div>
 </section>
@@ -150,7 +185,7 @@ Stats.percentile;; (* percentile of the samples *)</code></pre>
 <h2>Hypothesis Tests</h2>
 <section class="level3" id="basic-theory">
 <h3>Basic Theory</h3>
-<p>While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.</p>
+<p>While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.</p>
 <ul>
 <li>Null hypothesis <span class="math inline">\(H_0\)</span>: there is no relationship between two data sets.</li>
 <li>Alternative hypothesis <span class="math inline">\(H_1\)</span>: there is statistically significant relationship between two data sets.</li>
@@ -182,8 +217,8 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_0;;
 &gt;- : Owl_stats.hypothesis =
-&gt;{Owl.Stats.reject = false; p_value = 0.242032046118101141;
-&gt; score = 1.16992277887512341}
+&gt;{Owl.Stats.reject = false; p_value = 0.289340080583773251;
+&gt; score = -1.05957041132113083}
 </code></pre>
 </div>
 <p>The returned result is a record with the following type definition. The fields are self-explained: <code>reject</code> field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.</p>
@@ -198,8 +233,8 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_1;;
 &gt;- : Owl_stats.hypothesis =
-&gt;{Owl.Stats.reject = true; p_value = 3.53845276213587496e-17;
-&gt; score = 8.42726256918400729}
+&gt;{Owl.Stats.reject = true; p_value = 5.06534675819424548e-23;
+&gt; score = 9.88035435799393547}
 </code></pre>
 </div>
 <p>As we expected, the null hypothesis is accepted with a very small p value. This indicates that <code>data_1</code> is drawn from a different distribution rather than assumed <span class="math inline">\(\mathcal{N}(0, 1)\)</span>.</p>
@@ -256,9 +291,9 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 <p>Intuitively, we can easily see there is stronger relation between <code>x</code> and <code>y</code> from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between <code>x</code> and <code>y</code>, as well as the correlation between <code>x</code> and <code>z</code>. As we see, the smaller correlation value indicates weaker linear relation between <code>x</code> and <code>z</code> comparing to that between <code>x</code> and <code>y</code>.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.corrcoef x y;;
-&gt;- : float = 0.989041010081050831
+&gt;- : float = 0.991145445979576656
 Stats.corrcoef x z;;
-&gt;- : float = 0.702162288791283395
+&gt;- : float = 0.692163016204755288
 </code></pre>
 </div>
 </section>

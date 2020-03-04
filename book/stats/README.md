@@ -4,17 +4,76 @@ Statistics is an indispensable tool for data analysis, it helps us to gain the i
 
 ## Random Variables
 
-Definition
+We start from assigning probabilities to *events*.
+A event may comprise of finite or infinite number of possible outcomes. All possible output make up the *sample space*.
+To better capture this assigning processes, we need the idea of *Random Variables*.
 
-Divide into two types: discrete and continuous
+A random variable is a function that associate sample output of events with some numbers of interests.
+Imagine the classic tossing coin game, we toss the coin four times, and the result is "head", "head", "tail", "head".
+We are interested in the number of "head" in this outcome. So we make a Random Variable "X" to denote this number, and `X(["head", "head", "tail", "head"]) = 3`. 
+You can see that using random variables can greatly reduce the event sample space.
+
+Depending on the number of values it can be, a random variable can be broadly categorised into *Discrete* Random Variable (with finite number of possible output), and *Continuous* Random Variable (with infinite number of possible output).
 
 ### Discrete Random Variables
 
-Definition
+Back to the coin tossing example. Suppose that the coin is specially minted so that the probability of tossing head is $p$.
+In this scenario, we toss for three times.
+Use the number of heads as a random variable $X$, and it contains four possible outcomes: 0, 1, 2, or 3. 
+ 
+We can calculate the possibility of each output result. Since each toss is a individual trial, the possibility of three heads `P(X=2)` is $p^3$.
+Two heads includes three cases: HHT, HTH, THH, each has a probability of $p^2(1-p)$, and together $P(X=2) = 3p^2(1-p)$.
+Similarly $P(X=1)=3p(1-p)^2$, and $P(X=0)=(1-p)^3$.
 
-Example: Binomial Distribution
+Formally, consider a series of $n$ independent trails, each trail containing two possible results, and the result of interest happens at a possibility of $p$, then the possibility distribution of random variable $X$ is ($X$ being the number of result of interests):
 
-PDF, CDF, SF
+$$P(X=k) = {N\choose k} p^k(1-p)^{n-k}.$$ {#eq:stats:binomial_pdf}
+
+This type of distribution is called the *Binomial Probability Distribution*. 
+We can stimulate this process of tossing coins with the `Stats.binomial_rvs` function. 
+Suppose the probability of tossing head is 0.4, and for 10 times. 
+
+```ocaml
+# let _ = 
+    let toss = Array.make 10 0 in
+    Array.map (fun _ -> Stats.binomial_rvs 0.3 1) toss
+- : int array = [|0; 0; 0; 0; 0; 0; 0; 0; 1; 0|]
+```
+
+The equation [@eq:stats:binomial_pdf] is called the *&probability density function* (PDF) of this binomial distribution. 
+Formally the PDF of random variable X is denoted with $p_X(k)$ and is defined as:
+
+$$p_X(k)=P({s \in S | X(s) = k}),$$
+
+where $S$ is the sample space.
+This can also be expressed with the code:
+
+```ocaml
+# let x = [|0; 1; 2; 3|]
+val x : int array = [|0; 1; 2; 3|]
+# let p = Array.map (Stats.binomial_pdf ~p:0.3 ~n:3) x
+val p : float array =
+  [|0.342999999999999916; 0.440999999999999837; 0.188999999999999918;
+    0.0269999999999999823|]
+# Array.fold_left (+.) 0. p
+- : float = 0.999999999999999778
+```
+
+Aside from the PDF, another related and frequently used idea is to see the probability of random variable $X$ being within a certain range: $P(a \leq X \leq b)$. 
+It can be rewritten as $P(X \leq b) - P(X \leq a - 1)$.
+Here the term $P(X \leq t)$ is called the *Cumulative Distribution Function* of random variable $X$.
+For the binomial distribution, it CDF is:
+
+$$p(X\leq~k)=\sum_{i=0}^k{N\choose i} p^k(1-p)^{n-i}.$$
+
+We can calculate the CDF in the 3-tossing problem with code again.
+
+```ocaml
+# let x = [|0; 1; 2; 3|]
+val x : int array = [|0; 1; 2; 3|]
+# let p = Array.map (Stats.binomial_cdf ~p:0.3 ~n:3) x
+val p : float array = [|0.342999999999999972; 0.784; 0.973; 1.|]
+```
 
 ### Continuous Random Variables
 
@@ -93,15 +152,15 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 
 ```ocaml env=stats_00
 # Stats.mean data
-- : float = 5.31364843477812787
+- : float = 5.18160409659184573
 # Stats.std data
-- : float = 2.84206433399567393
+- : float = 2.92844832850280135
 # Stats.var data
-- : float = 8.0773296785702744
+- : float = 8.57580961271085229
 # Stats.skew data
-- : float = -0.20440315951733054
+- : float = -0.109699186612116223
 # Stats.kurtosis data
-- : float = 1.86457865927682298
+- : float = 1.75165078829330856
 ```
 
 The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
@@ -110,11 +169,11 @@ The following code calculates different central moments of `data`. A central mom
 # Stats.central_moment 0 data
 - : float = 1.
 # Stats.central_moment 1 data
-- : float = -8.52651282912120191e-16
+- : float = -3.13082892944294137e-15
 # Stats.central_moment 2 data
-- : float = 7.99655638178457107
+- : float = 8.49005151658374224
 # Stats.central_moment 3 data
-- : float = -4.69233832808677143
+- : float = -2.75496511397836663
 ```
 
 ### Order Statistics
@@ -172,7 +231,7 @@ Multinomial distribution
 
 ### Basic Theory
 
-While decriptive statitics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
+While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
 
 * Null hypothesis $H_0$: there is no relationship between two data sets.
 * Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
@@ -207,8 +266,8 @@ Our hypothesis is that the data set is drawn from Gaussian distribution $\mathca
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_0
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = false; p_value = 0.242032046118101141;
- score = 1.16992277887512341}
+{Owl.Stats.reject = false; p_value = 0.289340080583773251;
+ score = -1.05957041132113083}
 ```
 
 The returned result is a record with the following type definition. The fields are self-explained: `reject` field tells whether the null hypothesis is rejected, along with the p value and score calculated with the given data set.
@@ -226,8 +285,8 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_1
 - : Owl_stats.hypothesis =
-{Owl.Stats.reject = true; p_value = 3.53845276213587496e-17;
- score = 8.42726256918400729}
+{Owl.Stats.reject = true; p_value = 5.06534675819424548e-23;
+ score = 9.88035435799393547}
 ```
 
 As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
@@ -289,9 +348,9 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 
 ```ocaml env=stats_01
 # Stats.corrcoef x y
-- : float = 0.989041010081050831
+- : float = 0.991145445979576656
 # Stats.corrcoef x z
-- : float = 0.702162288791283395
+- : float = 0.692163016204755288
 ```
 
 ## Analysis of Variance
