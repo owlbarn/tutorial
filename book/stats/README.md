@@ -77,23 +77,15 @@ val p : float array = [|0.342999999999999972; 0.784; 0.973; 1.|]
 
 ### Continuous Random Variables
 
-Definition 
+Unlike discrete random variable, a continuous random variable has infinite number of possible outcomes. 
+For example, in uniform distribution, we can pick a random real number between 0 and 1. Apparently there can be infinite number of outputs. 
 
-Example: Gaussian 
+One of the most widely used continuous distribution is no doubt the *Gaussian distribution*.
+It's probability function is a continuous one:
+$$p(x) = \frac{1}{\sqrt{2\pi~\delta}}s\exp{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}$$ {#eq:stats:gaussian_pdf}
 
-PDF, CDF, SF
-
-Here we use Gaussian distribution as an example to illustrate the naming convention.
-
-* `gaussian_rvs` : random number generator.
-* `gaussian_pdf` : probability density function.
-* `gaussian_cdf` : cumulative distribution function.
-* `gaussian_ppf` : percent point function (inverse of CDF).
-* `gaussian_sf` : survival function (1 - CDF).
-* `gaussian_isf` : inverse survival function (inverse of SF).
-* `gaussian_logpdf` : logarithmic probability density function.
-* `gaussian_logcdf` : logarithmic cumulative distribution function.
-* `gaussian_logsf` : logarithmic survival function.
+Here the $\mu$ and $\sigma$ are parameters. Depending on them, the $p(x)$ can take different shapes.
+Let's look at an example.
 
 We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution $\mathcal{N} (\mu, \sigma^{2})$. For the first one, the configuration is $(\mu = 1, \sigma = 1)$; whilst for the second one, the configuration is $(\mu = 12, \sigma = 3)$.
 
@@ -115,24 +107,39 @@ let y' = Mat.of_array y 1 999;;
 
 let h = Plot.create ~m:1 ~n:2 "plot_02.png" in
 
-  Plot.subplot h 0 0;
-  Plot.set_ylabel h "frequency";
-  Plot.histogram ~bin:30 ~h x';
-  Plot.histogram ~bin:30 ~h y';
+Plot.subplot h 0 0;
+Plot.set_ylabel h "frequency";
+Plot.histogram ~bin:30 ~h x';
+Plot.histogram ~bin:30 ~h y';
 
-  Plot.subplot h 0 1;
-  Plot.set_ylabel h "PDF p(x)";
-  Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:1. ~sigma:1. x) (-2.) 6.;
-  Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:12. ~sigma:3. x) 0. 25.;
+Plot.subplot h 0 1;
+Plot.set_ylabel h "PDF p(x)";
+Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:1. ~sigma:1. x) (-2.) 6.;
+Plot.plot_fun ~h (fun x -> Stats.gaussian_pdf ~mu:12. ~sigma:3. x) 0. 25.;
 
-  Plot.output h;;
+Plot.output h;;
 ```
 
 In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.
 
 ![Probability density functions of two data sets](images/stats/plot_02.png "plot 02"){ width=90% #fig:stats:plot_02 }
 
-As an exercise, you can also try out other distributions like gamma, beta, chi2, and student-t distribution.
+The CDF of Gaussian can be calculated with infinite summation, i.e. integration:
+
+$$p(x\leq~k)=\frac{1}{\sqrt{2\pi}}\int_{-\infty}^k~e^{-t^2/2}dt.$$
+
+We can observe this function with `gaussian_cdf`.
+
+```ocaml env=stats_02
+let h = Plot.create "plot_gaussian_cdf.png" in
+Plot.set_ylabel h "CDF";
+Plot.plot_fun ~h ~spec:[ RGB (66,133,244); LineStyle 1; LineWidth 2.; Marker "*" ] (fun x -> Stats.gaussian_cdf ~mu:1. ~sigma:1. x) (-2.) 6.;
+Plot.plot_fun ~h ~spec:[ RGB (219,68,55);  LineStyle 2; LineWidth 2.; Marker "+" ] (fun x -> Stats.gaussian_cdf ~mu:12. ~sigma:3. x) 0. 25.;
+Plot.(legend_on h ~position:SouthEast [|"mu=1,sigma=1"; "mu=12, sigma=3"|]);
+Plot.output h
+```
+
+![Cumulated density functions of two data sets](images/stats/plot_gaussian_cdf.png "plot gaussian cdf"){ width=70% #fig:stats:plot_gaussian_cdf }
 
 ### Descriptive Statistics
 
@@ -196,6 +203,18 @@ In addition to the aforementioned ones, there are many other ordered statistical
 IMAGE to show the difference of mean, median, mode, etc.
 
 ## Special Distribution 
+
+illustrate the naming convention.
+
+* `gaussian_rvs` : random number generator.
+* `gaussian_pdf` : probability density function.
+* `gaussian_cdf` : cumulative distribution function.
+* `gaussian_ppf` : percent point function (inverse of CDF).
+* `gaussian_sf` : survival function (1 - CDF).
+* `gaussian_isf` : inverse survival function (inverse of SF).
+* `gaussian_logpdf` : logarithmic probability density function.
+* `gaussian_logcdf` : logarithmic cumulative distribution function.
+* `gaussian_logsf` : logarithmic survival function.
 
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. 
 
