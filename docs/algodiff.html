@@ -13,11 +13,11 @@
 <section class="level3" id="chain-rule">
 <h3>Chain Rule</h3>
 <p>Before diving into how to do differentiation on computers, let’s recall how to do it manually from our Calculus 101.</p>
-<p>One of the most rule in performing differentiation is the <em>chain rule</em>. In calculus, the chain rule is a formula to compute the derivative of a composite function. Suppose we have two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>, then the Chain rule states that:</p>
+<p>One of the most important rules in performing differentiation is the <em>chain rule</em>. In calculus, the chain rule is a formula to compute the derivative of a composite function. Suppose we have two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>, then the Chain rule states that:</p>
 <p><span id="eq:algodiff:chainrule01"><span class="math display">\[F'(x)=f'(g(x))g'(x).\qquad(3)\]</span></span></p>
-<p>This seemingly simple rule is one of the basic rule in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let <span class="math inline">\(y=e^{ln~x^a} = e^{a~ln~x}\)</span>, and then we can set <span class="math inline">\(u= alnx\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
+<p>This seemingly simple rule is one of the basic rule in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let <span class="math inline">\(y=e^{\ln~x^a} = e^{a~\ln~x}\)</span>, and then we can set <span class="math inline">\(u= a\ln{x}\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
 <p><span class="math display">\[y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.\]</span></p>
-<p>Besides the chain rule, it’s helpful to remember some basic differentiation equations, as shown in tbl.&nbsp;1. Here <span class="math inline">\(x\)</span> is variable and both <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are functions with regard to <span class="math inline">\(x\)</span>. <span class="math inline">\(C\)</span> is constant. Of course, this very short list is incomplete. Please refer to calculus textbooks for more information. Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine.</p>
+<p>Besides the chain rule, it’s helpful to remember some basic differentiation equations, as shown in tbl.&nbsp;1. Here <span class="math inline">\(x\)</span> is variable and both <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are functions with regard to <span class="math inline">\(x\)</span>. <span class="math inline">\(C\)</span> is constant. These equations are the building blocks of differentiating more complicated ones. Of course, this very short list is incomplete. Please refer to calculus textbooks for more information. Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine.</p>
 <div id="tbl:algodiff:chainrule02">
 <table style="width:88%;">
 <caption>Table 1: A Short Table of Basic Derivatives</caption>
@@ -66,7 +66,7 @@
 </section>
 <section class="level3" id="differentiation-methods">
 <h3>Differentiation Methods</h3>
-<p>As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation. Therefore, we turn to computer-based automated computation methods. There are three: numerical differentiation, symbolic differentiation, and algorithmic differentiation.</p>
+<p>As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation. Therefore, we turn to computer-based automated computation methods. There are three kinds: numerical differentiation, symbolic differentiation, and algorithmic differentiation.</p>
 <p><strong>Numerical Differentiation</strong></p>
 <p>The numerical differentiation comes from the definition of derivative in eq.&nbsp;1. It uses a small step <span class="math inline">\(\delta\)</span> to approximate the limit in the definition:</p>
 <p><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.\]</span></p>
@@ -361,8 +361,8 @@ let f x =
 <p>Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.</p>
 </section>
 </section>
-<section class="level2" id="a-straw-man-ad-engine">
-<h2>A Straw man AD Engine</h2>
+<section class="level2" id="a-strawman-ad-engine">
+<h2>A Strawman AD Engine</h2>
 <p>TODO: revise code, especially naming such as <code>sin_ad</code>.</p>
 <p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using OCaml code. Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.</p>
 <p>We will again use the function in eq.&nbsp;4 as example, and we limit the computation in our small AD engine to only these operations: <code>add</code>, <code>div</code>, <code>mul</code>,</p>
@@ -379,6 +379,7 @@ let primal df = df.p
 let tangent df = df.t</code></pre>
 </div>
 <p>And now we can define operators that accept type <code>df</code> as input and outputs the same type:</p>
+<p><strong>liang: change your variable name from df to just x</strong></p>
 <div class="highlight">
 <pre><code class="language-ocaml">let sin_ad df = 
     let p = primal df in 
@@ -430,9 +431,12 @@ let div_ad dfa dfb =
 </div>
 <p>Based on these functions, we can provide a tiny wrapper named <code>diff</code>:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let diff f x = 
-  let r = f x in 
-  primal r, tangent r</code></pre>
+<pre><code class="language-ocaml">let diff f =
+  let f' x y =
+    let r = f x y in 
+    primal r, tangent r
+  in
+  f'</code></pre>
 </div>
 <p>And that’s all! Now we can do differentiation on our previous example.</p>
 <div class="highlight">
@@ -441,8 +445,7 @@ let x1 = {p=1.; t=0.}</code></pre>
 </div>
 <p>These are inputs. We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x =
-  let x0, x1 = x in 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x0 x1 =
   let v2 = sin_ad x0 in
   let v3 = mul_ad x0 x1 in
   let v4 = add_ad v2 v3 in
@@ -453,8 +456,8 @@ let x1 = {p=1.; t=0.}</code></pre>
   let v9 = div_ad v7 v8 in
   v9
 ;;
-&gt;val f : df * df -&gt; df = &lt;fun&gt;
-let pri, tan = diff f (x0, x1);;
+&gt;val f : df -&gt; df -&gt; df = &lt;fun&gt;
+let pri, tan = diff f x0 x1;;
 &gt;val pri : float = 0.13687741466075895
 &gt;val tan : float = -0.181974376561731321
 </code></pre>

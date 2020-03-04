@@ -31,7 +31,7 @@ TODO: detail description of application.
 
 Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
 
-One of the most rule in performing differentiation is the *chain rule*.
+One of the most important rules in performing differentiation is the *chain rule*.
 In calculus, the chain rule is a formula to compute the derivative of a composite function.
 Suppose we have two functions $f$ and $g$, then the Chain rule states that:
 
@@ -39,12 +39,13 @@ $$F'(x)=f'(g(x))g'(x).$$ {#eq:algodiff:chainrule01}
 
 This seemingly simple rule is one of the basic rule in calculating derivatives.
 For example, let $y = x^a$, where $a$ is a real number, and then we can get $y'$ using the chain rule.
-Specifically, let $y=e^{ln~x^a} = e^{a~ln~x}$, and then we can set $u= alnx$ so that now $y=e^u$. By applying the chain rule, we have:
+Specifically, let $y=e^{\ln~x^a} = e^{a~\ln~x}$, and then we can set $u= a\ln{x}$ so that now $y=e^u$. By applying the chain rule, we have:
 
 $$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$ 
 
 Besides the chain rule, it's helpful to remember some basic differentiation equations, as shown in [@tbl:algodiff:chainrule02]. 
 Here $x$ is variable and both $u$ and $v$ are functions with regard to $x$. $C$ is constant.
+These equations are the building blocks of differentiating more complicated ones.
 Of course, this very short list is incomplete. Please refer to calculus textbooks for more information.
 Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine. 
 
@@ -67,11 +68,12 @@ $log_a(x)$              $\frac{1}{x~\textrm{ln}~a}$
 ----------------------  --------------------------------------
 : A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}
 
+
 ### Differentiation Methods 
 
 As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation.
 Therefore, we turn to computer-based automated computation methods. 
-There are three: numerical differentiation, symbolic differentiation, and algorithmic differentiation.
+There are three kinds: numerical differentiation, symbolic differentiation, and algorithmic differentiation.
 
 **Numerical Differentiation**
 
@@ -348,7 +350,7 @@ For each input variable, we need to seed individual variable and perform one for
 Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
 
 
-## A Straw man AD Engine 
+## A Strawman AD Engine 
 
 TODO: revise code, especially naming such as `sin_ad`.
 
@@ -377,6 +379,8 @@ let tangent df = df.t
 ```
 
 And now we can define operators that accept type `df` as input and outputs the same type:
+
+**liang: change your variable name from df to just x**
 
 ```ocaml env=algodiff_simple_impl_forward
 let sin_ad df = 
@@ -439,9 +443,12 @@ let div_ad dfa dfb =
 Based on these functions, we can provide a tiny wrapper named `diff`:
 
 ```ocaml env=algodiff_simple_impl_forward
-let diff f x = 
-  let r = f x in 
-  primal r, tangent r
+let diff f =
+  let f' x y =
+    let r = f x y in 
+    primal r, tangent r
+  in
+  f'
 ```
 
 And that's all! Now we can do differentiation on our previous example.
@@ -455,8 +462,7 @@ These are inputs.
 We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.
 
 ```ocaml env=algodiff_simple_impl_forward
-# let f x =
-    let x0, x1 = x in 
+# let f x0 x1 =
     let v2 = sin_ad x0 in
     let v3 = mul_ad x0 x1 in
     let v4 = add_ad v2 v3 in
@@ -466,9 +472,9 @@ We know the tangent of x1 with regard to x0 is zero, and so are the other consta
     let v8 = add_ad v5 v6 in
     let v9 = div_ad v7 v8 in
     v9
-val f : df * df -> df = <fun>
+val f : df -> df -> df = <fun>
 
-# let pri, tan = diff f (x0, x1)
+# let pri, tan = diff f x0 x1
 val pri : float = 0.13687741466075895
 val tan : float = -0.181974376561731321
 ```
