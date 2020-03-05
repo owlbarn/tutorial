@@ -92,6 +92,8 @@
         images/signal/conv.png
         images/signal/lena.png
         images/signal/plot_001.png
+        images/slicing/example_broadcast.png
+        images/slicing/example_slice.png
         images/slicing/plot_00.png
         images/stats/plot_01.png
         images/stats/plot_02.png

@@ -1,9 +1,5 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Slicing and Broadcasting - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="slicing-and-broadcasting">
 <h1>Slicing and Broadcasting</h1>
-<p>TODO: rewrite with visual illustration.</p>
-<figure>
-<img alt="" style="width:20.0%" title="plot_00" src="images/slicing/plot_00.png"><figcaption>Illustration of two-dimensional slicing</figcaption>
-</figure>
 <p>Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.</p>
 <p>Before we start, let’s clarify some things.</p>
 <ul>
@@ -84,6 +80,71 @@
 </ul>
 <p><strong>Rule #7</strong>: It is not necessary to specify all the definitions for all the dimensions, <code>get_slice</code> function will also expand it by assuming you will take all the data in higher dimensions. E.g., <code>x</code> has the shape <code>[ 2; 3; 4 ]</code>, if we define the slice as <code>[ [0] ]</code> then <code>get_slice</code> will expand the definition into <code>[ [0]; []; [] ]</code></p>
 <p>OK, that’s all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.</p>
+<p>Here is some illustrated examples that can get you started with some of these rules. These examples are based on a <code>8x8</code> matrix, as shown in fig.&nbsp;<strong>¿fig:slicing:example_slicing?</strong>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Arr.sequential [|8; 8|]</code></pre>
+</div>
+<figure>
+<img alt="" style="width:95.0%" id="fig:slicing:example_slice" title="slicing example" src="images/slicing/example_slice.png"><figcaption>Figure 1: Illustrated Examples of Slicing</figcaption>
+</figure>
+<p>The first example is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ R[]; I 2 ] x;;;;
+&gt;- : Arr.arr =
+&gt;
+&gt;   C0
+&gt;R0  2
+&gt;R1 10
+&gt;R2 18
+&gt;R3 26
+&gt;R4 34
+&gt;R5 42
+&gt;R6 50
+&gt;R7 58
+Arr.get_slice [ []; [2]  ] x;;;;
+&gt;- : Arr.arr =
+&gt;
+&gt;   C0
+&gt;R0  2
+&gt;R1 10
+&gt;R2 18
+&gt;R3 26
+&gt;R4 34
+&gt;R5 42
+&gt;R6 50
+&gt;R7 58
+</code></pre>
+</div>
+<p>The second example is similar, but part of a row. Still, this can be gotten using both methods.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ I 2; R [4; 6] ] x;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0 20 21 22
+Arr.get_slice [ [2]; [4; 6] ] x;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0 20 21 22
+</code></pre>
+</div>
+<p>The next example is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2 C3
+&gt;R0 25 27 29 31
+&gt;R1 41 43 45 47
+</code></pre>
+</div>
+<p>Finally, the last example concerns taking a sub-matrix. We can do it in the similar way as to the example 1 and 2. Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ L [-2; -1]; R [-3; -2] ] x;;
+&gt;- : Arr.arr =
+&gt;   C0 C1
+&gt;R0 53 54
+&gt;R1 61 62
+</code></pre>
+</div>
 </section>
 <section class="level2" id="extended-operators">
 <h2>Extended Operators</h2>
@@ -348,6 +409,54 @@ rotate90 x
   let y = Arr.sequential [|4;5|];;
   let y' = Arr.expand y 4;;
   Arr.shape y';;    (* returns [|1;1;4;5|] *)
+</code></pre>
+</div>
+<p>If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting. They are vector multiplied by scalar, matrix plus vector, and column vector plus row vector, as shown in fig.&nbsp;2.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:slicing:broadcast" title="example broadcast" src="images/slicing/example_broadcast.png"><figcaption>Figure 2: Illustrated examples of shape extension in broadcasting</figcaption>
+</figure>
+<p>We can perform these three calculations as below, as a way to verify these illustrated examples.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Arr.sequential [|1;3|];;
+&gt;val a : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  0  1  2
+Arr.add_scalar a 3.;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  3  4  5
+let b0 = Arr.sequential [|3;3|];;
+&gt;val b0 : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  0  1  2
+&gt;R1  3  4  5
+&gt;R2  6  7  8
+let b1 = Arr.sequential ~a:1. [|1;3|];;
+&gt;val b1 : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  1  2  3
+Arr.mul b0 b1 ;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  0  2  6
+&gt;R1  3  8 15
+&gt;R2  6 14 24
+let c0 = Arr.sequential [|3;1|];;
+&gt;val c0 : Arr.arr =
+&gt;   C0
+&gt;R0  0
+&gt;R1  1
+&gt;R2  2
+let c1 = Arr.copy b1;;
+&gt;val c1 : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  1  2  3
+Arr.mul c0 c1;;
+&gt;- : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  0  0  0
+&gt;R1  1  2  3
+&gt;R2  2  4  6
 </code></pre>
 </div>
 </section>

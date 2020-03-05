@@ -1,10 +1,5 @@
 # Slicing and Broadcasting
 
-TODO: rewrite with visual illustration.
-
-![Illustration of two-dimensional slicing](images/slicing/plot_00.png "plot_00"){ width=20% }
-
-
 Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.
 
 Before we start, let's clarify some things.
@@ -115,7 +110,89 @@ The following conventions require our attentions in order to write correct slice
 
 OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.
 
+Here is some illustrated examples that can get you started with some of these rules. 
+These examples are based on a `8x8` matrix, as shown in [@fig:slicing:example_slicing].
 
+```ocaml env=slicing_example_00
+let x = Arr.sequential [|8; 8|]
+```
+
+![Illustrated Examples of Slicing](images/slicing/example_slice.png "slicing example"){width=95% #fig:slicing:example_slice}
+
+The first example is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:
+
+```ocaml env=slicing_example_00
+# Arr.get_fancy [ R[]; I 2 ] x;;
+- : Arr.arr =
+
+   C0
+R0  2
+R1 10
+R2 18
+R3 26
+R4 34
+R5 42
+R6 50
+R7 58
+
+
+
+
+# Arr.get_slice [ []; [2]  ] x;;
+- : Arr.arr =
+
+   C0
+R0  2
+R1 10
+R2 18
+R3 26
+R4 34
+R5 42
+R6 50
+R7 58
+
+```
+
+The second example is similar, but part of a row. Still, this can be gotten using both methods.
+
+```ocaml env=slicing_example_00
+# Arr.get_fancy [ I 2; R [4; 6] ] x
+- : Arr.arr =
+   C0 C1 C2
+R0 20 21 22
+
+
+
+
+# Arr.get_slice [ [2]; [4; 6] ] x
+- : Arr.arr =
+   C0 C1 C2
+R0 20 21 22
+
+```
+
+The next example is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
+
+```ocaml env=slicing_example_00
+# Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x
+- : Arr.arr =
+   C0 C1 C2 C3
+R0 25 27 29 31
+R1 41 43 45 47
+
+```
+
+Finally, the last example concerns taking a sub-matrix. We can do it in the similar way as to the example 1 and 2. 
+Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.
+
+```ocaml env=slicing_example_00
+# Arr.get_fancy [ L [-2; -1]; R [-3; -2] ] x
+- : Arr.arr =
+   C0 C1
+R0 53 54
+R1 61 62
+
+```
 
 ## Extended Operators
 
@@ -431,6 +508,75 @@ You can try `expand` by yourself, as below.
 
 ```
 
+If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting. 
+They are vector multiplied by scalar, matrix plus vector, and column vector plus row vector, as shown in [@fig:slicing:broadcast].
+
+![Illustrated examples of shape extension in broadcasting](images/slicing/example_broadcast.png "example broadcast"){width=90% #fig:slicing:broadcast} 
+
+We can perform these three calculations as below, as a way to verify these illustrated examples.
+
+```ocaml
+# let a = Arr.sequential [|1;3|]
+val a : Arr.arr =
+   C0 C1 C2
+R0  0  1  2
+
+
+
+# Arr.add_scalar a 3.
+- : Arr.arr =
+   C0 C1 C2
+R0  3  4  5
+
+
+
+# let b0 = Arr.sequential [|3;3|]
+val b0 : Arr.arr =
+   C0 C1 C2
+R0  0  1  2
+R1  3  4  5
+R2  6  7  8
+
+
+
+# let b1 = Arr.sequential ~a:1. [|1;3|]
+val b1 : Arr.arr =
+   C0 C1 C2
+R0  1  2  3
+
+
+# Arr.mul b0 b1 
+- : Arr.arr =
+   C0 C1 C2
+R0  0  2  6
+R1  3  8 15
+R2  6 14 24
+
+
+
+# let c0 = Arr.sequential [|3;1|]
+val c0 : Arr.arr =
+   C0
+R0  0
+R1  1
+R2  2
+
+
+
+# let c1 = Arr.copy b1
+val c1 : Arr.arr =
+   C0 C1 C2
+R0  1  2  3
+
+
+# Arr.mul c0 c1
+- : Arr.arr =
+   C0 C1 C2
+R0  0  0  0
+R1  1  2  3
+R2  2  4  6
+
+```
 
 ### Supported Operations
 
