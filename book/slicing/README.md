@@ -567,51 +567,19 @@ R2  2  4  6
 
 ### Supported Operations
 
-The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the following operations in Owl support broadcasting:
+The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the operations in Owl support broadcasting are listed below:
 
---------------------------  -----------
-Function Name               Operators
---------------------------  -----------
-`add`                       `+`
+- basic computation: `add`, `sub`, `mul`, `div`, `pow`
+- comparison operations: `elt_equal`, `elt_not_equal`, `elt_less`, `elt_greater`, `elt_less_equal`, `elt_greater_equal`
+- other operations: `min2`, `max2`. `atan2`, `hypot`, `fmod`
 
-`sub`                       `-`
-
-`mul`                       `*`
-
-`div`                       `/`
-
-`pow`                       `**`
-
-`min2`
-
-`max2`
-
-`atan2`
-
-`hypot`
-
-`fmod`
-
-`elt_equal`                 `=.`
-
-`elt_not_equal`             `!=.` `<>.`
-
-`elt_less`                  `<.`
-
-`elt_greater`               `>.`
-
-`elt_less_equal`            `<=.`
-
-`elt_greater_equal`         `>=.`
---------------------------  -----------
-: Operators that supports broadcasting {#tbl:slicing:broadcast}
-
-## Internal Mechanism
+## Slicing in NumPy and Julia
 
 The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
 For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy.
 
 ```python
+>> import numpy as np
 >> x = np.arange(64).reshape([8,8])
 
 >> x[:, 2]
@@ -629,11 +597,12 @@ array([[53, 54],
        [61, 62]])
 ```
 
-Difference: Range 
+You can see that the basic indexing syntax are similar, only that Python is not strong-typed, so the users can mix single index, list of indices, or index range. 
+Note that index range in NumPy is different than that in Owl.
 
 Also, in Julia it can be done with:
 
-```text
+```julia
 > x = transpose(reshape([0:1:63;],8 ,8))
 
 > x[:, 3]
@@ -665,12 +634,75 @@ Also, in Julia it can be done with:
  61  62
 ```
 
-Difference:
+The Julia interface is similar to that of NumPy. However, there are some crucial differences as shown these examples. 
+First, the array in Julia uses column-major order, so we need to use the `transpose` function to achieve the same example.
+The other obvious difference is that, the indexing of Julia array starts from 1, not 0. 
+Besides, the negative indexing is not supported in Julia. 
 
-- column-major order 
-- starting from 1
+However, one important thing to notice in slicing is the difference between *copy* and *view*.
+For example, in Owl we can make a slice:
 
-Another thing that worth mentioning is the difference between slicing and *view*.
+```ocaml env=slicing_example_01
+# let x = Arr.sequential [|3;3|]
+val x : Arr.arr =
+   C0 C1 C2
+R0  0  1  2
+R1  3  4  5
+R2  6  7  8
 
+```
+```ocaml env=slicing_example_01
+# let y = Arr.get_slice [[0]; []] x
+val y : Arr.arr =
+   C0 C1 C2
+R0  0  1  2
+
+```
+```ocaml env=slicing_example_01
+# Arr.set y [|0; 2|] 200.;;
+- : unit = ()
+```
+```ocaml env=slicing_example_01
+# y
+- : Arr.arr =
+   C0 C1  C2
+R0  0  1 200
+
+
+
+# x 
+- : Arr.arr =
+   C0 C1 C2
+R0  0  1  2
+R1  3  4  5
+R2  6  7  8
+
+```
+
+We can see that in Owl, changing the local content of the slice `y` does not change that of the original ndarray `x`. 
+That's because in Owl each slice makes a different copy.
+
+As a contrast, in NumPy the default indexing only makes a "view" of the original array, and any change on the view will also change the original array.
+
+```python
+>> x = np.arange(9).reshape([3,3])
+array([[0, 1, 2],
+       [3, 4, 5],
+       [6, 7, 8]])
+
+>> y = x[0, :]
+array([0, 1, 2])
+
+>> y[2] = 200
+>> y
+array([  0,   1, 200])
+
+>> x
+array([[  0,   1, 200],
+       [  3,   4,   5],
+       [  6,   7,   8]])
+```
+
+## Internal Mechanism
 
 For performance, slicing is implemented in C.
