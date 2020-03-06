@@ -608,3 +608,69 @@ Function Name               Operators
 
 ## Internal Mechanism
 
+The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
+For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy.
+
+```python
+>> x = np.arange(64).reshape([8,8])
+
+>> x[:, 2]
+array([ 2, 10, 18, 26, 34, 42, 50, 58])
+
+>> x[2, 4:7]
+array([20, 21, 22])
+
+>> x[[3,5], 1:8:2]
+array([[25, 27, 29, 31],
+       [41, 43, 45, 47]])
+
+>> x[[-2,-1], -3:-1]
+array([[53, 54],
+       [61, 62]])
+```
+
+Difference: Range 
+
+Also, in Julia it can be done with:
+
+```text
+> x = transpose(reshape([0:1:63;],8 ,8))
+
+> x[:, 3]
+8-element Array{Int64,1}:
+  2
+ 10
+ 18
+ 26
+ 34
+ 42
+ 50
+ 58
+
+
+> x[3, 5:7]
+3-element Array{Int64,1}:
+ 20
+ 21
+ 22
+
+> x[[4,6], 2:2:8]
+2x4 Array{Int64,2}:
+ 25  27  29  31
+ 41  43  45  47
+
+> x[7:8, [6,7]]
+2x2 Array{Int64,2}:
+ 53  54
+ 61  62
+```
+
+Difference:
+
+- column-major order 
+- starting from 1
+
+Another thing that worth mentioning is the difference between slicing and *view*.
+
+
+For performance, slicing is implemented in C.

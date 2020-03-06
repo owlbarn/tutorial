@@ -563,6 +563,64 @@ let c1 = Arr.copy b1</code></pre>
 </section>
 <section class="level2" id="internal-mechanism">
 <h2>Internal Mechanism</h2>
+<p>The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages. For example, the examples in fig.&nbsp;1 and fig.&nbsp;2 can be implemented using NumPy.</p>
+<div class="highlight">
+<pre><code class="language-python">&gt;&gt; x = np.arange(64).reshape([8,8])
+
+&gt;&gt; x[:, 2]
+array([ 2, 10, 18, 26, 34, 42, 50, 58])
+
+&gt;&gt; x[2, 4:7]
+array([20, 21, 22])
+
+&gt;&gt; x[[3,5], 1:8:2]
+array([[25, 27, 29, 31],
+       [41, 43, 45, 47]])
+
+&gt;&gt; x[[-2,-1], -3:-1]
+array([[53, 54],
+       [61, 62]])</code></pre>
+</div>
+<p>Difference: Range</p>
+<p>Also, in Julia it can be done with:</p>
+<div class="highlight">
+<pre><code class="language-text">&gt; x = transpose(reshape([0:1:63;],8 ,8))
+
+&gt; x[:, 3]
+8-element Array{Int64,1}:
+  2
+ 10
+ 18
+ 26
+ 34
+ 42
+ 50
+ 58
+
+
+&gt; x[3, 5:7]
+3-element Array{Int64,1}:
+ 20
+ 21
+ 22
+
+&gt; x[[4,6], 2:2:8]
+2x4 Array{Int64,2}:
+ 25  27  29  31
+ 41  43  45  47
+
+&gt; x[7:8, [6,7]]
+2x2 Array{Int64,2}:
+ 53  54
+ 61  62</code></pre>
+</div>
+<p>Difference:</p>
+<ul>
+<li>column-major order</li>
+<li>starting from 1</li>
+</ul>
+<p>Another thing that worth mentioning is the difference between slicing and <em>view</em>.</p>
+<p>For performance, slicing is implemented in C.</p>
 </section>
 </section>
 </article></div><a href="linear-algebra.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 08</small>Linear Algebra</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
