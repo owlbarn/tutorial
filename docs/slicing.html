@@ -1,35 +1,34 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Slicing and Broadcasting - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="slicing-and-broadcasting">
 <h1>Slicing and Broadcasting</h1>
-<p>Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. In this chapter, I will present how to use slicing function in Owl.</p>
+<p>Indexing, slicing, and broadcasting are three fundamental functions in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">Ndarray module</a>. In this chapter we will introduce how to use them in Owl.</p>
+<section class="level2" id="slicing">
+<h2>Slicing</h2>
+<p>Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms.</p>
 <p>Before we start, let’s clarify some things.</p>
 <ul>
-<li><p>Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined <strong>slice definition</strong>.</p></li>
+<li><p>Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined <em>slice definition</em>.</p></li>
 <li><p>Slicing can be applied to all the dense data structures, i.e.&nbsp;both ndarrays and matrice.</p></li>
-<li><p>Slice definition is an <code>index list</code> which clarifies <strong>what indices</strong> should be accessed and in <strong>what order</strong> for each dimension of the passed in variable.</p></li>
-<li><p>There are two types of slicing in Owl: <code>basic slicing</code> and <code>fancy slicing</code>. The difference between the two is how the slice is define.</p></li>
+<li><p>Slice definition is an <code>index list</code> which clarifies <em>what indices</em> should be accessed and in <em>what order</em> for each dimension of the passed in variable.</p></li>
+<li><p>There are two types of slicing in Owl: <em>basic slicing</em> and <em>fancy slicing</em>. The difference between the two is how the slice is defined.</p></li>
 </ul>
-<section class="level2" id="basic-slicing">
-<h2>Basic Slicing</h2>
+<section class="level3" id="basic-slicing">
+<h3>Basic Slicing</h3>
 <p>For basic slicing, each dimension in the slice definition must be defined in the format of <strong>[start:stop:step]</strong>. Owl provides two functions <code>get_slice</code> and <code>set_slice</code> to retrieve and assign slice values respectively.</p>
 <div class="highlight">
-<pre><code class="language-text">
-  val get_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+<pre><code class="language-text">val get_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t
 
-  val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit
-</code></pre>
+val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code></pre>
 </div>
 <p>Both functions accept <code>int list list</code> as its slice definition. Every <code>list</code> element in the <code>int list list</code> is assumed to be a range. E.g., <code>[ []; [2]; [-1;3] ]</code> is equivalent to its full slice definition <code>[ R []; R [2]; R [-1;3] ]</code>, as we will introduce below in fancy slicing.</p>
 </section>
-<section class="level2" id="fancy-slicing">
-<h2>Fancy Slicing</h2>
+<section class="level3" id="fancy-slicing">
+<h3>Fancy Slicing</h3>
 <p>Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrary indices which may not be possible to specify with aforementioned <code>[start;stop;step]</code> format.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  type index =
-    | I of int       (* single index *)
-    | L of int list  (* list of indices *)
-    | R of int list  (* index range *)
-</code></pre>
+<pre><code class="language-ocaml">type index =
+  | I of int       (* single index *)
+  | L of int list  (* list of indices *)
+  | R of int list  (* index range *)</code></pre>
 </div>
 <p>Fancy slice is defined by an <code>index list</code> where you can use three type constructors to specify:</p>
 <ul>
@@ -58,8 +57,8 @@
 </div>
 <p>Note that both <code>get_basic</code> and <code>get_fancy</code> return a copy (rather than a view as that in Numpy); whilst <code>set_basic</code> and <code>set_fancy</code> modifies the original data in place.</p>
 </section>
-<section class="level2" id="conventions-in-definition">
-<h2>Conventions in Definition</h2>
+<section class="level3" id="conventions-in-definition">
+<h3>Conventions in Definition</h3>
 <p>Essentially, Owl’s slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.</p>
 <p>The core building block is the slice definition. Slice definition is a <code>index list</code>. Each element within the <code>index list</code> corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors <code>I</code>, <code>L</code>, and <code>R</code> to let you specify single index, a list of indices, or a range of indices.</p>
 <ul>
@@ -80,14 +79,14 @@
 </ul>
 <p><strong>Rule #7</strong>: It is not necessary to specify all the definitions for all the dimensions, <code>get_slice</code> function will also expand it by assuming you will take all the data in higher dimensions. E.g., <code>x</code> has the shape <code>[ 2; 3; 4 ]</code>, if we define the slice as <code>[ [0] ]</code> then <code>get_slice</code> will expand the definition into <code>[ [0]; []; [] ]</code></p>
 <p>OK, that’s all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.</p>
-<p>Here is some illustrated examples that can get you started with some of these rules. These examples are based on a <code>8x8</code> matrix, as shown in fig.&nbsp;<strong>¿fig:slicing:example_slicing?</strong>.</p>
+<p>Here is some illustrated examples that can get you started with some of these rules. These examples are based on a <code>8x8</code> matrix.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Arr.sequential [|8; 8|]</code></pre>
 </div>
 <figure>
-<img alt="" style="width:95.0%" id="fig:slicing:example_slice" title="slicing example" src="images/slicing/example_slice.png"><figcaption>Figure 1: Illustrated Examples of Slicing</figcaption>
+<img alt="" style="width:95.0%" id="fig:slicing:example_slice_01" title="slicing example 01" src="images/slicing/example_slice_01.png"><figcaption>Figure 1: Illustrated Examples of Slicing</figcaption>
 </figure>
-<p>The first example is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:</p>
+<p>The first example as shown in fig.&nbsp;1(a)is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ R[]; I 2 ] x;;;;
 &gt;- : Arr.arr =
@@ -101,7 +100,10 @@
 &gt;R5 42
 &gt;R6 50
 &gt;R7 58
-Arr.get_slice [ []; [2]  ] x;;;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_slice [ []; [2]  ] x;;;;
 &gt;- : Arr.arr =
 &gt;
 &gt;   C0
@@ -115,19 +117,25 @@ Arr.get_slice [ []; [2]  ] x;;;;
 &gt;R7 58
 </code></pre>
 </div>
-<p>The second example is similar, but part of a row. Still, this can be gotten using both methods.</p>
+<p>The second example in in fig.&nbsp;1(b)is similar, but part of a row. Still, this can be gotten using both methods.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ I 2; R [4; 6] ] x;;
 &gt;- : Arr.arr =
 &gt;   C0 C1 C2
 &gt;R0 20 21 22
-Arr.get_slice [ [2]; [4; 6] ] x;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_slice [ [2]; [4; 6] ] x;;
 &gt;- : Arr.arr =
 &gt;   C0 C1 C2
 &gt;R0 20 21 22
 </code></pre>
 </div>
-<p>The next example is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:</p>
+<figure>
+<img alt="" style="width:95.0%" id="fig:slicing:example_slice_02" title="slicing example 02" src="images/slicing/example_slice_02.png"><figcaption>Figure 2: Illustrated Examples of Slicing (Cont.)</figcaption>
+</figure>
+<p>The next example in fig.&nbsp;2(a) is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x;;
 &gt;- : Arr.arr =
@@ -146,8 +154,8 @@ Arr.get_slice [ [2]; [4; 6] ] x;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="extended-operators">
-<h2>Extended Operators</h2>
+<section class="level3" id="extended-operators">
+<h3>Extended Operators</h3>
 <p>The operators for indexing and slicing are built atop of the extended indexing operators introduced in OCaml 4.06. Three are used in Owl as follows. All of them are defined in the functors in <code>Owl_operator</code> module.</p>
 <ul>
 <li><code>.%{ }</code> : <code>get</code></li>
@@ -159,9 +167,13 @@ Arr.get_slice [ [2]; [4; 6] ] x;;
 </ul>
 <p>Here are some examples to show how to use them.</p>
 <p><strong>.%{ }</strong> for indexing, as follows.</p>
-<p>.. code-block:: ocaml</p>
-<p>open Arr;;</p>
-<p>let x = sequential [|10; 10; 10|];; let a = x.%{ [|2; 3; 4|] };; (* i.e.&nbsp;Arr.get <em>) x.%{ [|2; 3; 4|] } &lt;- 111.;; (</em> i.e.&nbsp;Arr.set *)</p>
+<div class="highlight">
+<pre><code class="language-ocaml">  open Arr;;
+
+  let x = sequential [|10; 10; 10|];;
+  let a = x.%{ [|2; 3; 4|] };;         (* i.e. Arr.get *)
+  x.%{ [|2; 3; 4|] } &lt;- 111.;;         (* i.e. Arr.set *)</code></pre>
+</div>
 <p><strong>.${ }</strong> for basic slicing, as follows.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -185,8 +197,8 @@ Arr.get_slice [ [2]; [4; 6] ] x;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="slicing-examples">
-<h2>Slicing Examples</h2>
+<section class="level3" id="examples">
+<h3>Examples</h3>
 <p>I always believe that nothing is better than concrete examples. I will use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray. OK, here they are.</p>
 <p>Let’s first define a sequential matrix as the input data for the following examples.</p>
 <div class="highlight">
@@ -266,8 +278,8 @@ Arr.get_slice [ [2]; [4; 6] ] x;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="advanced-usage">
-<h2>Advanced Usage</h2>
+<section class="level3" id="advanced-usage">
+<h3>Advanced Usage</h3>
 <p>The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let’s use a <code>5 x 5</code> sequential matrix for illustration.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.sequential 5 5;;
@@ -349,9 +361,10 @@ rotate90 x
 </div>
 <p>Slicing and indexing is an important topic in Owl, make sure you understand it well before proceeding to other chapters.</p>
 </section>
-<section class="level2" id="broadcasting-operation">
-<h2>Broadcasting Operation</h2>
-<p>Indexing, slicing, and broadcasting are three fundamental functions in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">Ndarray module</a>. This chapter introduces the broadcasting operation in Owl. For indexing and slicing, please refer to <a href="slicing.html">this Chapter</a>.</p>
+</section>
+<section class="level2" id="broadcasting">
+<h2>Broadcasting</h2>
+<p>Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl.</p>
 <section class="level3" id="what-is-broadcasting">
 <h3>What Is Broadcasting?</h3>
 <p>There are many binary (mathematical) operators take two ndarrays as inputs, e.g.&nbsp;<code>add</code>, <code>sub</code>, and etc. In the trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match, then how to apply the smaller one to the bigger one is referred to as <code>broadcasting</code>.</p>
@@ -405,53 +418,55 @@ rotate90 x
 <p>What if <code>y</code> has less dimensionality than <code>x</code>? E.g., <code>x</code> has the shape <code>[|2;3;4;5|]</code> wheras <code>y</code> has the shape <code>[|4;5|]</code>. In this case, Owl first calls <code>Ndarray.expand</code> function to increase <code>y</code>’s dimensionality to the same number as <code>x</code>’s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending <code>1</code> s to lower dimension of <code>y</code>, so the new shape of <code>y</code> becomes <code>[|1;1;4;5|]</code>.</p>
 <p>You can try <code>expand</code> by yourself, as below.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  let y = Arr.sequential [|4;5|];;
-  let y' = Arr.expand y 4;;
-  Arr.shape y';;    (* returns [|1;1;4;5|] *)
+<pre><code class="language-ocaml">let y = Arr.sequential [|4;5|];;
+let y' = Arr.expand y 4;;</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.shape y';;
+&gt;- : int array = [|1; 1; 4; 5|]
 </code></pre>
 </div>
-<p>If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting. They are vector multiplied by scalar, matrix plus vector, and column vector plus row vector, as shown in fig.&nbsp;2.</p>
+<p>If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting. The first example is vector multiplied by scalar.</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:slicing:broadcast" title="example broadcast" src="images/slicing/example_broadcast.png"><figcaption>Figure 2: Illustrated examples of shape extension in broadcasting</figcaption>
+<img alt="" style="width:90.0%" id="fig:slicing:broadcast_01" title="example broadcast 01" src="images/slicing/example_broadcast_01.png"><figcaption>Figure 3: Illustrated example of shape extension in broadcasting</figcaption>
 </figure>
-<p>We can perform these three calculations as below, as a way to verify these illustrated examples.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Arr.sequential [|1;3|];;
-&gt;val a : Arr.arr =
-&gt;   C0 C1 C2
-&gt;R0  0  1  2
-Arr.add_scalar a 3.;;
+<pre><code class="language-ocaml">let a = Arr.sequential [|1;3|]</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.add_scalar a 3.;;
 &gt;- : Arr.arr =
 &gt;   C0 C1 C2
 &gt;R0  3  4  5
-let b0 = Arr.sequential [|3;3|];;
-&gt;val b0 : Arr.arr =
-&gt;   C0 C1 C2
-&gt;R0  0  1  2
-&gt;R1  3  4  5
-&gt;R2  6  7  8
-let b1 = Arr.sequential ~a:1. [|1;3|];;
-&gt;val b1 : Arr.arr =
-&gt;   C0 C1 C2
-&gt;R0  1  2  3
-Arr.mul b0 b1 ;;
+</code></pre>
+</div>
+<p>The second example is matrix plus vector.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:slicing:broadcast_02" title="example broadcast 02" src="images/slicing/example_broadcast_02.png"><figcaption>Figure 4: Illustrated example of shape extension in broadcasting (cont.)</figcaption>
+</figure>
+<div class="highlight">
+<pre><code class="language-ocaml">let b0 = Arr.sequential [|3;3|]
+let b1 = Arr.sequential ~a:1. [|1;3|]</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.mul b0 b1 ;;
 &gt;- : Arr.arr =
 &gt;   C0 C1 C2
 &gt;R0  0  2  6
 &gt;R1  3  8 15
 &gt;R2  6 14 24
-let c0 = Arr.sequential [|3;1|];;
-&gt;val c0 : Arr.arr =
-&gt;   C0
-&gt;R0  0
-&gt;R1  1
-&gt;R2  2
-let c1 = Arr.copy b1;;
-&gt;val c1 : Arr.arr =
-&gt;   C0 C1 C2
-&gt;R0  1  2  3
-Arr.mul c0 c1;;
+</code></pre>
+</div>
+<p>The third example is column vector plus row vector.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:slicing:broadcast_03" title="example broadcast 03" src="images/slicing/example_broadcast_03.png"><figcaption>Figure 5: Illustrated example of shape extension in broadcasting (cont.)</figcaption>
+</figure>
+<div class="highlight">
+<pre><code class="language-ocaml">let c0 = Arr.sequential [|3;1|]
+let c1 = Arr.copy b1</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Arr.mul c0 c1;;
 &gt;- : Arr.arr =
 &gt;   C0 C1 C2
 &gt;R0  0  0  0
@@ -545,6 +560,9 @@ Arr.mul c0 c1;;
 </table>
 </div>
 </section>
+</section>
+<section class="level2" id="internal-mechanism">
+<h2>Internal Mechanism</h2>
 </section>
 </section>
 </article></div><a href="linear-algebra.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 08</small>Linear Algebra</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
