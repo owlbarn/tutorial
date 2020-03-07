@@ -16,8 +16,8 @@ In this field, we can describe this change with partial derivatives along each a
 
 $$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$ {#eq:algodiff:grad}
 
-Here, the call the vector $\nabla~T$ *gradient* of $T$.
-The procedure to calculating derivatives and gradients is called *differentiating*.
+Here, we call the vector $\nabla~T$ *gradient* of $T$.
+The procedure to calculating derivatives and gradients is refferred to as *differentiating*.
 
 Differentiation is crucial in many scientific related fields:
 find maximum or minimum values using gradient descent (see later chapter);
@@ -29,7 +29,7 @@ TODO: detail description of application.
 
 ### Chain Rule
 
-Before diving into how to do differentiation on computers, let's recall how to do it manually from our Calculus 101.
+Before diving into how to do differentiation on computers, let's recall how to do it with a pencil and paper from our Calculus 101.
 
 One of the most important rules in performing differentiation is the *chain rule*.
 In calculus, the chain rule is a formula to compute the derivative of a composite function.
@@ -37,7 +37,7 @@ Suppose we have two functions $f$ and $g$, then the Chain rule states that:
 
 $$F'(x)=f'(g(x))g'(x).$$ {#eq:algodiff:chainrule01}
 
-This seemingly simple rule is one of the basic rule in calculating derivatives.
+This seemingly simple rule is one of the most fundamental rules in calculating derivatives.
 For example, let $y = x^a$, where $a$ is a real number, and then we can get $y'$ using the chain rule.
 Specifically, let $y=e^{\ln~x^a} = e^{a~\ln~x}$, and then we can set $u= a\ln{x}$ so that now $y=e^u$. By applying the chain rule, we have:
 
@@ -47,7 +47,7 @@ Besides the chain rule, it's helpful to remember some basic differentiation equa
 Here $x$ is variable and both $u$ and $v$ are functions with regard to $x$. $C$ is constant.
 These equations are the building blocks of differentiating more complicated ones.
 Of course, this very short list is incomplete. Please refer to calculus textbooks for more information.
-Armed with chain rule and these basic equations, wen can begin to solve more differentiation problem than you can imagine. 
+Armed with chain rule and these basic equations, wen can begin to solve more differentiation problems than you can imagine. 
 
 ----------------------  --------------------------------------
 Function                Derivatives
@@ -73,7 +73,7 @@ $log_a(x)$              $\frac{1}{x~\textrm{ln}~a}$
 
 As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation.
 Therefore, we turn to computer-based automated computation methods. 
-There are three kinds: numerical differentiation, symbolic differentiation, and algorithmic differentiation.
+There are three different ways widely used to automate differentiation: numerical differentiation, symbolic differentiation, and algorithmic differentiation.
 
 **Numerical Differentiation**
 
@@ -82,7 +82,8 @@ It uses a small step $\delta$ to approximate the limit in the definition:
 
 $$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ 
 
-As long as you knows how to evaluate function $f$, this method can be applied, and coding this method is also straightforward.
+As long as you knows how to evaluate function $f$, this method can be applied. The functon $f$ per se can be treated a blackbox. 
+The differentiation coding used in this method is also straightforward.
 However, the problem with this method is prone to truncation errors and round-off errors. 
 The truncation errors is introduced by truncating an infinite sum and approximating it by a finite sum;
 the round-off error is then caused by representing numbers approximately in numerical computation during this process. 
@@ -106,14 +107,17 @@ The point is that, symbolic computations tends to give a very large result for e
 It's easy to have duplicated common sub computations, and produce exponentially large symbolic expressions.
 Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and is slow.
 
+The explosion of computation complexity is not the only limitation of symbolic differentiaton. In contrast to the numerical differentiation, we have to treat the fuction in symbolic differentiation as a whitebox, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.
+
+
 **Algorithmic Differentiation**
 
 Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme.
 It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can lead to inefficient code.
 
-It is important to realise that AD is not symbolic differentiation, as we will see in the next section.
-Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results. 
-Therefore, AD can generate exact results with acceptable speed and memory usage, and therefore highly applicable in various real world applications. 
+AD can generate exact results with superior speed and memory usage, therefore highly applicable in various real world applications.
+Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results.  
+It is now important to point out that AD is neither numerical nor symbolic differentiation, it actually takes the best parts of both worlds, as we will see in the next section.
 Actually, according to [@griewank1989automatic], the reverse mode of AD yields any gradient vector at no more than five times the cost of evaluating the function $f$ itself.
 AD has already been implemented in various popular languages, including the [`ad`](https://pythonhosted.org/ad/) in Python, [`JuliaDiff`](https://www.juliadiff.org/) in Julia, and [`ADMAT`](http://www.cayugaresearch.com/admat.html) in MATLAB, etc.
 In the rest of this chapter, we focus on introducing the AD module in Owl. 
@@ -121,7 +125,7 @@ In the rest of this chapter, we focus on introducing the AD module in Owl.
 
 ## How Algorithmic Differentiation Works
 
-We have seen the chain rules being applied on simple functions such as $y=x^a$. Now let's check how this rule can be applied on more complex computations. 
+We have seen the chain rules being applied on simple functions such as $y=x^a$. Now let's check how this rule can be applied to more complex computations. 
 Let's look at the function below: 
 
 $$y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.$$ {#eq:algodiff:example}
@@ -141,9 +145,9 @@ Next, we introduce these two methods.
 ### Forward Mode
 
 Our target is to calculate $\frac{\partial~y}{\partial~x_0}$ (partial derivative regarding $x_1$ should be similar).
-But don't be so hurry, let's start with some earlier intermediate results that might be helpful.
+But hold your horse, let's start with some earlier intermediate results that might be helpful.
 For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 1, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 0$. It's just elementary.
-Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? Not is a good time to use the chain rule:
+Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? Now it is a good time to use the chain rule:
 
 $$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.$$
 
@@ -154,7 +158,7 @@ The $\dot{v_i}$ here is called *tangent* of function $v_i(x_0, x_1, \ldots, x_n)
 The forward differentiation mode is sometimes also called "tangent linear" mode.
 
 Now we can present the full forward differentiation calculation process, as shown in [@tbl:algodiff:forward].
-Two simultaneous lines of computing happen: on the left hand side is the computation procedure specified by [@eq:algodiff:example]; 
+Two simultaneous computing processes take place, represented as two separated columns: on the left hand side is the computation procedure specified by [@eq:algodiff:example]; 
 on the right side shows computation of derivative for each intermediate variable with regard to $x_0$.
 Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
 
@@ -183,12 +187,12 @@ Step Primal computation          Tangent computation
 ---- --------------------------  ---------------------------------
 : Computation process of forward differentiation {#tbl:algodiff:forward}
 
-This procedure show in this table can be illustrated in [@fig:algodiff:example_01_forward].
+This procedure shown in this table can be illustrated in [@fig:algodiff:example_01_forward].
 
 ![Example of forward accumulation with computational graph](images/algodiff/example_01_forward.png "example_01_forward"){ width=100% #fig:algodiff:example_01_forward}
 
 Of course, all the numerical computation here are approximated with only two significant figures.  
-We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the detail of this module in detail later.
+We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the details of this module in later sections.
 
 ```ocaml
 # open Algodiff.D
@@ -213,9 +217,9 @@ R0 -0.181974 -0.118142
 
 ### Reverse Mode
 
-Now let's think this problem from the other direction, literally.
-The same questions: to calculate $\frac{\partial~y}{\partial~x_0}$. 
-We still follow the same "step by step" idea from the forward mode, but the difference is that, we think it backward. 
+Now let's rethink about this problem from the other direction, literally.
+Question remains the same, i.e. calculating $\frac{\partial~y}{\partial~x_0}$. 
+We still follow the same "step by step" idea from the forward mode, but the difference is that, we calculate it backward. 
 For example, here we reduce the problem in this way: since in this graph $y = v_7 / v_8$, if only we can have $\frac{\partial~y}{\partial~v_7}$ and $\frac{\partial~y}{\partial~v_8}$, then this problem should be one step closer towards my target problem.
 
 First of course, we have $\frac{\partial~y}{\partial~v_9} = 1$, since $y$ and $v_9$ are the same. 
@@ -223,7 +227,7 @@ Then how do we get $\frac{\partial~y}{\partial~v_7}$? Again, time for chain rule
 
 $$\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.$$ {#eq:algodiff:reverse_01}
 
-Hmm, let's try to apply a notation to simplify this process. Let 
+Hmm, let's try to apply a substitution to the terms to simplify this process. Let 
 
 $$\bar{v_i} = \frac{\partial~y}{\partial~v_i}$$
 
@@ -333,6 +337,9 @@ And then we can get the differentiation result at the point $(x_0, x_1) = (0, 0)
 R -0.181973 -0.118142
 
 ```
+
+Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understad the next section, namely how to decide which mode (forward or backward) to use in practice.
+
 
 ### Forward or Reverse?
 
