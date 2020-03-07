@@ -11,20 +11,57 @@ There exist many good deep learning frameworks that can be used to do image clas
 
 ## Building InceptionV3 Network
 
-[InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google’s latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
+Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
-I suggest reading the code that constructing the whole InceptionV3 network from [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
+Characteristics from the paper.
+
+Here is the overall architecture of this network:
+
+IMAGE
+
+Code
+
+The full code is listed in [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). 
+Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
 
 Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
 
-## Preparing Weights 
+## Preparing Weights
+
+Only building a network structure is not enough. Another important aspect is proper weights of a neural network.
+It can be achieved by training on GBs of image data for days or longer on powerful machine clusters. 
+But another option is more viable: importing weights from existed pre-trained TensorFlow models, which are currently widely available. 
+
+The essence of weights is list of ndarrays. 
+This is one-off work. 
+
+Python Code 
+
+Bigarray
+
+OCaml Code
+
 
 ## Image Processing
 
+Image processing is challenging, since OCaml does not provide powerful functions to manipulate images.
+Though there are xxx, but we don't want to add extra liabilities to Owl itself. 
+
+Therefore, we choose the non-compressed format PPM.
+
+PPM format.
+
+The basic idea: use external tools such aa ImageMagick to convert any image type to ppm format. 
+
 As a prerequisite, please make sure that the tool [ImageMagick](https://www.imagemagick.org/) is installed.
-Besides, prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter: 
+
+CODE: PPM to and from ndarray.
+
+The full code can be viewed in this gist.
 
 ## Running Inference
+
+Prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter: 
 
 ![Panda image that is used for image recognition task](images/case-image-inception/panda.png){width=50% #fig:case-image-inception:panda}
 
