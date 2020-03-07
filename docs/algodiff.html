@@ -574,14 +574,17 @@ let div_ad dr1 dr2 =
 </div>
 <p>We can express the differentiation function <code>diff</code> with the reverse mode, with first a forward pass and then a backward pass.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let diff f x = 
-  (* forward pass *)
-  let r = f x in 
-  (* backward pass *)
-  reverse_push [(1., r)];
-  (* get result values *)
-  let x0, x1 = x in 
-  primal x0, !(adjoint x0), primal x1, !(adjoint x1)</code></pre>
+<pre><code class="language-ocaml">let diff f =
+  let f' x =
+    (* forward pass *)
+    let r = f x in 
+    (* backward pass *)
+    reverse_push [(1., r)];
+    (* get result values *)
+    let x0, x1 = x in 
+    primal x0, !(adjoint x0), primal x1, !(adjoint x1)
+  in
+  f'</code></pre>
 </div>
 <p>Now we can do the calculation, which are the same as before, only difference is the way to build constant values.</p>
 <div class="highlight">
@@ -793,16 +796,19 @@ let div_ad = binary_op (module Div : Binary)</code></pre>
 </div>
 <p>As you can expect, the <code>diff</code> function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of <code>x0</code> only.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let diff f x = 
-  let x0, x1 = x in 
-  match x0, x1 with 
-  | DF (_, _), DF (_, _)    -&gt;
-    f x |&gt; tangent  
-  | DR (_, _, _), DR (_, _, _) -&gt; 
-    let r = f x in 
-    reverse_push [(1., r)];
-    !(adjoint x0)
-  | _, _ -&gt; failwith "error: unsupported operator"</code></pre>
+<pre><code class="language-ocaml">let diff f =
+  let f' x =
+    let x0, x1 = x in 
+    match x0, x1 with 
+    | DF (_, _), DF (_, _)    -&gt;
+      f x |&gt; tangent  
+    | DR (_, _, _), DR (_, _, _) -&gt; 
+      let r = f x in 
+      reverse_push [(1., r)];
+      !(adjoint x0)
+    | _, _ -&gt; failwith "error: unsupported operator"
+  in
+  f'</code></pre>
 </div>
 <p>That’s all. We can move on once again to our familiar examples.</p>
 <div class="highlight">
@@ -859,7 +865,7 @@ diff f_reverse (x0, x1) ;;
 <p>Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.</p>
 <p>Algorithmic Differentiation is a core module built in Owl, which is one of Owl’s special feature among other similar numerical libraries. <code>Algodiff.Generic</code> is a functor that accept a Ndarray modules. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that support <code>float32</code> and <code>float64</code> precision respectively.</p>
 <div class="highlight">
-<pre><code class="language-clike">module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
+<pre><code class="language-ocaml">module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)</code></pre>
 </div>
 <p>EXPLAIN what is this <code>Owl_algodiff_primal_ops</code> thing. We will mostly use the double precision <code>Algodiff.D</code> module, but of course using other choices is also perfectly fine.</p>
@@ -888,7 +894,7 @@ let f x =
 <p>IMAGE: a box with packing and unpacking channels</p>
 <p>For example, we can directly execute the AD functions, and the results need to be unpacked before being used.</p>
 <div class="highlight">
-<pre><code class="language-clike">open AD 
+<pre><code class="language-ocaml">open AD 
 
 # let input = Arr (Dense.Matrix.D.ones 1 2)
 # let result = f input |&gt; unpack_flt

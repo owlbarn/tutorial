@@ -626,14 +626,17 @@ let div_ad dr1 dr2 =
 We can express the differentiation function `diff` with the reverse mode, with first a forward pass and then a backward pass.
 
 ```ocaml env=algodiff_simple_impl_reverse
-let diff f x = 
-  (* forward pass *)
-  let r = f x in 
-  (* backward pass *)
-  reverse_push [(1., r)];
-  (* get result values *)
-  let x0, x1 = x in 
-  primal x0, !(adjoint x0), primal x1, !(adjoint x1)
+let diff f =
+  let f' x =
+    (* forward pass *)
+    let r = f x in 
+    (* backward pass *)
+    reverse_push [(1., r)];
+    (* get result values *)
+    let x0, x1 = x in 
+    primal x0, !(adjoint x0), primal x1, !(adjoint x1)
+  in
+  f'
 ```
 
 Now we can do the calculation, which are the same as before, only difference is the way to build constant values. 
@@ -874,16 +877,19 @@ let div_ad = binary_op (module Div : Binary)
 As you can expect, the `diff` function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of `x0` only.
 
 ```ocaml env=algodiff_simple_impl_unified_00
-let diff f x = 
-  let x0, x1 = x in 
-  match x0, x1 with 
-  | DF (_, _), DF (_, _)    ->
-  	f x |> tangent  
-  | DR (_, _, _), DR (_, _, _) -> 
-  	let r = f x in 
-  	reverse_push [(1., r)];
-  	!(adjoint x0)
-  | _, _ -> failwith "error: unsupported operator"
+let diff f =
+  let f' x =
+    let x0, x1 = x in 
+    match x0, x1 with 
+    | DF (_, _), DF (_, _)    ->
+      f x |> tangent  
+    | DR (_, _, _), DR (_, _, _) -> 
+      let r = f x in 
+      reverse_push [(1., r)];
+      !(adjoint x0)
+    | _, _ -> failwith "error: unsupported operator"
+  in
+  f'
 ```
 
 That's all. We can move on once again to our familiar examples.
@@ -948,7 +954,7 @@ Algorithmic Differentiation is a core module built in Owl, which is one of Owl's
 `Algodiff.Generic` is a functor that accept a Ndarray modules.
 By plugging in `Dense.Ndarray.S` and `Dense.Ndarray.D` modules we can have AD modules that support `float32` and `float64` precision respectively. 
 
-```
+```ocaml
 module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 ```
@@ -994,7 +1000,7 @@ IMAGE: a box with packing and unpacking channels
 
 For example, we can directly execute the AD functions, and the results need to be unpacked before being used. 
 
-```
+```ocaml env=algodiff_example_02
 open AD 
 
 # let input = Arr (Dense.Matrix.D.ones 1 2)
