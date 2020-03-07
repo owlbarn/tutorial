@@ -1,24 +1,33 @@
 # Case - Image Recognition
 
-
-## Image Recognition
-
 How can a computer take an image and answer questions like “what is in this picture? A cat, dog, or something else?” 
 In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks — matching or exceeding human performance in some domains.
 
+There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.
+
+## Basic Theory
+
+[Reference](https://towardsdatascience.com/module-6-image-recognition-for-insurance-claim-handling-part-i-a338d16c9de0)
+
+## Building InceptionV3 Network
+
 [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google’s latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
-## Constructing InceptionV3 Network
+I suggest reading the code that constructing the whole InceptionV3 network from [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
 
+Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
 
-There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.
+## Preparing Weights 
+
+## Image Processing
 
 As a prerequisite, please make sure that the tool [ImageMagick](https://www.imagemagick.org/) is installed.
 Besides, prepare one image on your computer. It can be of any common image format (jpg, png, gif, etc.) and size. If you’re not sure which image to use, here is one choice we use in the rest of this chapter: 
 
+## Running Inference
+
 ![Panda image that is used for image recognition task](images/case-image-inception/panda.png){width=50% #fig:case-image-inception:panda}
 
-## Running Inference
 
 Let’s do the image classification with one line of code:
 
@@ -37,7 +46,7 @@ Prediction #3 (0.04%) : soccer ball
 Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus
 ```
 
-## Code Detail
+**Code Detail**
 
 This one line of code uses the Zoo system to import the code from [this gist](https://gist.github.com/jzstark/6dfed11c521fb2cd286f2519fb88d3bf). Let's look at the the code in detail:
 
@@ -92,10 +101,3 @@ The InceptionV3 module provides three APIs:
 ## Online Demo
 
 If you are not interested in installing anything, [here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!
-
-## Want to Know More?
-
-I suggest reading the code that constructing the whole InceptionV3 network from [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
-
-Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
-As to other smaller tasks, such as the most common hand-written digits recognition task, you can construct a good deep neural network model with only 9 lines of code.

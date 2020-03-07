@@ -573,7 +573,7 @@ The broadcasting operation is transparent to programmers, which means it will be
 - comparison operations: `elt_equal`, `elt_not_equal`, `elt_less`, `elt_greater`, `elt_less_equal`, `elt_greater_equal`
 - other operations: `min2`, `max2`. `atan2`, `hypot`, `fmod`
 
-## Slicing in NumPy and Julia
+## Internal Mechanism
 
 The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
 For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy.
@@ -668,8 +668,8 @@ R0  0  1  2
    C0 C1  C2
 R0  0  1 200
 
-
-
+```
+```ocaml env=slicing_example_01
 # x 
 - : Arr.arr =
    C0 C1 C2
@@ -703,6 +703,47 @@ array([[  0,   1, 200],
        [  6,   7,   8]])
 ```
 
-## Internal Mechanism
 
 For performance, slicing is implemented in C.
+The basic algorithm of slicing is simple. We need to copy part of the source array `x` to the target array `y`.
+So you can imagine two cursors move one step at a time, only that for each dimension, the cursor start at different position and offset compared to the starting point, and at different increments. 
+At each step, we simply copy the content from `x` to `y`. 
+To do this, we define a structure `slice_pair` for slicing operations. 
+
+```c
+struct slice_pair {
+  int64_t dim;          // number of dimensions, x and y must be the same
+  int64_t dep;          // the depth of current recursion.
+  intnat *n;            // number of iteration in each dimension, i.e. y's shape
+  void *x;              // x, source if operation is get, destination if set.
+  int64_t posx;         // current offest of x.
+  int64_t *ofsx;        // offset of x in each dimension.
+  int64_t *incx;        // stride size of x in each dimension.
+  void *y;              // y, destination if operation is get, source if set.
+  int64_t posy;         // current offest of y.
+  int64_t *ofsy;        // offset of y in each dimension.
+  int64_t *incy;        // stride size of y in each dimension.
+};
+```
+
+Taking a 2-dimensional slicing as example, here is the core step:
+
+```c
+    for (int64_t i0 = 0; i0 < n0; i0++) {
+      posx1 = posx0 + ofsx1;
+      posy1 = posy0 + ofsy1;
+
+      for (int64_t i1 = 0; i1 < n1; i1++) {
+        MAPFUN (*(x + posx1), *(y + posy1));
+        posx1 += incx1;
+        posy1 += incy1;
+      }
+
+      posx0 += incx0;
+      posy0 += incy0;
+    }
+```
+
+So this algorithm basically says that for each row, we calculate its starting points in `x` and `y`, and then for each column, copy the element, and them move the cursors forward until the current row is finished. 
+And then move the rows forward. 
+If it becomes multiple dimension, we implement it with recursive algorithm.
