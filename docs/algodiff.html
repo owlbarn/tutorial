@@ -193,10 +193,10 @@ let _ = grad f x |&gt; unpack_arr;;
 </section>
 <section class="level3" id="reverse-mode">
 <h3>Reverse Mode</h3>
-<p>Now let’s rethink about this problem from the other direction, literally. Question remains the same, i.e.&nbsp;calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. We still follow the same “step by step” idea from the forward mode, but the difference is that, we think it backward. For example, here we reduce the problem in this way: since in this graph <span class="math inline">\(y = v_7 / v_8\)</span>, if only we can have <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~v_8}\)</span>, then this problem should be one step closer towards my target problem.</p>
+<p>Now let’s rethink about this problem from the other direction, literally. Question remains the same, i.e.&nbsp;calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. We still follow the same “step by step” idea from the forward mode, but the difference is that, we calculate it backward. For example, here we reduce the problem in this way: since in this graph <span class="math inline">\(y = v_7 / v_8\)</span>, if only we can have <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~v_8}\)</span>, then this problem should be one step closer towards my target problem.</p>
 <p>First of course, we have <span class="math inline">\(\frac{\partial~y}{\partial~v_9} = 1\)</span>, since <span class="math inline">\(y\)</span> and <span class="math inline">\(v_9\)</span> are the same. Then how do we get <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span>? Again, time for chain rule:</p>
 <p><span id="eq:algodiff:reverse_01"><span class="math display">\[\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.\qquad(5)\]</span></span></p>
-<p>Hmm, let’s try to apply a notation to simplify this process. Let</p>
+<p>Hmm, let’s try to apply a substitution to the terms to simplify this process. Let</p>
 <p><span class="math display">\[\bar{v_i} = \frac{\partial~y}{\partial~v_i}\]</span></p>
 <p>be the derivative of output variable <span class="math inline">\(y\)</span> with regard to intermediate node <span class="math inline">\(v_i\)</span>. It is called the <em>adjoint</em> of variable <span class="math inline">\(v_i\)</span> with respect to the output variable <span class="math inline">\(y\)</span>. Using this notation, eq.&nbsp;5 can be expressed as:</p>
 <p><span class="math display">\[\bar{v_7} = \bar{v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{1}{v_8}.\]</span></p>
@@ -349,6 +349,7 @@ let f x =
 &gt;R -0.181973 -0.118142
 </code></pre>
 </div>
+<p>Before we move on, did you notice that we get <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span> for “free” while calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. Noticing this will help you to understad the next section, namely how to decide which mode (forward or backward) to use in practice.</p>
 </section>
 <section class="level3" id="forward-or-reverse">
 <h3>Forward or Reverse?</h3>

@@ -167,16 +167,67 @@ Besides InceptionV3, you can also easily construct other popular image recogniti
 
 Only building a network structure is not enough. Another important aspect is proper weights of a neural network.
 It can be achieved by training on GBs of image data for days or longer on powerful machine clusters. 
-But another option is more viable: importing weights from existed pre-trained TensorFlow models, which are currently widely available. 
+But another option is more viable: importing weights from existed pre-trained TensorFlow models, which are currently widely available in model collections such as [this one](https://github.com/fchollet/deep-learning-models/).
 
-The essence of weights is list of ndarrays. 
-This is one-off work. 
+The essence of weights is list of ndarrays, which is implemented using `Bigarray` in OCaml. 
+So the basic idea is to find a intermediate representation so that we can exchange the ndarray in NumPy and `Bigarray` in OCaml. 
+In our implementation, we choose to use the [HDF5](https://portal.hdfgroup.org/display/HDF5/HDF5) as this intermediate data exchange format.
+In Python, we use the [h5py](https://www.h5py.org/) library, and in OCaml we use [hdf5-ocaml](https://github.com/vbrankov/hdf5-ocaml).
 
-Python Code 
+The method to save or load hdf5 data files are fixed, but the methods to retrieve data from model files vary depending on the type of original files. 
+For example, if we choose to import weight form a TensorFlow model, we do something like this to achieves the weight data of each layer:
 
-Bigarray
+```python
+...
+reader = tf.train.NewCheckpointReader(checkpoint_file)
+for key in layer_names:
+    data=reader.get_tensor(key).tolist()
+...
+```
 
-OCaml Code
+In a keras, it's a bit more straightforward:
+
+```python
+...
+for layer in model.layers:
+    weights = layer.get_weights()
+...
+```
+
+In the OCaml side, we first create a Hashtable and read all the HDF5 key-value pairs into it. 
+Each value is saved as a double precision Owl ndarray. 
+
+```text
+...
+let h = Hashtbl.create 50 in
+let f = H5.open_rdonly h5file  in
+for i = 0 to (Array.length layers - 1) do
+  let w = H5.read_float_genarray f layers.(i) C_layout in
+  Hashtbl.add h layers.(i) (Dense.Ndarray.Generic.cast_d2s w)
+done;
+...
+```
+
+And then we can use the mechanism in the Neural Network model to load these values from the hashtable to networks:
+
+```text
+...
+let wb = Neuron.mkpar n.neuron in 
+Printf.printf "%s\n" n.name; 
+wb.(0) <- Neuron.Arr (Hashtbl.find layers n.name);
+Neuron.update n.neuron wb
+...
+```
+
+It is very important to make clear the difference in naming of each layer in different platforms, since the creator of the original model may choose any name for each layer. 
+Other differences have also to be taken care of.
+For example, the 
+
+
+
+Note that this is one-off work. 
+Once you successfully update the network with weights, the weights can be saved using `Graph.save_weights`, without haveing to repeat all these steps again. 
+We have already prepared the weights for the InceptionV3 model and other similar models, and the users don't have to worry about all these trivial model exchanging detail.
 
 
 ## Image Processing

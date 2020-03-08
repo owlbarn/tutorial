@@ -135,11 +135,45 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
 </section>
 <section class="level2" id="preparing-weights">
 <h2>Preparing Weights</h2>
-<p>Only building a network structure is not enough. Another important aspect is proper weights of a neural network. It can be achieved by training on GBs of image data for days or longer on powerful machine clusters. But another option is more viable: importing weights from existed pre-trained TensorFlow models, which are currently widely available.</p>
-<p>The essence of weights is list of ndarrays. This is one-off work.</p>
-<p>Python Code</p>
-<p>Bigarray</p>
-<p>OCaml Code</p>
+<p>Only building a network structure is not enough. Another important aspect is proper weights of a neural network. It can be achieved by training on GBs of image data for days or longer on powerful machine clusters. But another option is more viable: importing weights from existed pre-trained TensorFlow models, which are currently widely available in model collections such as <a href="https://github.com/fchollet/deep-learning-models/">this one</a>.</p>
+<p>The essence of weights is list of ndarrays, which is implemented using <code>Bigarray</code> in OCaml. So the basic idea is to find a intermediate representation so that we can exchange the ndarray in NumPy and <code>Bigarray</code> in OCaml. In our implementation, we choose to use the <a href="https://portal.hdfgroup.org/display/HDF5/HDF5">HDF5</a> as this intermediate data exchange format. In Python, we use the <a href="https://www.h5py.org/">h5py</a> library, and in OCaml we use <a href="https://github.com/vbrankov/hdf5-ocaml">hdf5-ocaml</a>.</p>
+<p>The method to save or load hdf5 data files are fixed, but the methods to retrieve data from model files vary depending on the type of original files. For example, if we choose to import weight form a TensorFlow model, we do something like this to achieves the weight data of each layer:</p>
+<div class="highlight">
+<pre><code class="language-python">...
+reader = tf.train.NewCheckpointReader(checkpoint_file)
+for key in layer_names:
+    data=reader.get_tensor(key).tolist()
+...</code></pre>
+</div>
+<p>In a keras, it’s a bit more straightforward:</p>
+<div class="highlight">
+<pre><code class="language-python">...
+for layer in model.layers:
+    weights = layer.get_weights()
+...</code></pre>
+</div>
+<p>In the OCaml side, we first create a Hashtable and read all the HDF5 key-value pairs into it. Each value is saved as a double precision Owl ndarray.</p>
+<div class="highlight">
+<pre><code class="language-text">...
+let h = Hashtbl.create 50 in
+let f = H5.open_rdonly h5file  in
+for i = 0 to (Array.length layers - 1) do
+  let w = H5.read_float_genarray f layers.(i) C_layout in
+  Hashtbl.add h layers.(i) (Dense.Ndarray.Generic.cast_d2s w)
+done;
+...</code></pre>
+</div>
+<p>And then we can use the mechanism in the Neural Network model to load these values from the hashtable to networks:</p>
+<div class="highlight">
+<pre><code class="language-text">...
+let wb = Neuron.mkpar n.neuron in 
+Printf.printf "%s\n" n.name; 
+wb.(0) &lt;- Neuron.Arr (Hashtbl.find layers n.name);
+Neuron.update n.neuron wb
+...</code></pre>
+</div>
+<p>It is very important to make clear the difference in naming of each layer in different platforms, since the creator of the original model may choose any name for each layer. Other differences have also to be taken care of. For example, the</p>
+<p>Note that this is one-off work. Once you successfully update the network with weights, the weights can be saved using <code>Graph.save_weights</code>, without haveing to repeat all these steps again. We have already prepared the weights for the InceptionV3 model and other similar models, and the users don’t have to worry about all these trivial model exchanging detail.</p>
 </section>
 <section class="level2" id="image-processing">
 <h2>Image Processing</h2>
