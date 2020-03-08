@@ -7,11 +7,24 @@ There exist many good deep learning frameworks that can be used to do image clas
 
 ## Theory
 
-[Reference](https://towardsdatascience.com/module-6-image-recognition-for-insurance-claim-handling-part-i-a338d16c9de0)
+In the regression chapter we have seen how the multi-classification problem can be solved with neural networks that contains several hidden layers.
+If the input is an image, then every single pixel acts as a input feature. 
+
+One important improvement that the Convolution Neural Network make is that it uses filters in the convolution operation.
+As a result, instead of using the whole image as an array of features, the image is divided into a number of tiles. 
+They will then serve as the basic feature of the network's prediction.
+
+We cannot discuss the theory behind building computer vision models, and the existing models vary greatly in its characteristics, but in general, layers of convolution retrieve information from detailed to more abstracted gradually.
+In a DNN, The lower layers of neurons retrieve information about simple shapes such as edges and points.
+Going higher, the neurons can capture complex structures, such as the tire of a car, the face of a cat, etc.
+Close to the top layers, the neurons can retrieve and abstract complex ideas, such as "car", "cat", etc.
+And then finally generates the classification results. 
+
+TODO: Some image to show the point.
 
 ## Building InceptionV3 Network
 
-Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
+Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
@@ -221,8 +234,8 @@ Neuron.update n.neuron wb
 
 It is very important to make clear the difference in naming of each layer in different platforms, since the creator of the original model may choose any name for each layer. 
 Other differences have also to be taken care of.
-For example, the 
-
+For example, the `beta` and `gamma` weights in the batch normalisation layer is represented as two different values in TensorFlow model, but they belong to the same layer in Owl. 
+Also, some times the dimensions has to be swapped in a ndarray during this weight conversion.
 
 
 Note that this is one-off work. 
