@@ -5,7 +5,7 @@ In the last few years the field of machine learning has made tremendous progress
 
 There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.
 
-## Basic Theory
+## Theory
 
 [Reference](https://towardsdatascience.com/module-6-image-recognition-for-insurance-claim-handling-part-i-a338d16c9de0)
 
@@ -13,13 +13,150 @@ There exist many good deep learning frameworks that can be used to do image clas
 
 Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the ImageNet Large Visual Recognition Challenge using the data from 2012. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
-Characteristics from the paper.
 
-Here is the overall architecture of this network:
+The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
+Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. 
+To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget.
+This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. 
+The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.
 
-IMAGE
+Here is the overall architecture of this network ([src](https://medium.com/@sh.tsang/review-inception-v3-1st-runner-up-image-classification-in-ilsvrc-2015-17915421f77c)):
 
-Code
+![Network Architecture of InceptionV3](images/case-image-inception/inceptionv3.png "inceptionv3"){width=95% #fig:case-image-inception:inceptionv3}
+
+We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. 
+We can define this network easily in Owl.
+
+```ocaml env=incpetionv3
+open Owl
+open Owl_types
+open Neural.S
+open Neural.S.Graph
+
+let conv2d_bn ?(padding=SAME) kernel stride nn =
+  conv2d ~padding kernel stride nn
+  |> normalisation ~training:false ~axis:3
+  |> activation Activation.Relu
+```
+
+Here the `conv2d_bn` is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a Relu activation layer.
+
+```ocaml env=incpetionv3
+let mix_typ1 in_shape bp_size nn =
+  let branch1x1 = conv2d_bn [|1;1;in_shape;64|] [|1;1|] nn in
+  let branch5x5 = nn
+    |> conv2d_bn [|1;1;in_shape;48|] [|1;1|]
+    |> conv2d_bn [|5;5;48;64|] [|1;1|]
+  in
+  let branch3x3dbl = nn
+    |> conv2d_bn [|1;1;in_shape;64|] [|1;1|]
+    |> conv2d_bn [|3;3;64;96|]  [|1;1|]
+    |> conv2d_bn [|3;3;96;96|]  [|1;1|]
+  in
+  let branch_pool = nn
+    |> avg_pool2d [|3;3|] [|1;1|]
+    |> conv2d_bn [|1;1;in_shape; bp_size |] [|1;1|]
+  in
+  concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]
+```
+
+`mix_typ1` is repeated for three times in the Inception module A. 
+
+```ocaml env=incpetionv3
+let mix_typ3 nn =
+  let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
+  let branch3x3dbl = nn
+    |> conv2d_bn [|1;1;288;64|] [|1;1|]
+    |> conv2d_bn [|3;3;64;96|] [|1;1|]
+    |> conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
+  in
+  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+  concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]
+```
+
+`mix_typ3` builds the first grid size reduction module. This module implements an efficient feature map downsizing function.
+
+
+```ocaml env=incpetionv3
+let mix_typ4 size nn =
+  let branch1x1 = conv2d_bn [|1;1;768;192|] [|1;1|] nn in
+  let branch7x7 = nn
+    |> conv2d_bn [|1;1;768;size|] [|1;1|]
+    |> conv2d_bn [|1;7;size;size|] [|1;1|]
+    |> conv2d_bn [|7;1;size;192|] [|1;1|]
+  in
+  let branch7x7dbl = nn
+    |> conv2d_bn [|1;1;768;size|] [|1;1|]
+    |> conv2d_bn [|7;1;size;size|] [|1;1|]
+    |> conv2d_bn [|1;7;size;size|] [|1;1|]
+    |> conv2d_bn [|7;1;size;size|] [|1;1|]
+    |> conv2d_bn [|1;7;size;192|] [|1;1|]
+  in
+  let branch_pool = nn
+    |> avg_pool2d [|3;3|] [|1;1|]
+    |> conv2d_bn [|1;1; 768; 192|] [|1;1|]
+  in
+  concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]
+```
+
+`mix_typ4` is similar to `mix_typ1`, and is the building block of the Inception module B. 
+
+
+```ocaml env=incpetionv3
+let mix_typ8 nn =
+  let branch3x3 = nn
+    |> conv2d_bn [|1;1;768;192|] [|1;1|]
+    |> conv2d_bn [|3;3;192;320|] [|2;2|] ~padding:VALID
+  in
+  let branch7x7x3 = nn
+    |> conv2d_bn [|1;1;768;192|] [|1;1|]
+    |> conv2d_bn [|1;7;192;192|] [|1;1|]
+    |> conv2d_bn [|7;1;192;192|] [|1;1|]
+    |> conv2d_bn [|3;3;192;192|] [|2;2|] ~padding:VALID
+  in
+  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+  concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]
+```
+
+`mix_typ8` is the second grid size reduction module. 
+
+```ocaml env=incpetionv3
+let mix_typ9 input nn =
+  let branch1x1 = conv2d_bn [|1;1;input;320|] [|1;1|] nn in
+  let branch3x3 = conv2d_bn [|1;1;input;384|] [|1;1|] nn in
+  let branch3x3_1 = branch3x3 |> conv2d_bn [|1;3;384;384|] [|1;1|] in
+  let branch3x3_2 = branch3x3 |> conv2d_bn [|3;1;384;384|] [|1;1|] in
+  let branch3x3 = concatenate 3 [| branch3x3_1; branch3x3_2 |] in
+  let branch3x3dbl = nn |> conv2d_bn [|1;1;input;448|] [|1;1|] |> conv2d_bn [|3;3;448;384|] [|1;1|] in
+  let branch3x3dbl_1 = branch3x3dbl |> conv2d_bn [|1;3;384;384|] [|1;1|]  in
+  let branch3x3dbl_2 = branch3x3dbl |> conv2d_bn [|3;1;384;384|] [|1;1|]  in
+  let branch3x3dbl = concatenate 3 [|branch3x3dbl_1; branch3x3dbl_2|] in
+  let branch_pool = nn |> avg_pool2d [|3;3|] [|1;1|] |> conv2d_bn [|1;1;input;192|] [|1;1|] in
+  concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]
+```
+
+The final part is Inception module C, which repeats two `mix_type9` function.
+With all these parts ready, we can put them together into the whole network.
+
+```ocaml env=incpetionv3
+let make_network img_size =
+  input [|img_size;img_size;3|]
+  |> conv2d_bn [|3;3;3;32|] [|2;2|] ~padding:VALID
+  |> conv2d_bn [|3;3;32;32|] [|1;1|] ~padding:VALID
+  |> conv2d_bn [|3;3;32;64|] [|1;1|]
+  |> max_pool2d [|3;3|] [|2;2|] ~padding:VALID
+  |> conv2d_bn [|1;1;64;80|] [|1;1|] ~padding:VALID
+  |> conv2d_bn [|3;3;80;192|] [|1;1|] ~padding:VALID
+  |> max_pool2d [|3;3|] [|2;2|] ~padding:VALID
+  |> mix_typ1 192 32 |> mix_typ1 256 64 |> mix_typ1 288 64
+  |> mix_typ3
+  |> mix_typ4 128 |> mix_typ4 160 |> mix_typ4 160 |> mix_typ4 192
+  |> mix_typ8
+  |> mix_typ9 1280 |> mix_typ9 2048
+  |> global_avg_pool2d
+  |> linear 1000 ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
 
 The full code is listed in [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). 
 Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
@@ -45,19 +182,65 @@ OCaml Code
 ## Image Processing
 
 Image processing is challenging, since OCaml does not provide powerful functions to manipulate images.
-Though there are xxx, but we don't want to add extra liabilities to Owl itself. 
+Though there are image processing libraries such as [CamlImages](http://gallium.inria.fr/camlimages/), but we don't want to add extra liabilities to Owl itself. 
 
-Therefore, we choose the non-compressed format PPM.
+To this end, we choose the non-compressed image format PPM.
+A PPM file is a 24-bit color image formatted using a text format. It stores each pixel with a number from 0 to 65536, which specifies the color of the pixel. 
+Therefore, we can just use ndarray in Owl and convert that directly to PPM image without using any external libraries.
+We only need to take care of header information during this process.
+For example, here is the code for converting an 3-dimensional array in Owl `img` into a ppm file. 
 
-PPM format.
+```ocaml
+module N = Dense.Ndarray.S
 
-The basic idea: use external tools such aa ImageMagick to convert any image type to ppm format. 
+let save_image_to_file img outname = 
+  (* metadata *)
+  let shape = N.shape img in
+  assert (Array.length(shape) = 3);
+  let h = shape.(0) in
+  let w = shape.(1) in
+  let num_col = 255 in
 
-As a prerequisite, please make sure that the tool [ImageMagick](https://www.imagemagick.org/) is installed.
+  (* divide *)
+  let r = N.get_slice [[];[];[1]] img in 
+  let r = N.reshape r [|h; w|] in
+  let g = N.get_slice [[];[];[2]] img  in
+  let g = N.reshape g [|h; w|] in
+  let b = N.get_slice [[];[];[0]] img in 
+  let b = N.reshape b [|h; w|] in
 
-CODE: PPM to and from ndarray.
+  (* merge r, g, b to one [|h; 3*w|] matrix *)
+  let img_mat = Dense.Matrix.S.zeros h (3 * w) in
+  Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
+  Dense.Matrix.S.set_slice [[];[1;-1;3]] img_mat g;
+  Dense.Matrix.S.set_slice [[];[2;-1;3]] img_mat b;
 
-The full code can be viewed in this gist.
+  (* rotate *)
+  let img_mat = Dense.Matrix.S.rotate img_mat 90 in 
+  let img_arr = Dense.Matrix.S.to_arrays img_mat in 
+
+  (* change to line *)
+  let img_str = Bytes.make (w * h * 3) ' ' in 
+  let ww = 3 * w in 
+  for i = 0 to ww - 1 do
+    for j = 0 to h - 1 do
+      let ch = img_arr.(i).(j) |> int_of_float |> char_of_int in
+      Bytes.set img_str ((h - 1 -j) * ww + i) ch;
+    done
+  done;
+
+  let header = "P6\n" ^ string_of_int(h) ^ " " ^ string_of_int(w) ^ "\n" ^ string_of_int(num_col) ^ "\n" in 
+  let img_final = Bytes.concat (Bytes.of_string " ") [header |> Bytes.of_string; img_str] in 
+  Owl_io.write_file outname (Bytes.to_string img_final)
+```
+
+In this function we first get the required meta data such as image size, and then combine the three channels of a image (three slices of the input ndarray) into a single line of string by correct order. 
+The finally we construct these information into bytes and then write to the output PPM file.
+
+There are other functions such as reading in ndarray from PPM file. The full image processing code can be viewed in [this gist](https://gist.github.com/jzstark/86a1748bbc898f2e42538839edba00e1).
+
+Of course, most of the time we have to deal with image of other more common format such as PNG and JPEG. 
+For the conversion from these format to PPM or the other way around, we use the tool [ImageMagick](https://www.imagemagick.org/).
 
 ## Running Inference
 
@@ -95,19 +278,12 @@ open Owl
 #zoo "9428a62a31dbea75511882ab8218076f"
 
 let _ = 
-  (* Path to your image; here we use the "panda.png" in this gist as example. *)
-  let img = Owl_zoo_path.extend_zoo_path "panda.png" in
-  (* Image classification *)
+  let img = "panda.png" in
   let labels = InceptionV3.infer img in
-  (* Get top-5 human-readable output in the format of JSON string, or...*) 
   let top = 5 in 
   let labels_json   = InceptionV3.to_json ~top labels in
-  (* an array of tuples. Each tuple contains a category (string) and 
-   * its inferred probability (float), ranging from 1 to 100.
-   *)
   let labels_tuples = InceptionV3.to_tuples labels in
 
-  (* (Optional) Pretty-print the results *)
   Printf.printf "\nTop %d Predictions:\n" top;
   Array.iteri (fun i x -> 
     let cls, prop = x in 

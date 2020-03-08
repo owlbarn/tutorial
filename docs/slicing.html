@@ -197,9 +197,9 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
 </code></pre>
 </div>
 </section>
-<section class="level3" id="examples">
-<h3>Examples</h3>
-<p>I always believe that nothing is better than concrete examples. I will use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray. OK, here they are.</p>
+<section class="level3" id="advanced-usage">
+<h3>Advanced Usage</h3>
+<p>We believe that nothing is better than concrete examples. We will first use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray.</p>
 <p>Let’s first define a sequential matrix as the input data for the following examples.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -277,9 +277,6 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
   Mat.get_slice s x;;
 </code></pre>
 </div>
-</section>
-<section class="level3" id="advanced-usage">
-<h3>Advanced Usage</h3>
 <p>The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let’s use a <code>5 x 5</code> sequential matrix for illustration.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.sequential 5 5;;
@@ -487,6 +484,7 @@ let c1 = Arr.copy b1</code></pre>
 </section>
 <section class="level2" id="internal-mechanism">
 <h2>Internal Mechanism</h2>
+<p>TODO: A short history of the development of NumPy and Julia.</p>
 <p>The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages. For example, the examples in fig.&nbsp;1 and fig.&nbsp;2 can be implemented using NumPy.</p>
 <div class="highlight">
 <pre><code class="language-python">&gt;&gt; import numpy as np

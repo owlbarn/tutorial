@@ -245,9 +245,10 @@ Here are some examples to show how to use them.
 ```
 
 
-### Examples
+### Advanced Usage
 
-I always believe that nothing is better than concrete examples. I will use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray. OK, here they are.
+We believe that nothing is better than concrete examples. 
+We will first use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray.
 
 Let's first define a sequential matrix as the input data for the following examples.
 
@@ -335,7 +336,6 @@ Let' see some more complicated examples.
 ```
 
 
-### Advanced Usage
 
 The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a `5 x 5` sequential matrix for illustration.
 
@@ -574,6 +574,8 @@ The broadcasting operation is transparent to programmers, which means it will be
 - other operations: `min2`, `max2`. `atan2`, `hypot`, `fmod`
 
 ## Internal Mechanism
+
+TODO: A short history of the development of NumPy and Julia.
 
 The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
 For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy.
