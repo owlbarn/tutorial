@@ -29,9 +29,6 @@ The `Linalg` has the following module structure:
 ## Vectors and Matrices
 
 The fundamental problem of linear algebra: solving linear equations.
-
-Simple Example.
-
 This is more efficiently expressed with vectors and matrices.
 We need to get familiar with these basic structures in Owl.
 
@@ -41,10 +38,6 @@ Owl supports eight kinds of matrices as below, all the elements in a matrix are 
 * `Dense.Matrix.D` : Dense matrices of double precision float numbers.
 * `Dense.Matrix.C` : Dense matrices of single precision complex numbers.
 * `Dense.Matrix.Z` : Dense matrices of double precision complex numbers.
-* `Sparse.Matrix.S` : Sparse matrices of single precision float numbers.
-* `Sparse.Matrix.D` : Sparse matrices of double precision float numbers.
-* `Sparse.Matrix.C` : Sparse matrices of single precision complex numbers.
-* `Sparse.Matrix.Z` : Sparse matrices of double precision complex numbers.
 
 There are many common functions shared by these eight modules, therefore I will use `Mat` module (which is an alias of `Dense.Matrix.D` module) in the following examples. These examples should be able to applied to other modules without too much changes, but note some modules do have its own specific functions such as `Dense.Matrix.Z.re`.
 
@@ -458,26 +451,56 @@ I will use another set of examples to finish this tutorial. I must say this tuto
 
 ## Gaussian Elimination
 
-One of the problems encountered most frequently in scientific computation is the solution of systems of linear equations.
-(Such as? find very concrete real world applications).
+Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation.
+*Gaussian Elimination* is a classic method to do that.
+Here is a simple example. 
 
-A simple example, see reference book Matlab for Section 2.2
+EXAMPLE: a three-variable simple example. 
+Step 1, 2, 3.
+
+This process can be more concisely expressed with vector:
+
+EQUATION: column vector
+
+or matrix:
+
+Equation: matrix format of the same problem.
 
 ### LU Factorisation
 
-A classical method: Gaussian -- LR
+Let's check the gaussian elimination example again. 
 
-```text
-  val lu : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-```
+EQUATION: the final form of elimination
 
-```
-val is_triu : ('a, 'b) t -> bool
-  (* check if a matrix is upper triangular *)
+We call it an *upper triangular* matrix.
 
-val is_tril : ('a, 'b) t -> bool
-  (* check if a matrix is lower triangular *)
-```
+Then we consider the three steps that changes matrix `A` to `U`.
+Each can be represented with an matrix called *elementary matrix*.
+
+Equation: P1*P2*P3*A = U
+
+If we take only the elementary matrices, they leads to another matrix:
+
+Equation: P1*P2*P3 = L
+
+This is called a *Lower Triangular* matrix.
+
+In other word, `A=LU`. This is called an LU factorisation, a very important idea.
+We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
+
+EXAMPLE
+
+The importance of dividing a matrix is that with traiangular matrices, it becomes very easy to solve the linear equations. 
+We can use the `lu` function to do it.
+
+EXAMPLE
+
+The input is a matrix.
+The first two returned results are the L and U. 
+
+The third is about pivoting.
+
+Explain pivoting. Refer to Matlab book Sec 2.5-2.6.
 
 ### Inverse and Transpose 
 
@@ -708,6 +731,11 @@ How these low level functions are used in Owl Code.
 
 
 ## Sparse Matrices
+
+* `Sparse.Matrix.S` : Sparse matrices of single precision float numbers.
+* `Sparse.Matrix.D` : Sparse matrices of double precision float numbers.
+* `Sparse.Matrix.C` : Sparse matrices of single precision complex numbers.
+* `Sparse.Matrix.Z` : Sparse matrices of double precision complex numbers.
 
 TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
 

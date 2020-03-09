@@ -897,12 +897,11 @@ let f x =
 <p>IMAGE: a box with packing and unpacking channels</p>
 <p>For example, we can directly execute the AD functions, and the results need to be unpacked before being used.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">open AD 
+<pre><code class="language-clike">open AD 
 
 # let input = Arr (Dense.Matrix.D.ones 1 2)
 # let result = f input |&gt; unpack_flt
-
-# val result : float = 0.13687741466075895</code></pre>
+val result : float = 0.13687741466075895</code></pre>
 </div>
 <p>As a trade with this slightly cumbersome packing mechanism, we can now perform. Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
 </section>

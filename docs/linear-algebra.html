@@ -14,19 +14,13 @@
 <p><code>Generic</code> actually can do everything that <code>S/D/C/Z</code> can but needs some extra type information. The functions in <code>Linalg</code> module are divided into the following groups.</p>
 <section class="level2" id="vectors-and-matrices">
 <h2>Vectors and Matrices</h2>
-<p>The fundamental problem of linear algebra: solving linear equations.</p>
-<p>Simple Example.</p>
-<p>This is more efficiently expressed with vectors and matrices. We need to get familiar with these basic structures in Owl.</p>
+<p>The fundamental problem of linear algebra: solving linear equations. This is more efficiently expressed with vectors and matrices. We need to get familiar with these basic structures in Owl.</p>
 <p>Owl supports eight kinds of matrices as below, all the elements in a matrix are (real/complex) numbers.</p>
 <ul>
 <li><code>Dense.Matrix.S</code> : Dense matrices of single precision float numbers.</li>
 <li><code>Dense.Matrix.D</code> : Dense matrices of double precision float numbers.</li>
 <li><code>Dense.Matrix.C</code> : Dense matrices of single precision complex numbers.</li>
 <li><code>Dense.Matrix.Z</code> : Dense matrices of double precision complex numbers.</li>
-<li><code>Sparse.Matrix.S</code> : Sparse matrices of single precision float numbers.</li>
-<li><code>Sparse.Matrix.D</code> : Sparse matrices of double precision float numbers.</li>
-<li><code>Sparse.Matrix.C</code> : Sparse matrices of single precision complex numbers.</li>
-<li><code>Sparse.Matrix.Z</code> : Sparse matrices of double precision complex numbers.</li>
 </ul>
 <p>There are many common functions shared by these eight modules, therefore I will use <code>Mat</code> module (which is an alias of <code>Dense.Matrix.D</code> module) in the following examples. These examples should be able to applied to other modules without too much changes, but note some modules do have its own specific functions such as <code>Dense.Matrix.Z.re</code>.</p>
 <section class="level3" id="create-matrices">
@@ -369,21 +363,29 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 </section>
 <section class="level2" id="gaussian-elimination">
 <h2>Gaussian Elimination</h2>
-<p>One of the problems encountered most frequently in scientific computation is the solution of systems of linear equations. (Such as? find very concrete real world applications).</p>
-<p>A simple example, see reference book Matlab for Section 2.2</p>
+<p>Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation. <em>Gaussian Elimination</em> is a classic method to do that. Here is a simple example.</p>
+<p>EXAMPLE: a three-variable simple example. Step 1, 2, 3.</p>
+<p>This process can be more concisely expressed with vector:</p>
+<p>EQUATION: column vector</p>
+<p>or matrix:</p>
+<p>Equation: matrix format of the same problem.</p>
 <section class="level3" id="lu-factorisation">
 <h3>LU Factorisation</h3>
-<p>A classical method: Gaussian – LR</p>
-<div class="highlight">
-<pre><code class="language-text">  val lu : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t</code></pre>
-</div>
-<div class="highlight">
-<pre><code class="language-clike">val is_triu : ('a, 'b) t -&gt; bool
-  (* check if a matrix is upper triangular *)
-
-val is_tril : ('a, 'b) t -&gt; bool
-  (* check if a matrix is lower triangular *)</code></pre>
-</div>
+<p>Let’s check the gaussian elimination example again.</p>
+<p>EQUATION: the final form of elimination</p>
+<p>We call it an <em>upper triangular</em> matrix.</p>
+<p>Then we consider the three steps that changes matrix <code>A</code> to <code>U</code>. Each can be represented with an matrix called <em>elementary matrix</em>.</p>
+<p>Equation: P1<em>P2</em>P3*A = U</p>
+<p>If we take only the elementary matrices, they leads to another matrix:</p>
+<p>Equation: P1<em>P2</em>P3 = L</p>
+<p>This is called a <em>Lower Triangular</em> matrix.</p>
+<p>In other word, <code>A=LU</code>. This is called an LU factorisation, a very important idea. We can use the <code>is_triu</code> and <code>is_tril</code> to verify if a matrix is triangular.</p>
+<p>EXAMPLE</p>
+<p>The importance of dividing a matrix is that with traiangular matrices, it becomes very easy to solve the linear equations. We can use the <code>lu</code> function to do it.</p>
+<p>EXAMPLE</p>
+<p>The input is a matrix. The first two returned results are the L and U.</p>
+<p>The third is about pivoting.</p>
+<p>Explain pivoting. Refer to Matlab book Sec 2.5-2.6.</p>
 </section>
 <section class="level3" id="inverse-and-transpose">
 <h3>Inverse and Transpose</h3>
@@ -585,6 +587,12 @@ val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
 </section>
 <section class="level2" id="sparse-matrices">
 <h2>Sparse Matrices</h2>
+<ul>
+<li><code>Sparse.Matrix.S</code> : Sparse matrices of single precision float numbers.</li>
+<li><code>Sparse.Matrix.D</code> : Sparse matrices of double precision float numbers.</li>
+<li><code>Sparse.Matrix.C</code> : Sparse matrices of single precision complex numbers.</li>
+<li><code>Sparse.Matrix.Z</code> : Sparse matrices of double precision complex numbers.</li>
+</ul>
 <p>TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
 <p><strong>Extra material about linear regression</strong></p>
 <p>Perhaps should be moved to the regression chapter</p>

@@ -1007,13 +1007,12 @@ IMAGE: a box with packing and unpacking channels
 
 For example, we can directly execute the AD functions, and the results need to be unpacked before being used. 
 
-```ocaml env=algodiff_example_02
+```
 open AD 
 
 # let input = Arr (Dense.Matrix.D.ones 1 2)
 # let result = f input |> unpack_flt
-
-# val result : float = 0.13687741466075895
+val result : float = 0.13687741466075895
 ```
 
 As a trade with this slightly cumbersome packing mechanism, we can now perform.
