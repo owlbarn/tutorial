@@ -1,7 +1,8 @@
 # Linear Algebra
 
 Linear Algebra: important. 
-It is beyond the scope of this bool. Please refer to [...] for this subject.
+It is beyond the scope of this bool. Please refer to [@strang2006linear] for this subject.
+This chapter also follows the basic structure of this book.
 
 This chapter briefly covers the linear algebra modules in Owl. 
 
@@ -10,13 +11,29 @@ There are two levels abstraction in Owl's `Linalg` module:
 * high-level wrapper functions in `Linalg` module;
 The example in this chapter mostly use the high level wrapper. Please refer to the last section for details on CBLAS.
 
+The `Linalg` has the following module structure:
+
+- [Owl.Linalg.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli): generic functions for four number types `S/D/C/Z`.
+
+- [Owl.Linalg.S](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_s.mli): only for `float32` type.
+
+- [Owl.Linalg.D](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_d.mli): only for `float64` type.
+
+- [Owl.Linalg.C](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_c.mli): only for `complex32` type.
+
+- [Owl.Linalg.Z](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_z.mli): only for `complex64` type.
+
+`Generic` actually can do everything that `S/D/C/Z` can but needs some extra type information. The functions in `Linalg` module are divided into the following groups.
+
 
 ## Vectors and Matrices
 
-TODO: introduce vectors
+The fundamental problem of linear algebra: solving linear equations.
 
-Before diving into the linear algebra, first we need to understand how matrix in Owl works. 
-It is based on ndarray, but provides unique functions. 
+Simple Example.
+
+This is more efficiently expressed with vectors and matrices.
+We need to get familiar with these basic structures in Owl.
 
 Owl supports eight kinds of matrices as below, all the elements in a matrix are (real/complex) numbers.
 
@@ -439,74 +456,41 @@ I will use another set of examples to finish this tutorial. I must say this tuto
 ```
 
 
-## Linear Algebra Basic
+## Gaussian Elimination
 
-Now that we are familiar with matrices in Owl, let's look at the linear algebra module. 
+One of the problems encountered most frequently in scientific computation is the solution of systems of linear equations.
+(Such as? find very concrete real world applications).
 
-The `Linalg` has the following module structure:
+A simple example, see reference book Matlab for Section 2.2
 
-- [Owl.Linalg.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli): generic functions for four number types `S/D/C/Z`.
+### LU Factorisation
 
-- [Owl.Linalg.S](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_s.mli): only for `float32` type.
-
-- [Owl.Linalg.D](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_d.mli): only for `float64` type.
-
-- [Owl.Linalg.C](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_c.mli): only for `complex32` type.
-
-- [Owl.Linalg.Z](https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_z.mli): only for `complex64` type.
-
-`Generic` actually can do everything that `S/D/C/Z` can but needs some extra type information. The functions in `Linalg` module are divided into the following groups.
-
-Here we will use a simple example to demonstrate the basic functions in LinAlg.
-This example is a matrix that represents a graph structure... (example detail. This example has to be carefully chosen so that the operations are meaningful.)
-
-Below is a full list of basic functions provided by LA module.
+A classical method: Gaussian -- LR
 
 ```text
-
-  val inv : ('a, 'b) t -> ('a, 'b) t
-  (* inverse of a square matrix *)
-
-  val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)
-
-  val det : ('a, 'b) t -> 'a
-  (* determinant of a square matrix  *)
-
-  val logdet : ('a, 'b) t -> 'a
-  (* log of the determinant of a square matrix *)
-
-  val rank : ?tol:float -> ('a, 'b) t -> int
-  (* rank of a rectangular matrix *)
-
-  val norm : ?p:float -> ('a, 'b) t -> float
-  (* p-norm of a matrix *)
-
-  val cond : ?p:float -> ('a, 'b) t -> float
-  (* p-norm condition number of a matrix *)
-
-  val rcond : ('a, 'b) t -> float
-  (* estimate for the reciprocal condition of a matrix in 1-norm *)
-
-  val is_triu : ('a, 'b) t -> bool
-  (* check if a matrix is upper triangular *)
-
-  val is_tril : ('a, 'b) t -> bool
-  (* check if a matrix is lower triangular *)
-
-  val is_symmetric : ('a, 'b) t -> bool
-  (* check if a matrix is symmetric *)
-
-  val is_hermitian : ('a, 'b) t -> bool
-  (* check if a matrix is hermitian *)
-
-  val is_diag : ('a, 'b) t -> bool
-  (* check if a matrix is diagonal *)
-
-  val is_posdef : ('a, 'b) t -> bool
-  (* check if a matrix is positive semi-definite *)
+  val lu : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+```
 
 ```
+val is_triu : ('a, 'b) t -> bool
+  (* check if a matrix is upper triangular *)
+
+val is_tril : ('a, 'b) t -> bool
+  (* check if a matrix is lower triangular *)
+```
+
+### Inverse and Transpose 
+
+Zero and one matrices
+
+
+```
+val inv : ('a, 'b) t -> ('a, 'b) t
+
+val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
+  (* Moore-Penrose pseudo-inverse of a matrix *)
+```
+
 
 The following code calculates the inverse of a square matrix `x`.
 
@@ -518,65 +502,106 @@ The following code calculates the inverse of a square matrix `x`.
 
 ```
 
-## Solve A Linear Equation System
+Transpose
 
-One of the problems encountered most frequently in scientific computation is the solution of systems of simultaneous linear equations.
-(Such as? find very concrete real world applications).
+Symmetric metrics
 
-A simple example, see reference book Matlab for Section 2.2
-
-### LR Factorisation
-
-A classical method: Gaussian -- LR
-
-```text
-  val lu : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+```
+val is_symmetric : ('a, 'b) t -> bool
 ```
 
-### What Owl Provides
+```
+val is_diag : ('a, 'b) t -> bool
+  (* check if a matrix is diagonal *)
+```
 
-As user, we don't have to choose or use this tedious approach. Owl has already provides:
+## Vector Spaces
 
-```text
+### Vector Spaces and Subspaces 
 
-  val null : ('a, 'b) t -> ('a, 'b) t
-  (* an orthonormal basis for the null space of a matrix *)
+```
+val null : ('a, 'b) t -> ('a, 'b) t
+(* an orthonormal basis for the null space of a matrix *)
+```
 
-  val linsolve : ?trans:bool -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+### Solving Ax = b
+
+```
+val rank : ?tol:float -> ('a, 'b) t -> int
+  (* rank of a rectangular matrix *)
+```
+
+```
+val linsolve : ?trans:bool -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
   (* solves `A * x = b` linear equation system. *)
+```
 
-  val linreg : ('a, 'b) t -> ('a, 'b) t -> 'a * 'a
-  (* simple linear regression using OLS. *)
+## Orthogonality
+
+
+## Determinants
+
+```
+val det : ('a, 'b) t -> 'a
+  (* determinant of a square matrix  *)
+
+val logdet : ('a, 'b) t -> 'a
+  (* log of the determinant of a square matrix *)
+```
+
+## Eigenvalues and Eigenvectors
+
+Refer to book NR, Chapter 11 for theory details. 
+
+```text
+
+  val eig : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t * ('a, 'b) t
+  (* right eigenvectors and eigenvalues of an arbitrary square matrix *)
+
+  val eigvals : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
+  (* only computes the eigenvalues of an arbitrary square matrix *)
 
 ```
 
-**Example**
+Example:
+The following code calculates the right eigenvalues and eigenvectors of a positive-definite matrix `x`.
 
-The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
+```ocaml
 
-```ocaml file=../../examples/code/linear-algebra/example_00.ml
-let generate_data () =
-  let x = Mat.uniform 500 1 in
-  let p = Mat.uniform 1 1 in
-  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
-  x, y
+  let x = Mat.semidef 8;;                                  (* generate a random matrix *)
+  let v, w = Linalg.D.eig ~permute:false ~scale:false x;;  (* calculate eigenvalues and vectors *)
+  let v = Dense.Matrix.Z.re v;;                            (* only real part since [x] is semidef *)
+  let w = Dense.Matrix.Z.re w;;                            (* only real part since [x] is semidef *)
+  Mat.((x *@ v) =~ (w * v));;                              (* check the approx equality *)
 
-let t1_sol () =
-  let x, y = generate_data () in
-  let h = Plot.create "plot_00.png" in
-  let a, b = Linalg.D.linreg x y in
-  let y' = Mat.(x *$ b +$ a) in
-  Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
-  Plot.output h
 ```
 
-![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% #fig:linear-algebra:plot_00}
 
-Some discussion about the implementation details of `linsolve`.
+```
+  val is_hermitian : ('a, 'b) t -> bool
+  (* check if a matrix is hermitian *)
+
+  val schur : otyp:('c, 'd) kind -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
+  (* Schur factorisation *)
+```
+
+## Positive Definite Matrices
+
+```
+val chol : ?upper:bool -> ('a, 'b) t -> ('a, 'b) t
+  (* Cholesky factorisation *)
+```
+
+### Positive Definiteness
 
 
-## Singular Value Decomposition
+```
+val is_posdef : ('a, 'b) t -> bool
+  (* check if a matrix is positive semi-definite *)
+```
+
+
+### Singular Value Decomposition
 
 We have talked about LR Factorisation. Another important factorisation is SVD.
 The singular value decomposition (SVD) is among the most important matrix factorizations
@@ -606,81 +631,44 @@ What we provide:
 The following code performs an SVD on a random matrix then check the equality.
 
 ```ocaml
-
   let x = Mat.uniform 8 16;;        (* generate a random matrix *)
   let u, s, vt = Linalg.D.svd x;;   (* perform lq decomposition *)
   let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
   Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)
-
 ```
 
-## Other Factorisations
+## Computations with Matrices
 
-Besides LR and SVD, other Factorisation methods are also supported:
+### Matrix Norm and Condition Number 
 
 ```text
 
-  val lq : ?thin:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
-  (* LQ factorisation *)
+  val norm : ?p:float -> ('a, 'b) t -> float
+  (* p-norm of a matrix *)
 
-  val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+  val cond : ?p:float -> ('a, 'b) t -> float
+  (* p-norm condition number of a matrix *)
+
+  val rcond : ('a, 'b) t -> float
+  (* estimate for the reciprocal condition of a matrix in 1-norm *)
+```
+
+### Other Factorisations
+
+```
+val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
   (* QR factorisation  *)
 
-  val chol : ?upper:bool -> ('a, 'b) t -> ('a, 'b) t
-  (* Cholesky factorisation *)
-
-  
-  val schur : otyp:('c, 'd) kind -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
-  (* Schur factorisation *)
-
-  val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
+val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
   (* Hessenberg form of a given matrix *)
-
 ```
 
-Explain their importance and some math background.
 
-The following code performs an LQ decomposition on a random square matrix. Note that in the last step we used `=~` rather than `=` to check the equality due to float number precision. You can check the difference with `Mat.(l *@ q - x)`.
+## Linear Programming 
 
-```ocaml
+TODO: placeholder for future implementation. Or in the optimisation chapter.
 
-  let x = Mat.uniform 8 8;;    (* generate a random matrix *)
-  let l, q = Linalg.D.lq x;;   (* perform lq decomposition *)
-  Mat.(l *@ q =~ x);;          (* check the approx equality *)
-
-```
-
-And more examples.
-
-
-## Eigenvalues & eigenvectors
-
-Refer to book NR, Chapter 11 for theory details. 
-
-```text
-
-  val eig : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t * ('a, 'b) t
-  (* right eigenvectors and eigenvalues of an arbitrary square matrix *)
-
-  val eigvals : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
-  (* only computes the eigenvalues of an arbitrary square matrix *)
-
-```
-
-Example:
-The following code calculates the right eigenvalues and eigenvectors of a positive-definite matrix `x`.
-
-```ocaml
-
-  let x = Mat.semidef 8;;                                  (* generate a random matrix *)
-  let v, w = Linalg.D.eig ~permute:false ~scale:false x;;  (* calculate eigenvalues and vectors *)
-  let v = Dense.Matrix.Z.re v;;                            (* only real part since [x] is semidef *)
-  let w = Dense.Matrix.Z.re w;;                            (* only real part since [x] is semidef *)
-  Mat.((x *@ v) =~ (w * v));;                              (* check the approx equality *)
-
-```
-
-## CBLAS & LAPACKE
+## Internal: CBLAS and LAPACKE
 
 This section is for those of you who are eager for more low level information.
 
@@ -722,3 +710,52 @@ How these low level functions are used in Owl Code.
 ## Sparse Matrices
 
 TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
+
+
+**Extra material about linear regression**
+
+Perhaps should be moved to the regression chapter
+
+```text
+  val linreg : ('a, 'b) t -> ('a, 'b) t -> 'a * 'a
+  (* simple linear regression using OLS. *)
+```
+
+The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
+
+```ocaml file=../../examples/code/linear-algebra/example_00.ml
+let generate_data () =
+  let x = Mat.uniform 500 1 in
+  let p = Mat.uniform 1 1 in
+  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
+  x, y
+
+let t1_sol () =
+  let x, y = generate_data () in
+  let h = Plot.create "plot_00.png" in
+  let a, b = Linalg.D.linreg x y in
+  let y' = Mat.(x *$ b +$ a) in
+  Plot.scatter ~h x y;
+  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
+  Plot.output h
+```
+
+![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% #fig:linear-algebra:plot_00}
+
+
+**extra material on LQ**
+
+```text
+  val lq : ?thin:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
+  (* LQ factorisation *)
+```
+
+The following code performs an LQ decomposition on a random square matrix. Note that in the last step we used `=~` rather than `=` to check the equality due to float number precision. You can check the difference with `Mat.(l *@ q - x)`.
+
+```ocaml
+
+  let x = Mat.uniform 8 8;;    (* generate a random matrix *)
+  let l, q = Linalg.D.lq x;;   (* perform lq decomposition *)
+  Mat.(l *@ q =~ x);;          (* check the approx equality *)
+
+```

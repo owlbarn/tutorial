@@ -248,7 +248,7 @@ Multinomial distribution
 
 ## Hypothesis Tests
 
-### Basic Theory
+### Theory
 
 While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
 

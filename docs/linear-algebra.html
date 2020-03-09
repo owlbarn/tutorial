@@ -1,12 +1,22 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Linear Algebra - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="linear-algebra">
 <h1>Linear Algebra</h1>
-<p>Linear Algebra: important. It is beyond the scope of this bool. Please refer to […] for this subject.</p>
+<p>Linear Algebra: important. It is beyond the scope of this bool. Please refer to <span data-cites="strang2006linear" class="citation">(Strang 2006)</span> for this subject. This chapter also follows the basic structure of this book.</p>
 <p>This chapter briefly covers the linear algebra modules in Owl.</p>
 <p>There are two levels abstraction in Owl’s <code>Linalg</code> module: * low-level raw interface to CBLAS and LAPACKE; * high-level wrapper functions in <code>Linalg</code> module; The example in this chapter mostly use the high level wrapper. Please refer to the last section for details on CBLAS.</p>
+<p>The <code>Linalg</code> has the following module structure:</p>
+<ul>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Owl.Linalg.Generic</a>: generic functions for four number types <code>S/D/C/Z</code>.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_s.mli">Owl.Linalg.S</a>: only for <code>float32</code> type.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_d.mli">Owl.Linalg.D</a>: only for <code>float64</code> type.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_c.mli">Owl.Linalg.C</a>: only for <code>complex32</code> type.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_z.mli">Owl.Linalg.Z</a>: only for <code>complex64</code> type.</p></li>
+</ul>
+<p><code>Generic</code> actually can do everything that <code>S/D/C/Z</code> can but needs some extra type information. The functions in <code>Linalg</code> module are divided into the following groups.</p>
 <section class="level2" id="vectors-and-matrices">
 <h2>Vectors and Matrices</h2>
-<p>TODO: introduce vectors</p>
-<p>Before diving into the linear algebra, first we need to understand how matrix in Owl works. It is based on ndarray, but provides unique functions.</p>
+<p>The fundamental problem of linear algebra: solving linear equations.</p>
+<p>Simple Example.</p>
+<p>This is more efficiently expressed with vectors and matrices. We need to get familiar with these basic structures in Owl.</p>
 <p>Owl supports eight kinds of matrices as below, all the elements in a matrix are (real/complex) numbers.</p>
 <ul>
 <li><code>Dense.Matrix.S</code> : Dense matrices of single precision float numbers.</li>
@@ -357,64 +367,32 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 </div>
 </section>
 </section>
-<section class="level2" id="linear-algebra-basic">
-<h2>Linear Algebra Basic</h2>
-<p>Now that we are familiar with matrices in Owl, let’s look at the linear algebra module.</p>
-<p>The <code>Linalg</code> has the following module structure:</p>
-<ul>
-<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Owl.Linalg.Generic</a>: generic functions for four number types <code>S/D/C/Z</code>.</p></li>
-<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_s.mli">Owl.Linalg.S</a>: only for <code>float32</code> type.</p></li>
-<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_d.mli">Owl.Linalg.D</a>: only for <code>float64</code> type.</p></li>
-<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_c.mli">Owl.Linalg.C</a>: only for <code>complex32</code> type.</p></li>
-<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_z.mli">Owl.Linalg.Z</a>: only for <code>complex64</code> type.</p></li>
-</ul>
-<p><code>Generic</code> actually can do everything that <code>S/D/C/Z</code> can but needs some extra type information. The functions in <code>Linalg</code> module are divided into the following groups.</p>
-<p>Here we will use a simple example to demonstrate the basic functions in LinAlg. This example is a matrix that represents a graph structure… (example detail. This example has to be carefully chosen so that the operations are meaningful.)</p>
-<p>Below is a full list of basic functions provided by LA module.</p>
+<section class="level2" id="gaussian-elimination">
+<h2>Gaussian Elimination</h2>
+<p>One of the problems encountered most frequently in scientific computation is the solution of systems of linear equations. (Such as? find very concrete real world applications).</p>
+<p>A simple example, see reference book Matlab for Section 2.2</p>
+<section class="level3" id="lu-factorisation">
+<h3>LU Factorisation</h3>
+<p>A classical method: Gaussian – LR</p>
 <div class="highlight">
-<pre><code class="language-text">
-  val inv : ('a, 'b) t -&gt; ('a, 'b) t
-  (* inverse of a square matrix *)
-
-  val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)
-
-  val det : ('a, 'b) t -&gt; 'a
-  (* determinant of a square matrix  *)
-
-  val logdet : ('a, 'b) t -&gt; 'a
-  (* log of the determinant of a square matrix *)
-
-  val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
-  (* rank of a rectangular matrix *)
-
-  val norm : ?p:float -&gt; ('a, 'b) t -&gt; float
-  (* p-norm of a matrix *)
-
-  val cond : ?p:float -&gt; ('a, 'b) t -&gt; float
-  (* p-norm condition number of a matrix *)
-
-  val rcond : ('a, 'b) t -&gt; float
-  (* estimate for the reciprocal condition of a matrix in 1-norm *)
-
-  val is_triu : ('a, 'b) t -&gt; bool
+<pre><code class="language-text">  val lu : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t</code></pre>
+</div>
+<div class="highlight">
+<pre><code class="language-clike">val is_triu : ('a, 'b) t -&gt; bool
   (* check if a matrix is upper triangular *)
 
-  val is_tril : ('a, 'b) t -&gt; bool
-  (* check if a matrix is lower triangular *)
+val is_tril : ('a, 'b) t -&gt; bool
+  (* check if a matrix is lower triangular *)</code></pre>
+</div>
+</section>
+<section class="level3" id="inverse-and-transpose">
+<h3>Inverse and Transpose</h3>
+<p>Zero and one matrices</p>
+<div class="highlight">
+<pre><code class="language-clike">val inv : ('a, 'b) t -&gt; ('a, 'b) t
 
-  val is_symmetric : ('a, 'b) t -&gt; bool
-  (* check if a matrix is symmetric *)
-
-  val is_hermitian : ('a, 'b) t -&gt; bool
-  (* check if a matrix is hermitian *)
-
-  val is_diag : ('a, 'b) t -&gt; bool
-  (* check if a matrix is diagonal *)
-
-  val is_posdef : ('a, 'b) t -&gt; bool
-  (* check if a matrix is positive semi-definite *)
-</code></pre>
+val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+  (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
 </div>
 <p>The following code calculates the inverse of a square matrix <code>x</code>.</p>
 <div class="highlight">
@@ -424,121 +402,53 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
   Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)
 </code></pre>
 </div>
-</section>
-<section class="level2" id="solve-a-linear-equation-system">
-<h2>Solve A Linear Equation System</h2>
-<p>One of the problems encountered most frequently in scientific computation is the solution of systems of simultaneous linear equations. (Such as? find very concrete real world applications).</p>
-<p>A simple example, see reference book Matlab for Section 2.2</p>
-<section class="level3" id="lr-factorisation">
-<h3>LR Factorisation</h3>
-<p>A classical method: Gaussian – LR</p>
+<p>Transpose</p>
+<p>Symmetric metrics</p>
 <div class="highlight">
-<pre><code class="language-text">  val lu : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t</code></pre>
+<pre><code class="language-clike">val is_symmetric : ('a, 'b) t -&gt; bool</code></pre>
+</div>
+<div class="highlight">
+<pre><code class="language-clike">val is_diag : ('a, 'b) t -&gt; bool
+  (* check if a matrix is diagonal *)</code></pre>
 </div>
 </section>
-<section class="level3" id="what-owl-provides">
-<h3>What Owl Provides</h3>
-<p>As user, we don’t have to choose or use this tedious approach. Owl has already provides:</p>
-<div class="highlight">
-<pre><code class="language-text">
-  val null : ('a, 'b) t -&gt; ('a, 'b) t
-  (* an orthonormal basis for the null space of a matrix *)
-
-  val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* solves `A * x = b` linear equation system. *)
-
-  val linreg : ('a, 'b) t -&gt; ('a, 'b) t -&gt; 'a * 'a
-  (* simple linear regression using OLS. *)
-</code></pre>
-</div>
-<p><strong>Example</strong></p>
-<p>The code snippet below first generates some random data, then using <code>linreg</code> function to perform a simple linear regression and plots the data as well as the regression line.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let generate_data () =
-  let x = Mat.uniform 500 1 in
-  let p = Mat.uniform 1 1 in
-  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
-  x, y
-
-let t1_sol () =
-  let x, y = generate_data () in
-  let h = Plot.create "plot_00.png" in
-  let a, b = Linalg.D.linreg x y in
-  let y' = Mat.(x *$ b +$ a) in
-  Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
-  Plot.output h</code></pre>
-</div>
-<figure>
-<img alt="" style="width:90.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 2: An example of using linear regression to fit data</figcaption>
-</figure>
-<p>Some discussion about the implementation details of <code>linsolve</code>.</p>
 </section>
-</section>
-<section class="level2" id="singular-value-decomposition">
-<h2>Singular Value Decomposition</h2>
-<p>We have talked about LR Factorisation. Another important factorisation is SVD. The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era. The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.</p>
-<p>Refer to: <a href="https://www.cambridge.org/core/books/datadriven-science-and-engineering/77D52B171B60A496EAFE4DB662ADC36E">Data Driven Science and Engineering</a>, chapter 2.</p>
-<p>What we provide:</p>
+<section class="level2" id="vector-spaces">
+<h2>Vector Spaces</h2>
+<section class="level3" id="vector-spaces-and-subspaces">
+<h3>Vector Spaces and Subspaces</h3>
 <div class="highlight">
-<pre><code class="language-text">  val svd : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* singular value decomposition *)
-
-  val svdvals : ('a, 'b) t -&gt; ('a, 'b) t
-  (* only singular values of SVD *)
-
-  val gsvd : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* generalised singular value decomposition *)
-
-  val gsvdvals : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* only singular values of generalised SVD *)
-</code></pre>
-</div>
-<p>The following code performs an SVD on a random matrix then check the equality.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">
-  let x = Mat.uniform 8 16;;        (* generate a random matrix *)
-  let u, s, vt = Linalg.D.svd x;;   (* perform lq decomposition *)
-  let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
-  Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)
-</code></pre>
+<pre><code class="language-clike">val null : ('a, 'b) t -&gt; ('a, 'b) t
+(* an orthonormal basis for the null space of a matrix *)</code></pre>
 </div>
 </section>
-<section class="level2" id="other-factorisations">
-<h2>Other Factorisations</h2>
-<p>Besides LR and SVD, other Factorisation methods are also supported:</p>
+<section class="level3" id="solving-ax-b">
+<h3>Solving Ax = b</h3>
 <div class="highlight">
-<pre><code class="language-text">
-  val lq : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
-  (* LQ factorisation *)
-
-  val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-  (* QR factorisation  *)
-
-  val chol : ?upper:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* Cholesky factorisation *)
-
-  
-  val schur : otyp:('c, 'd) kind -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
-  (* Schur factorisation *)
-
-  val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
-  (* Hessenberg form of a given matrix *)
-</code></pre>
+<pre><code class="language-clike">val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
+  (* rank of a rectangular matrix *)</code></pre>
 </div>
-<p>Explain their importance and some math background.</p>
-<p>The following code performs an LQ decomposition on a random square matrix. Note that in the last step we used <code>=~</code> rather than <code>=</code> to check the equality due to float number precision. You can check the difference with <code>Mat.(l *@ q - x)</code>.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  let x = Mat.uniform 8 8;;    (* generate a random matrix *)
-  let l, q = Linalg.D.lq x;;   (* perform lq decomposition *)
-  Mat.(l *@ q =~ x);;          (* check the approx equality *)
-</code></pre>
+<pre><code class="language-clike">val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+  (* solves `A * x = b` linear equation system. *)</code></pre>
 </div>
-<p>And more examples.</p>
 </section>
-<section class="level2" id="eigenvalues-eigenvectors">
-<h2>Eigenvalues &amp; eigenvectors</h2>
+</section>
+<section class="level2" id="orthogonality">
+<h2>Orthogonality</h2>
+</section>
+<section class="level2" id="determinants">
+<h2>Determinants</h2>
+<div class="highlight">
+<pre><code class="language-clike">val det : ('a, 'b) t -&gt; 'a
+  (* determinant of a square matrix  *)
+
+val logdet : ('a, 'b) t -&gt; 'a
+  (* log of the determinant of a square matrix *)</code></pre>
+</div>
+</section>
+<section class="level2" id="eigenvalues-and-eigenvectors">
+<h2>Eigenvalues and Eigenvectors</h2>
 <p>Refer to book NR, Chapter 11 for theory details.</p>
 <div class="highlight">
 <pre><code class="language-text">
@@ -559,9 +469,88 @@ let t1_sol () =
   Mat.((x *@ v) =~ (w * v));;                              (* check the approx equality *)
 </code></pre>
 </div>
+<div class="highlight">
+<pre><code class="language-clike">  val is_hermitian : ('a, 'b) t -&gt; bool
+  (* check if a matrix is hermitian *)
+
+  val schur : otyp:('c, 'd) kind -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
+  (* Schur factorisation *)</code></pre>
+</div>
 </section>
-<section class="level2" id="cblas-lapacke">
-<h2>CBLAS &amp; LAPACKE</h2>
+<section class="level2" id="positive-definite-matrices">
+<h2>Positive Definite Matrices</h2>
+<div class="highlight">
+<pre><code class="language-clike">val chol : ?upper:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+  (* Cholesky factorisation *)</code></pre>
+</div>
+<section class="level3" id="positive-definiteness">
+<h3>Positive Definiteness</h3>
+<div class="highlight">
+<pre><code class="language-clike">val is_posdef : ('a, 'b) t -&gt; bool
+  (* check if a matrix is positive semi-definite *)</code></pre>
+</div>
+</section>
+<section class="level3" id="singular-value-decomposition">
+<h3>Singular Value Decomposition</h3>
+<p>We have talked about LR Factorisation. Another important factorisation is SVD. The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era. The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.</p>
+<p>Refer to: <a href="https://www.cambridge.org/core/books/datadriven-science-and-engineering/77D52B171B60A496EAFE4DB662ADC36E">Data Driven Science and Engineering</a>, chapter 2.</p>
+<p>What we provide:</p>
+<div class="highlight">
+<pre><code class="language-text">  val svd : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
+  (* singular value decomposition *)
+
+  val svdvals : ('a, 'b) t -&gt; ('a, 'b) t
+  (* only singular values of SVD *)
+
+  val gsvd : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
+  (* generalised singular value decomposition *)
+
+  val gsvdvals : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+  (* only singular values of generalised SVD *)
+</code></pre>
+</div>
+<p>The following code performs an SVD on a random matrix then check the equality.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">  let x = Mat.uniform 8 16;;        (* generate a random matrix *)
+  let u, s, vt = Linalg.D.svd x;;   (* perform lq decomposition *)
+  let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
+  Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)</code></pre>
+</div>
+</section>
+</section>
+<section class="level2" id="computations-with-matrices">
+<h2>Computations with Matrices</h2>
+<section class="level3" id="matrix-norm-and-condition-number">
+<h3>Matrix Norm and Condition Number</h3>
+<div class="highlight">
+<pre><code class="language-text">
+  val norm : ?p:float -&gt; ('a, 'b) t -&gt; float
+  (* p-norm of a matrix *)
+
+  val cond : ?p:float -&gt; ('a, 'b) t -&gt; float
+  (* p-norm condition number of a matrix *)
+
+  val rcond : ('a, 'b) t -&gt; float
+  (* estimate for the reciprocal condition of a matrix in 1-norm *)</code></pre>
+</div>
+</section>
+<section class="level3" id="other-factorisations">
+<h3>Other Factorisations</h3>
+<div class="highlight">
+<pre><code class="language-clike">val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+  (* QR factorisation  *)
+
+val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
+  (* Hessenberg form of a given matrix *)</code></pre>
+</div>
+</section>
+</section>
+<section class="level2" id="linear-programming">
+<h2>Linear Programming</h2>
+<p>TODO: placeholder for future implementation. Or in the optimisation chapter.</p>
+</section>
+<section class="level2" id="internal-cblas-and-lapacke">
+<h2>Internal: CBLAS and LAPACKE</h2>
 <p>This section is for those of you who are eager for more low level information.</p>
 <p>The Background: BLAS, a brief history. How we include that into Owl.</p>
 <section class="level3" id="low-level-interface-to-cblas-lapacke">
@@ -597,6 +586,50 @@ let t1_sol () =
 <section class="level2" id="sparse-matrices">
 <h2>Sparse Matrices</h2>
 <p>TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
+<p><strong>Extra material about linear regression</strong></p>
+<p>Perhaps should be moved to the regression chapter</p>
+<div class="highlight">
+<pre><code class="language-text">  val linreg : ('a, 'b) t -&gt; ('a, 'b) t -&gt; 'a * 'a
+  (* simple linear regression using OLS. *)</code></pre>
+</div>
+<p>The code snippet below first generates some random data, then using <code>linreg</code> function to perform a simple linear regression and plots the data as well as the regression line.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let generate_data () =
+  let x = Mat.uniform 500 1 in
+  let p = Mat.uniform 1 1 in
+  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
+  x, y
+
+let t1_sol () =
+  let x, y = generate_data () in
+  let h = Plot.create "plot_00.png" in
+  let a, b = Linalg.D.linreg x y in
+  let y' = Mat.(x *$ b +$ a) in
+  Plot.scatter ~h x y;
+  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:90.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 2: An example of using linear regression to fit data</figcaption>
+</figure>
+<p><strong>extra material on LQ</strong></p>
+<div class="highlight">
+<pre><code class="language-text">  val lq : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
+  (* LQ factorisation *)</code></pre>
+</div>
+<p>The following code performs an LQ decomposition on a random square matrix. Note that in the last step we used <code>=~</code> rather than <code>=</code> to check the equality due to float number precision. You can check the difference with <code>Mat.(l *@ q - x)</code>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Mat.uniform 8 8;;    (* generate a random matrix *)
+  let l, q = Linalg.D.lq x;;   (* perform lq decomposition *)
+  Mat.(l *@ q =~ x);;          (* check the approx equality *)
+</code></pre>
+</div>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-strang2006linear">
+<p>Strang, Gilbert. 2006. <em>Linear Algebra and Its Applications</em>. Belmont, CA: Thomson, Brooks/Cole. <a href="http://www.amazon.com/Linear-Algebra-Its-Applications-Edition/dp/0030105676">http://www.amazon.com/Linear-Algebra-Its-Applications-Edition/dp/0030105676</a>.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="diffequation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 09</small>Ordinary Differential Equations</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
