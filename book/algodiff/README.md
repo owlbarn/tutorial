@@ -493,8 +493,8 @@ Just as expected.
 (TODO: revise the code e.g. naming; explain the code as clear as possible since the adjoint function is very tricky. Use graph if necessary.)
 
 The reverse mode is a bit more complex. 
-As shown in the previous section, forward mode only need one pass, but the reverse differentiation requires a forward pass and a backward pass.
-That means, besides computing primal values, we also need to "remember" the operations along the forward pass, and then utilise these information in the backward pass.
+As shown in the previous section, forward mode only needs one pass, but the reverse mode requires two passes, a forward pass followed by a backward pass.
+This further indicates that, besides computing primal values, we also need to "remember" the operations along the forward pass, and then utilise these information in the backward pass.
 There can be multiple ways to do that, e.g. a stack or graph structure. 
 What we choose here is bit different though.
 Start with the data types we use.
@@ -512,7 +512,7 @@ let adjoint dr = dr.a
 let adj_fun dr = dr.adj_fun
 ```
 
-The `p` is for primal and `a` stands for adjoint. It's easy to understand. 
+The `p` is for primal while `a` stands for adjoint. It's easy to understand. 
 The `adj_fun` is a bit tricky. Let's see an example:
 
 
@@ -528,8 +528,8 @@ let sin_ad dr =
 ```
 
 It's an implementation of `sin` operation. 
-The `adj_fun` here is leaves placeholder for the adjoint value we don't know yet in the forward pass. 
-The `t` stands for a stack of intermediate nodes to be processed in the backward process.
+The `adj_fun` here can be understood as a placeholder for the adjoint value we don't know yet in the forward pass. 
+The `t` is a stack of intermediate nodes to be processed in the backward process.
 It says that, if I have the adjoint value `ca`, I can then get the new adjoint value of my parents `r`.
 This result, together with the original data `dr`, is pushed to the stack `t`.
 This stack is implemented in OCaml list.  
@@ -591,7 +591,7 @@ let rec reverse_push xs =
 
 The `reverse_push` does exactly that. Stating from a list, it get the top element `dr`, get the adjoint value we already calculated `aa`, update it with `v` (explain why), get the `adj_fun`. Now that we know the adjoint value, we can use that as input parameter to the `adj_fun` to execute the data of current task and recursively execute more nodes until the task stack is empty.
 
-Now, let's add the other required operations:
+Now, let's add some other required operations:
 
 
 ```ocaml env=algodiff_simple_impl_reverse
@@ -682,7 +682,7 @@ Their adjoint values are just as expected.
 
 ### Unified Implementations 
 
-Both methods seems OK, but in the real world application we often need a system that supports both differentiation modes. How can we build it then?
+We have shown how to implement forward and reverse AD from scratch separately. But in the real world applications, we often need a system that supports both differentiation modes. How can we build it then?
 We start with combining the previous two record data types `df` and `dr` into a new data type `t`:
 
 ```ocaml env=algodiff_simple_impl_unified_00
@@ -1015,7 +1015,7 @@ open AD
 val result : float = 0.13687741466075895
 ```
 
-As a trade with this slightly cumbersome packing mechanism, we can now perform.
+Despite this slightly cumbersome number packing mechanism, we can now perform. **liang: what?**
 Next, we show how to perform the forward and reverse propagation on this computation in Owl.
 
 ### Example: Forward Mode
