@@ -470,7 +470,7 @@ let pri, tan = diff f x0 x1;;
 <section class="level3" id="simple-reverse-implementation">
 <h3>Simple Reverse Implementation</h3>
 <p>(TODO: revise the code e.g.&nbsp;naming; explain the code as clear as possible since the adjoint function is very tricky. Use graph if necessary.)</p>
-<p>The reverse mode is a bit more complex. As shown in the previous section, forward mode only need one pass, but the reverse differentiation requires a forward pass and a backward pass. That means, besides computing primal values, we also need to “remember” the operations along the forward pass, and then utilise these information in the backward pass. There can be multiple ways to do that, e.g.&nbsp;a stack or graph structure. What we choose here is bit different though. Start with the data types we use.</p>
+<p>The reverse mode is a bit more complex. As shown in the previous section, forward mode only needs one pass, but the reverse mode requires two passes, a forward pass followed by a backward pass. This further indicates that, besides computing primal values, we also need to “remember” the operations along the forward pass, and then utilise these information in the backward pass. There can be multiple ways to do that, e.g.&nbsp;a stack or graph structure. What we choose here is bit different though. Start with the data types we use.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type dr = {
     mutable p: float;
@@ -482,7 +482,7 @@ let primal dr = dr.p
 let adjoint dr = dr.a
 let adj_fun dr = dr.adj_fun</code></pre>
 </div>
-<p>The <code>p</code> is for primal and <code>a</code> stands for adjoint. It’s easy to understand. The <code>adj_fun</code> is a bit tricky. Let’s see an example:</p>
+<p>The <code>p</code> is for primal while <code>a</code> stands for adjoint. It’s easy to understand. The <code>adj_fun</code> is a bit tricky. Let’s see an example:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let sin_ad dr = 
     let p = primal dr in 
@@ -493,7 +493,7 @@ let adj_fun dr = dr.adj_fun</code></pre>
     in
     {p=p'; a=ref 0.; adj_fun=adjfun'}</code></pre>
 </div>
-<p>It’s an implementation of <code>sin</code> operation. The <code>adj_fun</code> here is leaves placeholder for the adjoint value we don’t know yet in the forward pass. The <code>t</code> stands for a stack of intermediate nodes to be processed in the backward process. It says that, if I have the adjoint value <code>ca</code>, I can then get the new adjoint value of my parents <code>r</code>. This result, together with the original data <code>dr</code>, is pushed to the stack <code>t</code>. This stack is implemented in OCaml list.</p>
+<p>It’s an implementation of <code>sin</code> operation. The <code>adj_fun</code> here can be understood as a placeholder for the adjoint value we don’t know yet in the forward pass. The <code>t</code> is a stack of intermediate nodes to be processed in the backward process. It says that, if I have the adjoint value <code>ca</code>, I can then get the new adjoint value of my parents <code>r</code>. This result, together with the original data <code>dr</code>, is pushed to the stack <code>t</code>. This stack is implemented in OCaml list.</p>
 <p>Let’s look at the <code>mul</code> operation:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mul_ad dr1 dr2 = 
@@ -539,7 +539,7 @@ let v = mul_ad (sin_ad x) y;;
         reverse_push stack</code></pre>
 </div>
 <p>The <code>reverse_push</code> does exactly that. Stating from a list, it get the top element <code>dr</code>, get the adjoint value we already calculated <code>aa</code>, update it with <code>v</code> (explain why), get the <code>adj_fun</code>. Now that we know the adjoint value, we can use that as input parameter to the <code>adj_fun</code> to execute the data of current task and recursively execute more nodes until the task stack is empty.</p>
-<p>Now, let’s add the other required operations:</p>
+<p>Now, let’s add some other required operations:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let exp_ad dr = 
     let p = primal dr in 
@@ -623,7 +623,7 @@ let f x =
 </section>
 <section class="level3" id="unified-implementations">
 <h3>Unified Implementations</h3>
-<p>Both methods seems OK, but in the real world application we often need a system that supports both differentiation modes. How can we build it then? We start with combining the previous two record data types <code>df</code> and <code>dr</code> into a new data type <code>t</code>:</p>
+<p>We have shown how to implement forward and reverse AD from scratch separately. But in the real world applications, we often need a system that supports both differentiation modes. How can we build it then? We start with combining the previous two record data types <code>df</code> and <code>dr</code> into a new data type <code>t</code>:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type t = 
     | DF of float * float  
@@ -903,7 +903,7 @@ let f x =
 # let result = f input |&gt; unpack_flt
 val result : float = 0.13687741466075895</code></pre>
 </div>
-<p>As a trade with this slightly cumbersome packing mechanism, we can now perform. Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
+<p>Despite this slightly cumbersome number packing mechanism, we can now perform. <strong>liang: what?</strong> Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
 </section>
 <section class="level3" id="example-forward-mode">
 <h3>Example: Forward Mode</h3>
