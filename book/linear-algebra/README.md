@@ -504,39 +504,37 @@ Explain pivoting. Refer to Matlab book Sec 2.5-2.6.
 
 ### Inverse and Transpose 
 
-Zero and one matrices
-
+Zero and one matrices $I$. 
+One matrix is a special form of *Diagonal Matrix*, which is a square matrix that only contains non-zero element along its diagonal. 
+You can check if a matrix is diagonal with `is_diag` function.
 
 ```
-val inv : ('a, 'b) t -> ('a, 'b) t
-
-val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)
+CODE: I is diag
 ```
 
+The inverse of a nxn square matrix: $AA^{-1} = I$
 
-The following code calculates the inverse of a square matrix `x`.
+Not all square matrix has inverse.  
+One important thing: a n by n matrix A is invertible if and only if it has n pivots. 
+
+We use function `inv` to do the inverse operation. It's straightforward and easy to verify:
 
 ```ocaml
-
   let x = Mat.semidef 8;;    (* generate a random semidef matrix *)
   let y = Linalg.D.inv x;;   (* calculate the matrix inverse *)
   Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)
-
 ```
 
-Transpose
-
-Symmetric metrics
-
-```
-val is_symmetric : ('a, 'b) t -> bool
-```
+Next is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.
+It has properties such as $(AB)^T=B^T~A^T$. 
+We can check this property using the matrix function `Mat.transpose`.
 
 ```
-val is_diag : ('a, 'b) t -> bool
-  (* check if a matrix is diagonal *)
+CODE: transpose
 ```
+
+A related special matrix is the *Symmetric Matrix*, which equals to its own transpose. This simple test can be done with the `is_symmetric` function.
+
 
 ## Vector Spaces
 
@@ -659,6 +657,13 @@ The following code performs an SVD on a random matrix then check the equality.
   let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
   Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)
 ```
+
+```
+val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
+  (* Moore-Penrose pseudo-inverse of a matrix *)
+```
+
+The Moore-Penrose inverse is a direct application of the SVD.
 
 ## Computations with Matrices
 

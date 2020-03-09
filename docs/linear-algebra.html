@@ -389,30 +389,24 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 </section>
 <section class="level3" id="inverse-and-transpose">
 <h3>Inverse and Transpose</h3>
-<p>Zero and one matrices</p>
+<p>Zero and one matrices <span class="math inline">\(I\)</span>. One matrix is a special form of <em>Diagonal Matrix</em>, which is a square matrix that only contains non-zero element along its diagonal. You can check if a matrix is diagonal with <code>is_diag</code> function.</p>
 <div class="highlight">
-<pre><code class="language-clike">val inv : ('a, 'b) t -&gt; ('a, 'b) t
-
-val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
+<pre><code class="language-clike">CODE: I is diag</code></pre>
 </div>
-<p>The following code calculates the inverse of a square matrix <code>x</code>.</p>
+<p>The inverse of a nxn square matrix: <span class="math inline">\(AA^{-1} = I\)</span></p>
+<p>Not all square matrix has inverse.<br>
+One important thing: a n by n matrix A is invertible if and only if it has n pivots.</p>
+<p>We use function <code>inv</code> to do the inverse operation. It’s straightforward and easy to verify:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  let x = Mat.semidef 8;;    (* generate a random semidef matrix *)
+<pre><code class="language-ocaml">  let x = Mat.semidef 8;;    (* generate a random semidef matrix *)
   let y = Linalg.D.inv x;;   (* calculate the matrix inverse *)
-  Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)
-</code></pre>
+  Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)</code></pre>
 </div>
-<p>Transpose</p>
-<p>Symmetric metrics</p>
+<p>Next is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>.</p>
 <div class="highlight">
-<pre><code class="language-clike">val is_symmetric : ('a, 'b) t -&gt; bool</code></pre>
+<pre><code class="language-clike">CODE: transpose</code></pre>
 </div>
-<div class="highlight">
-<pre><code class="language-clike">val is_diag : ('a, 'b) t -&gt; bool
-  (* check if a matrix is diagonal *)</code></pre>
-</div>
+<p>A related special matrix is the <em>Symmetric Matrix</em>, which equals to its own transpose. This simple test can be done with the <code>is_symmetric</code> function.</p>
 </section>
 </section>
 <section class="level2" id="vector-spaces">
@@ -518,6 +512,11 @@ val logdet : ('a, 'b) t -&gt; 'a
   let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
   Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)</code></pre>
 </div>
+<div class="highlight">
+<pre><code class="language-clike">val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
+  (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
+</div>
+<p>The Moore-Penrose inverse is a direct application of the SVD.</p>
 </section>
 </section>
 <section class="level2" id="computations-with-matrices">
