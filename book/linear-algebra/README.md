@@ -1,7 +1,7 @@
 # Linear Algebra
 
 Linear Algebra: important. 
-It is beyond the scope of this bool. Please refer to [@strang2006linear] for this subject.
+It is beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
 This chapter also follows the basic structure of this book.
 
 This chapter briefly covers the linear algebra modules in Owl. 
@@ -543,16 +543,25 @@ A related special matrix is the *Symmetric Matrix*, which equals to its own tran
 
 EXPLAIN the concepts of vector space and subspace.
 
-EXPLAIN what is column space and null space .
+EXPLAIN what is column space and null space, and the other two. 
 
 ### Rank and Basis
 
 We have seen using LU factorisation to solve Ax=b, but it won't work every time. 
 For one thing, $A$ may not be square matrix. 
+Or the given information is not enough (multiple solutions)
+
+Example
+
+
 Besides, some of the equations might be "useless".
 One of these equation provide no new information. 
 
 Example: a linear-dependent square matrix. 
+
+Understanding a bit of these theories will be helpful to using functions, instead blindly believing the function can give you solution every time. 
+(In this section I need to show some "fail" examples) 
+
 
 Introduce: rank.
 The definition of linear independence.
@@ -565,20 +574,51 @@ val rank : ?tol:float -> ('a, 'b) t -> int
   (* rank of a rectangular matrix *)
 ```
 
+One application of rank is in a crucial Linalg idea: basis. linear independent (Ax=0), and spanning the space (Ax=b).
 
+Dimension of a vector space. 
+
+Suppose in a n-dimension space.
+The dimension of column space is $r$; the dimension of nullspace N(A) = n - r. 
+
+### Orthogonality
+
+Basis is like coordinates in  the space. 
+But in a 2 or 3 dimensional  cartesian space, we often use the orthogonal axis as basis. The same can be applied here. 
+
+Orthogonal vectors and subspaces.
+
+Orthonormal basis: orthogonal among each other, and then normalised  to unit vector.
+
+Orthogonal matrix: columns ar orthogonal 
+
+For example, the basis for the null space:
 ```
 val null : ('a, 'b) t -> ('a, 'b) t
 (* an orthonormal basis for the null space of a matrix *)
 ```
 
-### Solving Ax = b
 
-With the concept of rank, we can now discuss... 
+The method to construct orthogonal basis in a subspace is called the Gram-Schmidt orthogonalisation.
+
+QR factorisation.
 
 ```
 val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
   (* QR factorisation  *)
 ```
+
+### Solving Ax = b
+
+We can now discuss the general solution to $Ax=b$.
+
+Several theorems:
+There exist non-zero solutions to $Ax=0$ if and only if rank(A) < column of A.
+
+Example
+
+Suppose A is mxn matrix, and b is mx1 matrix, then there exist solution if and only if r(A) = r([A, b]). 
+If and only if r(A) also equals to n, there exist one solution.
 
 `linsolve a b -> x` solves a linear system of equations `a * x = b` in the following form. By default, `typ=n` and the function use LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise. The number
 of rows of `a` must equal the number of rows of `b`.
@@ -588,7 +628,7 @@ If `a` is a upper(lower) triangular matrix, the function calls the ``solve_trian
 val linsolve : ?trans:bool -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 ```
 
-## Orthogonality
+Example: only using the function does not work; you have to do some comparison of rank.
 
 
 ## Determinants

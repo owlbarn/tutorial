@@ -1,6 +1,6 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Linear Algebra - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="linear-algebra">
 <h1>Linear Algebra</h1>
-<p>Linear Algebra: important. It is beyond the scope of this bool. Please refer to <span data-cites="strang2006linear" class="citation">(Strang 2006)</span> for this subject. This chapter also follows the basic structure of this book.</p>
+<p>Linear Algebra: important. It is beyond the scope of this book. Please refer to <span data-cites="strang2006linear" class="citation">(Strang 2006)</span> for this subject. This chapter also follows the basic structure of this book.</p>
 <p>This chapter briefly covers the linear algebra modules in Owl.</p>
 <p>There are two levels abstraction in Owl’s <code>Linalg</code> module: * low-level raw interface to CBLAS and LAPACKE; * high-level wrapper functions in <code>Linalg</code> module; The example in this chapter mostly use the high level wrapper. Please refer to the last section for details on CBLAS.</p>
 <p>The <code>Linalg</code> has the following module structure:</p>
@@ -413,37 +413,54 @@ One important thing: a n by n matrix A is invertible if and only if it has n piv
 <section class="level2" id="vector-spaces">
 <h2>Vector Spaces</h2>
 <p>EXPLAIN the concepts of vector space and subspace.</p>
-<p>EXPLAIN what is column space and null space .</p>
+<p>EXPLAIN what is column space and null space, and the other two.</p>
 <section class="level3" id="rank-and-basis">
 <h3>Rank and Basis</h3>
-<p>We have seen using LU factorisation to solve Ax=b, but it won’t work every time. For one thing, <span class="math inline">\(A\)</span> may not be square matrix. Besides, some of the equations might be “useless”. One of these equation provide no new information.</p>
+<p>We have seen using LU factorisation to solve Ax=b, but it won’t work every time. For one thing, <span class="math inline">\(A\)</span> may not be square matrix. Or the given information is not enough (multiple solutions)</p>
+<p>Example</p>
+<p>Besides, some of the equations might be “useless”. One of these equation provide no new information.</p>
 <p>Example: a linear-dependent square matrix.</p>
+<p>Understanding a bit of these theories will be helpful to using functions, instead blindly believing the function can give you solution every time. (In this section I need to show some “fail” examples)</p>
 <p>Introduce: rank. The definition of linear independence. The definition and implication of rank.</p>
 <p>A Example using rank:</p>
 <div class="highlight">
 <pre><code class="language-clike">val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
   (* rank of a rectangular matrix *)</code></pre>
 </div>
+<p>One application of rank is in a crucial Linalg idea: basis. linear independent (Ax=0), and spanning the space (Ax=b).</p>
+<p>Dimension of a vector space.</p>
+<p>Suppose in a n-dimension space. The dimension of column space is <span class="math inline">\(r\)</span>; the dimension of nullspace N(A) = n - r.</p>
+</section>
+<section class="level3" id="orthogonality">
+<h3>Orthogonality</h3>
+<p>Basis is like coordinates in the space. But in a 2 or 3 dimensional cartesian space, we often use the orthogonal axis as basis. The same can be applied here.</p>
+<p>Orthogonal vectors and subspaces.</p>
+<p>Orthonormal basis: orthogonal among each other, and then normalised to unit vector.</p>
+<p>Orthogonal matrix: columns ar orthogonal</p>
+For example, the basis for the null space:
 <div class="highlight">
 <pre><code class="language-clike">val null : ('a, 'b) t -&gt; ('a, 'b) t
 (* an orthonormal basis for the null space of a matrix *)</code></pre>
 </div>
-</section>
-<section class="level3" id="solving-ax-b">
-<h3>Solving Ax = b</h3>
-<p>With the concept of rank, we can now discuss…</p>
+<p>The method to construct orthogonal basis in a subspace is called the Gram-Schmidt orthogonalisation.</p>
+<p>QR factorisation.</p>
 <div class="highlight">
 <pre><code class="language-clike">val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
   (* QR factorisation  *)</code></pre>
 </div>
+</section>
+<section class="level3" id="solving-ax-b">
+<h3>Solving Ax = b</h3>
+<p>We can now discuss the general solution to <span class="math inline">\(Ax=b\)</span>.</p>
+<p>Several theorems: There exist non-zero solutions to <span class="math inline">\(Ax=0\)</span> if and only if rank(A) &lt; column of A.</p>
+<p>Example</p>
+<p>Suppose A is mxn matrix, and b is mx1 matrix, then there exist solution if and only if r(A) = r([A, b]). If and only if r(A) also equals to n, there exist one solution.</p>
 <p><code>linsolve a b -&gt; x</code> solves a linear system of equations <code>a * x = b</code> in the following form. By default, <code>typ=n</code> and the function use LU factorisation with partial pivoting when <code>a</code> is square and QR factorisation with column pivoting otherwise. The number of rows of <code>a</code> must equal the number of rows of <code>b</code>. If <code>a</code> is a upper(lower) triangular matrix, the function calls the <code>solve_triangular</code> function.</p>
 <div class="highlight">
 <pre><code class="language-clike">val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t</code></pre>
 </div>
+<p>Example: only using the function does not work; you have to do some comparison of rank.</p>
 </section>
-</section>
-<section class="level2" id="orthogonality">
-<h2>Orthogonality</h2>
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
