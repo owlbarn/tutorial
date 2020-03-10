@@ -232,6 +232,31 @@ Then techniques such as choosing feature or regularisation are required.
 
 Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution. 
 
+**Method from Linalg module**
+
+TODO: place these part correctly.
+
+The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
+
+```ocaml file=../../examples/code/linear-algebra/example_00.ml
+let generate_data () =
+  let x = Mat.uniform 500 1 in
+  let p = Mat.uniform 1 1 in
+  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
+  x, y
+
+let t1_sol () =
+  let x, y = generate_data () in
+  let h = Plot.create "plot_00.png" in
+  let a, b = Linalg.D.linreg x y in
+  let y' = Mat.(x *$ b +$ a) in
+  Plot.scatter ~h x y;
+  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
+  Plot.output h
+```
+
+![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% #fig:linear-algebra:plot_00}
+
 ## Non-linear regressions 
 
 If only the world is as simple as linear regression. But that's not to be. 

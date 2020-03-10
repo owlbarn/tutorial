@@ -490,7 +490,10 @@ We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
 
 EXAMPLE
 
-The importance of dividing a matrix is that with traiangular matrices, it becomes very easy to solve the linear equations. 
+The importance of dividing a matrix is that with triangular matrices, it becomes very easy to solve the linear equations. 
+`triangular_solve`.
+
+
 We can use the `lu` function to do it.
 
 EXAMPLE
@@ -538,7 +541,30 @@ A related special matrix is the *Symmetric Matrix*, which equals to its own tran
 
 ## Vector Spaces
 
-### Vector Spaces and Subspaces 
+EXPLAIN the concepts of vector space and subspace.
+
+EXPLAIN what is column space and null space .
+
+### Rank and Basis
+
+We have seen using LU factorisation to solve Ax=b, but it won't work every time. 
+For one thing, $A$ may not be square matrix. 
+Besides, some of the equations might be "useless".
+One of these equation provide no new information. 
+
+Example: a linear-dependent square matrix. 
+
+Introduce: rank.
+The definition of linear independence.
+The definition and implication of rank.
+
+A Example using rank:
+
+```
+val rank : ?tol:float -> ('a, 'b) t -> int
+  (* rank of a rectangular matrix *)
+```
+
 
 ```
 val null : ('a, 'b) t -> ('a, 'b) t
@@ -547,14 +573,19 @@ val null : ('a, 'b) t -> ('a, 'b) t
 
 ### Solving Ax = b
 
+With the concept of rank, we can now discuss... 
+
 ```
-val rank : ?tol:float -> ('a, 'b) t -> int
-  (* rank of a rectangular matrix *)
+val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+  (* QR factorisation  *)
 ```
+
+`linsolve a b -> x` solves a linear system of equations `a * x = b` in the following form. By default, `typ=n` and the function use LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise. The number
+of rows of `a` must equal the number of rows of `b`.
+If `a` is a upper(lower) triangular matrix, the function calls the ``solve_triangular`` function.
 
 ```
 val linsolve : ?trans:bool -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
-  (* solves `A * x = b` linear equation system. *)
 ```
 
 ## Orthogonality
@@ -681,12 +712,9 @@ The Moore-Penrose inverse is a direct application of the SVD.
   (* estimate for the reciprocal condition of a matrix in 1-norm *)
 ```
 
-### Other Factorisations
+**Other Factorisations**
 
 ```
-val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-  (* QR factorisation  *)
-
 val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
   (* Hessenberg form of a given matrix *)
 ```
@@ -694,7 +722,8 @@ val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
 
 ## Linear Programming 
 
-TODO: placeholder for future implementation. Or in the optimisation chapter.
+TODO: placeholder for future implementation. Or in the optimisation chapter. 
+Understand the method used such as interior  point, and then make the decision.
 
 ## Internal: CBLAS and LAPACKE
 
@@ -737,43 +766,17 @@ How these low level functions are used in Owl Code.
 
 ## Sparse Matrices
 
+Very brief. 
+Focusing on introducing the data structure (CSC, CSR, etc), no the method.
+
+Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
+
 * `Sparse.Matrix.S` : Sparse matrices of single precision float numbers.
 * `Sparse.Matrix.D` : Sparse matrices of double precision float numbers.
 * `Sparse.Matrix.C` : Sparse matrices of single precision complex numbers.
 * `Sparse.Matrix.Z` : Sparse matrices of double precision complex numbers.
 
 TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
-
-
-**Extra material about linear regression**
-
-Perhaps should be moved to the regression chapter
-
-```text
-  val linreg : ('a, 'b) t -> ('a, 'b) t -> 'a * 'a
-  (* simple linear regression using OLS. *)
-```
-
-The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
-
-```ocaml file=../../examples/code/linear-algebra/example_00.ml
-let generate_data () =
-  let x = Mat.uniform 500 1 in
-  let p = Mat.uniform 1 1 in
-  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
-  x, y
-
-let t1_sol () =
-  let x, y = generate_data () in
-  let h = Plot.create "plot_00.png" in
-  let a, b = Linalg.D.linreg x y in
-  let y' = Mat.(x *$ b +$ a) in
-  Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
-  Plot.output h
-```
-
-![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% #fig:linear-algebra:plot_00}
 
 
 **extra material on LQ**

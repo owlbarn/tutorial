@@ -381,7 +381,8 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 <p>This is called a <em>Lower Triangular</em> matrix.</p>
 <p>In other word, <code>A=LU</code>. This is called an LU factorisation, a very important idea. We can use the <code>is_triu</code> and <code>is_tril</code> to verify if a matrix is triangular.</p>
 <p>EXAMPLE</p>
-<p>The importance of dividing a matrix is that with traiangular matrices, it becomes very easy to solve the linear equations. We can use the <code>lu</code> function to do it.</p>
+<p>The importance of dividing a matrix is that with triangular matrices, it becomes very easy to solve the linear equations. <code>triangular_solve</code>.</p>
+<p>We can use the <code>lu</code> function to do it.</p>
 <p>EXAMPLE</p>
 <p>The input is a matrix. The first two returned results are the L and U.</p>
 <p>The third is about pivoting.</p>
@@ -411,8 +412,18 @@ One important thing: a n by n matrix A is invertible if and only if it has n piv
 </section>
 <section class="level2" id="vector-spaces">
 <h2>Vector Spaces</h2>
-<section class="level3" id="vector-spaces-and-subspaces">
-<h3>Vector Spaces and Subspaces</h3>
+<p>EXPLAIN the concepts of vector space and subspace.</p>
+<p>EXPLAIN what is column space and null space .</p>
+<section class="level3" id="rank-and-basis">
+<h3>Rank and Basis</h3>
+<p>We have seen using LU factorisation to solve Ax=b, but it won’t work every time. For one thing, <span class="math inline">\(A\)</span> may not be square matrix. Besides, some of the equations might be “useless”. One of these equation provide no new information.</p>
+<p>Example: a linear-dependent square matrix.</p>
+<p>Introduce: rank. The definition of linear independence. The definition and implication of rank.</p>
+<p>A Example using rank:</p>
+<div class="highlight">
+<pre><code class="language-clike">val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
+  (* rank of a rectangular matrix *)</code></pre>
+</div>
 <div class="highlight">
 <pre><code class="language-clike">val null : ('a, 'b) t -&gt; ('a, 'b) t
 (* an orthonormal basis for the null space of a matrix *)</code></pre>
@@ -420,13 +431,14 @@ One important thing: a n by n matrix A is invertible if and only if it has n piv
 </section>
 <section class="level3" id="solving-ax-b">
 <h3>Solving Ax = b</h3>
+<p>With the concept of rank, we can now discuss…</p>
 <div class="highlight">
-<pre><code class="language-clike">val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
-  (* rank of a rectangular matrix *)</code></pre>
+<pre><code class="language-clike">val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
+  (* QR factorisation  *)</code></pre>
 </div>
+<p><code>linsolve a b -&gt; x</code> solves a linear system of equations <code>a * x = b</code> in the following form. By default, <code>typ=n</code> and the function use LU factorisation with partial pivoting when <code>a</code> is square and QR factorisation with column pivoting otherwise. The number of rows of <code>a</code> must equal the number of rows of <code>b</code>. If <code>a</code> is a upper(lower) triangular matrix, the function calls the <code>solve_triangular</code> function.</p>
 <div class="highlight">
-<pre><code class="language-clike">val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* solves `A * x = b` linear equation system. *)</code></pre>
+<pre><code class="language-clike">val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t</code></pre>
 </div>
 </section>
 </section>
@@ -534,21 +546,16 @@ val logdet : ('a, 'b) t -&gt; 'a
   val rcond : ('a, 'b) t -&gt; float
   (* estimate for the reciprocal condition of a matrix in 1-norm *)</code></pre>
 </div>
-</section>
-<section class="level3" id="other-factorisations">
-<h3>Other Factorisations</h3>
+<p><strong>Other Factorisations</strong></p>
 <div class="highlight">
-<pre><code class="language-clike">val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-  (* QR factorisation  *)
-
-val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
+<pre><code class="language-clike">val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
   (* Hessenberg form of a given matrix *)</code></pre>
 </div>
 </section>
 </section>
 <section class="level2" id="linear-programming">
 <h2>Linear Programming</h2>
-<p>TODO: placeholder for future implementation. Or in the optimisation chapter.</p>
+<p>TODO: placeholder for future implementation. Or in the optimisation chapter. Understand the method used such as interior point, and then make the decision.</p>
 </section>
 <section class="level2" id="internal-cblas-and-lapacke">
 <h2>Internal: CBLAS and LAPACKE</h2>
@@ -586,6 +593,8 @@ val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
 </section>
 <section class="level2" id="sparse-matrices">
 <h2>Sparse Matrices</h2>
+<p>Very brief. Focusing on introducing the data structure (CSC, CSR, etc), no the method.</p>
+<p>Mention the <a href="https://github.com/owlbarn/owl_suitesparse">owl_suitesparse</a></p>
 <ul>
 <li><code>Sparse.Matrix.S</code> : Sparse matrices of single precision float numbers.</li>
 <li><code>Sparse.Matrix.D</code> : Sparse matrices of double precision float numbers.</li>
@@ -593,32 +602,6 @@ val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
 <li><code>Sparse.Matrix.Z</code> : Sparse matrices of double precision complex numbers.</li>
 </ul>
 <p>TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
-<p><strong>Extra material about linear regression</strong></p>
-<p>Perhaps should be moved to the regression chapter</p>
-<div class="highlight">
-<pre><code class="language-text">  val linreg : ('a, 'b) t -&gt; ('a, 'b) t -&gt; 'a * 'a
-  (* simple linear regression using OLS. *)</code></pre>
-</div>
-<p>The code snippet below first generates some random data, then using <code>linreg</code> function to perform a simple linear regression and plots the data as well as the regression line.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let generate_data () =
-  let x = Mat.uniform 500 1 in
-  let p = Mat.uniform 1 1 in
-  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
-  x, y
-
-let t1_sol () =
-  let x, y = generate_data () in
-  let h = Plot.create "plot_00.png" in
-  let a, b = Linalg.D.linreg x y in
-  let y' = Mat.(x *$ b +$ a) in
-  Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
-  Plot.output h</code></pre>
-</div>
-<figure>
-<img alt="" style="width:90.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 2: An example of using linear regression to fit data</figcaption>
-</figure>
 <p><strong>extra material on LQ</strong></p>
 <div class="highlight">
 <pre><code class="language-text">  val lq : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
