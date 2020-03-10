@@ -469,39 +469,60 @@ For example, the basis for the null space:
 <p>There are many techniques to simplify this calculation. But we use the <code>det</code> function here to calculate the determinants of a matrix.</p>
 <p>There is a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
 <p>Why is this concept important? We use the determinant to calculate the solution to Ax=b.</p>
+<p>Cramer’s rule.</p>
 <p>Example: using <code>solve</code> and <code>det</code> to solve a Ax=b.</p>
 <p>Another important application is to use determinant to decide if a square matrix A is invertible/singular. A is invertible if and only if <span class="math inline">\(|A|\)</span> does not equal to 0.</p>
 <p>This theorem is widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
-<p>Refer to book NR, Chapter 11 for theory details.</p>
+<p>Now we change from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>.</p>
+<p>We use ODE system as an example. (Following the Textbook)</p>
+<p>It can be written as:</p>
+<p><span class="math inline">\((A - \lambda~I)x = 0\)</span></p>
+<p>If there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy this equation, then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of this matrix A.</p>
+<p>Continue the previous example to solve it manually.</p>
+<p>According to the theory of polynomials, equation xx has and only has n roots in the complex space.</p>
+<p>And we have function <code>eig</code> and <code>eigbvals</code> to do that:</p>
+CODE: using these functions to repeat the previous example.
 <div class="highlight">
 <pre><code class="language-text">
   val eig : ?permute:bool -&gt; ?scale:bool -&gt; otyp:('a, 'b) kind -&gt; ('c, 'd) t -&gt; ('a, 'b) t * ('a, 'b) t
   (* right eigenvectors and eigenvalues of an arbitrary square matrix *)
 
   val eigvals : ?permute:bool -&gt; ?scale:bool -&gt; otyp:('a, 'b) kind -&gt; ('c, 'd) t -&gt; ('a, 'b) t
-  (* only computes the eigenvalues of an arbitrary square matrix *)
-</code></pre>
+  (* only computes the eigenvalues of an arbitrary square matrix *)</code></pre>
 </div>
-<p>Example: The following code calculates the right eigenvalues and eigenvectors of a positive-definite matrix <code>x</code>.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">
-  let x = Mat.semidef 8;;                                  (* generate a random matrix *)
-  let v, w = Linalg.D.eig ~permute:false ~scale:false x;;  (* calculate eigenvalues and vectors *)
-  let v = Dense.Matrix.Z.re v;;                            (* only real part since [x] is semidef *)
-  let w = Dense.Matrix.Z.re w;;                            (* only real part since [x] is semidef *)
-  Mat.((x *@ v) =~ (w * v));;                              (* check the approx equality *)
-</code></pre>
-</div>
+<p>Once we get the eigenvalue, we can return to the solution to ODE: A linear combination.</p>
+<section class="level3" id="diagonalisation">
+<h3>Diagonalisation</h3>
+<p>Diagonal matrix is the easiest to deal with. Several properties….</p>
+<p>Diagonalisation</p>
+<p>Use one example to demonstrate how to solve the ODE system with diagonalisation.</p>
+<p>That leads to a brief discussion of stability with eigenvalues. Explain the intuition why Eigenvalue is important in different fields.</p>
+</section>
+<section class="level3" id="complex-matrices">
+<h3>Complex Matrices</h3>
+<p>Eigenvalue and vector in the complex space.</p>
+<p>Hermitian: extend the transpose to complex space. Matrix that equal their conjugate transpose.</p>
 <div class="highlight">
 <pre><code class="language-clike">  val is_hermitian : ('a, 'b) t -&gt; bool
-  (* check if a matrix is hermitian *)
-
-  val schur : otyp:('c, 'd) kind -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
+  (* check if a matrix is hermitian *)</code></pre>
+</div>
+<p>Definition of Unitary matrices: <span class="math inline">\(UU^H=I\)</span></p>
+<p>Example of using eig on complex matrices.</p>
+</section>
+<section class="level3" id="similarity-transformation">
+<h3>Similarity Transformation</h3>
+<p>Definition: Similar matrix. The point is to make clear its intuition: change basis, linear transformation. And transforming to diagonal is the easiest.</p>
+<p>A property: if <span class="math inline">\(A = A^H\)</span>, every eigenvalue is real. And that a real symmetric matrix can be factored into <span class="math inline">\(A=Q\lambda~Q^T\)</span>.</p>
+<div class="highlight">
+<pre><code class="language-clike">  val schur : otyp:('c, 'd) kind -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
   (* Schur factorisation *)</code></pre>
 </div>
+<p>Example. If possible, shows how similar matrix simplify the problem.</p>
+<p>Jordan form: very brief explain.</p>
+</section>
 </section>
 <section class="level2" id="positive-definite-matrices">
 <h2>Positive Definite Matrices</h2>

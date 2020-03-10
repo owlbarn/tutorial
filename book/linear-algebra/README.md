@@ -645,6 +645,8 @@ It computes the logarithm of the determinant, but it avoids the possible overflo
 Why is this concept important? 
 We use the determinant to calculate the solution to Ax=b.
 
+Cramer's rule.
+
 Example: using `solve` and `det` to solve a Ax=b.
 
 Another important application is to use determinant to decide if a square matrix A is invertible/singular. 
@@ -655,8 +657,24 @@ This theorem is widely used in finding *eigenvalues*. As will be shown in the ne
 
 ## Eigenvalues and Eigenvectors
 
-Refer to book NR, Chapter 11 for theory details. 
+Now we change from $Ax=b$ to $Ax=\lambda~x$.
 
+We use ODE system as an example. (Following the Textbook)
+
+It can be written as:
+
+$(A - \lambda~I)x = 0$
+
+If there exist number $\lambda$ and non-zero column vector $x$ to satisfy this equation, then $\lambda$ is called *eigenvalue*, and $x$ is called the *eigenvector* of this matrix A.
+
+Continue the previous example to solve it manually.
+
+According to the theory of polynomials, equation xx has and only has n roots in the complex space. 
+
+And we have function `eig` and `eigbvals` to do that:
+
+
+CODE: using these functions to repeat the previous example.
 ```text
 
   val eig : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t * ('a, 'b) t
@@ -664,30 +682,58 @@ Refer to book NR, Chapter 11 for theory details.
 
   val eigvals : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
   (* only computes the eigenvalues of an arbitrary square matrix *)
-
 ```
 
-Example:
-The following code calculates the right eigenvalues and eigenvectors of a positive-definite matrix `x`.
+Once we get the eigenvalue, we can return to the solution to ODE:
+A linear combination.
 
-```ocaml
+### Diagonalisation
 
-  let x = Mat.semidef 8;;                                  (* generate a random matrix *)
-  let v, w = Linalg.D.eig ~permute:false ~scale:false x;;  (* calculate eigenvalues and vectors *)
-  let v = Dense.Matrix.Z.re v;;                            (* only real part since [x] is semidef *)
-  let w = Dense.Matrix.Z.re w;;                            (* only real part since [x] is semidef *)
-  Mat.((x *@ v) =~ (w * v));;                              (* check the approx equality *)
+Diagonal matrix is the easiest to deal with.
+Several properties....
 
-```
+Diagonalisation
 
+Use one example to demonstrate how to solve the ODE system with diagonalisation. 
+
+That leads to a brief discussion of stability with eigenvalues.
+Explain the intuition why Eigenvalue is important in different fields.
+
+### Complex Matrices
+
+Eigenvalue and vector in the complex space. 
+
+Hermitian: extend the transpose to complex space. 
+Matrix that equal their conjugate transpose. 
 
 ```
   val is_hermitian : ('a, 'b) t -> bool
   (* check if a matrix is hermitian *)
+```
 
+Definition of Unitary matrices: $UU^H=I$
+
+Example of using eig on complex matrices.
+
+
+### Similarity Transformation
+
+Definition: Similar matrix.
+The point is to make clear its intuition: change basis, linear transformation. 
+And transforming to diagonal is the easiest. 
+
+A property: if $A = A^H$, every eigenvalue is real.
+And that a real symmetric matrix can be factored into $A=Q\lambda~Q^T$.
+
+```
   val schur : otyp:('c, 'd) kind -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
   (* Schur factorisation *)
 ```
+
+Example. 
+If possible, shows how similar matrix simplify the problem.
+
+Jordan form: very brief explain.
 
 ## Positive Definite Matrices
 
