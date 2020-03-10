@@ -633,13 +633,25 @@ Example: only using the function does not work; you have to do some comparison o
 
 ## Determinants
 
-```
-val det : ('a, 'b) t -> 'a
-  (* determinant of a square matrix  *)
+For a square matrix. the definition of *determinants*:
 
-val logdet : ('a, 'b) t -> 'a
-  (* log of the determinant of a square matrix *)
-```
+EQUATION
+
+There are  many techniques to simplify this calculation. But we use the `det` function here to calculate the determinants of a matrix. 
+
+There is a similar function `logdet`. 
+It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
+
+Why is this concept important? 
+We use the determinant to calculate the solution to Ax=b.
+
+Example: using `solve` and `det` to solve a Ax=b.
+
+Another important application is to use determinant to decide if a square matrix A is invertible/singular. 
+A is invertible if and only if $|A|$ does not equal to 0. 
+
+This theorem is widely used in finding *eigenvalues*. As will be shown in the next section.
+
 
 ## Eigenvalues and Eigenvectors
 

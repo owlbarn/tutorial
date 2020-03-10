@@ -464,13 +464,14 @@ For example, the basis for the null space:
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
-<div class="highlight">
-<pre><code class="language-clike">val det : ('a, 'b) t -&gt; 'a
-  (* determinant of a square matrix  *)
-
-val logdet : ('a, 'b) t -&gt; 'a
-  (* log of the determinant of a square matrix *)</code></pre>
-</div>
+<p>For a square matrix. the definition of <em>determinants</em>:</p>
+<p>EQUATION</p>
+<p>There are many techniques to simplify this calculation. But we use the <code>det</code> function here to calculate the determinants of a matrix.</p>
+<p>There is a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
+<p>Why is this concept important? We use the determinant to calculate the solution to Ax=b.</p>
+<p>Example: using <code>solve</code> and <code>det</code> to solve a Ax=b.</p>
+<p>Another important application is to use determinant to decide if a square matrix A is invertible/singular. A is invertible if and only if <span class="math inline">\(|A|\)</span> does not equal to 0.</p>
+<p>This theorem is widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
