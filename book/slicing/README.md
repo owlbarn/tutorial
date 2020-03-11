@@ -12,7 +12,7 @@ Before we start, let's clarify some things.
 
 * Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined *slice definition*.
 
-* Slicing can be applied to all the dense data structures, i.e. both ndarrays and matrice.
+* Slicing can be applied to all the dense data structures, i.e. both ndarrays and matrices.
 
 * Slice definition is an `index list` which clarifies *what indices* should be accessed and in *what order* for each dimension of the passed in variable.
 
@@ -33,7 +33,7 @@ Both functions accept `int list list` as its slice definition. Every `list` elem
 
 ### Fancy Slicing
 
-Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrary indices which may not be possible to specify with aforementioned `[start;stop;step]` format.
+Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrarily ordered indices which may not be possible to specify with aforementioned `[start;stop;step]` format.
 
 ```ocaml
 type index =
