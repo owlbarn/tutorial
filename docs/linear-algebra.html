@@ -363,12 +363,20 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 </section>
 <section class="level2" id="gaussian-elimination">
 <h2>Gaussian Elimination</h2>
-<p>Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation. <em>Gaussian Elimination</em> is a classic method to do that. Here is a simple example.</p>
-<p>EXAMPLE: a three-variable simple example. Step 1, 2, 3.</p>
-<p>This process can be more concisely expressed with vector:</p>
-<p>EQUATION: column vector</p>
+<p>Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation. <em>Gaussian Elimination</em> is a classic method to do that. With a bit of techniques, elimination works surprisingly well in modern numerical libraries as one way of implementation. Here is a simple example.</p>
+<p><span class="math display">\[2x_1 + 2x_2 + 2x_3 = 4\]</span> <span id="eq:linear-algebra:gauss01"><span class="math display">\[2x_1 + 2x_2 + 3x_3 = 5\qquad(1)\]</span></span> <span class="math display">\[3w_1 + 4x_2 + 5x_3 = 7\]</span></p>
+<p>Divide the first equation by 2:</p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[2x_1 + 2x_2 + 3x_3 = 5\]</span> <span class="math display">\[3w_1 + 4x_2 + 5x_3 = 7\]</span></p>
+<p>Multiply the first equation by <code>-2</code>, then add it to the second one. Also, multiply the first equation by <code>-3</code>, then add it to the third one. We have:</p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[x_3 = 1\]</span> <span class="math display">\[x_2 + 2x_3 = 1\]</span></p>
+<p>Finally, swap the second and third line:</p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[x_2 + 2x_3 = 1\]</span> <span class="math display">\[x_3 = 1\]</span></p>
+<p>Here <span class="math inline">\(x_3 = 1\)</span>, and we can put it back in the second equation and get <span class="math inline">\(x_2 = -1\)</span>. Put both back to the first equation and we have <span class="math inline">\(x_1 = 2\)</span></p>
+<p>This process demonstrate the basic process of elimination: eliminate unknown variables until this group of linear equations is easy to solve, and then do the back-substitution. There are three kinds of basic operations we can use: multiplication, adding one line to another, and swap two lines.</p>
+<p>The starting eq.&nbsp;1 can be more concisely expressed with vector:</p>
+<p><span class="math display">\[x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\\2\\4\end{matrix} \right] + x_3\left[\begin{matrix}2\\3\\5\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
 <p>or matrix:</p>
-<p>Equation: matrix format of the same problem.</p>
+<p><span class="math display">\[\left[\begin{matrix}2 &amp; 2 &amp; 2\\2 &amp; 2 &amp; 3\\3 &amp; 4 &amp; 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
 <section class="level3" id="lu-factorisation">
 <h3>LU Factorisation</h3>
 <p>Let’s check the gaussian elimination example again.</p>
@@ -593,7 +601,7 @@ The Moore-Penrose inverse is a direct application of the SVD.
   (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
 </div>
 <p>It is also related to the least square.</p>
-<p>We will come back to SVD in NLP.</p>
+<p>We will also come back to SVD in NLP.</p>
 </section>
 </section>
 <section class="level2" id="computations-with-matrices">
@@ -611,7 +619,7 @@ The Moore-Penrose inverse is a direct application of the SVD.
   val rcond : ('a, 'b) t -&gt; float
   (* estimate for the reciprocal condition of a matrix in 1-norm *)</code></pre>
 </div>
-<p><strong>Other Factorisations</strong></p>
+<p><strong>Hessenberg Factorisations:</strong></p>
 <div class="highlight">
 <pre><code class="language-clike">val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
   (* Hessenberg form of a given matrix *)</code></pre>

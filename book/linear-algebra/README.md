@@ -452,19 +452,45 @@ I will use another set of examples to finish this tutorial. I must say this tuto
 ## Gaussian Elimination
 
 Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation.
-*Gaussian Elimination* is a classic method to do that.
+*Gaussian Elimination* is a classic method to do that. With a bit of techniques, elimination works surprisingly well in modern numerical libraries as one way of implementation.
 Here is a simple example. 
 
-EXAMPLE: a three-variable simple example. 
-Step 1, 2, 3.
+$$2x_1 + 2x_2 + 2x_3 = 4$$
+$$2x_1 + 2x_2 + 3x_3 = 5$$ {#eq:linear-algebra:gauss01}
+$$3w_1 + 4x_2 + 5x_3 = 7$$
 
-This process can be more concisely expressed with vector:
+Divide the first equation by 2:
 
-EQUATION: column vector
+$$x_1 + x_2 + x_3 = 2$$
+$$2x_1 + 2x_2 + 3x_3 = 5$$
+$$3w_1 + 4x_2 + 5x_3 = 7$$
+
+Multiply the first equation by `-2`, then add it to the second one. 
+Also, multiply the first equation by `-3`, then add it to the third one. We have:
+
+$$x_1 + x_2 + x_3 = 2$$
+$$x_3 = 1$$
+$$x_2 + 2x_3 = 1$$
+
+Finally, swap the second and third line:
+
+$$x_1 + x_2 + x_3 = 2$$
+$$x_2 + 2x_3 = 1$$
+$$x_3 = 1$$
+
+Here $x_3 = 1$, and we can put it back in the second equation and get $x_2 = -1$. 
+Put both back to the first equation and we have $x_1 = 2$
+
+This process demonstrate the basic process of elimination: eliminate unknown variables until this group of linear equations is easy to solve, and then do the back-substitution.
+There are three kinds of basic operations we can use: multiplication, adding one line to another, and swap two lines. 
+
+The starting [@eq:linear-algebra:gauss01] can be more concisely expressed with vector:
+
+$$x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\\2\\4\end{matrix} \right] + x_3\left[\begin{matrix}2\\3\\5\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]$$
 
 or matrix:
 
-Equation: matrix format of the same problem.
+$$\left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]$$
 
 ### LU Factorisation
 
@@ -836,7 +862,7 @@ val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
 It is also related to the least square.
 
 
-We will come back to SVD in NLP.
+We will also come back to SVD in NLP.
 
 ## Computations with Matrices
 
@@ -854,7 +880,7 @@ We will come back to SVD in NLP.
   (* estimate for the reciprocal condition of a matrix in 1-norm *)
 ```
 
-**Other Factorisations**
+**Hessenberg Factorisations:**
 
 ```
 val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
