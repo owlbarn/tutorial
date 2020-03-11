@@ -737,29 +737,63 @@ Jordan form: very brief explain.
 
 ## Positive Definite Matrices
 
+### Positive Definiteness
+
+In this section we introduce *Positive Definite Matrix*, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues. 
+
+The definition of a Positive Definite Matrix: symmetric, $x^TAx > 0$ for all non-zero vectors $x$.
+There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:
+
+1. $x^TAx>0$ for all non-zero real vectors x
+1. $\lambda_i >0$ for all eigenvalues $\lambda_i$ of A
+1. all the upper left matrices have positive determinants 
+1. all the pivots without row exchange satisfy $d >0$
+1. there exists invertible matrix B so that A=B^TB
+
+For the last condition, we can use *Cholesky decomposition* to find B:
 ```
 val chol : ?upper:bool -> ('a, 'b) t -> ('a, 'b) t
   (* Cholesky factorisation *)
 ```
 
-### Positive Definiteness
+Example 
 
+In the Linear Algebra module, we use `is_posdef` to do this test. 
 
 ```
 val is_posdef : ('a, 'b) t -> bool
   (* check if a matrix is positive semi-definite *)
 ```
+It's implementation uses ...
 
+Similar, the definition of semi-positive definite.
+
+The positive definite matrices are frequently used in different fields. 
+The pattern $Ax=\lambda~Mx$ exists in many engineering analysis problems.
+If $A$ and $M$ are positive definite, this pattern is parallel to the $Ax=\lambda~x$ where $\lambda > 0$.
+
+One such application is the stability of motion. 
+Definition of stable system. 
+
+In a linear system:
+
+$$y' = Ax$$
+
+(extend this equation)
+
+A theorem declares that this system is stable if and only if there exists positive and definite matrix $V$ so that $-(VA+A^TV)$ is semi-positive definite. 
+
+The pendulum example
 
 ### Singular Value Decomposition
 
-We have talked about LR Factorisation. Another important factorisation is SVD.
-The singular value decomposition (SVD) is among the most important matrix factorizations
-of the computational era.
-The SVD provides a numerically stable matrix decomposition that can be used for
-a variety of purposes and is guaranteed to exist. 
+The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era.
+The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist. 
 
-Refer to: [Data Driven Science and Engineering](https://www.cambridge.org/core/books/datadriven-science-and-engineering/77D52B171B60A496EAFE4DB662ADC36E), chapter 2.
+Definition of SVD
+
+It's close related with eigenvector factorisation of a positive definite matrix.
+Detail.
 
 What we provide:
 
@@ -787,12 +821,22 @@ The following code performs an SVD on a random matrix then check the equality.
   Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)
 ```
 
+
+The intuition of SVD.
+
+Applications.
+Many applications; ....
+
+The Moore-Penrose inverse is a direct application of the SVD.
 ```
 val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
   (* Moore-Penrose pseudo-inverse of a matrix *)
 ```
 
-The Moore-Penrose inverse is a direct application of the SVD.
+It is also related to the least square.
+
+
+We will come back to SVD in NLP.
 
 ## Computations with Matrices
 

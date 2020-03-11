@@ -526,21 +526,43 @@ CODE: using these functions to repeat the previous example.
 </section>
 <section class="level2" id="positive-definite-matrices">
 <h2>Positive Definite Matrices</h2>
+<section class="level3" id="positive-definiteness">
+<h3>Positive Definiteness</h3>
+<p>In this section we introduce <em>Positive Definite Matrix</em>, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues.</p>
+<p>The definition of a Positive Definite Matrix: symmetric, <span class="math inline">\(x^TAx &gt; 0\)</span> for all non-zero vectors <span class="math inline">\(x\)</span>. There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:</p>
+<ol type="1">
+<li><span class="math inline">\(x^TAx&gt;0\)</span> for all non-zero real vectors x</li>
+<li><span class="math inline">\(\lambda_i &gt;0\)</span> for all eigenvalues <span class="math inline">\(\lambda_i\)</span> of A</li>
+<li>all the upper left matrices have positive determinants</li>
+<li>all the pivots without row exchange satisfy <span class="math inline">\(d &gt;0\)</span></li>
+<li>there exists invertible matrix B so that A=B^TB</li>
+</ol>
+For the last condition, we can use <em>Cholesky decomposition</em> to find B:
 <div class="highlight">
 <pre><code class="language-clike">val chol : ?upper:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t
   (* Cholesky factorisation *)</code></pre>
 </div>
-<section class="level3" id="positive-definiteness">
-<h3>Positive Definiteness</h3>
+<p>Example</p>
+<p>In the Linear Algebra module, we use <code>is_posdef</code> to do this test.</p>
 <div class="highlight">
 <pre><code class="language-clike">val is_posdef : ('a, 'b) t -&gt; bool
   (* check if a matrix is positive semi-definite *)</code></pre>
 </div>
+<p>It’s implementation uses …</p>
+<p>Similar, the definition of semi-positive definite.</p>
+<p>The positive definite matrices are frequently used in different fields. The pattern <span class="math inline">\(Ax=\lambda~Mx\)</span> exists in many engineering analysis problems. If <span class="math inline">\(A\)</span> and <span class="math inline">\(M\)</span> are positive definite, this pattern is parallel to the <span class="math inline">\(Ax=\lambda~x\)</span> where <span class="math inline">\(\lambda &gt; 0\)</span>.</p>
+<p>One such application is the stability of motion. Definition of stable system.</p>
+<p>In a linear system:</p>
+<p><span class="math display">\[y' = Ax\]</span></p>
+<p>(extend this equation)</p>
+<p>A theorem declares that this system is stable if and only if there exists positive and definite matrix <span class="math inline">\(V\)</span> so that <span class="math inline">\(-(VA+A^TV)\)</span> is semi-positive definite.</p>
+<p>The pendulum example</p>
 </section>
 <section class="level3" id="singular-value-decomposition">
 <h3>Singular Value Decomposition</h3>
-<p>We have talked about LR Factorisation. Another important factorisation is SVD. The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era. The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.</p>
-<p>Refer to: <a href="https://www.cambridge.org/core/books/datadriven-science-and-engineering/77D52B171B60A496EAFE4DB662ADC36E">Data Driven Science and Engineering</a>, chapter 2.</p>
+<p>The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era. The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.</p>
+<p>Definition of SVD</p>
+<p>It’s close related with eigenvector factorisation of a positive definite matrix. Detail.</p>
 <p>What we provide:</p>
 <div class="highlight">
 <pre><code class="language-text">  val svd : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
@@ -563,11 +585,15 @@ CODE: using these functions to repeat the previous example.
   let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
   Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)</code></pre>
 </div>
+<p>The intuition of SVD.</p>
+<p>Applications. Many applications; ….</p>
+The Moore-Penrose inverse is a direct application of the SVD.
 <div class="highlight">
 <pre><code class="language-clike">val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
   (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
 </div>
-<p>The Moore-Penrose inverse is a direct application of the SVD.</p>
+<p>It is also related to the least square.</p>
+<p>We will come back to SVD in NLP.</p>
 </section>
 </section>
 <section class="level2" id="computations-with-matrices">
