@@ -1,7 +1,8 @@
 # Slicing and Broadcasting
 
-Indexing, slicing, and broadcasting are three fundamental functions in [Ndarray module](https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli). 
-In this chapter we will introduce how to use them in Owl.
+Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays. 
+They are so basic and are used in practically every applications, therefore understanding the nuts and bolts is very important.
+In this chapter we will introduce how to use these functions in Owl.
 
 ## Slicing
 
@@ -430,7 +431,7 @@ Slicing and indexing is an important topic in Owl, make sure you understand it w
 
 ## Broadcasting
 
-Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. 
+Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This autmoatic behaviour on one hand is able to simplify the code, it can also potoentially introduce bugs and make the debugging really difficult.
 
 
 ### What Is Broadcasting?
