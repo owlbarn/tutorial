@@ -639,22 +639,36 @@ Here we use the `semidef` function to produce a matrix that is certainly inverti
 # Mat.(x *@ y =~ eye 5)
 ```
 
-Next is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.
+The next frequently used special matrix is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.
 It has properties such as $(AB)^T=B^T~A^T$. 
-We can check this property using the matrix function `Mat.transpose`.
+We can check this property using the matrix function `Mat.transpose`. Note that this function is deemed basic ndarray operations and is not included in the `Linalg` module.
 
-```
-CODE: transpose
+```ocaml
+# let flag = 
+    let a = Mat.uniform 4 4 in 
+    let b = Mat.uniform 4 4 in 
+    let m1 = Mat.(dot a b |> transpose) in
+    let m2 = Mat.(dot (transpose b) (transpose a)) in 
+    Mat.(m1 =~ m2)
 ```
 
 A related special matrix is the *Symmetric Matrix*, which equals to its own transpose. This simple test can be done with the `is_symmetric` function.
 
-
 ## Vector Spaces
 
-EXPLAIN the concepts of vector space and subspace.
+We have talked about solving the $Ax=b$ linear equations with elimination, and A is a square matrix. 
+Now we need to further discuss, how do we know if there exists one or maybe more than one solution. 
+To answer such question, we need to be familiar with the concepts of *vector space*. 
 
-EXPLAIN what is column space and null space, and the other two. 
+A vector space, denoted by $R^n$, contains all the vectors that has $n$ elements.
+In this vector space we have the `add` and `multiplication` operation. Applying them to the vectors is called *linear combination*.
+Then a *subspace* in a vector space is a non-empty set that linear combination of the vectors in this subspace still stays in the same subspace.
+
+There are four fundamental subspaces concerning solving linear systems $Ax=b, where $A$ is a $m$ by $n$ matrix.
+The *column space* consists of all the linear combinations of the columns of A. It is a subspace of $R^m$.
+Similarly, the *row space* consists of all the linear combinations of the rows of  A. 
+The *nullspace* contains all the vectors $x$ so that $Ax=0$, denoted by $N(A)$. It is a subspace of $R^n$.
+The *left nullspace* is similar. It is the nullspace of $A^T$.
 
 ### Rank and Basis
 
@@ -663,7 +677,6 @@ For one thing, $A$ may not be square matrix.
 Or the given information is not enough (multiple solutions)
 
 Example
-
 
 Besides, some of the equations might be "useless".
 One of these equation provide no new information. 

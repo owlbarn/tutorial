@@ -475,17 +475,25 @@ let y = Linalg.D.inv x;;
 Mat.(x *@ y =~ eye 5);;
 </code></pre>
 </div>
-<p>Next is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>.</p>
+<p>The next frequently used special matrix is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>. Note that this function is deemed basic ndarray operations and is not included in the <code>Linalg</code> module.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE: transpose</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let flag = 
+  let a = Mat.uniform 4 4 in 
+  let b = Mat.uniform 4 4 in 
+  let m1 = Mat.(dot a b |&gt; transpose) in
+  let m2 = Mat.(dot (transpose b) (transpose a)) in 
+  Mat.(m1 =~ m2)
+;;
+</code></pre>
 </div>
 <p>A related special matrix is the <em>Symmetric Matrix</em>, which equals to its own transpose. This simple test can be done with the <code>is_symmetric</code> function.</p>
 </section>
 </section>
 <section class="level2" id="vector-spaces">
 <h2>Vector Spaces</h2>
-<p>EXPLAIN the concepts of vector space and subspace.</p>
-<p>EXPLAIN what is column space and null space, and the other two.</p>
+<p>We have talked about solving the <span class="math inline">\(Ax=b\)</span> linear equations with elimination, and A is a square matrix. Now we need to further discuss, how do we know if there exists one or maybe more than one solution. To answer such question, we need to be familiar with the concepts of <em>vector space</em>.</p>
+<p>A vector space, denoted by <span class="math inline">\(R^n\)</span>, contains all the vectors that has <span class="math inline">\(n\)</span> elements. In this vector space we have the <code>add</code> and <code>multiplication</code> operation. Applying them to the vectors is called <em>linear combination</em>. Then a <em>subspace</em> in a vector space is a non-empty set that linear combination of the vectors in this subspace still stays in the same subspace.</p>
+<p>There are four fundamental subspaces concerning solving linear systems $Ax=b, where <span class="math inline">\(A\)</span> is a <span class="math inline">\(m\)</span> by <span class="math inline">\(n\)</span> matrix. The <em>column space</em> consists of all the linear combinations of the columns of A. It is a subspace of <span class="math inline">\(R^m\)</span>. Similarly, the <em>row space</em> consists of all the linear combinations of the rows of A. The <em>nullspace</em> contains all the vectors <span class="math inline">\(x\)</span> so that <span class="math inline">\(Ax=0\)</span>, denoted by <span class="math inline">\(N(A)\)</span>. It is a subspace of <span class="math inline">\(R^n\)</span>. The <em>left nullspace</em> is similar. It is the nullspace of <span class="math inline">\(A^T\)</span>.</p>
 <section class="level3" id="rank-and-basis">
 <h3>Rank and Basis</h3>
 <p>We have seen using LU factorisation to solve Ax=b, but it won’t work every time. For one thing, <span class="math inline">\(A\)</span> may not be square matrix. Or the given information is not enough (multiple solutions)</p>
