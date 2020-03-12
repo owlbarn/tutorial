@@ -1,13 +1,13 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Slicing and Broadcasting - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="slicing-and-broadcasting">
 <h1>Slicing and Broadcasting</h1>
-<p>Indexing, slicing, and broadcasting are three fundamental functions in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">Ndarray module</a>. In this chapter we will introduce how to use them in Owl.</p>
+<p>Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays. They are so basic and are used in practically every applications, therefore understanding the nuts and bolts is very important. In this chapter we will introduce how to use these functions in Owl.</p>
 <section class="level2" id="slicing">
 <h2>Slicing</h2>
 <p>Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms.</p>
 <p>Before we start, let’s clarify some things.</p>
 <ul>
 <li><p>Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined <em>slice definition</em>.</p></li>
-<li><p>Slicing can be applied to all the dense data structures, i.e.&nbsp;both ndarrays and matrice.</p></li>
+<li><p>Slicing can be applied to all the dense data structures, i.e.&nbsp;both ndarrays and matrices.</p></li>
 <li><p>Slice definition is an <code>index list</code> which clarifies <em>what indices</em> should be accessed and in <em>what order</em> for each dimension of the passed in variable.</p></li>
 <li><p>There are two types of slicing in Owl: <em>basic slicing</em> and <em>fancy slicing</em>. The difference between the two is how the slice is defined.</p></li>
 </ul>
@@ -23,7 +23,7 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
 </section>
 <section class="level3" id="fancy-slicing">
 <h3>Fancy Slicing</h3>
-<p>Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrary indices which may not be possible to specify with aforementioned <code>[start;stop;step]</code> format.</p>
+<p>Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrarily ordered indices which may not be possible to specify with aforementioned <code>[start;stop;step]</code> format.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type index =
   | I of int       (* single index *)
@@ -361,7 +361,7 @@ rotate90 x
 </section>
 <section class="level2" id="broadcasting">
 <h2>Broadcasting</h2>
-<p>Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl.</p>
+<p>Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This autmoatic behaviour on one hand is able to simplify the code, it can also potoentially introduce bugs and make the debugging really difficult.</p>
 <section class="level3" id="what-is-broadcasting">
 <h3>What Is Broadcasting?</h3>
 <p>There are many binary (mathematical) operators take two ndarrays as inputs, e.g.&nbsp;<code>add</code>, <code>sub</code>, and etc. In the trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match, then how to apply the smaller one to the bigger one is referred to as <code>broadcasting</code>.</p>
