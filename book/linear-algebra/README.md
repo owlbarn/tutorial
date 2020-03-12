@@ -756,29 +756,92 @@ Think about a full-rank matrix where $r=n$, then the dimension of column matrix 
 
 ### Orthogonality
 
-Basis is like coordinates in  the space. 
-But in a 2 or 3 dimensional  cartesian space, we often use the orthogonal axis as basis. The same can be applied here. 
+We can think of the basis of a vector space as the Cartesian coordinate system in a three-dimensional space, where every vector in the space can be represented with the three vectors ni the space: the x, y and z axis.
+Actually, we can use many three vectors system as the coordinate bases, but the x. y, z axis is used is because they are orthogonal to each other. 
+An orthogonal basis can greatly reduce the complexity of problems.
+The same can be applied in the basis of vector spaces.
 
-Orthogonal vectors and subspaces.
+Orthogonality is not limited to vectors.
+Two vectors $a$ and $b$ are orthogonal are orthogonal if $a^Tb = 0$. 
+Two subspaces A and B are orthogonal if every vector in A is orthogonal to every vector in B.
+For example, the nullspace and row space of a matrix are perpendicular  to each other.
 
-Orthonormal basis: orthogonal among each other, and then normalised  to unit vector.
+Among the bases of a subspace, if every vector is perpendicular to each other, it is called an orthogonal matrix. 
+Moreover, if the length of each vector is normalised to one unit, it becomes the *orthonormal basis*.
 
-Orthogonal matrix: columns ar orthogonal 
 
-For example, the basis for the null space:
+For example, we can use the `null` function to find an orthonormal basis vector $x$ or the null space of a matrix, i.e. $Ax=0$.
+
+```ocaml env=linear-algebra:ortho-null
+# let a = Mat.magic 4
+val a : Mat.mat =
+
+   C0 C1 C2 C3
+R0  1 15 14  4
+R1 12  6  7  9
+R2  8 10 11  5
+R3 13  3  2 16
+
 ```
-val null : ('a, 'b) t -> ('a, 'b) t
-(* an orthonormal basis for the null space of a matrix *)
+```ocaml env=linear-algebra:ortho-null
+# let x = Linalg.D.null a
+val x : Owl_dense_matrix_d.mat =
+
+          C0
+R0 -0.223607
+R1  -0.67082
+R2   0.67082
+R3  0.223607
+
+```
+```ocaml env=linear-algebra:ortho-null
+# Mat.dot a x |> Mat.l2norm' 
+- : float = 2.87802701599908967e-15
 ```
 
+(Question: but this example does not really show the orthogonal part.)
 
-The method to construct orthogonal basis in a subspace is called the Gram-Schmidt orthogonalisation.
+Now that we know what is orthogonal basis, the next question is, how to build one? 
+The method to construct orthogonal basis in a subspace is called the *Gram-Schmidt orthogonalisation*.
 
-QR factorisation.
+TODO: Explain Gram-Schmidt and QR.
 
 ```
 val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-  (* QR factorisation  *)
+```
+
+`qr x` calculates QR decomposition for an `m` by `n` matrix `x`.
+The function returns a 3-tuple, the first two are `Q` and `R`, and the third is the permutation vector of columns. 
+The default value of parameter `pivot` is `false`, setting pivot  to true lets `qr` performs pivoted factorisation. Note that
+the returned indices are not adjusted to 0-based C layout.
+By default, `qr` performs a reduced QR factorisation, full factorisation can be enabled by setting `thin` parameter to `false`.
+
+```ocaml env=linear-algebra:qr
+# let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3 
+val a : Mat.mat =
+
+   C0  C1  C2
+R0 12 -51   4
+R1  6 167 -68
+R2 -4  24 -41
+
+```
+```ocaml env=linear-algebra:qr
+# let q, r, _ = Linalg.D.qr a
+val q : Owl_dense_matrix_d.mat =
+
+          C0        C1         C2
+R0 -0.857143  0.394286   0.331429
+R1 -0.428571 -0.902857 -0.0342857
+R2  0.285714 -0.171429   0.942857
+
+val r : Owl_dense_matrix_d.mat =
+
+    C0   C1  C2
+R0 -14  -21  14
+R1   0 -175  70
+R2   0    0 -35
+
 ```
 
 ### Solving Ax = b
