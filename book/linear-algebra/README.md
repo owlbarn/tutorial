@@ -506,6 +506,7 @@ Such matrix is called an *upper triangular matrix*, usually denoted by $U$.
 Similarly, a square matrix that all the elements below the diagonal of this square matrix is zero is called *lower triangular matrix*, denoted by $L$.
 We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
 
+The diagonal elements of $U$ are called pivots. The i-th pivot is the coefficient of the i-th variable in the i-th equation at the i-th step during the elimination.
 
 In general, a square matrix can often be factorised into the dot product of a lower and a upper triangular matrices: $A = LU$.
 It is called the *LU factorisation*. 
@@ -529,6 +530,7 @@ val a : Arr.arr =
 R0  2  2  2
 R1  2  2  3
 R2  3  4  5
+
 
 # let l, u, p = Linalg.D.lu a
 val l : Owl_dense_matrix_d.mat =
@@ -562,53 +564,79 @@ R0  3  4  5
 R1  2  2  3
 R2  2  2  2
 
+
 # a' = a
 - : bool = false
 ```
 
 It turns out that we need to some extra row exchange to get the right answer. 
-That's because the row exchange is required if the number we want to use as the pivot could be zero. 
-This process can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one "1" element. 
+That's because the row exchange is required in certain cases, such as when the number we want to use as the pivot could be zero. 
+This process is called *pivoting*. It is closely related to the numerical computation stability. Choosing the improper pivots can lead to wrong linear system solution.
+It can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one "1" element. 
 The full LU factorisation can be expressed as:
 
 $$PA = LU.$$
 
-
 ```ocaml env=linear-algebra-lu
-# let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;0.;0.;1.|] 3 3
+# let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;1.;0.;0.|] 3 3
 val p : Mat.mat =
    C0 C1 C2
 R0  0  0  1
 R1  0  1  0
-R2  0  0  1
+R2  1  0  0
+
 
 # Mat.dot p a = Mat.dot l u 
-- : bool = false
+- : bool = true
 ```
 
-Explain pivoting. Refer to Matlab book Sec 2.5-2.6.
+How do we translate the third output, the permutation vector, to the required permutation matrix? 
+Each element $p_i$ in the vector represents a updated identity matrix. 
+On this identity matrix, we set (i, i) and ($p_i$, $p_i$) to zero, and then (i, $p_i$) and  ($p_i$, i) to one. 
+Multiply these $n$ matrices, we can get the permutation matrix $P$.
+Here is a brief implementation of this process in OCaml:
+
+```ocaml
+let perm_vec_to_mat vec =
+    let n = Array.length vec in
+    let mat = ref (Mat.eye n) in
+    for i = n - 1 downto 0 do
+      let j = vec.(i) in
+      let a = Mat.eye n in
+      N.set a [| i; i |] 0.;
+      N.set a [| j; j |] 0.;
+      N.set a [| i; j |] 1.;
+      N.set a [| j; i |] 1.;
+      mat := N.dot a !mat
+    done;
+    !mat
+```
+
+Note that there is more than one way to do the LU factorisation. For example, for the same matrix, we can have:
+
+$$\left[\begin{matrix}1 & 0 & 0\\0 & 0 & 1\\0 & 1 & 0\end{matrix} \right] \left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] = \left[\begin{matrix}1 & 0 & 0\\1.5 & 1 & 0\\1 & 0 & 1\end{matrix} \right] \left[\begin{matrix}2 & 2 & 2\\0 & 1 & 2\\0 & 0 & 1\end{matrix} \right]$$
 
 ### Inverse and Transpose 
 
-Zero and one matrices $I$. 
-One matrix is a special form of *Diagonal Matrix*, which is a square matrix that only contains non-zero element along its diagonal. 
+The concept of inverse matrix is related with the identity matrix, which can be built with $Mat.eye n$, where n is the size of the square matrix.
+The identity matrix is a special form of *Diagonal Matrix*, which is a square matrix that only contains non-zero element along its diagonal. 
 You can check if a matrix is diagonal with `is_diag` function.
 
+```ocaml
+Mat.eye 5 |> Linalg.D.is_diag
 ```
-CODE: I is diag
-```
 
-The inverse of a nxn square matrix: $AA^{-1} = I$
+The inverse of a $n$ by $n$ square matrix $A$ is denoted by $A^{-1}, so that $: $AA^{-1} = I_n$.
+Note that not all square matrix has inverse.  
+There are many sufficient and necessary conditions to decide if $A$ is invertible, one of them is that A has $n$ pivots.
 
-Not all square matrix has inverse.  
-One important thing: a n by n matrix A is invertible if and only if it has n pivots. 
-
-We use function `inv` to do the inverse operation. It's straightforward and easy to verify:
+We use function `inv` to do the inverse operation. It's straightforward and easy to verify according to the definition.
+Here we use the `semidef` function to produce a matrix that is certainly invertible.
 
 ```ocaml
-  let x = Mat.semidef 8;;    (* generate a random semidef matrix *)
-  let y = Linalg.D.inv x;;   (* calculate the matrix inverse *)
-  Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)
+# let x = Mat.semidef 5
+# let y = Linalg.D.inv x
+# Mat.(x *@ y =~ eye 5)
 ```
 
 Next is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.

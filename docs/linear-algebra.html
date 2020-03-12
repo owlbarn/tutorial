@@ -383,6 +383,7 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 <p>Let’s check the gaussian elimination example again. The final form in eq.&nbsp;4 can be expressed with the matrix notation as:</p>
 <p><span class="math display">\[\left[\begin{matrix}1 &amp; 1 &amp; 1\\0 &amp; 1 &amp; 2\\0 &amp; 0 &amp; 1\end{matrix} \right]\]</span></p>
 <p>Here all the elements below the diagonal of this square matrix is zero. Such matrix is called an <em>upper triangular matrix</em>, usually denoted by <span class="math inline">\(U\)</span>. Similarly, a square matrix that all the elements below the diagonal of this square matrix is zero is called <em>lower triangular matrix</em>, denoted by <span class="math inline">\(L\)</span>. We can use the <code>is_triu</code> and <code>is_tril</code> to verify if a matrix is triangular.</p>
+<p>The diagonal elements of <span class="math inline">\(U\)</span> are called pivots. The i-th pivot is the coefficient of the i-th variable in the i-th equation at the i-th step during the elimination.</p>
 <p>In general, a square matrix can often be factorised into the dot product of a lower and a upper triangular matrices: <span class="math inline">\(A = LU\)</span>. It is called the <em>LU factorisation</em>. It embodies the process of Gauss elimination. Back to the initial problem of solving the linear equation <span class="math inline">\(Ax=b\)</span>. One reason the LU Factorisation is important is that if the matrix A in <span class="math inline">\(Ax=b\)</span> is triangular, then solving it would be straightforward, as we have seen in the previous example. Actually, we can use <code>triangular_solve</code> to efficiently solve the linear equations if we already know that the matrix is triangular.</p>
 <p>For a normal square matrix that can be factorised into <span class="math inline">\(LU\)</span>, we can change <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(LUx=b\)</span>. First we can find column vector <span class="math inline">\(c\)</span> so that <span class="math inline">\(Lc=b\)</span>, then we can find <span class="math inline">\(x\)</span> so that <span class="math inline">\(Ux=c\)</span>. Both triangular equations are easy to solve.</p>
 <p>We use the <code>lu</code> function to perform the LU factorisation. Let’s use the previous example.</p>
@@ -427,35 +428,52 @@ a' = a;;
 &gt;- : bool = false
 </code></pre>
 </div>
-<p>It turns out that we need to some extra row exchange to get the right answer. That’s because the row exchange is required if the number we want to use as the pivot could be zero. This process can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one “1” element. The full LU factorisation can be expressed as:</p>
+<p>It turns out that we need to some extra row exchange to get the right answer. That’s because the row exchange is required in certain cases, such as when the number we want to use as the pivot could be zero. This process is called <em>pivoting</em>. It is closely related to the numerical computation stability. Choosing the improper pivots can lead to wrong linear system solution. It can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one “1” element. The full LU factorisation can be expressed as:</p>
 <p><span class="math display">\[PA = LU.\]</span></p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;0.;0.;1.|] 3 3;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;1.;0.;0.|] 3 3;;
 &gt;val p : Mat.mat =
 &gt;   C0 C1 C2
 &gt;R0  0  0  1
 &gt;R1  0  1  0
-&gt;R2  0  0  1
+&gt;R2  1  0  0
 Mat.dot p a = Mat.dot l u ;;
-&gt;- : bool = false
+&gt;- : bool = true
 </code></pre>
 </div>
-<p>Explain pivoting. Refer to Matlab book Sec 2.5-2.6.</p>
+<p>How do we translate the third output, the permutation vector, to the required permutation matrix? Each element <span class="math inline">\(p_i\)</span> in the vector represents a updated identity matrix. On this identity matrix, we set (i, i) and (<span class="math inline">\(p_i\)</span>, <span class="math inline">\(p_i\)</span>) to zero, and then (i, <span class="math inline">\(p_i\)</span>) and (<span class="math inline">\(p_i\)</span>, i) to one. Multiply these <span class="math inline">\(n\)</span> matrices, we can get the permutation matrix <span class="math inline">\(P\)</span>. Here is a brief implementation of this process in OCaml:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let perm_vec_to_mat vec =
+    let n = Array.length vec in
+    let mat = ref (Mat.eye n) in
+    for i = n - 1 downto 0 do
+      let j = vec.(i) in
+      let a = Mat.eye n in
+      N.set a [| i; i |] 0.;
+      N.set a [| j; j |] 0.;
+      N.set a [| i; j |] 1.;
+      N.set a [| j; i |] 1.;
+      mat := N.dot a !mat
+    done;
+    !mat</code></pre>
+</div>
+<p>Note that there is more than one way to do the LU factorisation. For example, for the same matrix, we can have:</p>
+<p><span class="math display">\[\left[\begin{matrix}1 &amp; 0 &amp; 0\\0 &amp; 0 &amp; 1\\0 &amp; 1 &amp; 0\end{matrix} \right] \left[\begin{matrix}2 &amp; 2 &amp; 2\\2 &amp; 2 &amp; 3\\3 &amp; 4 &amp; 5\end{matrix} \right] = \left[\begin{matrix}1 &amp; 0 &amp; 0\\1.5 &amp; 1 &amp; 0\\1 &amp; 0 &amp; 1\end{matrix} \right] \left[\begin{matrix}2 &amp; 2 &amp; 2\\0 &amp; 1 &amp; 2\\0 &amp; 0 &amp; 1\end{matrix} \right]\]</span></p>
 </section>
 <section class="level3" id="inverse-and-transpose">
 <h3>Inverse and Transpose</h3>
-<p>Zero and one matrices <span class="math inline">\(I\)</span>. One matrix is a special form of <em>Diagonal Matrix</em>, which is a square matrix that only contains non-zero element along its diagonal. You can check if a matrix is diagonal with <code>is_diag</code> function.</p>
+<p>The concept of inverse matrix is related with the identity matrix, which can be built with <span class="math inline">\(Mat.eye n\)</span>, where n is the size of the square matrix. The identity matrix is a special form of <em>Diagonal Matrix</em>, which is a square matrix that only contains non-zero element along its diagonal. You can check if a matrix is diagonal with <code>is_diag</code> function.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE: I is diag</code></pre>
+<pre><code class="language-ocaml">Mat.eye 5 |&gt; Linalg.D.is_diag</code></pre>
 </div>
-<p>The inverse of a nxn square matrix: <span class="math inline">\(AA^{-1} = I\)</span></p>
-<p>Not all square matrix has inverse.<br>
-One important thing: a n by n matrix A is invertible if and only if it has n pivots.</p>
-<p>We use function <code>inv</code> to do the inverse operation. It’s straightforward and easy to verify:</p>
+<p>The inverse of a <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> square matrix <span class="math inline">\(A\)</span> is denoted by $A^{-1}, so that $: <span class="math inline">\(AA^{-1} = I_n\)</span>. Note that not all square matrix has inverse.<br>
+There are many sufficient and necessary conditions to decide if <span class="math inline">\(A\)</span> is invertible, one of them is that A has <span class="math inline">\(n\)</span> pivots.</p>
+<p>We use function <code>inv</code> to do the inverse operation. It’s straightforward and easy to verify according to the definition. Here we use the <code>semidef</code> function to produce a matrix that is certainly invertible.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">  let x = Mat.semidef 8;;    (* generate a random semidef matrix *)
-  let y = Linalg.D.inv x;;   (* calculate the matrix inverse *)
-  Mat.(x *@ y =~ eye 8);;    (* check the approx equality *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.semidef 5;;
+let y = Linalg.D.inv x;;
+Mat.(x *@ y =~ eye 5);;
+</code></pre>
 </div>
 <p>Next is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>.</p>
 <div class="highlight">
