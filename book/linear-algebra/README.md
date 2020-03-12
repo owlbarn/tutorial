@@ -462,20 +462,20 @@ $$3w_1 + 4x_2 + 5x_3 = 7$$
 Divide the first equation by 2:
 
 $$x_1 + x_2 + x_3 = 2$$
-$$2x_1 + 2x_2 + 3x_3 = 5$$
+$$2x_1 + 2x_2 + 3x_3 = 5$$ {#eq:linear-algebra:gauss02}
 $$3w_1 + 4x_2 + 5x_3 = 7$$
 
 Multiply the first equation by `-2`, then add it to the second one. 
 Also, multiply the first equation by `-3`, then add it to the third one. We have:
 
 $$x_1 + x_2 + x_3 = 2$$
-$$x_3 = 1$$
+$$x_3 = 1$$ {#eq:linear-algebra:gauss03}
 $$x_2 + 2x_3 = 1$$
 
 Finally, swap the second and third line:
 
 $$x_1 + x_2 + x_3 = 2$$
-$$x_2 + 2x_3 = 1$$
+$$x_2 + 2x_3 = 1$$  {#eq:linear-algebra:gauss04}
 $$x_3 = 1$$
 
 Here $x_3 = 1$, and we can put it back in the second equation and get $x_2 = -1$. 
@@ -488,46 +488,103 @@ The starting [@eq:linear-algebra:gauss01] can be more concisely expressed with v
 
 $$x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\\2\\4\end{matrix} \right] + x_3\left[\begin{matrix}2\\3\\5\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]$$
 
-or matrix:
+or it can be expressed as $Ax=b$ using matrix notation.
 
 $$\left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]$$
 
+Here A is a matrix, b is a column vector, and x is the unknown vector.
+The matrix notation is often used to describe the linear equation systems as a concise way. 
+
 ### LU Factorisation
 
-Let's check the gaussian elimination example again. 
+Let's check the gaussian elimination example again. The final form in [@eq:linear-algebra:gauss04] can be expressed with the matrix notation as:
 
-EQUATION: the final form of elimination
+$$\left[\begin{matrix}1 & 1 & 1\\0 & 1 & 2\\0 & 0 & 1\end{matrix} \right]$$
 
-We call it an *upper triangular* matrix.
-
-Then we consider the three steps that changes matrix `A` to `U`.
-Each can be represented with an matrix called *elementary matrix*.
-
-Equation: P1*P2*P3*A = U
-
-If we take only the elementary matrices, they leads to another matrix:
-
-Equation: P1*P2*P3 = L
-
-This is called a *Lower Triangular* matrix.
-
-In other word, `A=LU`. This is called an LU factorisation, a very important idea.
+Here all the elements below the diagonal of this square matrix is zero. 
+Such matrix is called an *upper triangular matrix*, usually denoted by $U$.
+Similarly, a square matrix that all the elements below the diagonal of this square matrix is zero is called *lower triangular matrix*, denoted by $L$.
 We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
 
-EXAMPLE
 
-The importance of dividing a matrix is that with triangular matrices, it becomes very easy to solve the linear equations. 
-`triangular_solve`.
+In general, a square matrix can often be factorised into the dot product of a lower and a upper triangular matrices: $A = LU$.
+It is called the *LU factorisation*. 
+It embodies the process of Gauss elimination.
+Back to the initial problem of solving the linear equation $Ax=b$.
+One reason the LU Factorisation is important is that if the matrix A in $Ax=b$ is triangular, then solving it would be straightforward, as we have seen in the previous example. 
+Actually, we can use `triangular_solve` to efficiently solve the linear equations if we already know that the matrix is triangular.
+
+For a normal square matrix that can be factorised into $LU$, we can change $Ax=b$ to $LUx=b$.
+First we can find column vector $c$ so that $Lc=b$, then we can find $x$ so that $Ux=c$.
+Both triangular equations are easy to solve.
+
+We use the `lu` function to perform the LU factorisation. Let's use the previous example. 
+
+```ocaml env=linear-algebra-lu
+# let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|]
+val a : float array = [|2.; 2.; 2.; 2.; 2.; 3.; 3.; 4.; 5.|]
+# let a = Arr.of_array a [|3; 3|]
+val a : Arr.arr =
+   C0 C1 C2
+R0  2  2  2
+R1  2  2  3
+R2  3  4  5
+
+# let l, u, p = Linalg.D.lu a
+val l : Owl_dense_matrix_d.mat =
+
+         C0 C1 C2
+R0        1  0  0
+R1 0.666667  1  0
+R2 0.666667  1  1
+
+val u : Owl_dense_matrix_d.mat =
+
+   C0        C1        C2
+R0  3         4         5
+R1  0 -0.666667 -0.333333
+R2  0         0        -1
+
+val p : Linalg.D.int32_mat =
+   C0 C1 C2
+R0  3  2  3
+
+```
+
+The first two returned matrix are the lower and upper triangular matrices.
+However, if we try to check the correctness of this factorisation with dot product, the result does not fit:
+
+```ocaml env=linear-algebra-lu
+# let a' = Mat.dot l u 
+val a' : Mat.mat =
+   C0 C1 C2
+R0  3  4  5
+R1  2  2  3
+R2  2  2  2
+
+# a' = a
+- : bool = false
+```
+
+It turns out that we need to some extra row exchange to get the right answer. 
+That's because the row exchange is required if the number we want to use as the pivot could be zero. 
+This process can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one "1" element. 
+The full LU factorisation can be expressed as:
+
+$$PA = LU.$$
 
 
-We can use the `lu` function to do it.
+```ocaml env=linear-algebra-lu
+# let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;0.;0.;1.|] 3 3
+val p : Mat.mat =
+   C0 C1 C2
+R0  0  0  1
+R1  0  1  0
+R2  0  0  1
 
-EXAMPLE
-
-The input is a matrix.
-The first two returned results are the L and U. 
-
-The third is about pivoting.
+# Mat.dot p a = Mat.dot l u 
+- : bool = false
+```
 
 Explain pivoting. Refer to Matlab book Sec 2.5-2.6.
 

@@ -366,34 +366,80 @@ Mat.iteri_2d (fun i j a -&gt; Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 <p>Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation. <em>Gaussian Elimination</em> is a classic method to do that. With a bit of techniques, elimination works surprisingly well in modern numerical libraries as one way of implementation. Here is a simple example.</p>
 <p><span class="math display">\[2x_1 + 2x_2 + 2x_3 = 4\]</span> <span id="eq:linear-algebra:gauss01"><span class="math display">\[2x_1 + 2x_2 + 3x_3 = 5\qquad(1)\]</span></span> <span class="math display">\[3w_1 + 4x_2 + 5x_3 = 7\]</span></p>
 <p>Divide the first equation by 2:</p>
-<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[2x_1 + 2x_2 + 3x_3 = 5\]</span> <span class="math display">\[3w_1 + 4x_2 + 5x_3 = 7\]</span></p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span id="eq:linear-algebra:gauss02"><span class="math display">\[2x_1 + 2x_2 + 3x_3 = 5\qquad(2)\]</span></span> <span class="math display">\[3w_1 + 4x_2 + 5x_3 = 7\]</span></p>
 <p>Multiply the first equation by <code>-2</code>, then add it to the second one. Also, multiply the first equation by <code>-3</code>, then add it to the third one. We have:</p>
-<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[x_3 = 1\]</span> <span class="math display">\[x_2 + 2x_3 = 1\]</span></p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span id="eq:linear-algebra:gauss03"><span class="math display">\[x_3 = 1\qquad(3)\]</span></span> <span class="math display">\[x_2 + 2x_3 = 1\]</span></p>
 <p>Finally, swap the second and third line:</p>
-<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span class="math display">\[x_2 + 2x_3 = 1\]</span> <span class="math display">\[x_3 = 1\]</span></p>
+<p><span class="math display">\[x_1 + x_2 + x_3 = 2\]</span> <span id="eq:linear-algebra:gauss04"><span class="math display">\[x_2 + 2x_3 = 1\qquad(4)\]</span></span> <span class="math display">\[x_3 = 1\]</span></p>
 <p>Here <span class="math inline">\(x_3 = 1\)</span>, and we can put it back in the second equation and get <span class="math inline">\(x_2 = -1\)</span>. Put both back to the first equation and we have <span class="math inline">\(x_1 = 2\)</span></p>
 <p>This process demonstrate the basic process of elimination: eliminate unknown variables until this group of linear equations is easy to solve, and then do the back-substitution. There are three kinds of basic operations we can use: multiplication, adding one line to another, and swap two lines.</p>
 <p>The starting eq.&nbsp;1 can be more concisely expressed with vector:</p>
 <p><span class="math display">\[x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\\2\\4\end{matrix} \right] + x_3\left[\begin{matrix}2\\3\\5\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
-<p>or matrix:</p>
+<p>or it can be expressed as <span class="math inline">\(Ax=b\)</span> using matrix notation.</p>
 <p><span class="math display">\[\left[\begin{matrix}2 &amp; 2 &amp; 2\\2 &amp; 2 &amp; 3\\3 &amp; 4 &amp; 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
+<p>Here A is a matrix, b is a column vector, and x is the unknown vector. The matrix notation is often used to describe the linear equation systems as a concise way.</p>
 <section class="level3" id="lu-factorisation">
 <h3>LU Factorisation</h3>
-<p>Let’s check the gaussian elimination example again.</p>
-<p>EQUATION: the final form of elimination</p>
-<p>We call it an <em>upper triangular</em> matrix.</p>
-<p>Then we consider the three steps that changes matrix <code>A</code> to <code>U</code>. Each can be represented with an matrix called <em>elementary matrix</em>.</p>
-<p>Equation: P1<em>P2</em>P3*A = U</p>
-<p>If we take only the elementary matrices, they leads to another matrix:</p>
-<p>Equation: P1<em>P2</em>P3 = L</p>
-<p>This is called a <em>Lower Triangular</em> matrix.</p>
-<p>In other word, <code>A=LU</code>. This is called an LU factorisation, a very important idea. We can use the <code>is_triu</code> and <code>is_tril</code> to verify if a matrix is triangular.</p>
-<p>EXAMPLE</p>
-<p>The importance of dividing a matrix is that with triangular matrices, it becomes very easy to solve the linear equations. <code>triangular_solve</code>.</p>
-<p>We can use the <code>lu</code> function to do it.</p>
-<p>EXAMPLE</p>
-<p>The input is a matrix. The first two returned results are the L and U.</p>
-<p>The third is about pivoting.</p>
+<p>Let’s check the gaussian elimination example again. The final form in eq.&nbsp;4 can be expressed with the matrix notation as:</p>
+<p><span class="math display">\[\left[\begin{matrix}1 &amp; 1 &amp; 1\\0 &amp; 1 &amp; 2\\0 &amp; 0 &amp; 1\end{matrix} \right]\]</span></p>
+<p>Here all the elements below the diagonal of this square matrix is zero. Such matrix is called an <em>upper triangular matrix</em>, usually denoted by <span class="math inline">\(U\)</span>. Similarly, a square matrix that all the elements below the diagonal of this square matrix is zero is called <em>lower triangular matrix</em>, denoted by <span class="math inline">\(L\)</span>. We can use the <code>is_triu</code> and <code>is_tril</code> to verify if a matrix is triangular.</p>
+<p>In general, a square matrix can often be factorised into the dot product of a lower and a upper triangular matrices: <span class="math inline">\(A = LU\)</span>. It is called the <em>LU factorisation</em>. It embodies the process of Gauss elimination. Back to the initial problem of solving the linear equation <span class="math inline">\(Ax=b\)</span>. One reason the LU Factorisation is important is that if the matrix A in <span class="math inline">\(Ax=b\)</span> is triangular, then solving it would be straightforward, as we have seen in the previous example. Actually, we can use <code>triangular_solve</code> to efficiently solve the linear equations if we already know that the matrix is triangular.</p>
+<p>For a normal square matrix that can be factorised into <span class="math inline">\(LU\)</span>, we can change <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(LUx=b\)</span>. First we can find column vector <span class="math inline">\(c\)</span> so that <span class="math inline">\(Lc=b\)</span>, then we can find <span class="math inline">\(x\)</span> so that <span class="math inline">\(Ux=c\)</span>. Both triangular equations are easy to solve.</p>
+<p>We use the <code>lu</code> function to perform the LU factorisation. Let’s use the previous example.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|];;
+&gt;val a : float array = [|2.; 2.; 2.; 2.; 2.; 3.; 3.; 4.; 5.|]
+let a = Arr.of_array a [|3; 3|];;
+&gt;val a : Arr.arr =
+&gt;   C0 C1 C2
+&gt;R0  2  2  2
+&gt;R1  2  2  3
+&gt;R2  3  4  5
+let l, u, p = Linalg.D.lu a;;
+&gt;val l : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0 C1 C2
+&gt;R0        1  0  0
+&gt;R1 0.666667  1  0
+&gt;R2 0.666667  1  1
+&gt;
+&gt;val u : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0        C1        C2
+&gt;R0  3         4         5
+&gt;R1  0 -0.666667 -0.333333
+&gt;R2  0         0        -1
+&gt;
+&gt;val p : Linalg.D.int32_mat =
+&gt;   C0 C1 C2
+&gt;R0  3  2  3
+</code></pre>
+</div>
+<p>The first two returned matrix are the lower and upper triangular matrices. However, if we try to check the correctness of this factorisation with dot product, the result does not fit:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Mat.dot l u ;;
+&gt;val a' : Mat.mat =
+&gt;   C0 C1 C2
+&gt;R0  3  4  5
+&gt;R1  2  2  3
+&gt;R2  2  2  2
+a' = a;;
+&gt;- : bool = false
+</code></pre>
+</div>
+<p>It turns out that we need to some extra row exchange to get the right answer. That’s because the row exchange is required if the number we want to use as the pivot could be zero. This process can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one “1” element. The full LU factorisation can be expressed as:</p>
+<p><span class="math display">\[PA = LU.\]</span></p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;0.;0.;1.|] 3 3;;
+&gt;val p : Mat.mat =
+&gt;   C0 C1 C2
+&gt;R0  0  0  1
+&gt;R1  0  1  0
+&gt;R2  0  0  1
+Mat.dot p a = Mat.dot l u ;;
+&gt;- : bool = false
+</code></pre>
+</div>
 <p>Explain pivoting. Refer to Matlab book Sec 2.5-2.6.</p>
 </section>
 <section class="level3" id="inverse-and-transpose">
