@@ -531,7 +531,9 @@ R0  2  2  2
 R1  2  2  3
 R2  3  4  5
 
+```
 
+```ocaml env=linear-algebra-lu
 # let l, u, p = Linalg.D.lu a
 val l : Owl_dense_matrix_d.mat =
 
@@ -564,7 +566,9 @@ R0  3  4  5
 R1  2  2  3
 R2  2  2  2
 
+```
 
+```ocaml env=linear-algebra-lu
 # a' = a
 - : bool = false
 ```
@@ -585,7 +589,9 @@ R0  0  0  1
 R1  0  1  0
 R2  1  0  0
 
+```
 
+```ocaml env=linear-algebra-lu
 # Mat.dot p a = Mat.dot l u 
 - : bool = true
 ```
@@ -603,11 +609,11 @@ let perm_vec_to_mat vec =
     for i = n - 1 downto 0 do
       let j = vec.(i) in
       let a = Mat.eye n in
-      N.set a [| i; i |] 0.;
-      N.set a [| j; j |] 0.;
-      N.set a [| i; j |] 1.;
-      N.set a [| j; i |] 1.;
-      mat := N.dot a !mat
+      Arr.set a [| i; i |] 0.;
+      Arr.set a [| j; j |] 0.;
+      Arr.set a [| i; j |] 1.;
+      Arr.set a [| j; i |] 1.;
+      mat := Arr.dot a !mat
     done;
     !mat
 ```
@@ -633,10 +639,35 @@ There are many sufficient and necessary conditions to decide if $A$ is invertibl
 We use function `inv` to do the inverse operation. It's straightforward and easy to verify according to the definition.
 Here we use the `semidef` function to produce a matrix that is certainly invertible.
 
-```ocaml
+```ocaml env=linear-algebra:inverse
 # let x = Mat.semidef 5
+val x : Mat.mat =
+
+         C0       C1       C2       C3       C4
+R0  1.38671 0.865127  1.58151  1.49422 0.469741
+R1 0.865127 0.708478  1.06377  1.05908 0.284205
+R2  1.58151  1.06377   1.9197  1.75276 0.725455
+R3  1.49422  1.05908  1.75276  2.09053 0.674717
+R4 0.469741 0.284205 0.725455 0.674717 0.825211
+
+```
+
+```ocaml env=linear-algebra:inverse
 # let y = Linalg.D.inv x
+val y : Owl_dense_matrix_d.mat =
+
+         C0       C1       C2       C3       C4
+R0   55.544  34.8501 -61.4899 -12.4567  20.6214
+R1  34.8501  34.8324 -44.6476 -10.2098  15.7638
+R2 -61.4899 -44.6476  73.3611   13.064 -24.7952
+R3 -12.4567 -10.2098   13.064  5.27679  -5.1921
+R4  20.6214  15.7638 -24.7952  -5.1921  10.0873
+
+```
+
+```ocaml env=linear-algebra:inverse
 # Mat.(x *@ y =~ eye 5)
+- : bool = true
 ```
 
 The next frequently used special matrix is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.
@@ -650,6 +681,7 @@ We can check this property using the matrix function `Mat.transpose`. Note that 
     let m1 = Mat.(dot a b |> transpose) in
     let m2 = Mat.(dot (transpose b) (transpose a)) in 
     Mat.(m1 =~ m2)
+val flag : bool = true
 ```
 
 A related special matrix is the *Symmetric Matrix*, which equals to its own transpose. This simple test can be done with the `is_symmetric` function.
@@ -672,38 +704,55 @@ The *left nullspace* is similar. It is the nullspace of $A^T$.
 
 ### Rank and Basis
 
-We have seen using LU factorisation to solve Ax=b, but it won't work every time. 
-For one thing, $A$ may not be square matrix. 
-Or the given information is not enough (multiple solutions)
+In the Gaussian Elimination section, we assume an ideal situation: the matrix A is $n\times~n$ square, and we assume that there exists one solution. 
+But that does not happen every time. 
+In many cases $A$ is not an square matrix. 
+It is possible that these $m$ equations are not enough to solve a $n$-variable linear system when $m < n$. Or there might not exist a solution when $m > n$.
+Besides, even it is a square matrix, the information provided by two of the equations are actually repeated. For example, one equation is simply a multiplication of the other. 
 
-Example
+For example, if we try to apply LU factorisation to such a matrix:
 
-Besides, some of the equations might be "useless".
-One of these equation provide no new information. 
-
-Example: a linear-dependent square matrix. 
-
-Understanding a bit of these theories will be helpful to using functions, instead blindly believing the function can give you solution every time. 
-(In this section I need to show some "fail" examples) 
-
-
-Introduce: rank.
-The definition of linear independence.
-The definition and implication of rank.
-
-A Example using rank:
+```ocaml env=linear-algebra:rank_00
+# let x = Mat.of_array [|1.; 2.; 3.; 0.; 0.; 1.; 0.; 0.; 2.|] 3 3
+val x : Mat.mat =
+   C0 C1 C2
+R0  1  2  3
+R1  0  0  1
+R2  0  0  2
 
 ```
-val rank : ?tol:float -> ('a, 'b) t -> int
-  (* rank of a rectangular matrix *)
+```ocaml env=linear-algebra:rank_00
+# Linalg.D.lu x
+Exception: Failure "LAPACKE: 2".
 ```
 
-One application of rank is in a crucial Linalg idea: basis. linear independent (Ax=0), and spanning the space (Ax=b).
+Obviously, we cannot have pivot in the second column, and therefore this matrix is singular and cannot be factorised into $LU$.
+As can be seen in this example, we cannot expect the linear algebra functions to be a magic lamb and do our bidding every time.  Understanding the theory of linear algebra helps to better understand how these functions work.
 
-Dimension of a vector space. 
+To decide the general solutions to $Ax=b$, we need to understand the concept of *rank*.
+The rank of a matrix is the number of pivots in the elimination process.
+To get a more intuitive understanding of rank, we need to know the concept of *linear independent. 
+In a linear combination $\sum_{i=1}^nc_iv_i$ where $v_i$ are vectors and $c_i$ are numbers, if $\sum_{i=1}^nc_iv_i = 0$ only happens when $c_i = 0$ for all the $i$'s, then the vectors $v_1, v_2, \ldots, v_n$ are linearly independent.
+Then the rank of a matrix is the number of independent rows in the matrix.
+We can understand rank as the number of "effective" rows in the matrix.
 
-Suppose in a n-dimension space.
-The dimension of column space is $r$; the dimension of nullspace N(A) = n - r. 
+As an example, we can check the rank of the previous matrix.
+
+
+```ocaml env=linear-algebra:rank_00
+Linalg.D.rank x
+```
+
+As can be example, the rank is 2, which means only two effective rows, and thus cannot be factorised to find the only solution.
+
+One application of rank is in a crucial linear algebra idea: basis. 
+A sequence of vectors is the *basis* of a space or subspace if:
+1) these vectors are linear independent and 
+2) all the the vectors in the space can be represented as the linear combination of vectors in the basis.
+
+A space can have infinitely different bases, but the number of vectors in these bases are the same. This number is called the *dimension* of this vector space.
+For example, a $m$ by $n$ matrix A has rank of $r$, then the dimension of its null space is $n-r$, and the dimension of its column space is $r$.
+Think about a full-rank matrix where $r=n$, then the dimension of column matrix is $n$, which means all its columns can be a basis of the column space, and that the null space dimension is zero so that the only solution of $Ax=0$ is a zero vector.
 
 ### Orthogonality
 

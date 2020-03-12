@@ -396,7 +396,10 @@ let a = Arr.of_array a [|3; 3|];;
 &gt;R0  2  2  2
 &gt;R1  2  2  3
 &gt;R2  3  4  5
-let l, u, p = Linalg.D.lu a;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let l, u, p = Linalg.D.lu a;;
 &gt;val l : Owl_dense_matrix_d.mat =
 &gt;
 &gt;         C0 C1 C2
@@ -424,7 +427,10 @@ let l, u, p = Linalg.D.lu a;;
 &gt;R0  3  4  5
 &gt;R1  2  2  3
 &gt;R2  2  2  2
-a' = a;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">a' = a;;
 &gt;- : bool = false
 </code></pre>
 </div>
@@ -437,7 +443,10 @@ a' = a;;
 &gt;R0  0  0  1
 &gt;R1  0  1  0
 &gt;R2  1  0  0
-Mat.dot p a = Mat.dot l u ;;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.dot p a = Mat.dot l u ;;
 &gt;- : bool = true
 </code></pre>
 </div>
@@ -449,11 +458,11 @@ Mat.dot p a = Mat.dot l u ;;
     for i = n - 1 downto 0 do
       let j = vec.(i) in
       let a = Mat.eye n in
-      N.set a [| i; i |] 0.;
-      N.set a [| j; j |] 0.;
-      N.set a [| i; j |] 1.;
-      N.set a [| j; i |] 1.;
-      mat := N.dot a !mat
+      Arr.set a [| i; i |] 0.;
+      Arr.set a [| j; j |] 0.;
+      Arr.set a [| i; j |] 1.;
+      Arr.set a [| j; i |] 1.;
+      mat := Arr.dot a !mat
     done;
     !mat</code></pre>
 </div>
@@ -471,8 +480,31 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 <p>We use function <code>inv</code> to do the inverse operation. It’s straightforward and easy to verify according to the definition. Here we use the <code>semidef</code> function to produce a matrix that is certainly invertible.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.semidef 5;;
-let y = Linalg.D.inv x;;
-Mat.(x *@ y =~ eye 5);;
+&gt;val x : Mat.mat =
+&gt;
+&gt;         C0       C1       C2       C3       C4
+&gt;R0  1.38671 0.865127  1.58151  1.49422 0.469741
+&gt;R1 0.865127 0.708478  1.06377  1.05908 0.284205
+&gt;R2  1.58151  1.06377   1.9197  1.75276 0.725455
+&gt;R3  1.49422  1.05908  1.75276  2.09053 0.674717
+&gt;R4 0.469741 0.284205 0.725455 0.674717 0.825211
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Linalg.D.inv x;;
+&gt;val y : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0       C1       C2       C3       C4
+&gt;R0   55.544  34.8501 -61.4899 -12.4567  20.6214
+&gt;R1  34.8501  34.8324 -44.6476 -10.2098  15.7638
+&gt;R2 -61.4899 -44.6476  73.3611   13.064 -24.7952
+&gt;R3 -12.4567 -10.2098   13.064  5.27679  -5.1921
+&gt;R4  20.6214  15.7638 -24.7952  -5.1921  10.0873
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.(x *@ y =~ eye 5);;
+&gt;- : bool = true
 </code></pre>
 </div>
 <p>The next frequently used special matrix is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>. Note that this function is deemed basic ndarray operations and is not included in the <code>Linalg</code> module.</p>
@@ -484,6 +516,7 @@ Mat.(x *@ y =~ eye 5);;
   let m2 = Mat.(dot (transpose b) (transpose a)) in 
   Mat.(m1 =~ m2)
 ;;
+&gt;val flag : bool = true
 </code></pre>
 </div>
 <p>A related special matrix is the <em>Symmetric Matrix</em>, which equals to its own transpose. This simple test can be done with the <code>is_symmetric</code> function.</p>
@@ -496,20 +529,31 @@ Mat.(x *@ y =~ eye 5);;
 <p>There are four fundamental subspaces concerning solving linear systems $Ax=b, where <span class="math inline">\(A\)</span> is a <span class="math inline">\(m\)</span> by <span class="math inline">\(n\)</span> matrix. The <em>column space</em> consists of all the linear combinations of the columns of A. It is a subspace of <span class="math inline">\(R^m\)</span>. Similarly, the <em>row space</em> consists of all the linear combinations of the rows of A. The <em>nullspace</em> contains all the vectors <span class="math inline">\(x\)</span> so that <span class="math inline">\(Ax=0\)</span>, denoted by <span class="math inline">\(N(A)\)</span>. It is a subspace of <span class="math inline">\(R^n\)</span>. The <em>left nullspace</em> is similar. It is the nullspace of <span class="math inline">\(A^T\)</span>.</p>
 <section class="level3" id="rank-and-basis">
 <h3>Rank and Basis</h3>
-<p>We have seen using LU factorisation to solve Ax=b, but it won’t work every time. For one thing, <span class="math inline">\(A\)</span> may not be square matrix. Or the given information is not enough (multiple solutions)</p>
-<p>Example</p>
-<p>Besides, some of the equations might be “useless”. One of these equation provide no new information.</p>
-<p>Example: a linear-dependent square matrix.</p>
-<p>Understanding a bit of these theories will be helpful to using functions, instead blindly believing the function can give you solution every time. (In this section I need to show some “fail” examples)</p>
-<p>Introduce: rank. The definition of linear independence. The definition and implication of rank.</p>
-<p>A Example using rank:</p>
+<p>In the Gaussian Elimination section, we assume an ideal situation: the matrix A is <span class="math inline">\(n\times~n\)</span> square, and we assume that there exists one solution. But that does not happen every time. In many cases <span class="math inline">\(A\)</span> is not an square matrix. It is possible that these <span class="math inline">\(m\)</span> equations are not enough to solve a <span class="math inline">\(n\)</span>-variable linear system when <span class="math inline">\(m &lt; n\)</span>. Or there might not exist a solution when <span class="math inline">\(m &gt; n\)</span>. Besides, even it is a square matrix, the information provided by two of the equations are actually repeated. For example, one equation is simply a multiplication of the other.</p>
+<p>For example, if we try to apply LU factorisation to such a matrix:</p>
 <div class="highlight">
-<pre><code class="language-clike">val rank : ?tol:float -&gt; ('a, 'b) t -&gt; int
-  (* rank of a rectangular matrix *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.of_array [|1.; 2.; 3.; 0.; 0.; 1.; 0.; 0.; 2.|] 3 3;;
+&gt;val x : Mat.mat =
+&gt;   C0 C1 C2
+&gt;R0  1  2  3
+&gt;R1  0  0  1
+&gt;R2  0  0  2
+</code></pre>
 </div>
-<p>One application of rank is in a crucial Linalg idea: basis. linear independent (Ax=0), and spanning the space (Ax=b).</p>
-<p>Dimension of a vector space.</p>
-<p>Suppose in a n-dimension space. The dimension of column space is <span class="math inline">\(r\)</span>; the dimension of nullspace N(A) = n - r.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.lu x;;
+&gt;Exception: Failure "LAPACKE: 2".
+</code></pre>
+</div>
+<p>Obviously, we cannot have pivot in the second column, and therefore this matrix is singular and cannot be factorised into <span class="math inline">\(LU\)</span>. As can be seen in this example, we cannot expect the linear algebra functions to be a magic lamb and do our bidding every time. Understanding the theory of linear algebra helps to better understand how these functions work.</p>
+<p>To decide the general solutions to <span class="math inline">\(Ax=b\)</span>, we need to understand the concept of <em>rank</em>. The rank of a matrix is the number of pivots in the elimination process. To get a more intuitive understanding of rank, we need to know the concept of *linear independent. In a linear combination <span class="math inline">\(\sum_{i=1}^nc_iv_i\)</span> where <span class="math inline">\(v_i\)</span> are vectors and <span class="math inline">\(c_i\)</span> are numbers, if <span class="math inline">\(\sum_{i=1}^nc_iv_i = 0\)</span> only happens when <span class="math inline">\(c_i = 0\)</span> for all the <span class="math inline">\(i\)</span>’s, then the vectors <span class="math inline">\(v_1, v_2, \ldots, v_n\)</span> are linearly independent. Then the rank of a matrix is the number of independent rows in the matrix. We can understand rank as the number of “effective” rows in the matrix.</p>
+<p>As an example, we can check the rank of the previous matrix.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Linalg.D.rank x</code></pre>
+</div>
+<p>As can be example, the rank is 2, which means only two effective rows, and thus cannot be factorised to find the only solution.</p>
+<p>One application of rank is in a crucial linear algebra idea: basis. A sequence of vectors is the <em>basis</em> of a space or subspace if: 1) these vectors are linear independent and 2) all the the vectors in the space can be represented as the linear combination of vectors in the basis.</p>
+<p>A space can have infinitely different bases, but the number of vectors in these bases are the same. This number is called the <em>dimension</em> of this vector space. For example, a <span class="math inline">\(m\)</span> by <span class="math inline">\(n\)</span> matrix A has rank of <span class="math inline">\(r\)</span>, then the dimension of its null space is <span class="math inline">\(n-r\)</span>, and the dimension of its column space is <span class="math inline">\(r\)</span>. Think about a full-rank matrix where <span class="math inline">\(r=n\)</span>, then the dimension of column matrix is <span class="math inline">\(n\)</span>, which means all its columns can be a basis of the column space, and that the null space dimension is zero so that the only solution of <span class="math inline">\(Ax=0\)</span> is a zero vector.</p>
 </section>
 <section class="level3" id="orthogonality">
 <h3>Orthogonality</h3>
