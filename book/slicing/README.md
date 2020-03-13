@@ -1,16 +1,16 @@
 # Slicing and Broadcasting
 
 Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays. 
-They are so basic and are used in practically every applications, therefore understanding the nuts and bolts is very important.
+They are so basic and are used in practically every application, therefore understanding the nuts and bolts is very important.
 In this chapter we will introduce how to use these functions in Owl.
 
 ## Slicing
 
-Indexing and slicing is arguably the most important and fundamental functions in any numerical library. The flexible design can significantly simplify the code and enables us to write concise algorithms. 
+Indexing and slicing is arguably the most important function in any numerical library. A flexible design is able to significantly simplify the code and allow us to write concise algorithms. 
 
 Before we start, let's clarify some things.
 
-* Slicing refers to the operation that extracts part of the data from an ndarrays or a matrix according to the well-defined *slice definition*.
+* Slicing refers to the operation that extracts part of the data from an ndarray or a matrix according to a well-defined *slice definition*.
 
 * Slicing can be applied to all the dense data structures, i.e. both ndarrays and matrices.
 
