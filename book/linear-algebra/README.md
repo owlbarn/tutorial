@@ -846,26 +846,108 @@ R2   0    0 -35
 
 ### Solving Ax = b
 
-We can now discuss the general solution to $Ax=b$.
+We can now discuss the general solution structure to $Ax=0$ and $Ax=b$.
+Again, here $A$ is a $m\times~n$ matrix.
+The theorems declare that, there exists non-zeor solution(s) to $Ax=0$ if and only if $\textrm{rank}(a) <= n$.
+If $r(A) < n$, then the nullspace of $A$ is of dimension $n - r$ and the $n-r$ orthogonal basis can be found with `null` function.
+Here is an example.
 
-Several theorems:
-There exist non-zero solutions to $Ax=0$ if and only if rank(A) < column of A.
+```ocaml env=linear-algebra:solve_00
+# let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4
+val a : Mat.mat =
 
-Example
-
-Suppose A is mxn matrix, and b is mx1 matrix, then there exist solution if and only if r(A) = r([A, b]). 
-If and only if r(A) also equals to n, there exist one solution.
-
-`linsolve a b -> x` solves a linear system of equations `a * x = b` in the following form. By default, `typ=n` and the function use LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise. The number
-of rows of `a` must equal the number of rows of `b`.
-If `a` is a upper(lower) triangular matrix, the function calls the ``solve_triangular`` function.
+   C0 C1 C2 C3
+R0  1  5 -1 -1
+R1  1 -2  1  3
+R2  3  8 -1  1
+R3  1 -9  3  7
 
 ```
-val linsolve : ?trans:bool -> ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
+```ocaml env=linear-algebra:solve_00
+# Linalg.D.rank a
+- : int = 2
+```
+This a rank 2 matrix, so the nullspace contains 4 - 2 = 2 vectors:
+
+```ocaml env=linear-algebra:solve_00
+# Linalg.D.null a
+- : Owl_dense_matrix_d.mat =
+
+          C0        C1
+R0 -0.851419 0.0136382
+R1  0.273706  0.143885
+R2 0.0762491  0.962526
+R3   0.44086 -0.229465
+
 ```
 
-Example: only using the function does not work; you have to do some comparison of rank.
+These two vectors are called the *fundamental system of solutions* of $Ax=0$.
+All the solutions of $Ax=0$ can then be expressed using the fundamental system:
 
+$$c_1\left[\begin{matrix}-0.85 \\ 0.27 \\ 0.07 \\0.44\end{matrix} \right] + c_2\left[\begin{matrix}0.013\\ 0.14 \\ 0.95 \\-0.23\end{matrix} \right]$$
+
+Here $c_1$ and $c_2$ can be any constant numbers.
+
+For solving the general form $Ax=b$ where b is $m\times~1$ vector, there exist only one solution if and only if $\textrm{rank}(A) = \textrm{rank}([A, b]) = n$. Here $[A, b]$ means concatenating $A$ and $b$ along the column.
+If $\textrm{rank}(A) = \textrm{rank}([A, b]) < n$, $Ax=b$ has infinite number of solutions. 
+These solutions has a general form:
+
+
+$$x_0 + c_1x_1 + c2x2 + \ldots +c_kx_k$$
+
+Here $x_0$ is a particular solution to $Ax=b$, and $x_1, x_2, \ldots, x_k$ are the fundamental solution system of $Ax=0$.
+
+We can use `linsolve` function to find one particular solution.
+In the Linear Algebra, the function `linsolve a b -> x` solves a linear system of equations `a * x = b`. 
+By default, the function uses LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise. 
+The number of rows of `a` must be equal to the number of rows of `b`.
+If `a` is a upper or lower triangular matrix, the function calls the `solve_triangular` function.
+
+Here is an example.
+
+```text
+# let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3
+val a : Mat.mat =
+
+   C0 C1 C2
+R0  2  3  1
+R1  1 -2  4
+R2  3  8 -2
+R3  4 -1  9
+
+# let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1
+val b : Mat.mat =
+   C0
+R0  4
+R1 -5
+R2 13
+R3 -6
+
+# let x0 = Linalg.D.linsolve a b
+val x0 : Owl_dense_matrix_d.mat =
+   C0
+R0 -5
+R1  4
+R2  2
+
+```
+
+Then we use `null` to find the fundamental solution system. You can verify that matrix `a` is of rank 2, so that the solution system for $ax=0$ should contain only 3 - 2 = 1 vector.
+
+```text
+# let x1 = Linalg.D.null a
+val x1 : Owl_dense_matrix_d.mat =
+
+          C0
+R0 -0.816497
+R1  0.408248
+R2  0.408248
+
+```
+
+So the solutions to $Ax=b$ can be expressed as:
+
+$$\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]$$
 
 ## Determinants
 
