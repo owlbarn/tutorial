@@ -949,29 +949,56 @@ So the solutions to $Ax=b$ can be expressed as:
 
 $$\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]$$
 
+So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. 
+Blindly using them could leads to wrong or misleading answers.
+
 ## Determinants
 
-For a square matrix. the definition of *determinants*:
+Other than pivots, another basic quantity in linear algebra is the *determinants*.
+For a square matrix A:
 
-EQUATION
+$$\left[\begin{matrix}a_{11} & a_{12} & \ldots & a_{1n} \\ a_{21} & a_{22} & \ldots & a_{2n} \\ \vdots & \vdots & \ldots & \vdots \\ a_{n1} & a_{n2} & \ldots & a_{nn} \end{matrix} \right]$$
 
-There are  many techniques to simplify this calculation. But we use the `det` function here to calculate the determinants of a matrix. 
+its determinants `det(A)` is defined as:
 
-There is a similar function `logdet`. 
+$$\sum_{j_1~j_2~\ldots~j_n}(-1)^{\tau(j_1~j_2~\ldots~j_3)}a_{1{j_1}}a_{2j_2}\ldots~a_{nj_n}.$$
+
+Here $\tau(j_1~j_2~\ldots~j_n) = i_1 + i_2 + \ldots + i_{n-1}$, 
+where $i_k$ is the number of $j_p$ that is smaller than $j_k$ for $p \in [k+1, n]$.
+
+Mathematically, there are many techniques that can be used to simplify this calculation.
+But as far as this book is concerned, it is sufficient for us to use the `det` function to calculate the determinants of a matrix. 
+
+Why is the concept of determinant important? 
+Its most important application is to using determinant to decide if a square matrix A is invertible or singular.
+The determinant $\textrm{det}(A) \neq 0$ if and only if $\textrm{A} = n$. 
+Also it can be expressed as $\textrm{det}(A) \neq 0$ if and only if matrix A is invertible. 
+
+We can also use it to understand the solution of $Ax=b$: if $\textrm{det}(A) \neq 0$, then $Ax=b$ has one and only one solution. 
+This theorem is part of the *Cramer's rule*.
+These properties are widely used in finding *eigenvalues*. As will be shown in the next section.
+
+Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function `logdet`. 
 It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
 
-Why is this concept important? 
-We use the determinant to calculate the solution to Ax=b.
+```text
+# let x = Mat.magic 5
+val x : Mat.mat =
 
-Cramer's rule.
+   C0 C1 C2 C3 C4
+R0 17 24  1  8 15
+R1 23  5  7 14 16
+R2  4  6 13 20 22
+R3 10 12 19 21  3
+R4 11 18 25  2  9
 
-Example: using `solve` and `det` to solve a Ax=b.
+# Linalg.D.det x
+- : float = 5070000.
 
-Another important application is to use determinant to decide if a square matrix A is invertible/singular. 
-A is invertible if and only if $|A|$ does not equal to 0. 
+# Linalg.D.logdet x
+- : float = 15.4388513755673671
 
-This theorem is widely used in finding *eigenvalues*. As will be shown in the next section.
-
+```
 
 ## Eigenvalues and Eigenvectors
 

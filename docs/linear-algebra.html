@@ -701,19 +701,38 @@ R2  0.408248
 </div>
 <p>So the solutions to <span class="math inline">\(Ax=b\)</span> can be expressed as:</p>
 <p><span class="math display">\[\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]\]</span></p>
+<p>So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. Blindly using them could leads to wrong or misleading answers.</p>
 </section>
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
-<p>For a square matrix. the definition of <em>determinants</em>:</p>
-<p>EQUATION</p>
-<p>There are many techniques to simplify this calculation. But we use the <code>det</code> function here to calculate the determinants of a matrix.</p>
-<p>There is a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
-<p>Why is this concept important? We use the determinant to calculate the solution to Ax=b.</p>
-<p>Cramer’s rule.</p>
-<p>Example: using <code>solve</code> and <code>det</code> to solve a Ax=b.</p>
-<p>Another important application is to use determinant to decide if a square matrix A is invertible/singular. A is invertible if and only if <span class="math inline">\(|A|\)</span> does not equal to 0.</p>
-<p>This theorem is widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
+<p>Other than pivots, another basic quantity in linear algebra is the <em>determinants</em>. For a square matrix A:</p>
+<p><span class="math display">\[\left[\begin{matrix}a_{11} &amp; a_{12} &amp; \ldots &amp; a_{1n} \\ a_{21} &amp; a_{22} &amp; \ldots &amp; a_{2n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ a_{n1} &amp; a_{n2} &amp; \ldots &amp; a_{nn} \end{matrix} \right]\]</span></p>
+<p>its determinants <code>det(A)</code> is defined as:</p>
+<p><span class="math display">\[\sum_{j_1~j_2~\ldots~j_n}(-1)^{\tau(j_1~j_2~\ldots~j_3)}a_{1{j_1}}a_{2j_2}\ldots~a_{nj_n}.\]</span></p>
+<p>Here <span class="math inline">\(\tau(j_1~j_2~\ldots~j_n) = i_1 + i_2 + \ldots + i_{n-1}\)</span>, where <span class="math inline">\(i_k\)</span> is the number of <span class="math inline">\(j_p\)</span> that is smaller than <span class="math inline">\(j_k\)</span> for <span class="math inline">\(p \in [k+1, n]\)</span>.</p>
+<p>Mathematically, there are many techniques that can be used to simplify this calculation. But as far as this book is concerned, it is sufficient for us to use the <code>det</code> function to calculate the determinants of a matrix.</p>
+<p>Why is the concept of determinant important? Its most important application is to using determinant to decide if a square matrix A is invertible or singular. The determinant <span class="math inline">\(\textrm{det}(A) \neq 0\)</span> if and only if <span class="math inline">\(\textrm{A} = n\)</span>. Also it can be expressed as <span class="math inline">\(\textrm{det}(A) \neq 0\)</span> if and only if matrix A is invertible.</p>
+<p>We can also use it to understand the solution of <span class="math inline">\(Ax=b\)</span>: if <span class="math inline">\(\textrm{det}(A) \neq 0\)</span>, then <span class="math inline">\(Ax=b\)</span> has one and only one solution. This theorem is part of the <em>Cramer’s rule</em>. These properties are widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
+<p>Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
+<div class="highlight">
+<pre><code class="language-text"># let x = Mat.magic 5
+val x : Mat.mat =
+
+   C0 C1 C2 C3 C4
+R0 17 24  1  8 15
+R1 23  5  7 14 16
+R2  4  6 13 20 22
+R3 10 12 19 21  3
+R4 11 18 25  2  9
+
+# Linalg.D.det x
+- : float = 5070000.
+
+# Linalg.D.logdet x
+- : float = 15.4388513755673671
+</code></pre>
+</div>
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
