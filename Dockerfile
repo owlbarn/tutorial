@@ -13,7 +13,7 @@ RUN opam update -q && opam pin --dev-repo owl-symbolic
 # install ode related stuff
 
 RUN apt-get install -y gfortran libsundials-dev
-RUN opam pin --dev-repo owl-ode --ignore-constraints-on owl
+RUN opam pin --dev-repo owl-ode --ignore-constraints-on owl,owl-base
 
 # install owl-tutorials
 
