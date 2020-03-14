@@ -5,5 +5,5 @@
   prelude.ml)
  (action
   (progn
-   (run ocaml-mdx test --prelude=prelude.ml --direction=to-md %{x})
+   (run ocaml-mdx test --prelude=prelude.ml %{x})
    (diff? %{x} %{x}.corrected))))

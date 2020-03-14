@@ -215,8 +215,8 @@ Here are some examples to show how to use them.
   open Arr;;
 
   let x = sequential [|10; 10; 10|];;
-  let a = x.%{ [|2; 3; 4|] };;         (* i.e. Arr.get *)
-  x.%{ [|2; 3; 4|] } <- 111.;;         (* i.e. Arr.set *)
+  let a = x.%{2; 3; 4};;         (* i.e. Arr.get *)
+  x.%{2; 3; 4} <- 111.;;         (* i.e. Arr.set *)
 ```
 
 **.${ }** for basic slicing, as follows.
@@ -226,9 +226,9 @@ Here are some examples to show how to use them.
   open Arr;;
 
   let x = sequential [|10; 10; 10|] in
-  let a = x.${ [[0;4]; [6;-1]; [-1;0]] } in  (* i.e. Arr.get_slice *)
+  let a = x.${[0;4]; [6;-1]; [-1;0]} in  (* i.e. Arr.get_slice *)
   let b = zeros (shape a) in
-  x.${ [[0;4]; [6;-1]; [-1;0]] } <- b;;     (* i.e. Arr.set_slice *)
+  x.${[0;4]; [6;-1]; [-1;0]} <- b;;      (* i.e. Arr.set_slice *)
 
 ```
 
@@ -239,9 +239,9 @@ Here are some examples to show how to use them.
   open Arr;;
 
   let x = sequential [|10; 10; 10|] in
-  let a = x.!{ [ L[2;2;1]; R[6;-1]; I 5] } in  (* i.e. Arr.get_fancy *)
+  let a = x.!{L [2;2;1]; R [6;-1]; I 5} in  (* i.e. Arr.get_fancy *)
   let b = zeros (shape a) in
-  x.!{ [L[2;2;1]; R[6;-1]; I 5] } <- b;;      (* i.e. Arr.set_fancy *)
+  x.!{L [2;2;1]; R [6;-1]; I 5} <- b;;      (* i.e. Arr.set_fancy *)
 
 ```
 
