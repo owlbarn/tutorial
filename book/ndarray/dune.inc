@@ -10,7 +10,7 @@
   prelude.ml)
  (action
   (progn
-   (run ocaml-mdx test --prelude=prelude.ml --direction=to-md %{x})
+   (run ocaml-mdx test --prelude=prelude.ml %{x})
    (diff? %{x} %{x}.corrected)
    (diff? %{y4} %{y4}.corrected)
    (diff? %{y3} %{y3}.corrected)
@@ -30,8 +30,7 @@
   prelude.ml)
  (action
   (progn
-   (run ocaml-mdx test --prelude=prelude.ml --direction=to-md
-     --non-deterministic %{x})
+   (run ocaml-mdx test --prelude=prelude.ml --non-deterministic %{x})
    (diff? %{x} %{x}.corrected)
    (diff? %{y4} %{y4}.corrected)
    (diff? %{y3} %{y3}.corrected)

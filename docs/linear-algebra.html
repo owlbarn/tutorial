@@ -139,9 +139,11 @@ Mat.get x 0 3;;                (* get the value of the element at (0,3) *)
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">open Mat;;
 x.%{[|1;2|]} &lt;- 0.;;         (* set the element at (1,2) to 0. *);;
-&gt;- : unit = ()
+&gt;Line 1, characters 1-19:
+&gt;Error: Unbound value .%{}&lt;-
 let a = x.%{[|0;3|]};;       (* get the value of the element at (0,3) *);;
-&gt;val a : float = 0.181287028128281236
+&gt;Line 1, characters 9-21:
+&gt;Error: Unbound value .%{}
 </code></pre>
 </div>
 <p>The modifications to a matrix using <code>set</code> are in-place. This is always true for dense matrices. For sparse matrices, the thing can be complicated because of performance issues. I will discuss about sparse matrices separately in a separate post.</p>

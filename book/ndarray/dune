@@ -2,8 +2,7 @@
   (target dune.gen)
   (action
    (with-stdout-to %{target}
-    (run ocaml-mdx rule --direction=to-md %{dep:README.md}
-      --prelude=%{dep:prelude.ml}))))
+    (run ocaml-mdx rule --prelude=%{dep:prelude.ml} %{dep:README.md}))))
 
 (alias
  (name   runtest)

@@ -171,8 +171,8 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
 <pre><code class="language-ocaml">  open Arr;;
 
   let x = sequential [|10; 10; 10|];;
-  let a = x.%{ [|2; 3; 4|] };;         (* i.e. Arr.get *)
-  x.%{ [|2; 3; 4|] } &lt;- 111.;;         (* i.e. Arr.set *)</code></pre>
+  let a = x.%{2; 3; 4};;         (* i.e. Arr.get *)
+  x.%{2; 3; 4} &lt;- 111.;;         (* i.e. Arr.set *)</code></pre>
 </div>
 <p><strong>.${ }</strong> for basic slicing, as follows.</p>
 <div class="highlight">
@@ -180,9 +180,9 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
   open Arr;;
 
   let x = sequential [|10; 10; 10|] in
-  let a = x.${ [[0;4]; [6;-1]; [-1;0]] } in  (* i.e. Arr.get_slice *)
+  let a = x.${[0;4]; [6;-1]; [-1;0]} in  (* i.e. Arr.get_slice *)
   let b = zeros (shape a) in
-  x.${ [[0;4]; [6;-1]; [-1;0]] } &lt;- b;;     (* i.e. Arr.set_slice *)
+  x.${[0;4]; [6;-1]; [-1;0]} &lt;- b;;      (* i.e. Arr.set_slice *)
 </code></pre>
 </div>
 <p><strong>.!{ }</strong> for fancy slicing, as follows.</p>
@@ -191,9 +191,9 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
   open Arr;;
 
   let x = sequential [|10; 10; 10|] in
-  let a = x.!{ [ L[2;2;1]; R[6;-1]; I 5] } in  (* i.e. Arr.get_fancy *)
+  let a = x.!{L [2;2;1]; R [6;-1]; I 5} in  (* i.e. Arr.get_fancy *)
   let b = zeros (shape a) in
-  x.!{ [L[2;2;1]; R[6;-1]; I 5] } &lt;- b;;      (* i.e. Arr.set_fancy *)
+  x.!{L [2;2;1]; R [6;-1]; I 5} &lt;- b;;      (* i.e. Arr.set_fancy *)
 </code></pre>
 </div>
 </section>

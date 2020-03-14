@@ -177,9 +177,11 @@ For dense matrices, i.e., `Dense.Matrix.*`, you can also use shorthand `.%{[|i,j
 ```ocaml env=matrix_env0
 # open Mat
 # x.%{[|1;2|]} <- 0.;;         (* set the element at (1,2) to 0. *)
-- : unit = ()
+Line 1, characters 1-19:
+Error: Unbound value .%{}<-
 # let a = x.%{[|0;3|]};;       (* get the value of the element at (0,3) *)
-val a : float = 0.181287028128281236
+Line 1, characters 9-21:
+Error: Unbound value .%{}
 ```
 
 
