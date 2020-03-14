@@ -625,28 +625,114 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </section>
 <section class="level3" id="solving-ax-b">
 <h3>Solving Ax = b</h3>
-<p>We can now discuss the general solution to <span class="math inline">\(Ax=b\)</span>.</p>
-<p>Several theorems: There exist non-zero solutions to <span class="math inline">\(Ax=0\)</span> if and only if rank(A) &lt; column of A.</p>
-<p>Example</p>
-<p>Suppose A is mxn matrix, and b is mx1 matrix, then there exist solution if and only if r(A) = r([A, b]). If and only if r(A) also equals to n, there exist one solution.</p>
-<p><code>linsolve a b -&gt; x</code> solves a linear system of equations <code>a * x = b</code> in the following form. By default, <code>typ=n</code> and the function use LU factorisation with partial pivoting when <code>a</code> is square and QR factorisation with column pivoting otherwise. The number of rows of <code>a</code> must equal the number of rows of <code>b</code>. If <code>a</code> is a upper(lower) triangular matrix, the function calls the <code>solve_triangular</code> function.</p>
+<p>We can now discuss the general solution structure to <span class="math inline">\(Ax=0\)</span> and <span class="math inline">\(Ax=b\)</span>. Again, here <span class="math inline">\(A\)</span> is a <span class="math inline">\(m\times~n\)</span> matrix. The theorems declare that, there exists non-zeor solution(s) to <span class="math inline">\(Ax=0\)</span> if and only if <span class="math inline">\(\textrm{rank}(a) &lt;= n\)</span>. If <span class="math inline">\(r(A) &lt; n\)</span>, then the nullspace of <span class="math inline">\(A\)</span> is of dimension <span class="math inline">\(n - r\)</span> and the <span class="math inline">\(n-r\)</span> orthogonal basis can be found with <code>null</code> function. Here is an example.</p>
 <div class="highlight">
-<pre><code class="language-clike">val linsolve : ?trans:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4;;
+&gt;val a : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3
+&gt;R0  1  5 -1 -1
+&gt;R1  1 -2  1  3
+&gt;R2  3  8 -1  1
+&gt;R3  1 -9  3  7
+</code></pre>
 </div>
-<p>Example: only using the function does not work; you have to do some comparison of rank.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.rank a;;
+&gt;- : int = 2
+</code></pre>
+</div>
+<p>This a rank 2 matrix, so the nullspace contains 4 - 2 = 2 vectors:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.null a;;
+&gt;- : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0        C1
+&gt;R0 -0.851419 0.0136382
+&gt;R1  0.273706  0.143885
+&gt;R2 0.0762491  0.962526
+&gt;R3   0.44086 -0.229465
+</code></pre>
+</div>
+<p>These two vectors are called the <em>fundamental system of solutions</em> of <span class="math inline">\(Ax=0\)</span>. All the solutions of <span class="math inline">\(Ax=0\)</span> can then be expressed using the fundamental system:</p>
+<p><span class="math display">\[c_1\left[\begin{matrix}-0.85 \\ 0.27 \\ 0.07 \\0.44\end{matrix} \right] + c_2\left[\begin{matrix}0.013\\ 0.14 \\ 0.95 \\-0.23\end{matrix} \right]\]</span></p>
+<p>Here <span class="math inline">\(c_1\)</span> and <span class="math inline">\(c_2\)</span> can be any constant numbers.</p>
+<p>For solving the general form <span class="math inline">\(Ax=b\)</span> where b is <span class="math inline">\(m\times~1\)</span> vector, there exist only one solution if and only if <span class="math inline">\(\textrm{rank}(A) = \textrm{rank}([A, b]) = n\)</span>. Here <span class="math inline">\([A, b]\)</span> means concatenating <span class="math inline">\(A\)</span> and <span class="math inline">\(b\)</span> along the column. If <span class="math inline">\(\textrm{rank}(A) = \textrm{rank}([A, b]) &lt; n\)</span>, <span class="math inline">\(Ax=b\)</span> has infinite number of solutions. These solutions has a general form:</p>
+<p><span class="math display">\[x_0 + c_1x_1 + c2x2 + \ldots +c_kx_k\]</span></p>
+<p>Here <span class="math inline">\(x_0\)</span> is a particular solution to <span class="math inline">\(Ax=b\)</span>, and <span class="math inline">\(x_1, x_2, \ldots, x_k\)</span> are the fundamental solution system of <span class="math inline">\(Ax=0\)</span>.</p>
+<p>We can use <code>linsolve</code> function to find one particular solution. In the Linear Algebra, the function <code>linsolve a b -&gt; x</code> solves a linear system of equations <code>a * x = b</code>. By default, the function uses LU factorisation with partial pivoting when <code>a</code> is square and QR factorisation with column pivoting otherwise. The number of rows of <code>a</code> must be equal to the number of rows of <code>b</code>. If <code>a</code> is a upper or lower triangular matrix, the function calls the <code>solve_triangular</code> function.</p>
+<p>Here is an example.</p>
+<div class="highlight">
+<pre><code class="language-text"># let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3
+val a : Mat.mat =
+
+   C0 C1 C2
+R0  2  3  1
+R1  1 -2  4
+R2  3  8 -2
+R3  4 -1  9
+
+# let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1
+val b : Mat.mat =
+   C0
+R0  4
+R1 -5
+R2 13
+R3 -6
+
+# let x0 = Linalg.D.linsolve a b
+val x0 : Owl_dense_matrix_d.mat =
+   C0
+R0 -5
+R1  4
+R2  2
+</code></pre>
+</div>
+<p>Then we use <code>null</code> to find the fundamental solution system. You can verify that matrix <code>a</code> is of rank 2, so that the solution system for <span class="math inline">\(ax=0\)</span> should contain only 3 - 2 = 1 vector.</p>
+<div class="highlight">
+<pre><code class="language-text"># let x1 = Linalg.D.null a
+val x1 : Owl_dense_matrix_d.mat =
+
+          C0
+R0 -0.816497
+R1  0.408248
+R2  0.408248
+</code></pre>
+</div>
+<p>So the solutions to <span class="math inline">\(Ax=b\)</span> can be expressed as:</p>
+<p><span class="math display">\[\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]\]</span></p>
+<p>So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. Blindly using them could leads to wrong or misleading answers.</p>
 </section>
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
-<p>For a square matrix. the definition of <em>determinants</em>:</p>
-<p>EQUATION</p>
-<p>There are many techniques to simplify this calculation. But we use the <code>det</code> function here to calculate the determinants of a matrix.</p>
-<p>There is a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
-<p>Why is this concept important? We use the determinant to calculate the solution to Ax=b.</p>
-<p>Cramer’s rule.</p>
-<p>Example: using <code>solve</code> and <code>det</code> to solve a Ax=b.</p>
-<p>Another important application is to use determinant to decide if a square matrix A is invertible/singular. A is invertible if and only if <span class="math inline">\(|A|\)</span> does not equal to 0.</p>
-<p>This theorem is widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
+<p>Other than pivots, another basic quantity in linear algebra is the <em>determinants</em>. For a square matrix A:</p>
+<p><span class="math display">\[\left[\begin{matrix}a_{11} &amp; a_{12} &amp; \ldots &amp; a_{1n} \\ a_{21} &amp; a_{22} &amp; \ldots &amp; a_{2n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ a_{n1} &amp; a_{n2} &amp; \ldots &amp; a_{nn} \end{matrix} \right]\]</span></p>
+<p>its determinants <code>det(A)</code> is defined as:</p>
+<p><span class="math display">\[\sum_{j_1~j_2~\ldots~j_n}(-1)^{\tau(j_1~j_2~\ldots~j_3)}a_{1{j_1}}a_{2j_2}\ldots~a_{nj_n}.\]</span></p>
+<p>Here <span class="math inline">\(\tau(j_1~j_2~\ldots~j_n) = i_1 + i_2 + \ldots + i_{n-1}\)</span>, where <span class="math inline">\(i_k\)</span> is the number of <span class="math inline">\(j_p\)</span> that is smaller than <span class="math inline">\(j_k\)</span> for <span class="math inline">\(p \in [k+1, n]\)</span>.</p>
+<p>Mathematically, there are many techniques that can be used to simplify this calculation. But as far as this book is concerned, it is sufficient for us to use the <code>det</code> function to calculate the determinants of a matrix.</p>
+<p>Why is the concept of determinant important? Its most important application is to using determinant to decide if a square matrix A is invertible or singular. The determinant <span class="math inline">\(\textrm{det}(A) \neq 0\)</span> if and only if <span class="math inline">\(\textrm{A} = n\)</span>. Also it can be expressed as <span class="math inline">\(\textrm{det}(A) \neq 0\)</span> if and only if matrix A is invertible.</p>
+<p>We can also use it to understand the solution of <span class="math inline">\(Ax=b\)</span>: if <span class="math inline">\(\textrm{det}(A) \neq 0\)</span>, then <span class="math inline">\(Ax=b\)</span> has one and only one solution. This theorem is part of the <em>Cramer’s rule</em>. These properties are widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
+<p>Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
+<div class="highlight">
+<pre><code class="language-text"># let x = Mat.magic 5
+val x : Mat.mat =
+
+   C0 C1 C2 C3 C4
+R0 17 24  1  8 15
+R1 23  5  7 14 16
+R2  4  6 13 20 22
+R3 10 12 19 21  3
+R4 11 18 25  2  9
+
+# Linalg.D.det x
+- : float = 5070000.
+
+# Linalg.D.logdet x
+- : float = 15.4388513755673671
+</code></pre>
+</div>
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
