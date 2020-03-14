@@ -1002,35 +1002,73 @@ R4 11 18 25  2  9
 
 ## Eigenvalues and Eigenvectors
 
-Now we change from $Ax=b$ to $Ax=\lambda~x$.
+Now we need to change the topic from $Ax=b$ to $Ax=\lambda~x$.
+For an $n\times~n$ square matrix, if there exist number $\lambda$ and non-zero column vector $x$ to satisfy: 
 
-We use ODE system as an example. (Following the Textbook)
+$(\lambda~I - A)x = 0,$ {#eq:linear-algebra:eigen}
 
-It can be written as:
+then $\lambda$ is called *eigenvalue*, and $x$ is called the *eigenvector* of $A$.
 
-$(A - \lambda~I)x = 0$
+To find the eigenvalues of A, we need to find the roots of the determinant of $\lambda~I - A$.
+$\textrm{det}(lambda~I - A) = 0$ is called the *characteristic equation*.
+For example, for 
 
-If there exist number $\lambda$ and non-zero column vector $x$ to satisfy this equation, then $\lambda$ is called *eigenvalue*, and $x$ is called the *eigenvector* of this matrix A.
+$$A = \left[\begin{matrix}3 & 1 & 0 \\ -4 & -1 & 0 \\ 4 & -8 & 2 \end{matrix} \right]$$
 
-Continue the previous example to solve it manually.
+Its characteristic matrix $\lambda~I - A$ is:
 
-According to the theory of polynomials, equation xx has and only has n roots in the complex space. 
+$$\left[\begin{matrix}\lambda-3 & 1 & 0 \\ -4 & \lambda+1 & 0 \\ 4 & -8 & \lambda-2 \end{matrix} \right]$$
 
-And we have function `eig` and `eigbvals` to do that:
+According to the definition of determinant, 
 
+$$\textrm{det}(\lambda~I - A) = (\lambda-1)^2(\lambda-2) = 0.$$
 
-CODE: using these functions to repeat the previous example.
-```text
+According to the theory of polynomials, this characteristic polynomials has and only has $n$ roots in the complex space.
+Specifically, here we have three eigenvalues: $\lambda_1=1, \lambda_2 = 1, \lambda=2$. 
 
-  val eig : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t * ('a, 'b) t
-  (* right eigenvectors and eigenvalues of an arbitrary square matrix *)
+Put $\lambda_1$ back to characteristic equation, we have: $(I - A)x = 0$. Therefore, we can find the fundamental solution system of $I - A$ with:
 
-  val eigvals : ?permute:bool -> ?scale:bool -> otyp:('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
-  (* only computes the eigenvalues of an arbitrary square matrix *)
+```ocaml
+# let basis =
+    let ia = Mat.((eye 3) - (of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3)) in
+    Linalg.D.null ia 
+val basis : Owl_dense_matrix_d.mat =
+
+           C0
+R0 -0.0496904
+R1  0.0993808
+R2   0.993808
+
 ```
 
-Once we get the eigenvalue, we can return to the solution to ODE:
-A linear combination.
+We have a fundamental solution $x_0 = [-0.05, 0.1, 1]^T$. Therefore all the $k_0x_0$ are the corresponding eigenvector of the eigenvalue $1$.
+Similarly, we can calculate that eigenvectors for the eigenvalue $2$ are $k_1[0, 0, 1]^T$.
+
+We can use `eig` to find the eigenvectors and eigenvalues of a matrix.
+`eig x -> v, w` computes the right eigenvectors `v` and eigenvalues `w` of an arbitrary square matrix `x`. The eigenvectors are column vectors in `v`, their corresponding eigenvalues have the same order in `w` as that in `v`. 
+
+```ocaml
+# let eigvec, eigval = 
+    let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in 
+    Linalg.D.eig a
+val eigvec : Owl_dense_matrix_z.mat =
+
+        C0               C1               C2
+R0 (0, 0i)  (0.0496904, 0i)  (0.0496904, 0i)
+R1 (0, 0i) (-0.0993808, 0i) (-0.0993808, 0i)
+R2 (1, 0i)  (-0.993808, 0i)  (-0.993808, 0i)
+
+val eigval : Owl_dense_matrix_z.mat =
+
+        C0      C1      C2
+R0 (2, 0i) (1, 0i) (1, 0i)
+
+```
+
+Note that the result are expressed as complex numbers.
+If we only want the eigenvalues, we can use the `eigvals` function.
+TODO: Explain the `permute` and `scale` parameters.
+QUESTION: what if the nullspace is more than one dimension? what would be the resulting eigenvalue matrix look like?
 
 ### Diagonalisation
 

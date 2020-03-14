@@ -736,24 +736,51 @@ R4 11 18 25  2  9
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
-<p>Now we change from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>.</p>
-<p>We use ODE system as an example. (Following the Textbook)</p>
-<p>It can be written as:</p>
-<p><span class="math inline">\((A - \lambda~I)x = 0\)</span></p>
-<p>If there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy this equation, then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of this matrix A.</p>
-<p>Continue the previous example to solve it manually.</p>
-<p>According to the theory of polynomials, equation xx has and only has n roots in the complex space.</p>
-<p>And we have function <code>eig</code> and <code>eigbvals</code> to do that:</p>
-CODE: using these functions to repeat the previous example.
+<p>Now we need to change the topic from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>. For an <span class="math inline">\(n\times~n\)</span> square matrix, if there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy:</p>
+<p><span class="math inline">\((\lambda~I - A)x = 0,\)</span> {#eq:linear-algebra:eigen}</p>
+<p>then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of <span class="math inline">\(A\)</span>.</p>
+<p>To find the eigenvalues of A, we need to find the roots of the determinant of <span class="math inline">\(\lambda~I - A\)</span>. <span class="math inline">\(\textrm{det}(lambda~I - A) = 0\)</span> is called the <em>characteristic equation</em>. For example, for</p>
+<p><span class="math display">\[A = \left[\begin{matrix}3 &amp; 1 &amp; 0 \\ -4 &amp; -1 &amp; 0 \\ 4 &amp; -8 &amp; 2 \end{matrix} \right]\]</span></p>
+<p>Its characteristic matrix <span class="math inline">\(\lambda~I - A\)</span> is:</p>
+<p><span class="math display">\[\left[\begin{matrix}\lambda-3 &amp; 1 &amp; 0 \\ -4 &amp; \lambda+1 &amp; 0 \\ 4 &amp; -8 &amp; \lambda-2 \end{matrix} \right]\]</span></p>
+<p>According to the definition of determinant,</p>
+<p><span class="math display">\[\textrm{det}(\lambda~I - A) = (\lambda-1)^2(\lambda-2) = 0.\]</span></p>
+<p>According to the theory of polynomials, this characteristic polynomials has and only has <span class="math inline">\(n\)</span> roots in the complex space. Specifically, here we have three eigenvalues: <span class="math inline">\(\lambda_1=1, \lambda_2 = 1, \lambda=2\)</span>.</p>
+<p>Put <span class="math inline">\(\lambda_1\)</span> back to characteristic equation, we have: <span class="math inline">\((I - A)x = 0\)</span>. Therefore, we can find the fundamental solution system of <span class="math inline">\(I - A\)</span> with:</p>
 <div class="highlight">
-<pre><code class="language-text">
-  val eig : ?permute:bool -&gt; ?scale:bool -&gt; otyp:('a, 'b) kind -&gt; ('c, 'd) t -&gt; ('a, 'b) t * ('a, 'b) t
-  (* right eigenvectors and eigenvalues of an arbitrary square matrix *)
-
-  val eigvals : ?permute:bool -&gt; ?scale:bool -&gt; otyp:('a, 'b) kind -&gt; ('c, 'd) t -&gt; ('a, 'b) t
-  (* only computes the eigenvalues of an arbitrary square matrix *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let basis =
+  let ia = Mat.((eye 3) - (of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3)) in
+  Linalg.D.null ia 
+;;
+&gt;val basis : Owl_dense_matrix_d.mat =
+&gt;
+&gt;           C0
+&gt;R0 -0.0496904
+&gt;R1  0.0993808
+&gt;R2   0.993808
+</code></pre>
 </div>
-<p>Once we get the eigenvalue, we can return to the solution to ODE: A linear combination.</p>
+<p>We have a fundamental solution <span class="math inline">\(x_0 = [-0.05, 0.1, 1]^T\)</span>. Therefore all the <span class="math inline">\(k_0x_0\)</span> are the corresponding eigenvector of the eigenvalue <span class="math inline">\(1\)</span>. Similarly, we can calculate that eigenvectors for the eigenvalue <span class="math inline">\(2\)</span> are <span class="math inline">\(k_1[0, 0, 1]^T\)</span>.</p>
+<p>We can use <code>eig</code> to find the eigenvectors and eigenvalues of a matrix. <code>eig x -&gt; v, w</code> computes the right eigenvectors <code>v</code> and eigenvalues <code>w</code> of an arbitrary square matrix <code>x</code>. The eigenvectors are column vectors in <code>v</code>, their corresponding eigenvalues have the same order in <code>w</code> as that in <code>v</code>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let eigvec, eigval = 
+  let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in 
+  Linalg.D.eig a
+;;
+&gt;val eigvec : Owl_dense_matrix_z.mat =
+&gt;
+&gt;        C0               C1               C2
+&gt;R0 (0, 0i)  (0.0496904, 0i)  (0.0496904, 0i)
+&gt;R1 (0, 0i) (-0.0993808, 0i) (-0.0993808, 0i)
+&gt;R2 (1, 0i)  (-0.993808, 0i)  (-0.993808, 0i)
+&gt;
+&gt;val eigval : Owl_dense_matrix_z.mat =
+&gt;
+&gt;        C0      C1      C2
+&gt;R0 (2, 0i) (1, 0i) (1, 0i)
+</code></pre>
+</div>
+<p>Note that the result are expressed as complex numbers. If we only want the eigenvalues, we can use the <code>eigvals</code> function. TODO: Explain the <code>permute</code> and <code>scale</code> parameters. QUESTION: what if the nullspace is more than one dimension? what would be the resulting eigenvalue matrix look like?</p>
 <section class="level3" id="diagonalisation">
 <h3>Diagonalisation</h3>
 <p>Diagonal matrix is the easiest to deal with. Several properties….</p>
