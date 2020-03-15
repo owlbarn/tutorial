@@ -1004,7 +1004,7 @@ R4 11 18 25  2  9
 
 ## Eigenvalues and Eigenvectors
 
-### Solving Ax=$\lambda~x$
+### Solving $Ax=\lambda~x$
 
 Now we need to change the topic from $Ax=b$ to $Ax=\lambda~x$.
 For an $n\times~n$ square matrix, if there exist number $\lambda$ and non-zero column vector $x$ to satisfy: 
@@ -1186,7 +1186,8 @@ R1 (7.97973E-17, -5.81132E-17i)                     (1, 0i)
 ```
 
 Another very important similar transformation is *diagonalisation*.
-Suppose A has $n$ linear-independent eigenvectors, and make them the columns of a matrix S, then $S^{-1}AS$ is a diagonal matrix $\Lambda$, and the eigenvalues of A are the diagonal elements of $\Lambda$.
+Suppose A has $n$ linear-independent eigenvectors, and make them the columns of a matrix Q, then $Q^{-1}AQ$ is a diagonal matrix $\Lambda$, and the eigenvalues of A are the diagonal elements of $\Lambda$.
+It's inverse $A = Q\Lambda~Q^{-1}$ is called *Eigendecomposition*.
 Analysing A's diagonal similar matrix $\Lambda$ instead of A itself can greatly simplify the problem.
 
 TODO: Give an example
@@ -1270,53 +1271,85 @@ A theorem declares that this system is stable if and only if there exists positi
 The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era.
 The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist. 
 
-Definition of SVD
+Any m by n matrix can be factorised in the form:
+
+$$A=U\Sigma~V^T$$ {#eq:linear-algebra:svg}
+
+Here $U$ is is a $m\times~m$ matrix. Its columns are the eigenvectors of $AA^T$.
+Similarly, $V$ is a $n\times~n$ matrix, and the columns of V are eigenvectors of $A^TA$.
+The $r$ (rank of A) singular value on the diagonal of the $m\times~n$ diagonal matrix $\Sigma$ are the square roots of the nonzero eigenvalues of both $AA^T$ and $A^TA$.
 
 It's close related with eigenvector factorisation of a positive definite matrix.
-Detail.
+For a positive definite matrix, the SVD factorisation is the same as the $Q\Lambda~Q^T$.
 
-What we provide:
+We can use the `svd` function to perform this factorisation. 
+Let's use the positive definite matrix as an example:
 
-```text
-  val svd : ?thin:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* singular value decomposition *)
+```ocaml env=linear-algebra:svd
+# let u, s, vt = Linalg.D.svd ~thin:false a
+Line 1, characters 41-42:
+Error: Unbound value a
+```
+Note that the diagonal matrix `s` is represented as a vector. We can extend it with 
 
-  val svdvals : ('a, 'b) t -> ('a, 'b) t
-  (* only singular values of SVD *)
+```ocaml env=linear-algebra:svd
+# let s = Mat.diagm s;;
+Line 1, characters 19-20:
+Error: Unbound value s
+```
+However, it is only possible when we know that the original diagonal matrix is square, otherwise the vector contains the $min(m, n)$ diagonal elements.
 
-  val gsvd : ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* generalised singular value decomposition *)
+Also, we can find to the eigenvectors of $AA^T$ to verify that it equals to the eigenvector factorisation.
 
-  val gsvdvals : ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
-  (* only singular values of generalised SVD *)
-
+```ocaml env=linear-algebra:svd
+# Linalg.D.eig Mat.(dot a (transpose a));;
+Line 1, characters 23-24:
+Error: Unbound value a
 ```
 
-The following code performs an SVD on a random matrix then check the equality.
+In this example we ues the `thin` parameter. By default, the `svd` function performs a reduced SVD, where $\Sigma$ is a $m\times~m$ matrix and $V^T$ is a m by n matrix. 
+
+Besides, `svd`, we also provide `svdvals` that only returns the singular values, i.e. the vector of diagonal elements.
+The function `gsvd` performs a generalised SVD.
+`gsvd x y -> (u, v, q, d1, d2, r)` computes the generalised SVD of a pair of general rectangular matrices `x` and `y`. 
+`d1` and `d2` contain the generalised singular value pairs of `x` and `y`. 
+The shape of `x` is `m x n` and the shape of `y` is `p x n`.
+Here is an example:
 
 ```ocaml
-  let x = Mat.uniform 8 16;;        (* generate a random matrix *)
-  let u, s, vt = Linalg.D.svd x;;   (* perform lq decomposition *)
-  let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
-  Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)
+# let x = Mat.uniform 5 5
+val x : Mat.mat =
+
+         C0        C1       C2       C3        C4
+R0 0.900301  0.154137 0.452934 0.423255 0.0873687
+R1 0.817824  0.772189  0.24995 0.244619  0.568455
+R2 0.661323 0.0172379 0.651574 0.831749  0.274984
+R3 0.546606  0.371411 0.107722 0.924669  0.738229
+R4 0.522823  0.947986 0.422808 0.430496  0.780445
+
+# let y = Mat.uniform 2 5
+val y : Mat.mat =
+
+         C0        C1        C2       C3        C4
+R0 0.128296 0.0733217 0.0247809 0.332252 0.0247503
+R1 0.843698  0.814176  0.305393 0.963492  0.527674
+
+# let u, v, q, d1, d2, r = Linalg.gsvd x y
+Line 1, characters 26-37:
+Error: Unbound value Linalg.gsvd
+# Mat.(u *@ d1 *@ r *@ transpose q =~ x)
+Line 1, characters 6-7:
+Error: Unbound value u
+# Mat.(v *@ d2 *@ r *@ transpose q =~ y)
+Line 1, characters 6-7:
+Error: Unbound value v
 ```
 
+TODO: The intuition of SVD.
 
-The intuition of SVD.
-
-Applications.
-Many applications; ....
-
-The Moore-Penrose inverse is a direct application of the SVD.
-```
-val pinv : ?tol:float -> ('a, 'b) t -> ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)
-```
-
-It is also related to the least square.
-
-
-We will also come back to SVD in NLP.
+The SVD is not only important linear algebra concept, but also has a wide and growing applications.
+For example, the [Moore-Penrose pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse) that works for non-invertible matrix can be implemented efficiently using SVD (we provide `pinv` function in the linear algebra module for the pseudo inverse).
+In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.
 
 
 ## Matrix Norm and Condition Number 

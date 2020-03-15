@@ -739,7 +739,7 @@ R4 11 18 25  2  9
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
 <section class="level3" id="solving-axlambdax">
-<h3>Solving Ax=<span class="math inline">\(\lambda~x\)</span></h3>
+<h3>Solving <span class="math inline">\(Ax=\lambda~x\)</span></h3>
 <p>Now we need to change the topic from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>. For an <span class="math inline">\(n\times~n\)</span> square matrix, if there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy:</p>
 <p><span id="eq:linear-algebra:eigen"><span class="math display">\[(\lambda~I - A)x = 0,\qquad(5)\]</span></span></p>
 <p>then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of <span class="math inline">\(A\)</span>.</p>
@@ -867,7 +867,7 @@ R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)</code></pre>
 &gt;R1 (7.97973E-17, -5.81132E-17i)                     (1, 0i)
 </code></pre>
 </div>
-<p>Another very important similar transformation is <em>diagonalisation</em>. Suppose A has <span class="math inline">\(n\)</span> linear-independent eigenvectors, and make them the columns of a matrix S, then <span class="math inline">\(S^{-1}AS\)</span> is a diagonal matrix <span class="math inline">\(\Lambda\)</span>, and the eigenvalues of A are the diagonal elements of <span class="math inline">\(\Lambda\)</span>. Analysing A’s diagonal similar matrix <span class="math inline">\(\Lambda\)</span> instead of A itself can greatly simplify the problem.</p>
+<p>Another very important similar transformation is <em>diagonalisation</em>. Suppose A has <span class="math inline">\(n\)</span> linear-independent eigenvectors, and make them the columns of a matrix Q, then <span class="math inline">\(Q^{-1}AQ\)</span> is a diagonal matrix <span class="math inline">\(\Lambda\)</span>, and the eigenvalues of A are the diagonal elements of <span class="math inline">\(\Lambda\)</span>. It’s inverse <span class="math inline">\(A = Q\Lambda~Q^{-1}\)</span> is called <em>Eigendecomposition</em>. Analysing A’s diagonal similar matrix <span class="math inline">\(\Lambda\)</span> instead of A itself can greatly simplify the problem.</p>
 <p>TODO: Give an example</p>
 <p>Not every matrix can be diagonalised. If any two of the <span class="math inline">\(n\)</span> eigenvalues of A are not the same, then its <span class="math inline">\(n\)</span> eigenvectors are linear-independent ana thus A can be diagonalised. Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix. Or put into the complex space, every hermitian matrix can be diagonalised by a unitary matrix.</p>
 </section>
@@ -928,39 +928,63 @@ R2 -16 -43  98
 <section class="level3" id="singular-value-decomposition">
 <h3>Singular Value Decomposition</h3>
 <p>The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era. The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.</p>
-<p>Definition of SVD</p>
-<p>It’s close related with eigenvector factorisation of a positive definite matrix. Detail.</p>
-<p>What we provide:</p>
+<p>Any m by n matrix can be factorised in the form:</p>
+<p><span id="eq:linear-algebra:svg"><span class="math display">\[A=U\Sigma~V^T\qquad(6)\]</span></span></p>
+<p>Here <span class="math inline">\(U\)</span> is is a <span class="math inline">\(m\times~m\)</span> matrix. Its columns are the eigenvectors of <span class="math inline">\(AA^T\)</span>. Similarly, <span class="math inline">\(V\)</span> is a <span class="math inline">\(n\times~n\)</span> matrix, and the columns of V are eigenvectors of <span class="math inline">\(A^TA\)</span>. The <span class="math inline">\(r\)</span> (rank of A) singular value on the diagonal of the <span class="math inline">\(m\times~n\)</span> diagonal matrix <span class="math inline">\(\Sigma\)</span> are the square roots of the nonzero eigenvalues of both <span class="math inline">\(AA^T\)</span> and <span class="math inline">\(A^TA\)</span>.</p>
+<p>It’s close related with eigenvector factorisation of a positive definite matrix. For a positive definite matrix, the SVD factorisation is the same as the <span class="math inline">\(Q\Lambda~Q^T\)</span>.</p>
+<p>We can use the <code>svd</code> function to perform this factorisation. Let’s use the positive definite matrix as an example:</p>
 <div class="highlight">
-<pre><code class="language-text">  val svd : ?thin:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* singular value decomposition *)
-
-  val svdvals : ('a, 'b) t -&gt; ('a, 'b) t
-  (* only singular values of SVD *)
-
-  val gsvd : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t * ('a, 'b) t
-  (* generalised singular value decomposition *)
-
-  val gsvdvals : ('a, 'b) t -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* only singular values of generalised SVD *)
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let u, s, vt = Linalg.D.svd ~thin:false a;;
+&gt;Line 1, characters 41-42:
+&gt;Error: Unbound value a
 </code></pre>
 </div>
-<p>The following code performs an SVD on a random matrix then check the equality.</p>
+<p>Note that the diagonal matrix <code>s</code> is represented as a vector. We can extend it with</p>
 <div class="highlight">
-<pre><code class="language-ocaml">  let x = Mat.uniform 8 16;;        (* generate a random matrix *)
-  let u, s, vt = Linalg.D.svd x;;   (* perform lq decomposition *)
-  let s = Mat.diagm s;;             (* exapand to diagonal matrix *)
-  Mat.(u *@ s *@ vt =~ x);;         (* check the approx equality *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let s = Mat.diagm s;;;;
+&gt;Line 1, characters 19-20:
+&gt;Error: Unbound value s
+</code></pre>
 </div>
-<p>The intuition of SVD.</p>
-<p>Applications. Many applications; ….</p>
-The Moore-Penrose inverse is a direct application of the SVD.
+<p>However, it is only possible when we know that the original diagonal matrix is square, otherwise the vector contains the <span class="math inline">\(min(m, n)\)</span> diagonal elements.</p>
+<p>Also, we can find to the eigenvectors of <span class="math inline">\(AA^T\)</span> to verify that it equals to the eigenvector factorisation.</p>
 <div class="highlight">
-<pre><code class="language-clike">val pinv : ?tol:float -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* Moore-Penrose pseudo-inverse of a matrix *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.eig Mat.(dot a (transpose a));;;;
+&gt;Line 1, characters 23-24:
+&gt;Error: Unbound value a
+</code></pre>
 </div>
-<p>It is also related to the least square.</p>
-<p>We will also come back to SVD in NLP.</p>
+<p>In this example we ues the <code>thin</code> parameter. By default, the <code>svd</code> function performs a reduced SVD, where <span class="math inline">\(\Sigma\)</span> is a <span class="math inline">\(m\times~m\)</span> matrix and <span class="math inline">\(V^T\)</span> is a m by n matrix.</p>
+<p>Besides, <code>svd</code>, we also provide <code>svdvals</code> that only returns the singular values, i.e.&nbsp;the vector of diagonal elements. The function <code>gsvd</code> performs a generalised SVD. <code>gsvd x y -&gt; (u, v, q, d1, d2, r)</code> computes the generalised SVD of a pair of general rectangular matrices <code>x</code> and <code>y</code>. <code>d1</code> and <code>d2</code> contain the generalised singular value pairs of <code>x</code> and <code>y</code>. The shape of <code>x</code> is <code>m x n</code> and the shape of <code>y</code> is <code>p x n</code>. Here is an example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.uniform 5 5;;
+&gt;val x : Mat.mat =
+&gt;
+&gt;         C0        C1       C2       C3        C4
+&gt;R0 0.900301  0.154137 0.452934 0.423255 0.0873687
+&gt;R1 0.817824  0.772189  0.24995 0.244619  0.568455
+&gt;R2 0.661323 0.0172379 0.651574 0.831749  0.274984
+&gt;R3 0.546606  0.371411 0.107722 0.924669  0.738229
+&gt;R4 0.522823  0.947986 0.422808 0.430496  0.780445
+let y = Mat.uniform 2 5;;
+&gt;val y : Mat.mat =
+&gt;
+&gt;         C0        C1        C2       C3        C4
+&gt;R0 0.128296 0.0733217 0.0247809 0.332252 0.0247503
+&gt;R1 0.843698  0.814176  0.305393 0.963492  0.527674
+let u, v, q, d1, d2, r = Linalg.gsvd x y;;
+&gt;Line 1, characters 26-37:
+&gt;Error: Unbound value Linalg.gsvd
+Mat.(u *@ d1 *@ r *@ transpose q =~ x);;
+&gt;Line 1, characters 6-7:
+&gt;Error: Unbound value u
+Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
+&gt;Line 1, characters 6-7:
+&gt;Error: Unbound value v
+</code></pre>
+</div>
+<p>TODO: The intuition of SVD.</p>
+<p>The SVD is not only important linear algebra concept, but also has a wide and growing applications. For example, the <a href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">Moore-Penrose pseudo-inverse</a> that works for non-invertible matrix can be implemented efficiently using SVD (we provide <code>pinv</code> function in the linear algebra module for the pseudo inverse). In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.</p>
 </section>
 </section>
 <section class="level2" id="matrix-norm-and-condition-number">
