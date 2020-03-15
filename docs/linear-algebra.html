@@ -738,10 +738,12 @@ R4 11 18 25  2  9
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
+<section class="level3" id="definition">
+<h3>Definition</h3>
 <p>Now we need to change the topic from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>. For an <span class="math inline">\(n\times~n\)</span> square matrix, if there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy:</p>
-<p><span class="math inline">\((\lambda~I - A)x = 0,\)</span> {#eq:linear-algebra:eigen}</p>
+<p><span id="eq:linear-algebra:eigen"><span class="math display">\[(\lambda~I - A)x = 0,\qquad(5)\]</span></span></p>
 <p>then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of <span class="math inline">\(A\)</span>.</p>
-<p>To find the eigenvalues of A, we need to find the roots of the determinant of <span class="math inline">\(\lambda~I - A\)</span>. <span class="math inline">\(\textrm{det}(lambda~I - A) = 0\)</span> is called the <em>characteristic equation</em>. For example, for</p>
+<p>To find the eigenvalues of A, we need to find the roots of the determinant of <span class="math inline">\(\lambda~I - A\)</span>. <span class="math inline">\(\textrm{det}(\lambda~I - A) = 0\)</span> is called the <em>characteristic equation</em>. For example, for</p>
 <p><span class="math display">\[A = \left[\begin{matrix}3 &amp; 1 &amp; 0 \\ -4 &amp; -1 &amp; 0 \\ 4 &amp; -8 &amp; 2 \end{matrix} \right]\]</span></p>
 <p>Its characteristic matrix <span class="math inline">\(\lambda~I - A\)</span> is:</p>
 <p><span class="math display">\[\left[\begin{matrix}\lambda-3 &amp; 1 &amp; 0 \\ -4 &amp; \lambda+1 &amp; 0 \\ 4 &amp; -8 &amp; \lambda-2 \end{matrix} \right]\]</span></p>
@@ -783,34 +785,91 @@ R4 11 18 25  2  9
 </code></pre>
 </div>
 <p>Note that the result are expressed as complex numbers. If we only want the eigenvalues, we can use the <code>eigvals</code> function. TODO: Explain the <code>permute</code> and <code>scale</code> parameters. QUESTION: what if the nullspace is more than one dimension? what would be the resulting eigenvalue matrix look like?</p>
-<section class="level3" id="diagonalisation">
-<h3>Diagonalisation</h3>
-<p>Diagonal matrix is the easiest to deal with. Several properties….</p>
-<p>Diagonalisation</p>
-<p>Use one example to demonstrate how to solve the ODE system with diagonalisation.</p>
-<p>That leads to a brief discussion of stability with eigenvalues. Explain the intuition why Eigenvalue is important in different fields.</p>
+<p>One reason that eigenvalue and eigenvector are important is that the pattern <span class="math inline">\(Ax=\lambda~x\)</span> frequently appears in scientific and engineering analysis to describe the change of dynamic system over time. TODO: more detail and perhaps example.</p>
 </section>
 <section class="level3" id="complex-matrices">
 <h3>Complex Matrices</h3>
-<p>Eigenvalue and vector in the complex space.</p>
-<p>Hermitian: extend the transpose to complex space. Matrix that equal their conjugate transpose.</p>
+<p>As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors. In this section we re-introduce some previous concepts in the complex space.</p>
+<p>We have seen the Symmetric Matrix. It can be extended to the complex numbers, called <em>Hermitian Matrix</em>, denoted by <span class="math inline">\(A^H\)</span>. Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose. A conjugate transpose means that during transposing, each element <span class="math inline">\(a+bi\)</span> changes to its conjugate <span class="math inline">\(a-bi\)</span>. Hermitian is thus a generalisation of the symmetric matrix. We can use the <code>is_hermitian</code> function to check if a matrix is hermitian, as can be shown in the next example.</p>
 <div class="highlight">
-<pre><code class="language-clike">  val is_hermitian : ('a, 'b) t -&gt; bool
-  (* check if a matrix is hermitian *)</code></pre>
+<pre><code class="language-text"># let a = Dense.Matrix.Z.of_array 
+      [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 
+val a : Dense.Matrix.Z.mat =
+
+        C0       C1
+R0 (1, 0i) (2, -1i)
+R1 (2, 1i)  (3, 0i)
+
+# Linalg.Generic.is_hermitian a
+- : bool = true</code></pre>
 </div>
-<p>Definition of Unitary matrices: <span class="math inline">\(UU^H=I\)</span></p>
-<p>Example of using eig on complex matrices.</p>
+<p>We can use the <code>conj</code> function of a complex matrix to perform the conjugate transpose:</p>
+<div class="highlight">
+<pre><code class="language-text"># Dense.Matrix.Z.(conj a |&gt; transpose)
+- : Dense.Matrix.Z.mat =
+
+         C0       C1
+R0 (1, -0i) (2, -1i)
+R1  (2, 1i) (3, -0i)</code></pre>
+</div>
+<p>A theorem declares that if a matrix is hermitian, then for all complex vectors <span class="math inline">\(x\)</span>, <span class="math inline">\(x^HAx\)</span> is real, and every eigenvalue is real.</p>
+<div class="highlight">
+<pre><code class="language-text"># Linalg.Z.eigvals a
+- : Owl_linalg_z.mat =
+
+                         C0                      C1
+R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)</code></pre>
+</div>
+<p>A related concept is the <em>Unitary Matrix</em>. A matrix <span class="math inline">\(U\)</span> is unitary if <span class="math inline">\(U^HU=I\)</span>. The inverse and conjugate transpose of <span class="math inline">\(U\)</span> are the same. It can be compared to the orthogonal vectors in the real space.</p>
 </section>
-<section class="level3" id="similarity-transformation">
-<h3>Similarity Transformation</h3>
-<p>Definition: Similar matrix. The point is to make clear its intuition: change basis, linear transformation. And transforming to diagonal is the easiest.</p>
-<p>A property: if <span class="math inline">\(A = A^H\)</span>, every eigenvalue is real. And that a real symmetric matrix can be factored into <span class="math inline">\(A=Q\lambda~Q^T\)</span>.</p>
+<section class="level3" id="similarity-transformation-and-diagonalisation">
+<h3>Similarity Transformation and Diagonalisation</h3>
+<p>For a <span class="math inline">\(nxn\)</span> matrix A, and any invertible <span class="math inline">\(nxn\)</span> matrix M, the matrix <span class="math inline">\(B = M^{-1}AM\)</span> is <em>similar</em> to A. One important property is that similar matrices share the same eigenvalues. Changing from A to B actually changes the linear transformation using one set of basis to another.</p>
+<p>TODO: more thorough explanation of the intuition of similar matrices.</p>
+<p>In a three dimensional space, if we can change using three random vectors as the basis of linear transformation to using the standard basis <span class="math inline">\([1, 0, 0]\)</span>, <span class="math inline">\([0, 1, 0]\)</span>, <span class="math inline">\([0, 0, 1]\)</span>, the related problem can be greatly simplified. Finding the suitable similar matrix is thus important in simplifying the calculation in many scientific and engineering problems.</p>
+<p>One possible kind of simplification is to find a triangular matrix as similar. The <em>Schur’s Lemma</em> declares that A can be decomposed into <span class="math inline">\(UTU^{-1}\)</span> where <span class="math inline">\(U\)</span> is a unitary function, and T is an upper triangular matrix.</p>
 <div class="highlight">
-<pre><code class="language-clike">  val schur : otyp:('c, 'd) kind -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * ('c, 'd) t
-  (* Schur factorisation *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2 ;;
+&gt;val a : Dense.Matrix.Z.mat =
+&gt;
+&gt;         C0      C1
+&gt;R0  (1, 0i) (1, 0i)
+&gt;R1 (-2, 0i) (3, 0i)
+</code></pre>
 </div>
-<p>Example. If possible, shows how similar matrix simplify the problem.</p>
-<p>Jordan form: very brief explain.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let t, u, eigvals = Linalg.Z.schur a;;
+&gt;val t : Owl_dense_matrix_z.mat =
+&gt;
+&gt;        C0                    C1
+&gt;R0 (2, 1i) (2.10381, -0.757614i)
+&gt;R1 (0, 0i)              (2, -1i)
+&gt;
+&gt;val u : Owl_dense_matrix_z.mat =
+&gt;
+&gt;                       C0                      C1
+&gt;R0 (-0.408248, 0.408248i)  (0.563384, -0.590987i)
+&gt;R1        (-0.816497, 0i) (-0.577185, 0.0138014i)
+&gt;
+&gt;val eigvals : Owl_dense_matrix_z.mat =
+&gt;
+&gt;        C0       C1
+&gt;R0 (2, 1i) (2, -1i)
+</code></pre>
+</div>
+<p>The returned result <code>t</code> is apparent a upper triangular matrix, and the <code>u</code> can be verified to be a unitary matrix:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dense.Matrix.Z.(dot u (conj u |&gt; transpose));;
+&gt;- : Dense.Matrix.Z.mat =
+&gt;
+&gt;                             C0                          C1
+&gt;R0                      (1, 0i) (7.97973E-17, 5.81132E-17i)
+&gt;R1 (7.97973E-17, -5.81132E-17i)                     (1, 0i)
+</code></pre>
+</div>
+<p>Another very important similar transformation is <em>diagonalisation</em>. Suppose A has <span class="math inline">\(n\)</span> linear-independent eigenvectors, and make them the columns of a matrix S, then <span class="math inline">\(S^{-1}AS\)</span> is a diagonal matrix <span class="math inline">\(\Lambda\)</span>, and the eigenvalues of A are the diagonal elements of <span class="math inline">\(\Lambda\)</span>. Analysing A’s diagonal similar matrix <span class="math inline">\(\Lambda\)</span> instead of A itself can greatly simplify the problem.</p>
+<p>TODO: Give an example</p>
+<p>Not every matrix can be diagonalised. If any two of the <span class="math inline">\(n\)</span> eigenvalues of A are not the same, then its <span class="math inline">\(n\)</span> eigenvectors are linear-independent ana thus A can be diagonalised. Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix. Or put into the complex space, every hermitian matrix can be diagonalised by a unitary matrix.</p>
 </section>
 </section>
 <section class="level2" id="positive-definite-matrices">
@@ -826,7 +885,7 @@ R4 11 18 25  2  9
 <li>all the pivots without row exchange satisfy <span class="math inline">\(d &gt;0\)</span></li>
 <li>there exists invertible matrix B so that A=B^TB</li>
 </ol>
-For the last condition, we can use <em>Cholesky decomposition</em> to find B:
+<p>For the last condition, we can use the <em>Cholesky Decomposition</em> to find B:</p>
 <div class="highlight">
 <pre><code class="language-clike">val chol : ?upper:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t
   (* Cholesky factorisation *)</code></pre>
@@ -885,10 +944,8 @@ The Moore-Penrose inverse is a direct application of the SVD.
 <p>We will also come back to SVD in NLP.</p>
 </section>
 </section>
-<section class="level2" id="computations-with-matrices">
-<h2>Computations with Matrices</h2>
-<section class="level3" id="matrix-norm-and-condition-number">
-<h3>Matrix Norm and Condition Number</h3>
+<section class="level2" id="matrix-norm-and-condition-number">
+<h2>Matrix Norm and Condition Number</h2>
 <div class="highlight">
 <pre><code class="language-text">
   val norm : ?p:float -&gt; ('a, 'b) t -&gt; float
@@ -905,7 +962,6 @@ The Moore-Penrose inverse is a direct application of the SVD.
 <pre><code class="language-clike">val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
   (* Hessenberg form of a given matrix *)</code></pre>
 </div>
-</section>
 </section>
 <section class="level2" id="linear-programming">
 <h2>Linear Programming</h2>
