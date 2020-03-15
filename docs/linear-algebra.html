@@ -738,8 +738,8 @@ R4 11 18 25  2  9
 </section>
 <section class="level2" id="eigenvalues-and-eigenvectors">
 <h2>Eigenvalues and Eigenvectors</h2>
-<section class="level3" id="definition">
-<h3>Definition</h3>
+<section class="level3" id="solving-axlambdax">
+<h3>Solving Ax=<span class="math inline">\(\lambda~x\)</span></h3>
 <p>Now we need to change the topic from <span class="math inline">\(Ax=b\)</span> to <span class="math inline">\(Ax=\lambda~x\)</span>. For an <span class="math inline">\(n\times~n\)</span> square matrix, if there exist number <span class="math inline">\(\lambda\)</span> and non-zero column vector <span class="math inline">\(x\)</span> to satisfy:</p>
 <p><span id="eq:linear-algebra:eigen"><span class="math display">\[(\lambda~I - A)x = 0,\qquad(5)\]</span></span></p>
 <p>then <span class="math inline">\(\lambda\)</span> is called <em>eigenvalue</em>, and <span class="math inline">\(x\)</span> is called the <em>eigenvector</em> of <span class="math inline">\(A\)</span>.</p>
@@ -876,35 +876,54 @@ R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)</code></pre>
 <h2>Positive Definite Matrices</h2>
 <section class="level3" id="positive-definiteness">
 <h3>Positive Definiteness</h3>
-<p>In this section we introduce <em>Positive Definite Matrix</em>, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues.</p>
-<p>The definition of a Positive Definite Matrix: symmetric, <span class="math inline">\(x^TAx &gt; 0\)</span> for all non-zero vectors <span class="math inline">\(x\)</span>. There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:</p>
+<p>In this section we introduce the concept of <em>Positive Definite Matrix</em>, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues.</p>
+<p>A matrix is called <em>Positive Definite</em> if it is symmetric and that <span class="math inline">\(x^TAx &gt; 0\)</span> for all non-zero vectors <span class="math inline">\(x\)</span>. There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:</p>
 <ol type="1">
 <li><span class="math inline">\(x^TAx&gt;0\)</span> for all non-zero real vectors x</li>
 <li><span class="math inline">\(\lambda_i &gt;0\)</span> for all eigenvalues <span class="math inline">\(\lambda_i\)</span> of A</li>
 <li>all the upper left matrices have positive determinants</li>
-<li>all the pivots without row exchange satisfy <span class="math inline">\(d &gt;0\)</span></li>
+<li>all the pivots without row exchange satisfy <span class="math inline">\(d &gt; 0\)</span></li>
 <li>there exists invertible matrix B so that A=B^TB</li>
 </ol>
-<p>For the last condition, we can use the <em>Cholesky Decomposition</em> to find B:</p>
+<p>For the last condition, we can use the <em>Cholesky Decomposition</em> to find the matrix B. It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose <span class="math inline">\(LL^H\)</span>:</p>
 <div class="highlight">
-<pre><code class="language-clike">val chol : ?upper:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t
-  (* Cholesky factorisation *)</code></pre>
+<pre><code class="language-text"># let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 
+val a : Mat.mat =
+
+    C0  C1  C2
+R0   4  12 -16
+R1  12  37 -43
+R2 -16 -43  98
+
+# let l = Linalg.D.chol a
+val l : Owl_dense_matrix_d.mat =
+
+   C0 C1 C2
+R0  2  6 -8
+R1  0  1  5
+R2  0  0  3
+
+# Mat.(dot (transpose l) l)
+- : Mat.mat =
+
+    C0  C1  C2
+R0   4  12 -16
+R1  12  37 -43
+R2 -16 -43  98
+</code></pre>
 </div>
-<p>Example</p>
-<p>In the Linear Algebra module, we use <code>is_posdef</code> to do this test.</p>
+<p>If in <span class="math inline">\(Ax=b\)</span> we know that <span class="math inline">\(A\)</span> is hermitian and positive definite, then we can instead solve <span class="math inline">\(L^Lx=b\)</span>. As we have seen previously, solving linear system that expressed with triangular matrices is easy. The Cholesky decomposition is more efficient than the LU decomposition.</p>
+<p>In the Linear Algebra module, we use <code>is_posdef</code> function to do this test. If you look at the code in Owl, it is implemented by checking if the Cholesky decomposition can be performed on the input matrix.</p>
 <div class="highlight">
-<pre><code class="language-clike">val is_posdef : ('a, 'b) t -&gt; bool
-  (* check if a matrix is positive semi-definite *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let is_pos = 
+  let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in 
+  Linalg.D.is_posdef a 
+;;
+&gt;val is_pos : bool = true
+</code></pre>
 </div>
-<p>It’s implementation uses …</p>
-<p>Similar, the definition of semi-positive definite.</p>
-<p>The positive definite matrices are frequently used in different fields. The pattern <span class="math inline">\(Ax=\lambda~Mx\)</span> exists in many engineering analysis problems. If <span class="math inline">\(A\)</span> and <span class="math inline">\(M\)</span> are positive definite, this pattern is parallel to the <span class="math inline">\(Ax=\lambda~x\)</span> where <span class="math inline">\(\lambda &gt; 0\)</span>.</p>
-<p>One such application is the stability of motion. Definition of stable system.</p>
-<p>In a linear system:</p>
-<p><span class="math display">\[y' = Ax\]</span></p>
-<p>(extend this equation)</p>
-<p>A theorem declares that this system is stable if and only if there exists positive and definite matrix <span class="math inline">\(V\)</span> so that <span class="math inline">\(-(VA+A^TV)\)</span> is semi-positive definite.</p>
-<p>The pendulum example</p>
+<p>The definition of <em>semi-positive definite</em> is similar, only that it allows the “equals to zero” part. For example, <span class="math inline">\(x^TAx \leq 0\)</span> for all non-zero real vectors x.</p>
+<p>The pattern <span class="math inline">\(Ax=\lambda~Mx\)</span> exists in many engineering analysis problems. If <span class="math inline">\(A\)</span> and <span class="math inline">\(M\)</span> are positive definite, this pattern is parallel to the <span class="math inline">\(Ax=\lambda~x\)</span> where <span class="math inline">\(\lambda &gt; 0\)</span>. For example, a linear system <span class="math inline">\(y'=Ax\)</span> where <span class="math inline">\(x = [x_1, x_2, \ldots, x_n]\)</span> and <span class="math inline">\(y' = [\frac{dx_1}{dt}, \frac{dx_2}{dt}, \ldots, \frac{dx_n}{dt}]\)</span>. We will see such an example in the Ordinary Differential Equation chapter. In a linearised differential equations the matrix A is the Jacobian matrix. The eigenvalues decides if the system is stable or not. A theorem declares that this system is stable if and only if there exists positive and definite matrix <span class="math inline">\(V\)</span> so that <span class="math inline">\(-(VA+A^TV)\)</span> is semi-positive definite.</p>
 </section>
 <section class="level3" id="singular-value-decomposition">
 <h3>Singular Value Decomposition</h3>
@@ -1025,6 +1044,9 @@ The Moore-Penrose inverse is a direct application of the SVD.
   Mat.(l *@ q =~ x);;          (* check the approx equality *)
 </code></pre>
 </div>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-strang2006linear">
 <p>Strang, Gilbert. 2006. <em>Linear Algebra and Its Applications</em>. Belmont, CA: Thomson, Brooks/Cole. <a href="http://www.amazon.com/Linear-Algebra-Its-Applications-Edition/dp/0030105676">http://www.amazon.com/Linear-Algebra-Its-Applications-Edition/dp/0030105676</a>.</p>

@@ -1004,7 +1004,7 @@ R4 11 18 25  2  9
 
 ## Eigenvalues and Eigenvectors
 
-### Definition
+### Solving Ax=$\lambda~x$
 
 Now we need to change the topic from $Ax=b$ to $Ax=\lambda~x$.
 For an $n\times~n$ square matrix, if there exist number $\lambda$ and non-zero column vector $x$ to satisfy: 
@@ -1201,52 +1201,69 @@ Or put into the complex space, every hermitian matrix can be diagonalised by a u
 
 ### Positive Definiteness
 
-In this section we introduce *Positive Definite Matrix*, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues. 
+In this section we introduce the concept of *Positive Definite Matrix*, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues. 
 
-The definition of a Positive Definite Matrix: symmetric, $x^TAx > 0$ for all non-zero vectors $x$.
+A matrix is called *Positive Definite* if it is symmetric and that $x^TAx > 0$ for all non-zero vectors $x$.
 There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:
 
 1. $x^TAx>0$ for all non-zero real vectors x
 1. $\lambda_i >0$ for all eigenvalues $\lambda_i$ of A
 1. all the upper left matrices have positive determinants 
-1. all the pivots without row exchange satisfy $d >0$
+1. all the pivots without row exchange satisfy $d > 0$
 1. there exists invertible matrix B so that A=B^TB
 
-For the last condition, we can use the *Cholesky Decomposition* to find B:
+For the last condition, we can use the *Cholesky Decomposition* to find the matrix B.
+It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose $LL^H$:
+
+```text
+# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 
+val a : Mat.mat =
+
+    C0  C1  C2
+R0   4  12 -16
+R1  12  37 -43
+R2 -16 -43  98
+
+# let l = Linalg.D.chol a
+val l : Owl_dense_matrix_d.mat =
+
+   C0 C1 C2
+R0  2  6 -8
+R1  0  1  5
+R2  0  0  3
+
+# Mat.(dot (transpose l) l)
+- : Mat.mat =
+
+    C0  C1  C2
+R0   4  12 -16
+R1  12  37 -43
+R2 -16 -43  98
 
 ```
-val chol : ?upper:bool -> ('a, 'b) t -> ('a, 'b) t
-  (* Cholesky factorisation *)
+
+If in $Ax=b$ we know that $A$ is hermitian and positive definite, then we can instead solve $L^Lx=b$. As we have seen previously, solving linear system that expressed with triangular  matrices is easy. 
+The Cholesky decomposition is more efficient than the LU decomposition.
+
+In the Linear Algebra module, we use `is_posdef` function to do this test. 
+If you look at the code in Owl, it is implemented by checking if the Cholesky decomposition can be performed on the input matrix.
+
+```ocaml
+# let is_pos = 
+    let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in 
+    Linalg.D.is_posdef a 
+val is_pos : bool = true
 ```
 
-Example 
+The definition of *semi-positive definite* is similar, only that it allows the "equals to zero" part. For example,  $x^TAx \leq 0$ for all non-zero real vectors x.
 
-In the Linear Algebra module, we use `is_posdef` to do this test. 
-
-```
-val is_posdef : ('a, 'b) t -> bool
-  (* check if a matrix is positive semi-definite *)
-```
-It's implementation uses ...
-
-Similar, the definition of semi-positive definite.
-
-The positive definite matrices are frequently used in different fields. 
 The pattern $Ax=\lambda~Mx$ exists in many engineering analysis problems.
 If $A$ and $M$ are positive definite, this pattern is parallel to the $Ax=\lambda~x$ where $\lambda > 0$.
-
-One such application is the stability of motion. 
-Definition of stable system. 
-
-In a linear system:
-
-$$y' = Ax$$
-
-(extend this equation)
-
+For example, a linear system $y'=Ax$ where $x = [x_1, x_2, \ldots, x_n]$ and $y' = [\frac{dx_1}{dt}, \frac{dx_2}{dt}, \ldots, \frac{dx_n}{dt}]$.
+We will see such an example in the Ordinary Differential Equation chapter.
+In a linearised differential equations the matrix A is the Jacobian matrix.
+The eigenvalues decides if the system is stable or not.
 A theorem declares that this system is stable if and only if there exists positive and definite matrix $V$ so that $-(VA+A^TV)$ is semi-positive definite. 
-
-The pendulum example
 
 ### Singular Value Decomposition
 
@@ -1399,3 +1416,5 @@ The following code performs an LQ decomposition on a random square matrix. Note 
   Mat.(l *@ q =~ x);;          (* check the approx equality *)
 
 ```
+
+## References
