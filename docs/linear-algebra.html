@@ -569,33 +569,35 @@ R2  0.408248
 <p>The most frequently used condition number is that represent the sensitivity of inverse matrix. With the definition of norm, the <em>condition number for inversion</em> of a matrix can be expressed as <span class="math inline">\(\|A\|\|A^{-1}\|\)</span>. We can calculate it using the <code>cond</code> function.</p>
 <p>Let’s look at an example:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;;;
-&gt;val a : Mat.mat =
-&gt;    C0  C1
-&gt;R0 4.1 2.8
-&gt;R1 9.7 6.6
-let c = Linalg.D.cond a;;
-&gt;val c : float = 1622.99938385651058
-</code></pre>
+<pre><code class="language-text"># let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;
+val a : Mat.mat =
+    C0  C1
+R0 4.1 2.8
+R1 9.7 6.6
+
+# let c = Linalg.D.cond a
+val c : float = 1622.99938385651058</code></pre>
 </div>
-<p>It’s condition number for inversion is much larger than one. Therefore, a small change in <span class="math inline">\(A\)</span> should leads to a large change of <span class="math inline">\(A^{-1}\)</span>.</p>
+<p>Its condition number for inversion is much larger than one. Therefore, a small change in <span class="math inline">\(A\)</span> should leads to a large change of <span class="math inline">\(A^{-1}\)</span>.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Linalg.D.inv a;;
-&gt;val a' : Owl_dense_matrix_d.mat =
-&gt;    C0  C1
-&gt;R0 -66  28
-&gt;R1  97 -41
-let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2;;
-&gt;val a2 : Mat.mat =
-&gt;     C0    C1
-&gt;R0  4.1   2.8
-&gt;R1 9.67 6.607
-let a2' = Linalg.D.inv a2;;
-&gt;val a2' : Owl_dense_matrix_d.mat =
-&gt;
-&gt;         C0       C1
-&gt;R0  520.236 -220.472
-&gt;R1 -761.417  322.835
+<pre><code class="language-text"># let a' = Linalg.D.inv a
+val a' : Owl_dense_matrix_d.mat =
+    C0  C1
+R0 -66  28
+R1  97 -41
+
+# let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2
+val a2 : Mat.mat =
+     C0    C1
+R0  4.1   2.8
+R1 9.67 6.607
+
+# let a2' = Linalg.D.inv a2
+val a2' : Owl_dense_matrix_d.mat =
+
+         C0       C1
+R0  520.236 -220.472
+R1 -761.417  322.835
 </code></pre>
 </div>
 <p>We can see that by changing the matrix by only a tiny bit, the inverse of <span class="math inline">\(A\)</span> changes dramatically, and so is the resulting solution vector <span class="math inline">\(x\)</span>.</p>

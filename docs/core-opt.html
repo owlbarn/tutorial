@@ -20,16 +20,30 @@
 <p>Besides these techniques, the practical experience from others always worth learning during development. These principles still hold true in the development of modern numerical libraries. An optimised routine can perform orders of magnitude faster than a naive implementation.</p>
 </section>
 </section>
-<section class="level2" id="numerical-operations">
-<h2>Numerical Operations</h2>
+<section class="level2" id="interfacing-to-c-code">
+<h2>Interfacing to C Code</h2>
+<p>We interface to C. It’s common practice</p>
+<p>How NumPy and Julia interfaces</p>
+<p>The core operations are ndarray operation.</p>
+<p>The other, such as FFT, Linear Algebra, are explained in their respective chapter.</p>
+<section class="level3" id="ndarray-operations">
+<h3>Ndarray Operations</h3>
 <p>N-dimensional array (ndarray) is the core data type of a numerical library. An ndarray is a container of items of the same type. It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. A stride indexing scheme can then be applied on this block of memory to access elements. Two widely used types of indexing schemes are <em>column-major</em> that is used in FORTRAN and <em>row-major</em> of C.</p>
+<p>List the categories of operations that are optimised with C.</p>
+</section>
+<section class="level3" id="from-ocaml-to-c">
+<h3>From OCaml to C</h3>
+<p>Introduce with example how do we exactly interface OCaml code to C. Move part of the Map/Fold/Repeat code below here.</p>
 <p>In Owl, ndarray is built on OCaml’s native <code>Bigarray.Genarray</code>. The Bigarray module implements multi-dimensional numerical arrays of integers and floating-point numbers, and Genarray is the type of Bigarrays with variable numbers of dimensions.</p>
 <p>Genarray has three parameters: OCaml type for accessing array elements, the actual type of array elements, and indexing scheme. The initial design of Owl supports both col-major and row-major indexing, but this choice leads to a lot of confusion, since the FORTRAN way of indexing starts from index 1, while the row-major starts from 0. Owl sticks with the row-major scheme now.</p>
 <p>Owl supports four basic types of element: float, double, float complex, and double complex number. The core calculations in Owl are implemented in C. These C functions are then declared and used as external functions in OCaml. By utilising the functors in OCaml, a same C implementation can be applied on multiple number types.</p>
 </section>
-<section class="level2" id="operation-optimisation">
-<h2>Operation Optimisation</h2>
-<p>In the previous section, I have shown several DNN applications and how they can be constructed from basic operations in the library. In this section, I choose representative operations. I compare their performance in different numerical libraries: Owl, NumPy, and Julia. The purpose is two-fold: first, to bring insight into the low-level structure design; second, to demonstrate the possible optimisations in implementing these operations.</p>
+</section>
+<section class="level2" id="optimisation-techniques">
+<h2>Optimisation Techniques</h2>
+<p>We try to apply multiple techniques if possible.</p>
+<p>Show some optimisation techniques at the C level, and demonstrate their effect. It does not have to perform better than every one.</p>
+<p>In this section, I choose representative operations. I compare their performance in different numerical libraries: Owl, NumPy, and Julia. The purpose is two-fold: first, to bring insight into the low-level structure design; second, to demonstrate the possible optimisations in implementing these operations.</p>
 <p>In the performance measurements, I use multiple input sizes, and observe the execution time and memory usage. The experiments are conducted on both a laptop (Thinkpad T460s, Core i5 CPU) and a Raspberry Pi (rPi) 3B model. They represent different CPU architectures and computation power.</p>
 <section class="level3" id="map-operations">
 <h3>Map Operations</h3>

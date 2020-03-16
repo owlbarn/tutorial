@@ -830,7 +830,7 @@ R1 9.7 6.6
 val c : float = 1622.99938385651058
 ```
 
-It's condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
+Its condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
 
 ```text
 # let a' = Linalg.D.inv a

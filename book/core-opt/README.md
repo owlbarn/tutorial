@@ -55,15 +55,30 @@ Besides these techniques, the practical experience from others always worth lear
 These principles still hold true in the development of modern numerical libraries.
 An optimised routine can perform orders of magnitude faster than a naive implementation.
 
-## Numerical Operations
+## Interfacing to C Code
 
-N-dimensional array (ndarray) is the core data type of a numerical
-library. An ndarray is a container of items of the same type. It
-consists of a contiguous block of memory, combined with an indexing
-scheme that maps N integers into the location of an item in the block. A
-stride indexing scheme can then be applied on this block of memory to
-access elements. Two widely used types of indexing schemes are
-*column-major* that is used in FORTRAN and *row-major* of C.
+We interface to C. It's common practice
+
+How NumPy and Julia interfaces
+
+The core operations are ndarray operation.
+
+The other, such as FFT, Linear Algebra, are explained in their respective chapter.
+
+### Ndarray Operations
+
+N-dimensional array (ndarray) is the core data type of a numerical library. 
+An ndarray is a container of items of the same type. 
+It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. 
+A stride indexing scheme can then be applied on this block of memory to access elements. 
+Two widely used types of indexing schemes are *column-major* that is used in FORTRAN and *row-major* of C.
+
+List the categories of operations that are optimised with C.
+
+### From OCaml to C
+
+Introduce with example how do we exactly interface OCaml code to C.
+Move part of the Map/Fold/Repeat code below here.
 
 In Owl, ndarray is built on OCaml's native `Bigarray.Genarray`. The
 Bigarray module implements multi-dimensional numerical arrays of
@@ -83,11 +98,14 @@ in C. These C functions are then declared and used as external functions
 in OCaml. By utilising the functors in OCaml, a same C implementation
 can be applied on multiple number types.
 
-## Operation Optimisation
+## Optimisation Techniques
 
-In the previous section, I have shown several DNN applications and how
-they can be constructed from basic operations in the library. In this
-section, I choose representative operations. I compare their performance in different
+We try to apply multiple techniques if possible. 
+
+Show some optimisation techniques at the C level, and demonstrate their effect. 
+It does not have to perform better than every one. 
+
+In this section, I choose representative operations. I compare their performance in different
 numerical libraries: Owl, NumPy, and Julia. The purpose is two-fold:
 first, to bring insight into the low-level structure design; second, to
 demonstrate the possible optimisations in implementing these
