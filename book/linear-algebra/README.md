@@ -800,6 +800,62 @@ $$\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix
 So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. 
 Blindly using them could leads to wrong or misleading answers.
 
+### Matrix Sensitivity 
+
+The *sensitivity* of a matrix is perhaps not the most important issue in the traditional linear algebra, but is crucial in the numerical computation related problems.
+It answers this question: in $Ax=b$, if we change the $A$ and $b$ slightly, how much will the $x$ be affected?
+The *Condition Number* is a measurement of the sensitivity of a square matrix. 
+
+First, we need to understand the *Norm* of a matrix.
+The norm, or 2-norm of a matrix  $\|A\|$ is calculated as square root of the maximum eigenvalue of $A^HA$. 
+The norm of a matrix is a upper limit so that for any $x$ we can be certain that $\|Ax\| \leq \|A\|\|x\|$.
+Here $\|Ax\|$ and $\|x\|$ are the L2-Norm for vectors.
+The $\|A\|\$ bounds the how large the $A$ can amplify the input $x$.
+We can calculate the norm with `norm` in the linear algebra module. 
+
+The most frequently used condition number is that represent the sensitivity of inverse matrix.
+With the definition of norm, the *condition number for inversion* of a matrix can be expressed as $\|A\|\|A^{-1}\|$.
+We can calculate it using the `cond` function.
+
+Let's look at an example:
+
+```text
+# let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;
+val a : Mat.mat =
+    C0  C1
+R0 4.1 2.8
+R1 9.7 6.6
+
+# let c = Linalg.D.cond a
+val c : float = 1622.99938385651058
+```
+
+It's condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
+
+```text
+# let a' = Linalg.D.inv a
+val a' : Owl_dense_matrix_d.mat =
+    C0  C1
+R0 -66  28
+R1  97 -41
+
+# let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2
+val a2 : Mat.mat =
+     C0    C1
+R0  4.1   2.8
+R1 9.67 6.607
+
+# let a2' = Linalg.D.inv a2
+val a2' : Owl_dense_matrix_d.mat =
+
+         C0       C1
+R0  520.236 -220.472
+R1 -761.417  322.835
+
+```
+
+We can see that by changing the matrix by only a tiny bit, the inverse of $A$ changes dramatically, and so is the resulting solution vector $x$.
+
 ## Determinants
 
 Other than pivots, another basic quantity in linear algebra is the *determinants*.
@@ -1132,16 +1188,48 @@ We can use the `svd` function to perform this factorisation.
 Let's use the positive definite matrix as an example:
 
 ```ocaml env=linear-algebra:svd
+# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3
+val a : Mat.mat =
+
+    C0  C1  C2
+R0   4  12 -16
+R1  12  37 -43
+R2 -16 -43  98
+
+```
+```ocaml env=linear-algebra:svd
 # let u, s, vt = Linalg.D.svd ~thin:false a
-Line 1, characters 41-42:
-Error: Unbound value a
+val u : Owl_dense_matrix_d.mat =
+
+          C0        C1        C2
+R0 -0.163007 -0.212727  0.963419
+R1 -0.457324 -0.848952  -0.26483
+R2  0.874233 -0.483764 0.0410998
+
+val s : Owl_dense_matrix_d.mat =
+
+        C0     C1       C2
+R0 123.477 15.504 0.018805
+
+val vt : Owl_dense_matrix_d.mat =
+
+          C0        C1        C2
+R0 -0.163007 -0.457324  0.874233
+R1 -0.212727 -0.848952 -0.483764
+R2  0.963419  -0.26483 0.0410998
+
 ```
 Note that the diagonal matrix `s` is represented as a vector. We can extend it with 
 
 ```ocaml env=linear-algebra:svd
 # let s = Mat.diagm s;;
-Line 1, characters 19-20:
-Error: Unbound value s
+val s : Mat.mat =
+
+        C0     C1       C2
+R0 123.477      0        0
+R1       0 15.504        0
+R2       0      0 0.018805
+
 ```
 However, it is only possible when we know that the original diagonal matrix is square, otherwise the vector contains the $min(m, n)$ diagonal elements.
 
@@ -1149,8 +1237,17 @@ Also, we can find to the eigenvectors of $AA^T$ to verify that it equals to the 
 
 ```ocaml env=linear-algebra:svd
 # Linalg.D.eig Mat.(dot a (transpose a));;
-Line 1, characters 23-24:
-Error: Unbound value a
+- : Owl_dense_matrix_z.mat * Owl_dense_matrix_z.mat =
+(
+                C0              C1             C2
+R0  (0.163007, 0i)  (0.963419, 0i) (0.212727, 0i)
+R1  (0.457324, 0i)  (-0.26483, 0i) (0.848952, 0i)
+R2 (-0.874233, 0i) (0.0410998, 0i) (0.483764, 0i)
+,
+
+              C0                C1            C2
+R0 (15246.6, 0i) (0.000353627, 0i) (240.373, 0i)
+)
 ```
 
 In this example we ues the `thin` parameter. By default, the `svd` function performs a reduced SVD, where $\Sigma$ is a $m\times~m$ matrix and $V^T$ is a m by n matrix. 
@@ -1240,30 +1337,6 @@ TODO: The intuition of SVD.
 The SVD is not only important linear algebra concept, but also has a wide and growing applications.
 For example, the [Moore-Penrose pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse) that works for non-invertible matrix can be implemented efficiently using SVD (we provide `pinv` function in the linear algebra module for the pseudo inverse).
 In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.
-
-
-## Matrix Norm and Condition Number 
-
-TODO
-
-```text
-
-  val norm : ?p:float -> ('a, 'b) t -> float
-  (* p-norm of a matrix *)
-
-  val cond : ?p:float -> ('a, 'b) t -> float
-  (* p-norm condition number of a matrix *)
-
-  val rcond : ('a, 'b) t -> float
-  (* estimate for the reciprocal condition of a matrix in 1-norm *)
-```
-
-**Hessenberg Factorisations:**
-
-```
-val hess : ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t
-  (* Hessenberg form of a given matrix *)
-```
 
 ## Linear Programming 
 

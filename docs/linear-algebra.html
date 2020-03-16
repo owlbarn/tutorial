@@ -562,6 +562,44 @@ R2  0.408248
 <p><span class="math display">\[\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]\]</span></p>
 <p>So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. Blindly using them could leads to wrong or misleading answers.</p>
 </section>
+<section class="level3" id="matrix-sensitivity">
+<h3>Matrix Sensitivity</h3>
+<p>The <em>sensitivity</em> of a matrix is perhaps not the most important issue in the traditional linear algebra, but is crucial in the numerical computation related problems. It answers this question: in <span class="math inline">\(Ax=b\)</span>, if we change the <span class="math inline">\(A\)</span> and <span class="math inline">\(b\)</span> slightly, how much will the <span class="math inline">\(x\)</span> be affected? The <em>Condition Number</em> is a measurement of the sensitivity of a square matrix.</p>
+<p>First, we need to understand the <em>Norm</em> of a matrix. The norm, or 2-norm of a matrix <span class="math inline">\(\|A\|\)</span> is calculated as square root of the maximum eigenvalue of <span class="math inline">\(A^HA\)</span>. The norm of a matrix is a upper limit so that for any <span class="math inline">\(x\)</span> we can be certain that <span class="math inline">\(\|Ax\| \leq \|A\|\|x\|\)</span>. Here <span class="math inline">\(\|Ax\|\)</span> and <span class="math inline">\(\|x\|\)</span> are the L2-Norm for vectors. The $|A|$ bounds the how large the <span class="math inline">\(A\)</span> can amplify the input <span class="math inline">\(x\)</span>. We can calculate the norm with <code>norm</code> in the linear algebra module.</p>
+<p>The most frequently used condition number is that represent the sensitivity of inverse matrix. With the definition of norm, the <em>condition number for inversion</em> of a matrix can be expressed as <span class="math inline">\(\|A\|\|A^{-1}\|\)</span>. We can calculate it using the <code>cond</code> function.</p>
+<p>Let’s look at an example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;;;
+&gt;val a : Mat.mat =
+&gt;    C0  C1
+&gt;R0 4.1 2.8
+&gt;R1 9.7 6.6
+let c = Linalg.D.cond a;;
+&gt;val c : float = 1622.99938385651058
+</code></pre>
+</div>
+<p>It’s condition number for inversion is much larger than one. Therefore, a small change in <span class="math inline">\(A\)</span> should leads to a large change of <span class="math inline">\(A^{-1}\)</span>.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Linalg.D.inv a;;
+&gt;val a' : Owl_dense_matrix_d.mat =
+&gt;    C0  C1
+&gt;R0 -66  28
+&gt;R1  97 -41
+let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2;;
+&gt;val a2 : Mat.mat =
+&gt;     C0    C1
+&gt;R0  4.1   2.8
+&gt;R1 9.67 6.607
+let a2' = Linalg.D.inv a2;;
+&gt;val a2' : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0       C1
+&gt;R0  520.236 -220.472
+&gt;R1 -761.417  322.835
+</code></pre>
+</div>
+<p>We can see that by changing the matrix by only a tiny bit, the inverse of <span class="math inline">\(A\)</span> changes dramatically, and so is the resulting solution vector <span class="math inline">\(x\)</span>.</p>
+</section>
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
@@ -791,24 +829,63 @@ R2 -16 -43  98
 <p>It’s close related with eigenvector factorisation of a positive definite matrix. For a positive definite matrix, the SVD factorisation is the same as the <span class="math inline">\(Q\Lambda~Q^T\)</span>.</p>
 <p>We can use the <code>svd</code> function to perform this factorisation. Let’s use the positive definite matrix as an example:</p>
 <div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
+&gt;val a : Mat.mat =
+&gt;
+&gt;    C0  C1  C2
+&gt;R0   4  12 -16
+&gt;R1  12  37 -43
+&gt;R2 -16 -43  98
+</code></pre>
+</div>
+<div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let u, s, vt = Linalg.D.svd ~thin:false a;;
-&gt;Line 1, characters 41-42:
-&gt;Error: Unbound value a
+&gt;val u : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0        C1        C2
+&gt;R0 -0.163007 -0.212727  0.963419
+&gt;R1 -0.457324 -0.848952  -0.26483
+&gt;R2  0.874233 -0.483764 0.0410998
+&gt;
+&gt;val s : Owl_dense_matrix_d.mat =
+&gt;
+&gt;        C0     C1       C2
+&gt;R0 123.477 15.504 0.018805
+&gt;
+&gt;val vt : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0        C1        C2
+&gt;R0 -0.163007 -0.457324  0.874233
+&gt;R1 -0.212727 -0.848952 -0.483764
+&gt;R2  0.963419  -0.26483 0.0410998
 </code></pre>
 </div>
 <p>Note that the diagonal matrix <code>s</code> is represented as a vector. We can extend it with</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let s = Mat.diagm s;;;;
-&gt;Line 1, characters 19-20:
-&gt;Error: Unbound value s
+&gt;val s : Mat.mat =
+&gt;
+&gt;        C0     C1       C2
+&gt;R0 123.477      0        0
+&gt;R1       0 15.504        0
+&gt;R2       0      0 0.018805
 </code></pre>
 </div>
 <p>However, it is only possible when we know that the original diagonal matrix is square, otherwise the vector contains the <span class="math inline">\(min(m, n)\)</span> diagonal elements.</p>
 <p>Also, we can find to the eigenvectors of <span class="math inline">\(AA^T\)</span> to verify that it equals to the eigenvector factorisation.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.eig Mat.(dot a (transpose a));;;;
-&gt;Line 1, characters 23-24:
-&gt;Error: Unbound value a
+&gt;- : Owl_dense_matrix_z.mat * Owl_dense_matrix_z.mat =
+&gt;(
+&gt;                C0              C1             C2
+&gt;R0  (0.163007, 0i)  (0.963419, 0i) (0.212727, 0i)
+&gt;R1  (0.457324, 0i)  (-0.26483, 0i) (0.848952, 0i)
+&gt;R2 (-0.874233, 0i) (0.0410998, 0i) (0.483764, 0i)
+&gt;,
+&gt;
+&gt;              C0                C1            C2
+&gt;R0 (15246.6, 0i) (0.000353627, 0i) (240.373, 0i)
+&gt;)
 </code></pre>
 </div>
 <p>In this example we ues the <code>thin</code> parameter. By default, the <code>svd</code> function performs a reduced SVD, where <span class="math inline">\(\Sigma\)</span> is a <span class="math inline">\(m\times~m\)</span> matrix and <span class="math inline">\(V^T\)</span> is a m by n matrix.</p>
@@ -888,26 +965,6 @@ R4        0        0         0        0   0.555067
 <p>TODO: The intuition of SVD.</p>
 <p>The SVD is not only important linear algebra concept, but also has a wide and growing applications. For example, the <a href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">Moore-Penrose pseudo-inverse</a> that works for non-invertible matrix can be implemented efficiently using SVD (we provide <code>pinv</code> function in the linear algebra module for the pseudo inverse). In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.</p>
 </section>
-</section>
-<section class="level2" id="matrix-norm-and-condition-number">
-<h2>Matrix Norm and Condition Number</h2>
-<p>TODO</p>
-<div class="highlight">
-<pre><code class="language-text">
-  val norm : ?p:float -&gt; ('a, 'b) t -&gt; float
-  (* p-norm of a matrix *)
-
-  val cond : ?p:float -&gt; ('a, 'b) t -&gt; float
-  (* p-norm condition number of a matrix *)
-
-  val rcond : ('a, 'b) t -&gt; float
-  (* estimate for the reciprocal condition of a matrix in 1-norm *)</code></pre>
-</div>
-<p><strong>Hessenberg Factorisations:</strong></p>
-<div class="highlight">
-<pre><code class="language-clike">val hess : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t
-  (* Hessenberg form of a given matrix *)</code></pre>
-</div>
 </section>
 <section class="level2" id="linear-programming">
 <h2>Linear Programming</h2>
