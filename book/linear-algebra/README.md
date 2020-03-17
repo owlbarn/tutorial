@@ -864,6 +864,8 @@ We can see that by changing the matrix by only a tiny bit, the inverse of $A$ ch
 
 ## Determinants
 
+TODO: extend this section, add sub-sections.
+
 Other than pivots, another basic quantity in linear algebra is the *determinants*.
 For a square matrix A:
 

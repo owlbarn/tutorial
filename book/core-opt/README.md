@@ -68,6 +68,10 @@ The other, such as FFT, Linear Algebra, are explained in their respective chapte
 ### Ndarray Operations
 
 N-dimensional array (ndarray) is the core data type of a numerical library. 
+As we have seen in the previous chapter
+
+The internals about ndarray:  
+
 An ndarray is a container of items of the same type. 
 It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. 
 A stride indexing scheme can then be applied on this block of memory to access elements. 
@@ -75,28 +79,279 @@ Two widely used types of indexing schemes are *column-major* that is used in FOR
 
 List the categories of operations that are optimised with C.
 
+- Math, including map, fold, cmp
+- Conv and pooling
+- Repeat
+- Slicing
+- Sort
+- Transpose 
+- Slicing
+- matrix: swap, check (is_*)
+- Contract 
+- Slide 
+
+Why choose these operations
+
 ### From OCaml to C
 
-Introduce with example how do we exactly interface OCaml code to C.
-Move part of the Map/Fold/Repeat code below here.
+Let's use examples to see exactly how we implement core operations wih C and interface them to OCaml.
 
-In Owl, ndarray is built on OCaml's native `Bigarray.Genarray`. The
-Bigarray module implements multi-dimensional numerical arrays of
-integers and floating-point numbers, and Genarray is the type of
-Bigarrays with variable numbers of dimensions.
+In Owl, ndarray is built on OCaml's native `Bigarray.Genarray`. 
+The Bigarray module implements multi-dimensional numerical arrays of integers and floating-point numbers, and `Genarray` is the type of `Bigarrays` with variable numbers of dimensions.
 
-Genarray has three parameters: OCaml type for accessing array elements,
-the actual type of array elements, and indexing scheme. The initial
-design of Owl supports both col-major and row-major indexing, but this
-choice leads to a lot of confusion, since the FORTRAN way of indexing
-starts from index 1, while the row-major starts from 0. Owl sticks with
-the row-major scheme now.
+Genarray is of type `('a, 'b, 't) t`. 
+It has three parameters: OCaml type for accessing array elements (`'a`),  the actual type of array elements (`'b`), and indexing scheme (`'t`). 
+The initial design of Owl supports both col-major and row-major indexing, but this choice leads to a lot of confusion, since the FORTRAN way of indexing starts from index 1, while the row-major starts from 0. 
+Owl sticks with the row-major scheme now, and therefore in the core library the owl ndarray is define as:
 
+```ocaml
+open Bigarray
+type ('a, 'b) owl_arr = ('a, 'b, c_layout) Genarray.t
+```
+
+Now, let's look at the `'a` and `'b`. 
+In the GADT type `('a, 'b) kind`, an OCaml type `'a` is for values read or written in the Bigarray, such as `int` or `float`, and `'b` represents the actual contents of the Bigarray, such as the `float32_elt` that contains 32-bit single precision floats.
 Owl supports four basic types of element: float, double, float complex,
-and double complex number. The core calculations in Owl are implemented
-in C. These C functions are then declared and used as external functions
-in OCaml. By utilising the functors in OCaml, a same C implementation
-can be applied on multiple number types.
+and double complex number. And we use the definition of type `('a, 'b) kind` in the `BigArray` module.
+
+```ocaml
+open Bigarray
+
+type ('a, 'b) kind = 
+|	Float32 : (float, float32_elt) kind
+|	Float64 : (float, float64_elt) kind
+|	Complex32 : (Complex.t, complex32_elt) kind
+|	Complex64 : (Complex.t, complex64_elt) kind
+```
+
+Suppose we want to implement the sine math function, which maps the `sin` function on every elements in the . We we need to implement four different versions, each for one of these four number types.
+The basic code looks like this:
+
+```text
+let _owl_sin : type a b. (a, b) kind -> int -> ('a, 'b) owl_arr -> ('a, 'b) owl_arr -> unit =
+  fun k l x y ->
+  match k with
+  | Float32   -> owl_float32_sin l x y
+  | Float64   -> owl_float64_sin l x y
+  | Complex32 -> owl_complex32_sin l x y
+  | Complex64 -> owl_complex64_sin l x y
+  | _         -> failwith "_owl_sin: unsupported operation"
+```
+
+The `_owl_sin` implementation takes four input parameter, the first is the number type `kind`, the second is the total number of elements `l` to apply the `sin` function, the third one `x` is the source ndarray, and the final one `y` is the target ndarray. 
+This function apply the `sin` function on the first `l` elements from `x` and then put the results in `y`. 
+Therefore we can simply add a simple layer of wrapper around this function in the `Dense` module:
+
+```text
+let sin x =
+  let y = copy x in
+  _owl_sin (kind x) (numel y) x y;
+  y
+```
+
+But wait, what are the `owl_float32_sin` and `owl_float64_sin` etc. in `_owl_sin` function? How are they implemented? Let's take a look:
+
+```
+external owl_float32_sin
+  : int
+  -> ('a, 'b) owl_arr
+  -> ('a, 'b) owl_arr
+  -> unit
+  = "float32_sin"
+```
+
+OCaml provides mechanism for interfacing with C using the `external` keyword: `external ocaml-function-name : type = c-function-name`. 
+This defines the value name `ocaml-function-name` as a function with type `type` that executes by calling the given C function `c-function-name`. 
+Here we already have a C function that is called "float32_sin", and `owl_float32_sin` calls that function. 
+
+Now, finally, we venture into the world of C. We first need to include the necessary header files provided by OCaml:
+
+```c
+#include <caml/mlvalues.h> // definition of the value type, and conversion macros
+#include <caml/alloc.h> //allocation functions to create structured ocaml objects 
+#include <caml/memory.h> // miscellaneous memory-related functions and macros
+#include <caml/fail.h> //functions for raising exceptions
+#include <caml/callback.h> // callback from C to ocaml
+#include <caml/threads.h> //operations for interfacing in the presence of multiple threads
+```
+
+In the C file, the outlines of function `float32_sin` is:
+
+```c
+CAMLprim value float32_sin(value vN, value vX, value vY) {
+  ...
+}
+```
+
+To define a C primitive to interface with OCaml, we use the `CAMLprim` macro. 
+Unlike normal C functions, all the input types and output type are defined as `value` instead of `int`, `void` etc. 
+It is represents OCaml values and encodes objects of several base types such as integers, strings, floats, etc. as well as OCaml data structures.
+The specific type of input will be passed in when the functions is called at runtime.
+
+Now let's look at the content within this function. First, the input is of type `value` and we have to change them into the normal types for further processing.
+
+```c
+CAMLparam3(vN, vX, vY);
+int N = Long_val(vN);
+struct caml_ba_array *X = Caml_ba_array_val(vX);
+float *X_data = (float*) X->data;
+struct caml_ba_array *Y = Caml_ba_array_val(vY);
+float *Y_data = (float *) Y->data;
+```
+
+These "value" type parameters or local variables must be processed with one of the CAMLparam macros.
+Here we use the `CAMLparam3` macro since there are three parameters. 
+There are six CAMLparam macros from CAMLparam0 to CAMLparam5, taking zero to five parameters. For more than five parameters, you can first call `CAMLparam5`, and then use one or more `CAMLxparam1` to `CAMLxparam5` functions after that.
+
+The next step we convert the `value` type inputs into normal types. 
+The `Long_val` macro convert the value into long int type. 
+Similarly, there are also `Double_val`, `Int32_val` etc.
+We convert the Bigarray to a structure to the structure of type `caml_ba_array`. The function `Caml_ba_array_val` returns a pointer to this structure. 
+Its member `data` is a pointer to the data part of the array.
+Besides, the information of ndarray dimension is also included. The member `num_dims` of `caml_ba_array` is the number of dimensions, and `dim[i]` is the i-th dimension.
+
+One more thing to do before the "real" coding. 
+If the computation is complex, we don't want all the OCaml threads to be stuck. Therefore, we need to call the `caml_release_runtime_system` function to release the master lock and other OCaml resources, so as to allow other threads to run. 
+
+```c
+caml_release_runtime_system(); 
+```
+
+Finally, we can do the real computation, and now that we have finished converting the input data to the familiar types, the code itself is straight forward;
+
+```c
+float *start_x, *stop_x;
+float *start_y;
+
+start_x = X_data;
+stop_x = start_x + N;
+start_y = Y_data;
+
+while (start_x != stop_x) {
+    float x = *start_x;
+    *start_y = sinf(X);
+    start_x += 1;
+    start_y += 1;
+};
+```
+
+That's all, we move the pointers forward and apply the `sinf` function from the C standard library one by one.
+
+As you can expect, when all the computation is finished, we need to end the multiple threading. 
+
+```c
+caml_acquire_runtime_system();
+```
+
+And finally, we need to return the result with `CAMLreturn` macro -- not normal type, but the `value` type. In this function we don't need to return anything, so we use the `Val_unit` macro:
+
+```c
+CAMLreturn(Val_unit);
+```
+
+That's all for this function. But if we want to return a, say, long int, you can the use `Val_long` to wrap an int type into `value` type. 
+In the Owl core C code, we normally finish the all the computation and copy the result in-place, and then returns `Val_unit`, as shown in this example. 
+
+Now that we finish `float32_sin`, we can copy basically all the code above and implement the rest three functions: `float64_sin`, `complex32_sin`, and `complex64_sin`.
+However, this kind of coding practice is apparently not ideal.
+Instead, in the core implementation, Owl utilises the macros and templates of C.
+In the above implementation, we abstract out the only three special part: function name, math function used, and data type. We assign macro `FUN` to the first one, `MAPFN` to the next, and `NUMBER` to the third. Then the function is written as a template:
+
+```c
+CAMLprim value FUN(value vN, value vX, value vY) {
+  ...
+  NUMBER *X_data = (NUMBER *) X->data;
+  ...
+  *start_y = (MAPFN(x));
+  ...
+}
+```
+
+This template is defined in the file `owl_ndarray_maths_map.h` file.
+In anther stub C file, these macros are defined as:
+
+```c
+#define FUN float32_sin
+#define NUMBER float
+#define MAPFN(X) (sinf(X))
+#include "owl_ndarray_maths_map.h"
+```
+
+In this way, we can easily extend this template to other data types. 
+To extend it to complex number, we can use the `_Complex float` and `_Complex double` as number type, and the `csinf` and `csin` for math function function on complex data type.
+
+```c
+#define FUN4 complex32_sin
+#define NUMBER _Complex float
+#define MAPFN(X) (csinf(X))
+#include "owl_ndarray_maths_map.h"
+```
+
+Once finished the template, we can find that, this template does not only apply to `sin`, but also the other triangular functions, and many more other similar unary math function that accept one input, such as `exp` and `log`, etc. 
+
+```c
+#define FUN float32_log
+#define NUMBER float
+#define MAPFN(X) (logf(X))
+#include "owl_ndarray_maths_map.h"
+```
+
+Of course, the template can become quite complex for other types of function.
+But by utilising the template and macros, the core C code of Owl is much simplified.
+A brief recap: in the core module we are talking about three files. 
+The first one is a ocaml file that contains functions like `_owl_sin` that interfaces to C code using `external` keyword.
+Then the C implementation is divided into the template file, normally as a `.h` header file, and is named as `*_impl.h`.
+The stub that finally utilises these templates to generate functions are put into `*_stub.c` files. 
+
+Note that if the input parameters are more than 5, then two primitives should be implemented.
+The first `bytecode` function takes two arguments: a pointer to a list of `value` type arguments, and an integer that indicating the number of arguments provided. 
+The other `native` function takes its arguments directly.
+The syntax of using `external` should also be changed to include both functions.
+
+```
+external name : type = bytecode-C-function-name native-code-C-function-name
+```
+
+For example, in our implementation of convolution we have a pair of functions:
+
+```c
+CAMLprim value FUN_NATIVE (spatial) (
+  value vInput_ptr, value vKernel_ptr, value vOutput_ptr,
+  value vBatches, value vInput_cols, value vInput_rows, value vIn_channel,
+  value vKernel_cols, value vKernel_rows,
+  value vOutput_cols, value vOutput_rows, value vOut_channel,
+  value vRow_stride,  value vCol_stride,
+  value vPadding, value vRow_in_stride, value vCol_in_stride
+) {
+  ....
+}
+
+CAMLprim value FUN_BYTE (spatial) (value * argv, int argn) {
+  return FUN_NATIVE (spatial) (
+    argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7],
+    argv[8], argv[9], argv[10], argv[11], argv[12], argv[13], argv[14],
+    argv[15], argv[16]
+  );
+}
+```
+
+In the stub we define the function name macros:
+
+```
+#define FUN_NATIVE(dim) stub_float32_ndarray_conv ## _ ## dim  ## _ ## native
+#define FUN_BYTE(dim) stub_float32_ndarray_conv ## _ ## dim  ## _ ## bytecode
+```
+
+And therefore in the OCaml interfacing code we interface to C code with:
+
+```
+external owl_float32_ndarray_conv_spatial 
+  :  ('a, 'b) owl_arr -> ('a, 'b) owl_arr -> ('a, 'b) owl_arr -> int -> int -> int -> int -> int -> int -> int -> int -> int -> int -> int -> int -> int -> int -> unit
+  = "stub_float32_ndarray_conv_spatial_bytecode" "stub_float32_ndarray_conv_spatial_native"
+```
+
+More details of interfacing to C code OCaml can be found in the OCaml [documentation](https://caml.inria.fr/pub/docs/manual-ocaml/intfc.html). 
+Another approach is to use the Foreign Function Interface, as explained [here](https://dev.realworldocaml.org/foreign-function-interface.html).
 
 ## Optimisation Techniques
 
