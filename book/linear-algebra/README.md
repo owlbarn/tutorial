@@ -325,7 +325,11 @@ $$x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\
 
 or it can be expressed as $Ax=b$ using matrix notation.
 
-$$\left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]$$
+$$
+\left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]
+\Longrightarrow
+\left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}2\\-1\\1\end{matrix} \right]
+$$
 
 Here A is a matrix, b is a column vector, and x is the unknown vector.
 The matrix notation is often used to describe the linear equation systems as a concise way. 
@@ -1235,7 +1239,7 @@ R2  0.963419  -0.26483 0.0410998
 Note that the diagonal matrix `s` is represented as a vector. We can extend it with 
 
 ```ocaml env=linear-algebra:svd
-# let s = Mat.diagm s;;
+# let s = Mat.diagm s
 val s : Mat.mat =
 
         C0     C1       C2
@@ -1249,7 +1253,7 @@ However, it is only possible when we know that the original diagonal matrix is s
 Also, we can find to the eigenvectors of $AA^T$ to verify that it equals to the eigenvector factorisation.
 
 ```ocaml env=linear-algebra:svd
-# Linalg.D.eig Mat.(dot a (transpose a));;
+# Linalg.D.eig Mat.(dot a (transpose a))
 - : Owl_dense_matrix_z.mat * Owl_dense_matrix_z.mat =
 (
                 C0              C1             C2

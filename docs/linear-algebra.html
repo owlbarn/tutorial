@@ -229,7 +229,11 @@ let y = Mat.uniform 2 2;;</code></pre>
 <p>The starting eq.&nbsp;1 can be more concisely expressed with vector:</p>
 <p><span class="math display">\[x_1\left[\begin{matrix}2\\2\\3\end{matrix} \right] + x_2\left[\begin{matrix}2\\2\\4\end{matrix} \right] + x_3\left[\begin{matrix}2\\3\\5\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
 <p>or it can be expressed as <span class="math inline">\(Ax=b\)</span> using matrix notation.</p>
-<p><span class="math display">\[\left[\begin{matrix}2 &amp; 2 &amp; 2\\2 &amp; 2 &amp; 3\\3 &amp; 4 &amp; 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]\]</span></p>
+<p><span class="math display">\[
+\left[\begin{matrix}2 &amp; 2 &amp; 2\\2 &amp; 2 &amp; 3\\3 &amp; 4 &amp; 5\end{matrix} \right] \left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}4\\5\\7\end{matrix} \right]
+\Longrightarrow
+\left[\begin{matrix}x_1\\x_2\\x_3\end{matrix} \right] = \left[\begin{matrix}2\\-1\\1\end{matrix} \right]
+\]</span></p>
 <p>Here A is a matrix, b is a column vector, and x is the unknown vector. The matrix notation is often used to describe the linear equation systems as a concise way.</p>
 <section class="level3" id="lu-factorisation">
 <h3>LU Factorisation</h3>
@@ -880,7 +884,7 @@ Linalg.D.logdet x;;
 </div>
 <p>Note that the diagonal matrix <code>s</code> is represented as a vector. We can extend it with</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let s = Mat.diagm s;;;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let s = Mat.diagm s;;
 &gt;val s : Mat.mat =
 &gt;
 &gt;        C0     C1       C2
@@ -892,7 +896,7 @@ Linalg.D.logdet x;;
 <p>However, it is only possible when we know that the original diagonal matrix is square, otherwise the vector contains the <span class="math inline">\(min(m, n)\)</span> diagonal elements.</p>
 <p>Also, we can find to the eigenvectors of <span class="math inline">\(AA^T\)</span> to verify that it equals to the eigenvector factorisation.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.eig Mat.(dot a (transpose a));;;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.eig Mat.(dot a (transpose a));;
 &gt;- : Owl_dense_matrix_z.mat * Owl_dense_matrix_z.mat =
 &gt;(
 &gt;                C0              C1             C2
