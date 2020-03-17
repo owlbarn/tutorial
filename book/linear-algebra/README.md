@@ -1,8 +1,8 @@
 # Linear Algebra
 
-Linear Algebra is one the key basic mathematics field behind computer science and numerical computation. 
+Linear Algebra is a key mathematics field behind computer science and numerical computation. 
 Full coverage of this topic is apparently beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
-In this chapter we follows the basic structure of this book to give you a overall picture, but focusing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts. 
+In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts. 
 
 The high level APIs of Linear Algebra are provied in the `Linalg` module.
 It provides four types of number types: single precision, double precision, complex single precision, and complex double precision.
@@ -101,7 +101,7 @@ Similarly, we can also select some columns using `cols`.
 
 ### Iterate, Map, Fold, and Filter
 
-In reality, a matrix usually represents a collections of measurements (or points). We often need to go through these data again and again for various reasons. Owl provides very convenient functions to help you to iterate these elements. There is one thing I want to emphasise: Owl uses row-major matrix for storage format in the memory, which means accessing rows are much faster than those column operations.
+In reality, a matrix usually represents a collections of measurements (or points). We often need to go through these data over and over again for various reasons. Owl provides very convenient functions to help you to iterate these elements. There is one thing I want to emphasise: Owl uses row-major matrix for storage format in the memory, which means accessing rows are much faster than those column operations.
 
 Let's first create a `4 x 6` matrix of sequential numbers as below.
 
@@ -236,7 +236,7 @@ We can compare the relationship of `x` and `y` element-wisely as below.
 All aforementioned infix have their corresponding functions in the module, e.g., `=@` has `Mat.is_equal`.
 
 
-** Matrix Arithmetics **
+**Matrix Arithmetics**
 
 The arithmetic operation also heavily uses infix. Similar to matrix comparison, each infix has its corresponding function in the module.
 
@@ -544,7 +544,7 @@ A vector space, denoted by $R^n$, contains all the vectors that has $n$ elements
 In this vector space we have the `add` and `multiplication` operation. Applying them to the vectors is called *linear combination*.
 Then a *subspace* in a vector space is a non-empty set that linear combination of the vectors in this subspace still stays in the same subspace.
 
-There are four fundamental subspaces concerning solving linear systems $Ax=b, where $A$ is a $m$ by $n$ matrix.
+There are four fundamental subspaces concerning solving linear systems $Ax=b$, where $A$ is a $m$ by $n$ matrix.
 The *column space* consists of all the linear combinations of the columns of A. It is a subspace of $R^m$.
 Similarly, the *row space* consists of all the linear combinations of the rows of  A. 
 The *nullspace* contains all the vectors $x$ so that $Ax=0$, denoted by $N(A)$. It is a subspace of $R^n$.
