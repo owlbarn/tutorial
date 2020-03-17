@@ -284,19 +284,6 @@ There are other functions such as concatenation:
 ```
 
 
-### Sparse Matrices
-
-What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the *sparse* structure might be more efficient.
-The sparse matrix is proivded in the `Sparse.Matrix` module, and also support the four types of number in the `S`, `D`, `C`, and `Z` submodules.
-
-(Perhaps these contents are better to discuss in Ndarray module.)
-
-Very brief. 
-Focusing on introducing the data structure (CSC, CSR, etc), no the method.
-Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
-TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
-
-
 ## Gaussian Elimination
 
 Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation.
@@ -753,7 +740,7 @@ If `a` is a upper or lower triangular matrix, the function calls the `solve_tria
 
 Here is an example.
 
-```text
+```ocaml
 # let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3
 val a : Mat.mat =
 
@@ -763,6 +750,9 @@ R1  1 -2  4
 R2  3  8 -2
 R3  4 -1  9
 
+```
+
+```ocaml
 # let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1
 val b : Mat.mat =
    C0
@@ -771,6 +761,9 @@ R1 -5
 R2 13
 R3 -6
 
+```
+
+```ocaml
 # let x0 = Linalg.D.linsolve a b
 val x0 : Owl_dense_matrix_d.mat =
    C0
@@ -782,7 +775,7 @@ R2  2
 
 Then we use `null` to find the fundamental solution system. You can verify that matrix `a` is of rank 2, so that the solution system for $ax=0$ should contain only 3 - 2 = 1 vector.
 
-```text
+```ocaml
 # let x1 = Linalg.D.null a
 val x1 : Owl_dense_matrix_d.mat =
 
@@ -819,32 +812,41 @@ We can calculate it using the `cond` function.
 
 Let's look at an example:
 
-```text
+```ocaml env=linalg_20
 # let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;
 val a : Mat.mat =
     C0  C1
 R0 4.1 2.8
 R1 9.7 6.6
 
+```
+
+```ocaml env=linalg_20
 # let c = Linalg.D.cond a
 val c : float = 1622.99938385651058
 ```
 
 Its condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
 
-```text
+```ocaml env=linalg_20
 # let a' = Linalg.D.inv a
 val a' : Owl_dense_matrix_d.mat =
     C0  C1
 R0 -66  28
 R1  97 -41
 
+```
+
+```ocaml env=linalg_20
 # let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2
 val a2 : Mat.mat =
      C0    C1
 R0  4.1   2.8
 R1 9.67 6.607
 
+```
+
+```ocaml env=linalg_20
 # let a2' = Linalg.D.inv a2
 val a2' : Owl_dense_matrix_d.mat =
 
@@ -885,7 +887,7 @@ These properties are widely used in finding *eigenvalues*. As will be shown in t
 Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function `logdet`. 
 It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
 
-```text
+```ocaml env=linalg_30
 # let x = Mat.magic 5
 val x : Mat.mat =
 
@@ -896,12 +898,14 @@ R2  4  6 13 20 22
 R3 10 12 19 21  3
 R4 11 18 25  2  9
 
+```
+
+```ocaml env=linalg_30
 # Linalg.D.det x
-- : float = 5070000.
+- : float = 5070000.00000000093
 
 # Linalg.D.logdet x
-- : float = 15.4388513755673671
-
+- : float = 15.4388513755673653
 ```
 
 ## Eigenvalues and Eigenvectors
@@ -991,38 +995,41 @@ A conjugate transpose means that during transposing, each element $a+bi$ changes
 Hermitian is thus a generalisation of the symmetric matrix.
 We can use the `is_hermitian` function to check if a  matrix is hermitian, as can be shown in the next example.
 
-```text
+```ocaml env=linalg_35
 # let a = Dense.Matrix.Z.of_array 
-	  [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 
-val a : Dense.Matrix.Z.mat =
+val a : Complex.t array -> int -> int -> Dense.Matrix.Z.mat = <fun>
+```
 
-        C0       C1
-R0 (1, 0i) (2, -1i)
-R1 (2, 1i)  (3, 0i)
-
+```ocaml env=linalg_35
 # Linalg.Generic.is_hermitian a
-- : bool = true
+Line 1, characters 29-30:
+Error: This expression has type
+         Complex.t array -> int -> int -> Dense.Matrix.Z.mat
+       but an expression was expected of type
+         (Complex.t, 'a) Owl_dense_matrix_generic.t =
+           (Complex.t, 'a, c_layout) Genarray.t
 ```
 
 We can use the `conj` function of a complex matrix to perform the conjugate transpose:
 
-```text
+```ocaml env=linalg_35
 # Dense.Matrix.Z.(conj a |> transpose)
-- : Dense.Matrix.Z.mat =
-
-         C0       C1
-R0 (1, -0i) (2, -1i)
-R1  (2, 1i) (3, -0i)
+Line 1, characters 22-23:
+Error: This expression has type elt array -> int -> int -> mat
+       but an expression was expected of type
+         mat = (elt, complex64_elt, c_layout) Genarray.t
 ```
 
 A theorem declares that if a matrix is hermitian, then for all complex vectors $x$, $x^HAx$ is real, and every eigenvalue is real.
 
-```text
+```ocaml env=linalg_35
 # Linalg.Z.eigvals a
-- : Owl_linalg_z.mat =
-
-                         C0                      C1
-R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)
+Line 1, characters 18-19:
+Error: This expression has type
+         Complex.t array -> int -> int -> Dense.Matrix.Z.mat
+       but an expression was expected of type
+         Owl_dense_matrix_z.mat =
+           (Complex.t, complex64_elt, c_layout) Genarray.t
 ```
 
 A related concept is the *Unitary Matrix*.
@@ -1118,7 +1125,7 @@ There are several necessary and sufficient condition for testing if a symmetric 
 For the last condition, we can use the *Cholesky Decomposition* to find the matrix B.
 It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose $LL^H$:
 
-```text
+```ocaml env=linalg_40
 # let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 
 val a : Mat.mat =
 
@@ -1127,6 +1134,9 @@ R0   4  12 -16
 R1  12  37 -43
 R2 -16 -43  98
 
+```
+
+```ocaml env=linalg_40
 # let l = Linalg.D.chol a
 val l : Owl_dense_matrix_d.mat =
 
@@ -1135,6 +1145,9 @@ R0  2  6 -8
 R1  0  1  5
 R2  0  0  3
 
+```
+
+```ocaml env=linalg_40
 # Mat.(dot (transpose l) l)
 - : Mat.mat =
 
@@ -1259,7 +1272,7 @@ The function `gsvd` performs a generalised SVD.
 The shape of `x` is `m x n` and the shape of `y` is `p x n`.
 Here is an example:
 
-```text
+```ocaml env=linalg_50
 # let x = Mat.uniform 5 5
 val x : Mat.mat =
 
@@ -1270,6 +1283,9 @@ R2 0.439047 0.459974 0.767078 0.148038  0.445326
 R3 0.307424 0.129056 0.998469 0.163971  0.718515
 R4 0.474817 0.176199 0.316661 0.476701  0.138534
 
+```
+
+```ocaml env=linalg_50
 # let y = Mat.uniform 2 5
 val y : Mat.mat =
 
@@ -1277,6 +1293,9 @@ val y : Mat.mat =
 R0 0.523882 0.150938 0.718397   0.1573 0.00542669
 R1 0.714052 0.874704 0.436799 0.198898   0.406196
 
+```
+
+```ocaml env=linalg_50
 # let u, v, q, d1, d2, r = Linalg.D.gsvd x y
 val u : Owl_dense_matrix_d.mat =
 
@@ -1326,6 +1345,9 @@ R2        0        0  0.346057 0.954629   0.167467
 R3        0        0         0 -1.56104  -0.124984
 R4        0        0         0        0   0.555067
 
+```
+
+```ocaml env=linalg_50
 # Mat.(u *@ d1 *@ r *@ transpose q =~ x)
 - : bool = true
 # Mat.(v *@ d2 *@ r *@ transpose q =~ y)
@@ -1384,6 +1406,19 @@ TODO: Examples
 ```
 
 TODO: How these low level functions are used in Owl Code. 
+
+
+## Sparse Matrices
+
+What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the *sparse* structure might be more efficient.
+The sparse matrix is proivded in the `Sparse.Matrix` module, and also support the four types of number in the `S`, `D`, `C`, and `Z` submodules.
+
+(Perhaps these contents are better to discuss in Ndarray module.)
+
+Very brief. 
+Focusing on introducing the data structure (CSC, CSR, etc), no the method.
+Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
+TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
 
 
 ## References

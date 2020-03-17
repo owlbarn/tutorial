@@ -213,12 +213,6 @@ let y = Mat.uniform 2 2;;</code></pre>
   Mat.(x @|| y);;   (* concatenate x and y horizontally *)</code></pre>
 </div>
 </section>
-<section class="level3" id="sparse-matrices">
-<h3>Sparse Matrices</h3>
-<p>What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the <em>sparse</em> structure might be more efficient. The sparse matrix is proivded in the <code>Sparse.Matrix</code> module, and also support the four types of number in the <code>S</code>, <code>D</code>, <code>C</code>, and <code>Z</code> submodules.</p>
-<p>(Perhaps these contents are better to discuss in Ndarray module.)</p>
-<p>Very brief. Focusing on introducing the data structure (CSC, CSR, etc), no the method. Mention the <a href="https://github.com/owlbarn/owl_suitesparse">owl_suitesparse</a> TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
-</section>
 </section>
 <section class="level2" id="gaussian-elimination">
 <h2>Gaussian Elimination</h2>
@@ -522,40 +516,44 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 <p>We can use <code>linsolve</code> function to find one particular solution. In the Linear Algebra, the function <code>linsolve a b -&gt; x</code> solves a linear system of equations <code>a * x = b</code>. By default, the function uses LU factorisation with partial pivoting when <code>a</code> is square and QR factorisation with column pivoting otherwise. The number of rows of <code>a</code> must be equal to the number of rows of <code>b</code>. If <code>a</code> is a upper or lower triangular matrix, the function calls the <code>solve_triangular</code> function.</p>
 <p>Here is an example.</p>
 <div class="highlight">
-<pre><code class="language-text"># let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3
-val a : Mat.mat =
-
-   C0 C1 C2
-R0  2  3  1
-R1  1 -2  4
-R2  3  8 -2
-R3  4 -1  9
-
-# let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1
-val b : Mat.mat =
-   C0
-R0  4
-R1 -5
-R2 13
-R3 -6
-
-# let x0 = Linalg.D.linsolve a b
-val x0 : Owl_dense_matrix_d.mat =
-   C0
-R0 -5
-R1  4
-R2  2
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3;;
+&gt;val a : Mat.mat =
+&gt;
+&gt;   C0 C1 C2
+&gt;R0  2  3  1
+&gt;R1  1 -2  4
+&gt;R2  3  8 -2
+&gt;R3  4 -1  9
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1;;
+&gt;val b : Mat.mat =
+&gt;   C0
+&gt;R0  4
+&gt;R1 -5
+&gt;R2 13
+&gt;R3 -6
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = Linalg.D.linsolve a b;;
+&gt;val x0 : Owl_dense_matrix_d.mat =
+&gt;   C0
+&gt;R0 -5
+&gt;R1  4
+&gt;R2  2
 </code></pre>
 </div>
 <p>Then we use <code>null</code> to find the fundamental solution system. You can verify that matrix <code>a</code> is of rank 2, so that the solution system for <span class="math inline">\(ax=0\)</span> should contain only 3 - 2 = 1 vector.</p>
 <div class="highlight">
-<pre><code class="language-text"># let x1 = Linalg.D.null a
-val x1 : Owl_dense_matrix_d.mat =
-
-          C0
-R0 -0.816497
-R1  0.408248
-R2  0.408248
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x1 = Linalg.D.null a;;
+&gt;val x1 : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0
+&gt;R0 -0.816497
+&gt;R1  0.408248
+&gt;R2  0.408248
 </code></pre>
 </div>
 <p>So the solutions to <span class="math inline">\(Ax=b\)</span> can be expressed as:</p>
@@ -569,35 +567,42 @@ R2  0.408248
 <p>The most frequently used condition number is that represent the sensitivity of inverse matrix. With the definition of norm, the <em>condition number for inversion</em> of a matrix can be expressed as <span class="math inline">\(\|A\|\|A^{-1}\|\)</span>. We can calculate it using the <code>cond</code> function.</p>
 <p>Let’s look at an example:</p>
 <div class="highlight">
-<pre><code class="language-text"># let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;
-val a : Mat.mat =
-    C0  C1
-R0 4.1 2.8
-R1 9.7 6.6
-
-# let c = Linalg.D.cond a
-val c : float = 1622.99938385651058</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;;;
+&gt;val a : Mat.mat =
+&gt;    C0  C1
+&gt;R0 4.1 2.8
+&gt;R1 9.7 6.6
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let c = Linalg.D.cond a;;
+&gt;val c : float = 1622.99938385651058
+</code></pre>
 </div>
 <p>Its condition number for inversion is much larger than one. Therefore, a small change in <span class="math inline">\(A\)</span> should leads to a large change of <span class="math inline">\(A^{-1}\)</span>.</p>
 <div class="highlight">
-<pre><code class="language-text"># let a' = Linalg.D.inv a
-val a' : Owl_dense_matrix_d.mat =
-    C0  C1
-R0 -66  28
-R1  97 -41
-
-# let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2
-val a2 : Mat.mat =
-     C0    C1
-R0  4.1   2.8
-R1 9.67 6.607
-
-# let a2' = Linalg.D.inv a2
-val a2' : Owl_dense_matrix_d.mat =
-
-         C0       C1
-R0  520.236 -220.472
-R1 -761.417  322.835
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Linalg.D.inv a;;
+&gt;val a' : Owl_dense_matrix_d.mat =
+&gt;    C0  C1
+&gt;R0 -66  28
+&gt;R1  97 -41
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2;;
+&gt;val a2 : Mat.mat =
+&gt;     C0    C1
+&gt;R0  4.1   2.8
+&gt;R1 9.67 6.607
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a2' = Linalg.D.inv a2;;
+&gt;val a2' : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0       C1
+&gt;R0  520.236 -220.472
+&gt;R1 -761.417  322.835
 </code></pre>
 </div>
 <p>We can see that by changing the matrix by only a tiny bit, the inverse of <span class="math inline">\(A\)</span> changes dramatically, and so is the resulting solution vector <span class="math inline">\(x\)</span>.</p>
@@ -615,21 +620,22 @@ R1 -761.417  322.835
 <p>We can also use it to understand the solution of <span class="math inline">\(Ax=b\)</span>: if <span class="math inline">\(\textrm{det}(A) \neq 0\)</span>, then <span class="math inline">\(Ax=b\)</span> has one and only one solution. This theorem is part of the <em>Cramer’s rule</em>. These properties are widely used in finding <em>eigenvalues</em>. As will be shown in the next section.</p>
 <p>Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function <code>logdet</code>. It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.</p>
 <div class="highlight">
-<pre><code class="language-text"># let x = Mat.magic 5
-val x : Mat.mat =
-
-   C0 C1 C2 C3 C4
-R0 17 24  1  8 15
-R1 23  5  7 14 16
-R2  4  6 13 20 22
-R3 10 12 19 21  3
-R4 11 18 25  2  9
-
-# Linalg.D.det x
-- : float = 5070000.
-
-# Linalg.D.logdet x
-- : float = 15.4388513755673671
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.magic 5;;
+&gt;val x : Mat.mat =
+&gt;
+&gt;   C0 C1 C2 C3 C4
+&gt;R0 17 24  1  8 15
+&gt;R1 23  5  7 14 16
+&gt;R2  4  6 13 20 22
+&gt;R3 10 12 19 21  3
+&gt;R4 11 18 25  2  9
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.D.det x;;
+&gt;- : float = 5070000.00000000093
+Linalg.D.logdet x;;
+&gt;- : float = 15.4388513755673653
 </code></pre>
 </div>
 </section>
@@ -689,33 +695,39 @@ R4 11 18 25  2  9
 <p>As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors. In this section we re-introduce some previous concepts in the complex space.</p>
 <p>We have seen the Symmetric Matrix. It can be extended to the complex numbers, called <em>Hermitian Matrix</em>, denoted by <span class="math inline">\(A^H\)</span>. Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose. A conjugate transpose means that during transposing, each element <span class="math inline">\(a+bi\)</span> changes to its conjugate <span class="math inline">\(a-bi\)</span>. Hermitian is thus a generalisation of the symmetric matrix. We can use the <code>is_hermitian</code> function to check if a matrix is hermitian, as can be shown in the next example.</p>
 <div class="highlight">
-<pre><code class="language-text"># let a = Dense.Matrix.Z.of_array 
-      [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 
-val a : Dense.Matrix.Z.mat =
-
-        C0       C1
-R0 (1, 0i) (2, -1i)
-R1 (2, 1i)  (3, 0i)
-
-# Linalg.Generic.is_hermitian a
-- : bool = true</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array ;;
+&gt;val a : Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat = &lt;fun&gt;
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.Generic.is_hermitian a;;
+&gt;Line 1, characters 29-30:
+&gt;Error: This expression has type
+&gt;         Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat
+&gt;       but an expression was expected of type
+&gt;         (Complex.t, 'a) Owl_dense_matrix_generic.t =
+&gt;           (Complex.t, 'a, c_layout) Genarray.t
+</code></pre>
 </div>
 <p>We can use the <code>conj</code> function of a complex matrix to perform the conjugate transpose:</p>
 <div class="highlight">
-<pre><code class="language-text"># Dense.Matrix.Z.(conj a |&gt; transpose)
-- : Dense.Matrix.Z.mat =
-
-         C0       C1
-R0 (1, -0i) (2, -1i)
-R1  (2, 1i) (3, -0i)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dense.Matrix.Z.(conj a |&gt; transpose);;
+&gt;Line 1, characters 22-23:
+&gt;Error: This expression has type elt array -&gt; int -&gt; int -&gt; mat
+&gt;       but an expression was expected of type
+&gt;         mat = (elt, complex64_elt, c_layout) Genarray.t
+</code></pre>
 </div>
 <p>A theorem declares that if a matrix is hermitian, then for all complex vectors <span class="math inline">\(x\)</span>, <span class="math inline">\(x^HAx\)</span> is real, and every eigenvalue is real.</p>
 <div class="highlight">
-<pre><code class="language-text"># Linalg.Z.eigvals a
-- : Owl_linalg_z.mat =
-
-                         C0                      C1
-R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.Z.eigvals a;;
+&gt;Line 1, characters 18-19:
+&gt;Error: This expression has type
+&gt;         Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat
+&gt;       but an expression was expected of type
+&gt;         Owl_dense_matrix_z.mat =
+&gt;           (Complex.t, complex64_elt, c_layout) Genarray.t
+</code></pre>
 </div>
 <p>A related concept is the <em>Unitary Matrix</em>. A matrix <span class="math inline">\(U\)</span> is unitary if <span class="math inline">\(U^HU=I\)</span>. The inverse and conjugate transpose of <span class="math inline">\(U\)</span> are the same. It can be compared to the orthogonal vectors in the real space.</p>
 </section>
@@ -784,29 +796,33 @@ R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)</code></pre>
 </ol>
 <p>For the last condition, we can use the <em>Cholesky Decomposition</em> to find the matrix B. It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose <span class="math inline">\(LL^H\)</span>:</p>
 <div class="highlight">
-<pre><code class="language-text"># let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 
-val a : Mat.mat =
-
-    C0  C1  C2
-R0   4  12 -16
-R1  12  37 -43
-R2 -16 -43  98
-
-# let l = Linalg.D.chol a
-val l : Owl_dense_matrix_d.mat =
-
-   C0 C1 C2
-R0  2  6 -8
-R1  0  1  5
-R2  0  0  3
-
-# Mat.(dot (transpose l) l)
-- : Mat.mat =
-
-    C0  C1  C2
-R0   4  12 -16
-R1  12  37 -43
-R2 -16 -43  98
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 ;;
+&gt;val a : Mat.mat =
+&gt;
+&gt;    C0  C1  C2
+&gt;R0   4  12 -16
+&gt;R1  12  37 -43
+&gt;R2 -16 -43  98
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let l = Linalg.D.chol a;;
+&gt;val l : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0 C1 C2
+&gt;R0  2  6 -8
+&gt;R1  0  1  5
+&gt;R2  0  0  3
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.(dot (transpose l) l);;
+&gt;- : Mat.mat =
+&gt;
+&gt;    C0  C1  C2
+&gt;R0   4  12 -16
+&gt;R1  12  37 -43
+&gt;R2 -16 -43  98
 </code></pre>
 </div>
 <p>If in <span class="math inline">\(Ax=b\)</span> we know that <span class="math inline">\(A\)</span> is hermitian and positive definite, then we can instead solve <span class="math inline">\(L^Lx=b\)</span>. As we have seen previously, solving linear system that expressed with triangular matrices is easy. The Cholesky decomposition is more efficient than the LU decomposition.</p>
@@ -893,76 +909,83 @@ R2 -16 -43  98
 <p>In this example we ues the <code>thin</code> parameter. By default, the <code>svd</code> function performs a reduced SVD, where <span class="math inline">\(\Sigma\)</span> is a <span class="math inline">\(m\times~m\)</span> matrix and <span class="math inline">\(V^T\)</span> is a m by n matrix.</p>
 <p>Besides, <code>svd</code>, we also provide <code>svdvals</code> that only returns the singular values, i.e.&nbsp;the vector of diagonal elements. The function <code>gsvd</code> performs a generalised SVD. <code>gsvd x y -&gt; (u, v, q, d1, d2, r)</code> computes the generalised SVD of a pair of general rectangular matrices <code>x</code> and <code>y</code>. <code>d1</code> and <code>d2</code> contain the generalised singular value pairs of <code>x</code> and <code>y</code>. The shape of <code>x</code> is <code>m x n</code> and the shape of <code>y</code> is <code>p x n</code>. Here is an example:</p>
 <div class="highlight">
-<pre><code class="language-text"># let x = Mat.uniform 5 5
-val x : Mat.mat =
-
-         C0       C1       C2       C3        C4
-R0 0.548998 0.623231  0.95821 0.440292  0.551542
-R1 0.406659 0.631188 0.434482 0.519169 0.0841121
-R2 0.439047 0.459974 0.767078 0.148038  0.445326
-R3 0.307424 0.129056 0.998469 0.163971  0.718515
-R4 0.474817 0.176199 0.316661 0.476701  0.138534
-
-# let y = Mat.uniform 2 5
-val y : Mat.mat =
-
-         C0       C1       C2       C3         C4
-R0 0.523882 0.150938 0.718397   0.1573 0.00542669
-R1 0.714052 0.874704 0.436799 0.198898   0.406196
-
-# let u, v, q, d1, d2, r = Linalg.D.gsvd x y
-val u : Owl_dense_matrix_d.mat =
-
-          C0        C1        C2        C3        C4
-R0 -0.385416 -0.294725 -0.398047 0.0383079 -0.777614
-R1   0.18222 -0.404037 -0.754063 -0.206208  0.438653
-R2 -0.380469 0.0913876 -0.199462  0.847599  0.297795
-R3 -0.807427 -0.147819  0.194202 -0.418909  0.336172
-R4  0.146816 -0.848345  0.442095  0.249201 0.0347409
-
-val v : Owl_dense_matrix_d.mat =
-
-         C0        C1
-R0 0.558969  0.829189
-R1 0.829189 -0.558969
-
-val q : Owl_dense_matrix_d.mat =
-
-          C0        C1        C2        C3        C4
-R0 -0.436432 -0.169817  0.642272 -0.603428 0.0636394
-R1 -0.124923  0.407939 -0.376937 -0.494889 -0.656494
-R2  0.400859  0.207482 -0.268507 -0.567199  0.634391
-R3 -0.283012 -0.758558 -0.559553 -0.173745 0.0347457
-R4  0.743733 -0.431612  0.245375 -0.197629  -0.40163
-
-val d1 : Owl_dense_matrix_d.mat =
-
-   C0 C1 C2       C3        C4
-R0  1  0  0        0         0
-R1  0  1  0        0         0
-R2  0  0  1        0         0
-R3  0  0  0 0.319964         0
-R4  0  0  0        0 0.0583879
-
-val d2 : Owl_dense_matrix_d.mat =
-
-   C0 C1 C2      C3       C4
-R0  0  0  0 0.94743        0
-R1  0  0  0       0 0.998294
-
-val r : Owl_dense_matrix_d.mat =
-
-         C0       C1        C2       C3         C4
-R0 -0.91393 0.196148 0.0738038  1.45659  -0.268024
-R1        0 0.463548  0.286501  1.38499 -0.0595374
-R2        0        0  0.346057 0.954629   0.167467
-R3        0        0         0 -1.56104  -0.124984
-R4        0        0         0        0   0.555067
-
-# Mat.(u *@ d1 *@ r *@ transpose q =~ x)
-- : bool = true
-# Mat.(v *@ d2 *@ r *@ transpose q =~ y)
-- : bool = true</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Mat.uniform 5 5;;
+&gt;val x : Mat.mat =
+&gt;
+&gt;         C0       C1       C2       C3        C4
+&gt;R0 0.548998 0.623231  0.95821 0.440292  0.551542
+&gt;R1 0.406659 0.631188 0.434482 0.519169 0.0841121
+&gt;R2 0.439047 0.459974 0.767078 0.148038  0.445326
+&gt;R3 0.307424 0.129056 0.998469 0.163971  0.718515
+&gt;R4 0.474817 0.176199 0.316661 0.476701  0.138534
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Mat.uniform 2 5;;
+&gt;val y : Mat.mat =
+&gt;
+&gt;         C0       C1       C2       C3         C4
+&gt;R0 0.523882 0.150938 0.718397   0.1573 0.00542669
+&gt;R1 0.714052 0.874704 0.436799 0.198898   0.406196
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let u, v, q, d1, d2, r = Linalg.D.gsvd x y;;
+&gt;val u : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0        C1        C2        C3        C4
+&gt;R0 -0.385416 -0.294725 -0.398047 0.0383079 -0.777614
+&gt;R1   0.18222 -0.404037 -0.754063 -0.206208  0.438653
+&gt;R2 -0.380469 0.0913876 -0.199462  0.847599  0.297795
+&gt;R3 -0.807427 -0.147819  0.194202 -0.418909  0.336172
+&gt;R4  0.146816 -0.848345  0.442095  0.249201 0.0347409
+&gt;
+&gt;val v : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0        C1
+&gt;R0 0.558969  0.829189
+&gt;R1 0.829189 -0.558969
+&gt;
+&gt;val q : Owl_dense_matrix_d.mat =
+&gt;
+&gt;          C0        C1        C2        C3        C4
+&gt;R0 -0.436432 -0.169817  0.642272 -0.603428 0.0636394
+&gt;R1 -0.124923  0.407939 -0.376937 -0.494889 -0.656494
+&gt;R2  0.400859  0.207482 -0.268507 -0.567199  0.634391
+&gt;R3 -0.283012 -0.758558 -0.559553 -0.173745 0.0347457
+&gt;R4  0.743733 -0.431612  0.245375 -0.197629  -0.40163
+&gt;
+&gt;val d1 : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0 C1 C2       C3        C4
+&gt;R0  1  0  0        0         0
+&gt;R1  0  1  0        0         0
+&gt;R2  0  0  1        0         0
+&gt;R3  0  0  0 0.319964         0
+&gt;R4  0  0  0        0 0.0583879
+&gt;
+&gt;val d2 : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0 C1 C2      C3       C4
+&gt;R0  0  0  0 0.94743        0
+&gt;R1  0  0  0       0 0.998294
+&gt;
+&gt;val r : Owl_dense_matrix_d.mat =
+&gt;
+&gt;         C0       C1        C2       C3         C4
+&gt;R0 -0.91393 0.196148 0.0738038  1.45659  -0.268024
+&gt;R1        0 0.463548  0.286501  1.38499 -0.0595374
+&gt;R2        0        0  0.346057 0.954629   0.167467
+&gt;R3        0        0         0 -1.56104  -0.124984
+&gt;R4        0        0         0        0   0.555067
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.(u *@ d1 *@ r *@ transpose q =~ x);;
+&gt;- : bool = true
+Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
+&gt;- : bool = true
+</code></pre>
 </div>
 <p>TODO: The intuition of SVD.</p>
 <p>The SVD is not only important linear algebra concept, but also has a wide and growing applications. For example, the <a href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">Moore-Penrose pseudo-inverse</a> that works for non-invertible matrix can be implemented efficiently using SVD (we provide <code>pinv</code> function in the linear algebra module for the pseudo inverse). In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.</p>
@@ -1005,6 +1028,12 @@ R4        0        0         0        0   0.555067
 </div>
 <p>TODO: How these low level functions are used in Owl Code.</p>
 </section>
+</section>
+<section class="level2" id="sparse-matrices">
+<h2>Sparse Matrices</h2>
+<p>What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the <em>sparse</em> structure might be more efficient. The sparse matrix is proivded in the <code>Sparse.Matrix</code> module, and also support the four types of number in the <code>S</code>, <code>D</code>, <code>C</code>, and <code>Z</code> submodules.</p>
+<p>(Perhaps these contents are better to discuss in Ndarray module.)</p>
+<p>Very brief. Focusing on introducing the data structure (CSC, CSR, etc), no the method. Mention the <a href="https://github.com/owlbarn/owl_suitesparse">owl_suitesparse</a> TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
