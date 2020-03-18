@@ -356,71 +356,69 @@ Another approach is to use the Foreign Function Interface, as explained [here](h
 
 ## Optimisation Techniques
 
-We try to apply multiple techniques if possible. 
+There is a big room for optimising the C code. 
+We are trying to push the performance forward with multiple techniques.
+We mainly use the multiprocessing with OpenMP and parallel computing using SIMD intrinsics when possible. 
+In this section, We choose some representative operations to demonstrate our optimisation of the core ndarray operations.
 
-Show some optimisation techniques at the C level, and demonstrate their effect. 
-It does not have to perform better than every one. 
+To show how these optimisation works, we compare performance of an operation, in different numerical libraries: Owl, NumPy, Julia, and Eigen. 
+The purpose is two-fold: first, to bring insight into the low-level structure design; second, to demonstrate the possible optimisations in implementing these operations.
 
-In this section, I choose representative operations. I compare their performance in different
-numerical libraries: Owl, NumPy, and Julia. The purpose is two-fold:
-first, to bring insight into the low-level structure design; second, to
-demonstrate the possible optimisations in implementing these
-operations.
+In the performance measurements, we use multiple input sizes, and observe the execution time and memory usage. 
+The experiments are conducted on both a laptop (Thinkpad T460s, Core i5 CPU) and a Raspberry Pi (rPi) 3B model. They represent different CPU architectures and computation power.
 
-In the performance measurements, I use multiple input sizes, and observe
-the execution time and memory usage. The experiments are conducted on
-both a laptop (Thinkpad T460s, Core i5 CPU) and a Raspberry Pi (rPi) 3B
-model. They represent different CPU architectures and computation power.
+### Map Operations 
 
+The `map` operations are a family of operations that accept ndarray as input, and apply a function on all the elements in the ndarray. 
+Again, we use the trigonometric `sin` operation as a representative map arithmetic operation in this section. It requires heavy computation. 
+In the implementation, it directly calls the low-level C functions via a single template. 
+The performance of such operation is mainly decided by the linked low level library. 
+Map function can also benefit from parallel execution on the multi-core CPU, such as using OpenMP. 
 
-### Map Operations
+OpenMP is one of the most common parallel programming models in use today. 
+Unlike pthread, the low-level API to work with threads, OpenMP operate at a high-level and is much more portable. 
+It uses a "Fork–join model" where the master thread spawns other threads as necessary, as shown in [@fig:core-opt:fork-join]. 
 
-The `map` operations are a family of operations that accept ndarray as
-input, and apply a function on all the elements in the ndarray. I use
-the trigonometric `sin` operation as a representative map arithmetic
-operation in this section. It requires heavy computation. In the
-implementation, it directly calls the low-level C functions via a single
-template. It calls function `MAPFN` on one array element-wise, and the
-result is put in the other array. In the case of sine function, it calls
-`sinf` or `sin` function from the C standard library `libc`.
+![Fork-join model used by OpenMP](images/core-opt/fork_join.png "fork"){width=90%s #fig:core-opt:fork-join}
 
+In the C code we can create threads with the `omp parallel` pragma. For example, to create a four-thread parallel region, we can use:
+
+```c
+omp_set_num_threads(4);
+#pragma omp parallel
+{
+  /* parallel region */
+  ... 
+}
 ```
+
+The task in the region is assigned to the four threads and get executed in parallel.
+The most frequently used pattern in our core code is to move a for-loop into the parallel region. Each thread is assigned part of the whole input array, and apply the math computation on each element in parallel. 
+Taking the implementation code from previous chapter, we only need to add a single line of OpenMP compiler directive:
+
+```c
+#pragma omp parallel for schedule(static)
 for (int i = 0; i < N; i++) {
     NUMBER x = *(start_x + i);
     *(start_y + i) = (MAPFN(x));
 }
 ```
 
-Therefore, the performance is mainly decided by the linked low level
-library, and may be affected by the cost of wrapper around these
-libraries. Both vectorisation and parallelisation techniques can be
-utilised to improve its performance.
+The for-loop is included in parallel region, and the `N` elements are scheduled to each thread.
+In the code we use the `static` scheduling, which means scheduling is done at compile time.
+It works best when the each iterations take roughly equal time.
+Otherwise we can consider using the "dynamic" scheduling that happens at runtime, or "auto" scheduling when the runtime can learn from previous executions of the same loop.
 
-Applying computation-intensive operations such as sine in a for-loop can
-be vectorised using SIMD instructions. The computation performance can
-be boosted by executing single instruction on multiple data in the input
-ndarray. There are SIMD implementations of certain mathematical
-functions , and compilers such as GNU GCC also
-provide options to automatically generating vectorised loop.
+That's all. We apply it simple techniques to the templates of many map function. 
+Note that OpenMP comes with a certain overhead. 
+What if we don't want to use the OpenMP version? 
 
-Map function can also benefit from parallel execution on the multi-core
-CPU, such as using OpenMP. To parallelise a loop in C program, I only
-need to add a single line of OpenMP compiler directive, as shown in code below.
 
-```
-for (int i = 0; i < N; i++) {
-    NUMBER x = *(start_x + i);
-    *(start_y + i) = (MAPFN(x));
-}
-```
+Our solution is to provide two sets of C templates and switch depending on configuration flags. 
+For example, for the map functions, we have the normal template file "owl_ndarray_maths_map.h", and then a similar one "owl_ndarray_maths_map_omp.h" where each template uses the OpenMP derivative. 
+We can then switch between these two implementation by simply define or un-define the `_OPENMP` macro, which can easily be done in the configuration file. 
 
-Now that I have different versions of implementation: normal, SIMD
-version, and OpenMP version. The mechanism for switching between these
-different implementations in Owl is to provide another set of operations
-and switch depending on configuration flags. For example, the OpenMP
-implementation is switched as below.
-
-```
+```c
 #ifdef _OPENMP
 #define OWL_NDARRAY_MATHS_MAP  "owl_ndarray_maths_map_omp.h"
 #else
@@ -428,37 +426,51 @@ implementation is switched as below.
 #endif
 ```
 
+OpenMP is surely not only utilised in the map function. We also implement OpenMP-enhanced templates for the fold operations, comparison operations, slicing, and matrix swap, etc.
+
+Another optimisation is to remove the memory copy phase by applying mutable operations. 
+A mutable operation does not create new memory space before calculation, but instead utilise existing memory space of input
+ndarray.
+This kind of operations does not involve the C code, but rather in the ndarray module. For example:
+
+```text
+let sin_ ?out x =
+  let out =
+    match out with
+    | Some o -> o
+    | None   -> x
+  in
+  _owl_sin (kind x) (numel x) x out
+```
+
+The `_owl_sin` function is still the same, but in this mutable function `sin_` we choose the destination array and source array to be the same. 
+Therefore, the existing memory is utilised and we don't have to copy the previous content to a new memory space before the calculation.
+
+Both vectorisation and parallelisation techniques can be utilised to improve its performance.
+Computation-intensive operations such as sine in a for-loop can
+be vectorised using SIMD instructions.
+The computation performance can be boosted by executing single instruction on multiple data in the input ndarray. 
+In that way, with only one core, 4 or 8 elements in the for-loop can be processed at the same time. 
+However, unlike OpenMP, we cannot say "apply sine operation on these 4 elements". 
+The SIMD intrinsics, such as the ones provided by [Intel](https://software.intel.com/sites/landingpage/IntrinsicsGuide/), only support basic operations such as copy, add, etc.
+To implement functions such as sine and exponential is non-trivial task. 
+One simple implementation using the SSE instruction set is [here](http://gruntthepeon.free.fr/ssemath/).
+More and more libraries such as the Intel MKL provide SIMD version of these basic math operations instead of that provided in the standard C library.
+
+Let's look at how our implementation of the `sin` operation performs compared with the other libraries.
+To measure performance, we compare the sine operation in Owl, NumPy, Julia, and C. The compiling flags in C and Owl are set to the same level 3 optimisation. The input is a vector of single-precision float numbers. 
+We increase the input size from 100,000 to 5,000,000 gradually.
+The comparison results are shown in [@fig:core-opt:op_eval_sin_tp] and [@fig:core-opt:op_eval_sin_rpi].
+
 ![Sin operation on laptop](images/core-opt/opeval_tp_sin_00.png){width=50% #fig:core-opt:op_eval_sin_tp}
 
 ![Sin operation on rPi](images/core-opt/opeval_rpi_sin_00.png){width=50% #fig:core-opt:op_eval_sin_rpi}
 
-To measure performance, I compare the sine operation in Owl, NumPy,
-Julia, and C. The compiling flags in C and Owl are set to the same level
-3 optimisation. The input is a vector of single-precision float numbers.
-I increase the input size from 100,000 to 5,000,000 gradually. The
-comparison results are shown in [@fig:core-opt:op_eval_sin_tp] and [@fig:core-opt:op_eval_sin_rpi].
+It can be seen that the execution time in Owl grows linearly with input size, and very similar to that of C library. Julia has large deviation, but it performs fastest on rPi, even faster than C. 
+It is because of Julia utilises NEON, the SIMD architecture extension on ARM. 
+In some cases, NumPy can be compiled with MKL library. The MKL Vector Math functions provide highly optimised routines for trigonometric operations. 
+In this evaluation I use NumPy library that is not compiled with MKL, and it performs close to Owl and C, with slightly larger deviation.
 
-It can be seen that the execution time in Owl grows linearly with input
-size, and very similar to that of C library. Julia has large deviation,
-but it performs fastest on rPi, even faster than C. It is because of
-Julia utilises NEON, the SIMD architecture extension on ARM. In some
-cases, NumPy can be compiled with MKL library. The MKL Vector Math
-functions provide highly optimised routines for trigonometric
-operations. In this evaluation I use NumPy library that is not compiled
-with MKL, and it performs close to Owl and C, with slightly larger
-deviation.
-
-Note the trade-off in code design. My current approach is a common
-template for all map functions, and relies on the C library for
-implementation. A specific implementation using SIMD for each operation
-would perform better, but that would require more complex logic to
-decide the execution hardware and software environment, and the code
-structure would be less generic.
-
-Another optimisation is to remove the memory copy phase by applying
-mutable operations. A mutable operation does not create new memory space
-before calculation, but instead utilise existing memory space of input
-ndarray.
 
 ### Reduction Operations
 
