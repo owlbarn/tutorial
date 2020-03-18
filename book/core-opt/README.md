@@ -57,27 +57,29 @@ An optimised routine can perform orders of magnitude faster than a naive impleme
 
 ## Interfacing to C Code
 
-We interface to C. It's common practice
-
-How NumPy and Julia interfaces
-
-The core operations are ndarray operation.
-
-The other, such as FFT, Linear Algebra, are explained in their respective chapter.
-
 ### Ndarray Operations
 
-N-dimensional array (ndarray) is the core data type of a numerical library. 
-As we have seen in the previous chapter
+Despite the efficiency of OCaml, we rely on C implementation to deliver high performance for core functions. 
+In the previous chapters in the Part I of this book, we have seen that how some of Owl modules, such as FFT and Linear Algebra, interface to existing C libraries. 
+Optimising operations in these fields has been the classic topic of high performance computation for years, and thus there is no need to re-invent the wheels.
+We can directly interface to these libraries to provide good performance. 
 
-The internals about ndarray:  
+Interfacing to high performance language is not uncommon practice among numerical libraries. 
+If you look at the source code of [NumPy](https://github.com/numpy/numpy), more than 50% is C code. 
+In [SciPy](https://github.com/scipy/scipy), the Fortran and C code takes up more than 40%. 
+Even in [Julia](https://github.com/JuliaLang/julia), about 26% of its code is in C or C++, most of them in the core source code.
 
-An ndarray is a container of items of the same type. 
+Besides interfacing to existing libraries, we focus on implementing the core operations in the Ndarray modules with C code.
+As we have seen in the N-Dimensional Arrays chapter, the n-dimensional array module lies in the heart of Owl, and many other libraries. 
+NumPy library itself focus solely on providing a powerful ndarray module to the Python world.
+
+A ndarray is a container of items of the same type. 
 It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. 
 A stride indexing scheme can then be applied on this block of memory to access elements. 
-Two widely used types of indexing schemes are *column-major* that is used in FORTRAN and *row-major* of C.
+Once converted properly to the C world, a ndarray can be effectively manipulated with normal C code. 
 
-List the categories of operations that are optimised with C.
+Here we list the categories of operations that are optimised with C in Owl. 
+Many operations are first implemented in OCaml but then updated to C driven by our practical experience and applications.
 
 - Math, including map, fold, cmp
 - Conv and pooling
@@ -90,7 +92,6 @@ List the categories of operations that are optimised with C.
 - Contract 
 - Slide 
 
-Why choose these operations
 
 ### From OCaml to C
 

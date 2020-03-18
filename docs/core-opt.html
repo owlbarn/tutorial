@@ -22,16 +22,13 @@
 </section>
 <section class="level2" id="interfacing-to-c-code">
 <h2>Interfacing to C Code</h2>
-<p>We interface to C. It’s common practice</p>
-<p>How NumPy and Julia interfaces</p>
-<p>The core operations are ndarray operation.</p>
-<p>The other, such as FFT, Linear Algebra, are explained in their respective chapter.</p>
 <section class="level3" id="ndarray-operations">
 <h3>Ndarray Operations</h3>
-<p>N-dimensional array (ndarray) is the core data type of a numerical library. As we have seen in the previous chapter</p>
-<p>The internals about ndarray:</p>
-<p>An ndarray is a container of items of the same type. It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. A stride indexing scheme can then be applied on this block of memory to access elements. Two widely used types of indexing schemes are <em>column-major</em> that is used in FORTRAN and <em>row-major</em> of C.</p>
-<p>List the categories of operations that are optimised with C.</p>
+<p>Despite the efficiency of OCaml, we rely on C implementation to deliver high performance for core functions. In the previous chapters in the Part I of this book, we have seen that how some of Owl modules, such as FFT and Linear Algebra, interface to existing C libraries. Optimising operations in these fields has been the classic topic of high performance computation for years, and thus there is no need to re-invent the wheels. We can directly interface to these libraries to provide good performance.</p>
+<p>Interfacing to high performance language is not uncommon practice among numerical libraries. If you look at the source code of <a href="https://github.com/numpy/numpy">NumPy</a>, more than 50% is C code. In <a href="https://github.com/scipy/scipy">SciPy</a>, the Fortran and C code takes up more than 40%. Even in <a href="https://github.com/JuliaLang/julia">Julia</a>, about 26% of its code is in C or C++, most of them in the core source code.</p>
+<p>Besides interfacing to existing libraries, we focus on implementing the core operations in the Ndarray modules with C code. As we have seen in the N-Dimensional Arrays chapter, the n-dimensional array module lies in the heart of Owl, and many other libraries. NumPy library itself focus solely on providing a powerful ndarray module to the Python world.</p>
+<p>A ndarray is a container of items of the same type. It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. A stride indexing scheme can then be applied on this block of memory to access elements. Once converted properly to the C world, a ndarray can be effectively manipulated with normal C code.</p>
+<p>Here we list the categories of operations that are optimised with C in Owl. Many operations are first implemented in OCaml but then updated to C driven by our practical experience and applications.</p>
 <ul>
 <li>Math, including map, fold, cmp</li>
 <li>Conv and pooling</li>
@@ -44,7 +41,6 @@
 <li>Contract</li>
 <li>Slide</li>
 </ul>
-<p>Why choose these operations</p>
 </section>
 <section class="level3" id="from-ocaml-to-c">
 <h3>From OCaml to C</h3>
