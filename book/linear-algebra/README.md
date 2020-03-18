@@ -1002,40 +1002,41 @@ Hermitian is thus a generalisation of the symmetric matrix.
 We can use the `is_hermitian` function to check if a  matrix is hermitian, as can be shown in the next example.
 
 ```ocaml env=linalg_35
-# let a = Dense.Matrix.Z.of_array 
-val a : Complex.t array -> int -> int -> Dense.Matrix.Z.mat = <fun>
+# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 
+val a : Dense.Matrix.Z.mat =
+
+        C0       C1
+R0 (1, 0i) (2, -1i)
+R1 (2, 1i)  (3, 0i)
+
 ```
 
 ```ocaml env=linalg_35
 # Linalg.Generic.is_hermitian a
-Line 1, characters 29-30:
-Error: This expression has type
-         Complex.t array -> int -> int -> Dense.Matrix.Z.mat
-       but an expression was expected of type
-         (Complex.t, 'a) Owl_dense_matrix_generic.t =
-           (Complex.t, 'a, c_layout) Genarray.t
+- : bool = true
 ```
 
 We can use the `conj` function of a complex matrix to perform the conjugate transpose:
 
 ```ocaml env=linalg_35
 # Dense.Matrix.Z.(conj a |> transpose)
-Line 1, characters 22-23:
-Error: This expression has type elt array -> int -> int -> mat
-       but an expression was expected of type
-         mat = (elt, complex64_elt, c_layout) Genarray.t
+- : Dense.Matrix.Z.mat =
+
+         C0       C1
+R0 (1, -0i) (2, -1i)
+R1  (2, 1i) (3, -0i)
+
 ```
 
 A theorem declares that if a matrix is hermitian, then for all complex vectors $x$, $x^HAx$ is real, and every eigenvalue is real.
 
 ```ocaml env=linalg_35
 # Linalg.Z.eigvals a
-Line 1, characters 18-19:
-Error: This expression has type
-         Complex.t array -> int -> int -> Dense.Matrix.Z.mat
-       but an expression was expected of type
-         Owl_dense_matrix_z.mat =
-           (Complex.t, complex64_elt, c_layout) Genarray.t
+- : Owl_dense_matrix_z.mat =
+
+                         C0                      C1
+R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)
+
 ```
 
 A related concept is the *Unitary Matrix*.

@@ -700,38 +700,36 @@ Linalg.D.logdet x;;
 <p>As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors. In this section we re-introduce some previous concepts in the complex space.</p>
 <p>We have seen the Symmetric Matrix. It can be extended to the complex numbers, called <em>Hermitian Matrix</em>, denoted by <span class="math inline">\(A^H\)</span>. Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose. A conjugate transpose means that during transposing, each element <span class="math inline">\(a+bi\)</span> changes to its conjugate <span class="math inline">\(a-bi\)</span>. Hermitian is thus a generalisation of the symmetric matrix. We can use the <code>is_hermitian</code> function to check if a matrix is hermitian, as can be shown in the next example.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array ;;
-&gt;val a : Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat = &lt;fun&gt;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 ;;
+&gt;val a : Dense.Matrix.Z.mat =
+&gt;
+&gt;        C0       C1
+&gt;R0 (1, 0i) (2, -1i)
+&gt;R1 (2, 1i)  (3, 0i)
 </code></pre>
 </div>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.Generic.is_hermitian a;;
-&gt;Line 1, characters 29-30:
-&gt;Error: This expression has type
-&gt;         Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat
-&gt;       but an expression was expected of type
-&gt;         (Complex.t, 'a) Owl_dense_matrix_generic.t =
-&gt;           (Complex.t, 'a, c_layout) Genarray.t
+&gt;- : bool = true
 </code></pre>
 </div>
 <p>We can use the <code>conj</code> function of a complex matrix to perform the conjugate transpose:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dense.Matrix.Z.(conj a |&gt; transpose);;
-&gt;Line 1, characters 22-23:
-&gt;Error: This expression has type elt array -&gt; int -&gt; int -&gt; mat
-&gt;       but an expression was expected of type
-&gt;         mat = (elt, complex64_elt, c_layout) Genarray.t
+&gt;- : Dense.Matrix.Z.mat =
+&gt;
+&gt;         C0       C1
+&gt;R0 (1, -0i) (2, -1i)
+&gt;R1  (2, 1i) (3, -0i)
 </code></pre>
 </div>
 <p>A theorem declares that if a matrix is hermitian, then for all complex vectors <span class="math inline">\(x\)</span>, <span class="math inline">\(x^HAx\)</span> is real, and every eigenvalue is real.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Linalg.Z.eigvals a;;
-&gt;Line 1, characters 18-19:
-&gt;Error: This expression has type
-&gt;         Complex.t array -&gt; int -&gt; int -&gt; Dense.Matrix.Z.mat
-&gt;       but an expression was expected of type
-&gt;         Owl_dense_matrix_z.mat =
-&gt;           (Complex.t, complex64_elt, c_layout) Genarray.t
+&gt;- : Owl_dense_matrix_z.mat =
+&gt;
+&gt;                         C0                      C1
+&gt;R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)
 </code></pre>
 </div>
 <p>A related concept is the <em>Unitary Matrix</em>. A matrix <span class="math inline">\(U\)</span> is unitary if <span class="math inline">\(U^HU=I\)</span>. The inverse and conjugate transpose of <span class="math inline">\(U\)</span> are the same. It can be compared to the orthogonal vectors in the real space.</p>
