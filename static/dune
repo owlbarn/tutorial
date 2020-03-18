@@ -52,6 +52,7 @@
         images/core-opt/eigen_tp_conv2d.png
         images/core-opt/eigen_tp_conv2d_bi_mem.png
         images/core-opt/fork_join.png
+        images/core-opt/im2col.png
         images/core-opt/opeval_rpi_repeat_00.png
         images/core-opt/opeval_rpi_sin_00.png
         images/core-opt/opeval_tp_repeat_01.png

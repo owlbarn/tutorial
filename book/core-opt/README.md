@@ -471,6 +471,90 @@ It is because of Julia utilises NEON, the SIMD architecture extension on ARM.
 In some cases, NumPy can be compiled with MKL library. The MKL Vector Math functions provide highly optimised routines for trigonometric operations. 
 In this evaluation I use NumPy library that is not compiled with MKL, and it performs close to Owl and C, with slightly larger deviation.
 
+### Convolution Operations
+
+The convolution operations take up the majority of computation involved in deep neural network. A convolution operation takes two ndarrays as input: image ($I$) and kernel ($F$). In a 2-dimensional convolution, both ndarrays are of four dimensions. 
+The image ndarray has $B$ batches, each image has size $H\times W$, and has $IC$ channels. 
+The kernel ndarray has $R$ rows, $C$ columns, the same input channel $IC$, and output channel $K$. The convolution can then be expressed as:
+
+$$CONV_{b,h,w,k} = \sum_{ic=1}^{IC}\sum_{r=1}^{R}\sum_{c=1}^{C}I_{b,h+r,w+c,ic}F_{r,c,ic,k}.$$ {#eq:core-opt:conv}
+
+A naive convolution algorithm is to implement [@eq:core-opt:conv] with nested for-loops. It is easy to see that this approach does not benefit from any parallelisation, and thus not suitable for production code.
+
+The next version of implementation uses the `im2col` algorithm. A `im2col`-based convolution transforms the input ndarray into a matrix with redundancy. Convolution then can be performed as one matrix multiplication, which can benefit
+from highly optimised linear algebra packages such as OpenBLAS. 
+
+**TODO**: clear explanation with the help of figure.
+
+![Basic implementation algorithm of convolution: im2col](images/core-opt/im2col.png "im2col"){width=95% #fig:core-opt:im2col}
+
+However, this algorithm requires generating a large temporary
+intermediate matrix. Depending on input image size, this matrix can take Gigabytes of memory in applications such as FST. 
+Algorithms such as [Memory-efficient Convolution](https://arxiv.org/abs/1706.06873) aims to reduce the size of this intermediate matrix. 
+*TODO*: a bit more detail.
+But still fail with large input or kernel sizes.
+
+The convolution operation is first implemented in Owl by interfacing to the Eigen library, which is also used in TensorFlow for CPU convolution implementation. 
+It solves this problem according to the method proposed
+in [@goto2008anatomy], which is to cut matrices into small blocks so as to fit into the L1/L2 cache of CPU to do high-performance computation while reducing the memory usage, regardless of input size.
+Multiplication of two matrices can be divided into multiplication of small blocks. 
+TODO: More detail about algorithm, combined with previous figure.
+
+Interfacing to this C++ library proves to be problematic and leads to a lot of installation issues. 
+Therefore we need to port Eigen's implementation to C.
+The algorithm is simple, add more for loops. 
+
+We implement the method proposed in [@goto2008anatomy] to calculated suitable block
+size based on the cache size of CPU.
+TODO: How to compute block sizes
+
+To further improve the performance, we use the SIMD intrinsics in filling the temporary matrix from input ndarray. 
+
+Specifically, we focus on the main operation that copy input ndarray into the new input matrix: load, store, add. 
+
+How to detect AVX
+
+```
+#if defined(__AVX__)
+  #define OWL_AVX
+  #include <immintrin.h>
+#endif
+```
+
+AVX_PSIZE 8 or 4.
+The propertie of AVX: aligned, or non-alinged. 
+Therefore, we need to make two different: if the channel can be divided by AVX_PSIZE.
+Cache hit rate, we need to make the memeory access as consecutive as possible.
+Depending on the input channel is divisible by the supported data length of SIMD (e.g. 8 float numbers for AVX), we provide two set of implementations for filling
+the temporary blocks.
+Assume output_ptr is aligned; if in_channel % AVX_PSIZE == 0, the input matrix can always be loaded consecutively by a step of AVX_PSIZE.
+
+
+Finally, a threshold to use one and the other.
+
+Convolution operations consists of three types: `Conv`, `ConvBackwardKernel`, `ConvBackwardInput`.
+The `Conv` operation calculates the output given input image and kernel.
+Similarly, `ConvBackwardKernel` calculates the kernel given the input and output ndarrays, and `ConvBackwardInput` gets input ndarray from kernel and output. 
+The last two are mainly used in the backpropagation phase in training a DNN, but all three operations share a similar
+calculation algorithm.
+The backward convs are actually also implemented as matrix dot. For kernel, you need to ... for input, you need to ....
+Similarly implemented.
+
+This is the current method I use in implementing various convolutions in Owl, on all 1-3 dimensions, and for different types such as dilated and transpose convolution operations.
+Above this C implementation level, mutable convolution operations are also provided, so as to further improve performance by utilising existing memory space.
+
+To measure the performance of my convolution implementation, I compare the three convolution operations on both the labtop and rPi as described before. 
+I use two settings: fixed input size with varying kernel size; and fixed kernel size with varying input size. The Owl code is interfaced to existing implementation and Eigen library. The results are in
+[@fig:core-opt:op_eval_eigen_conv_tp] and [@fig:core-opt:op_eval_eigen_conv_rpi].
+
+![Measure the performance of Conv2D operation on Owl and Eigen on laptop](images/core-opt/eigen_tp_conv2d.png){width=90% #fig:core-opt:op_eval_eigen_conv_tp}
+
+![Measure the performance of Conv2D Backward kernel operation on Owl and Eigen on rPi](images/core-opt/eigen_rpi_conv2d_bk.png){width=90% #fig:core-opt:op_eval_eigen_conv_rpi}
+
+![Measure the memory usage of Conv2D Backward Input operation on Owl and Eigen](images/core-opt/eigen_rpi_conv2d_bi.png){width=90% #fig:core-opt:op_eval_eigen_conv_mem}
+
+The results show that, our `Conv2D` implementation is as efficient as that in Eigen, and the `Conv2DBackwardKernel` operation is faster on the rPi. 
+In [@fig:core-opt:op_eval_eigen_conv_mem] it is shown that our proposed implementation of `Conv2DBackwardInput` operation uses less memory than Eigen.
 
 ### Reduction Operations
 
@@ -527,7 +611,7 @@ For example, if an ndarray of shape $[2,3,4,5]$ is to be reduced along
 the second and third axis, then it can be simplified to reducing an
 ndarray of shape $[2,12,5]$.
 
-![Sin operation on laptop](images/core-opt/opeval_tp_sum_reduce_mem_00.png){width=60% #fig:core-opt:opeval_sumreduce}
+![Sum reduction operation on laptop](images/core-opt/opeval_tp_sum_reduce_mem_00.png){width=60% #fig:core-opt:opeval_sumreduce}
 
 Since it involves multiple axes, to evaluate the reduction operation, I
 use a four-dimensional ndarray of float numbers as input. All four
@@ -610,87 +694,5 @@ The repeat operation in Julia is much slower. One reason is that `repeat` is not
 ![Repeat operation speed on rPi](images/core-opt/opeval_rpi_repeat_00.png){width=50% #fig:core-opt:opeval_rpi_repeat_00} 
 ![Repeat operation memory usage comparison](images/core-opt/opeval_tp_repeat_mem_00.png){width=90% #fig:core-opt:opeval_tp_repeat_mem_00} 
 
-### Convolution Operations
-
-The convolution operations take up the majority of computation involved
-in deep neural network. A convolution operation takes two ndarrays as
-input: image ($I$) and kernel ($F$). In a 2-dimensional convolution,
-both ndarrays are of four dimensions. The image ndarray has $B$ batches,
-each image has size $H\times W$, and has $IC$ channels. The kernel
-ndarray has $R$ rows, $C$ columns, the same input channel $IC$, and
-output channel $K$. The convolution can then be expressed as:
-
-$$CONV_{b,h,w,k} = \sum_{ic=1}^{IC}\sum_{r=1}^{R}\sum_{c=1}^{C}I_{b,h+r,w+c,ic}F_{r,c,ic,k}.$$ {#eq:core-opt:conv}
-
-The convolution operation is first implemented in Owl by interfacing to
-Eigen library, which is also used in TensorFlow for CPU convolution
-implementation. However, interfacing to this C++ library proves to be
-problematic and leads to a lot of installation issues. Therefore I
-decide to use C to implement convolutions, which consists of three
-types: `Conv`, `ConvBackwardKernel`, `ConvBackwardInput`.
-
-The `Conv` operation calculates the output given input image and kernel.
-Similarly, `ConvBackwardKernel` calculates the kernel given the input
-and output ndarrays, and `ConvBackwardInput` gets input ndarray from
-kernel and output. The last two are mainly used in the backpropagation
-phase in training a DNN, but all three operations share a similar
-calculation algorithm.
-
-A naive convolution algorithm is to implement [@eq:core-opt:conv]
-with nested for-loops. It is easy to see that this approach does not
-benefit from any parallelisation, and thus not suitable for production
-code.
-
-The next version of implementation uses the `im2col`
-algorithm. A `im2col`-based convolution
-transforms the input ndarray into a matrix with redundancy. Convolution
-then can be performed as one matrix multiplication, which can benefit
-from highly optimised linear algebra packages such as OpenBLAS. 
-
-
-However, this algorithm requires generating a large temporary
-intermediate matrix. Depending on input image size, this matrix can take
-Gigabytes of memory in applications such as FST. Algorithms such as
-Memory-efficient Convolution aims to reduce the size of this
-intermediate matrix, but still fail with large input or kernel sizes.
-
-To reduce the memory usage, I apply the method proposed
-in [@goto2008anatomy], which is to cut matrices into small blocks so as
-to fit into the L1/L2 cache of CPU to do high-performance computation
-while reducing the memory usage, regardless of input size.
-Multiplication of two matrices can be divided into multiplication of small blocks. I implement the method proposed in [@goto2008anatomy] to calculated suitable block
-size based on the cache size of CPU.
-
-To further improve the performance, I use the SIMD intrinsics in filling
-the temporary matrix from input ndarray. For one thing, depending on the
-input channel is divisible by the supported data length of SIMD (e.g. 8
-float numbers for AVX), I provide two set of implementations for filling
-the temporary blocks. During loading data from input ndarrays to these
-matrix blocks, I also use AVX intrinsics such as `_mm256_load_ps` to
-improve performance. Finally, the matrix multiplication between two
-small matrix blocks is implemented by the routines in OpenBLAS.
-
-This is the current method I use in implementing various convolutions in
-Owl, on all 1-3 dimensions, and for different types such as dilated and
-transpose convolution operations. Above this C implementation level,
-mutable convolution operations are also provided, so as to further
-improve performance by utilising existing memory space.
-
-![Measure the performance of Conv2D operation on Owl and Eigen on laptop](images/core-opt/eigen_tp_conv2d.png){width=90% #fig:core-opt:op_eval_eigen_conv_tp}
-
-![Measure the performance of Conv2D Backward kernel operation on Owl and Eigen on rPi](images/core-opt/eigen_rpi_conv2d_bk.png){width=90% #fig:core-opt:op_eval_eigen_conv_rpi}
-
-![Measure the memory usage of Conv2D Backward Input operation on Owl and Eigen](images/core-opt/eigen_rpi_conv2d_bi.png){width=90% #fig:core-opt:op_eval_eigen_conv_mem}
-
-To measure the performance of my convolution implementation, I compare
-the three convolution operations on both the labtop and rPi as described
-before. I use two settings: fixed input size with varying kernel size;
-and fixed kernel size with varying input size. The Owl code is
-interfaced to existing implementation and Eigen library. The results in
-[@fig:core-opt:op_eval_eigen_conv_tp] and [@fig:core-opt:op_eval_eigen_conv_rpi]show that, our `Conv2D` implementation is as efficient as that in Eigen, and the
-`Conv2DBackwardKernel` operation is faster on the rPi. 
-In [@fig:core-opt:op_eval_eigen_conv_mem] it is shown that our proposed
-implementation of `Conv2DBackwardInput` operation uses less memory than
-Eigen.
 
 ## References
