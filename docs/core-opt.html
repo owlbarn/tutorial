@@ -1,8 +1,10 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Core Optimisation - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="core-optimisation">
 <h1>Core Optimisation</h1>
-<p>TBD</p>
+<p>In this chapter, we introduce how the core operations are implemented in C language for performance, and use some examples to show the techniques we use to optimise the C code.</p>
+<p>TODO: update evaluations</p>
 <section class="level2" id="background">
 <h2>Background</h2>
+<p>First, we briefly introduce some background information about numerical libraries and related optimisation.</p>
 <section class="level3" id="numerical-libraries">
 <h3>Numerical Libraries</h3>
 <p>There are two widely used specifications of low level linear algebra routines. Basic Linear Algebra Subprograms (BLAS) consists of three levels of routines, from vector to matrix-vector and then to matrix-matrix operations. The other one, Linear Algebra Package (LAPACK), specifies routines for advanced numerical linear algebra, including solving systems of linear equations, linear least squares, eigenvalue problems, SVD, etc.</p>
@@ -22,24 +24,20 @@
 </section>
 <section class="level2" id="interfacing-to-c-code">
 <h2>Interfacing to C Code</h2>
+<p>Despite the efficiency of OCaml, we rely on C implementation to deliver high performance for core functions. In the previous chapters in the Part I of this book, we have seen that how some of Owl modules, such as FFT and Linear Algebra, interface to existing C libraries. Optimising operations in these fields has been the classic topic of high performance computation for years, and thus there is no need to re-invent the wheels. We can directly interface to these libraries to provide good performance.</p>
 <section class="level3" id="ndarray-operations">
 <h3>Ndarray Operations</h3>
-<p>Despite the efficiency of OCaml, we rely on C implementation to deliver high performance for core functions. In the previous chapters in the Part I of this book, we have seen that how some of Owl modules, such as FFT and Linear Algebra, interface to existing C libraries. Optimising operations in these fields has been the classic topic of high performance computation for years, and thus there is no need to re-invent the wheels. We can directly interface to these libraries to provide good performance.</p>
 <p>Interfacing to high performance language is not uncommon practice among numerical libraries. If you look at the source code of <a href="https://github.com/numpy/numpy">NumPy</a>, more than 50% is C code. In <a href="https://github.com/scipy/scipy">SciPy</a>, the Fortran and C code takes up more than 40%. Even in <a href="https://github.com/JuliaLang/julia">Julia</a>, about 26% of its code is in C or C++, most of them in the core source code.</p>
 <p>Besides interfacing to existing libraries, we focus on implementing the core operations in the Ndarray modules with C code. As we have seen in the N-Dimensional Arrays chapter, the n-dimensional array module lies in the heart of Owl, and many other libraries. NumPy library itself focus solely on providing a powerful ndarray module to the Python world.</p>
 <p>A ndarray is a container of items of the same type. It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. A stride indexing scheme can then be applied on this block of memory to access elements. Once converted properly to the C world, a ndarray can be effectively manipulated with normal C code.</p>
 <p>Here we list the categories of operations that are optimised with C in Owl. Many operations are first implemented in OCaml but then updated to C driven by our practical experience and applications.</p>
 <ul>
-<li>Math, including map, fold, cmp</li>
-<li>Conv and pooling</li>
-<li>Repeat</li>
-<li>Slicing</li>
-<li>Sort</li>
-<li>Transpose</li>
-<li>Slicing</li>
-<li>matrix: swap, check (is_*)</li>
-<li>Contract</li>
-<li>Slide</li>
+<li>mathematics operations, which are divided into map function, fold functions, and comparison functions.</li>
+<li>convolution and pooling operations, since they took up most of the computation resources in DNN-related application</li>
+<li>slicing, the basic operation for n-dimensional array</li>
+<li>matrix operations, including transpose, swapping, and check functions such as <code>is_hermitian</code>, <code>is_symmetric</code> etc.</li>
+<li>sorting operation</li>
+<li>other functions, including contraction, sliding, and repeat.</li>
 </ul>
 </section>
 <section class="level3" id="from-ocaml-to-c">
@@ -219,7 +217,7 @@ CAMLprim value FUN_BYTE (spatial) (value * argv, int argn) {
 </section>
 <section class="level2" id="optimisation-techniques">
 <h2>Optimisation Techniques</h2>
-<p>There is a big room for optimising the C code. We are trying to push the performance forward with multiple techniques. We mainly use the multiprocessing with OpenMP and parallel computing using SIMD intrinsics when possible. In this section, We choose some representative operations to demonstrate our optimisation of the core ndarray operations.</p>
+<p>There is a big room for optimising the C code. We are trying to push the performance forward with multiple techniques. We mainly use the multiprocessing with OpenMP and parallel computing using SIMD intrinsics when possible. In this section, We choose some representative operations to demonstrate our optimisation of the core ndarray operations. Besides them, we have also applied other basic C code optimisation techniques such as avoiding redundant computation in for-loop.</p>
 <p>To show how these optimisation works, we compare performance of an operation, in different numerical libraries: Owl, NumPy, Julia, and Eigen. The purpose is two-fold: first, to bring insight into the low-level structure design; second, to demonstrate the possible optimisations in implementing these operations.</p>
 <p>In the performance measurements, we use multiple input sizes, and observe the execution time and memory usage. The experiments are conducted on both a laptop (Thinkpad T460s, Core i5 CPU) and a Raspberry Pi (rPi) 3B model. They represent different CPU architectures and computation power.</p>
 <section class="level3" id="map-operations">
@@ -387,7 +385,7 @@ for (int ix = 0; ix &lt; N;) {
 <figure>
 <img alt="" style="width:80.0%" id="fig:core-opt:opeval_tp_repeat_mem_00" src="images/core-opt/opeval_tp_repeat_mem_00.png"><figcaption>Figure 9: Repeat operation memory usage comparison</figcaption>
 </figure>
-<p>The evaluation results compared with NumPy and Julia are shown in [@#fig:core-opt:opeval_repeat]. We also measure the peak memory usage in[fig:core-opt:opeval_tp_repeat_mem_00]. As can be seen, my repeat operation achieves about half of that in NumPy with regard to both execution speed and memory usage. The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient. The repeat operation in Julia is much slower. One reason is that <code>repeat</code> is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.</p>
+<p>The evaluation results compared with NumPy and Julia are shown in fig.&nbsp;8. We also measure the peak memory usage infig.&nbsp;9. As can be seen, my repeat operation achieves about half of that in NumPy with regard to both execution speed and memory usage. The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient. The repeat operation in Julia is much slower. One reason is that <code>repeat</code> is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.</p>
 </section>
 </section>
 <section class="level2 unnumbered" id="references">
