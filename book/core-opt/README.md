@@ -32,7 +32,7 @@ Owl library provides its own neural network module.
 To achieve optimal performance has always been the target of numerical libraries.
 However, the complexity of current computation platforms is growing fast, and the "free" performance boost that benefits from hardware upgrade also stagnates.
 These factors have made it difficult to achieve the optimal performance.
-Below list some of the techniques that I use to optimise operations in Owl.
+Below list some of the techniques that we use to optimise operations in Owl.
 
 One method to utilise the parallelism of a computation platform is to use the Single Instruction Multiple Data (SIMD) instruction sets.
 They exploit data level parallelism by executing the same instruction on a set of data simultaneously, instead of repeating it multiple times on a single scalar value.
@@ -460,16 +460,14 @@ More and more libraries such as the Intel MKL provide SIMD version of these basi
 Let's look at how our implementation of the `sin` operation performs compared with the other libraries.
 To measure performance, we compare the sine operation in Owl, NumPy, Julia, and C. The compiling flags in C and Owl are set to the same level 3 optimisation. The input is a vector of single-precision float numbers. 
 We increase the input size from 100,000 to 5,000,000 gradually.
-The comparison results are shown in [@fig:core-opt:op_eval_sin_tp] and [@fig:core-opt:op_eval_sin_rpi].
+The comparison results are shown in [@fig:core-opt:op_eval_sin].
 
-![Sin operation on laptop](images/core-opt/opeval_tp_sin_00.png){width=50% #fig:core-opt:op_eval_sin_tp}
-
-![Sin operation on rPi](images/core-opt/opeval_rpi_sin_00.png){width=50% #fig:core-opt:op_eval_sin_rpi}
+![Sin operation performance.](images/core-opt/opeval_sin.png){width=100% #fig:core-opt:op_eval_sin}
 
 It can be seen that the execution time in Owl grows linearly with input size, and very similar to that of C library. Julia has large deviation, but it performs fastest on rPi, even faster than C. 
 It is because of Julia utilises NEON, the SIMD architecture extension on ARM. 
 In some cases, NumPy can be compiled with MKL library. The MKL Vector Math functions provide highly optimised routines for trigonometric operations. 
-In this evaluation I use NumPy library that is not compiled with MKL, and it performs close to Owl and C, with slightly larger deviation.
+In this evaluation we use NumPy library that is not compiled with MKL, and it performs close to Owl and C, with slightly larger deviation.
 
 ### Convolution Operations
 
@@ -508,59 +506,56 @@ The memory usage can easily reach Gigabytes in DNN applications.
 There are several methods proposed to mitigate this problem.
 If you look closely at the intermediate matrix, you will find that it contains a lot of redundant information: the columns overlap too much. 
 Algorithms such as [Memory-efficient Convolution](https://arxiv.org/abs/1706.06873) aims to reduce the size of this intermediate matrix based on not generating the whole intermediate matrix, but only part of it to efficiently utilise the overlapped content. 
-But even so, still fail with large input or kernel sizes.
+But even so, it may still fail with very large input or kernel sizes.
 
-The convolution operation is first implemented in Owl by interfacing to the Eigen library, which is also used in TensorFlow for CPU convolution implementation. 
-It solves this problem according to the method proposed
-in [@goto2008anatomy], which is to cut matrices into small blocks so as to fit into the L1/L2 cache of CPU to do high-performance computation while reducing the memory usage, regardless of input size.
+The implementation in Eigen provides another solution.
+Eigen a C++ template library for linear algebra. Think of it as an alternative to BLAS etc. 
+Based on its core functionalities, it implements convolution operations as a unsupported module. 
+It was used in TensorFlow for its CPU convolution implementation. 
+The convolution operation is first implemented in Owl by interfacing to the Eigen library. 
+We later tun to C implementation since interfacing to this C++ library proves to be problematic and leads to a lot of installation issues. 
+In its implementation, Eigen solves this memory usage problem according to the method proposed in [@goto2008anatomy].
+
+It still generally follows the previous matrix multiplication approach, but instead of generating the whole intermediate matrix, it cuts the input and kernel matrices into small blocks one at a time so that the memory usage is limited no matter how large the input and kernel are.
+
+Specifically, the block size can be chosen in a way to fit into the L1/L2 cache of CPU to do high-performance computation.
 Multiplication of two matrices can be divided into multiplication of small blocks. 
-TODO: More detail about algorithm, combined with previous figure.
+The L1/L2/L3 cache sizes are retrieved using the `CPUID` instruction on x86 architecture, and predefined const value for non-x86 architectures.
 
-Interfacing to this C++ library proves to be problematic and leads to a lot of installation issues. 
-Therefore we need to port Eigen's implementation to C.
-The algorithm is simple, add more for loops. 
+To further improve the performance, we use the SIMD intrinsics during building those small temporary matrices from input ndarray. 
+We focus on the main operation that copy input ndarray into the new input matrix: loading data, storing data, and adding two vectors. 
+Currently we only support the most recent Advanced Vector Extensions (AVX) x86 extension on Intel and AMD architectures.
+We detect if the AVX extension is supported by detecting if the `__AVX__` is detected in GCC.
+If so, we include the header filer `immintrin.h`.
 
-We implement the method proposed in [@goto2008anatomy] to calculated suitable block
-size based on the cache size of CPU.
-TODO: How to compute block sizes
+The extends commands to 256 bits, so that we can process eight float or 4 double elements at the same time. 
+In the code we mainly use the `_mm256_store_ps`, `_mm256_load_ps`, and `_mm256_add_ps` intrinsics, for storing 256-bits variable from source into memory, loading 256-bits to memory, or adding two 256-bits into destination variable.
+Note that the load and store intrinsics require the source or destination address to be aligned on a 32-byte boundary.
+If not, we need to use the unaligned version `_mm256_storeu_ps` and `_mm256_loadu_ps`, with degraded performance.
 
-To further improve the performance, we use the SIMD intrinsics in filling the temporary matrix from input ndarray. 
+To maximise the performance of caching, we need to make the memory access as concecutive as possible. 
+Depending on the input channel is divisible by the supported data length of SIMD (e.g. 8 float numbers for AVX), we provide two set of implementations for filling the temporary blocks.
+If input channel is divisible by data length, the input matrix can always be loaded consecutively at a step of data length with the AVX intrinsics, otherwise we have to build the temporary matrix blocks with less AVX intrinsics, on only part of the matrix, and then take care of the edge cases.
 
-Specifically, we focus on the main operation that copy input ndarray into the new input matrix: load, store, add. 
+We have described the implementation method we use to optimise the convolution operations. 
+We recommend reading the full code in `owl_ndarray_conv_impl.h` file for more details. 
+One more optimisation is that, we have shown the `im2col` method and its disadvantage with memory usage. Howver, it is still straightforward and fast with small input sizes. 
+Therefore, we set a pre-defined threshold to decide if we use the `im2col` implementation or the one that inspired by Eigen.
 
-How to detect AVX
-
-```
-#if defined(__AVX__)
-  #define OWL_AVX
-  #include <immintrin.h>
-#endif
-```
-
-AVX_PSIZE 8 or 4.
-The propertie of AVX: aligned, or non-alinged. 
-Therefore, we need to make two different: if the channel can be divided by AVX_PSIZE.
-Cache hit rate, we need to make the memeory access as consecutive as possible.
-Depending on the input channel is divisible by the supported data length of SIMD (e.g. 8 float numbers for AVX), we provide two set of implementations for filling
-the temporary blocks.
-Assume output_ptr is aligned; if in_channel % AVX_PSIZE == 0, the input matrix can always be loaded consecutively by a step of AVX_PSIZE.
-
-
-Finally, a threshold to use one and the other.
-
-Convolution operations consists of three types: `Conv`, `ConvBackwardKernel`, `ConvBackwardInput`.
-The `Conv` operation calculates the output given input image and kernel.
-Similarly, `ConvBackwardKernel` calculates the kernel given the input and output ndarrays, and `ConvBackwardInput` gets input ndarray from kernel and output. 
+As you know, convolution operations consists of three types: `Conv`, `ConvBackwardKernel`, `ConvBackwardInput`.
+The `Conv` operation calculates the output given input image and kernel. Similarly, `ConvBackwardKernel` calculates the kernel given the input and output ndarrays, and `ConvBackwardInput` gets input ndarray from kernel and output. 
 The last two are mainly used in the backpropagation phase in training a DNN, but all three operations share a similar
 calculation algorithm.
-The backward convs are actually also implemented as matrix dot. For kernel, you need to ... for input, you need to ....
-Similarly implemented.
+The backward convs are actually also implemented as matrix multiplication. 
+For `ConvBackwardKernel`, it first reshape the output ndarray as matrix, and multiply it with the intermediate input matrix.
+Similarly, in ``ConvBackwardInput`, we need to first multiply the kernel and output matrix to get the intermeidate input matrix, and then re-construct the input ndarray based it.
 
-This is the current method I use in implementing various convolutions in Owl, on all 1-3 dimensions, and for different types such as dilated and transpose convolution operations.
-Above this C implementation level, mutable convolution operations are also provided, so as to further improve performance by utilising existing memory space.
+These implementation can then be easily extended to the three dimension and one dimension cases. 
+Besides, the transpose convolutions and diluted convolutions are only variate of normal convolutin and the code only needs to be slightly changed. 
+At the OCaml level, mutable convolution operations are also provided, so as to further improve performance by utilising existing memory space.
 
-To measure the performance of my convolution implementation, I compare the three convolution operations on both the labtop and rPi as described before. 
-I use two settings: fixed input size with varying kernel size; and fixed kernel size with varying input size. The Owl code is interfaced to existing implementation and Eigen library. The results are in
+To measure the performance of my convolution implementation, we compare the three convolution operations on both the labtop and rPi as described before. 
+We use two settings: fixed input size with varying kernel size; and fixed kernel size with varying input size. The Owl code is interfaced to existing implementation and Eigen library. The results are in
 [@fig:core-opt:op_eval_eigen_conv_tp] and [@fig:core-opt:op_eval_eigen_conv_rpi].
 
 ![Measure the performance of Conv2D operation on Owl and Eigen on laptop](images/core-opt/eigen_tp_conv2d.png){width=90% #fig:core-opt:op_eval_eigen_conv_tp}
@@ -574,20 +569,19 @@ In [@fig:core-opt:op_eval_eigen_conv_mem] it is shown that our proposed implemen
 
 ### Reduction Operations
 
-Reduction operations such as `sum` and `max` accumulate values in an
-ndarray along certain axes by certain functions. For example, `sum` is
-used for implementing BatchNormalisation neuron, which is a frequently
-used neuron in DNN.
+We have also improved the algorithm of certain operations.
+For the reduction operation and the repeat operations, we update the algorithms to reduce the memory usage caused by intermediate results.
 
-A naive implementation of multi-axes `sum` operation is to repeat sum
-operation along one axis for each axis specified. However, it creates
-extra temporary intermediate results. In applications such as DNN, the
-inefficiency of reduction operation becomes a memory and performance
-bottleneck.
+Reduction operations such as `sum` and `max` accumulate values in a ndarray along certain axes by certain functions. For example, `sum` is used for implementing BatchNormalisation neuron, which is a frequently used neuron in DNN.
+
+A naive implementation of multi-axes `sum` operation is to repeat sum operation along one axis for each axis specified. 
+However, it creates extra temporary intermediate results. In applications such as DNN, the inefficiency of reduction operation becomes a memory and performance bottleneck.
 The implementation is shown below.
 
 
-```
+**TODO**: Explain the code instead of just showing some code. 
+
+```c
 int iy = 0;
 int cnt = 0;
 
@@ -615,65 +609,42 @@ for (int ix = 0; ix < N;) {
 }
 ```
 
-The `ACCFN(y, x)` function in this
-template is the accumulation function that is unique to each operation.
-For `sum`, it adds `y` and `x` and accumulate the value to `y`. In this
-algorithm, the elements in original ndarray `x` and the target reduced
-ndarray `y` are iterated one-by-one, but at different steps, indicating
-by `iy` and `ix`.
+The `ACCFN(y, x)` function in this template is the accumulation function that is unique to each operation.
+For `sum`, it adds `y` and `x` and accumulate the value to `y`. 
+In this algorithm, the elements in original ndarray `x` and the target reduced ndarray `y` are iterated one-by-one, but at different steps, indicating by `iy` and `ix`.
 
 One optimisation step before this algorithm is to combine adjacent axes.
-For example, if an ndarray of shape $[2,3,4,5]$ is to be reduced along
-the second and third axis, then it can be simplified to reducing an
-ndarray of shape $[2,12,5]$.
+For example, if an ndarray of shape $[2,3,4,5]$ is to be reduced along the second and third axis, then it can be simplified to reducing an ndarray of shape $[2,12,5]$.
 
 ![Sum reduction operation on laptop](images/core-opt/opeval_tp_sum_reduce_mem_00.png){width=60% #fig:core-opt:opeval_sumreduce}
 
-Since it involves multiple axes, to evaluate the reduction operation, I
-use a four-dimensional ndarray of float numbers as input. All four
-dimensions are of the same length. I measure the peak memory usage with
-increasing length, each for axis equals to 0, 1, and both 0 and 2
-dimension. The evaluation result compared with NumPy and Julia is shown
-in [@fig:core-opt:opeval_sumreduce].
+Since it involves multiple axes, to evaluate the reduction operation, we use a four-dimensional ndarray of float numbers as input. 
+All four dimensions are of the same length. We measure the peak memory usage with increasing length, each for axis equals to 0, 1, and both 0 and 2 dimension. 
+The evaluation result compared with NumPy and Julia is shown in [@fig:core-opt:opeval_sumreduce].
 
 
 ### Repeat Operations
 
-`Repeat` is another operation that is frequently used in DNN. It is used
-for implementing the Upsampling and BatchNormalisation
-neurons. The `repeat` operation repeats elements of an ndarray along
-each axis for specified times. It consists of inner repeat and outer
-repeat (or `tile`). The former repeats elements of an input ndarray,
-while the later constructs an ndarray by repeating the whole input
-ndarray by specified number of times along each axis.
+`Repeat` is another operation that is frequently used in DNN. It is used for implementing the Upsampling and BatchNormalisation
+neurons. 
+The `repeat` operation repeats elements of an ndarray along each axis for specified times. It consists of inner repeat and outer
+repeat (or `tile`). 
+The former repeats elements of an input ndarray, while the later constructs an ndarray by repeating the whole input ndarray by specified number of times along each axis.
 
-Similar to the reduction functions, a multi-axes repeat function can
-hardly achieve ideal performance by simply using existing operation for
-multiple times. I implement multi-axes repeat in Owl and it outperforms
-NumPy and Julia.
+Similar to the reduction functions, a multi-axes repeat function can hardly achieve ideal performance by simply using existing operation for multiple times. We implement multi-axes repeat in Owl and it outperforms NumPy and Julia.
 
-The optimisation I use in the algorithm follows two patterns.
+The optimisation we use in the algorithm follows two patterns. 
 The first is to provide multiple implementations for different inputs.
 For example, if only one axis is used, then a specific implementation for that case would be much faster than a general solution.
 The second is to reduce intermediate results. Similar to the reduction operations, a multiple-axes `repeat` could be implemented by multiple single axis operation, but it would lead to extra memory usage and much slower execution speed.
 
 The core code of my proposed repeat algorithm is shown below.
-Here I define `HD` to be the highest non-one-repeat dimension, copy the HD dimension from source ndarray to target ndarray, and then copy the lower dimensions within target ndarray.
+Here we define `HD` to be the highest non-one-repeat dimension, copy the HD dimension from source ndarray to target ndarray, and then copy the lower dimensions within target ndarray.
 
-```
-int block_num[HD];
-for (int i = 0; i < HD; ++i) {
-  block_num[i] = slice_x[i] / slice_x[HD];
-}
-int counter[HD];
-memset(counter, 0, sizeof(counter));
 
-int ofsx = 0;
-int ofsy = 0;
-int block_sz = reps[HD];
-int num_hd = block_num[0];
+**TODO**: Explain the code instead of just showing some code. 
 
-/* Copy the last-dim block */
+```c
 for (int i = 0; i < num_hd; ++i) {
   int ofsy_sub = ofsy;
   if (block_sz == 1) {
@@ -698,17 +669,17 @@ for (int i = 0; i < num_hd; ++i) {
 }
 ```
 
-The evaluation of `repeat` is similar to that of reduction operations. I use a four-dimensional ndarray of float numbers as input. All four dimensions are of the same length. I measure the speed for increasing length, the repetition times is set to 2 on all dimensions.
+The evaluation of `repeat` is similar to that of reduction operations. We use a four-dimensional ndarray of float numbers as input. All four dimensions are of the same length. We measure the speed for increasing length, the repetition times is set to 2 on all dimensions.
 
-The evaluation results compared with NumPy and Julia are shown in figures below.
-I also measure the peak memory usage.
+![Repeat operation speed](images/core-opt/opeval_repeat.png){width=95% #fig:core-opt:opeval_repeat} 
+
+![Repeat operation memory usage comparison](images/core-opt/opeval_tp_repeat_mem_00.png){width=80% #fig:core-opt:opeval_tp_repeat_mem_00} 
+
+The evaluation results compared with NumPy and Julia are shown in [@#fig:core-opt:opeval_repeat].
+We also measure the peak memory usage in[fig:core-opt:opeval_tp_repeat_mem_00].
 As can be seen, my repeat operation achieves about half of that in NumPy with regard to both execution speed and memory usage.
 The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient.
 The repeat operation in Julia is much slower. One reason is that `repeat` is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.
-
-![Repeat operation speed on Laptop](images/core-opt/opeval_tp_repeat_01.png){width=50% #fig:core-opt:opeval_tp_repeat_00} 
-![Repeat operation speed on rPi](images/core-opt/opeval_rpi_repeat_00.png){width=50% #fig:core-opt:opeval_rpi_repeat_00} 
-![Repeat operation memory usage comparison](images/core-opt/opeval_tp_repeat_mem_00.png){width=90% #fig:core-opt:opeval_tp_repeat_mem_00} 
 
 
 ## References
