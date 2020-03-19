@@ -473,7 +473,12 @@ In this evaluation I use NumPy library that is not compiled with MKL, and it per
 
 ### Convolution Operations
 
-The convolution operations take up the majority of computation involved in deep neural network. A convolution operation takes two ndarrays as input: image ($I$) and kernel ($F$). In a 2-dimensional convolution, both ndarrays are of four dimensions. 
+The convolution operations take up the majority of computation involved in deep neural network, and therefore is the main target of our core optimisation.
+We have seen how the convolution works and the Neural Network chapter. 
+In this section, we would like to go a bit deeper and talk about its implementation. 
+Starting with ta short recap of how the convolution works. 
+
+A convolution operation takes two ndarrays as input: image ($I$) and kernel ($F$). In a 2-dimensional convolution, both ndarrays are of four dimensions. 
 The image ndarray has $B$ batches, each image has size $H\times W$, and has $IC$ channels. 
 The kernel ndarray has $R$ rows, $C$ columns, the same input channel $IC$, and output channel $K$. The convolution can then be expressed as:
 
@@ -481,18 +486,29 @@ $$CONV_{b,h,w,k} = \sum_{ic=1}^{IC}\sum_{r=1}^{R}\sum_{c=1}^{C}I_{b,h+r,w+c,ic}F
 
 A naive convolution algorithm is to implement [@eq:core-opt:conv] with nested for-loops. It is easy to see that this approach does not benefit from any parallelisation, and thus not suitable for production code.
 
-The next version of implementation uses the `im2col` algorithm. A `im2col`-based convolution transforms the input ndarray into a matrix with redundancy. Convolution then can be performed as one matrix multiplication, which can benefit
-from highly optimised linear algebra packages such as OpenBLAS. 
-
-**TODO**: clear explanation with the help of figure.
+The next version of implementation uses the `im2col` method. A `im2col`-based convolution transforms the input ndarray into a matrix with redundancy. 
+This process can be explained clearly with [@fig:core-opt:im2col] ([src](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/making_faster.html)).
 
 ![Basic implementation algorithm of convolution: im2col](images/core-opt/im2col.png "im2col"){width=95% #fig:core-opt:im2col}
 
+You can see that originally at each channel the filter moves along the input and apply element-wise multiplication.
+Instead, the chosen input elements can be flatten into one single column, and so is the kernel. 
+One single dot multiplication is the same as previous steps. 
+Moving filter to a new position means creating a new column and a new column. 
+Therefore, the convolution can be implemented as the dot product of two matrices, which are that flattened kernel matrix and the new input matrices that we have created column by column.
+The advantage of this approach is that it is easy to understand and benefit from the general matrix multiply operation provided by highly optimised linear algebra packages such as OpenBLAS.
+
 However, this algorithm requires generating a large temporary
-intermediate matrix. Depending on input image size, this matrix can take Gigabytes of memory in applications such as FST. 
-Algorithms such as [Memory-efficient Convolution](https://arxiv.org/abs/1706.06873) aims to reduce the size of this intermediate matrix. 
-*TODO*: a bit more detail.
-But still fail with large input or kernel sizes.
+intermediate matrix. 
+It's row number is `kernel_col * kernel_rowl * input_channel`, and its column number is `output_col * output_row * batches`.
+Even for a mediocre size convolution layer, the size of this intermediate input matrices is not small, not to mention for larger input/kernel sizes and with tens and hundreds of convolution layers together in a neural network. 
+The memory usage can easily reach Gigabytes in DNN applications.
+
+
+There are several methods proposed to mitigate this problem.
+If you look closely at the intermediate matrix, you will find that it contains a lot of redundant information: the columns overlap too much. 
+Algorithms such as [Memory-efficient Convolution](https://arxiv.org/abs/1706.06873) aims to reduce the size of this intermediate matrix based on not generating the whole intermediate matrix, but only part of it to efficiently utilise the overlapped content. 
+But even so, still fail with large input or kernel sizes.
 
 The convolution operation is first implemented in Owl by interfacing to the Eigen library, which is also used in TensorFlow for CPU convolution implementation. 
 It solves this problem according to the method proposed
