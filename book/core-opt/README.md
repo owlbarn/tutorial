@@ -4,6 +4,8 @@ In this chapter, we introduce how the core operations are implemented in C langu
 
 TODO: update evaluations
 
+TODO: logic is not very clear; paragraphs are fragmented.
+
 ## Background
 
 First, we briefly introduce some background information about numerical libraries and related optimisation.
@@ -93,6 +95,8 @@ Many operations are first implemented in OCaml but then updated to C driven by o
 - other functions, including contraction, sliding, and repeat.
 
 ### From OCaml to C
+
+TODO: need more detail to show the layer-by-layer structure. A callgraph would be good.
 
 Let's use examples to see exactly how we implement core operations wih C and interface them to OCaml.
 

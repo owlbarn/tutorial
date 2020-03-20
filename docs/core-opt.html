@@ -2,6 +2,7 @@
 <h1>Core Optimisation</h1>
 <p>In this chapter, we introduce how the core operations are implemented in C language for performance, and use some examples to show the techniques we use to optimise the C code.</p>
 <p>TODO: update evaluations</p>
+<p>TODO: logic is not very clear; paragraphs are fragmented.</p>
 <section class="level2" id="background">
 <h2>Background</h2>
 <p>First, we briefly introduce some background information about numerical libraries and related optimisation.</p>
@@ -42,6 +43,7 @@
 </section>
 <section class="level3" id="from-ocaml-to-c">
 <h3>From OCaml to C</h3>
+<p>TODO: need more detail to show the layer-by-layer structure. A callgraph would be good.</p>
 <p>Let’s use examples to see exactly how we implement core operations wih C and interface them to OCaml.</p>
 <p>In Owl, ndarray is built on OCaml’s native <code>Bigarray.Genarray</code>. The Bigarray module implements multi-dimensional numerical arrays of integers and floating-point numbers, and <code>Genarray</code> is the type of <code>Bigarrays</code> with variable numbers of dimensions.</p>
 <p>Genarray is of type <code>('a, 'b, 't) t</code>. It has three parameters: OCaml type for accessing array elements (<code>'a</code>), the actual type of array elements (<code>'b</code>), and indexing scheme (<code>'t</code>). The initial design of Owl supports both col-major and row-major indexing, but this choice leads to a lot of confusion, since the FORTRAN way of indexing starts from index 1, while the row-major starts from 0. Owl sticks with the row-major scheme now, and therefore in the core library the owl ndarray is define as:</p>
