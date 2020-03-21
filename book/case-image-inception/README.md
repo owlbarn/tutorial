@@ -1,140 +1,45 @@
 # Case - Image Recognition
 
 How can a computer take an image and answer questions like "what is in this picture? A cat, dog, or something else?"
-In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks — matching or exceeding human performance in some domains.
+In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks -- matching or exceeding human performance in some domains.
 
-There exist many good deep learning frameworks that can be used to do image classification, such as TensorFlow, Caffe, Torch, etc. But what if your choice of language is Functional Programming Language such as OCaml? It has long been thought that OCaml is not suitable for advanced computation tasks like machine learning. And now we have Owl.
+We have introduced the neural network module in previous chapter. 
+In this chapter, we will show one specific example that is built on the neural network module: using the InceptionV3 architecture to perform the image classification task. 
 
-## Image Processing
+## Background
 
-Let's start with the image representation and processing in OCaml.
+InceptionV3 is a a widely-used image classification DNN architecture that can attain significant accuracy with small amount of parameters. 
+It is not invented out of thin air. The development using DNN to perform image recognition is a stream that dates back to more than 20 years ago.
+During this period, the research in this area is pushed forward again and again in various work. 
+In this chapter, we first introduce how image classification architectures are developed up until Inception. 
+They will be helpful to understand how Inception architectures are built. 
 
-An input image is broken down into pixels.
-For a black and white image, those pixels are interpreted as a 2D array (for example, 2x2 pixels). Every pixel has a value between 0 and 255. (Zero is completely black and 255 is completely white. The greyscale exists between those numbers.) 
-For a color image, this is a 3D array with a blue layer, a green layer, and a red layer. Each one of those colors has its own value between 0 and 255. The color can be found by combining the values in each of the three layers. (COPY ALERT)
+### LeNet
 
-Image processing is challenging, since OCaml does not provide powerful functions to manipulate images.
-Though there are image processing libraries such as [CamlImages](http://gallium.inria.fr/camlimages/), but we don't want to add extra liabilities to Owl itself. 
+In the regression chapter, we have seen a simple neural network that contains three layer, and use it to recognise the simple handwritten numbers from the MNSIT dataset.
+Here, each pixel acts as an input feature. 
+Remember that each image can be seen as a ndarray. 
+For a black and white image such as the MNSIT image, pixels are interpreted as a matrix. Every pixel has a value between 0 and 255.  For a color image, it can be interpreted as a 3-dimension array with  three channels, each corresponding to the blue, green, and red layer.
 
-To this end, we choose the non-compressed image format PPM.
-A PPM file is a 24-bit color image formatted using a text format. It stores each pixel with a number from 0 to 65536, which specifies the color of the pixel. 
-Therefore, we can just use ndarray in Owl and convert that directly to PPM image without using any external libraries.
-We only need to take care of header information during this process.
-For example, here is the code for converting an 3-dimensional array in Owl `img` into a ppm file. 
-
-```ocaml
-module N = Dense.Ndarray.S
-
-let save_image_to_file img outname = 
-  (* metadata *)
-  let shape = N.shape img in
-  assert (Array.length(shape) = 3);
-  let h = shape.(0) in
-  let w = shape.(1) in
-  let num_col = 255 in
-
-  (* divide *)
-  let r = N.get_slice [[];[];[1]] img in 
-  let r = N.reshape r [|h; w|] in
-  let g = N.get_slice [[];[];[2]] img  in
-  let g = N.reshape g [|h; w|] in
-  let b = N.get_slice [[];[];[0]] img in 
-  let b = N.reshape b [|h; w|] in
-
-  (* merge r, g, b to one [|h; 3*w|] matrix *)
-  let img_mat = Dense.Matrix.S.zeros h (3 * w) in
-  Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
-  Dense.Matrix.S.set_slice [[];[1;-1;3]] img_mat g;
-  Dense.Matrix.S.set_slice [[];[2;-1;3]] img_mat b;
-
-  (* rotate *)
-  let img_mat = Dense.Matrix.S.rotate img_mat 90 in 
-  let img_arr = Dense.Matrix.S.to_arrays img_mat in 
-
-  (* change to line *)
-  let img_str = Bytes.make (w * h * 3) ' ' in 
-  let ww = 3 * w in 
-  for i = 0 to ww - 1 do
-    for j = 0 to h - 1 do
-      let ch = img_arr.(i).(j) |> int_of_float |> char_of_int in
-      Bytes.set img_str ((h - 1 -j) * ww + i) ch;
-    done
-  done;
-
-  let header = "P6\n" ^ string_of_int(h) ^ " " ^ string_of_int(w) ^ "\n" ^ string_of_int(num_col) ^ "\n" in 
-  let img_final = Bytes.concat (Bytes.of_string " ") [header |> Bytes.of_string; img_str] in 
-  Owl_io.write_file outname (Bytes.to_string img_final)
-```
-
-In this function we first get the required meta data such as image size, and then combine the three channels of a image (three slices of the input ndarray) into a single line of string by correct order. 
-The finally we construct these information into bytes and then write to the output PPM file.
-
-
-Similarly, to read an PPM image file into ndarray in Owl, we treat the ppm file line by line with `input_line` function.
-The metadata such as version and comments are ignored. 
-We get the metadata such as width and heigh from the header.
-
-```text
-...
-let w_h_line = input_line fp in
-let w, h = Scanf.sscanf w_h_line "%d %d" (fun w h -> w, h) in
-...
-```
-
-Then according these information, we read the rest of data into a large bytes with `Pervasive.really_input`.
-Note that under 32bit OCaml, this will only work when reading strings up to about 16 megabytes.
-
-```text
-...
-let img = Bytes.make (w * h * 3) ' ' in
-really_input fp img 0 (w * h * 3);
-close_in fp;
-...
-```
-
-Then we need to re-arrange the data in the bytes into a matrix.
-
-```
-let imf_o = Array.make_matrix (w * 3) h 0.0 in
-  
-let ww = 3 * w  in
-for i = 0 to ww - 1 do
-  for j = 0 to h - 1 do
-    imf_o.(i).(j) <- float_of_int (int_of_char (Bytes.get img ((h - 1 - j ) * ww + i)));
-  done
-done;
-```
-
-This matrix can then be further processed into a ndarray with proper slicing.
-
-```
-...
-let m = Dense.Matrix.S.of_arrays img in
-let m = Dense.Matrix.S.rotate m 270 in
-let r = N.get_slice [[];[0;-1;3]] m in
-let g = N.get_slice [[];[1;-1;3]] m in
-let b = N.get_slice [[];[2;-1;3]] m in
-...
-```
-
-There are other functions such as reading in ndarray from PPM file. The full image processing code can be viewed in [this gist](https://gist.github.com/jzstark/86a1748bbc898f2e42538839edba00e1).
-
-Of course, most of the time we have to deal with image of other more common format such as PNG and JPEG. 
-For the conversion from these format to PPM or the other way around, we use the tool [ImageMagick](https://www.imagemagick.org/).
-
-## Building Blocks of Image Recognition
-
-In the regression chapter we have seen how the multi-classification problem can be solved with neural networks that contains several hidden layers.
-If the input is an image, then every single pixel acts as a input feature. 
-
+However, we cannot rely on adding more fully connected layers to do real world high precision image detections.
 One important improvement that the Convolution Neural Network make is that it uses filters in the convolution operation.
 As a result, instead of using the whole image as an array of features, the image is divided into a number of tiles. 
 They will then serve as the basic feature of the network's prediction.
 
-We cannot discuss the theory behind building computer vision models, and the existing models vary greatly in its characteristics, but they share similar building blocks, the most important ones are convolution layer, RELU activation layer, pooling layer, and fully connected layer.
-This whole process is shown in [@fig:case-image-inception:workflow].
+Explain and visualise "feature" and feature map.
+
+The next building block is the pooling layer. Recall from the neural network chapter that, both average pooling and max pooling can aggregate information from multiple pixels into one and "blur" the input image or feature. 
+So why it is so important?
+By reducing the size of input, pooling helps to reduce the number of parameters and the amount of computation required. 
+Besides, blurring the features is a way to limit over-fitting training data.
+
+At the end, only connect high-level features with fully connection.
+This is the structure proposed in [@lecun1998gradient].
+This whole process can be shown in [@fig:case-image-inception:workflow].
 
 ![Workflow of image classification](images/case-image-inception/cnn_workflow.png "workflow"){width=100% #fig:case-image-inception:workflow}
+
+(Or use the LeCun paper figure)
 
 In general, layers of convolution retrieve information from detailed to more abstracted gradually.
 In a DNN, The lower layers of neurons retrieve information about simple shapes such as edges and points.
@@ -142,28 +47,69 @@ Going higher, the neurons can capture complex structures, such as the tire of a 
 Close to the top layers, the neurons can retrieve and abstract complex ideas, such as "car", "cat", etc.
 And then finally generates the classification results. 
 
-This is basically how we detect images. We don’t look at every single pixel of an image. We see features like a hat, a red dress, a tattoo, and so on. There’s so much information going into our eyes at all times that we couldn’t possibly deal with every single pixel of it. We’re allowing our model to do the same thing.
-The result of this is the convolved feature map. It’s smaller than the original input image. This makes it easier and faster to deal with. Do we lose information? Some, yes. But at the same time, the purpose of the feature detector is to detect features, which is exactly what this does.
-We create many feature maps to get our first convolution layer. This allows us to identify many different features that the program can use to learn. (COPY ALERT)
+### AlexNet
 
-The ReLU (rectified linear unit) layer is another step to our convolution layer. You’re applying an activation function onto your feature maps to increase non-linearity in the network. This is because images themselves are highly non-linear. It removes negative values from an activation map by setting them to zero.
-Convolution is a linear operation with things like element wise matrix multiplication and addition. The real-world data we want our CNN to learn will be non-linear. We can account for that with an operation like ReLU. You can use other operations like tanh or sigmoid. ReLU, however, is a popular choice because it can train the network faster without any major penalty to generalization accuracy. (COPY ALERT)
+Next breakthrough comes from the AlexNet proposed in [@krizhevsky2012imagenet].
+It proposes the activation layer to increase *non-linearity*.
+Operations such as convolution includes mainly linear operations such as matrix multiplication and add.
+But that's not how the real world data looks like. Remember that from the previou Regression chapter, though linear regression is basic, but for most of the real world application we need more complex method such as polynomial regression. 
+The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image. 
 
-The last thing you want is for your network to look for one specific feature in an exact shade in an exact location. That’s useless for a good CNN! You want images that are flipped, rotated, squashed, and so on. You want lots of pictures of the same thing so that your network can recognize an object (say, a leopard) in all the images. No matter what the size or location. No matter what the lighting or the number of spots, or whether that leopard is fast asleep or crushing prey. You want spatial variance! You want flexibility. That’s what pooling is all about.
-Pooling progressively reduces the size of the input representation. It makes it possible to detect objects in an image no matter where they’re located. Pooling helps to reduce the number of required parameters and the amount of computation required. It also helps control overfitting. (COPY ALERT)
+There are multiple activation choice, such as `tanh` and `sigmoid`.
+However, the `relu` operation, which set negative values of a feature map to zero, is frequently used.
+It makes training faster, and accuracy loss in gradient computation is small. 
 
-(Image and text copy [src](https://towardsdatascience.com/wtf-is-image-classification-8e78a8235acb).)
+Another thing that AlexNet proposes is to use the `dropout` layer.
+It is mainly used to solve the over-fitting problem. 
+This operation only works at training time. It randomly makes the elements in a ndarray from the last layer to be zero, and thus "deactivate" the knowledge that can be learnt from these points. 
+In this way, the network intentionally drops certain part of training examples and avoid the over-fitting problem.
+It is similar to the regularisation method we use in the linear regression.
+
+The one more thing that we need to take a note from AlexNet is that by going deeper make the network "longer", we achieve better accuracy. 
+So instead of just convolution and pooling, we now build convolution followed by convolution and then pooling, and repeat this process again.... 
+A deeper network captures finer features, and this would be a trend that is followed by successive architectures.
+
+### VGG
+
+The VGG network proposed in [@simonyan2014very] is the next step after AlexNet. 
+The most notable change that introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
+The benefits are mainly twofold. 
+
+The first is that by replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. 
+Most are 3x3 kernels. 
+
+CODE
+
+The second one is to increase non-linearity.
+
+The 1x1 kernels. 
+
+The extra benefit is that now that the number of parameters are reduced, we are able to build deeper architectures.
+Two flavours: VGG16 and VGG19.
+Compare data.
+
+### ResNet
+
+
+
 
 ## Building InceptionV3 Network
 
 Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
-
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
 Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. 
 To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget.
 This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. 
 The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.
+
+### InceptionV1 and InceptionV2
+
+### Factorisation 
+
+### Grid Size Reduction
+
+
 
 Here is the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
 
@@ -381,6 +327,119 @@ Also, some times the dimensions has to be swapped in a ndarray during this weigh
 Note that this is one-off work. 
 Once you successfully update the network with weights, the weights can be saved using `Graph.save_weights`, without haveing to repeat all these steps again. 
 We have already prepared the weights for the InceptionV3 model and other similar models, and the users don't have to worry about all these trivial model exchanging detail.
+
+## Image Processing
+
+Image processing is challenging, since OCaml does not provide powerful functions to manipulate images.
+Though there are image processing libraries such as [CamlImages](http://gallium.inria.fr/camlimages/), but we don't want to add extra liabilities to Owl itself. 
+
+To this end, we choose the non-compressed image format PPM.
+A PPM file is a 24-bit color image formatted using a text format. It stores each pixel with a number from 0 to 65536, which specifies the color of the pixel. 
+Therefore, we can just use ndarray in Owl and convert that directly to PPM image without using any external libraries.
+We only need to take care of header information during this process.
+For example, here is the code for converting an 3-dimensional array in Owl `img` into a ppm file. 
+
+```ocaml
+module N = Dense.Ndarray.S
+
+let save_image_to_file img outname = 
+  (* metadata *)
+  let shape = N.shape img in
+  assert (Array.length(shape) = 3);
+  let h = shape.(0) in
+  let w = shape.(1) in
+  let num_col = 255 in
+
+  (* divide *)
+  let r = N.get_slice [[];[];[1]] img in 
+  let r = N.reshape r [|h; w|] in
+  let g = N.get_slice [[];[];[2]] img  in
+  let g = N.reshape g [|h; w|] in
+  let b = N.get_slice [[];[];[0]] img in 
+  let b = N.reshape b [|h; w|] in
+
+  (* merge r, g, b to one [|h; 3*w|] matrix *)
+  let img_mat = Dense.Matrix.S.zeros h (3 * w) in
+  Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
+  Dense.Matrix.S.set_slice [[];[1;-1;3]] img_mat g;
+  Dense.Matrix.S.set_slice [[];[2;-1;3]] img_mat b;
+
+  (* rotate *)
+  let img_mat = Dense.Matrix.S.rotate img_mat 90 in 
+  let img_arr = Dense.Matrix.S.to_arrays img_mat in 
+
+  (* change to line *)
+  let img_str = Bytes.make (w * h * 3) ' ' in 
+  let ww = 3 * w in 
+  for i = 0 to ww - 1 do
+    for j = 0 to h - 1 do
+      let ch = img_arr.(i).(j) |> int_of_float |> char_of_int in
+      Bytes.set img_str ((h - 1 -j) * ww + i) ch;
+    done
+  done;
+
+  let header = "P6\n" ^ string_of_int(h) ^ " " ^ string_of_int(w) ^ "\n" ^ string_of_int(num_col) ^ "\n" in 
+  let img_final = Bytes.concat (Bytes.of_string " ") [header |> Bytes.of_string; img_str] in 
+  Owl_io.write_file outname (Bytes.to_string img_final)
+```
+
+In this function we first get the required meta data such as image size, and then combine the three channels of a image (three slices of the input ndarray) into a single line of string by correct order. 
+The finally we construct these information into bytes and then write to the output PPM file.
+
+
+Similarly, to read an PPM image file into ndarray in Owl, we treat the ppm file line by line with `input_line` function.
+The metadata such as version and comments are ignored. 
+We get the metadata such as width and heigh from the header.
+
+```text
+...
+let w_h_line = input_line fp in
+let w, h = Scanf.sscanf w_h_line "%d %d" (fun w h -> w, h) in
+...
+```
+
+Then according these information, we read the rest of data into a large bytes with `Pervasive.really_input`.
+Note that under 32bit OCaml, this will only work when reading strings up to about 16 megabytes.
+
+```text
+...
+let img = Bytes.make (w * h * 3) ' ' in
+really_input fp img 0 (w * h * 3);
+close_in fp;
+...
+```
+
+Then we need to re-arrange the data in the bytes into a matrix.
+
+```
+let imf_o = Array.make_matrix (w * 3) h 0.0 in
+  
+let ww = 3 * w  in
+for i = 0 to ww - 1 do
+  for j = 0 to h - 1 do
+    imf_o.(i).(j) <- float_of_int (int_of_char (Bytes.get img ((h - 1 - j ) * ww + i)));
+  done
+done;
+```
+
+This matrix can then be further processed into a ndarray with proper slicing.
+
+```
+...
+let m = Dense.Matrix.S.of_arrays img in
+let m = Dense.Matrix.S.rotate m 270 in
+let r = N.get_slice [[];[0;-1;3]] m in
+let g = N.get_slice [[];[1;-1;3]] m in
+let b = N.get_slice [[];[2;-1;3]] m in
+...
+```
+
+There are other functions such as reading in ndarray from PPM file. The full image processing code can be viewed in [this gist](https://gist.github.com/jzstark/86a1748bbc898f2e42538839edba00e1).
+
+Of course, most of the time we have to deal with image of other more common format such as PNG and JPEG. 
+For the conversion from these format to PPM or the other way around, we use the tool [ImageMagick](https://www.imagemagick.org/).
+
+**Data preprocessing**
 
 ## Running Inference
 
