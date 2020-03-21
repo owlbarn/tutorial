@@ -455,3 +455,17 @@ If you are not interested in installing anything, [here](http://demo.ocaml.xyz/)
 
 
 ## Applications
+
+Building an image classification application is not the end by itself. It can be used in a wide range of applications.
+We list some in this section to show how Owl can be deployed in these scenarios. 
+
+One of the most popular applications of image recognition that we encounter daily is personal photo organization. 
+Image recognition is empowering the user experience of photo organization apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organization capabilities provided by machine learning. The image recognition API integrated in the apps categorizes images on the basis of identified patterns and groups them thematically. (COPY ALERT)
+
+A powerful commercial use of image recognition can be seen in the field of stock photography and video. Stock websites provide platforms where photographers and videomakers can sell their content. Contributors need a way to tag large amounts of visual material, which is time-consuming and tedious. In the same time, without proper keyword attribution, their content cannot be indexed – and thus cannot be discovered by buyers.  
+Image recognition is thus crucial for stock websites.
+(COPY ALERT)
+
+
+Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while.
+While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images.  ([COPY ALERT](https://imagga.com/blog/the-top-5-uses-of-image-recognition/))
