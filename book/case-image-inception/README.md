@@ -448,54 +448,41 @@ To this end, we choose the non-compressed image format PPM.
 A PPM file is a 24-bit color image formatted using a text format. It stores each pixel with a number from 0 to 65536, which specifies the color of the pixel. 
 Therefore, we can just use ndarray in Owl and convert that directly to PPM image without using any external libraries.
 We only need to take care of header information during this process.
+
 For example, here is the code for converting an 3-dimensional array in Owl `img` into a ppm file. 
+We first need to get the content from each of the three color channels using slicing, such as the blue channel:
 
-```ocaml
-module N = Dense.Ndarray.S
-
-let save_image_to_file img outname = 
-  (* metadata *)
-  let shape = N.shape img in
-  assert (Array.length(shape) = 3);
-  let h = shape.(0) in
-  let w = shape.(1) in
-  let num_col = 255 in
-
-  (* divide *)
-  let r = N.get_slice [[];[];[1]] img in 
-  let r = N.reshape r [|h; w|] in
-  let g = N.get_slice [[];[];[2]] img  in
-  let g = N.reshape g [|h; w|] in
-  let b = N.get_slice [[];[];[0]] img in 
-  let b = N.reshape b [|h; w|] in
-
-  (* merge r, g, b to one [|h; 3*w|] matrix *)
-  let img_mat = Dense.Matrix.S.zeros h (3 * w) in
-  Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
-  Dense.Matrix.S.set_slice [[];[1;-1;3]] img_mat g;
-  Dense.Matrix.S.set_slice [[];[2;-1;3]] img_mat b;
-
-  (* rotate *)
-  let img_mat = Dense.Matrix.S.rotate img_mat 90 in 
-  let img_arr = Dense.Matrix.S.to_arrays img_mat in 
-
-  (* change to line *)
-  let img_str = Bytes.make (w * h * 3) ' ' in 
-  let ww = 3 * w in 
-  for i = 0 to ww - 1 do
-    for j = 0 to h - 1 do
-      let ch = img_arr.(i).(j) |> int_of_float |> char_of_int in
-      Bytes.set img_str ((h - 1 -j) * ww + i) ch;
-    done
-  done;
-
-  let header = "P6\n" ^ string_of_int(h) ^ " " ^ string_of_int(w) ^ "\n" ^ string_of_int(num_col) ^ "\n" in 
-  let img_final = Bytes.concat (Bytes.of_string " ") [header |> Bytes.of_string; img_str] in 
-  Owl_io.write_file outname (Bytes.to_string img_final)
+```
+let b = N.get_slice [[];[];[0]] img in 
+let b = N.reshape b [|h; w|] in
+...
 ```
 
-In this function we first get the required meta data such as image size, and then combine the three channels of a image (three slices of the input ndarray) into a single line of string by correct order. 
-The finally we construct these information into bytes and then write to the output PPM file.
+Here `h` and `w` are the height and width of the image.
+Then we need to merge all these three matrix into a large matrix that of are of size `[|h; 3*w|]`.
+
+```
+let img_mat = Dense.Matrix.S.zeros h (3 * w) in
+Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
+...
+```
+
+Then, after rotate this matrix by 90 degree, we need to rewrite this matrix to a large byte variable.
+Note that that though the method is straightforward, you need to be careful about the index of each element during the conversion. 
+
+```
+let img_str = Bytes.make (w * h * 3) ' ' in 
+let ww = 3 * w in 
+for i = 0 to ww - 1 do
+  for j = 0 to h - 1 do
+    let ch = img_arr.(i).(j) |> int_of_float |> char_of_int in
+    Bytes.set img_str ((h - 1 -j) * ww + i) ch;
+  done
+done;
+```
+
+Finally we build another byte string that contains the metadata such as height and width, according to the specification of PPM format.
+Concatenating the metadata and data together, we then write the bytes data into a file. 
 
 
 Similarly, to read an PPM image file into ndarray in Owl, we treat the ppm file line by line with `input_line` function.
@@ -549,8 +536,21 @@ There are other functions such as reading in ndarray from PPM file. The full ima
 
 Of course, most of the time we have to deal with image of other more common format such as PNG and JPEG. 
 For the conversion from these format to PPM or the other way around, we use the tool [ImageMagick](https://www.imagemagick.org/).
+ImageMagick is a free and open-source tool suite for image related tasks, such as converting, modifying, and editing images. 
+It can read and write over 200 image file formats, including the PPM format. 
+Therefore, we preprocess the images by converting its format to PPM with the command `convert`.
+Also, the computation time of is related with the input size, and we often hope to limit the size of images. That can also be done with the command `convert -resize`.
 
-**Data preprocessing**
+Another important preprocessing is to normalise the input. 
+Instead of processing the input ndarray whose elements ranges from 0 to 255, we need to simply preprocess it so that all the elements fall into the range `[-1, 1]`, as shown in the code below. 
+
+```ocaml
+let normalise img = 
+  let img = N.div_scalar img 255. in 
+  let img = N.sub_scalar img 0.5  in
+  let img = N.mul_scalar img 2.   in
+  img
+```
 
 ## Running Inference
 
