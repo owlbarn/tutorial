@@ -71,40 +71,40 @@ A deeper network captures finer features, and this would be a trend that is foll
 
 ### VGG
 
-The VGG network proposed in [@simonyan2014very] is the next step after AlexNet. 
+The VGG network proposed in [@simonyan2014very] is the next step after AlexNet.
 The most notable change that introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
-The benefits are mainly twofold. 
 
-The first is that by replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. 
-Most are 3x3 kernels. 
+Using multiple small kernels is much more flexible than only using a large one. 
+For example, for an input image, by applying two `3x3` kernels with slide size of 1, that equals to using a `5x5` kernel. 
+If stacking three `3x3`, it equals using one `7x7` convolution. 
 
-CODE
+By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced.
+In the previous two examples, replace one `5x5` with two `3x3`, we reduce the parameter by $1 - 2 * 3 * 3 / (5 * 5) = 28%$. Replace the `7x7` kernel, and we save parameters by $1 - 3 * 3 * 3 / ( 7 * 7) = 45%$.
 
-The second one is to increase non-linearity.
+Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance.
+The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper. 
 
-The 1x1 kernels. 
-
-The extra benefit is that now that the number of parameters are reduced, we are able to build deeper architectures.
-Two flavours: VGG16 and VGG19.
-Compare data.
+One extra benefit is that using small kernels increases non-linearity. 
+Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. 
+As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.
 
 ### ResNet
 
 We keep saying that building deeper network is the trend. 
 However, going deeper has its limit.
 The deeper you go, the more you will experience the "vanishing gradient" problem. 
-This problems is that, in a very deep network, during back-propagation on it, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
+This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
 
 The ResNet in [@he2016deep] proposes a "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.
 
 FIGURE: residual block
 
-Explain how this residual structure solve the gradient problem: the error can be backpropagated through multiple paths.
+We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. 
+It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths.
+The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.
 
-Also going deeper has parameter size problem.
-
-Also note that in this structure, we concatenate features from different levels, not update them layer by layer. 
-BENEFIT.
+Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. 
+This patten proves to be useful and will also be used in the Inception architecture. 
 
 ## Building InceptionV3 Network
 
@@ -639,3 +639,5 @@ Image recognition is thus crucial for stock websites.
 
 Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while.
 While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images.  ([COPY ALERT](https://imagga.com/blog/the-top-5-uses-of-image-recognition/))
+
+## References

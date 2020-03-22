@@ -27,21 +27,19 @@
 </section>
 <section class="level3" id="vgg">
 <h3>VGG</h3>
-<p>The VGG network proposed in <span data-cites="simonyan2014very" class="citation">(Simonyan and Zisserman 2014)</span> is the next step after AlexNet. The most notable change that introduced by VGG is that it uses small kernel sizes such as <code>3x3</code> instead of the <code>11x11</code> with a large stride of 4 in AlexNet. The benefits are mainly twofold.</p>
-<p>The first is that by replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. Most are 3x3 kernels.</p>
-<p>CODE</p>
-<p>The second one is to increase non-linearity.</p>
-<p>The 1x1 kernels.</p>
-<p>The extra benefit is that now that the number of parameters are reduced, we are able to build deeper architectures. Two flavours: VGG16 and VGG19. Compare data.</p>
+<p>The VGG network proposed in <span data-cites="simonyan2014very" class="citation">(Simonyan and Zisserman 2014)</span> is the next step after AlexNet. The most notable change that introduced by VGG is that it uses small kernel sizes such as <code>3x3</code> instead of the <code>11x11</code> with a large stride of 4 in AlexNet.</p>
+<p>Using multiple small kernels is much more flexible than only using a large one. For example, for an input image, by applying two <code>3x3</code> kernels with slide size of 1, that equals to using a <code>5x5</code> kernel. If stacking three <code>3x3</code>, it equals using one <code>7x7</code> convolution.</p>
+<p>By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. In the previous two examples, replace one <code>5x5</code> with two <code>3x3</code>, we reduce the parameter by <span class="math inline">\(1 - 2 * 3 * 3 / (5 * 5) = 28%\)</span>. Replace the <code>7x7</code> kernel, and we save parameters by <span class="math inline">\(1 - 3 * 3 * 3 / ( 7 * 7) = 45%\)</span>.</p>
+<p>Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance. The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper.</p>
+<p>One extra benefit is that using small kernels increases non-linearity. Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.</p>
 </section>
 <section class="level3" id="resnet">
 <h3>ResNet</h3>
-<p>We keep saying that building deeper network is the trend. However, going deeper has its limit. The deeper you go, the more you will experience the “vanishing gradient” problem. This problems is that, in a very deep network, during back-propagation on it, the repeated multiplication operations will make the gradients very small, and thus the performance affected.</p>
+<p>We keep saying that building deeper network is the trend. However, going deeper has its limit. The deeper you go, the more you will experience the “vanishing gradient” problem. This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected.</p>
 <p>The ResNet in <span data-cites="he2016deep" class="citation">(He et al. 2016)</span> proposes a “identity shortcut connection” that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.</p>
 <p>FIGURE: residual block</p>
-<p>Explain how this residual structure solve the gradient problem: the error can be backpropagated through multiple paths.</p>
-<p>Also going deeper has parameter size problem.</p>
-<p>Also note that in this structure, we concatenate features from different levels, not update them layer by layer. BENEFIT.</p>
+<p>We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths. The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.</p>
+<p>Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. This patten proves to be useful and will also be used in the Inception architecture.</p>
 </section>
 </section>
 <section class="level2" id="building-inceptionv3-network">
@@ -410,6 +408,9 @@ let _ =
 <p>A powerful commercial use of image recognition can be seen in the field of stock photography and video. Stock websites provide platforms where photographers and videomakers can sell their content. Contributors need a way to tag large amounts of visual material, which is time-consuming and tedious. In the same time, without proper keyword attribution, their content cannot be indexed – and thus cannot be discovered by buyers.<br>
 Image recognition is thus crucial for stock websites. (COPY ALERT)</p>
 <p>Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while. While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images. (<a href="https://imagga.com/blog/the-top-5-uses-of-image-recognition/">COPY ALERT</a>)</p>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-he2016deep">
 <p>He, Kaiming, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. “Deep Residual Learning for Image Recognition.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 770–78.</p>
