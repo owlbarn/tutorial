@@ -92,6 +92,7 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]</code></pre>
 </div>
 <p>The <code>mix_typ1</code> structure implement the the first type of inception module. In <code>branch3x3dbl</code> branch, it replace a <code>5x5</code> kernel convolution layer with two <code>3x3</code> convolution layers. It follows the design in the VGG network. Of course, as we have explained, both branches uses the <code>1x1</code> to reduce dimensions before complex convolution computation.</p>
+<p>In some implementation the <code>3x3</code> convolutions can also be further factorised into <code>3x1</code> and then <code>1x3</code> convolutions. There are more tha one way to do the factorisation. You might be think that it is also a good idea to replace the <code>3x3</code> convolution with two <code>2x2</code>s. Well, we could do that but it saves only about 11% parameters, compared to the 33% save of current practice.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ4 size nn =
   let branch1x1 = conv2d_bn [|1;1;768;192|] [|1;1|] nn in
@@ -145,14 +146,14 @@ let network_02 =
   let branch_pool = nn |&gt; avg_pool2d [|3;3|] [|1;1|] |&gt; conv2d_bn [|1;1;input;192|] [|1;1|] in
   concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]</code></pre>
 </div>
-<p>The final inception module is a bit more complex, but by now you should be able to understand its construction. It aggregate information from four branches. In both the <code>branch3x3</code> and <code>branch3x3dbl</code> branches, it factorise the <code>3x3</code> convolution with a <code>3x1</code> and then a <code>1x3</code> convolution. Besides, the <code>1x1</code> convolutions are used to reduce the dimension and computation complexity. You might be think that it is also a good idea to replace the <code>3x3</code> convolution with two <code>2x2</code>s. Well, we could do that but it saves only about 11% parameters, compared to the 33% save of current practice.</p>
-<p>The final part is Inception module C, which repeats two <code>mix_type9</code> function.</p>
-<p>Together, these three modules are repeated respectively. Benefit: less size, not overfitting, can go deeper.</p>
+<p>The final inception module is a bit more complex, but by now you should be able to understand its construction. It aggregate information from four branches. The <code>1x1</code> convolutions are used to reduce the dimension and computation complexity. Note that in both the <code>branch3x3</code> and <code>branch3x3dbl</code> branches, both <code>3x1</code> and <code>1x3</code> convolutions are used, not as replacement of <code>3x3</code>, but as separate branches. This module is for promoting high dimensional representations.</p>
+<p>TODO: explain “promoting high dimensional representations”.</p>
+<p>Together, these three modules makes up the core part of the InceptionV3 architecture. By applying different techniques and designs, these modules take less memory and less prone to over-fitting problem. Thus they can be stacked together to make the whole network go deeper.</p>
 </section>
 <section class="level3" id="grid-size-reduction">
 <h3>Grid Size Reduction</h3>
-<p>Explain Grid size reduction.</p>
-<p>CODE to compare the previous and current reduction methods.</p>
+<p>For the very beginning of the design of CNN, we need to reduce the size of feature maps as well as increasing the number or channel of the feature map. We have explained how it is done using the combination of pooling layer and convolution layer. However, the reduction solution constructed this way is either too greedy or two computationally expensive.</p>
+<p>Inception architecture proposes a grid size reduction module. It put the same input feature map into to set of pipelines, one of them uses the pooling operation, and the other uses only convolution layers. These two type of layers are then not stacked together but concatenated vertically, as shown in the next part of code.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ3 nn =
   let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
@@ -164,7 +165,7 @@ let network_02 =
   let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
   concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]</code></pre>
 </div>
-<p><code>mix_typ3</code> builds the first grid size reduction module. This module implements an efficient feature map downsizing function.</p>
+<p><code>mix_typ3</code> builds the first grid size reduction module. This replacement strategy can perform efficient reduction without losing too much information. Similarly, an extended version of this grid size reduction module is also included.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ8 nn =
   let branch3x3 = nn
@@ -180,16 +181,15 @@ let network_02 =
   let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
   concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]</code></pre>
 </div>
-<p><code>mix_typ8</code> is the second grid size reduction module.</p>
+<p><code>mix_typ8</code> is the second grid size reduction module in the deeper part of the network. It uses three branches instead of two, and each convolution branch is more complex. The <code>1x1</code> convolutions are again used. But in general it still follows the principle of performing reduction in parallel and then concatenate them together, performing an efficient feature map reduction.</p>
 </section>
 <section class="level3" id="inceptionv3-architecture">
 <h3>InceptionV3 Architecture</h3>
-<p>Here is the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
+<p>After introducing the separate units, finally we can construct them together to see what the InceptionV3 network looks like. fig.&nbsp;2 shows the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
 <figure>
 <img alt="" style="width:95.0%" id="fig:case-image-inception:inceptionv3" title="inceptionv3" src="images/case-image-inception/inceptionv3.png"><figcaption>Figure 2: Network Architecture of InceptionV3</figcaption>
 </figure>
-<p>We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. We can define this network easily in Owl.</p>
-<p>With all these parts ready, we can put them together into the whole network.</p>
+<p>We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. That’s where the name “Inception” comes from: like dreams, you can have stack these basic units layer by layer. With all these parts ready, we can put them together into the whole network in code.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let make_network img_size =
   input [|img_size;img_size;3|]
@@ -209,6 +209,7 @@ let network_02 =
   |&gt; linear 1000 ~act_typ:Activation.(Softmax 1)
   |&gt; get_network</code></pre>
 </div>
+<p>There is only one last thing we need to mention: the <em>global pooling</em>. Global Average/Max Pooling calculates the average/max output of each feature map in the previous layer. For example, if you have an <code>[|1;10;10;64|]</code> feature map, then this operation can make it to be <code>[|1;1;1;64|]</code>. This operation seems very simple, but it works at the very end of a network, and can be used to replace the fully connection layer. The parameter size of the fully connection layer has always been a problem. Now that it is replaced with a non-trainable operation, the parameter size is greatly reduced without the performance. Besides, the global pooling layer is more robust to spatial translations in the data and mitigate the over-fitting problem in fully connection, accoding to <span data-cites="lin2013network" class="citation">(Lin, Chen, and Yan 2013)</span>.</p>
 <p>The full code is listed in <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">this gist</a>. Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.</p>
 <p>Besides InceptionV3, you can also easily construct other popular image recognition networks, such as <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1">ResNet50</a>, <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4">VGG16</a>, <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48">SqueezeNet</a> etc. with elegant Owl code.<br>
 We have already mentioned most of them in previous sections.</p>
@@ -418,6 +419,9 @@ Image recognition is thus crucial for stock websites. (COPY ALERT)</p>
 </div>
 <div id="ref-lecun1998gradient">
 <p>LeCun, Yann, Léon Bottou, Yoshua Bengio, and Patrick Haffner. 1998. “Gradient-Based Learning Applied to Document Recognition.” <em>Proceedings of the IEEE</em> 86 (11): 2278–2324.</p>
+</div>
+<div id="ref-lin2013network">
+<p>Lin, Min, Qiang Chen, and Shuicheng Yan. 2013. “Network in Network.” <em>arXiv Preprint arXiv:1312.4400</em>.</p>
 </div>
 <div id="ref-simonyan2014very">
 <p>Simonyan, Karen, and Andrew Zisserman. 2014. “Very Deep Convolutional Networks for Large-Scale Image Recognition.” <em>arXiv Preprint arXiv:1409.1556</em>.</p>
