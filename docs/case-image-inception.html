@@ -36,6 +36,12 @@
 </section>
 <section class="level3" id="resnet">
 <h3>ResNet</h3>
+<p>We keep saying that building deeper network is the trend. However, going deeper has its limit. The deeper you go, the more you will experience the “vanishing gradient” problem. This problems is that, in a very deep network, during back-propagation on it, the repeated multiplication operations will make the gradients very small, and thus the performance affected.</p>
+<p>The ResNet in <span data-cites="he2016deep" class="citation">(He et al. 2016)</span> proposes a “identity shortcut connection” that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.</p>
+<p>FIGURE: residual block</p>
+<p>Explain how this residual structure solve the gradient problem: the error can be backpropagated through multiple paths.</p>
+<p>Also going deeper has parameter size problem.</p>
+<p>Also note that in this structure, we concatenate features from different levels, not update them layer by layer. BENEFIT.</p>
 </section>
 </section>
 <section class="level2" id="building-inceptionv3-network">
@@ -44,17 +50,17 @@
 <p>The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy. Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget. This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.</p>
 <section class="level3" id="inceptionv1-and-inceptionv2">
 <h3>InceptionV1 and InceptionV2</h3>
+<p>The reason we say “InceptionV3” is because it is developed based on two previous architecture.</p>
+<p>The first version of Inception, GoogLeNet <span data-cites="szegedy2015going" class="citation">(Szegedy et al. 2015)</span>, proposes to combine convolutions with different filter sizes on the same input, and then concatenated together.</p>
+<p>Example: think about a image: use different sizes of “frames” (filters) to scan across an image, surely the combined results can give richer feature information.</p>
+<p>Besides, 1x1 convolutions to reduce the computation.</p>
+<p>Example: CODE to show why 1x1 conv is good.</p>
+<p>Then in an updated version of the GoogLeNet, the InceptionV2, or BN-inception, the most important thing is the Batch Normalisation layer.</p>
+<p>Explain Batch Norm. Explain why it is so beneficial.</p>
 </section>
 <section class="level3" id="factorisation">
 <h3>Factorisation</h3>
-</section>
-<section class="level3" id="grid-size-reduction">
-<h3>Grid Size Reduction</h3>
-<p>Here is the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
-<figure>
-<img alt="" style="width:95.0%" id="fig:case-image-inception:inceptionv3" title="inceptionv3" src="images/case-image-inception/inceptionv3.png"><figcaption>Figure 2: Network Architecture of InceptionV3</figcaption>
-</figure>
-<p>We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. We can define this network easily in Owl.</p>
+<p>Now that we understand how the image recognition architectures are developed, finally it’s time to see who these factors are utilised into the InceptionV3 structure.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
 open Owl_types
@@ -66,7 +72,9 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   |&gt; normalisation ~training:false ~axis:3
   |&gt; activation Activation.Relu</code></pre>
 </div>
-<p>Here the <code>conv2d_bn</code> is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a Relu activation layer.</p>
+<p>Here the <code>conv2d_bn</code> is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a relu activation layer.</p>
+<p>We still stack layers, we still go deeper, but the basic unit are three type of <em>Inception Modules</em> instead of simple layer. Each module factorise large kernels into smaller ones.</p>
+<p>Explain: Type A. Replace 5x5 in GoogLeNet with two 3x3. We have already explained this point. <code>mix_typ1</code> is repeated for three times in the Inception module A.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ1 in_shape bp_size nn =
   let branch1x1 = conv2d_bn [|1;1;in_shape;64|] [|1;1|] nn in
@@ -85,19 +93,8 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   in
   concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]</code></pre>
 </div>
-<p><code>mix_typ1</code> is repeated for three times in the Inception module A.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let mix_typ3 nn =
-  let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
-  let branch3x3dbl = nn
-    |&gt; conv2d_bn [|1;1;288;64|] [|1;1|]
-    |&gt; conv2d_bn [|3;3;64;96|] [|1;1|]
-    |&gt; conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
-  in
-  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
-  concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]</code></pre>
-</div>
-<p><code>mix_typ3</code> builds the first grid size reduction module. This module implements an efficient feature map downsizing function.</p>
+<p>Explain: Type B. 1x7 and 7x1 to replace 7x7.</p>
+<p>CODE to show this point.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ4 size nn =
   let branch1x1 = conv2d_bn [|1;1;768;192|] [|1;1|] nn in
@@ -120,6 +117,40 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]</code></pre>
 </div>
 <p><code>mix_typ4</code> is similar to <code>mix_typ1</code>, and is the building block of the Inception module B.</p>
+<p>Explain: Type C</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mix_typ9 input nn =
+  let branch1x1 = conv2d_bn [|1;1;input;320|] [|1;1|] nn in
+  let branch3x3 = conv2d_bn [|1;1;input;384|] [|1;1|] nn in
+  let branch3x3_1 = branch3x3 |&gt; conv2d_bn [|1;3;384;384|] [|1;1|] in
+  let branch3x3_2 = branch3x3 |&gt; conv2d_bn [|3;1;384;384|] [|1;1|] in
+  let branch3x3 = concatenate 3 [| branch3x3_1; branch3x3_2 |] in
+  let branch3x3dbl = nn |&gt; conv2d_bn [|1;1;input;448|] [|1;1|] |&gt; conv2d_bn [|3;3;448;384|] [|1;1|] in
+  let branch3x3dbl_1 = branch3x3dbl |&gt; conv2d_bn [|1;3;384;384|] [|1;1|]  in
+  let branch3x3dbl_2 = branch3x3dbl |&gt; conv2d_bn [|3;1;384;384|] [|1;1|]  in
+  let branch3x3dbl = concatenate 3 [|branch3x3dbl_1; branch3x3dbl_2|] in
+  let branch_pool = nn |&gt; avg_pool2d [|3;3|] [|1;1|] |&gt; conv2d_bn [|1;1;input;192|] [|1;1|] in
+  concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]</code></pre>
+</div>
+<p>The final part is Inception module C, which repeats two <code>mix_type9</code> function.</p>
+<p>Together, these three modules are repeated respectively. Benefit: less size, not overfitting, can go deeper.</p>
+</section>
+<section class="level3" id="grid-size-reduction">
+<h3>Grid Size Reduction</h3>
+<p>Explain Grid size reduction.</p>
+<p>CODE to compare the previous and current reduction methods.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mix_typ3 nn =
+  let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
+  let branch3x3dbl = nn
+    |&gt; conv2d_bn [|1;1;288;64|] [|1;1|]
+    |&gt; conv2d_bn [|3;3;64;96|] [|1;1|]
+    |&gt; conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
+  in
+  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+  concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]</code></pre>
+</div>
+<p><code>mix_typ3</code> builds the first grid size reduction module. This module implements an efficient feature map downsizing function.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let mix_typ8 nn =
   let branch3x3 = nn
@@ -136,21 +167,15 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]</code></pre>
 </div>
 <p><code>mix_typ8</code> is the second grid size reduction module.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">let mix_typ9 input nn =
-  let branch1x1 = conv2d_bn [|1;1;input;320|] [|1;1|] nn in
-  let branch3x3 = conv2d_bn [|1;1;input;384|] [|1;1|] nn in
-  let branch3x3_1 = branch3x3 |&gt; conv2d_bn [|1;3;384;384|] [|1;1|] in
-  let branch3x3_2 = branch3x3 |&gt; conv2d_bn [|3;1;384;384|] [|1;1|] in
-  let branch3x3 = concatenate 3 [| branch3x3_1; branch3x3_2 |] in
-  let branch3x3dbl = nn |&gt; conv2d_bn [|1;1;input;448|] [|1;1|] |&gt; conv2d_bn [|3;3;448;384|] [|1;1|] in
-  let branch3x3dbl_1 = branch3x3dbl |&gt; conv2d_bn [|1;3;384;384|] [|1;1|]  in
-  let branch3x3dbl_2 = branch3x3dbl |&gt; conv2d_bn [|3;1;384;384|] [|1;1|]  in
-  let branch3x3dbl = concatenate 3 [|branch3x3dbl_1; branch3x3dbl_2|] in
-  let branch_pool = nn |&gt; avg_pool2d [|3;3|] [|1;1|] |&gt; conv2d_bn [|1;1;input;192|] [|1;1|] in
-  concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]</code></pre>
-</div>
-<p>The final part is Inception module C, which repeats two <code>mix_type9</code> function. With all these parts ready, we can put them together into the whole network.</p>
+</section>
+<section class="level3" id="inceptionv3-architecture">
+<h3>InceptionV3 Architecture</h3>
+<p>Here is the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
+<figure>
+<img alt="" style="width:95.0%" id="fig:case-image-inception:inceptionv3" title="inceptionv3" src="images/case-image-inception/inceptionv3.png"><figcaption>Figure 2: Network Architecture of InceptionV3</figcaption>
+</figure>
+<p>We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. We can define this network easily in Owl.</p>
+<p>With all these parts ready, we can put them together into the whole network.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let make_network img_size =
   input [|img_size;img_size;3|]
@@ -171,7 +196,8 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   |&gt; get_network</code></pre>
 </div>
 <p>The full code is listed in <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">this gist</a>. Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.</p>
-<p>Besides InceptionV3, you can also easily construct other popular image recognition networks, such as <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1">ResNet50</a>, <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4">VGG16</a>, <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48">SqueezeNet</a> etc. with elegant Owl code.</p>
+<p>Besides InceptionV3, you can also easily construct other popular image recognition networks, such as <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1">ResNet50</a>, <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4">VGG16</a>, <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48">SqueezeNet</a> etc. with elegant Owl code.<br>
+We have already mentioned most of them in previous sections.</p>
 </section>
 </section>
 <section class="level2" id="preparing-weights">
@@ -370,6 +396,9 @@ let _ =
 Image recognition is thus crucial for stock websites. (COPY ALERT)</p>
 <p>Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while. While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images. (<a href="https://imagga.com/blog/the-top-5-uses-of-image-recognition/">COPY ALERT</a>)</p>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-he2016deep">
+<p>He, Kaiming, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. “Deep Residual Learning for Image Recognition.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 770–78.</p>
+</div>
 <div id="ref-krizhevsky2012imagenet">
 <p>Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E Hinton. 2012. “Imagenet Classification with Deep Convolutional Neural Networks.” In <em>Advances in Neural Information Processing Systems</em>, 1097–1105.</p>
 </div>
@@ -378,6 +407,9 @@ Image recognition is thus crucial for stock websites. (COPY ALERT)</p>
 </div>
 <div id="ref-simonyan2014very">
 <p>Simonyan, Karen, and Andrew Zisserman. 2014. “Very Deep Convolutional Networks for Large-Scale Image Recognition.” <em>arXiv Preprint arXiv:1409.1556</em>.</p>
+</div>
+<div id="ref-szegedy2015going">
+<p>Szegedy, Christian, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott Reed, Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, and Andrew Rabinovich. 2015. “Going Deeper with Convolutions.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 1–9.</p>
 </div>
 </div>
 </section>

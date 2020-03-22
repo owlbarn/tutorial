@@ -90,8 +90,21 @@ Compare data.
 
 ### ResNet
 
+We keep saying that building deeper network is the trend. 
+However, going deeper has its limit.
+The deeper you go, the more you will experience the "vanishing gradient" problem. 
+This problems is that, in a very deep network, during back-propagation on it, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
 
+The ResNet in [@he2016deep] proposes a "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.
 
+FIGURE: residual block
+
+Explain how this residual structure solve the gradient problem: the error can be backpropagated through multiple paths.
+
+Also going deeper has parameter size problem.
+
+Also note that in this structure, we concatenate features from different levels, not update them layer by layer. 
+BENEFIT.
 
 ## Building InceptionV3 Network
 
@@ -105,18 +118,24 @@ The resulting Inception network architectures has high performance and a relativ
 
 ### InceptionV1 and InceptionV2
 
+The reason we say "InceptionV3" is because it is developed based on two previous architecture.
+
+The first version of Inception, GoogLeNet  [@szegedy2015going], proposes to combine convolutions with different filter sizes on the same input, and then concatenated together.
+
+Example: think about a image: use different sizes of "frames" (filters) to scan across an image, surely the combined results can give richer feature information.
+
+Besides, 1x1 convolutions to reduce the computation.
+
+Example: CODE to show why 1x1 conv is good.
+
+Then in an updated version of the GoogLeNet, the InceptionV2, or BN-inception, the most important thing is the Batch Normalisation layer.
+
+Explain Batch Norm.
+Explain why it is so beneficial.
+
 ### Factorisation 
 
-### Grid Size Reduction
-
-
-
-Here is the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
-
-![Network Architecture of InceptionV3](images/case-image-inception/inceptionv3.png "inceptionv3"){width=95% #fig:case-image-inception:inceptionv3}
-
-We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. 
-We can define this network easily in Owl.
+Now that we understand how the image recognition architectures are developed, finally it's time to see who these factors are utilised into the InceptionV3 structure. 
 
 ```ocaml env=incpetionv3
 open Owl
@@ -130,7 +149,15 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   |> activation Activation.Relu
 ```
 
-Here the `conv2d_bn` is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a Relu activation layer.
+Here the `conv2d_bn` is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a relu activation layer.
+
+We still stack layers, we still go deeper, but the basic unit are three type of *Inception Modules* instead of simple layer. 
+Each module factorise large kernels into smaller ones.
+
+Explain: Type A. Replace 5x5 in GoogLeNet with two 3x3. We have already explained this point.
+`mix_typ1` is repeated for three times in the Inception module A. 
+
+
 
 ```ocaml env=incpetionv3
 let mix_typ1 in_shape bp_size nn =
@@ -151,21 +178,9 @@ let mix_typ1 in_shape bp_size nn =
   concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]
 ```
 
-`mix_typ1` is repeated for three times in the Inception module A. 
+Explain: Type B. 1x7 and 7x1 to replace 7x7.
 
-```ocaml env=incpetionv3
-let mix_typ3 nn =
-  let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
-  let branch3x3dbl = nn
-    |> conv2d_bn [|1;1;288;64|] [|1;1|]
-    |> conv2d_bn [|3;3;64;96|] [|1;1|]
-    |> conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
-  in
-  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
-  concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]
-```
-
-`mix_typ3` builds the first grid size reduction module. This module implements an efficient feature map downsizing function.
+CODE to show this point.
 
 
 ```ocaml env=incpetionv3
@@ -193,23 +208,7 @@ let mix_typ4 size nn =
 `mix_typ4` is similar to `mix_typ1`, and is the building block of the Inception module B. 
 
 
-```ocaml env=incpetionv3
-let mix_typ8 nn =
-  let branch3x3 = nn
-    |> conv2d_bn [|1;1;768;192|] [|1;1|]
-    |> conv2d_bn [|3;3;192;320|] [|2;2|] ~padding:VALID
-  in
-  let branch7x7x3 = nn
-    |> conv2d_bn [|1;1;768;192|] [|1;1|]
-    |> conv2d_bn [|1;7;192;192|] [|1;1|]
-    |> conv2d_bn [|7;1;192;192|] [|1;1|]
-    |> conv2d_bn [|3;3;192;192|] [|2;2|] ~padding:VALID
-  in
-  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
-  concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]
-```
-
-`mix_typ8` is the second grid size reduction module. 
+Explain: Type C
 
 ```ocaml env=incpetionv3
 let mix_typ9 input nn =
@@ -227,6 +226,59 @@ let mix_typ9 input nn =
 ```
 
 The final part is Inception module C, which repeats two `mix_type9` function.
+
+Together, these three modules are repeated respectively. 
+Benefit: less size, not overfitting, can go deeper.
+
+
+### Grid Size Reduction
+
+
+Explain Grid size reduction. 
+
+CODE to compare the previous and current reduction methods.
+
+```ocaml env=incpetionv3
+let mix_typ3 nn =
+  let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
+  let branch3x3dbl = nn
+    |> conv2d_bn [|1;1;288;64|] [|1;1|]
+    |> conv2d_bn [|3;3;64;96|] [|1;1|]
+    |> conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
+  in
+  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+  concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]
+```
+
+`mix_typ3` builds the first grid size reduction module. This module implements an efficient feature map downsizing function.
+
+```ocaml env=incpetionv3
+let mix_typ8 nn =
+  let branch3x3 = nn
+    |> conv2d_bn [|1;1;768;192|] [|1;1|]
+    |> conv2d_bn [|3;3;192;320|] [|2;2|] ~padding:VALID
+  in
+  let branch7x7x3 = nn
+    |> conv2d_bn [|1;1;768;192|] [|1;1|]
+    |> conv2d_bn [|1;7;192;192|] [|1;1|]
+    |> conv2d_bn [|7;1;192;192|] [|1;1|]
+    |> conv2d_bn [|3;3;192;192|] [|2;2|] ~padding:VALID
+  in
+  let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
+  concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]
+```
+
+`mix_typ8` is the second grid size reduction module.
+
+### InceptionV3 Architecture
+
+Here is the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
+
+![Network Architecture of InceptionV3](images/case-image-inception/inceptionv3.png "inceptionv3"){width=95% #fig:case-image-inception:inceptionv3}
+
+We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. 
+We can define this network easily in Owl.
+
 With all these parts ready, we can put them together into the whole network.
 
 ```ocaml env=incpetionv3
@@ -253,6 +305,7 @@ The full code is listed in [this gist](https://gist.github.com/jzstark/9428a62a3
 Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
 
 Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
+We have already mentioned most of them in previous sections. 
 
 ## Preparing Weights
 
