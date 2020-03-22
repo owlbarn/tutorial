@@ -118,20 +118,29 @@ The resulting Inception network architectures has high performance and a relativ
 
 ### InceptionV1 and InceptionV2
 
-The reason we say "InceptionV3" is because it is developed based on two previous architecture.
+The reason we say "InceptionV3" is because it is developed based on two previous similar architectures.
+To understand InceptionV3, we first need to know the characteristics of its predecessors. 
 
-The first version of Inception, GoogLeNet  [@szegedy2015going], proposes to combine convolutions with different filter sizes on the same input, and then concatenated together.
+The first version of Inception, GoogLeNet  [@szegedy2015going], proposes to combine convolutions with different filter sizes on the same input, and then concatenate the resulting features together.
+Think about an image of a bird. If you sticking with using a normal square filter, then perhaps the features such as "feather" is a bit difficult to capture, but easier to do if you use a "thin" filter with a size of e.g. `1x7`.
+By aggregating information from applying different features, we can extract feature from multi-level at each step.
 
-Example: think about a image: use different sizes of "frames" (filters) to scan across an image, surely the combined results can give richer feature information.
+Of course, adding extra filters increase computation complexity. 
+To remedy this effect, the Inception network proposes to utilise the `1x1` convolution to reduce the dimensions of feature maps. 
+For example, we want to apply a `3x3` filter to input ndarray of size `[|1; 300; 300; 768|]` and the output channel should be `320`.
+Instead of applying a convolution layer of `[|3; 3; 768; 320|]` directly, we first reduce the dimension to, say, 192 by using a small convolution layer `[|1; 1; 320; 192|]`, and then apply a `[|3; 3; 192; 320|]` convolution layer to get the final result. 
+By reducing input dimension before the more complex computation with large kernels, the computation complexity is reduced.
 
-Besides, 1x1 convolutions to reduce the computation.
+Then in a updated version of GoogLeNet, the InceptionV2 (or BN-inception), utilises the "Batch Normalisation" layer.
+We have seen how normalising input data plays a vital role in improving the efficiency of gradient descent in the Optimisation chapter. 
+Batch normalisation follows a similar path, only at it now works between each layer instead of just at the input data.
+This layer rescale each mini-batch with the mean and variance of this mini-batch.
 
-Example: CODE to show why 1x1 conv is good.
-
-Then in an updated version of the GoogLeNet, the InceptionV2, or BN-inception, the most important thing is the Batch Normalisation layer.
-
-Explain Batch Norm.
-Explain why it is so beneficial.
+Image that we train a network to recognise horse, but most of the training data are actually black or blown horse. Then the network's performance on white horse might not be quite ideal. 
+This again leads us back to the over-fitting problem.
+The batch normalisation layer adds noise to input by scaling. 
+As a result, the content at deeper layer is less sensitive to content in lower layers.  
+Overall, the batch normalisation layer greatly improves the efficiency of training. 
 
 ### Factorisation 
 
@@ -150,13 +159,12 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
 ```
 
 Here the `conv2d_bn` is a basic building block used in this network, consisting of a convolution layer, a normalisation layer, and a relu activation layer.
+We have already introduced how these different types of layer work.
+You can think of `conv2d_bn` as an enhanced convolution layer.
 
-We still stack layers, we still go deeper, but the basic unit are three type of *Inception Modules* instead of simple layer. 
+Based on this basic block, the aim in building Inception network is still to go deeper, but here the authors introduces the three type of *Inception Modules* as a unit of stacking layers. 
 Each module factorise large kernels into smaller ones.
-
-Explain: Type A. Replace 5x5 in GoogLeNet with two 3x3. We have already explained this point.
-`mix_typ1` is repeated for three times in the Inception module A. 
-
+Let's look at them one by one. 
 
 
 ```ocaml env=incpetionv3
@@ -178,9 +186,10 @@ let mix_typ1 in_shape bp_size nn =
   concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]
 ```
 
-Explain: Type B. 1x7 and 7x1 to replace 7x7.
-
-CODE to show this point.
+The `mix_typ1` structure implement the the first type of inception module.
+In `branch3x3dbl` branch, it replace a `5x5` kernel convolution layer with two `3x3` convolution layers.
+It follows the design in the VGG network. 
+Of course, as we have explained, both branches uses the `1x1` to reduce dimensions before complex convolution computation. 
 
 
 ```ocaml env=incpetionv3
@@ -205,10 +214,33 @@ let mix_typ4 size nn =
   concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]
 ```
 
-`mix_typ4` is similar to `mix_typ1`, and is the building block of the Inception module B. 
+As shown in the code above, `mix_typ4` shows the Type B inception module, another basic unit.
+It still separate into three branches and then concatenate them together. 
+The special about this this type of branch is that it factorise a `7x7` convolution into the combination of a `7x1` and then a `1x7` convolution. 
+Again, this change saves $(49 - 14) / 49 = 71.4%$ parameters.
 
+If you have doubt about this replacement, you can do a simple experiment:
 
-Explain: Type C
+```ocaml
+open Neural.S
+open Neural.S.Graph
+
+let network_01 =
+  input [|28;28;1|]
+  |> conv2d ~padding:VALID [|7;7;1;1|] [|1;1|]
+  |> get_network
+
+let network_02 =
+  input [|28;28;1|]
+  |> conv2d ~padding:VALID [|7;1;1;1|] [|1;1|]
+  |> conv2d ~padding:VALID [|1;7;1;1|] [|1;1|]
+  |> get_network
+```
+
+Checking the output log, you can find out that both network give the same output shape. 
+This factorisation is intuitive: convolution of size does not change the output shape at that dimension.
+Then the two convolutions actually performs feature extraction along each dimension (height and width) respectively.
+
 
 ```ocaml env=incpetionv3
 let mix_typ9 input nn =
@@ -224,6 +256,14 @@ let mix_typ9 input nn =
   let branch_pool = nn |> avg_pool2d [|3;3|] [|1;1|] |> conv2d_bn [|1;1;input;192|] [|1;1|] in
   concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]
 ```
+
+The final inception module is a bit more complex, but by now you should be able to understand its construction. 
+It aggregate information from four branches.
+In both the `branch3x3` and `branch3x3dbl` branches, it factorise the `3x3` convolution with a `3x1` and then a `1x3` convolution. 
+Besides, the `1x1` convolutions are used to reduce the dimension and computation complexity.
+You might be think that it is also a good idea to replace the `3x3` convolution with two `2x2`s. 
+Well, we could do that but it saves only about 11% parameters, compared to the 33% save of current practice. 
+
 
 The final part is Inception module C, which repeats two `mix_type9` function.
 
