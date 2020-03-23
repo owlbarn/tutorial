@@ -31,7 +31,7 @@
 <p>The VGG network proposed in <span data-cites="simonyan2014very" class="citation">(Simonyan and Zisserman 2014)</span> is the next step after AlexNet. The most notable change that introduced by VGG is that it uses small kernel sizes such as <code>3x3</code> instead of the <code>11x11</code> with a large stride of 4 in AlexNet.</p>
 <p>Using multiple small kernels is much more flexible than only using a large one. For example, for an input image, by applying two <code>3x3</code> kernels with slide size of 1, that equals to using a <code>5x5</code> kernel. If stacking three <code>3x3</code>, it equals using one <code>7x7</code> convolution.</p>
 <p>By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. In the previous two examples, replace one <code>5x5</code> with two <code>3x3</code>, we reduce the parameter by <span class="math inline">\(1 - 2 * 3 * 3 / (5 * 5) = 28\%\)</span>. Replace the <code>7x7</code> kernel, and we save parameters by <span class="math inline">\(1 - 3 * 3 * 3 / ( 7 * 7) = 45\%\)</span>.</p>
-<p>Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance. The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper.</p>
+<p>Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance. The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper. The code to build a VGG16 network with Owl is shown in <span data-cites="zoo2019vgg16" class="citation">(Zhao and Wang 2019d)</span>.</p>
 <p>One extra benefit is that using small kernels increases non-linearity. Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.</p>
 </section>
 <section class="level3" id="resnet">
@@ -41,10 +41,14 @@
 <p>FIGURE: residual block</p>
 <p>We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths. The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.</p>
 <p>Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. This patten proves to be useful and will also be used in the Inception architecture.</p>
+<p>The ResNet can also be constructed by stacking for different layers, so that we have ResNet50, ResNet101, ResNet152, etc. The code to build a ResNet50 network with Owl is shown in <span data-cites="zoo2019resnet50" class="citation">(Zhao and Wang 2019b)</span>.</p>
 </section>
 <section class="level3" id="squeezenet">
 <h3>SqueezeNet</h3>
-<p>TODO: intro</p>
+<p>All these architectures, including Inception, mainly aim to push the detection accuracy forward. However, at some point we are faced with the tradeoff between accuracy and model size. We have seen that sometimes reducing the parameter size can help the network to go deeper, and thus tends to give better accuracy. However, with the growing trend od edge computing, there is requirement for extremely small deep neural networks so that it can be easily distributed and deployed on less powerful devices. For that, sacrificing a bit of accuracy is acceptable.</p>
+<p>There are more and more efforts towards that direction, and the SqueezeNet <span data-cites="iandola2016squeezenet" class="citation">(Iandola et al. 2016)</span> is one of them. It claims to have the AlexNet level of accuracy, but with 50 times fewer parameters.</p>
+<p>There are mainly three design principles for the SqueezeNet. The first one is what we are already familiar with: using a lot of 1x1 convolutions. The second one also sounds familiar. The 1x1 convolutions are used to reduced the output channels before feeding the result to the more complex 3x3 convolutions. Therefore the 3x3 convolution can have smaller input channels and thus smaller parameter size. These two principles are incorporated into a basic building block called “fire module”.</p>
+<p>Now that we can have a much smaller network, what about the accuracy? We don’t really want to discard the accuracy requirement totally. The third design principle in SqueezeNet is to delay the down-sampling to later in the network. Recall that the down-sampling layers such as maxpooling “blur” the information intentionally. The intuition is that, if we only use them occasionally and in the deeper layer of the network, we can have large activation maps that preserve more information and make the detection result more accurate. The code to build a SqueezeNet network with Owl is shown in <span data-cites="zoo2019squeezenet" class="citation">(Zhao and Wang 2019c)</span>.</p>
 <p>something more such as CapsuleNet etc.</p>
 </section>
 </section>
@@ -216,7 +220,7 @@ let network_02 =
   |&gt; get_network</code></pre>
 </div>
 <p>There is only one last thing we need to mention: the <em>global pooling</em>. Global Average/Max Pooling calculates the average/max output of each feature map in the previous layer. For example, if you have an <code>[|1;10;10;64|]</code> feature map, then this operation can make it to be <code>[|1;1;1;64|]</code>. This operation seems very simple, but it works at the very end of a network, and can be used to replace the fully connection layer. The parameter size of the fully connection layer has always been a problem. Now that it is replaced with a non-trainable operation, the parameter size is greatly reduced without the performance. Besides, the global pooling layer is more robust to spatial translations in the data and mitigate the over-fitting problem in fully connection, accoding to <span data-cites="lin2013network" class="citation">(Lin, Chen, and Yan 2013)</span>.</p>
-<p>The full code is listed in <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f">this gist</a>. Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.</p>
+<p>The full code is listed in <span data-cites="zoo2019inceptionv3" class="citation">(Zhao and Wang 2019a)</span>. Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.</p>
 <p>Besides InceptionV3, you can also easily construct other popular image recognition networks, such as <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1">ResNet50</a>, <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4">VGG16</a>, <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48">SqueezeNet</a> etc. with elegant Owl code.<br>
 We have already mentioned most of them in previous sections.</p>
 </section>
@@ -404,6 +408,9 @@ Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus</code></
 <div id="ref-he2016deep">
 <p>He, Kaiming, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. “Deep Residual Learning for Image Recognition.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 770–78.</p>
 </div>
+<div id="ref-iandola2016squeezenet">
+<p>Iandola, Forrest N, Song Han, Matthew W Moskewicz, Khalid Ashraf, William J Dally, and Kurt Keutzer. 2016. “SqueezeNet: AlexNet-Level Accuracy with 50x Fewer Parameters And&lt; 0.5 Mb Model Size.” <em>arXiv Preprint arXiv:1602.07360</em>.</p>
+</div>
 <div id="ref-krizhevsky2012imagenet">
 <p>Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E Hinton. 2012. “Imagenet Classification with Deep Convolutional Neural Networks.” In <em>Advances in Neural Information Processing Systems</em>, 1097–1105.</p>
 </div>
@@ -418,6 +425,18 @@ Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus</code></
 </div>
 <div id="ref-szegedy2015going">
 <p>Szegedy, Christian, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott Reed, Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, and Andrew Rabinovich. 2015. “Going Deeper with Convolutions.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 1–9.</p>
+</div>
+<div id="ref-zoo2019inceptionv3">
+<p>Zhao, Jianxin, and Liang Wang. 2019a. “InceptionV3 network architecture defined in Owl.” <a href="https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f/">https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f/</a>.</p>
+</div>
+<div id="ref-zoo2019resnet50">
+<p>———. 2019b. “ResNet50 network architecture defined in Owl.” <a href="https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1/">https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1/</a>.</p>
+</div>
+<div id="ref-zoo2019squeezenet">
+<p>———. 2019c. “SqueezeNet network architecture defined in Owl.” <a href="https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48/">https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48/</a>.</p>
+</div>
+<div id="ref-zoo2019vgg16">
+<p>———. 2019d. “VGG16 network architecture defined in Owl.” <a href="https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4/">https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4/</a>.</p>
 </div>
 </div>
 </section>

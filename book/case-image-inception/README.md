@@ -1,7 +1,5 @@
 # Case - Image Recognition
 
-TODO: Add url link to the zoo gist as references. 
-
 How can a computer take an image and answer questions like "what is in this picture? A cat, dog, or something else?"
 In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks -- matching or exceeding human performance in some domains.
 
@@ -85,6 +83,7 @@ In the previous two examples, replace one `5x5` with two `3x3`, we reduce the pa
 
 Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance.
 The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper. 
+The code to build a VGG16 network with Owl is shown in [@zoo2019vgg16].
 
 One extra benefit is that using small kernels increases non-linearity. 
 Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. 
@@ -108,9 +107,33 @@ The authors shows that during training the deeper layers do not produce a error 
 Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. 
 This patten proves to be useful and will also be used in the Inception architecture. 
 
+The ResNet can also be constructed by stacking for different layers, so that we have ResNet50, ResNet101, ResNet152, etc.
+The code to build a ResNet50 network with Owl is shown in [@zoo2019resnet50].
+
 ### SqueezeNet
 
-TODO: intro 
+All these architectures, including Inception, mainly aim to push the detection accuracy forward.
+However, at some point we are faced with the tradeoff between accuracy and model size. 
+We have seen that sometimes reducing the parameter  size can help the network to go deeper, and thus tends to give better accuracy.
+However, with the growing trend od edge computing, there is requirement for extremely small deep neural networks so that it can be easily distributed and deployed on less powerful devices. 
+For that, sacrificing a bit of accuracy is acceptable.
+
+There are more and more efforts towards that direction, and the SqueezeNet [@iandola2016squeezenet] is one of them. 
+It claims to have the AlexNet level of accuracy, but with 50 times fewer parameters.
+
+There are mainly three design principles for the SqueezeNet.
+The first one is what we are already familiar with: using a lot of 1x1 convolutions.
+The second one also sounds familiar. 
+The 1x1 convolutions are used to reduced the output channels before feeding the result to the more complex 3x3 convolutions. Therefore the 3x3 convolution can have smaller input channels and thus smaller parameter size. 
+These two principles are incorporated into a basic building block called "fire module".
+
+Now that we can have a much smaller network, what about the accuracy? We don't really want to discard the accuracy requirement totally.
+The third design principle in SqueezeNet is to delay the down-sampling to later in the network. 
+Recall that the down-sampling layers such as maxpooling "blur" the information intentionally. 
+The intuition is that, if we only use them occasionally and in the deeper layer of the network, 
+we can have large activation maps that preserve more information and make the detection result more accurate.
+The code to build a SqueezeNet network with Owl is shown in [@zoo2019squeezenet].
+
 
 something more such as CapsuleNet etc.
 
@@ -370,7 +393,7 @@ The parameter size of the fully connection layer has always been a problem.
 Now that it is replaced with a non-trainable operation, the parameter size is greatly reduced without the performance. 
 Besides, the global pooling layer is more robust to spatial translations in the data and mitigate the over-fitting problem in fully connection, accoding to [@lin2013network].
 
-The full code is listed in [this gist](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f). 
+The full code is listed in [@zoo2019inceptionv3]. 
 Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision. 
 
 Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
