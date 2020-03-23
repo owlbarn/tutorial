@@ -1,5 +1,7 @@
 # Case - Image Recognition
 
+TODO: Add url link to the zoo gist as references. 
+
 How can a computer take an image and answer questions like "what is in this picture? A cat, dog, or something else?"
 In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks -- matching or exceeding human performance in some domains.
 
@@ -50,9 +52,9 @@ And then finally generates the classification results.
 ### AlexNet
 
 Next breakthrough comes from the AlexNet proposed in [@krizhevsky2012imagenet].
-It proposes the activation layer to increase *non-linearity*.
-Operations such as convolution includes mainly linear operations such as matrix multiplication and add.
-But that's not how the real world data looks like. Remember that from the previou Regression chapter, though linear regression is basic, but for most of the real world application we need more complex method such as polynomial regression. 
+The authors introduce better *non-linearity* in the network with the ReLU activation.
+Operations such as convolution includes mainly linear operations such as matrix multiplication and `add`.
+But that's not how the real world data looks like. Remember that from the previous Regression chapter, though linear regression is basic, but for most of the real world application we need more complex method such as polynomial regression. 
 The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image. 
 
 There are multiple activation choice, such as `tanh` and `sigmoid`.
@@ -106,6 +108,12 @@ The authors shows that during training the deeper layers do not produce a error 
 Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. 
 This patten proves to be useful and will also be used in the Inception architecture. 
 
+### SqueezeNet
+
+TODO: intro 
+
+something more such as CapsuleNet etc.
+
 ## Building InceptionV3 Network
 
 Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
@@ -115,6 +123,13 @@ Just increasing model size and computation cost tends to increase the accuracy, 
 To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget.
 This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. 
 The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.
+
+[@fig:case-image-inception:inceptionv3] shows the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
+
+![Network Architecture of InceptionV3](images/case-image-inception/inceptionv3.png "inceptionv3"){width=95% #fig:case-image-inception:inceptionv3}
+
+We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. 
+That's where the name "Inception" comes from: like dreams, you can have stack these basic units layer by layer.
 
 ### InceptionV1 and InceptionV2
 
@@ -128,8 +143,11 @@ By aggregating information from applying different features, we can extract feat
 Of course, adding extra filters increase computation complexity. 
 To remedy this effect, the Inception network proposes to utilise the `1x1` convolution to reduce the dimensions of feature maps. 
 For example, we want to apply a `3x3` filter to input ndarray of size `[|1; 300; 300; 768|]` and the output channel should be `320`.
-Instead of applying a convolution layer of `[|3; 3; 768; 320|]` directly, we first reduce the dimension to, say, 192 by using a small convolution layer `[|1; 1; 320; 192|]`, and then apply a `[|3; 3; 192; 320|]` convolution layer to get the final result. 
+Instead of applying a convolution layer of `[|3; 3; 768; 320|]` directly, we first reduce the dimension to, say, 192 by using a small convolution layer `[|1; 1; 768; 192|]`, and then apply a `[|3; 3; 192; 320|]` convolution layer to get the final result. 
 By reducing input dimension before the more complex computation with large kernels, the computation complexity is reduced.
+
+For those who are confused about the meaning of this array: recall from previous chapter that the format of an image as ndarray is `[|batch; column; row; channel|]`, and that the format of a convolution operation is mainly represented as `[|kernel_column; kernel_row; input_channel; output_channel|]`.
+Here we ignore the other parameters such as slides and padding since here we focus only on the change of channels of feature map. 
 
 Then in a updated version of GoogLeNet, the InceptionV2 (or BN-inception), utilises the "Batch Normalisation" layer.
 We have seen how normalising input data plays a vital role in improving the efficiency of gradient descent in the Optimisation chapter. 
@@ -322,14 +340,7 @@ But in general it still follows the principle of performing reduction in paralle
 
 ### InceptionV3 Architecture
 
-After introducing the separate units, finally we can construct them together to see what the InceptionV3 network looks like. 
-[@fig:case-image-inception:inceptionv3] shows the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
-
-![Network Architecture of InceptionV3](images/case-image-inception/inceptionv3.png "inceptionv3"){width=95% #fig:case-image-inception:inceptionv3}
-
-We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. 
-That's where the name "Inception" comes from: like dreams, you can have stack these basic units layer by layer.
-With all these parts ready, we can put them together into the whole network in code.
+After introducing the separate units, finally we can construct them together into the whole network in code.
 
 ```ocaml env=incpetionv3
 let make_network img_size =
@@ -439,7 +450,7 @@ Note that this is one-off work.
 Once you successfully update the network with weights, the weights can be saved using `Graph.save_weights`, without haveing to repeat all these steps again. 
 We have already prepared the weights for the InceptionV3 model and other similar models, and the users don't have to worry about all these trivial model exchanging detail.
 
-## Image Processing
+## Processing Image
 
 Image processing is challenging, since OCaml does not provide powerful functions to manipulate images.
 Though there are image processing libraries such as [CamlImages](http://gallium.inria.fr/camlimages/), but we don't want to add extra liabilities to Owl itself. 
@@ -623,21 +634,18 @@ Prediction #3 (0.04%) : soccer ball
 Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus
 ```
 
-
 If you are not interested in installing anything, [here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!
 
 
 ## Applications
+
+TODO: rewrite these applications.
 
 Building an image classification application is not the end by itself. It can be used in a wide range of applications.
 We list some in this section to show how Owl can be deployed in these scenarios. 
 
 One of the most popular applications of image recognition that we encounter daily is personal photo organization. 
 Image recognition is empowering the user experience of photo organization apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organization capabilities provided by machine learning. The image recognition API integrated in the apps categorizes images on the basis of identified patterns and groups them thematically. (COPY ALERT)
-
-A powerful commercial use of image recognition can be seen in the field of stock photography and video. Stock websites provide platforms where photographers and videomakers can sell their content. Contributors need a way to tag large amounts of visual material, which is time-consuming and tedious. In the same time, without proper keyword attribution, their content cannot be indexed – and thus cannot be discovered by buyers.  
-Image recognition is thus crucial for stock websites.
-(COPY ALERT)
 
 
 Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while.
