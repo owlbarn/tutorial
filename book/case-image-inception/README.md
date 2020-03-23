@@ -134,8 +134,19 @@ The intuition is that, if we only use them occasionally and in the deeper layer 
 we can have large activation maps that preserve more information and make the detection result more accurate.
 The code to build a SqueezeNet network with Owl is shown in [@zoo2019squeezenet].
 
+### Capsule Network
 
-something more such as CapsuleNet etc.
+The research on image detection network structures is still on-going.
+Besides the parameter size and detection accuracy, more requirements are proposed.
+For example, there is the problem of recognising an object, e.g. a car, from different perspective. 
+And the "Picasso problem" in image recognition where some feature in an object is intentionally distorted or misplaced.
+These problems shows one deficient in the existing image classification approach: the lack of connection between features. 
+It may recognise a "nose" feature, and a "eye" feature, and then the object is recognised as a human face, even though the nose is perhaps above the eyes. 
+The "Capsule network" is proposed to address this problem. Instead of using only scalar to represent feature, it uses a vector that includes more information such as orientation and object size etc. 
+The "capsule" utilises these information to capture the relative relationship between features. 
+
+There are many more networks that we cannot cover them one by one here, but hopefully you can see that there are some common theme in the development of image recognition architectures. 
+Next, we will come to the main topic of this chapter: how InceptionV3 is designed and built based on these previous work. 
 
 ## Building InceptionV3 Network
 
@@ -669,7 +680,6 @@ We list some in this section to show how Owl can be deployed in these scenarios.
 
 One of the most popular applications of image recognition that we encounter daily is personal photo organization. 
 Image recognition is empowering the user experience of photo organization apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organization capabilities provided by machine learning. The image recognition API integrated in the apps categorizes images on the basis of identified patterns and groups them thematically. (COPY ALERT)
-
 
 Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while.
 While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images.  ([COPY ALERT](https://imagga.com/blog/the-top-5-uses-of-image-recognition/))
