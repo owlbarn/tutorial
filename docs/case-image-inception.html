@@ -30,7 +30,7 @@
 <h3>VGG</h3>
 <p>The VGG network proposed in <span data-cites="simonyan2014very" class="citation">(Simonyan and Zisserman 2014)</span> is the next step after AlexNet. The most notable change that introduced by VGG is that it uses small kernel sizes such as <code>3x3</code> instead of the <code>11x11</code> with a large stride of 4 in AlexNet.</p>
 <p>Using multiple small kernels is much more flexible than only using a large one. For example, for an input image, by applying two <code>3x3</code> kernels with slide size of 1, that equals to using a <code>5x5</code> kernel. If stacking three <code>3x3</code>, it equals using one <code>7x7</code> convolution.</p>
-<p>By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. In the previous two examples, replace one <code>5x5</code> with two <code>3x3</code>, we reduce the parameter by <span class="math inline">\(1 - 2 * 3 * 3 / (5 * 5) = 28%\)</span>. Replace the <code>7x7</code> kernel, and we save parameters by <span class="math inline">\(1 - 3 * 3 * 3 / ( 7 * 7) = 45%\)</span>.</p>
+<p>By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced. In the previous two examples, replace one <code>5x5</code> with two <code>3x3</code>, we reduce the parameter by <span class="math inline">\(1 - 2 * 3 * 3 / (5 * 5) = 28\%\)</span>. Replace the <code>7x7</code> kernel, and we save parameters by <span class="math inline">\(1 - 3 * 3 * 3 / ( 7 * 7) = 45\%\)</span>.</p>
 <p>Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance. The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper.</p>
 <p>One extra benefit is that using small kernels increases non-linearity. Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.</p>
 </section>
@@ -124,7 +124,7 @@ let conv2d_bn ?(padding=SAME) kernel stride nn =
   in
   concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]</code></pre>
 </div>
-<p>As shown in the code above, <code>mix_typ4</code> shows the Type B inception module, another basic unit. It still separate into three branches and then concatenate them together. The special about this this type of branch is that it factorise a <code>7x7</code> convolution into the combination of a <code>7x1</code> and then a <code>1x7</code> convolution. Again, this change saves <span class="math inline">\((49 - 14) / 49 = 71.4%\)</span> parameters.</p>
+<p>As shown in the code above, <code>mix_typ4</code> shows the Type B inception module, another basic unit. It still separate into three branches and then concatenate them together. The special about this this type of branch is that it factorise a <code>7x7</code> convolution into the combination of a <code>7x1</code> and then a <code>1x7</code> convolution. Again, this change saves <span class="math inline">\((49 - 14) / 49 = 71.4\%\)</span> parameters.</p>
 <p>If you have doubt about this replacement, you can do a simple experiment:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Neural.S

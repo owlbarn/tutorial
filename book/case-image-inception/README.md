@@ -81,7 +81,7 @@ For example, for an input image, by applying two `3x3` kernels with slide size o
 If stacking three `3x3`, it equals using one `7x7` convolution. 
 
 By replacing large kernels with multiple small kernels, the number of parameter is visibly reduced.
-In the previous two examples, replace one `5x5` with two `3x3`, we reduce the parameter by $1 - 2 * 3 * 3 / (5 * 5) = 28%$. Replace the `7x7` kernel, and we save parameters by $1 - 3 * 3 * 3 / ( 7 * 7) = 45%$.
+In the previous two examples, replace one `5x5` with two `3x3`, we reduce the parameter by $1 - 2 * 3 * 3 / (5 * 5) = 28\%$. Replace the `7x7` kernel, and we save parameters by $1 - 3 * 3 * 3 / ( 7 * 7) = 45\%$.
 
 Therefore, with this reduction of parameter size, we can now build network with more layers, which tends to yield better performance.
 The VGG networks comes with two variates, VGG16 and VGG19, which are the same in structure, and the only difference is that VGG19 is deeper. 
@@ -240,7 +240,7 @@ let mix_typ4 size nn =
 As shown in the code above, `mix_typ4` shows the Type B inception module, another basic unit.
 It still separate into three branches and then concatenate them together. 
 The special about this this type of branch is that it factorise a `7x7` convolution into the combination of a `7x1` and then a `1x7` convolution. 
-Again, this change saves $(49 - 14) / 49 = 71.4%$ parameters.
+Again, this change saves $(49 - 14) / 49 = 71.4\%$ parameters.
 
 If you have doubt about this replacement, you can do a simple experiment:
 
