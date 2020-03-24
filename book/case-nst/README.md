@@ -1,68 +1,153 @@
 # Case - Neural Style Transfer
 
-What is Neural Style Transfer (NST)? It is a pretty cool application of Deep Neural Networks (DNN), “the process of using DNN to migrate the semantic content of one image to different styles”.
+What is Neural Style Transfer (NST)? It is a pretty cool application of Deep Neural Networks (DNN),  "the process of using DNN to migrate the semantic content of one image to different styles".
 
-Well it may sounds a little bit scary, but the idea is very simple, as the title image shows, this application takes two images A and B as input. Let’s say A is "Mona Lisa" of Da Vinci, and B is "The Starry Night" of Vincent van Gogh.
+The process is actually very simple, as the title image shows, this application takes two images A and B as input. Let’s say A is "Mona Lisa" of Da Vinci, and B is "The Starry Night" of Vincent van Gogh.
 
 We then specify A as the content image and B as the style image, then what a NST application can produce? Boom! A new Mona Lisa, but with the style of Van Gogh (see the middle of title image)! If you want another style, just replace image B and run the application again. Impressionism, abstractionism, classical art, you name it. 
 
-The figure below illustrate this point ([src](http://genekogan.com/works/style-transfer/)). You can apply different art styles to the same "Mona Lisa", or apply the same "Starry Sky" style to any pictures, even a normal daily street view.
+The figure below illustrate this point. You can apply different art styles to the same street view, or apply the same "Starry Sky" style to any pictures.
 Isn’t it amazing? 
 
-![Mona Lisa](images/case-nst/mona_lisa.png "Mona Lisa"){#fig:case-nst:mona-lisa}
+![Example of applying neural style transfer on a street view picture](images/case-nst/nst_example.png){#fig:case-nst:example_01}
 
-## Theory
+## Content and Style Reconstruction
 
-Based on the original paper [@gatys2015neural].
-Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the [original paper](https://arxiv.org/abs/1508.06576) for more details if you are interested.
+[@gatys2015neural] first propose to use DNN to let programmes to create artistic images of high perceptual quality.
+The examples above may look like magic, but surely its not.
+In this section, we will first introduce the intuition about how the neural style transfer algorithm works. 
+For more formal and detailed introduction, please visit the [original paper](https://arxiv.org/abs/1508.06576).
 
-The basic idea: 
-
-But how do we express that?
-
-The answer is gradient descent
-Remember from the regression and neural networks. 
-Our goal is to train a model to minimise the difference between prediction and known label. 
-
-But instead of weight, this time we need to minimise the input.
-Use equation `f(x)` to show this point.
-
-
-The NST can be seen as an optimisation problem: given a content image `c` and a style image `s`.
-Suppose we know the ways to extract the style and content of an image, then our target is to get an output image `x` so that it minimises:
+The basic idea is plain: we want to get an image whose content is similar to one image and its artistic style close to the other image. 
+Of course, to make the algorithm work, first we need to express this sentence in mathematical form so that computers can understand it. 
+Let's assume for a moment we have already know that, then style transfer can be formalised as an optimisation problem.
+Given a content image `c` and a style image `s`, our target is to get an output image `x` so that it minimises:
 
 $$f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)$$
 
-This equation can be easily translated as: I want to get such an image that its content is close to `c` , but its style similar to `s` .
+Here the "distance" between two feature map is calculated by the euclidean distance between the two ndarrays.
 
-Now comes the problem: we can kind of feel the style of a paint, we can visually recognise the contents in a picture, but how can we calculate them mathematically?
-For that we need the help of convolution neural networks.
-DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now).
-Then the euclidean distance of these characteristics are used to express the `content_distance()` and `style_distance()` functions.
+You may remember from the regression or neural network chapters that training process is also an optimisation process.
+However, do not mistake the optimisation in NST as regression or DNN training.
+For the latter one, there is the function $f_w$ that contains parameter $w$ and the training process optimise $w$ to minimise $f_w(x)$.
+The optimisation in NST is more like the traditional optimisation problem: we have a function $f$, and we start we an initial input $x_0$ and update it iteratively until we have satisfying $x$ that minimise the target function.
 
-### Content Recreation
+Now we can comeback to the key problem.
+While we human beings can kind of feel the style of a paint and visually recognise the contents in a picture, how can we mathematically express the "content" and the "style" of an image?
+That's where the convolution network comes to help.
+DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the characteristics of an image.
+We have demonstrate in the previous chapter how CNNs are good at spotting the "features" in an image layer by layer.
+Therefore, in the next two sub-sections, we will explain how it can be used to express the content and style feature of an image.
+
+We have introduced several CNN architectures to perform image detection task in the previous chapter. We choose to use VGG19 since its follows a simple linear stack structure and is proved to have good performance. 
+We have built the VGG19 network structure in [this gist](https://gist.github.com/jzstark/da5cc7f771bc8d9699cedc491b23f856).
+It contains 38 layers in total.
+
+### Content Reconstruction
+
 
 From the image detection case, we know that the CNN extract features layer by layer until the features are so abstract that it can give an answer such as "this is a car" "this is an apple" etc.
+Therefore, we can use the feature map to reconstruct content of an image. 
 
-Explain why we choose certain layers to express content. 
+But which layer's output should we use as a suitable indication of the image content?
+Let's perform a simplified version of NST: we only care about re-constructing the content of the input image, so our target is to minimise:
 
-As an example, we can perform a simplified version of NST: we only care about re-recreating the content of the input image:
+$$f(x) = \verb|content_distance|(x, c)$$
 
-EQUATION: minimise content(I_content)
+As an example, we use [@fig:case-nst:content-example] as the target content.
+(This image ["Tourists in Nanzen-Ji Hojo"](https://ccsearch.creativecommons.org/photos/f4024dc8-ce39-4e86-acfd-47532fef824d) by blieusong is licensed under CC BY-SA 2.0.)
 
-We use this image as input content target:
+![Example content image in neural style transfer](images/case-nst/hojo.png "hojo tourists"){width=40% #fig:case-nst:content-example}
 
-IMAGE
 
-Part of the CODE.
+Suppose we choose the output of `idx` layer as the chosen feature map to represent the content.
+First, we need to compute the target feature map:
 
-We start with a white noise image, and then try the effect of choosing features from different layers.
+```
+let fill_content_targets x net = 
+  let selected_topo = Array.sub nn.topo 0 (idx + 1) in 
+  run' selected_topo x
+```
+
+The function `fill_content_targets` takes the content image and the VGG network as input, and returns the target feature map as output.
+We only need to compute the feature map of the target content image once. 
+
+Here the `run'` function is implemented by accumulating the inference result along the selected part of the network, from the network input until the chosen layer, instead of processing the whole network:
+
+```
+let run' topo x =
+  let last_node_output = ref (F 0.) in
+  Array.iteri (fun i n ->
+    let input  = if i = 0 then x else !last_node_output in 
+    let output = run [|input|] n.neuron in
+    last_node_output := output;
+  ) topo;
+  !last_node_output
+```
+
+Then we can start optimising the input image `x`.
+Let's set the initial `x` to be a "white noise" image that only contains random pixels. 
+This image has the same shape as content image.
+
+```text
+let input_shape = Dense.Ndarray.S.shape content_img in
+Dense.Ndarray.S.(gaussian input_shape |> scalar_mul 0.256)
+```
+
+The feature map of the input image `x` is still calcuated using the same process show in function `fill_content_targets`.
+We call the resulting feature map `response`, then the loss value can be calculated with the L2Norm of the difference between two feature maps, and then normalised with the feature map size.
+
+```
+let c_loss response target = 
+  let loss = Maths.((pow (response - target) (F 2.)) |> sum') in 
+  let _, h, w, feature = get_shape target in 
+  let c = float_of_int ( feature * h * w ) in
+  Maths.(loss / (F c))
+```
+
+Once the loss value is calculated, we can apply optimisers. 
+Here we use the `minimise_fun` from `Optimise` module.
+The target function can be described as:
+
+```
+let g x = 
+  let response = fill_losses x in 
+  c_loss response target
+```
+
+All it performs is what we just described: first calculating the feature map `response` of input image at a certain layer, and then compute the distance between it and the target content feature map as loss value. 
+
+Finally, we can perform the optimisation iterations:
+
+```
+let state, img = Optimise.minimise_fun params g (Arr input_img) in
+let x' = ref img in
+while Checkpoint.(state.current_batch < state.batches) do
+  Checkpoint.(state.stop <- false);
+  let a, img = Optimise.minimise_fun ~state params g !x' in 
+  x' := img
+done;
+```
+
+We keep updating the image `x` for fixed number of iterations. 
+Particularly, we use the Adam adaptive learning rate method, for it proves to be quite effective in style transfer optimisation:
+
+```
+let params = Params.config
+    ~learning_rate:(Learning_Rate.Adam (learning_rate, 0.9, 0.999))
+    ~checkpoint:(Checkpoint.Custom chkpt)
+    iter
+```
+
+Using the process above, we return to the problem of choosing a suitable layer as the indication of the image content. 
+In this 38-layer VGG network, we choose these layers: 2, 7, 12, 21, 30.
+Then we can compare the optimisation result to see the effect of image reconstruction.
+Each one is generated using 100 iterations.
 
 IMAGE: a 1x5 images 
 
 It is shown that, the content information is kept accurate at the lower level. 
-
-Explain a bit of the theory behind this phenomena. 
+Along the processing hierarchy of the network, feature map produced by the lower layer cares more about the small features that at the pixel level, while the higher layer gives more abstract information but less details to help with content reconstruction.
 
 ### Style Recreation
 
@@ -72,7 +157,7 @@ EQUATION: minimise style(I_style)
 
 We use this image as input style target:
 
-IMAGE
+![Example style image in neural style transfer](images/case-nst/hokusai.png "hokusai"){width=50% #fig:case-nst:style-example}
 
 Expressing the style is bit more complex that content, which directly uses the feature map it self.
 
@@ -126,9 +211,8 @@ The first line download gist files and imported this gist as an OCaml module, an
 This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. `path/to/output_img_N.png`). `N` is specified by the `ckpt` parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.
 
 That’s all it takes! If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
-I have to say I had a lot lot of fun playing with it -- please allow me to introduce you one of my work using the exemplar images:
 
-![Example of applying neural style transfer on a street view picture](images/case-nst/nst_example.png){#fig:case-nst:example_01}
+
 
 More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
