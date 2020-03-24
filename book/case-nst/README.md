@@ -14,22 +14,93 @@ Isn’t it amazing?
 ## Theory
 
 Based on the original paper [@gatys2015neural].
-
-Demonstrate and visualise the style/content features from different layers.
-
 Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the [original paper](https://arxiv.org/abs/1508.06576) for more details if you are interested.
 
-The NST can be seen as an optimisation problem: given a content image `c` and a style image `s` , the target is to get an output image `x` so that it minimises:
+The basic idea: 
+
+But how do we express that?
+
+The answer is gradient descent
+Remember from the regression and neural networks. 
+Our goal is to train a model to minimise the difference between prediction and known label. 
+
+But instead of weight, this time we need to minimise the input.
+Use equation `f(x)` to show this point.
+
+
+The NST can be seen as an optimisation problem: given a content image `c` and a style image `s`.
+Suppose we know the ways to extract the style and content of an image, then our target is to get an output image `x` so that it minimises:
 
 $$f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)$$
 
 This equation can be easily translated as: I want to get such an image that its content is close to `c` , but its style similar to `s` .
 
+Now comes the problem: we can kind of feel the style of a paint, we can visually recognise the contents in a picture, but how can we calculate them mathematically?
+For that we need the help of convolution neural networks.
 DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now).
 Then the euclidean distance of these characteristics are used to express the `content_distance()` and `style_distance()` functions.
-Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .
+
+### Content Recreation
+
+From the image detection case, we know that the CNN extract features layer by layer until the features are so abstract that it can give an answer such as "this is a car" "this is an apple" etc.
+
+Explain why we choose certain layers to express content. 
+
+As an example, we can perform a simplified version of NST: we only care about re-recreating the content of the input image:
+
+EQUATION: minimise content(I_content)
+
+We use this image as input content target:
+
+IMAGE
+
+Part of the CODE.
+
+We start with a white noise image, and then try the effect of choosing features from different layers.
+
+IMAGE: a 1x5 images 
+
+It is shown that, the content information is kept accurate at the lower level. 
+
+Explain a bit of the theory behind this phenomena. 
+
+### Style Recreation
+
+Then similarly, we explore the other end of this problem: we only care about recreating an image with only the style of an input image:
+
+EQUATION: minimise style(I_style) 
+
+We use this image as input style target:
+
+IMAGE
+
+Expressing the style is bit more complex that content, which directly uses the feature map it self.
+
+Some theory: why Gram etc.
+
+We try different combinations of features. 1, 1 + 2, ...., 1 + 2 + 3 + 4 + 5.
+
+Part of the CODE.
+
+The result is shown below:
+
+IMAGE: 1x5 
+
+You can see that, contrary to content, going deeper in CNN gives more information about feature. 
+
 
 ## Building a NST Network
+
+Now that we have seen these two extremes, it's straightforward to understand the theory of style transfer. 
+
+control the proportion with weights. 
+
+The result: 
+
+IMAGE: 1x5, from white noise, by different steps. 
+
+we simply this process...
+
 
 The details: Loss function, pre-trained weight, optimiser, etc.
 

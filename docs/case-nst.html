@@ -9,16 +9,51 @@
 </figure>
 <section class="level2" id="theory">
 <h2>Theory</h2>
-<p>Based on the original paper <span data-cites="gatys2015neural" class="citation">(Gatys, Ecker, and Bethge 2015)</span>.</p>
-<p>Demonstrate and visualise the style/content features from different layers.</p>
-<p>Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
-<p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises:</p>
+<p>Based on the original paper <span data-cites="gatys2015neural" class="citation">(Gatys, Ecker, and Bethge 2015)</span>. Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
+<p>The basic idea:</p>
+<p>But how do we express that?</p>
+<p>The answer is gradient descent Remember from the regression and neural networks. Our goal is to train a model to minimise the difference between prediction and known label.</p>
+<p>But instead of weight, this time we need to minimise the input. Use equation <code>f(x)</code> to show this point.</p>
+<p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code>. Suppose we know the ways to extract the style and content of an image, then our target is to get an output image <code>x</code> so that it minimises:</p>
 <p><span class="math display">\[f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)\]</span></p>
 <p>This equation can be easily translated as: I want to get such an image that its content is close to <code>c</code> , but its style similar to <code>s</code> .</p>
-<p>DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions. Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .</p>
+<p>Now comes the problem: we can kind of feel the style of a paint, we can visually recognise the contents in a picture, but how can we calculate them mathematically? For that we need the help of convolution neural networks. DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions.</p>
+<section class="level3" id="content-recreation">
+<h3>Content Recreation</h3>
+<p>From the image detection case, we know that the CNN extract features layer by layer until the features are so abstract that it can give an answer such as “this is a car” “this is an apple” etc.</p>
+<p>Explain why we choose certain layers to express content.</p>
+<p>As an example, we can perform a simplified version of NST: we only care about re-recreating the content of the input image:</p>
+<p>EQUATION: minimise content(I_content)</p>
+<p>We use this image as input content target:</p>
+<p>IMAGE</p>
+<p>Part of the CODE.</p>
+<p>We start with a white noise image, and then try the effect of choosing features from different layers.</p>
+<p>IMAGE: a 1x5 images</p>
+<p>It is shown that, the content information is kept accurate at the lower level.</p>
+<p>Explain a bit of the theory behind this phenomena.</p>
+</section>
+<section class="level3" id="style-recreation">
+<h3>Style Recreation</h3>
+<p>Then similarly, we explore the other end of this problem: we only care about recreating an image with only the style of an input image:</p>
+<p>EQUATION: minimise style(I_style)</p>
+<p>We use this image as input style target:</p>
+<p>IMAGE</p>
+<p>Expressing the style is bit more complex that content, which directly uses the feature map it self.</p>
+<p>Some theory: why Gram etc.</p>
+<p>We try different combinations of features. 1, 1 + 2, …., 1 + 2 + 3 + 4 + 5.</p>
+<p>Part of the CODE.</p>
+<p>The result is shown below:</p>
+<p>IMAGE: 1x5</p>
+<p>You can see that, contrary to content, going deeper in CNN gives more information about feature.</p>
+</section>
 </section>
 <section class="level2" id="building-a-nst-network">
 <h2>Building a NST Network</h2>
+<p>Now that we have seen these two extremes, it’s straightforward to understand the theory of style transfer.</p>
+<p>control the proportion with weights.</p>
+<p>The result:</p>
+<p>IMAGE: 1x5, from white noise, by different steps.</p>
+<p>we simply this process…</p>
 <p>The details: Loss function, pre-trained weight, optimiser, etc.</p>
 <p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
 </section>
