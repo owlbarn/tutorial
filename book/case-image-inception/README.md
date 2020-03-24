@@ -96,9 +96,9 @@ However, going deeper has its limit.
 The deeper you go, the more you will experience the "vanishing gradient" problem. 
 This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
 
-The ResNet in [@he2016deep] proposes a "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.
+The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
 
-FIGURE: residual block
+![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=60% #fig:case-image-inception:residual}
 
 We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. 
 It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths.
@@ -591,9 +591,9 @@ Instead of processing the input ndarray whose elements ranges from 0 to 255, we 
 
 ```ocaml
 let normalise img = 
-  let img = N.div_scalar img 255. in 
-  let img = N.sub_scalar img 0.5  in
-  let img = N.mul_scalar img 2.   in
+  let img = Arr.div_scalar img 255. in 
+  let img = Arr.sub_scalar img 0.5  in
+  let img = Arr.mul_scalar img 2.   in
   img
 ```
 

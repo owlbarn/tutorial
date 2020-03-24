@@ -1,7 +1,5 @@
 # Case - Neural Style Transfer
 
-## Neural Style Transfer
-
 What is Neural Style Transfer (NST)? It is a pretty cool application of Deep Neural Networks (DNN), “the process of using DNN to migrate the semantic content of one image to different styles”.
 
 Well it may sounds a little bit scary, but the idea is very simple, as the title image shows, this application takes two images A and B as input. Let’s say A is "Mona Lisa" of Da Vinci, and B is "The Starry Night" of Vincent van Gogh.
@@ -13,8 +11,11 @@ Isn’t it amazing?
 
 ![Mona Lisa](images/case-nst/mona_lisa.png "Mona Lisa"){#fig:case-nst:mona-lisa}
 
+## Theory
 
-## NST: A Very Brief Theory
+Based on the original paper [@gatys2015neural].
+
+Demonstrate and visualise the style/content features from different layers.
 
 Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the [original paper](https://arxiv.org/abs/1508.06576) for more details if you are interested.
 
@@ -28,10 +29,14 @@ DNNs, especially the ones that are used for computer vision tasks, are found to 
 Then the euclidean distance of these characteristics are used to express the `content_distance()` and `style_distance()` functions.
 Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .
 
-## Constructing and Running NST Network
+## Building a NST Network
+
+The details: Loss function, pre-trained weight, optimiser, etc.
 
 I’ve implement an NST application with Owl. All the code (about 180 lines) is included in [this Gist](https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1). This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included.
 It relies on `ImageMagick` to manipulate image format conversion and resizing. Please make sure it is installed before running.
+
+## Running NST
 
 This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:
 
@@ -56,12 +61,29 @@ I have to say I had a lot lot of fun playing with it -- please allow me to intro
 
 More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
+## Extending NST
+
+Many variants. Most notably: 
+
+- Deep Photo Style Transfer [@luan2017deep] 
+- Image-to-Image Translation [@zhu2017unpaired]
+
+Industry applications: 
+
+One of the variants is the Fast Style Transfer. Suitable for fast rendering with fixed style. We will introduce it next.
+
 ## Fast Style Transfer
+
+Paper: [@Johnson2016Perceptual]
 
 One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. 
 If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.  
 
 This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase. 
+
+### Theory
+
+### Building FST Network
 
 Based on the [TensorFlow implementation](https://github.com/lengstrom/fast-style-transfer), we have implemented a FST application in Owl, and it's not complicated. Here is the network structure:
 
@@ -110,6 +132,8 @@ let make_network h w =
   |> lambda (fun x -> Maths.((tanh x) * (F 150.) + (F 127.5)))
   |> get_network
 ```
+
+### Running FST
 
 That's it. Given suitable weights, running an inference pass on this DNN is all it takes to get a styled image.
 Like NST, we have wrapped all things up in a [Gist](https://gist.github.com/jzstark/f937ce439c8adcaea23d42753f487299), and provide a simple user interface to users. 

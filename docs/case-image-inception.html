@@ -36,8 +36,10 @@
 <section class="level3" id="resnet">
 <h3>ResNet</h3>
 <p>We keep saying that building deeper network is the trend. However, going deeper has its limit. The deeper you go, the more you will experience the “vanishing gradient” problem. This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected.</p>
-<p>The ResNet in <span data-cites="he2016deep" class="citation">(He et al. 2016)</span> proposes a “identity shortcut connection” that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in this figure.</p>
-<p>FIGURE: residual block</p>
+<p>The ResNet in <span data-cites="he2016deep" class="citation">(He et al. 2016)</span> proposes an “identity shortcut connection” that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in fig.&nbsp;2 (Src: original paper).</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:case-image-inception:residual" title="residual block" src="images/case-image-inception/residual-block.png"><figcaption>Figure 2: Residual block in the ResNet</figcaption>
+</figure>
 <p>We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths. The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.</p>
 <p>Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. This patten proves to be useful and will also be used in the Inception architecture.</p>
 <p>The ResNet can also be constructed by stacking for different layers, so that we have ResNet50, ResNet101, ResNet152, etc. The code to build a ResNet50 network with Owl is shown in <span data-cites="zoo2019resnet50" class="citation">(Zhao and Wang 2019b)</span>.</p>
@@ -59,9 +61,9 @@
 <h2>Building InceptionV3 Network</h2>
 <p>Proppsed by Christian Szegedy et. al., <a href="https://arxiv.org/abs/1512.00567">InceptionV3</a> is one of Google’s latest effort to do image recognition. It is trained for the <a href="http://www.image-net.org/challenges/LSVRC/">ImageNet Large Visual Recognition Challenge</a>. This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like “Zebra”, “Dalmatian”, and “Dishwasher”, etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.</p>
 <p>The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy. Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget. This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.</p>
-<p>fig.&nbsp;2 shows the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
+<p>fig.&nbsp;3 shows the overall architecture of this network (<a href="https://cloud.google.com/tpu/docs/inception-v3-advanced">src</a>):</p>
 <figure>
-<img alt="" style="width:95.0%" id="fig:case-image-inception:inceptionv3" title="inceptionv3" src="images/case-image-inception/inceptionv3.png"><figcaption>Figure 2: Network Architecture of InceptionV3</figcaption>
+<img alt="" style="width:95.0%" id="fig:case-image-inception:inceptionv3" title="inceptionv3" src="images/case-image-inception/inceptionv3.png"><figcaption>Figure 3: Network Architecture of InceptionV3</figcaption>
 </figure>
 <p>We can see that the whole network can be divided into several parts, and the inception module A, B, and C are both repeated based on one structure. That’s where the name “Inception” comes from: like dreams, you can have stack these basic units layer by layer.</p>
 <section class="level3" id="inceptionv1-and-inceptionv2">
@@ -341,9 +343,9 @@ let b = N.get_slice [[];[2;-1;3]] m in
 <p>Another important preprocessing is to normalise the input. Instead of processing the input ndarray whose elements ranges from 0 to 255, we need to simply preprocess it so that all the elements fall into the range <code>[-1, 1]</code>, as shown in the code below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let normalise img = 
-  let img = N.div_scalar img 255. in 
-  let img = N.sub_scalar img 0.5  in
-  let img = N.mul_scalar img 2.   in
+  let img = Arr.div_scalar img 255. in 
+  let img = Arr.sub_scalar img 0.5  in
+  let img = Arr.mul_scalar img 2.   in
   img</code></pre>
 </div>
 </section>
@@ -379,7 +381,7 @@ let _ =
 </ul>
 <p>After loading the inception model with <code>#zoo</code> primitive, the use need to designate an absolute path of the local input image. Here we use the <code>extend_zoo_path</code> utility function to automatically find the “panda.png” image contained in the Gist itself. But surely a user can have her own choice. It can be of any common image format (jpg, png, gif, etc.) and size. We provide this panda picture just in case you running short of images currently.</p>
 <figure>
-<img alt="" style="width:40.0%" id="fig:case-image-inception:panda" src="images/case-image-inception/panda.png"><figcaption>Figure 3: Panda image that is used for image recognition task</figcaption>
+<img alt="" style="width:40.0%" id="fig:case-image-inception:panda" src="images/case-image-inception/panda.png"><figcaption>Figure 4: Panda image that is used for image recognition task</figcaption>
 </figure>
 <p>With these work done, we can run inference with the neural network model and the input image by calling the <code>infer</code> API from InceptionV3 module, which wraps around the <code>Graph.model</code> function.</p>
 <p>Then we need to decode the result, getting top-N (N defaults to 5) predictions in human-readable format. The output is an array of tuple, each tuple consists of a string for classified type description, and a float number ranging from 0 to 100 to represent the percentage probability of the input image actually being this type. Finally, if you want, you can pretty-print the result.</p>

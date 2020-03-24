@@ -1,7 +1,5 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Case - Neural Style Transfer - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="case---neural-style-transfer">
 <h1>Case - Neural Style Transfer</h1>
-<section class="level2" id="neural-style-transfer">
-<h2>Neural Style Transfer</h2>
 <p>What is Neural Style Transfer (NST)? It is a pretty cool application of Deep Neural Networks (DNN), “the process of using DNN to migrate the semantic content of one image to different styles”.</p>
 <p>Well it may sounds a little bit scary, but the idea is very simple, as the title image shows, this application takes two images A and B as input. Let’s say A is “Mona Lisa” of Da Vinci, and B is “The Starry Night” of Vincent van Gogh.</p>
 <p>We then specify A as the content image and B as the style image, then what a NST application can produce? Boom! A new Mona Lisa, but with the style of Van Gogh (see the middle of title image)! If you want another style, just replace image B and run the application again. Impressionism, abstractionism, classical art, you name it.</p>
@@ -9,18 +7,23 @@
 <figure>
 <img alt="" id="fig:case-nst:mona-lisa" title="Mona Lisa" src="images/case-nst/mona_lisa.png"><figcaption>Figure 1: Mona Lisa</figcaption>
 </figure>
-</section>
-<section class="level2" id="nst-a-very-brief-theory">
-<h2>NST: A Very Brief Theory</h2>
+<section class="level2" id="theory">
+<h2>Theory</h2>
+<p>Based on the original paper <span data-cites="gatys2015neural" class="citation">(Gatys, Ecker, and Bethge 2015)</span>.</p>
+<p>Demonstrate and visualise the style/content features from different layers.</p>
 <p>Without going into details, I will briefly introduce the math behind NST, so please feel free to ignore this part. Refer to the <a href="https://arxiv.org/abs/1508.06576">original paper</a> for more details if you are interested.</p>
 <p>The NST can be seen as an optimisation problem: given a content image <code>c</code> and a style image <code>s</code> , the target is to get an output image <code>x</code> so that it minimises:</p>
 <p><span class="math display">\[f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)\]</span></p>
 <p>This equation can be easily translated as: I want to get such an image that its content is close to <code>c</code> , but its style similar to <code>s</code> .</p>
 <p>DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the content and style characteristics of an image (details emitted here for now). Then the euclidean distance of these characteristics are used to express the <code>content_distance()</code> and <code>style_distance()</code> functions. Finally, the optimisation techniques such as gradient descent are applied to f(x) to get a good enough x .</p>
 </section>
-<section class="level2" id="constructing-and-running-nst-network">
-<h2>Constructing and Running NST Network</h2>
+<section class="level2" id="building-a-nst-network">
+<h2>Building a NST Network</h2>
+<p>The details: Loss function, pre-trained weight, optimiser, etc.</p>
 <p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
+</section>
+<section class="level2" id="running-nst">
+<h2>Running NST</h2>
 <p>This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:</p>
 <div class="highlight">
 <pre><code class="language-clike">#zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
@@ -39,10 +42,26 @@ Neural_transfer.run
 </figure>
 <p>More examples can be seen on our <a href="http://demo.ocaml.xyz/neuraltrans.html">demo</a> page.</p>
 </section>
+<section class="level2" id="extending-nst">
+<h2>Extending NST</h2>
+<p>Many variants. Most notably:</p>
+<ul>
+<li>Deep Photo Style Transfer <span data-cites="luan2017deep" class="citation">(Luan et al. 2017)</span></li>
+<li>Image-to-Image Translation <span data-cites="zhu2017unpaired" class="citation">(Zhu et al. 2017)</span></li>
+</ul>
+<p>Industry applications:</p>
+<p>One of the variants is the Fast Style Transfer. Suitable for fast rendering with fixed style. We will introduce it next.</p>
+</section>
 <section class="level2" id="fast-style-transfer">
 <h2>Fast Style Transfer</h2>
+<p>Paper: <span data-cites="Johnson2016Perceptual" class="citation">(Johnson, Alahi, and Fei-Fei 2016)</span></p>
 <p>One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.</p>
 <p>This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase.</p>
+<section class="level3" id="theory-1">
+<h3>Theory</h3>
+</section>
+<section class="level3" id="building-fst-network">
+<h3>Building FST Network</h3>
 <p>Based on the <a href="https://github.com/lengstrom/fast-style-transfer">TensorFlow implementation</a>, we have implemented a FST application in Owl, and it’s not complicated. Here is the network structure:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
@@ -89,6 +108,9 @@ let make_network h w =
   |&gt; lambda (fun x -&gt; Maths.((tanh x) * (F 150.) + (F 127.5)))
   |&gt; get_network</code></pre>
 </div>
+</section>
+<section class="level3" id="running-fst">
+<h3>Running FST</h3>
 <p>That’s it. Given suitable weights, running an inference pass on this DNN is all it takes to get a styled image. Like NST, we have wrapped all things up in a <a href="https://gist.github.com/jzstark/f937ce439c8adcaea23d42753f487299">Gist</a>, and provide a simple user interface to users. Here is an example:</p>
 <div class="highlight">
 <pre><code class="language-clike">#zoo "f937ce439c8adcaea23d42753f487299"
@@ -102,6 +124,21 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <p>Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles.</p>
 <p><img id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"></p>
 <p>If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. And all of these are implemented in Owl.</p>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-gatys2015neural">
+<p>Gatys, Leon A, Alexander S Ecker, and Matthias Bethge. 2015. “A Neural Algorithm of Artistic Style.” <em>arXiv Preprint arXiv:1508.06576</em>.</p>
+</div>
+<div id="ref-Johnson2016Perceptual">
+<p>Johnson, Justin, Alexandre Alahi, and Li Fei-Fei. 2016. “Perceptual Losses for Real-Time Style Transfer and Super-Resolution.” In <em>European Conference on Computer Vision</em>.</p>
+</div>
+<div id="ref-luan2017deep">
+<p>Luan, Fujun, Sylvain Paris, Eli Shechtman, and Kavita Bala. 2017. “Deep Photo Style Transfer.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 4990–8.</p>
+</div>
+<div id="ref-zhu2017unpaired">
+<p>Zhu, Jun-Yan, Taesung Park, Phillip Isola, and Alexei A Efros. 2017. “Unpaired Image-to-Image Translation Using Cycle-Consistent Adversarial Networks.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 2223–32.</p>
+</div>
+</div>
+</section>
 </section>
 </section>
 </article></div><a href="case-gpu.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 32</small>Case - Using Accelerators</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
