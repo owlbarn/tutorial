@@ -93,7 +93,7 @@ let input_shape = Dense.Ndarray.S.shape content_img in
 Dense.Ndarray.S.(gaussian input_shape |> scalar_mul 0.256)
 ```
 
-The feature map of the input image `x` is still calcuated using the same process show in function `fill_content_targets`.
+The feature map of the input image `x` is still calculated using the same process show in function `fill_content_targets`.
 We call the resulting feature map `response`, then the loss value can be calculated with the L2Norm of the difference between two feature maps, and then normalised with the feature map size.
 
 ```
@@ -152,17 +152,23 @@ TODO: Explain why we choose layer 23 not 2.
 
 ### Style Recreation
 
-Then similarly, we explore the other end of this problem: we only care about recreating an image with only the style of an input image:
+Then similarly, we explore the other end of this problem. Now we only care about recreating an image with only the style of an input image. 
+That is to say, we optimise the input image with this target to minimise:
 
 $$f(x) = \verb|style_distance|(x, s)$$
 
-We use the famous "The Great Wave of Kanagawa" by Hokusai as our target style image:
+As an example, we will use the famous "The Great Wave of Kanagawa" by Hokusai as our target style image:
 
 ![Example style image in neural style transfer](images/case-nst/hokusai.png "hokusai"){width=40% #fig:case-nst:style-example}
 
-Expressing the style is bit more complex that content, which directly uses the feature map it self.
+The basic approach is the same as before: first compute the style representation of target image using the output from one or more layers, and then compute the style representation of the input image following the same method. The normalised distance between these two ndarrays are used as the optimisation target. 
 
-Some theory: why Gram etc.
+However, the difference is that, unlike the content representation, we cannot directly take one filter map from certain layer as the style representation.
+Instead, we need to t computes the correlations between different filters from the output of a layer.
+This correlation can be represented by the Gram matrix, which intuitively captures the "distribution of features" of feature maps from a certain layer.
+The $(i,j)$-th element of an Gram matrix is computed by element-wisely multiplying the $i$-th and $j$-th channels in the feature maps and summing across both width and height. 
+This process can be simplified as a matrix multiplication. The result is normalised with the size of the feature map.
+The code is shown below. 
 
 ```
 let gram x = 
@@ -173,13 +179,18 @@ let gram x =
   Maths.((transpose ff) *@ ff / size)
 ```
 
+Now that we have a method to represent the "style" of an image, we can proceed to calculate the loss value during optimisation.
+It is very similar to that of content recreation, and the only difference is that we use the distance between Gram matrices instead of the feature map from a certain layer as loss value.
+
 ```
 let s_loss response_gram target_gram = 
   let loss = Maths.((pow (response_gram - target_gram) (F 2.)) |> sum') in 
   let s = Algodiff.shape target_gram in
-  let c = float_of_int ( s.(0) * s.(1)) in
+  let c = float_of_int (s.(0) * s.(1)) in
   Maths.(loss / (F c))
 ```
+
+However, note that for the optimisation, instead of using output from one layer, we usually utilises the loss value from multiple layers and the optimisation target for style reconstruction:
 
 ```
 let g x = 
@@ -187,25 +198,33 @@ let g x =
   Array.fold_left Maths.(+) (F 0.) style_losses
 ```
 
-We try different combinations of features. 1, 1 + 2, ...., 1 + 2 + 3 + 4 + 5.
+Here the `fill_losses` function compute style losses at different layers, and store them into the `style_losses` array. 
+Then they are added up as the optimisation target.
+The rest process is the as in the content reconstruction. 
 
-The result is shown below:
+As example, we choose the similar five layers from the VGG19 network: layer 2, 7, 12, 21, and 30. 
+Then we computing the aggregated loss value fo the first layer, the first two layers, the first three layers, the first four layers, and all layers, as five different optimisation target.
+The results are shown in [@fig:case-nst:style-rec].
 
-IMAGE: 1x5 
+![Style reconstruction](images/case-nst/style-reconstruction.png "style-reconstruction"){width=100% #fig:case-nst:style-rec}
 
-You can see that, contrary to content, going deeper in CNN gives more information about feature. 
+As the result shows, features from the beginning tends to contain low level information such as pixels, so reconstructing styles according to them results in a fragmented white-noise-like representation, which really does not show any obvious style. 
+Only by adding more deep layer features can the style be gradually be reconstructed.
 
 ### Combining Content and Style
 
 Now that we have seen these two extremes, it's straightforward to understand the theory of style transfer. 
+
+The images are synthesised by finding an image that simultaneously matches the content
+representation of the photograph and the style representation of the respective piece of art
 
 Combining, weight of losses
 
 control the proportion with weights. 
 
 The result: 
-
-IMAGE: 1x5, from white noise, by different steps. 
+ 
+![Combining content and style reconstruction](images/case-nst/nst_example_01.png "nst_example_01"){width=90% #fig:case-nst:nst_example_01}
 
 we simply this process...
 

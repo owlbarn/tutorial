@@ -48,7 +48,7 @@
 <pre><code class="language-text">let input_shape = Dense.Ndarray.S.shape content_img in
 Dense.Ndarray.S.(gaussian input_shape |&gt; scalar_mul 0.256)</code></pre>
 </div>
-<p>The feature map of the input image <code>x</code> is still calcuated using the same process show in function <code>fill_content_targets</code>. We call the resulting feature map <code>response</code>, then the loss value can be calculated with the L2Norm of the difference between two feature maps, and then normalised with the feature map size.</p>
+<p>The feature map of the input image <code>x</code> is still calculated using the same process show in function <code>fill_content_targets</code>. We call the resulting feature map <code>response</code>, then the loss value can be calculated with the L2Norm of the difference between two feature maps, and then normalised with the feature map size.</p>
 <div class="highlight">
 <pre><code class="language-clike">let c_loss response target = 
   let loss = Maths.((pow (response - target) (F 2.)) |&gt; sum') in 
@@ -89,14 +89,14 @@ done;</code></pre>
 </section>
 <section class="level3" id="style-recreation">
 <h3>Style Recreation</h3>
-<p>Then similarly, we explore the other end of this problem: we only care about recreating an image with only the style of an input image:</p>
+<p>Then similarly, we explore the other end of this problem. Now we only care about recreating an image with only the style of an input image. That is to say, we optimise the input image with this target to minimise:</p>
 <p><span class="math display">\[f(x) = \verb|style_distance|(x, s)\]</span></p>
-<p>We use the famous “The Great Wave of Kanagawa” by Hokusai as our target style image:</p>
+<p>As an example, we will use the famous “The Great Wave of Kanagawa” by Hokusai as our target style image:</p>
 <figure>
 <img alt="" style="width:40.0%" id="fig:case-nst:style-example" title="hokusai" src="images/case-nst/hokusai.png"><figcaption>Figure 4: Example style image in neural style transfer</figcaption>
 </figure>
-<p>Expressing the style is bit more complex that content, which directly uses the feature map it self.</p>
-<p>Some theory: why Gram etc.</p>
+<p>The basic approach is the same as before: first compute the style representation of target image using the output from one or more layers, and then compute the style representation of the input image following the same method. The normalised distance between these two ndarrays are used as the optimisation target.</p>
+<p>However, the difference is that, unlike the content representation, we cannot directly take one filter map from certain layer as the style representation. Instead, we need to t computes the correlations between different filters from the output of a layer. This correlation can be represented by the Gram matrix, which intuitively captures the “distribution of features” of feature maps from a certain layer. The <span class="math inline">\((i,j)\)</span>-th element of an Gram matrix is computed by element-wisely multiplying the <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th channels in the feature maps and summing across both width and height. This process can be simplified as a matrix multiplication. The result is normalised with the size of the feature map. The code is shown below.</p>
 <div class="highlight">
 <pre><code class="language-clike">let gram x = 
   let _, h, w, feature = get_shape x in 
@@ -105,30 +105,37 @@ done;</code></pre>
   let size = F (float_of_int (feature * h * w)) in
   Maths.((transpose ff) *@ ff / size)</code></pre>
 </div>
+<p>Now that we have a method to represent the “style” of an image, we can proceed to calculate the loss value during optimisation. It is very similar to that of content recreation, and the only difference is that we use the distance between Gram matrices instead of the feature map from a certain layer as loss value.</p>
 <div class="highlight">
 <pre><code class="language-clike">let s_loss response_gram target_gram = 
   let loss = Maths.((pow (response_gram - target_gram) (F 2.)) |&gt; sum') in 
   let s = Algodiff.shape target_gram in
-  let c = float_of_int ( s.(0) * s.(1)) in
+  let c = float_of_int (s.(0) * s.(1)) in
   Maths.(loss / (F c))</code></pre>
 </div>
+<p>However, note that for the optimisation, instead of using output from one layer, we usually utilises the loss value from multiple layers and the optimisation target for style reconstruction:</p>
 <div class="highlight">
 <pre><code class="language-clike">let g x = 
   fill_losses x;
   Array.fold_left Maths.(+) (F 0.) style_losses</code></pre>
 </div>
-<p>We try different combinations of features. 1, 1 + 2, …., 1 + 2 + 3 + 4 + 5.</p>
-<p>The result is shown below:</p>
-<p>IMAGE: 1x5</p>
-<p>You can see that, contrary to content, going deeper in CNN gives more information about feature.</p>
+<p>Here the <code>fill_losses</code> function compute style losses at different layers, and store them into the <code>style_losses</code> array. Then they are added up as the optimisation target. The rest process is the as in the content reconstruction.</p>
+<p>As example, we choose the similar five layers from the VGG19 network: layer 2, 7, 12, 21, and 30. Then we computing the aggregated loss value fo the first layer, the first two layers, the first three layers, the first four layers, and all layers, as five different optimisation target. The results are shown in fig.&nbsp;5.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:case-nst:style-rec" title="style-reconstruction" src="images/case-nst/style-reconstruction.png"><figcaption>Figure 5: Style reconstruction</figcaption>
+</figure>
+<p>As the result shows, features from the beginning tends to contain low level information such as pixels, so reconstructing styles according to them results in a fragmented white-noise-like representation, which really does not show any obvious style. Only by adding more deep layer features can the style be gradually be reconstructed.</p>
 </section>
 <section class="level3" id="combining-content-and-style">
 <h3>Combining Content and Style</h3>
 <p>Now that we have seen these two extremes, it’s straightforward to understand the theory of style transfer.</p>
+<p>The images are synthesised by finding an image that simultaneously matches the content representation of the photograph and the style representation of the respective piece of art</p>
 <p>Combining, weight of losses</p>
 <p>control the proportion with weights.</p>
 <p>The result:</p>
-<p>IMAGE: 1x5, from white noise, by different steps.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:case-nst:nst_example_01" title="nst_example_01" src="images/case-nst/nst_example_01.png"><figcaption>Figure 6: Combining content and style reconstruction</figcaption>
+</figure>
 <p>we simply this process…</p>
 <p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
 <p>Please refer to the full code. We have ignored many details such as garbage collection or simplify the code.</p>
