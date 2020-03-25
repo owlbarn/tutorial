@@ -238,7 +238,7 @@ We therefore suggest you to play with the code itself with images or parameters 
 
 ### Running NST
 
-This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:
+To make the code above more suitable to use, this NST application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:
 
 ```
 #zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
@@ -250,28 +250,47 @@ Neural_transfer.run
   ~dst:"path/to/output_img.png" 250.;;
 ```
 
-The first line download gist files and imported this gist as an OCaml module, and the second line uses the `run` function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.
+Similar to the image detection application, the command can be simplified using the Zoo system in owl.
+The first line downloads gist files and imported this gist as an OCaml module, and the second line uses the `run` function to produce an output image to your designated path. 
+Its syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.
 
-This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. `path/to/output_img_N.png`). `N` is specified by the `ckpt` parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.
+This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. `path/to/output_img_N.png`). 
+`N` is specified by the `ckpt` parameter, and its default value is 50 iterations. 
+If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.
 
-That’s all it takes. If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
-
+That's all. Now you can try the code easily. 
+If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
 More examples can be seen on our online [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
 ### Extending NST
 
-Many variants. Most notably: 
+The neural style transfer has since attracts a lot of attentions. 
+It is the core technology to many successful industrial applications, most notably photo rendering applications. 
+For example, the [Prisma Photo Editor](https://play.google.com/store/apps/details?id=com.neuralprisma&hl=en_GB) features transforming your photos into paintings of hundreds of styles. 
 
-- Deep Photo Style Transfer [@luan2017deep] 
-- Image-to-Image Translation [@zhu2017unpaired]
+There are also many research work that aim to extend this work. 
+One of these work is the *Deep Photo Style Transfer* proposed in [@luan2017deep].
+The idea is simple: instead of using an art image, can I use another normal image as style reference?
+For example, we have a normal daylight street view  in New York as content image, then we want to use the night view of London as reference, to synthesise an image of the night view of New York.
 
-Industry applications: 
+The authors identify two key challenges in this problem.
+The first is that, unlike in NST, we hope to only  change to colours of the style image, and keep the content un-distorted, so as to create a "real" image as much as possible. 
+For this challenge, the authors propose to add an regularisation item to our existing optimisation target "content distance + style distance".
+This item, depending on only input and outpu images, penalises image distortion and seeks an image transform that is locally affine in color space.
+The second challenge is that, we don't want the styles to be applied globally. 
+For example, we only want to apply the style of an sunset sky to a blue sky, not a building. 
+For this problem, the authors propose to coarsely segment input images into several parts before apply style transfer separately.
+If you are interested to check the original paper, the resulting photos are indeed beautifully and realistically rendered.
 
-One of the variants is the Fast Style Transfer. Suitable for fast rendering with fixed style. We will introduce it next.
+TODO: Image-to-Image Translation [@zhu2017unpaired]
+
+Another variant is called the Fast Style Transfer.
+Instead of iteratively updating image, it proposes to use one pre-trained feed-forward network to do style transfer, and therefore improving the speed of rendering by orders of magnitude.
+That's what we will be talking about in the rest of this chapter.
 
 ## Fast Style Transfer
 
-Paper: [@Johnson2016Perceptual]
+Paper: [@ulyanov2016texture§]
 
 One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. 
 If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.  
@@ -363,3 +382,5 @@ Yes, maybe six styles are not enough for you, but think about it, you can now re
 If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. 
 To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this [Youtube list](https://www.youtube.com/watch?v=cFOM-JnyJv4&list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H).
 And all of these are implemented in Owl.  
+
+## References

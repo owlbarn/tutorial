@@ -139,7 +139,7 @@ done;</code></pre>
 </section>
 <section class="level3" id="running-nst">
 <h3>Running NST</h3>
-<p>This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:</p>
+<p>To make the code above more suitable to use, this NST application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:</p>
 <div class="highlight">
 <pre><code class="language-clike">#zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
 
@@ -149,25 +149,22 @@ Neural_transfer.run
   ~style:"path/to/style_img.jpg" 
   ~dst:"path/to/output_img.png" 250.;;</code></pre>
 </div>
-<p>The first line download gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. It’s syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
+<p>Similar to the image detection application, the command can be simplified using the Zoo system in owl. The first line downloads gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. Its syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
 <p>This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g.&nbsp;<code>path/to/output_img_N.png</code>). <code>N</code> is specified by the <code>ckpt</code> parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.</p>
-<p>That’s all it takes. If you don’t have suitable input images at hand, the gist already contains exemplar content and style images to get you started.</p>
-<p>More examples can be seen on our online <a href="http://demo.ocaml.xyz/neuraltrans.html">demo</a> page.</p>
+<p>That’s all. Now you can try the code easily. If you don’t have suitable input images at hand, the gist already contains exemplar content and style images to get you started. More examples can be seen on our online <a href="http://demo.ocaml.xyz/neuraltrans.html">demo</a> page.</p>
 </section>
 <section class="level3" id="extending-nst">
 <h3>Extending NST</h3>
-<p>Many variants. Most notably:</p>
-<ul>
-<li>Deep Photo Style Transfer <span data-cites="luan2017deep" class="citation">(Luan et al. 2017)</span></li>
-<li>Image-to-Image Translation <span data-cites="zhu2017unpaired" class="citation">(Zhu et al. 2017)</span></li>
-</ul>
-<p>Industry applications:</p>
-<p>One of the variants is the Fast Style Transfer. Suitable for fast rendering with fixed style. We will introduce it next.</p>
+<p>The neural style transfer has since attracts a lot of attentions. It is the core technology to many successful industrial applications, most notably photo rendering applications. For example, the <a href="https://play.google.com/store/apps/details?id=com.neuralprisma&amp;hl=en_GB">Prisma Photo Editor</a> features transforming your photos into paintings of hundreds of styles.</p>
+<p>There are also many research work that aim to extend this work. One of these work is the <em>Deep Photo Style Transfer</em> proposed in <span data-cites="luan2017deep" class="citation">(Luan et al. 2017)</span>. The idea is simple: instead of using an art image, can I use another normal image as style reference? For example, we have a normal daylight street view in New York as content image, then we want to use the night view of London as reference, to synthesise an image of the night view of New York.</p>
+<p>The authors identify two key challenges in this problem. The first is that, unlike in NST, we hope to only change to colours of the style image, and keep the content un-distorted, so as to create a “real” image as much as possible. For this challenge, the authors propose to add an regularisation item to our existing optimisation target “content distance + style distance”. This item, depending on only input and outpu images, penalises image distortion and seeks an image transform that is locally affine in color space. The second challenge is that, we don’t want the styles to be applied globally. For example, we only want to apply the style of an sunset sky to a blue sky, not a building. For this problem, the authors propose to coarsely segment input images into several parts before apply style transfer separately. If you are interested to check the original paper, the resulting photos are indeed beautifully and realistically rendered.</p>
+<p>TODO: Image-to-Image Translation <span data-cites="zhu2017unpaired" class="citation">(Zhu et al. 2017)</span></p>
+<p>Another variant is called the Fast Style Transfer. Instead of iteratively updating image, it proposes to use one pre-trained feed-forward network to do style transfer, and therefore improving the speed of rendering by orders of magnitude. That’s what we will be talking about in the rest of this chapter.</p>
 </section>
 </section>
 <section class="level2" id="fast-style-transfer">
 <h2>Fast Style Transfer</h2>
-<p>Paper: <span data-cites="Johnson2016Perceptual" class="citation">(Johnson, Alahi, and Fei-Fei 2016)</span></p>
+<p>Paper: <span data-cites="ulyanov2016texture" class="citation">(Ulyanov et al. 2016§)</span></p>
 <p>One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.</p>
 <p>This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase.</p>
 <section class="level3" id="theory">
@@ -237,21 +234,24 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <p>Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles.</p>
 <p><img id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"></p>
 <p>If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. And all of these are implemented in Owl.</p>
+</section>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-gatys2015neural">
 <p>Gatys, Leon A, Alexander S Ecker, and Matthias Bethge. 2015. “A Neural Algorithm of Artistic Style.” <em>arXiv Preprint arXiv:1508.06576</em>.</p>
 </div>
-<div id="ref-Johnson2016Perceptual">
-<p>Johnson, Justin, Alexandre Alahi, and Li Fei-Fei. 2016. “Perceptual Losses for Real-Time Style Transfer and Super-Resolution.” In <em>European Conference on Computer Vision</em>.</p>
-</div>
 <div id="ref-luan2017deep">
 <p>Luan, Fujun, Sylvain Paris, Eli Shechtman, and Kavita Bala. 2017. “Deep Photo Style Transfer.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 4990–8.</p>
+</div>
+<div id="ref-ulyanov2016texture">
+<p>Ulyanov, Dmitry, Vadim Lebedev, Andrea Vedaldi, and Victor S Lempitsky. 2016. “Texture Networks: Feed-Forward Synthesis of Textures and Stylized Images.” In <em>ICML</em>, 1:4. 2.</p>
 </div>
 <div id="ref-zhu2017unpaired">
 <p>Zhu, Jun-Yan, Taesung Park, Phillip Isola, and Alexei A Efros. 2017. “Unpaired Image-to-Image Translation Using Cycle-Consistent Adversarial Networks.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 2223–32.</p>
 </div>
 </div>
-</section>
 </section>
 </section>
 </article></div><a href="case-gpu.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 32</small>Case - Using Accelerators</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
