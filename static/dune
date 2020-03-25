@@ -25,11 +25,13 @@
         images/case-image-inception/inceptionv3.png
         images/case-image-inception/panda.png
         images/case-image-inception/residual-block.png
+        images/case-nst/contents-reconstruction.png
         images/case-nst/example_fst00.png
         images/case-nst/hojo.png
         images/case-nst/hokusai.png
-        images/case-nst/mona_lisa.png
         images/case-nst/nst_example.png
+        images/case-nst/nst_example_01.png
+        images/case-nst/style-reconstruction.png
         images/case-obj-detect/example_00.jpg
         images/case-obj-detect/example_01.jpg
         images/case-obj-detect/example_obj.jpg

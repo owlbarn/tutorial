@@ -85,7 +85,6 @@ done;</code></pre>
 <img alt="" style="width:100.0%" id="fig:case-nst:contents-rec" title="contents-reconstruction" src="images/case-nst/contents-reconstruction.png"><figcaption>Figure 3: Contents reconstruction</figcaption>
 </figure>
 <p>It is shown that, the content information is kept accurate at the lower level. Along the processing hierarchy of the network, feature map produced by the lower layer cares more about the small features that at the pixel level, while the higher layer gives more abstract information but less details to help with content reconstruction.</p>
-<p>TODO: Explain why we choose layer 23 not 2.</p>
 </section>
 <section class="level3" id="style-recreation">
 <h3>Style Recreation</h3>
@@ -128,17 +127,15 @@ done;</code></pre>
 </section>
 <section class="level3" id="combining-content-and-style">
 <h3>Combining Content and Style</h3>
-<p>Now that we have seen these two extremes, it’s straightforward to understand the theory of style transfer.</p>
-<p>The images are synthesised by finding an image that simultaneously matches the content representation of the photograph and the style representation of the respective piece of art</p>
-<p>Combining, weight of losses</p>
-<p>control the proportion with weights.</p>
-<p>The result:</p>
+<p>Now that we have seen these two extremes: only recreating content and only recreating style, it’s straightforward to understand the theory of style transfer: to synthesised an image that has similar content with one image and style close to the other. The code would be mostly similar to what we have seen, and the only difference now is simply adding the loss value of content and styles as the final optimisation target.</p>
+<p>One thing we need to note during combining contents and style is the proportion of each part, and the choice of layers as representation. This problem is actually more artistic than technique, so here we only follow the current practice about parameter configuration. Please refer to the original paper about the effect of parameter tuning.</p>
+<p>As suggested by previous experiment results, we use the feature maps from 23rd layer for content recreation, and combines the output of layer 2, 7, 12, 21, and 30 in VGG19 to represent the style feature of an image. When combining the loss values, we multiply the style loss with a weight number, and then add it to the content loss. Practice shows that a weigh number of 20 shows good performance.</p>
+<p>You might also be wondering: why not choose the 2nd layer if it show the best content reconstruction result? The intuition is that we don’t want the synthesised image to be too close to the content image in content, because that would mean less style. Therefore we use a layer from the middle of CNN which shows to keep most of the information for content reconstruction.</p>
 <figure>
 <img alt="" style="width:90.0%" id="fig:case-nst:nst_example_01" title="nst_example_01" src="images/case-nst/nst_example_01.png"><figcaption>Figure 6: Combining content and style reconstruction</figcaption>
 </figure>
-<p>we simply this process…</p>
-<p>I’ve implement an NST application with Owl. All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included. It relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. Please make sure it is installed before running.</p>
-<p>Please refer to the full code. We have ignored many details such as garbage collection or simplify the code.</p>
+<p>Combining all these factors together, fig.&nbsp;6 shows the result about running our code and creating an artistic view based on the original image.</p>
+<p>All the code (about 180 lines) is included in <a href="https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1">this Gist</a>. The pre-trained weight file for VGG19 is also included. As with the image detection applications, it also relies on <code>ImageMagick</code> to manipulate image format conversion and resizing. We only list part of it above, and there are many implementation details such as garbage collection are omitted to focus on the theory of the application itself. We therefore suggest you to play with the code itself with images or parameters of your choice.</p>
 </section>
 <section class="level3" id="running-nst">
 <h3>Running NST</h3>

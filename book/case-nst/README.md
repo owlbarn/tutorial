@@ -148,8 +148,6 @@ Each one is generated using 100 iterations.
 It is shown that, the content information is kept accurate at the lower level. 
 Along the processing hierarchy of the network, feature map produced by the lower layer cares more about the small features that at the pixel level, while the higher layer gives more abstract information but less details to help with content reconstruction.
 
-TODO: Explain why we choose layer 23 not 2. 
-
 ### Style Recreation
 
 Then similarly, we explore the other end of this problem. Now we only care about recreating an image with only the style of an input image. 
@@ -213,26 +211,30 @@ Only by adding more deep layer features can the style be gradually be reconstruc
 
 ### Combining Content and Style
 
-Now that we have seen these two extremes, it's straightforward to understand the theory of style transfer. 
+Now that we have seen these two extremes: only recreating content and only recreating style, it's straightforward to understand the theory of style transfer: to synthesised an image that has similar content with one image and style close to the other.
+The code would be mostly similar to what we have seen, and the only difference now is simply adding the loss value of content and styles as the final optimisation target.
 
-The images are synthesised by finding an image that simultaneously matches the content
-representation of the photograph and the style representation of the respective piece of art
+One thing we need to note during combining contents and style is the proportion of each part, and the choice of layers as representation.
+This problem is actually more artistic than technique, so here we only follow the current practice about parameter configuration.
+Please refer to the original paper about the effect of parameter tuning.
 
-Combining, weight of losses
+As suggested by previous experiment results, we use the feature maps from 23rd layer for content recreation, and combines the output of layer 2, 7, 12, 21, and 30 in VGG19 to represent the style feature of an image. 
+When combining the loss values, we multiply the style loss with a weight number, and then add it to the content loss. 
+Practice shows that a weigh number of 20 shows good performance. 
 
-control the proportion with weights. 
+You might also be wondering: why not choose the 2nd layer if it show the best content reconstruction result? 
+The intuition is that we don't want the synthesised image to be too close to the content image in content, because that would mean less style.
+Therefore we use a layer from the middle of CNN which shows to keep most of the information for content reconstruction.
 
-The result: 
- 
 ![Combining content and style reconstruction](images/case-nst/nst_example_01.png "nst_example_01"){width=90% #fig:case-nst:nst_example_01}
 
-we simply this process...
+Combining all these factors together, [@fig:case-nst:nst_example_01] shows the result about running our code and creating an artistic view based on the original image.
 
-I’ve implement an NST application with Owl. All the code (about 180 lines) is included in [this Gist](https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1). This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included.
-It relies on `ImageMagick` to manipulate image format conversion and resizing. Please make sure it is installed before running.
-
-Please refer to the full code.
-We have ignored many details such as garbage collection or simplify the code. 
+All the code (about 180 lines) is included in [this Gist](https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1). 
+The pre-trained weight file for VGG19 is also included.
+As with the image detection applications, it also relies on `ImageMagick` to manipulate image format conversion and resizing.
+We only list part of it above, and there are many implementation details such as garbage collection are omitted to focus on the theory of the application itself. 
+We therefore suggest you to play with the code itself with images or parameters of your choice.
 
 ### Running NST
 
