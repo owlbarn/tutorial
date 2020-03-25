@@ -41,10 +41,9 @@ Therefore, in the next two sub-sections, we will explain how it can be used to e
 
 We have introduced several CNN architectures to perform image detection task in the previous chapter. We choose to use VGG19 since its follows a simple linear stack structure and is proved to have good performance. 
 We have built the VGG19 network structure in [this gist](https://gist.github.com/jzstark/da5cc7f771bc8d9699cedc491b23f856).
-It contains 38 layers in total.
+It contains 38 layers in total, and we prepared pre-trained weights for it.
 
 ### Content Reconstruction
-
 
 From the image detection case, we know that the CNN extract features layer by layer until the features are so abstract that it can give an answer such as "this is a car" "this is an apple" etc.
 Therefore, we can use the feature map to reconstruct content of an image. 
@@ -111,7 +110,7 @@ The target function can be described as:
 
 ```
 let g x = 
-  let response = fill_losses x in 
+  fill_losses x;
   c_loss response target
 ```
 
@@ -144,28 +143,51 @@ In this 38-layer VGG network, we choose these layers: 2, 7, 12, 21, 30.
 Then we can compare the optimisation result to see the effect of image reconstruction.
 Each one is generated using 100 iterations.
 
-IMAGE: a 1x5 images 
+![Contents reconstruction](images/case-nst/contents-reconstruction.png "contents-reconstruction"){width=100% #fig:case-nst:contents-rec}
 
 It is shown that, the content information is kept accurate at the lower level. 
 Along the processing hierarchy of the network, feature map produced by the lower layer cares more about the small features that at the pixel level, while the higher layer gives more abstract information but less details to help with content reconstruction.
+
+TODO: Explain why we choose layer 23 not 2. 
 
 ### Style Recreation
 
 Then similarly, we explore the other end of this problem: we only care about recreating an image with only the style of an input image:
 
-EQUATION: minimise style(I_style) 
+$$f(x) = \verb|style_distance|(x, s)$$
 
-We use this image as input style target:
+We use the famous "The Great Wave of Kanagawa" by Hokusai as our target style image:
 
-![Example style image in neural style transfer](images/case-nst/hokusai.png "hokusai"){width=50% #fig:case-nst:style-example}
+![Example style image in neural style transfer](images/case-nst/hokusai.png "hokusai"){width=40% #fig:case-nst:style-example}
 
 Expressing the style is bit more complex that content, which directly uses the feature map it self.
 
 Some theory: why Gram etc.
 
-We try different combinations of features. 1, 1 + 2, ...., 1 + 2 + 3 + 4 + 5.
+```
+let gram x = 
+  let _, h, w, feature = get_shape x in 
+  let new_shape = [|h * w; feature|] in 
+  let ff = Maths.(reshape x new_shape) in 
+  let size = F (float_of_int (feature * h * w)) in
+  Maths.((transpose ff) *@ ff / size)
+```
 
-Part of the CODE.
+```
+let s_loss response_gram target_gram = 
+  let loss = Maths.((pow (response_gram - target_gram) (F 2.)) |> sum') in 
+  let s = Algodiff.shape target_gram in
+  let c = float_of_int ( s.(0) * s.(1)) in
+  Maths.(loss / (F c))
+```
+
+```
+let g x = 
+  fill_losses x;
+  Array.fold_left Maths.(+) (F 0.) style_losses
+```
+
+We try different combinations of features. 1, 1 + 2, ...., 1 + 2 + 3 + 4 + 5.
 
 The result is shown below:
 
@@ -173,10 +195,11 @@ IMAGE: 1x5
 
 You can see that, contrary to content, going deeper in CNN gives more information about feature. 
 
-
-## Building a NST Network
+### Combining Content and Style
 
 Now that we have seen these two extremes, it's straightforward to understand the theory of style transfer. 
+
+Combining, weight of losses
 
 control the proportion with weights. 
 
@@ -186,13 +209,13 @@ IMAGE: 1x5, from white noise, by different steps.
 
 we simply this process...
 
-
-The details: Loss function, pre-trained weight, optimiser, etc.
-
 I’ve implement an NST application with Owl. All the code (about 180 lines) is included in [this Gist](https://gist.github.com/jzstark/6f28d54e69d1a19c1819f52c5b16c1a1). This application uses the VGG19 network structure to capture the content and style characteristics of images. The pre-trained network file is also included.
 It relies on `ImageMagick` to manipulate image format conversion and resizing. Please make sure it is installed before running.
 
-## Running NST
+Please refer to the full code.
+We have ignored many details such as garbage collection or simplify the code. 
+
+### Running NST
 
 This application provides a simple interfaces to use. Here is an example showing how to use it with two lines of code:
 
@@ -210,13 +233,11 @@ The first line download gist files and imported this gist as an OCaml module, an
 
 This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g. `path/to/output_img_N.png`). `N` is specified by the `ckpt` parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.
 
-That’s all it takes! If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
+That’s all it takes. If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
 
+More examples can be seen on our online [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
-
-More examples can be seen on our [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
-
-## Extending NST
+### Extending NST
 
 Many variants. Most notably: 
 
