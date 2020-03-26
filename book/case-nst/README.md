@@ -290,7 +290,7 @@ That's what we will be talking about in the rest of this chapter.
 
 ## Fast Style Transfer
 
-Paper: [@ulyanov2016texture§]
+
 
 One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. 
 If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.  
@@ -299,19 +299,31 @@ This problem then leads to another application: Fast Neural Style Transfer (FST)
 
 ### Building FST Network
 
+Paper: [@Johnson2016Perceptual]
+
+The authors propose to build and train an image transformation net. 
+A short background on image transform net.
+The whole systems is shown in [@fig:case-nst:fst].
+
 ![System overview of the image transformation network and its training.](images/case-nst/fst.png "fst"){width=100% #fig:case-nst:fst}
+
+The first part: the image transformation net.
+Downsampling and upsampling to create image of original size.
+Two benefit.
+
+Instead of using the normal pooling, the convolution is used. 
+Transpose convolution is used for upsampling. 
+Transpose convolution: ...
 
 
 Based on the [TensorFlow implementation](https://github.com/lengstrom/fast-style-transfer), we have implemented a FST application in Owl, and it's not complicated. Here is the network structure:
 
-```ocaml
+```ocaml env=case-nst:fst 
 open Owl
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
 module N = Dense.Ndarray.S
-
-(** Network Structure *)
 
 let conv2d_layer ?(relu=true) kernel stride nn  =
   let result = 
@@ -327,12 +339,28 @@ let conv2d_trans_layer kernel stride nn =
   |> normalisation ~decay:0. ~training:true ~axis:3
   |> activation Activation.Relu
 
+```
+
+The "bridge" between these two uses multiple residual blocks. 
+It is proposed in the ResNet work.
+"They argue that residual connections make the identity function easier to learn; this is an appealing property for image transformation networks, since in most cases the output image should share structure with the input image. "
+
+Specifically, the authors uses the residual structure in [here](http://torch.ch/blog/2016/02/04/resnets.html) as building block.
+Describe the structure.
+The kernel size is still set to 3. 
+
+```ocaml env=case-nst:fst 
+
 let residual_block wh nn = 
   let tmp = conv2d_layer [|wh; wh; 128; 128|] [|1;1|] nn
     |> conv2d_layer ~relu:false [|wh; wh; 128; 128|] [|1;1|]
   in 
   add [|nn; tmp|]
+```
 
+Finally, we can piece them together. 
+
+```ocaml env=case-nst:fst 
 let make_network h w = 
   input [|h;w;3|]
   |> conv2d_layer [|9;9;3;32|] [|1;1|]
@@ -349,6 +377,22 @@ let make_network h w =
   |> lambda (fun x -> Maths.((tanh x) * (F 150.) + (F 127.5)))
   |> get_network
 ```
+
+That's the first part, and the target is to train this CNN.
+
+Using pixel level difference as the loss value as in the training of image recognition is not ideal here, since we cannot know what is a "correct" style-transferred image in advanced.
+Instead, the authors are inspired from the NST work.
+They use the same training process with a pre-trained VGG19 network to compute the loss (they call it the *perceptual loss* against the per-pixel loss).
+We are familiar with this process now: content, style...
+The only difference is that the back-propagation now update the weights of the image transformation net.
+
+Note that the whole training process accept only content image, and the network can only be trained for one single style image.
+
+This training phase is one-off. 
+More detail on training: the original paper.
+
+We import trained weights from ...,
+Next we will see how to use them. 
 
 ### Running FST
 
@@ -378,7 +422,7 @@ Current we support six art styles:
 
 Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles. 
 
-![](images/case-nst/example_fst00.png){#fig:case-obj-detect:example_03}
+![Fast Style Transfer Examples](images/case-nst/example_fst00.png){#fig:case-obj-detect:example_03}
 
 If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. 
 To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this [Youtube list](https://www.youtube.com/watch?v=cFOM-JnyJv4&list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H).

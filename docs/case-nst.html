@@ -164,14 +164,17 @@ Neural_transfer.run
 </section>
 <section class="level2" id="fast-style-transfer">
 <h2>Fast Style Transfer</h2>
-<p>Paper: <span data-cites="ulyanov2016texture" class="citation">(Ulyanov et al. 2016§)</span></p>
 <p>One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.</p>
 <p>This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase.</p>
 <section class="level3" id="building-fst-network">
 <h3>Building FST Network</h3>
+<p>Paper: <span data-cites="Johnson2016Perceptual" class="citation">(Johnson, Alahi, and Fei-Fei 2016)</span></p>
+<p>The authors propose to build and train an image transformation net. A short background on image transform net. The whole systems is shown in fig.&nbsp;7.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:case-nst:fst" title="fst" src="images/case-nst/fst.png"><figcaption>Figure 7: System overview of the image transformation network and its training.</figcaption>
 </figure>
+<p>The first part: the image transformation net. Downsampling and upsampling to create image of original size. Two benefit.</p>
+<p>Instead of using the normal pooling, the convolution is used. Transpose convolution is used for upsampling. Transpose convolution: …</p>
 <p>Based on the <a href="https://github.com/lengstrom/fast-style-transfer">TensorFlow implementation</a>, we have implemented a FST application in Owl, and it’s not complicated. Here is the network structure:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
@@ -179,8 +182,6 @@ open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
 module N = Dense.Ndarray.S
-
-(** Network Structure *)
 
 let conv2d_layer ?(relu=true) kernel stride nn  =
   let result = 
@@ -195,14 +196,21 @@ let conv2d_trans_layer kernel stride nn =
   transpose_conv2d ~padding:SAME kernel stride nn
   |&gt; normalisation ~decay:0. ~training:true ~axis:3
   |&gt; activation Activation.Relu
-
+</code></pre>
+</div>
+<p>The “bridge” between these two uses multiple residual blocks. It is proposed in the ResNet work. “They argue that residual connections make the identity function easier to learn; this is an appealing property for image transformation networks, since in most cases the output image should share structure with the input image.”</p>
+<p>Specifically, the authors uses the residual structure in <a href="http://torch.ch/blog/2016/02/04/resnets.html">here</a> as building block. Describe the structure. The kernel size is still set to 3.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
 let residual_block wh nn = 
   let tmp = conv2d_layer [|wh; wh; 128; 128|] [|1;1|] nn
     |&gt; conv2d_layer ~relu:false [|wh; wh; 128; 128|] [|1;1|]
   in 
-  add [|nn; tmp|]
-
-let make_network h w = 
+  add [|nn; tmp|]</code></pre>
+</div>
+<p>Finally, we can piece them together.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let make_network h w = 
   input [|h;w;3|]
   |&gt; conv2d_layer [|9;9;3;32|] [|1;1|]
   |&gt; conv2d_layer [|3;3;32;64|] [|2;2|]
@@ -218,6 +226,11 @@ let make_network h w =
   |&gt; lambda (fun x -&gt; Maths.((tanh x) * (F 150.) + (F 127.5)))
   |&gt; get_network</code></pre>
 </div>
+<p>That’s the first part, and the target is to train this CNN.</p>
+<p>Using pixel level difference as the loss value as in the training of image recognition is not ideal here, since we cannot know what is a “correct” style-transferred image in advanced. Instead, the authors are inspired from the NST work. They use the same training process with a pre-trained VGG19 network to compute the loss (they call it the <em>perceptual loss</em> against the per-pixel loss). We are familiar with this process now: content, style… The only difference is that the back-propagation now update the weights of the image transformation net.</p>
+<p>Note that the whole training process accept only content image, and the network can only be trained for one single style image.</p>
+<p>This training phase is one-off. More detail on training: the original paper.</p>
+<p>We import trained weights from …, Next we will see how to use them.</p>
 </section>
 <section class="level3" id="running-fst">
 <h3>Running FST</h3>
@@ -232,7 +245,9 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <p>Note that we did say “given suitable weights”. A set of trained weight for the FST DNN represents a unique artistic style. We have already include six different weight files for use, and the users just need to pick one of them and load them into the DNN, without worrying about how to train these weights.</p>
 <p>Current we support six art styles: “<a href="https://bit.ly/2nBW0ae">Udnie</a>” by Francis Picabia, “<a href="https://bit.ly/2nKk8Hl">The Great Wave off Kanagawa</a>” by Hokusai, “<a href="https://bit.ly/2KA7FAY">Rain Princess</a>” by Leonid Afremov, “<a href="https://bit.ly/2rS1fWQ">La Muse</a>” by Picasso, “<a href="https://bit.ly/1CvJz5d">The Scream</a>” by Edvard Munch, and “<a href="https://bit.ly/2wVfizH">The shipwreck of the Minotaur</a>” by J. M. W. Turner</p>
 <p>Yes, maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these amazing art styles.</p>
-<p><img id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"></p>
+<figure>
+<img alt="" id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"><figcaption>Figure 8: Fast Style Transfer Examples</figcaption>
+</figure>
 <p>If you are still not persuaded, here is our ultimate solution for you: a [demo] website, where you can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. And all of these are implemented in Owl.</p>
 </section>
 </section>
@@ -242,11 +257,11 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <div id="ref-gatys2015neural">
 <p>Gatys, Leon A, Alexander S Ecker, and Matthias Bethge. 2015. “A Neural Algorithm of Artistic Style.” <em>arXiv Preprint arXiv:1508.06576</em>.</p>
 </div>
+<div id="ref-Johnson2016Perceptual">
+<p>Johnson, Justin, Alexandre Alahi, and Li Fei-Fei. 2016. “Perceptual Losses for Real-Time Style Transfer and Super-Resolution.” In <em>European Conference on Computer Vision</em>.</p>
+</div>
 <div id="ref-luan2017deep">
 <p>Luan, Fujun, Sylvain Paris, Eli Shechtman, and Kavita Bala. 2017. “Deep Photo Style Transfer.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 4990–8.</p>
-</div>
-<div id="ref-ulyanov2016texture">
-<p>Ulyanov, Dmitry, Vadim Lebedev, Andrea Vedaldi, and Victor S Lempitsky. 2016. “Texture Networks: Feed-Forward Synthesis of Textures and Stylized Images.” In <em>ICML</em>, 1:4. 2.</p>
 </div>
 <div id="ref-zhu2017unpaired">
 <p>Zhu, Jun-Yan, Taesung Park, Phillip Isola, and Alexei A Efros. 2017. “Unpaired Image-to-Image Translation Using Cycle-Consistent Adversarial Networks.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 2223–32.</p>
