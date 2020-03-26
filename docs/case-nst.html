@@ -167,11 +167,11 @@ Neural_transfer.run
 <p>Paper: <span data-cites="ulyanov2016texture" class="citation">(Ulyanov et al. 2016§)</span></p>
 <p>One disadvantage of NST is that it could take a very long time to rendering an image, and if you want to change to another content or style image, then you have to wait a long time for the training again. If you want to render some of your best (or worst) selfies fast and send to your friends, NST is perhaps not a perfect choice.</p>
 <p>This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase.</p>
-<section class="level3" id="theory">
-<h3>Theory</h3>
-</section>
 <section class="level3" id="building-fst-network">
 <h3>Building FST Network</h3>
+<figure>
+<img alt="" style="width:100.0%" id="fig:case-nst:fst" title="fst" src="images/case-nst/fst.png"><figcaption>Figure 7: System overview of the image transformation network and its training.</figcaption>
+</figure>
 <p>Based on the <a href="https://github.com/lengstrom/fast-style-transfer">TensorFlow implementation</a>, we have implemented a FST application in Owl, and it’s not complicated. Here is the network structure:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl

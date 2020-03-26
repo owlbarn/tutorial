@@ -297,9 +297,10 @@ If you want to render some of your best (or worst) selfies fast and send to your
 
 This problem then leads to another application: Fast Neural Style Transfer (FST). FST sacrifice certain degrees of flexibility, which is that you cannot choose style images at will. But as a result, you only need to feed your content image to a DNN, finish an inference pass, and then the output will be the rendered styled image as you expected! The best part is that, one inference pass is much much faster that keep running a training phase. 
 
-### Theory
-
 ### Building FST Network
+
+![System overview of the image transformation network and its training.](images/case-nst/fst.png "fst"){width=100% #fig:case-nst:fst}
+
 
 Based on the [TensorFlow implementation](https://github.com/lengstrom/fast-style-transfer), we have implemented a FST application in Owl, and it's not complicated. Here is the network structure:
 
