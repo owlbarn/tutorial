@@ -7,11 +7,11 @@
 <figure>
 <img alt="" id="fig:case-nst:example_01" src="images/case-nst/nst_example.png"><figcaption>Figure 1: Example of applying neural style transfer on a street view picture</figcaption>
 </figure>
-<section class="level2" id="content-and-style-reconstruction">
-<h2>Content and Style Reconstruction</h2>
+<section class="level2" id="content-and-style">
+<h2>Content and Style</h2>
 <p><span data-cites="gatys2015neural" class="citation">(Gatys, Ecker, and Bethge 2015)</span> first propose to use DNN to let programmes to create artistic images of high perceptual quality. The examples above may look like magic, but surely its not. In this section, we will first introduce the intuition about how the neural style transfer algorithm works. For more formal and detailed introduction, please visit the <a href="https://arxiv.org/abs/1508.06576">original paper</a>.</p>
 <p>The basic idea is plain: we want to get an image whose content is similar to one image and its artistic style close to the other image. Of course, to make the algorithm work, first we need to express this sentence in mathematical form so that computers can understand it. Let’s assume for a moment we have already know that, then style transfer can be formalised as an optimisation problem. Given a content image <code>c</code> and a style image <code>s</code>, our target is to get an output image <code>x</code> so that it minimises:</p>
-<p><span class="math display">\[f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)\]</span></p>
+<p><span class="math display">\[g(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)\]</span></p>
 <p>Here the “distance” between two feature map is calculated by the euclidean distance between the two ndarrays.</p>
 <p>You may remember from the regression or neural network chapters that training process is also an optimisation process. However, do not mistake the optimisation in NST as regression or DNN training. For the latter one, there is the function <span class="math inline">\(f_w\)</span> that contains parameter <span class="math inline">\(w\)</span> and the training process optimise <span class="math inline">\(w\)</span> to minimise <span class="math inline">\(f_w(x)\)</span>. The optimisation in NST is more like the traditional optimisation problem: we have a function <span class="math inline">\(f\)</span>, and we start we an initial input <span class="math inline">\(x_0\)</span> and update it iteratively until we have satisfying <span class="math inline">\(x\)</span> that minimise the target function.</p>
 <p>Now we can comeback to the key problem. While we human beings can kind of feel the style of a paint and visually recognise the contents in a picture, how can we mathematically express the “content” and the “style” of an image? That’s where the convolution network comes to help. DNNs, especially the ones that are used for computer vision tasks, are found to be an convenient tool to capture the characteristics of an image. We have demonstrate in the previous chapter how CNNs are good at spotting the “features” in an image layer by layer. Therefore, in the next two sub-sections, we will explain how it can be used to express the content and style feature of an image.</p>
@@ -58,7 +58,7 @@ Dense.Ndarray.S.(gaussian input_shape |&gt; scalar_mul 0.256)</code></pre>
 </div>
 <p>Once the loss value is calculated, we can apply optimisers. Here we use the <code>minimise_fun</code> from <code>Optimise</code> module. The target function can be described as:</p>
 <div class="highlight">
-<pre><code class="language-clike">let g x = 
+<pre><code class="language-clike">let f x = 
   fill_losses x;
   c_loss response target</code></pre>
 </div>
@@ -89,7 +89,7 @@ done;</code></pre>
 <section class="level3" id="style-recreation">
 <h3>Style Recreation</h3>
 <p>Then similarly, we explore the other end of this problem. Now we only care about recreating an image with only the style of an input image. That is to say, we optimise the input image with this target to minimise:</p>
-<p><span class="math display">\[f(x) = \verb|style_distance|(x, s)\]</span></p>
+<p><span class="math display">\[h(x) = \verb|style_distance|(x, s)\]</span></p>
 <p>As an example, we will use the famous “The Great Wave of Kanagawa” by Hokusai as our target style image:</p>
 <figure>
 <img alt="" style="width:40.0%" id="fig:case-nst:style-example" title="hokusai" src="images/case-nst/hokusai.png"><figcaption>Figure 4: Example style image in neural style transfer</figcaption>
@@ -114,7 +114,7 @@ done;</code></pre>
 </div>
 <p>However, note that for the optimisation, instead of using output from one layer, we usually utilises the loss value from multiple layers and the optimisation target for style reconstruction:</p>
 <div class="highlight">
-<pre><code class="language-clike">let g x = 
+<pre><code class="language-clike">let h x = 
   fill_losses x;
   Array.fold_left Maths.(+) (F 0.) style_losses</code></pre>
 </div>
@@ -153,14 +153,15 @@ Neural_transfer.run
 <p>This module also supports saving the intermediate images to the same directory as output image every N iterations (e.g.&nbsp;<code>path/to/output_img_N.png</code>). <code>N</code> is specified by the <code>ckpt</code> parameter, and its default value is 50 iterations. If users are already happy with the intermediate results, they can terminate the program without waiting for the final output image.</p>
 <p>That’s all. Now you can try the code easily. If you don’t have suitable input images at hand, the gist already contains exemplar content and style images to get you started. More examples can be seen on our online <a href="http://demo.ocaml.xyz/neuraltrans.html">demo</a> page.</p>
 </section>
-<section class="level3" id="extending-nst">
-<h3>Extending NST</h3>
+</section>
+<section class="level2" id="extending-nst">
+<h2>Extending NST</h2>
 <p>The neural style transfer has since attracts a lot of attentions. It is the core technology to many successful industrial applications, most notably photo rendering applications. For example, the <a href="https://play.google.com/store/apps/details?id=com.neuralprisma&amp;hl=en_GB">Prisma Photo Editor</a> features transforming your photos into paintings of hundreds of styles.</p>
 <p>There are also many research work that aim to extend this work. One of these work is the <em>Deep Photo Style Transfer</em> proposed in <span data-cites="luan2017deep" class="citation">(Luan et al. 2017)</span>. The idea is simple: instead of using an art image, can I use another normal image as style reference? For example, we have a normal daylight street view in New York as content image, then we want to use the night view of London as reference, to synthesise an image of the night view of New York.</p>
 <p>The authors identify two key challenges in this problem. The first is that, unlike in NST, we hope to only change to colours of the style image, and keep the content un-distorted, so as to create a “real” image as much as possible. For this challenge, the authors propose to add an regularisation item to our existing optimisation target “content distance + style distance”. This item, depending on only input and outpu images, penalises image distortion and seeks an image transform that is locally affine in color space. The second challenge is that, we don’t want the styles to be applied globally. For example, we only want to apply the style of an sunset sky to a blue sky, not a building. For this problem, the authors propose to coarsely segment input images into several parts before apply style transfer separately. If you are interested to check the original paper, the resulting photos are indeed beautifully and realistically rendered.</p>
-<p>TODO: Image-to-Image Translation <span data-cites="zhu2017unpaired" class="citation">(Zhu et al. 2017)</span></p>
+<p>Another similar application is the “image-to-image translation”. This computer vision broadly involves translating an input image into certain output image. The style transfer or image colourisation can be seen as examples of it. There are also applications that change the lighting/weather in a photo. These can also be counted as examples of image to image translation.</p>
+<p>In <span data-cites="isola2017image" class="citation">(Isola et al. 2017)</span> the authors propose to use the Generative Adversarial Networks (GANs) to provide general framework for this task. In GAN, there are two important component: the generator, and the discriminator. During training, the generator synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. This process is iterated until the discriminator can no longer tell the difference between the generated data and the true data. <span data-cites="isola2017image" class="citation">(Isola et al. 2017)</span> utilises convolution neural network to construct the generator and discriminator in the GAN. This approach is successfully applied in mnany applications, such as <a href="https://phillipi.github.io/pix2pix/">Pix2Pix</a>, <a href="https://ieeexplore.ieee.org/document/8296650">face ageing</a>, <a href="https://arxiv.org/abs/1609.04802">increase photo resolution</a>, etc.</p>
 <p>Another variant is called the Fast Style Transfer. Instead of iteratively updating image, it proposes to use one pre-trained feed-forward network to do style transfer, and therefore improving the speed of rendering by orders of magnitude. That’s what we will be talking about in the rest of this chapter.</p>
-</section>
 </section>
 <section class="level2" id="fast-style-transfer">
 <h2>Fast Style Transfer</h2>
@@ -239,11 +240,18 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 </div>
 <p>The <code>run</code> function mainly takes one content image and output to a new image file, the name of which is designated by the user. The image could be of any popular formats: jpeg, png, etc. This gist contains exemplar content images for you to use.</p>
 <p>Note that we did say “given suitable weights”. A set of trained weight for the FST DNN represents a unique artistic style. We have already include six different weight files for use, and the users just need to pick one of them and load them into the DNN, without worrying about how to train these weights.</p>
-<p>Current we support six art styles: “<a href="https://bit.ly/2nBW0ae">Udnie</a>” by Francis Picabia, “<a href="https://bit.ly/2nKk8Hl">The Great Wave off Kanagawa</a>” by Hokusai, “<a href="https://bit.ly/2KA7FAY">Rain Princess</a>” by Leonid Afremov, “<a href="https://bit.ly/2rS1fWQ">La Muse</a>” by Picasso, “<a href="https://bit.ly/1CvJz5d">The Scream</a>” by Edvard Munch, and “<a href="https://bit.ly/2wVfizH">The shipwreck of the Minotaur</a>” by J. M. W. Turner</p>
-<p>Maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these different art styles.</p>
+<p>Current we support six art styles: “<a href="https://bit.ly/2nBW0ae">Udnie</a>” by Francis Picabia, “<a href="https://bit.ly/2nKk8Hl">The Great Wave off Kanagawa</a>” by Hokusai, “<a href="https://bit.ly/2KA7FAY">Rain Princess</a>” by Leonid Afremov, “<a href="https://bit.ly/2rS1fWQ">La Muse</a>” by Picasso, “<a href="https://bit.ly/1CvJz5d">The Scream</a>” by Edvard Munch, and “<a href="https://bit.ly/2wVfizH">The shipwreck of the Minotaur</a>” by J. M. W. Turner. These style images are shown in fig.&nbsp;8.</p>
 <figure>
-<img alt="" id="fig:case-obj-detect:example_03" src="images/case-nst/example_fst00.png"><figcaption>Figure 8: Fast Style Transfer Examples</figcaption>
+<img alt="" style="width:85.0%" id="fig:case-nst:fst-styles" title="fst-styles" src="images/case-nst/fst-styles.png"><figcaption>Figure 8: Artistic Styles used in fast style transfer</figcaption>
 </figure>
+<p>Maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. As an example, we use the Willis Tower in Chicago as an input image:</p>
+<figure>
+<img alt="" style="width:40.0%" id="fig:case-nst:chicago" src="images/case-nst/chicago.png"><figcaption>Figure 9: Example input image: Willis tower of Chicago</figcaption>
+</figure>
+<figure>
+<img alt="" style="width:85.0%" id="fig:case-nst:fst-example" src="images/case-nst/example_fst00.png"><figcaption>Figure 10: Fast style transfer examples</figcaption>
+</figure>
+<p>We then apply FST on this input image with the styles shown above. The rendered city view with different styles are shown in fig.&nbsp;10.</p>
 <p>Moreover, based these code, we have built a <a href="http://demo.ocaml.xyz/fst.html">demo</a> website for the FST application. You can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. You are welcome to try these services with images of your own.</p>
 </section>
 </section>
@@ -253,14 +261,14 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <div id="ref-gatys2015neural">
 <p>Gatys, Leon A, Alexander S Ecker, and Matthias Bethge. 2015. “A Neural Algorithm of Artistic Style.” <em>arXiv Preprint arXiv:1508.06576</em>.</p>
 </div>
+<div id="ref-isola2017image">
+<p>Isola, Phillip, Jun-Yan Zhu, Tinghui Zhou, and Alexei A Efros. 2017. “Image-to-Image Translation with Conditional Adversarial Networks.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 1125–34.</p>
+</div>
 <div id="ref-Johnson2016Perceptual">
 <p>Johnson, Justin, Alexandre Alahi, and Li Fei-Fei. 2016. “Perceptual Losses for Real-Time Style Transfer and Super-Resolution.” In <em>European Conference on Computer Vision</em>.</p>
 </div>
 <div id="ref-luan2017deep">
 <p>Luan, Fujun, Sylvain Paris, Eli Shechtman, and Kavita Bala. 2017. “Deep Photo Style Transfer.” In <em>Proceedings of the Ieee Conference on Computer Vision and Pattern Recognition</em>, 4990–8.</p>
-</div>
-<div id="ref-zhu2017unpaired">
-<p>Zhu, Jun-Yan, Taesung Park, Phillip Isola, and Alexei A Efros. 2017. “Unpaired Image-to-Image Translation Using Cycle-Consistent Adversarial Networks.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 2223–32.</p>
 </div>
 </div>
 </section>

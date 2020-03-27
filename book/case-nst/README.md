@@ -11,7 +11,7 @@ Isn’t it amazing?
 
 ![Example of applying neural style transfer on a street view picture](images/case-nst/nst_example.png){#fig:case-nst:example_01}
 
-## Content and Style Reconstruction
+## Content and Style
 
 [@gatys2015neural] first propose to use DNN to let programmes to create artistic images of high perceptual quality.
 The examples above may look like magic, but surely its not.
@@ -23,7 +23,7 @@ Of course, to make the algorithm work, first we need to express this sentence in
 Let's assume for a moment we have already know that, then style transfer can be formalised as an optimisation problem.
 Given a content image `c` and a style image `s`, our target is to get an output image `x` so that it minimises:
 
-$$f(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)$$
+$$g(x) = \verb|content_distance|(x, c) + \verb|style_distance|(x, s)$$
 
 Here the "distance" between two feature map is calculated by the euclidean distance between the two ndarrays.
 
@@ -109,7 +109,7 @@ Here we use the `minimise_fun` from `Optimise` module.
 The target function can be described as:
 
 ```
-let g x = 
+let f x = 
   fill_losses x;
   c_loss response target
 ```
@@ -153,7 +153,7 @@ Along the processing hierarchy of the network, feature map produced by the lower
 Then similarly, we explore the other end of this problem. Now we only care about recreating an image with only the style of an input image. 
 That is to say, we optimise the input image with this target to minimise:
 
-$$f(x) = \verb|style_distance|(x, s)$$
+$$h(x) = \verb|style_distance|(x, s)$$
 
 As an example, we will use the famous "The Great Wave of Kanagawa" by Hokusai as our target style image:
 
@@ -191,7 +191,7 @@ let s_loss response_gram target_gram =
 However, note that for the optimisation, instead of using output from one layer, we usually utilises the loss value from multiple layers and the optimisation target for style reconstruction:
 
 ```
-let g x = 
+let h x = 
   fill_losses x;
   Array.fold_left Maths.(+) (F 0.) style_losses
 ```
@@ -262,7 +262,7 @@ That's all. Now you can try the code easily.
 If you don't have suitable input images at hand, the gist already contains exemplar content and style images to get you started. 
 More examples can be seen on our online [demo](http://demo.ocaml.xyz/neuraltrans.html) page.
 
-### Extending NST
+## Extending NST
 
 The neural style transfer has since attracts a lot of attentions. 
 It is the core technology to many successful industrial applications, most notably photo rendering applications. 
@@ -282,7 +282,17 @@ For example, we only want to apply the style of an sunset sky to a blue sky, not
 For this problem, the authors propose to coarsely segment input images into several parts before apply style transfer separately.
 If you are interested to check the original paper, the resulting photos are indeed beautifully and realistically rendered.
 
-TODO: Image-to-Image Translation [@zhu2017unpaired]
+Another similar application is the "image-to-image translation". 
+This computer vision broadly involves translating an input image into certain output image.
+The style transfer or image colourisation can be seen as examples of it.
+There are also applications that change the lighting/weather in a photo. These can also be counted as examples of image to image translation.
+
+In [@isola2017image] the authors propose to use the Generative Adversarial Networks (GANs) to provide general framework for this task.
+In GAN, there are two important component: the generator, and the discriminator. 
+During training, the generator synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data.
+This process is iterated until the discriminator can no longer tell the difference between the generated data and the true data. 
+[@isola2017image] utilises convolution neural network to construct the generator and discriminator in the GAN.
+This approach is successfully applied in mnany applications, such as [Pix2Pix](https://phillipi.github.io/pix2pix/), [face ageing](https://ieeexplore.ieee.org/document/8296650), [increase photo resolution](https://arxiv.org/abs/1609.04802), etc. 
 
 Another variant is called the Fast Style Transfer.
 Instead of iteratively updating image, it proposes to use one pre-trained feed-forward network to do style transfer, and therefore improving the speed of rendering by orders of magnitude.
@@ -424,12 +434,19 @@ Current we support six art styles:
 "[Rain Princess](https://bit.ly/2KA7FAY)" by Leonid Afremov,
 "[La Muse](https://bit.ly/2rS1fWQ)" by Picasso,
 "[The Scream](https://bit.ly/1CvJz5d)" by Edvard Munch, and 
-"[The shipwreck of the Minotaur](https://bit.ly/2wVfizH)" by J. M. W. Turner
+"[The shipwreck of the Minotaur](https://bit.ly/2wVfizH)" by J. M. W. Turner.
+These style images are shown in [@fig:case-nst:fst-styles].
 
+![Artistic Styles used in fast style transfer](images/case-nst/fst-styles.png "fst-styles"){width=85% #fig:case-nst:fst-styles}
 
-Maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. Here is a teaser that renders one city view image to all these different art styles. 
+Maybe six styles are not enough for you, but think about it, you can now render any of your image to a nice art style fast, maybe about half a minute, or even faster if you are using GPU or other accelerators. 
+As an example, we use the Willis Tower in Chicago as an input image:
 
-![Fast Style Transfer Examples](images/case-nst/example_fst00.png){#fig:case-obj-detect:example_03}
+![Example input image: Willis tower of Chicago](images/case-nst/chicago.png){width=40% #fig:case-nst:chicago}
+
+![Fast style transfer examples](images/case-nst/example_fst00.png){width=85% #fig:case-nst:fst-example}
+
+We then apply FST on this input image with the styles shown above. The rendered city view with different styles are shown in [@fig:case-nst:fst-example].
 
 Moreover, based these code, we have built a [demo](http://demo.ocaml.xyz/fst.html) website for the FST application. 
 You can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. 
