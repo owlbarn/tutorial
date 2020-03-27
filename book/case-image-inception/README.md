@@ -1,37 +1,38 @@
 # Case - Image Recognition
 
 How can a computer take an image and answer questions like "what is in this picture? A cat, dog, or something else?"
-In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks -- matching or exceeding human performance in some domains.
+In the recent few years the machine learning community has been making tremendous progress on tackling this difficult problem. In particular, Deep Neural Network (DNN) is able to achieve reasonable performance on visual recognition tasks -- matching or even exceeding human performance in some domains.
 
-We have introduced the neural network module in previous chapter. 
-In this chapter, we will show one specific example that is built on the neural network module: using the InceptionV3 architecture to perform the image classification task. 
+We have introduced the neural network module in then previous chapter.
+In this chapter, we will show one specific example that is built on the neural network module: using the InceptionV3 architecture to perform the image classification task.
+
 
 ## Background
 
-InceptionV3 is a a widely-used image classification DNN architecture that can attain significant accuracy with small amount of parameters. 
+InceptionV3 is a a widely-used DNN architecture for image classification that can attain significant accuracy with small amount of parameters. 
 It is not invented out of thin air. The development using DNN to perform image recognition is a stream that dates back to more than 20 years ago.
 During this period, the research in this area is pushed forward again and again in various work. 
 In this chapter, we first introduce how image classification architectures are developed up until Inception. 
-They will be helpful to understand how Inception architectures are built. 
+Surveying these related work will help us to understand how Inception architectures are built. 
 
 ### LeNet
 
 In the regression chapter, we have seen a simple neural network that contains three layer, and use it to recognise the simple handwritten numbers from the MNSIT dataset.
 Here, each pixel acts as an input feature. 
-Remember that each image can be seen as a ndarray. 
-For a black and white image such as the MNSIT image, pixels are interpreted as a matrix. Every pixel has a value between 0 and 255.  For a color image, it can be interpreted as a 3-dimension array with  three channels, each corresponding to the blue, green, and red layer.
+Recall that each image can be seen as a ndarray. 
+For a black and white image such as the MNSIT image, its bitmap are interpreted as a matrix. Every pixel in the bitmap has a value between 0 and 255.  For a color image, it can be interpreted as a 3-dimension array with  three channels, each corresponding to the blue, green, and red layer.
 
-However, we cannot rely on adding more fully connected layers to do real world high precision image detections.
+However, we cannot rely on adding more fully connected layers to do real world high precision image classification.
 One important improvement that the Convolution Neural Network make is that it uses filters in the convolution operation.
 As a result, instead of using the whole image as an array of features, the image is divided into a number of tiles. 
 They will then serve as the basic feature of the network's prediction.
 
-Explain and visualise "feature" and feature map.
+TODO: Explain and visualise "feature" and feature map.
 
 The next building block is the pooling layer. Recall from the neural network chapter that, both average pooling and max pooling can aggregate information from multiple pixels into one and "blur" the input image or feature. 
 So why it is so important?
 By reducing the size of input, pooling helps to reduce the number of parameters and the amount of computation required. 
-Besides, blurring the features is a way to limit over-fitting training data.
+Besides, blurring the features is a way to avoid over-fitting training data.
 
 At the end, only connect high-level features with fully connection.
 This is the structure proposed in [@lecun1998gradient].
