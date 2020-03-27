@@ -174,10 +174,10 @@ The reason we say "InceptionV3" is because it is developed based on two previous
 To understand InceptionV3, we first need to know the characteristics of its predecessors. 
 
 The first version of Inception, GoogLeNet  [@szegedy2015going], proposes to combine convolutions with different filter sizes on the same input, and then concatenate the resulting features together.
-Think about an image of a bird. If you sticking with using a normal square filter, then perhaps the features such as "feather" is a bit difficult to capture, but easier to do if you use a "thin" filter with a size of e.g. `1x7`.
-By aggregating information from applying different features, we can extract feature from multi-level at each step.
+Think about an image of a bird. If you stick with using a normal square filter, then perhaps the features such as "feather" is a bit difficult to capture, but easier to do if you use a "thin" filter with a size of e.g. `1x7`.
+By aggregating information from applying different features, we can extract features from multi-level at each step.
 
-Of course, adding extra filters increase computation complexity. 
+Of course, adding extra filters increases computation complexity. 
 To remedy this effect, the Inception network proposes to utilise the `1x1` convolution to reduce the dimensions of feature maps. 
 For example, we want to apply a `3x3` filter to input ndarray of size `[|1; 300; 300; 768|]` and the output channel should be `320`.
 Instead of applying a convolution layer of `[|3; 3; 768; 320|]` directly, we first reduce the dimension to, say, 192 by using a small convolution layer `[|1; 1; 768; 192|]`, and then apply a `[|3; 3; 192; 320|]` convolution layer to get the final result. 
