@@ -99,15 +99,15 @@ However, going deeper has its limit.
 The deeper you go, the more you will experience the "vanishing gradient" problem. 
 This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
 
-The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
+The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
 
 ![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=60% #fig:case-image-inception:residual}
 
 We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. 
 It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths.
-The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.
+The authors show that during training the deeper layers do not produce a error higher than its predecessor in lower layer.
 
-Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. 
+Also note that the residual block aggregate features from different level of layers, instead of purely stacking them. 
 This patten proves to be useful and will also be used in the Inception architecture. 
 
 The ResNet can also be constructed by stacking for different layers, so that we have ResNet50, ResNet101, ResNet152, etc.
@@ -115,9 +115,9 @@ The code to build a ResNet50 network with Owl is shown in [@zoo2019resnet50].
 
 ### SqueezeNet
 
-All these architectures, including Inception, mainly aim to push the detection accuracy forward.
-However, at some point we are faced with the tradeoff between accuracy and model size. 
-We have seen that sometimes reducing the parameter  size can help the network to go deeper, and thus tends to give better accuracy.
+All these architectures, including Inception, mainly aim to push the classification accuracy forward.
+However, at some point we are confronted with the tradeoff between accuracy and model size. 
+We have seen that sometimes reducing the parameter size can help the network to go deeper, and thus tends to give better accuracy.
 However, with the growing trend od edge computing, there is requirement for extremely small deep neural networks so that it can be easily distributed and deployed on less powerful devices. 
 For that, sacrificing a bit of accuracy is acceptable.
 
@@ -143,17 +143,17 @@ The research on image detection network structures is still on-going.
 Besides the parameter size and detection accuracy, more requirements are proposed.
 For example, there is the problem of recognising an object, e.g. a car, from different perspective. 
 And the "Picasso problem" in image recognition where some feature in an object is intentionally distorted or misplaced.
-These problems shows one deficient in the existing image classification approach: the lack of connection between features. 
+These problems shows one deficiency in the existing image classification approach: the lack of connection between features. 
 It may recognise a "nose" feature, and a "eye" feature, and then the object is recognised as a human face, even though the nose is perhaps above the eyes. 
 The "Capsule network" is proposed to address this problem. Instead of using only scalar to represent feature, it uses a vector that includes more information such as orientation and object size etc. 
 The "capsule" utilises these information to capture the relative relationship between features. 
 
 There are many more networks that we cannot cover them one by one here, but hopefully you can see that there are some common theme in the development of image recognition architectures. 
-Next, we will come to the main topic of this chapter: how InceptionV3 is designed and built based on these previous work. 
+Next, we will come to the main topic of this chapter: how InceptionV3 is designed based on these previous work. 
 
 ## Building InceptionV3 Network
 
-Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
+Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to perform image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
 Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. 
