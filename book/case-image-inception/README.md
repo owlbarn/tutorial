@@ -53,7 +53,7 @@ And then finally generates the classification results.
 Next breakthrough comes from the AlexNet proposed in [@krizhevsky2012imagenet].
 The authors introduce better *non-linearity* in the network with the ReLU activation.
 Operations such as convolution includes mainly linear operations such as matrix multiplication and `add`.
-But that's not how the real world data looks like. Remember that from the previous Regression chapter, though linear regression is basic, but for most of the real world application we need more complex method such as polynomial regression. 
+But that's not how the real world data looks like. Recall that from the previous Regression chapter, even though linear regression can be effective, for most of the real world application we need more complex method such as polynomial regression. 
 The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image. 
 
 There are multiple activation choice, such as `tanh` and `sigmoid`.
