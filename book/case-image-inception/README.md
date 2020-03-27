@@ -55,14 +55,16 @@ The authors introduce better *non-linearity* in the network with the ReLU activa
 Operations such as convolution includes mainly linear operations such as matrix multiplication and `add`.
 But that's not how the real world data looks like. Recall that from the previous Regression chapter, even though linear regression can be effective, for most of the real world application we need more complex method such as polynomial regression. 
 The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image. 
+[ liang: can you specify the ReLU calcuation? ]
 
-There are multiple activation choice, such as `tanh` and `sigmoid`.
+There are multiple activation choices, such as `tanh` and `sigmoid`.
 However, the `relu` operation, which set negative values of a feature map to zero, is frequently used.
 It makes training faster, and accuracy loss in gradient computation is small. 
+[ liang: how much faster, specify the complexity ]
 
 Another thing that AlexNet proposes is to use the `dropout` layer.
 It is mainly used to solve the over-fitting problem. 
-This operation only works at training time. It randomly makes the elements in a ndarray from the last layer to be zero, and thus "deactivate" the knowledge that can be learnt from these points. 
+This operation only works during training phase. It randomly selects some elements in the input ndarray and set their values to zero, thus "deactivate" the knowledge that can be learnt from these points. 
 In this way, the network intentionally drops certain part of training examples and avoid the over-fitting problem.
 It is similar to the regularisation method we use in the linear regression.
 
@@ -73,7 +75,7 @@ A deeper network captures finer features, and this would be a trend that is foll
 ### VGG
 
 The VGG network proposed in [@simonyan2014very] is the next step after AlexNet.
-The most notable change that introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
+The most notable change introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
 
 Using multiple small kernels is much more flexible than only using a large one. 
 For example, for an input image, by applying two `3x3` kernels with slide size of 1, that equals to using a `5x5` kernel. 
@@ -87,7 +89,7 @@ The VGG networks comes with two variates, VGG16 and VGG19, which are the same in
 The code to build a VGG16 network with Owl is shown in [@zoo2019vgg16].
 
 One extra benefit is that using small kernels increases non-linearity. 
-Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. 
+Imagine an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a complete linear operations. 
 As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.
 
 ### ResNet
