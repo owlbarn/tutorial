@@ -1,37 +1,38 @@
 # Case - Image Recognition
 
 How can a computer take an image and answer questions like "what is in this picture? A cat, dog, or something else?"
-In the last few years the field of machine learning has made tremendous progress on addressing this difficult problem. In particular, Deep Neural Network (DNN) can achieve reasonable performance on visual recognition tasks -- matching or exceeding human performance in some domains.
+In the recent few years the machine learning community has been making tremendous progress on tackling this difficult problem. In particular, Deep Neural Network (DNN) is able to achieve reasonable performance on visual recognition tasks -- matching or even exceeding human performance in some domains.
 
-We have introduced the neural network module in previous chapter. 
-In this chapter, we will show one specific example that is built on the neural network module: using the InceptionV3 architecture to perform the image classification task. 
+We have introduced the neural network module in then previous chapter.
+In this chapter, we will show one specific example that is built on the neural network module: using the InceptionV3 architecture to perform the image classification task.
+
 
 ## Background
 
-InceptionV3 is a a widely-used image classification DNN architecture that can attain significant accuracy with small amount of parameters. 
+InceptionV3 is a a widely-used DNN architecture for image classification that can attain significant accuracy with small amount of parameters. 
 It is not invented out of thin air. The development using DNN to perform image recognition is a stream that dates back to more than 20 years ago.
 During this period, the research in this area is pushed forward again and again in various work. 
 In this chapter, we first introduce how image classification architectures are developed up until Inception. 
-They will be helpful to understand how Inception architectures are built. 
+Surveying these related work will help us to understand how Inception architectures are built. 
 
 ### LeNet
 
 In the regression chapter, we have seen a simple neural network that contains three layer, and use it to recognise the simple handwritten numbers from the MNSIT dataset.
 Here, each pixel acts as an input feature. 
-Remember that each image can be seen as a ndarray. 
-For a black and white image such as the MNSIT image, pixels are interpreted as a matrix. Every pixel has a value between 0 and 255.  For a color image, it can be interpreted as a 3-dimension array with  three channels, each corresponding to the blue, green, and red layer.
+Recall that each image can be seen as a ndarray. 
+For a black and white image such as the MNSIT image, its bitmap are interpreted as a matrix. Every pixel in the bitmap has a value between 0 and 255.  For a color image, it can be interpreted as a 3-dimension array with  three channels, each corresponding to the blue, green, and red layer.
 
-However, we cannot rely on adding more fully connected layers to do real world high precision image detections.
+However, we cannot rely on adding more fully connected layers to do real world high precision image classification.
 One important improvement that the Convolution Neural Network make is that it uses filters in the convolution operation.
 As a result, instead of using the whole image as an array of features, the image is divided into a number of tiles. 
 They will then serve as the basic feature of the network's prediction.
 
-Explain and visualise "feature" and feature map.
+TODO: Explain and visualise "feature" and feature map.
 
 The next building block is the pooling layer. Recall from the neural network chapter that, both average pooling and max pooling can aggregate information from multiple pixels into one and "blur" the input image or feature. 
 So why it is so important?
 By reducing the size of input, pooling helps to reduce the number of parameters and the amount of computation required. 
-Besides, blurring the features is a way to limit over-fitting training data.
+Besides, blurring the features is a way to avoid over-fitting training data.
 
 At the end, only connect high-level features with fully connection.
 This is the structure proposed in [@lecun1998gradient].
@@ -52,16 +53,18 @@ And then finally generates the classification results.
 Next breakthrough comes from the AlexNet proposed in [@krizhevsky2012imagenet].
 The authors introduce better *non-linearity* in the network with the ReLU activation.
 Operations such as convolution includes mainly linear operations such as matrix multiplication and `add`.
-But that's not how the real world data looks like. Remember that from the previous Regression chapter, though linear regression is basic, but for most of the real world application we need more complex method such as polynomial regression. 
+But that's not how the real world data looks like. Recall that from the previous Regression chapter, even though linear regression can be effective, for most of the real world application we need more complex method such as polynomial regression. 
 The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image. 
+[ liang: can you specify the ReLU calcuation? ]
 
-There are multiple activation choice, such as `tanh` and `sigmoid`.
+There are multiple activation choices, such as `tanh` and `sigmoid`.
 However, the `relu` operation, which set negative values of a feature map to zero, is frequently used.
 It makes training faster, and accuracy loss in gradient computation is small. 
+[ liang: how much faster, specify the complexity ]
 
 Another thing that AlexNet proposes is to use the `dropout` layer.
 It is mainly used to solve the over-fitting problem. 
-This operation only works at training time. It randomly makes the elements in a ndarray from the last layer to be zero, and thus "deactivate" the knowledge that can be learnt from these points. 
+This operation only works during training phase. It randomly selects some elements in the input ndarray and set their values to zero, thus "deactivate" the knowledge that can be learnt from these points. 
 In this way, the network intentionally drops certain part of training examples and avoid the over-fitting problem.
 It is similar to the regularisation method we use in the linear regression.
 
@@ -72,7 +75,7 @@ A deeper network captures finer features, and this would be a trend that is foll
 ### VGG
 
 The VGG network proposed in [@simonyan2014very] is the next step after AlexNet.
-The most notable change that introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
+The most notable change introduced by VGG is that it uses small kernel sizes such as `3x3` instead of the `11x11` with a large stride of 4 in AlexNet. 
 
 Using multiple small kernels is much more flexible than only using a large one. 
 For example, for an input image, by applying two `3x3` kernels with slide size of 1, that equals to using a `5x5` kernel. 
@@ -86,7 +89,7 @@ The VGG networks comes with two variates, VGG16 and VGG19, which are the same in
 The code to build a VGG16 network with Owl is shown in [@zoo2019vgg16].
 
 One extra benefit is that using small kernels increases non-linearity. 
-Image an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a totally linear operations. 
+Imagine an extreme case where the kernel is as large as the input image, then the whole convolution is just one big matrix multiplication, a complete linear operations. 
 As we have just explained in the previous section, we hope to reduce the linearity in training CNN to accommodate more real-world problems.
 
 ### ResNet
@@ -96,15 +99,15 @@ However, going deeper has its limit.
 The deeper you go, the more you will experience the "vanishing gradient" problem. 
 This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected. 
 
-The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combine with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
+The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
 
 ![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=60% #fig:case-image-inception:residual}
 
 We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. 
 It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths.
-The authors shows that during training the deeper layers do not produce a error higher than its predecessor in lower layer.
+The authors show that during training the deeper layers do not produce a error higher than its predecessor in lower layer.
 
-Also note that the residual block aggregating features from different level of layers, instead of purely stacking them. 
+Also note that the residual block aggregate features from different level of layers, instead of purely stacking them. 
 This patten proves to be useful and will also be used in the Inception architecture. 
 
 The ResNet can also be constructed by stacking for different layers, so that we have ResNet50, ResNet101, ResNet152, etc.
@@ -112,9 +115,9 @@ The code to build a ResNet50 network with Owl is shown in [@zoo2019resnet50].
 
 ### SqueezeNet
 
-All these architectures, including Inception, mainly aim to push the detection accuracy forward.
-However, at some point we are faced with the tradeoff between accuracy and model size. 
-We have seen that sometimes reducing the parameter  size can help the network to go deeper, and thus tends to give better accuracy.
+All these architectures, including Inception, mainly aim to push the classification accuracy forward.
+However, at some point we are confronted with the tradeoff between accuracy and model size. 
+We have seen that sometimes reducing the parameter size can help the network to go deeper, and thus tends to give better accuracy.
 However, with the growing trend od edge computing, there is requirement for extremely small deep neural networks so that it can be easily distributed and deployed on less powerful devices. 
 For that, sacrificing a bit of accuracy is acceptable.
 
@@ -140,17 +143,17 @@ The research on image detection network structures is still on-going.
 Besides the parameter size and detection accuracy, more requirements are proposed.
 For example, there is the problem of recognising an object, e.g. a car, from different perspective. 
 And the "Picasso problem" in image recognition where some feature in an object is intentionally distorted or misplaced.
-These problems shows one deficient in the existing image classification approach: the lack of connection between features. 
+These problems shows one deficiency in the existing image classification approach: the lack of connection between features. 
 It may recognise a "nose" feature, and a "eye" feature, and then the object is recognised as a human face, even though the nose is perhaps above the eyes. 
 The "Capsule network" is proposed to address this problem. Instead of using only scalar to represent feature, it uses a vector that includes more information such as orientation and object size etc. 
 The "capsule" utilises these information to capture the relative relationship between features. 
 
 There are many more networks that we cannot cover them one by one here, but hopefully you can see that there are some common theme in the development of image recognition architectures. 
-Next, we will come to the main topic of this chapter: how InceptionV3 is designed and built based on these previous work. 
+Next, we will come to the main topic of this chapter: how InceptionV3 is designed based on these previous work. 
 
 ## Building InceptionV3 Network
 
-Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to do image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
+Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to perform image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
 Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. 
@@ -171,10 +174,10 @@ The reason we say "InceptionV3" is because it is developed based on two previous
 To understand InceptionV3, we first need to know the characteristics of its predecessors. 
 
 The first version of Inception, GoogLeNet  [@szegedy2015going], proposes to combine convolutions with different filter sizes on the same input, and then concatenate the resulting features together.
-Think about an image of a bird. If you sticking with using a normal square filter, then perhaps the features such as "feather" is a bit difficult to capture, but easier to do if you use a "thin" filter with a size of e.g. `1x7`.
-By aggregating information from applying different features, we can extract feature from multi-level at each step.
+Think about an image of a bird. If you stick with using a normal square filter, then perhaps the features such as "feather" is a bit difficult to capture, but easier to do if you use a "thin" filter with a size of e.g. `1x7`.
+By aggregating information from applying different features, we can extract features from multi-level at each step.
 
-Of course, adding extra filters increase computation complexity. 
+Of course, adding extra filters increases computation complexity. 
 To remedy this effect, the Inception network proposes to utilise the `1x1` convolution to reduce the dimensions of feature maps. 
 For example, we want to apply a `3x3` filter to input ndarray of size `[|1; 300; 300; 768|]` and the output channel should be `320`.
 Instead of applying a convolution layer of `[|3; 3; 768; 320|]` directly, we first reduce the dimension to, say, 192 by using a small convolution layer `[|1; 1; 768; 192|]`, and then apply a `[|3; 3; 192; 320|]` convolution layer to get the final result. 
