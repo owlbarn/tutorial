@@ -1,18 +1,22 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Compiler Backends - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="compiler-backends">
 <h1>Compiler Backends</h1>
-<p>This chapter uses two simple examples to demonstrate how to compile Owl applications into JavaScript code so that you can deploy the analytical code into browsers. It additionally requires the use of <code>dune</code>. As you will see, this will make the compilation to JavaScript effortless.</p>
+<p>This</p>
 <section class="level2" id="base-library">
 <h2>Base Library</h2>
-<p>Before we start, you need to know some basic things to understand how Owl is able to support JavaScript</p>
-<p>The Owl framework, as well as many of its external libraries, is actually divided to two parts: a <a href="https://github.com/owlbarn/owl/tree/master/src/base">Base library</a> and a <a href="https://github.com/owlbarn/owl/tree/master/src/owl">Core library</a>. The base library is implemented with pure OCaml and, thanks to <a href="https://ocsigen.org/js_of_ocaml/"><code>js_of_ocaml</code></a>, it can be safely compiled into JavaScript. Many functionalities (e.g.&nbsp;Ndarray) in the base library are replaced by high-performance C implementations in the Core library.</p>
-<p>As you can see, to enable JavaScript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g.&nbsp;algorithmic differentiation, optimisation, even neural networks and many others.</p>
-<p>In this following, we will present how to use <code>Owl_base</code> in writing JavaScript applications using both native OCaml code and Facebook Reason.</p>
-<p>Even though we will present very simple examples, you should keep in mind that Owl_base is fully compatible with <code>js_of_ocaml</code> and can be used to produce more complex and interactive browser applications.</p>
+<p>Before we start, we need to understand how Owl enables compiling to multiple backends by providing different implementations. The Owl framework, as well as many of its external libraries, is actually divided to two parts: a <a href="https://github.com/owlbarn/owl/tree/master/src/base">Base library</a> and a <a href="https://github.com/owlbarn/owl/tree/master/src/owl">Core library</a>. The base library is implemented with pure OCaml.</p>
+<p>Here is the structure of the core functor stack in Owl:</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:backend:functor" title="functor" src="images/backend/base-structure.png"><figcaption>Figure 1: Core functor stack in owl</figcaption>
+</figure>
+<p>EXPLAIN this figure</p>
+<p>To enable JavaScript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g.&nbsp;algorithmic differentiation, optimisation, even neural networks and many others.</p>
+<p>Including explaining how the current signature works.</p>
 </section>
 <section class="level2" id="backend-javascript">
 <h2>Backend: JavaScript</h2>
-<p>At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionalities are being pushed from datacenters to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful.</p>
+<p>At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionalities are being pushed from data centers to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful.</p>
 <p>Moreover, JavaScript interpreters are being increasingly optimised, and even relatively complicated computational tasks can run with reasonable performance.</p>
+<p>This chapter uses two simple examples to demonstrate how to compile Owl applications into JavaScript code so that you can deploy the analytical code into browsers, using both native OCaml code and Facebook Reason. It additionally requires the use of <code>dune</code>. As you will see, this will make the compilation to JavaScript effortless.</p>
 <section class="level3" id="use-native-ocaml">
 <h3>Use Native OCaml</h3>
 <p>We know that <code>Owl_algodiff_generic</code> is the cornerstone of Owl’s fast neural network module. The first example uses Algodiff functor to optimise a mathematical function.</p>
@@ -36,7 +40,7 @@
 </code></pre>
 </div>
 <p>The code is very simple: the <code>desc</code> defines a gradient descent algorithm, then we use <code>desc</code> to calculate the minimum value of <code>Maths.sin</code> function. In the end, we print out the result using <code>Owl_log</code> module’s <code>info</code> function. You should have noticed, we used <code>Owl_algodiff_generic</code> functor to create and include an algorithmic differentiation module by passing the pure implementation of Ndarray in the base library.</p>
-<p>In the second step, we need to create a <code>dune</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling <code>js_of_ocaml</code>.</p>
+<p>In the second step, we need to create a <code>dune</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling <code>js_of_ocaml</code>. <a href="https://ocsigen.org/js_of_ocaml/"><code>js_of_ocaml</code></a></p>
 <div class="highlight">
 <pre><code class="language-shell">  (executable
    (name demo)
@@ -61,6 +65,7 @@
   2019-12-30 18:05:49.760 INFO : argmin f(x) = -1.5708
 </code></pre>
 </div>
+<p>Even though we will present very simple examples, you should keep in mind that Owl_base is fully compatible with <code>js_of_ocaml</code> and can be used to produce more complex and interactive browser applications.</p>
 </section>
 <section class="level3" id="use-facebook-reason">
 <h3>Use Facebook Reason</h3>
@@ -105,20 +110,24 @@
 </section>
 <section class="level2" id="backend-mirageos">
 <h2>Backend: MirageOS</h2>
+<p>Introduce MirageOS</p>
+<p>Benefit, Applications ect.</p>
+<p>Basic hello world example</p>
+<p>Computation Example</p>
 </section>
 <section class="level2" id="evaluation">
 <h2>Evaluation</h2>
 <p>In the evaluation section we mainly compare the performance of different backends we use. Specifically, we observe three representative groups of operations: (1) <code>map</code> and <code>fold</code> operations on ndarray; (2) using gradient descent, a common numerical computing subroutine, to get <span class="math inline">\(argmin\)</span> of a certain function; (3) conducting inference on complex DNNs, including SqueezeNet and a VGG-like convolution network. The evaluations are conducted on a ThinkPad T460S laptop with Ubuntu 16.04 operating system. It has an Intel Core i5-6200U CPU and 12GB RAM.</p>
-<p>The OCaml compiler can produce two kinds of executables: bytecode and native. Native executables are compiled specifically for an architecture and are generally faster, while bytecode executables have the advantage of being portable. A Docker container can adopt both options.</p>
-<p>For JavaScript though, since the Owl library contains functions that are implemented in C, it cannot be directly supported by <code>js-of-ocaml</code>, the tool we use to convert OCaml code into JavaScript. Therefore in the Owl library, we have implemented a “base” library in pure OCaml that shares the core functions of the Owl library. Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as <code>base-lib</code> and <code>owl-lib</code> separately, but they are in fact all included in the Owl library. For Mirage compilation, we use both libraries.</p>
+<p>The OCaml compiler can produce two kinds of executables: bytecode and native. Native executables are compiled specifically for an architecture and are generally faster, while bytecode executables have the advantage of being portable.</p>
+<p>For JavaScript, we use the <code>js_of_ocaml</code> approach as described in the previous sections. Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as <code>base-lib</code> and <code>owl-lib</code> separately, but they are in fact all included in the Owl library. For Mirage compilation, we use both libraries.</p>
 <figure>
-<img alt="" id="fig:zoo:map_fold" src="images/zoo/map_fold.png"><figcaption>Figure 1: Performance of map and fold operations on ndarray on laptop and RaspberryPi</figcaption>
+<img alt="" id="fig:zoo:map_fold" src="images/zoo/map_fold.png"><figcaption>Figure 2: Performance of map and fold operations on ndarray on laptop and RaspberryPi</figcaption>
 </figure>
-<p>fig.&nbsp;1(a-b) show the performance of map and fold operations on ndarray. We use simple functions such as plus and multiplication on 1-d (size <span class="math inline">\(&lt; 1,000\)</span>) and 2-d arrays. The log-log relationship between total size of ndarray and the time each operation takes keeps linear. For both operations, <code>owl-lib</code> is faster than <code>base-lib</code>, and native executables outperform bytecode ones. The performance of Mirage executives is close to that of native code. Generally JavaScript runs the slowest, but note how the performance gap between JavaScript and the others converges when the ndarray size grows. For fold operation, JavaScript even runs faster than bytecode when size is sufficiently large.</p>
+<p>fig.&nbsp;2(a-b) show the performance of map and fold operations on ndarray. We use simple functions such as plus and multiplication on 1-d (size <span class="math inline">\(&lt; 1,000\)</span>) and 2-d arrays. The <code>log-log</code> relationship between total size of ndarray and the time each operation takes keeps linear. For both operations, <code>owl-lib</code> is faster than <code>base-lib</code>, and native executables outperform bytecode ones. The performance of Mirage executives is close to that of native code. Generally JavaScript runs the slowest, but note how the performance gap between JavaScript and the others converges when the ndarray size grows. For fold operation, JavaScript even runs faster than bytecode when size is sufficiently large.</p>
 <figure>
-<img alt="" id="fig:zoo:gd" src="images/zoo/gd_x86.png"><figcaption>Figure 2: Performance of gradient descent on function <span class="math inline">\(f\)</span></figcaption>
+<img alt="" id="fig:zoo:gd" src="images/zoo/gd_x86.png"><figcaption>Figure 3: Performance of gradient descent on function <span class="math inline">\(f\)</span></figcaption>
 </figure>
-<p>In fig.&nbsp;2, we want to investigate if the above observations still hold in more complex numerical computation. We choose to use a Gradient Descent algorithm to find the value that locally minimise a function. We choose the initial value randomly between <span class="math inline">\([0, 10]\)</span>. For both <span class="math inline">\(sin(x)\)</span> and <span class="math inline">\(x^3 -2x^2 + 2\)</span>, we can see that JavaScript runs the slowest, but this time the <code>base-lib</code> slightly outperforms <code>owl-lib</code>.</p>
+<p>In fig.&nbsp;3, we want to investigate if the above observations still hold in more complex numerical computation. We choose to use a Gradient Descent algorithm to find the value that locally minimise a function. We choose the initial value randomly between <span class="math inline">\([0, 10]\)</span>. For both <span class="math inline">\(sin(x)\)</span> and <span class="math inline">\(x^3 -2x^2 + 2\)</span>, we can see that JavaScript runs the slowest, but this time the <code>base-lib</code> slightly outperforms <code>owl-lib</code>.</p>
 <p>We further compare the performance of DNN, which requires large amount of computation. We compare SqueezeNet and a VGG-like convolution network. They have different sizes of weight and networks structure complexities.</p>
 <div id="tbl:zoo:dnn">
 <table>
@@ -170,7 +179,7 @@
 </table>
 </div>
 <p>tbl.&nbsp;1 shows that, though the performance difference between <code>owl-lib</code> and <code>base-lib</code> is not obvious, the former is much better. So is the difference between native and bytecode for <code>base-lib</code>. JavaScript is still the slowest. The core computation required for DNN inference is the convolution operation. Its implementation efficiency is the key to these differences. Current we are working on improving its implementation in <code>base-lib</code>.</p>
-<p>We have also conducted the same evaluation experiments on RaspberryPi 3 Model B. fig.&nbsp;1(c) shows the performance of fold operation on ndarray. Besides the fact that all backends runs about one order of magnitude slower than that on the laptop, previous observations still hold. This figure also implies that, on resource-limited devices such as RaspberryPi, the key difference is between native code and bytecode, instead of <code>owl-lib</code> and <code>base-lib</code> for this operation. The other figures are not presented here due to space limited, but the conclusions are similar.</p>
+<p>We have also conducted the same evaluation experiments on RaspberryPi 3 Model B. fig.&nbsp;2(c) shows the performance of fold operation on ndarray. Besides the fact that all backends runs about one order of magnitude slower than that on the laptop, previous observations still hold. This figure also implies that, on resource-limited devices such as RaspberryPi, the key difference is between native code and bytecode, instead of <code>owl-lib</code> and <code>base-lib</code> for this operation.</p>
 <div id="tbl:zoo:size">
 <table>
 <caption>Table 2: Size of executables generated by backends</caption>
@@ -201,7 +210,7 @@
 </tbody>
 </table>
 </div>
-<p>Finally, we also briefly compare the size of executables generated by different backends. We take the SqueezeNet for example, and the results are shown in tbl.&nbsp;2. It can be seen that <code>owl-lib</code> executives have larger size compared to <code>base-lib</code> ones, and JavaScript code has the smallest file size. It can be seen that there does not exist a dominant method of deployment for all these backends. It is thus imperative to choose suitable backend according to deployment environment.</p>
+<p>Finally, we also briefly compare the size of executables generated by different backends. We take the SqueezeNet for example, and the results are shown in tbl.&nbsp;2. It can be seen that <code>owl-lib</code> executives have larger size compared to <code>base-lib</code> ones, and JavaScript code has the smallest file size. There does not exist a dominant method of deployment for all these backends. It is thus imperative to choose suitable backend according to deployment environment.</p>
 </section>
 </section>
 </article></div><a href="distributed.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 25</small>Distributed Computing</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
