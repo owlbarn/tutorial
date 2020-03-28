@@ -149,6 +149,7 @@ Basic hello world example
 
 Computation Example
 
+Example: the tiny MNIST
 
 ## Evaluation
 

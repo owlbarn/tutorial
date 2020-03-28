@@ -77,9 +77,18 @@
 </section>
 <section class="level2" id="community-driven-rd">
 <h2>Community-Driven R&amp;D</h2>
-<p>Software Testing</p>
-<p>Documentation</p>
-<p>COPY: Code of conduct</p>
+<p>Owl is a large open source project, to guarantee quality of the software and sustainable development, we enforce the following rules in day-to-day research, development, and project management.</p>
+<p>Besides coding, there are many other ways you can contribute. Bug reporting, typo fix, asking/answering questions, and improvement of existing documents are all well welcome.</p>
+<p><strong>Coding Style</strong></p>
+<p>Coding style guarantees a consistent taste of code written by different people. It improves code readability and maintainability in large software projects. OCaml is the main developing language in Owl. We use <a href="https://github.com/ocaml-ppx/ocamlformat">ocamlformat</a> to enforce the style of OCaml code. There is also a significant amount of C code in the project. For the C code, we apply the <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html">Linux kernel coding style</a>. The coding style does not apply to the vendor’s code directly imported into Owl source code tree.</p>
+<p><strong>Unit Test</strong></p>
+<p>All the code must be well tested before submitting a pull request. If existing functions are modified, you need to run the unit tests to make sure the changes do not break any tests. If existing functions are modified, you may also need to add more unit tests for various edge cases which are not covered before. If new functions are added, you must add corresponding unit tests and make sure edge cases are well covered.</p>
+<p><strong>Pull Request</strong></p>
+<p>Minor improvement changes can be submitted directly in a pull request. The title and description of the pull request shall clearly describe the purpose of the PR, potential issues and caveats. For significant changes, please first submit a proposal on Owl’s issue tracker to initialise the discussion with Owl Team. For sub libraries building atop of Owl, if you want the library to be included in the owlbarn organisation, please also submit the proposal on issue tracker. Note that the license of the library must be compliant with owlbarn, i.e.&nbsp;MIT or BSD compliant. Exception is possible but must be discussed with Owl Team first. Pull requests must be reviewed and approved by at least two key developers in Owl Team. A designated person in Owl Team will be responsible for assigning reviewers, tagging a pull request, and final merging to the master branch.</p>
+<p><strong>Documentation</strong></p>
+<p>For inline documentation in the code, the following rules apply. - Be concise, simple, and correct. - Make sure the grammar is correct. - Refer to the original paper whenever possible. - Use both long documentation in mli and short inline documentation in code.</p>
+<p>For serious technical writing, please contribute to Owl’s Tutorial Book. - Fixing typos, grammar issues, broken links, and improving tutorial tooling are considered as minor changes. You can submit pull requests directly to Tutorial Book repository. - Extending existing chapters are medium changes and you need to submit a proposal to Tutorial Book issue tracker. - Contributing a standalone chapter also requires submitting a chapter proposal. Alternatively, you can write to me directly to discuss about the chapter.</p>
+<p>Becoming A Team Member (?)</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
