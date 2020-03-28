@@ -151,14 +151,15 @@ The "capsule" utilises these information to capture the relative relationship be
 There are many more networks that we cannot cover them one by one here, but hopefully you can see that there are some common theme in the development of image recognition architectures. 
 Next, we will come to the main topic of this chapter: how InceptionV3 is designed based on these previous work. 
 
+
 ## Building InceptionV3 Network
 
-Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to perform image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 has one of the most complex networks architectures in computer vision.
+Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to perform image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 is one of the most complex neural network architectures in computer vision.
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
-Just increasing model size and computation cost tends to increase the accuracy, but the benefit will decrease soon. 
+Just increasing model size and computation cost tend to increase the accuracy, but the benefit will dimnish soon. 
 To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget.
-This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings can lead to small loss in representational power of networks. 
+This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings which may lead to small loss in representational power of networks. 
 The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.
 
 [@fig:case-image-inception:inceptionv3] shows the overall architecture of this network ([src](https://cloud.google.com/tpu/docs/inception-v3-advanced)):
@@ -189,9 +190,9 @@ Here we ignore the other parameters such as slides and padding since here we foc
 Then in a updated version of GoogLeNet, the InceptionV2 (or BN-inception), utilises the "Batch Normalisation" layer.
 We have seen how normalising input data plays a vital role in improving the efficiency of gradient descent in the Optimisation chapter. 
 Batch normalisation follows a similar path, only at it now works between each layer instead of just at the input data.
-This layer rescale each mini-batch with the mean and variance of this mini-batch.
+This layer rescales each mini-batch with the mean and variance of this mini-batch.
 
-Image that we train a network to recognise horse, but most of the training data are actually black or blown horse. Then the network's performance on white horse might not be quite ideal. 
+Imagine that we train a network to recognise horse, but most of the training data are actually black or blown horse. Then the network's performance on white horse might not be quite ideal. 
 This again leads us back to the over-fitting problem.
 The batch normalisation layer adds noise to input by scaling. 
 As a result, the content at deeper layer is less sensitive to content in lower layers.  
