@@ -1,21 +1,76 @@
 # Compiler Backends
 
-This 
 
 ## Base Library
 
 Before we start, we need to understand how Owl enables compiling to multiple backends by providing different implementations.
 The Owl framework, as well as many of its external libraries, is actually divided to two parts: a [Base library](https://github.com/owlbarn/owl/tree/master/src/base) and a [Core library](https://github.com/owlbarn/owl/tree/master/src/owl). The base library is implemented with pure OCaml.
+For some backends such as JavaScript, we can only use the functions implemented in OCaml.
 
+You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g. algorithmic differentiation, optimisation, even neural networks and many others.
 Here is the structure of the core functor stack in Owl:
 
 ![Core functor stack in owl](images/backend/base-structure.png "functor"){width=90% #fig:backend:functor}
 
-EXPLAIN this figure 
+Ndarray is the core building block in Owl. 
+As we have described in the previous chapters how we use C code to push forward the performance of Owl computation.
+The base library aims to implements all the necessary functions as the core library ndarray module.
+The stack is implemented in such way that the user can switch between these two different implementation without the modules of higher layer.
 
-To enable JavaScript, we can only use the functions implemented in the Base. You may wonder how much we will be limited by the Base. Fortunately, the most advanced functions in Owl are often implemented in pure OCaml and they live in the Base, which includes e.g. algorithmic differentiation, optimisation, even neural networks and many others.
+In the Owl functor stack, ndarray is used to support the CGraph module to provide lazy evaluation functionalities.
+For example, if we want an pure OCaml implementation of computation with single precision float precision, we can use:
 
-Including explaining how the current signature works. 
+```ocaml
+module CPU_Engine = Owl_computation_cpu_engine.Make (Owl_base_algodiff_primal_ops.S)
+```
+
+You might be wondering: where is the ndarray module then?
+Here we use `Owl_base_algodiff_primal_ops` module, which is simply a wrapper around the base ndarray module. 
+It also includes a small number of Matrix and Linear Algebra functions. 
+By providing this wrapper instead of using the Ndarray module directly, we can avoid mixing all the function in the ndarray module and makes it a large Goliath.
+
+Next, the Algorithmic Differentiation can depend its computation module on normal Ndarray or its lazy version.
+For example, you can have an AD that relies on the normal single precision base ndarray module:
+
+```ocaml
+module AD = Owl_algodiff_generic.Make (Owl_base_algodiff_primal_ops.S)
+```
+
+Or it can build on an double precision lazy evaluated core ndarray module:
+
+```ocaml
+module CPU_Engine = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.D)
+module AD = Owl_algodiff_generic.Make (CPU_Engine)
+```
+
+Going even higher, we have the advanced modules Optimisation and Neural Network modules. They are both based on the AD module.
+For example, the code below shows how we can build a neural graph module by layers fo functors from the base ndarray.
+
+```ocaml
+module G = Owl_neural_graph.Make
+            (Owl_neural_neuron.Make
+              Owl_optimise_generic.Make 
+                (Owl_algodiff_generic.Make 
+                  (Owl_base_algodiff_primal_ops.S))))
+```
+
+Normally the users does not have to care about how these modules are constructed layer by layer, but understanding the functor stack and typing is nevertheless beneficial, especially when you are creating new modules that relies on the base ndarray module. 
+
+These examples show that once we have built a application with the core Ndarray module, we can then seamlessly switch it to base ndarray module without changing anything else. 
+That means that all the code and examples we have seen so far can be used directly on different backends that requires pure implementation.
+
+The base library is still an on-going work and there is still a lot to do. 
+Though the Ndarray module is a large part in base library, there are other modules that also needs to be re-implemented in OCaml, such as Linear Algebra module. 
+We need to add more functions such as the SVD factorisation.
+Even for the Ndarray itself we still cannot totally cover the core ndarray yet. 
+Our strategy is that, we put most of the signature file in base library, and the core library signature file include its corresponding signature file from the base library, plus functions that are currently unique to core library. 
+The target is to total coverage so that the core and base library provide exactly the same functions. 
+
+As can be expected, the pure OCaml implementation normally performs worse than the C code implemented version.
+For example, for the complex convolution, without the help of optimised routines from OpenBLAS ect., we can only provide the naive implementation that includes multiple for-loops. 
+It's performance is orders of magnitude slower than the C version.
+Currently our priority is to implement the functions themselves instead of caring about function optimisation, nor do we intend to out-perform C code with pure OCaml implementation.
+
 
 ## Backend: JavaScript
 
