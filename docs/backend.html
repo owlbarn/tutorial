@@ -7,11 +7,7 @@
 <figure>
 <img alt="" style="width:90.0%" id="fig:backend:functor" title="functor" src="images/backend/base-structure.png"><figcaption>Figure 1: Core functor stack in owl</figcaption>
 </figure>
-<p>Ndarray is the core building block in Owl. As we have described in the previous chapters how we use C code to push forward the performance of Owl computation. The base library aims to implements all the necessary functions as the core library ndarray module. The stack is implemented in such way that the user can switch between these two different implementation without the modules of higher layer.</p>
-<p>In the Owl functor stack, ndarray is used to support the CGraph module to provide lazy evaluation functionalities. For example, if we want an pure OCaml implementation of computation with single precision float precision, we can use:</p>
-<div class="highlight">
-<pre><code class="language-ocaml">module CPU_Engine = Owl_computation_cpu_engine.Make (Owl_base_algodiff_primal_ops.S)</code></pre>
-</div>
+<p>Ndarray is the core building block in Owl. As we have described in the previous chapters how we use C code to push forward the performance of Owl computation. The base library aims to implements all the necessary functions as the core library ndarray module. The stack is implemented in such way that the user can switch between these two different implementation without the modules of higher layer. In the Owl functor stack, ndarray is used to support the CGraph module to provide lazy evaluation functionalities.</p>
 <p>You might be wondering: where is the ndarray module then? Here we use <code>Owl_base_algodiff_primal_ops</code> module, which is simply a wrapper around the base ndarray module. It also includes a small number of Matrix and Linear Algebra functions. By providing this wrapper instead of using the Ndarray module directly, we can avoid mixing all the function in the ndarray module and makes it a large Goliath.</p>
 <p>Next, the Algorithmic Differentiation can depend its computation module on normal Ndarray or its lazy version. For example, you can have an AD that relies on the normal single precision base ndarray module:</p>
 <div class="highlight">
@@ -26,7 +22,7 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
 <div class="highlight">
 <pre><code class="language-ocaml">module G = Owl_neural_graph.Make
             (Owl_neural_neuron.Make
-              Owl_optimise_generic.Make 
+              (Owl_optimise_generic.Make 
                 (Owl_algodiff_generic.Make 
                   (Owl_base_algodiff_primal_ops.S))))</code></pre>
 </div>
@@ -37,17 +33,15 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
 </section>
 <section class="level2" id="backend-javascript">
 <h2>Backend: JavaScript</h2>
-<p>At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionalities are being pushed from data centers to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful.</p>
-<p>Moreover, JavaScript interpreters are being increasingly optimised, and even relatively complicated computational tasks can run with reasonable performance.</p>
+<p>At first glance, JavaScript has very little to do with high-performance scientific computing. Then why Owl cares about it? One important reason is that browser is arguably the most widely deployed technology on various edge devices, e.g.&nbsp;mobile phones, tablets, laptops, and etc. More functionalities are being pushed from data centers to edge for reduced latency, better privacy and security. And JavaScript applications running in a browser are getting more complicated and powerful. Moreover, JavaScript interpreters are being increasingly optimised, and even relatively complicated computational tasks can run with reasonable performance.</p>
 <p>This chapter uses two simple examples to demonstrate how to compile Owl applications into JavaScript code so that you can deploy the analytical code into browsers, using both native OCaml code and Facebook Reason. It additionally requires the use of <code>dune</code>. As you will see, this will make the compilation to JavaScript effortless.</p>
 <section class="level3" id="use-native-ocaml">
 <h3>Use Native OCaml</h3>
-<p>We know that <code>Owl_algodiff_generic</code> is the cornerstone of Owl’s fast neural network module. The first example uses Algodiff functor to optimise a mathematical function.</p>
-<p>The first step is writing down our application in OCaml as follows, then save it into a file <code>demo.ml</code></p>
+<p>We rely the tool <code>js_of_ocaml</code> to convert native OCaml code into JavaScript. <a href="http://ocsigen.org/js_of_ocaml">Js_of_ocaml</a> is a compiler from OCaml bytecode programs to JavaScript. The process can thus be divided into two phases: first, compile the OCaml source code into bytecode executables, and then apply the <code>js_of_ocaml</code> command to it. It support the core <code>Bigarray</code> module among most of the OCaml standard libraries. However, since the <code>Sys</code> module is not fully supported, we are careful to not use functions from this module in the base library.</p>
+<p>We have described how Algorithm Differentiation plays a core role in the ecosystem of Owl, so now we use an example of AD to demonstrate how we convert a numerical programme into JavaScript code and then get executed.</p>
+<p>The example comes from the Optimisation chapter, and is about optimise the mathematical function <code>sin</code>. The first step is writing down our application in OCaml as follows, then save it into a file <code>demo.ml</code>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
-  (* JavaScript example: use Owl_base to minimise sin *)
-
   module AlgodiffD = Owl_algodiff_generic.Make (Owl_base_algodiff_primal_ops.D)
   open AlgodiffD
 
@@ -62,42 +56,38 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
     Owl_log.info "argmin f(x) = %g" (unpack_flt y)
 </code></pre>
 </div>
-<p>The code is very simple: the <code>desc</code> defines a gradient descent algorithm, then we use <code>desc</code> to calculate the minimum value of <code>Maths.sin</code> function. In the end, we print out the result using <code>Owl_log</code> module’s <code>info</code> function. You should have noticed, we used <code>Owl_algodiff_generic</code> functor to create and include an algorithmic differentiation module by passing the pure implementation of Ndarray in the base library.</p>
-<p>In the second step, we need to create a <code>dune</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling <code>js_of_ocaml</code>. <a href="https://ocsigen.org/js_of_ocaml/"><code>js_of_ocaml</code></a></p>
+<p>The code is very simple: the <code>desc</code> defines a gradient descent algorithm, then we use <code>desc</code> to calculate the minimum value of <code>Maths.sin</code> function. In the end, we print out the result using <code>Owl_log</code> module’s <code>info</code> function. Note that we pass in the base Ndarray module to the AD functor to create an corresponding AD module.</p>
+<p>In the second step, we need to create a <code>dune</code> file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling <code>js_of_ocaml</code>.</p>
 <div class="highlight">
-<pre><code class="language-shell">  (executable
-   (name demo)
-   (modes js)
-   (libraries owl-base))</code></pre>
+<pre><code class="language-shell">(executable
+  (name demo)
+  (modes byte js)
+  (libraries owl-base))</code></pre>
 </div>
-<p>With these two files in the same folder, you can then simply run the following command in the terminal. The command builds the application and generates a <code>demo.bc.js</code> in <code>_build/default/</code> folder.</p>
+<p>With these two files in the same folder, you can then simply run the following command in the terminal.</p>
 <div class="highlight">
-<pre><code class="language-shell">
-  dune build
-</code></pre>
+<pre><code class="language-shell">dune build demo.bc &amp;&amp; js_of_ocaml _build/default/demo.bc</code></pre>
 </div>
-<p>Finally, we can run the JavaScript using Node.js (or loading into a browser using an appropriate html page).</p>
+<p>Or even better, since <code>js_of_ocaml</code> is natively supported by <code>dune</code>, so we can simply execute:</p>
 <div class="highlight">
-<pre><code class="language-shell">
-  node _build/default/demo.bc.js
-</code></pre>
+<pre><code class="language-shell">dune build</code></pre>
 </div>
-<p>You should be able to see the output result similar to</p>
+<p>The command builds the application and generates a <code>demo.bc.js</code> in the <code>_build/default/</code> folder. Finally, we can run the JavaScript using <code>Node.js</code> (or loading into a browser using an appropriate html page).</p>
 <div class="highlight">
-<pre><code class="language-shell">
-  2019-12-30 18:05:49.760 INFO : argmin f(x) = -1.5708
-</code></pre>
+<pre><code class="language-shell">node _build/default/demo.bc.js</code></pre>
 </div>
-<p>Even though we will present very simple examples, you should keep in mind that Owl_base is fully compatible with <code>js_of_ocaml</code> and can be used to produce more complex and interactive browser applications.</p>
+<p>As a result, you should be able to see the output result shows a value that minimise the <code>sin</code> function, and should be similar to:</p>
+<div class="highlight">
+<pre><code class="language-shell">  2019-12-30 18:05:49.760 INFO : argmin f(x) = -1.5708</code></pre>
+</div>
+<p>Even though we present a simple examples, you should keep in mind that the base library can be used to produce more complex and interactive browser applications.</p>
 </section>
 <section class="level3" id="use-facebook-reason">
 <h3>Use Facebook Reason</h3>
-<p>Facebook Reason is gaining its momentum and becoming a popular choice of developing web applications. Because Reason is basically a syntax on top of OCaml, it is very straightforward to use Owl in Reason to develop advanced numerical applications.</p>
-<p>In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl. First, please save the following code into a reason file <code>demo.re</code>. Note the the suffix is <em>.re</em> now.</p>
+<p><a href="https://reasonml.github.io/">Facebook Reason</a> leverages OCaml as an backend to provide type safe JavaScript. It is gaining its momentum and becoming a popular choice of developing web applications. It actually uses another tool, <a href="https://bucklescript.github.io/">BuckleScript</a>, to convert the Reason/OCaml code to JavaScript. Since Reason is basically a syntax on top of OCaml, it is very straightforward to use Owl in Reason to develop advanced numerical applications.</p>
+<p>In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl. First, we save the following code into a reason file called <code>demo.re</code>. Note the the suffix is <em>.re</em> now. It includes several basic math and Ndarray operations in Owl.</p>
 <div class="highlight">
 <pre><code class="language-reason">
-  /* JavaScript example: Ndarray and Maths */
-
   open! Owl_base;
 
   /* calculate math functions */
@@ -111,10 +101,9 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
 
   /* take a slice */
   let z = Owl_base_dense_ndarray.D.get_slice([[],[],[0,3]],y);
-  Owl_base_dense_ndarray.D.print(z);
-</code></pre>
+  Owl_base_dense_ndarray.D.print(z);</code></pre>
 </div>
-<p>The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Now let’s look at the <code>dune</code> file, which turns out to be exactly the same as that in the previous example.</p>
+<p>The code above is simple, just creates a random ndarray, takes a slice, then prints them out. Owl library can be seamlessly used in Reason. Next, instead of using Reason’s own translation of this frontend syntax with <code>bucklescript</code>, we still turns to <code>js_of_ocaml</code> for help. Let’s look at the <code>dune</code> file, which turns out to be the same as that in the previous example.</p>
 <div class="highlight">
 <pre><code class="language-shell">  (executable
    (name demo)
@@ -123,12 +112,10 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
 </div>
 <p>As in the previous example, you can then compile and run the code with following commands.</p>
 <div class="highlight">
-<pre><code class="language-shell">
-  dune build
-  node _build/default/demo.bc.js
-</code></pre>
+<pre><code class="language-shell">  dune build
+  node _build/default/demo.bc.js</code></pre>
 </div>
-<p>As you can see, except the code is written in different languages, the rest of the steps are identical in both example thanks to the excellent dune.</p>
+<p>As you can see, except that the code is written in different languages, the rest of the steps are identical in both example thanks to <code>js_of_ocaml</code> and <code>dune</code>.</p>
 </section>
 </section>
 <section class="level2" id="backend-mirageos">
@@ -143,13 +130,13 @@ module AD = Owl_algodiff_generic.Make (CPU_Engine)</code></pre>
 <h2>Evaluation</h2>
 <p>In the evaluation section we mainly compare the performance of different backends we use. Specifically, we observe three representative groups of operations: (1) <code>map</code> and <code>fold</code> operations on ndarray; (2) using gradient descent, a common numerical computing subroutine, to get <span class="math inline">\(argmin\)</span> of a certain function; (3) conducting inference on complex DNNs, including SqueezeNet and a VGG-like convolution network. The evaluations are conducted on a ThinkPad T460S laptop with Ubuntu 16.04 operating system. It has an Intel Core i5-6200U CPU and 12GB RAM.</p>
 <p>The OCaml compiler can produce two kinds of executables: bytecode and native. Native executables are compiled specifically for an architecture and are generally faster, while bytecode executables have the advantage of being portable.</p>
-<p>For JavaScript, we use the <code>js_of_ocaml</code> approach as described in the previous sections. Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as <code>base-lib</code> and <code>owl-lib</code> separately, but they are in fact all included in the Owl library. For Mirage compilation, we use both libraries.</p>
 <figure>
-<img alt="" id="fig:zoo:map_fold" src="images/zoo/map_fold.png"><figcaption>Figure 2: Performance of map and fold operations on ndarray on laptop and RaspberryPi</figcaption>
+<img alt="" style="width:100.0%" id="fig:backend:map_fold" title="map-fold" src="images/zoo/map_fold.png"><figcaption>Figure 2: Performance of map and fold operations on ndarray on laptop and RaspberryPi</figcaption>
 </figure>
+<p>For JavaScript, we use the <code>js_of_ocaml</code> approach as described in the previous sections. Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as <code>base-lib</code> and <code>owl-lib</code> separately, but they are in fact all included in the Owl library. For Mirage compilation, we use both libraries.</p>
 <p>fig.&nbsp;2(a-b) show the performance of map and fold operations on ndarray. We use simple functions such as plus and multiplication on 1-d (size <span class="math inline">\(&lt; 1,000\)</span>) and 2-d arrays. The <code>log-log</code> relationship between total size of ndarray and the time each operation takes keeps linear. For both operations, <code>owl-lib</code> is faster than <code>base-lib</code>, and native executables outperform bytecode ones. The performance of Mirage executives is close to that of native code. Generally JavaScript runs the slowest, but note how the performance gap between JavaScript and the others converges when the ndarray size grows. For fold operation, JavaScript even runs faster than bytecode when size is sufficiently large.</p>
 <figure>
-<img alt="" id="fig:zoo:gd" src="images/zoo/gd_x86.png"><figcaption>Figure 3: Performance of gradient descent on function <span class="math inline">\(f\)</span></figcaption>
+<img alt="" style="width:75.0%" id="fig:backend:gd" src="images/zoo/gd_x86.png"><figcaption>Figure 3: Performance of gradient descent on function <span class="math inline">\(f\)</span></figcaption>
 </figure>
 <p>In fig.&nbsp;3, we want to investigate if the above observations still hold in more complex numerical computation. We choose to use a Gradient Descent algorithm to find the value that locally minimise a function. We choose the initial value randomly between <span class="math inline">\([0, 10]\)</span>. For both <span class="math inline">\(sin(x)\)</span> and <span class="math inline">\(x^3 -2x^2 + 2\)</span>, we can see that JavaScript runs the slowest, but this time the <code>base-lib</code> slightly outperforms <code>owl-lib</code>.</p>
 <p>We further compare the performance of DNN, which requires large amount of computation. We compare SqueezeNet and a VGG-like convolution network. They have different sizes of weight and networks structure complexities.</p>
