@@ -200,6 +200,8 @@ As you can see, except that the code is written in different languages, the rest
 
 ## Backend: MirageOS
 
+### MirageOS and Unikernel 
+
 Besides JavaScript, another choice of backend we aim to support is the MirageOS.
 It one approach to build *unikernel*.
 A unikernel is a specialised, single address space machine image constructed with library operating systems.
@@ -212,6 +214,8 @@ It utilises the high-level languages OCaml and a runtime to provide API for oper
 In using MirageOS, the users can think of the [Xen hypervisor](https://xenproject.org/) as a stable hardware platform, without worrying about the hardware details such as devices.
 Furthermore, since the Xen hypervisor is widely used in platforms such as Amazon EC2 and Rackspace Cloud, MirageOS-built unikernel can readily deployed on these platforms.
 Besides, benefiting from its efficiency and security, MirageOS also aims to form a core piece of the Nymote/MISO tool stack to power the Internet of Things.
+
+### Example: Gradient Descent
 
 Since MirageOS is based around the OCaml language, we can safely integrate the Owl library with it.
 To demonstrate how we use MirageOS as backend, we again uses the previous Algorithm Differentiation based optimisation example.
@@ -247,7 +251,8 @@ Here the `start` is an entry point to the unikernel.
 It performs the normal OCaml function `main`, and the return a `Lwt` thread that will be evaluated to `unit`. 
 
 
-Explain LWT briefly.
+Explain LWT briefly. 
+A concurrent programming library.
 Explain why using LWT in Mirage.
 
 All the code above is written to a file called `gd_owl.ml`.
@@ -308,12 +313,59 @@ Executing it yields a similar result as before:
 INFO : argmin f(x) = 1.33333
 ```
 
-By this example we show that the Owl library can be readily deployed into unikernels via MirageOS.
+### Example: Neural Network
+
+As a more complex example we have also built a simple neural network to perform the MNIST handwritten digits recognition task:
+
+```ocaml
+module N  = Owl_base_dense_ndarray.S
+module NN = Owl_neural_generic.Make (N)
+open NN
+open NN.Graph 
+open NN.Algodiff
+
+let make_network input_shape =
+  input input_shape
+  |> lambda (fun x -> Maths.(x / F 256.))
+  |> fully_connected 25 ~act_typ:Activation.Relu
+  |> linear 10 ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
+
+This neural network has two hidden layer, has a small weight size (146KB), and works well in testing (92% accuracy).
+We can right the the weight into a text file.
+
+This file is named `simple_mnist.ml`, and similar to previous example, we can add a unikernel entry point function in the file:
+
+```
+module Main = struct
+  let start = infer (); Lwt.return_unit
+end
+```
+
+Here the `infer` function creates a neural network, loads the weight, and then performs inference on an input image. 
+We also need an configuration file. Again, it's mostly the same:
+
+```
+open Mirage
+
+let main =
+  foreign 
+    ~packages:[package "owl-base"]
+   "Simple_mnist.Main" job
+
+let () = 
+  register "Simple_mnist" [main]
+```
+
+All the code are included in [this gist](https://gist.github.com/jzstark/e94917167754963de701e9e9ce750b2e).
+Once compiled to MirageOS unikernel with unix backends, the generated binary is 10MB.
+You can also try compiling this application to JavaScript.
+
+By these examples we show that the Owl library can be readily deployed into unikernels via MirageOS.
 The numerical functionalities can then greatly enhance the express ability of possible OCaml-MirageOS applications.
 Of course, we cannot cover all the important topics about MirageOS, please refer to the documentation of [MirageOS](https://mirage.io/) abd [Xen Hypervisor](https://xenproject.org/) for more information.
 
-
-Example: the tiny MNIST
 
 ## Evaluation
 
