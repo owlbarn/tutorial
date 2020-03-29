@@ -196,13 +196,118 @@ As you can see, except that the code is written in different languages, the rest
 
 ## Backend: MirageOS
 
-Introduce MirageOS
+Besides JavaScript, another choice of backend we aim to support is the MirageOS.
 
-Benefit, Applications ect.
+MirageOS is a type of unikernel.
+Explain: Unikernel.
+Benefit of Unikernel.
+General application of Unikernel.
 
-Basic hello world example
+MirageOS works by treating the Xen hypervisor as a stable hardware platform,
+Explain: Xen Hypervisor
+MirageOS built into Xen.
+Application of MirageOS
 
-Computation Example
+Since MirageOS is based around the OCaml language, we can safely integrate the Owl library with it.
+To demonstrate how we use MirageOS as backend, we again uses the previous Algorithm Differentiation based optimisation example.
+Before we start, please make sure to follow the [installation instruction](https://mirage.io/wiki/install).
+
+Let's look at the code:
+
+```ocaml env=backend:mirage
+module A = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
+open A
+
+let rec desc ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = (diff f) x in
+  if (unpack_flt (Maths.abs g)) < eps then x
+  else desc ~eta ~eps f Maths.(x - eta * g)
+
+let main () =
+  let f x = Maths.(pow x (F 3.) - (F 2.) * pow x (F 2.) + (F 2.)) in
+  let init = Stats.uniform_rvs ~a:0. ~b:10. in
+  let y = desc f (F init) in
+  Owl_log.info "argmin f(x) = %g" (unpack_flt y)
+```
+
+These part of code is mostly the same as before. By applying the the `diff` function of the algorithmic differentiation module, we use the gradient descent method to find the value that minimises the function $x^3 - 2x^2 + 2$.
+Then we need to add something different:
+
+```ocaml env=backend:mirage
+module GD = struct
+  let start = main (); Lwt.return_unit
+end
+```
+
+Here the `start` is an entry point to the unikernel.
+It performs the normal OCaml function `main`, and the return a `Lwt` thread that will be evaluated to `unit`. 
+
+
+Explain LWT briefly.
+Explain why using LWT in Mirage.
+
+All the code above is written to a file called `gd_owl.ml`.
+To build a unikernel, next we need to define its configuration.
+In the same directory, we create a file called `configure.ml`:
+
+```
+open Mirage
+
+let main =
+  foreign 
+    ~packages:[package "owl"]
+    "Gd_owl.GD" job
+
+let () = 
+  register "gd_owl" [main]
+```
+
+It's not complex. 
+First we need to open the `Mirage` module. 
+Then we declare a value `main` (or you can name it any other name).
+It calls the `foreign` function to specify the configuration.
+First, in the `package` parameter, we declare that this unikernel requires Owl library.
+The next string parameter "Gd_owl.GD" specifies the name of the implementation file, and in that file the module `GD` that contains the `start` entry point.
+The third paramter `job` declares the type of devices required by a unikernel, such as network interfaces, network stacks, file systems, etc.
+Since here we only do the calculation, there is no extra device required, so the third parameter is a `job`.
+Finally, we register the unikernel entry file `gd_owl` with the `main` configuration value. 
+
+That's all it takes for coding. Now we can take a look at the compiling part. 
+MirageOS itself supports multiple backends. The crucial choice therefore is to decide which one to use at the beginning by using `mirage configure`.
+In the directory that holds the previous two files, you run `mirage configure -t unix`, and it configures to build the unikernel into a Unix ELF binary that can be directly executed.
+Or you can use `mirage configure -t xen`, then the resulting unikernel will use hypervisor backend like Xen or KVM.
+Either way, the unikernel runs as a virtual machine after starting up.
+In this example we choose to use Unix as backends. So we run:
+
+```shell
+mirage configure -t unix
+```
+
+This command generates a `Makefile` based on the configuration information. It includes all the building rules.
+Next, to make sure all the dependencies are installed, we need to run:
+
+```shell
+make depend
+```
+
+Finally, we can build the unikernels by simply running:
+
+```shell
+make
+```
+
+and it calls the `mirage build` command. 
+As a result, now your current directory contains the `_build/gd_owl.native` executable, which is the unikernel we want. 
+Executing it yields a similar result as before:
+
+```
+INFO : argmin f(x) = 1.33333
+```
+
+By this example we show that the Owl library can be readily deployed into unikernels via MirageOS.
+The numerical functionalities can then greatly enhance the express ability of possible OCaml-MirageOS applications.
+Of course, we cannot cover all the important topics about MirageOS, please refer to the documentation of [MirageOS](https://mirage.io/) abd [Xen Hypervisor](https://xenproject.org/) for more information.
+
 
 Example: the tiny MNIST
 
