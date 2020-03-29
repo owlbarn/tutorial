@@ -1,5 +1,9 @@
 # Compiler Backends
 
+For a numerical library, it is always beneficial and a challenge to extend to multiple execution backends.
+We have seen how we support accelerators such as GPU by utilising symbolic representation and computation graph standard such as ONNX.
+In this chapter we introduce how Owl can be used on more edge-oriented backends, including JavaScript and MirageOS.
+We also introduce the `base` library in Owl, since this pure OCaml library is built to supported these backends.
 
 ## Base Library
 
@@ -197,21 +201,21 @@ As you can see, except that the code is written in different languages, the rest
 ## Backend: MirageOS
 
 Besides JavaScript, another choice of backend we aim to support is the MirageOS.
+It one approach to build *unikernel*.
+A unikernel is a specialised, single address space machine image constructed with library operating systems.
+Unlike normal virtual machine, it only contains a minimal set of libraries required for one application. 
+It can run directly on a hypervisor or hardware without relying gon operating systems such as Linux and Windows.
+The unikernls is thus concise and secure, and extremely efficient for distributed and executed on either cloud or edge devices.
 
-MirageOS is a type of unikernel.
-Explain: Unikernel.
-Benefit of Unikernel.
-General application of Unikernel.
-
-MirageOS works by treating the Xen hypervisor as a stable hardware platform,
-Explain: Xen Hypervisor
-MirageOS built into Xen.
-Application of MirageOS
+MirageOS is one solution to building unikernels. 
+It utilises the high-level languages OCaml and a runtime to provide API for operating system functionalities.
+In using MirageOS, the users can think of the [Xen hypervisor](https://xenproject.org/) as a stable hardware platform, without worrying about the hardware details such as devices.
+Furthermore, since the Xen hypervisor is widely used in platforms such as Amazon EC2 and Rackspace Cloud, MirageOS-built unikernel can readily deployed on these platforms.
+Besides, benefiting from its efficiency and security, MirageOS also aims to form a core piece of the Nymote/MISO tool stack to power the Internet of Things.
 
 Since MirageOS is based around the OCaml language, we can safely integrate the Owl library with it.
 To demonstrate how we use MirageOS as backend, we again uses the previous Algorithm Differentiation based optimisation example.
 Before we start, please make sure to follow the [installation instruction](https://mirage.io/wiki/install).
-
 Let's look at the code:
 
 ```ocaml env=backend:mirage
