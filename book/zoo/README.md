@@ -3,7 +3,7 @@
 In this chapter, we introduce the Zoo system, and focus on two aspects of it:
 
 1. how to use it to make "small functions", then distribute and share them with other users
-2. investigate the idea of computation composing and deployment based on existing script sharing function
+2. investigate the idea of service composing and deployment based on existing script sharing function
 
 ## Introduction
 
@@ -33,7 +33,7 @@ To this end we propose the idea *Composable Service*.
 Its basic idea is that many services can be constructed from basic ML ones such as image recognition, speech-to-text, and recommendation to meet new application requirements.
 We believe that modularity and composition will be the key to increasing usage of ML-based data analytics.
 
-## Script Sharing with Zoo
+## Share Script with Zoo
 
 Before start digging into more academic content, we want to briefly discuss the motivation of the Zoo system.
 It is known that we can use OCaml as a scripting language as Python (at certain performance cost because the code is compiled into bytecode). Even though compiling into native code for production use is recommended, scripting is still useful and convenient, especially for light deployment and fast prototyping. In fact, the performance penalty in most Owl scripts is almost unnoticeable because the heaviest numerical computation part is still offloaded to Owl which runs native code.
@@ -116,7 +116,7 @@ Note that to use `#zoo` directive in `utop` you need to manually load the `owl-z
 If you want to make `utop` load the library automatically by adding this line to `~/.ocamlinit`.
 
 
-### Choose a Version of Script
+### Select a Specific Version
 
 Alice has modified and uploaded her scripts several times. Each version of her code is assigned a unique `version id`. Different versions of code may work differently, so how could Bob specify which version to use? Good news is that, he barely needs to change his code.
 
@@ -174,7 +174,7 @@ That's all. Zoo system is not complicated at all. There will be more features to
 Note that both `run` and `info` commands accept a full gist name that can contain extra parameters, instead of only a gist id.
 
 
-### Examples
+### More Examples
 
 Despite of its simplicity, Zoo is a very flexible and powerful tool and we have been using it heavily in our daily work. We often use Zoo to share the prototype code and small shared modules which we do not want to bother OPAM, such those used in performance tests.
 
@@ -284,7 +284,7 @@ virtual machines with a specialised minimal OS that host only one target
 application. Deploying to Unikernel is proved to be of low memory
 footprint, and thus quite suitable for resource-limited edge devices.
 
-### DSL
+### Domain Specific Language
 
 Zoo provides a minimal DSL for service composition and deployment.
 
@@ -392,3 +392,5 @@ We thoroughly evaluate the performance of different backends using three represe
 
 
 ## References
+
+[ liang: refer to the zoo paper? ]
