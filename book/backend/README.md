@@ -318,7 +318,7 @@ INFO : argmin f(x) = 1.33333
 As a more complex example we have also built a simple neural network to perform the MNIST handwritten digits recognition task:
 
 ```ocaml
-module N  = Owl_base_dense_ndarray.S
+module N  = Owl_base_algodiff_primal_ops.S
 module NN = Owl_neural_generic.Make (N)
 open NN
 open NN.Graph 

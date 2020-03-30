@@ -36,7 +36,7 @@ Owl is a complex library consisting of numerous functions (over 6500 by the end 
 
 ![Owl system architecture](images/architecture/owl-architecture.png "owl-architecture"){width=95% #fig:architecture:architecture}
 
-[@#fig:architecture:architecture] gives a bird view of Owl’s system architecture, i.e. the two subsystems and their modules. 
+[@fig:architecture:architecture] gives a bird view of Owl’s system architecture, i.e. the two subsystems and their modules. 
 The subsystem on the left part is Owl's Numerical Subsystem. The modules contained in this subsystem fall into three categories: 
 (1) core modules contains basic data structures and foreign function interfaces to other libraries (e.g., CBLAS and LAPACKE); 
 (2) classic analytics contains basic mathematical and statistical functions, linear algebra, regression, optimisation, plotting, and etc.; 
@@ -73,7 +73,43 @@ plotting engine is very lightweight and only contains
 about 200 LOC. Its core design is to cache all the plotting operations as a sequence of function closures and
 execute them all when we output the figure.
 
-## High-level Functionality
+## Advanced Functionality
+
+We introduce the advanced functionalities in Owl. We have introduced many of them in the first part of chapter.
+
+### Computation Graph
+
+As a functional programmer, it is basic knowledge that a function takes an input then produces an output. The input of a function can be the output of another function which then creates dependency. If we view a function as one node in a graph, and its input and output as incoming and outgoing links respectively, as the computation continues, these functions are chained together to form a directed acyclic graph (DAG). Such a DAG is often referred to as a computation graph.
+
+Computation graph plays a critical role in our system.
+Its benefits are many-fold: provides simulate lazy evaluation in a language with eager evaluation, reduce computation complexity by optimising the structure of a graph, eeduce memory footprint, etc.
+It can be used for supporting multiple other high level modules e.g. algorithmic differentiation, and GPU computing modules all implicitly or explicitly use computation graph to perform calculations. 
+
+### Algorithmic Differentiation
+
+Atop of the core components, we have developed several modules to extend Owl’s numerical capability. E.g.,
+Maths module includes many basic and advanced mathematical functions, whist `Stats` module provides various statistical functions such as random number generators, hypothesis tests, and so on. The most important extended module is Algodiff, which implements the algorithmic differentiation functionality.
+Owl's Algodiff module is based on the core nested ´ automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
+
+Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine. 
+The optimisation engine is light and highly configurable, and also serves as the foundation of Regression module and Neural Network module because both are essentially mathematical optimisation problems.
+The flexibility in optimisation engine leads to an extremely compact design and small code base. For a fullfledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
+and Caffee.
+
+### Regression
+
+Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors.
+
+Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve problems.
+
+### Neural Network
+
+We have no intention to make yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose.
+It turns out that with Owl’s architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC.
+
+Algodiff is the most powerful part of Owl and offers great benefits to the modules built atop of it. In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the Algodiff figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl’s Feedforward Network which only uses a couple of hundreds lines of code to implement a complete Feedforward network.
+
+## Core Implementation
 
 ### N-dimensional Array
 
@@ -98,38 +134,23 @@ These functions together provide a strong support for developing high-level nume
 Function polymorphism is achieved using GADT (Generalized algebraic data type), therefore most functions in Generic
 module accept the input of four basic number types.
 
-### Computation Graph
+**Optimisation with C Code**
 
-Computation graph plays a critical role in our system, e.g. algorithmic differentiation, lazy evaluation,
-and GPU computing modules all implicitly or explicitly
-use computation graph to perform calculations. We will
-present the design of these modules over this topic.
+Interfacing to high performance language is not uncommon practice among numerical libraries. If you look at the source code of NumPy, more than 50% is C code. In SciPy, the Fortran and C code takes up more than 40%. Even in Julia, about 26% of its code is in C or C++, most of them in the core source code.
 
-More 
+Besides interfacing to existing libraries, we focus on implementing the core operations in the Ndarray modules with C code. As we have seen in the N-Dimensional Arrays chapter, the n-dimensional array module lies in the heart of Owl, and many other libraries. NumPy library itself focus solely on providing a powerful ndarray module to the Python world.
 
-### Algorithmic Differentiation
+A ndarray is a container of items of the same type. It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block. A stride indexing scheme can then be applied on this block of memory to access elements. Once converted properly to the C world, a ndarray can be effectively manipulated with normal C code.
 
-Atop of the core components, we have developed several modules to extend Owl’s numerical capability. E.g.,
-Maths module includes many basic and advanced mathematical functions, whist `Stats` module provides various statistical functions such as random number generators, hypothesis tests, and so on. The most important extended module is Algodiff, which implements the algorithmic differentiation functionality.
-Owl's Algodiff module is based on the core nested ´ automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
+There is a big room for optimising the C code. We are trying to push the performance forward with multiple techniques. We mainly use the multiprocessing with OpenMP and parallel computing using SIMD intrinsics when possible.
 
-Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine. 
-The optimisation engine is light and highly configurable, and also serves as the foundation of Regression module and Neural Network module because both are essentially mathematical optimisation problems.
-The flexibility in optimisation engine leads to an extremely compact design and small code base. For a fullfledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
-and Caffee.
-
-## Core Implementation
-
-### Optimisation with C Code
 
 ### Interfaced Libraries
 
 Some functionality such as math and linear algebra is included into the system by interfacing to other libraries. Rather than simply exposing the low-level functions, we carefully design easy-to-use high-level APIs
 and this section will cover these modules.
+For example, the mathematical functions, especially the special functions, are interfaced from the Cephes Mathematical Functions Library, and the normal math functions rely on the standard C library.
 
-**Math**
-
-**Linear Algebra**
 
 Even though Fortran is no longer among the top choices
 as a programming language, there is still a large body of
@@ -172,6 +193,9 @@ hardware platform whereas OpenCL is a cross platform
 solution and supported by multiple vendors. Owl currently supports OpenCL and CUDA support is included
 in our future plan.
 
+To improve performance of a numerical library such as Owl, it is necessary to support multiple hardware platforms. One idea is to "freeride" existing libraries that already support various hardware platforms. We believe that computation graph is a suitable IR to achieve interoperability between different libraries. Along this line, we develop a prototype symbolic layer system by using which the users can define a computation in Owl and then turn in into ONNX structure, which can be executed with many different platforms such as TensorFlow.
+By using the symbolic layer, we show the system workflow, and how powerful features of Owl, such as algorithmic differentiation, can be used in TensorFlow. We then briefly introduce system design and implementation.
+
 ### OpenMP
 
 OpenMP uses shared memory multi-threading model
@@ -183,15 +207,14 @@ switch in jbuild file.
 After enabling OpenMP, many vectorised math operators are replaced with the corresponding OpenMP
 implementation in the compiling phase. Parallelism offered by OpenMP is not a free lunch, the scheduling
 mechanism adds extra overhead to a computation task.
-If the task per se is not computation heavy or the ndarray is small, OpenMP often slows down the computation. We therefore set a threshold on ndarray size below which OpenMP code is not triggered. This simple
-mechanism turns out to be very effective in practice.
-
-AEOS
-
+If the task per se is not computation heavy or the ndarray is small, OpenMP often slows down the computation. We therefore set a threshold on ndarray size below which OpenMP code is not triggered. This simple mechanism turns out to be very effective in practice.
+To further utilise the power of OpenMP, we build an automatic tuning module to decide the proper threshold value for different operations. 
 
 ## Community-Driven R&D
 
-TODO: DATA
+After three years of intense development, Owl currently contains about 130k lines of OCaml code and 100k lines of C code.
+As of March 2020, it contains about 4,200 commits and contains 29 releases. 
+Owl has a small and concise team. These code are mainly provided by three main developer, but so far more than 40 contributors have also participated in the project.
 
 Owl is a large open source project, to guarantee quality of the software and sustainable development, we enforce the following rules in day-to-day research, development, and project management.
 

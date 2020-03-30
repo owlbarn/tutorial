@@ -389,8 +389,8 @@ In this work we identify two challenges of conducting data analytics on edge: se
 For the first one, it provides a simple DSL to enable easy and type-safe composition of different advanced services. We present a use case to show the expressiveness of the code.
 For the second, to accommodate the heterogeneous edge deployment environment, we utilise multiple backends, including Docker container, JavaScript, and MirageOS. 
 We thoroughly evaluate the performance of different backends using three representative groups of numerical operations as workload. The results show that no single deployment backend is preferable to the others, so deploying data analytics services requires choosing suitable backend according to the deployment environment.
+We refer the readers to our paper [@zhao2018data] for more detail.
 
 
 ## References
 
-[ liang: refer to the zoo paper? ]

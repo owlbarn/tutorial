@@ -186,7 +186,7 @@ let () =
 <h3>Example: Neural Network</h3>
 <p>As a more complex example we have also built a simple neural network to perform the MNIST handwritten digits recognition task:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">module N  = Owl_base_dense_ndarray.S
+<pre><code class="language-ocaml">module N  = Owl_base_algodiff_primal_ops.S
 module NN = Owl_neural_generic.Make (N)
 open NN
 open NN.Graph 
