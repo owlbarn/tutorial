@@ -5,8 +5,8 @@ Refer to [@wang2017owl] [@minsky2013real], example of references
 Owl is an emerging library developed in the OCaml language for scientific and engineering computing. It focuses on providing a comprehensive set of high-level numerical functions so that developers can quickly build up any data analytical applications. After over one-year intensive development and continuous optimisation, Owl has evolved into a powerful software system with competitive performance to mainstream numerical libraries. 
 Meanwhile, Owl’s overall architecture remains simple and elegant, its small code base can be easily managed by a small group of developers.
 
-In this chapter, we first present Owl’s design, core components, and its key functionality. We show that Owl benefits greatly from OCaml’s module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
-Oaml’s static type checking significantly reduces potential bugs and accelerates the development cycle. 
+In this chapter, we first present Owl’s design, core components, and its key functionality. We show that Owl benefits greatly from OCaml's module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
+OCaml's static type checking significantly reduces potential bugs and accelerates the development cycle. 
 We also share the knowledge and lessons learnt from building up a full-fledge system for scientific computing with the functional programming community.
 
 ## Introduction
@@ -15,7 +15,7 @@ Thanks to the recent advances in machine learning and deep neural networks, ther
 various numerical tools and libraries in order to facilitate both academic researchers and industrial developers to fast prototype and test their new ideas, then develop and deploy analytical applications at large scale.
 Take deep neural network as an example, Google invests heavily in TensorFlow while Facebook promotes their PyTorch. 
 Beyond these libraries focusing on one specific numerical task, the interest on general purpose tools like Python and Julia also grows fast.
-Python has been one popular choice among developers for fast prototyping analytical applications, one important reason is because Scipy and Numpy two libraries, tightly integrated with other advanced functionality such as plotting, offer a powerful environment which lets developers write very concise code to finish complicated numerical tasks. As a result, even for the frameworks which were not originally developed in Python (such as Caffe and TensorFlow), they often provide Python bindings to take advantage of the existing numerical infrastructure in Numpy and Scipy.
+Python has been one popular choice among developers for fast prototyping analytical applications, one important reason is because SciPy and NumPy two libraries, tightly integrated with other advanced functionality such as plotting, offer a powerful environment which lets developers write very concise code to finish complicated numerical tasks. As a result, even for the frameworks which were not originally developed in Python (such as Caffe and TensorFlow), they often provide Python bindings to take advantage of the existing numerical infrastructure in NumPy and SciPy.
 
 On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, and etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries. 
 Consequently, developers often have to write a significant amount of boilerplate code just to finish rather trivial numerical tasks. 
@@ -30,9 +30,7 @@ In the following development and performance optimisation, we also tackled many 
 In this chapter, We show that Owl benefits greatly from OCaml’s module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
 OCaml's static type checking significantly reduces potential bugs and accelerate the development cycle. We would like to share the knowledge and lessons learnt from building up a full-fledge system for scientific computing with the functional programming community.
 
-## Subsystems
-
-### Architecture Overview
+## Architecture Overview
 
 Owl is a complex library consisting of numerous functions (over 6500 by the end of 2017), we have strived for a modular design to make sure that the system is flexible enough to be extended in future. In the following, we will present its architecture briefly.
 
@@ -63,7 +61,21 @@ The subsystem on the right is called Actor Subsystem which extends Owl's capabil
 The core idea is to transform a user application from sequential execution mode into parallel mode (using various computation engines) with minimal efforts. 
 The method we used is to compose two subsystems together with functors to generate the parallel version of the module defined in the numerical subsystem.
 
-### Core Data Structure
+Besides, there are other utility modules such as plotting.
+Plotting is an indispensable function in modern numerical libraries. We build Plot module on top of PLplot which is a powerful cross-platform plotting library.
+However PLPlot only provides very low-level functions
+to interact with its multiple plotting engines, eveb making a simple plot involves very lengthy and tedious control sequence. Using these low-level functions directly
+requires developers to understand the mechanisms in
+depth, which not only significantly reduces the productivity but also is prone to errors.
+Inspired by Matlab, we implement Plot module to
+provide developers a set of high-level APIs. The core
+plotting engine is very lightweight and only contains
+about 200 LOC. Its core design is to cache all the plotting operations as a sequence of function closures and
+execute them all when we output the figure.
+
+## High-level Functionality
+
+### N-dimensional Array
 
 N-dimensional array and matrix are the building blocks
 of Owl library, their functionality are implemented in
@@ -93,20 +105,45 @@ and GPU computing modules all implicitly or explicitly
 use computation graph to perform calculations. We will
 present the design of these modules over this topic.
 
+More 
+
 ### Algorithmic Differentiation
 
 Atop of the core components, we have developed several modules to extend Owl’s numerical capability. E.g.,
 Maths module includes many basic and advanced mathematical functions, whist `Stats` module provides various statistical functions such as random number generators, hypothesis tests, and so on. The most important extended module is Algodiff, which implements the algorithmic differentiation functionality.
 Owl's Algodiff module is based on the core nested ´ automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
 
-### Optimisation 
-
 Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine. 
 The optimisation engine is light and highly configurable, and also serves as the foundation of Regression module and Neural Network module because both are essentially mathematical optimisation problems.
 The flexibility in optimisation engine leads to an extremely compact design and small code base. For a fullfledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
 and Caffee.
 
-### Parallel Computing 
+## Core Implementation
+
+### Optimisation with C Code
+
+### Interfaced Libraries
+
+Some functionality such as math and linear algebra is included into the system by interfacing to other libraries. Rather than simply exposing the low-level functions, we carefully design easy-to-use high-level APIs
+and this section will cover these modules.
+
+**Math**
+
+**Linear Algebra**
+
+Even though Fortran is no longer among the top choices
+as a programming language, there is still a large body of
+Fortran numerical libraries whose performance still remain competitive even by today’s standard, e.g. BLAS
+and LAPACK.
+When designing the linear algebra module, we decide
+to interface to CBLAS and LAPACKE (i.e. the corresponding C interface of BLAS and LAPACK) then
+further build higher-level APIs atop of the low-level
+Fortran functions. The high-level APIs hides many tedious tasks such as setting memory layout, allocating
+workspace, calculating strides, and etc.
+
+## Parallel Computing 
+
+### Actor Engine
 
 Parallelism can take place at various levels, e.g. on
 multiple cores of the same CPU, or on multiple CPUs
@@ -149,40 +186,12 @@ mechanism adds extra overhead to a computation task.
 If the task per se is not computation heavy or the ndarray is small, OpenMP often slows down the computation. We therefore set a threshold on ndarray size below which OpenMP code is not triggered. This simple
 mechanism turns out to be very effective in practice.
 
-
-### Interfaced Libraries
-
-Some functionality such as plotting and linear algebra is included into the system by interfacing to other libraries. Rather than simply exposing the low-level functions, we carefully design easy-to-use high-level APIs
-and this section will cover these modules.
-
-**Linear Algebra**
-Even though Fortran is no longer among the top choices
-as a programming language, there is still a large body of
-Fortran numerical libraries whose performance still remain competitive even by today’s standard, e.g. BLAS
-and LAPACK.
-When designing the linear algebra module, we decide
-to interface to CBLAS and LAPACKE (i.e. the corresponding C interface of BLAS and LAPACK) then
-further build higher-level APIs atop of the low-level
-Fortran functions. The high-level APIs hides many tedious tasks such as setting memory layout, allocating
-workspace, calculating strides, and etc.
-
-
-**Plotting**
-Plotting is an indispensable function in modern numerical libraries. We build Plot module on top of PLplot which is a powerful cross-platform plotting library.
-However PLPlot only provides very low-level functions
-to interact with its multiple plotting engines, eveb making a simple plot involves very lengthy and tedious control sequence. Using these low-level functions directly
-requires developers to understand the mechanisms in
-depth, which not only significantly reduces the productivity but also is prone to errors.
-Inspired by Matlab, we implement Plot module to
-provide developers a set of high-level APIs. The core
-plotting engine is very lightweight and only contains
-about 200 LOC. Its core design is to cache all the plotting operations as a sequence of function closures and
-execute them all when we output the figure.
-
-## Software Optimisation
+AEOS
 
 
 ## Community-Driven R&D
+
+TODO: DATA
 
 Owl is a large open source project, to guarantee quality of the software and sustainable development, we enforce the following rules in day-to-day research, development, and project management.
 
@@ -222,6 +231,7 @@ For serious technical writing, please contribute to Owl's Tutorial Book.
 - Extending existing chapters are medium changes and you need to submit a proposal to Tutorial Book issue tracker.
 - Contributing a standalone chapter also requires submitting a chapter proposal. Alternatively, you can write to me directly to discuss about the chapter.
 
-Becoming A Team Member (?)
+
+## Summary
 
 ## References
