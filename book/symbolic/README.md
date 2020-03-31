@@ -25,23 +25,7 @@ The architecture design of this system is shown in [@fig:symbolic:architecture].
 The core abstraction is a independent symbolic representation layer.
 Based on this layer, we have various engines that can be translated to and from this symbolic representation.
 Currently we support three engines: the ONNX binary format, the computation graph in Owl, and the LaTeX string. 
-We impose little limit on the engine, as long as it satisfies this interface:
-
-```
-type t
-
-val of_symbolic : Owl_symbolic_graph.t -> t
-
-val to_symbolic : t -> Owl_symbolic_graph.t
-
-val save : t -> string -> unit
-
-val load : string -> t
-```
-
-Here the `Owl_symbolic_graph.t` is the core symbolic representation, and `t` is the local data type of its own.
-So an engine has to be able to do conversion on both directions, and then it can save/load its own data type.
-We will talk about them in the rest of this chapter.
+The CAS engine is currently still an on-going research project, and we envision that, once finished, this engine can be used to pre-process a symbolic representation so that it as an simplified canonical form before being processed by other engines. 
 
 
 ### Core abstraction
@@ -51,8 +35,118 @@ Currently it has already covered many common computation types, such as math ope
 Each symbol in the symbolic graph performs a certain operation.
 Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.
 
+The symbolic representation is defined mainly as array of `symbol`.
+Each `symbol` is a graph node that has an attribution of type ` Owl_symbolic_symbol.t`.
+It means that we can traverse through the whole graph by starting with one `symbol`.
+Besides symbols, the `name` field is the graph name, and `node_names` contains all the nodes' name contained in this graph.
+
+```ocaml
+type symbol = Owl_symbolic_symbol.t Owl_graph.node
+
+type t =
+  { mutable sym_nodes : symbol array
+  ; mutable name : string
+  ; mutable node_names : string array
+  }
+```
+
+Let's look at `Owl_symbolic_symbol.t`. It defines all the operations contained in the symbolic representation:
+
+```
+type t =
+  | NOOP
+  | Int                   of Int.t
+  | Complex               of Complex.t
+  | Float                 of Float.t
+  | Tensor                of Tensor.t
+  | Variable              of Variable.t
+  | RandomUniform         of RandomUniform.t
+  | Sin                   of Sin.t
+  | Cos                   of Cos.t
+  | Exp                   of Exp.t
+  | ReduceSum             of ReduceSum.t
+  | Reshape               of Reshape.t
+  | Conv                  of Conv.t
+  ....
+```
+
+There are totally about 150 operations included in our symbolic representation. 
 Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes of itself.
-The graph is implemented using Owl's `Owl_graph` data structure, with a symbol as attribution of a node in `Owl_graph`.
+For example, the `Sin` operation module is implemented as:
+
+
+```
+module Sin = struct
+  type t =
+    { mutable name : string
+    ; mutable input : string array
+    ; mutable out_shape : int array option array
+    }
+
+  let op_type = "Sin"
+
+  let create ?name x_name =
+    let input = [| x_name |] in
+    let name = Owl_symbolic_utils.node_name ?name op_type in
+    { name; input; out_shape = [| None |] }
+end
+```
+
+The module provides properties such as `op_type` and functions such as `create` that returns object of type `Sin.t`.
+The `name`, `input` and `out_shape` are common attributes in the operation modules. 
+
+In implementing the supported operations, we follow the category used in ONNX. These operations can be generally divided into these different groups:
+
+- Generators: operations that generate data, taking no input. For example, the `Int`, `Float`, `Tensor`, `Variable`, etc. 
+- Logical: logical operations such as `Xor`.
+- Math: mathematical operations. This group of operations makes a large part of the total operations supported. 
+- Neural Network: neural network related operations such as convolution and pooling. 
+- Object detection: also used in neural network, but the operations that are closely related with object detection applications, including `RoiAlign` and `NonMaxSuppression`.
+- Reduction: reduction (or folding) math operations such as sum reduce.
+- RNN: Recurrent neural network related operations such as LTSM.
+- Tensor: Normal tensor operations, like the ones that are included in the Ndarray module, such as `concat`, `reshape`, etc.
+- Sequence: take multiple tensor as one single object called `sequence`, and there are different corresponding functions on the sequence type data, such as `SequenceInsert`, `SequenceLength` etc.
+
+
+Based on these operation modules, we provide several functions on the `Owl_symbolic_symbol.t` type:
+
+- `name`: get the name of operation
+- `op_type`: get the operation type string
+- `input`: get the input nodes name of an operation
+- `set_input`: update the input nodes name 
+- `output`: get the output nodes name 
+- `set_output`: update the output nodes name 
+
+There are also some functions that only apply to certain types of operations. 
+The generator type of operations all need to specify the type of data it supports. Therefore, we use `dtype` function to check their data types.
+Another example is the `output` property. For most of the operation, it has only one output, and therefore its name is its output name.
+However, for operations such as `MaxPool` that contains multiple output, we need another function: `output`. 
+
+All these operations are invisible to users. 
+What the users really uses is the *operators*. 
+To build a graph, we first need to build the required attributes into an operation, and then put it into a graph node. This is what an operator does.
+Take the `sin` operator as an example:
+
+```
+let sin ?name x =
+  let xn = Owl_symbolic_graph.name x in
+  let s = Owl_symbolic_ops_math.Sin.create ?name xn in
+  make_node (Owl_symbolic_symbol.Sin s) [| x |]
+```
+
+Here the `sin` operator takes its parent node `x` as input, get its name as input property, and create a symbol node with the function `make_node`.
+This function takes an operation and an array of parent symbols, and then creates one symbol as return.
+What it does is mainly creating a child node using the given operation as node attribution, updating the child's input and output shape, and then connecting the child with parents before returning the child node.
+The connection is on both direction:
+
+```
+connect_ancestors parents [| child |];
+let uniq_parents = Owl_utils_array.unique parents in
+Array.iter (fun parent -> connect_descendants [| parent |] [| child |]) uniq_parents
+```
+
+Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. 
+EXPLAIN.
 
 Currently we adopt a global naming scheme, which is to add an incremental index number after each node's type. For example, if we have an `Add` symbol, a `Div` symbol, and then another `Add` symbol in a graph, then each node will be named `add_0`, `div_1`, and `add_1`.
 One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.
