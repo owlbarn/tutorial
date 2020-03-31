@@ -1,4 +1,5 @@
-# Symbolic Maths
+# Symbolic Representation
+
 
 ## Introduction
 
@@ -9,10 +10,39 @@ Besides, tasks such as visualising a computation also require some form or inter
 Owl has already provided a computation graph layer to separate the definition and execution of computation to improve the performance, but it's not an IR layer to perform these different tasks as mentioned before.
 Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.
 
+One thing to note is that do not mistake our symbolic representation as the classic symbolic computation (or Computer Algebra System) that manipulate mathematical expressions in a symbolic way, which is similar to the traditional manual computations.
+It is indeed one of our core motivation to pursue the symbolic computation with Owl. 
+Currently we provide a symbolic representation layer as the first step towards that target.
+More discussion will be added in future versions with the development with the support of symbolic math in Owl. 
 
 ## Design
 
 `owl_symbolic` is divided into two parts: the core symbolic representation that constructs a symbolic graph, and various engines that perform different task based on the graph.
+The architecture design of this system is shown in [@fig:symbolic:architecture].
+
+![Architecture of the symbolic system](images/symbolic/architecture.png "architecture"){width=90% #fig:symbolic:architecture}
+
+The core abstraction is a independent symbolic representation layer.
+Based on this layer, we have various engines that can be translated to and from this symbolic representation.
+Currently we support three engines: the ONNX binary format, the computation graph in Owl, and the LaTeX string. 
+We impose little limit on the engine, as long as it satisfies this interface:
+
+```
+type t
+
+val of_symbolic : Owl_symbolic_graph.t -> t
+
+val to_symbolic : t -> Owl_symbolic_graph.t
+
+val save : t -> string -> unit
+
+val load : string -> t
+```
+
+Here the `Owl_symbolic_graph.t` is the core symbolic representation, and `t` is the local data type of its own.
+So an engine has to be able to do conversion on both directions, and then it can save/load its own data type.
+We will talk about them in the rest of this chapter.
+
 
 ### Core abstraction
 
@@ -280,7 +310,5 @@ let _ =
   ONNX_Engine.save k "test.onnx"
 ```
 
-## Algebraic Simplification
 
-
-## Conclusion
+## Summary

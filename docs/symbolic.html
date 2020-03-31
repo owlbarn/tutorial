@@ -1,12 +1,29 @@
-<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Symbolic Maths - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="symbolic-maths">
-<h1>Symbolic Maths</h1>
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Symbolic Representation - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="symbolic-representation">
+<h1>Symbolic Representation</h1>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
 <p>The development of <code>owl_symbolic</code> library is motivated by multiple factors. For one thing, scientific computation can be considered as consisting of two broad categories: numerical computation, and symbolic computation. Owl has achieved a solid foundation in the former, but as yet to support the latter one, which is heavily utilised in a lot of fields. For another, with the development of neural network compilers such as <a href="https://tvm.apache.org/">TVM</a>, it is a growing trend that the definition of computation can be separated out, and the low level compilers to deal with optimisation and code generation etc. to pursue best computation performance. Besides, tasks such as visualising a computation also require some form or intermediate representation (IR). Owl has already provided a computation graph layer to separate the definition and execution of computation to improve the performance, but it’s not an IR layer to perform these different tasks as mentioned before. Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.</p>
+<p>One thing to note is that do not mistake our symbolic representation as the classic symbolic computation (or Computer Algebra System) that manipulate mathematical expressions in a symbolic way, which is similar to the traditional manual computations. It is indeed one of our core motivation to pursue the symbolic computation with Owl. Currently we provide a symbolic representation layer as the first step towards that target. More discussion will be added in future versions with the development with the support of symbolic math in Owl.</p>
 </section>
 <section class="level2" id="design">
 <h2>Design</h2>
-<p><code>owl_symbolic</code> is divided into two parts: the core symbolic representation that constructs a symbolic graph, and various engines that perform different task based on the graph.</p>
+<p><code>owl_symbolic</code> is divided into two parts: the core symbolic representation that constructs a symbolic graph, and various engines that perform different task based on the graph. The architecture design of this system is shown in fig.&nbsp;1.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:symbolic:architecture" title="architecture" src="images/symbolic/architecture.png"><figcaption>Figure 1: Architecture of the symbolic system</figcaption>
+</figure>
+<p>The core abstraction is a independent symbolic representation layer. Based on this layer, we have various engines that can be translated to and from this symbolic representation. Currently we support three engines: the ONNX binary format, the computation graph in Owl, and the LaTeX string. We impose little limit on the engine, as long as it satisfies this interface:</p>
+<div class="highlight">
+<pre><code class="language-clike">type t
+
+val of_symbolic : Owl_symbolic_graph.t -&gt; t
+
+val to_symbolic : t -&gt; Owl_symbolic_graph.t
+
+val save : t -&gt; string -&gt; unit
+
+val load : string -&gt; t</code></pre>
+</div>
+<p>Here the <code>Owl_symbolic_graph.t</code> is the core symbolic representation, and <code>t</code> is the local data type of its own. So an engine has to be able to do conversion on both directions, and then it can save/load its own data type. We will talk about them in the rest of this chapter.</p>
 <section class="level3" id="core-abstraction">
 <h3>Core abstraction</h3>
 <p>The core part is designed to be minimal and contains only necessary information. Currently it has already covered many common computation types, such as math operations, tensor manipulations, neural network specific operations such as convolution, pooling etc. Each symbol in the symbolic graph performs a certain operation. Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.</p>
@@ -191,7 +208,7 @@ let () =
 </div>
 <p>The generated “example.html” webpage is a standalone page that contains all the required scripts. Once opened in a browser, it looks like this:</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:symbolic:ui" src="images/symbolic/latex_01.png"><figcaption>Figure 1: UI of LaTeX engine</figcaption>
+<img alt="" style="width:90.0%" id="fig:symbolic:ui" src="images/symbolic/latex_01.png"><figcaption>Figure 2: UI of LaTeX engine</figcaption>
 </figure>
 <p>For each expression, the web UI contains its rendered LaTeX form and corresponding computation graph.</p>
 </section>
@@ -218,11 +235,8 @@ let _ =
   ONNX_Engine.save k "test.onnx"</code></pre>
 </div>
 </section>
-<section class="level2" id="algebraic-simplification">
-<h2>Algebraic Simplification</h2>
-</section>
-<section class="level2" id="conclusion">
-<h2>Conclusion</h2>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 </section>
 </article></div><a href="architecture.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 19</small>Architecture Overview</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
