@@ -15,6 +15,7 @@
 <section class="level3" id="core-abstraction">
 <h3>Core abstraction</h3>
 <p>The core part is designed to be minimal and contains only necessary information. Currently it has already covered many common computation types, such as math operations, tensor manipulations, neural network specific operations such as convolution, pooling etc. Each symbol in the symbolic graph performs a certain operation. Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.</p>
+<p><strong>Symbol</strong></p>
 <p>The symbolic representation is defined mainly as array of <code>symbol</code>. Each <code>symbol</code> is a graph node that has an attribution of type <code>Owl_symbolic_symbol.t</code>. It means that we can traverse through the whole graph by starting with one <code>symbol</code>. Besides symbols, the <code>name</code> field is the graph name, and <code>node_names</code> contains all the nodes’ name contained in this graph.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type symbol = Owl_symbolic_symbol.t Owl_graph.node
@@ -83,24 +84,10 @@ end</code></pre>
 <li><code>set_output</code>: update the output nodes name</li>
 </ul>
 <p>There are also some functions that only apply to certain types of operations. The generator type of operations all need to specify the type of data it supports. Therefore, we use <code>dtype</code> function to check their data types. Another example is the <code>output</code> property. For most of the operation, it has only one output, and therefore its name is its output name. However, for operations such as <code>MaxPool</code> that contains multiple output, we need another function: <code>output</code>.</p>
-<p>All these operations are invisible to users. What the users really uses is the <em>operators</em>. To build a graph, we first need to build the required attributes into an operation, and then put it into a graph node. This is what an operator does. Take the <code>sin</code> operator as an example:</p>
+<p><strong>Type Checking</strong></p>
+The type supported by <code>owl_symbolic</code> is listed as follows:
 <div class="highlight">
-<pre><code class="language-clike">let sin ?name x =
-  let xn = Owl_symbolic_graph.name x in
-  let s = Owl_symbolic_ops_math.Sin.create ?name xn in
-  make_node (Owl_symbolic_symbol.Sin s) [| x |]</code></pre>
-</div>
-<p>Here the <code>sin</code> operator takes its parent node <code>x</code> as input, get its name as input property, and create a symbol node with the function <code>make_node</code>. This function takes an operation and an array of parent symbols, and then creates one symbol as return. What it does is mainly creating a child node using the given operation as node attribution, updating the child’s input and output shape, and then connecting the child with parents before returning the child node. The connection is on both direction:</p>
-<div class="highlight">
-<pre><code class="language-clike">connect_ancestors parents [| child |];
-let uniq_parents = Owl_utils_array.unique parents in
-Array.iter (fun parent -&gt; connect_descendants [| parent |] [| child |]) uniq_parents</code></pre>
-</div>
-<p>Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. EXPLAIN.</p>
-<p>Currently we adopt a global naming scheme, which is to add an incremental index number after each node’s type. For example, if we have an <code>Add</code> symbol, a <code>Div</code> symbol, and then another <code>Add</code> symbol in a graph, then each node will be named <code>add_0</code>, <code>div_1</code>, and <code>add_1</code>. One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.</p>
-One task the symbolic core needs to perform is shape checking and shape inferencing. The type supported by <code>owl_symbolic</code> is listed as follows:
-<div class="highlight">
-<pre><code class="language-ocaml">type elem_type =
+<pre><code class="language-ocaml">type number_type =
   | SNT_Noop
   | SNT_Float
   | SNT_Double
@@ -117,10 +104,79 @@ One task the symbolic core needs to perform is shape checking and shape inferenc
   | SNT_Uint32
   | SNT_Uint64
   | SNT_Float16
-  | SNT_SEQ of elem_type</code></pre>
+  | SNT_SEQ of number_type</code></pre>
 </div>
-<p>This list of types covers most number and non-number types. <code>SNT_SEQ</code> means the type a list of the basic elements as inputs/outputs. Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node. In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to <code>None</code>. Once the input shapes contain <code>None</code>, the shape inference results hereafter will all be <code>None</code>, which means the output shapes cannot be decided at compile time.</p>
-<p>The core part provides symbolic operations as user interface. Each operation constructs a <code>symbol</code> and creates a <code>symbol Owl_graph.node</code> as output. Some symbol generates multiple outputs. In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.</p>
+<p>This list of types covers most number and non-number types. <code>SNT_SEQ</code> means the type a list of the basic elements as inputs/outputs.</p>
+<p><strong>Operators</strong></p>
+<p>All these operations are invisible to users. What the users really uses is the <em>operators</em>. To build a graph, we first need to build the required attributes into an operation, and then put it into a graph node. This is what an operator does. Take the <code>sin</code> operator as an example:</p>
+<div class="highlight">
+<pre><code class="language-clike">let sin ?name x =
+  let xn = Owl_symbolic_graph.name x in
+  let s = Owl_symbolic_ops_math.Sin.create ?name xn in
+  make_node (Owl_symbolic_symbol.Sin s) [| x |]</code></pre>
+</div>
+<p>Here the <code>sin</code> operator takes its parent node <code>x</code> as input, get its name as input property, and create a symbol node with the function <code>make_node</code>. This function takes an operation and an array of parent symbols, and then creates one symbol as return. What it does is mainly creating a child node using the given operation as node attribution, updating the child’s input and output shape, and then connecting the child with parents before returning the child node. The connection is on both direction:</p>
+<div class="highlight">
+<pre><code class="language-clike">connect_ancestors parents [| child |];
+let uniq_parents = Owl_utils_array.unique parents in
+Array.iter (fun parent -&gt; connect_descendants [| parent |] [| child |]) uniq_parents</code></pre>
+</div>
+<p>Therefore, the users can use the operators to build an graph representation, here is an example:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl_symbolic
+open Op
+open Infix
+
+let x = variable "x_0" in
+let y = exp ((sin x ** float 2.) + (cos x ** float 2.))
+    + (float 10. * (x ** float 2.))
+    + exp (pi () * complex 0. 1.)</code></pre>
+</div>
+<p>Here we start with the <code>variable</code> operator, which creates a placeholder for incoming data later. You can specify the shape of the variable with <code>~shape</code> parameter. If not specified, then it defaults to a scalar. You can also choose to initialise this variable with a <em>tensor</em> so that even if you don’t feed any data to the variable, the default tensor value will be used. A tensor in <code>owl-symbolic</code> is defined as:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type tensor =
+  { mutable dtype : number_type
+  ; mutable shape : int array
+  ; mutable str_val : string array option
+  ; mutable flt_val : float array option
+  ; mutable int_val : int array option
+  ; mutable raw_val : bytes option
+  }</code></pre>
+</div>
+<p>A tensor is of a specific type of data, and then it contains the value: string array, float array, integer array, or bytes. Only one of these fields can be used. If initialised with a tensor, a variable takes the same data type and shape as that of the tensor.</p>
+<p><strong>Naming</strong></p>
+<p>Currently we adopt a global naming scheme, which is to add an incremental index number after each node’s type. For example, if we have an <code>Add</code> symbol, a <code>Div</code> symbol, and then another <code>Add</code> symbol in a graph, then each node will be named <code>add_0</code>, <code>div_1</code>, and <code>add_1</code>. One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique. The symbolic graph contains the <code>node_names</code> field that include all the nodes’ names in the graph.</p>
+<p><strong>Shape Inferencing</strong></p>
+<p>One task the symbolic core needs to perform is shape checking and shape inferencing. Shape inference is performed in the <code>make_node</code> function and therefore happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known.</p>
+<div class="highlight">
+<pre><code class="language-clike">let (in_shapes : int array option array array)= 
+  Array.map (fun sym_node -&gt; 
+    Owl_graph.attr sym_node |&gt; Owl_symbolic_symbol.out_shape
+  ) parents 
+  in
+let (shape : int array option array) = 
+  Owl_symbolic_shape.infer_shape in_shapes sym
+...</code></pre>
+</div>
+<p>As the code shows, for each node, we first find the output shapes of its parents. The <code>in_shape</code> is of type <code>int array option array array</code>. You can understand it this way: <code>int array</code> is a shape array; <code>int array option</code> means this shape could be <code>None</code>.Then <code>int array option array</code> is one whole input from previous parent, since one parent may contains multiple outputs. Finally, <code>int array option array array</code> includes output from all parents. The main function <code>Owl_symbolic_shape.infer_shape</code> then infer the output shape of current node, and save it to the <code>out_shape</code> property of that symbol.</p>
+<p>The <code>infer_shape</code> function itself check the symbol type and then match with specific implementation. For example, a large number of operations actually takes one parent and keep its output shape:</p>
+<div class="highlight">
+<pre><code class="language-clike">let infer_shape input_shapes sym =
+  | Sin _ -&gt; infer_shape_01 input_shapes
+  | Exp _ -&gt; infer_shape_01 input_shapes
+  | Log _ -&gt; infer_shape_01 input_shapes
+....
+
+let infer_shape_01 input_shapes =
+  match input_shapes.(0).(0) with
+  | Some s -&gt; [| Some Array.(copy s) |]
+  | None   -&gt; [| None |]</code></pre>
+</div>
+<p>This pattern <code>infer_shape_01</code> covers these operations. It simply takes the input shape, and returns the same shape.</p>
+<p>There are two possible reasons for the input shape to be <code>None</code>. At first each node will be initialised with <code>None</code> output shape. During shape inference, in certain cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to <code>None</code>. Once the input shapes contain <code>None</code>, the shape inference results hereafter will all be <code>None</code>, which means the output shapes cannot be decided at compile time.</p>
+<p><strong>Multiple output</strong></p>
+<p>Most of the operators are straightforward to implement, but some of them returns multiple symbols as return.</p>
+<p>Some symbol generates multiple outputs. In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.</p>
 </section>
 <section class="level3" id="engines">
 <h3>Engines</h3>

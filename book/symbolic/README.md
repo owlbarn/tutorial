@@ -35,6 +35,8 @@ Currently it has already covered many common computation types, such as math ope
 Each symbol in the symbolic graph performs a certain operation.
 Input to a symbolic graph can be constants such as integer, float number, complex number, and tensor. The input can also be variables with certain shapes. An empty shape indicates a scalar value. The users can then provide values to the variable after the symbolic graph is constructed.
 
+**Symbol**
+
 The symbolic representation is defined mainly as array of `symbol`.
 Each `symbol` is a graph node that has an attribution of type ` Owl_symbolic_symbol.t`.
 It means that we can traverse through the whole graph by starting with one `symbol`.
@@ -122,6 +124,33 @@ The generator type of operations all need to specify the type of data it support
 Another example is the `output` property. For most of the operation, it has only one output, and therefore its name is its output name.
 However, for operations such as `MaxPool` that contains multiple output, we need another function: `output`. 
 
+**Type Checking**
+
+The type supported by `owl_symbolic` is listed as follows:
+```ocaml
+type number_type =
+  | SNT_Noop
+  | SNT_Float
+  | SNT_Double
+  | SNT_Complex32
+  | SNT_Complex64
+  | SNT_Bool
+  | SNT_String
+  | SNT_Int8
+  | SNT_Int16
+  | SNT_Int32
+  | SNT_Int64
+  | SNT_Uint8
+  | SNT_Uint16
+  | SNT_Uint32
+  | SNT_Uint64
+  | SNT_Float16
+  | SNT_SEQ of number_type
+```
+This list of types covers most number and non-number types. `SNT_SEQ` means the type a list of the basic elements as inputs/outputs.
+
+**Operators**
+
 All these operations are invisible to users. 
 What the users really uses is the *operators*. 
 To build a graph, we first need to build the required attributes into an operation, and then put it into a graph node. This is what an operator does.
@@ -145,40 +174,97 @@ let uniq_parents = Owl_utils_array.unique parents in
 Array.iter (fun parent -> connect_descendants [| parent |] [| child |]) uniq_parents
 ```
 
-Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. 
-EXPLAIN.
+Therefore, the users can use the operators to build an graph representation, here is an example:
+
+```ocaml
+open Owl_symbolic
+open Op
+open Infix
+
+let x = variable "x_0" in
+let y = exp ((sin x ** float 2.) + (cos x ** float 2.))
+    + (float 10. * (x ** float 2.))
+    + exp (pi () * complex 0. 1.)
+```
+
+Here we start with the `variable` operator, which creates a placeholder for incoming data later. 
+You can specify the shape of the variable with `~shape` parameter. If not specified, then it defaults to a scalar.
+You can also choose to initialise this variable with a *tensor* so that even if you don't feed any data to the variable, the default tensor value will be used. 
+A tensor in `owl-symbolic` is defined as:
+
+```ocaml
+type tensor =
+  { mutable dtype : number_type
+  ; mutable shape : int array
+  ; mutable str_val : string array option
+  ; mutable flt_val : float array option
+  ; mutable int_val : int array option
+  ; mutable raw_val : bytes option
+  }
+```
+
+A tensor is of a specific type of data, and then it contains the value: string array, float array, integer array, or bytes.
+Only one of these fields can be used. 
+If initialised with a tensor, a variable takes the same data type and shape as that of the tensor.
+
+**Naming**
 
 Currently we adopt a global naming scheme, which is to add an incremental index number after each node's type. For example, if we have an `Add` symbol, a `Div` symbol, and then another `Add` symbol in a graph, then each node will be named `add_0`, `div_1`, and `add_1`.
 One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.
+The symbolic graph contains the `node_names` field that include all the nodes' names in the graph.
 
-One task the symbolic core needs to perform is shape checking and shape inferencing. The type supported by `owl_symbolic` is listed as follows:
-```ocaml
-type elem_type =
-  | SNT_Noop
-  | SNT_Float
-  | SNT_Double
-  | SNT_Complex32
-  | SNT_Complex64
-  | SNT_Bool
-  | SNT_String
-  | SNT_Int8
-  | SNT_Int16
-  | SNT_Int32
-  | SNT_Int64
-  | SNT_Uint8
-  | SNT_Uint16
-  | SNT_Uint32
-  | SNT_Uint64
-  | SNT_Float16
-  | SNT_SEQ of elem_type
+**Shape Inferencing**
+
+One task the symbolic core needs to perform is shape checking and shape inferencing. 
+Shape inference is performed in the `make_node` function and therefore happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. 
+
 ```
-This list of types covers most number and non-number types. `SNT_SEQ` means the type a list of the basic elements as inputs/outputs.
-Type inference happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. The inferenced output shape is saved in each node.
-In certain rare cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. In that case, the output shapes is set to `None`.
+let (in_shapes : int array option array array)= 
+  Array.map (fun sym_node -> 
+    Owl_graph.attr sym_node |> Owl_symbolic_symbol.out_shape
+  ) parents 
+  in
+let (shape : int array option array) = 
+  Owl_symbolic_shape.infer_shape in_shapes sym
+...
+```
+
+As the code shows, for each node, we first find the output shapes of its parents.
+The `in_shape` is of type `int array option array array`. 
+You can understand it this way: `int array` is a shape array; `int array option` means this shape could be `None`.Then `int array option array` is one whole input from previous parent, since one parent may contains multiple outputs.
+Finally, `int array option array array` includes output from all parents.
+The main function `Owl_symbolic_shape.infer_shape` then infer the output shape of current node, and save it to the `out_shape` property of that symbol.
+
+The `infer_shape` function itself check the symbol type and then match with specific implementation. 
+For example, a large number of operations actually takes one parent and keep its output shape:
+
+```
+let infer_shape input_shapes sym =
+  | Sin _ -> infer_shape_01 input_shapes
+  | Exp _ -> infer_shape_01 input_shapes
+  | Log _ -> infer_shape_01 input_shapes
+....
+
+let infer_shape_01 input_shapes =
+  match input_shapes.(0).(0) with
+  | Some s -> [| Some Array.(copy s) |]
+  | None   -> [| None |]
+```
+
+This pattern `infer_shape_01` covers these operations. It simply takes the input shape, and returns the same shape. 
+
+There are two possible reasons for the input shape to be `None`.
+At first each node will be initialised with `None` output shape. 
+During shape inference, in certain cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. 
+In that case, the output shapes is set to `None`.
 Once the input shapes contain `None`, the shape inference results hereafter will all be `None`, which means the output shapes cannot be decided at compile time.
 
-The core part provides symbolic operations as user interface.
-Each operation constructs a `symbol` and creates a `symbol Owl_graph.node` as output.
+**Multiple output**
+
+Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. 
+
+
+
 Some symbol generates multiple outputs. In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.
 
 
