@@ -181,7 +181,7 @@ open Owl_symbolic
 open Op
 open Infix
 
-let x = variable "x_0" in
+let x = variable "x_0"
 let y = exp ((sin x ** float 2.) + (cos x ** float 2.))
     + (float 10. * (x ** float 2.))
     + exp (pi () * complex 0. 1.)
@@ -262,11 +262,9 @@ Once the input shapes contain `None`, the shape inference results hereafter will
 **Multiple output**
 
 Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. 
-
-
-
-Some symbol generates multiple outputs. In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.
-
+In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.
+For example, the `MaxPool` operation returns two outputs, one is the normal maxpooling result, and the other is the corresponding tensor that contains indices of the selected values during pooling.
+Or we have the `Split` operation that splits a tensor into a list of tensors, along the specified axis. It returns an array of symbols. 
 
 ### Engines
 
@@ -381,10 +379,81 @@ print(pred_onx)
 This script is very simple: it loads the ONNX model we have just created, and then get the two input variables, and assign two values to them in the `sess.run` command. All the user need to know in advance is that there are two input variables in this ONNX model. Note that we could define not only scalar type input but also tensor type variables in `owl_symbolic`, and then assign NumPy array to them when evaluating.
 
 
-### Example 2: Neural network
+### Example 2: Variable Initialisation
+
+We can initialise the variables with tensor values so that these default values are used even if no data are passed in.
+Here is one example:
+
+```ocaml
+open Owl_symbolic
+open Op
+
+let _ =
+  let flt_val = [| 1.; 2.; 3.; 4.; 5.; 6. |] in
+  let t = Type.make_tensor ~flt_val [| 2; 3 |] in
+  let x = variable ~init:t "X" in
+  let y = sin x in
+  let g = SymGraph.make_graph [| y |] "sym_graph" in
+  let z = ONNX_Engine.of_symbolic g in
+  ONNX_Engine.save z "test.onnx"
+```
+
+This computation simply takes an input variable `x` and then apply the `sin` operation.
+Let's look at the Python side.
+
+```python
+import numpy as np 
+import onnxruntime as rt
+
+sess = rt.InferenceSession("test.onnx")
+pred_onx = sess.run(None, input_feed={})
+print(pred_onx[0])
+```
+
+The expected output is:
+
+```python
+[[ 0.84147096  0.9092974   0.14112   ]
+ [-0.7568025  -0.9589243  -0.2794155 ]]
+```
+
+Note how the initializer works without user providing any input in the input feed dictionary.
+Of course, the users can still provide their own data to this computation, but the mechanism may be a bit different.
+For example, in `onnx_runtime`, using `sess.get_inputs()` gives an empty set this time.
+Instead, you should use `get_overridable_initializers()`:
+
+```python
+input_x = sess.get_overridable_initializers()[0]
+input_name_x = input_x.name 
+input_shape_x = input_x.shape
+x = np.ones(input_shape_x, dtype="float32")
+pred_onx = sess.run(None, {input_name_x: x})
+```
+
+### Example 3: Neural network
 
 The main purpose of the ONNX standard is for expressing neural network models, and we have already cover most of the common operations that are required to construct neural networks.
 However, to construct a neural network model directly from existing `owl_symbolic` operations requires a lot of details such as input shapes or creating extra nodes.
+For example, if you want to build a neural network with operators directly, you need to write something like:
+
+```
+let dnn =
+  let x = variable ~shape:[| 100; 3; 32; 32 |] "X" in
+  let t_conv0 = conv ~padding:Type.SAME_UPPER x
+      (random_uniform ~low:(-0.138) ~high:0.138 [| 32; 3; 3; 3 |]) in
+  let t_zero0 =
+    let flt_val = Array.make 32 0. in
+    let t = Type.make_tensor ~flt_val [| 32 |] in
+    tensor t
+  in
+  let t_relu0 = relu (t_conv0 + t_zero0) in
+  let t_maxpool0, _ = maxpool t_relu0 ~padding:VALID ~strides:[| 2; 2 |] [| 2; 2 |] in
+  let t_reshape0 = reshape [| 100; 8192 |] t_maxpool0 in
+  let t_rand0 = random_uniform ~low:(-0.0011) ~high:0.0011 [| 8192; 512 |] in
+  ....
+```
+
+Apparently that's too much information for the users to handle.
 To make things easier for the users, we create neural network layer based on existing symbolic operations. This light-weight layer takes only 180 LoC, and yet it provides a Owl-like clean syntax for the users to construct neural networks. For example, we can construct a MNIST-DNN model:
 
 ```ocaml
@@ -431,28 +500,38 @@ In summary, using ONNX as the intermediate format for exchange computation acros
 ## LaTeX Engine
 
 The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools.
-For example, we have built a web UI in this Engine that utilises [KaTeX](https://katex.org/), which renders LaTeX string directly on a browser.
-Below is an example, where we define an math symbolic graph, convert it into LaTeX string, and show this string on our web UI using the functionality the engine provides.
+It's design is simple, mainly about matching symbol type and project it to correct implementation.
+Again, let's look at an example that builds up a symbolic representation of a calculation $\exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi~i)$
 
-```ocaml
-# open Owl_symbolic
-# open Op
-# open Infix
+```ocaml env=symbolic:latex-engine
+open Owl_symbolic
+open Op
+open Infix
 
-# let make_expr0 () =
-    let x = variable "x_0" in
-    (* construct *)
-    let y =
-      exp ((sin x ** float 2.) + (cos x ** float 2.))
-      + (float 10. * (x ** float 2.))
-      + exp (pi () * complex 0. 1.)
-    in
-    SymGraph.make_graph [| y |] "sym_graph"
-val make_expr0 : unit -> Owl_symbolic_graph.t = <fun>
+let make_expr0 () =
+  let x = variable "x_0" in
+  let y =
+    exp ((sin x ** float 2.) + (cos x ** float 2.))
+    + (float 10. * (x ** float 2.))
+    + exp (pi () * complex 0. 1.)
+  in
+  SymGraph.make_graph [| y |] "sym_graph"
+```
+
+This expression can be converted into a corresponding LaTeX string:
+
+```ocaml env=symbolic:latex-engine
 # let () = make_expr0 () 
     |> LaTeX_Engine.of_symbolic 
     |> print_endline
 \exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi \times 1.00i)
+```
+
+Simply putting it in the raw string form is not very helpful for visualisation.
+We have built a web UI in this Engine that utilises [KaTeX](https://katex.org/), which renders LaTeX string directly on a browser.
+Below we use the `html` function provided by the engine to show this string on our web UI using the functionality the engine provides.
+
+```ocaml env=symbolic:latex-engine
 # let () = 
     let exprs = [ make_expr0 () ] in 
     LaTeX_Engine.html ~dot:true ~exprs "example.html"
@@ -468,10 +547,30 @@ For each expression, the web UI contains its rendered LaTeX form and correspondi
 
 An Owl Engine enables converting Owl computation graph to or from a symbolic representation. Symbolic graph can thus benefit from the concise syntax and powerful features such as Algorithm Differentiation in Owl.
 
-We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks.
-Here is such an example. A simple computation graph created by `make_graph ()` is processed by two chained engines, and generates an ONNX model.
+The conversion between Owl CGraph and the symbolic representation is straightforward, since both are graph structures.
+We only need to focus on make the operation projection between these two system correct.
 
-```ocaml
+```
+let cnode_attr = Owl_graph.attr node in
+match cnode_attr.op with
+| Sin -> Owl_symbolic_operator.sin ~name sym_inputs.(0)
+| Sub -> Owl_symbolic_operator.sub ~name sym_inputs.(0) sym_inputs.(1)
+| SubScalar -> Owl_symbolic_operator.sub ~name sym_inputs.(0) sym_inputs.(1)
+| Conv2d (padding, strides) ->
+    let pad =
+      if padding = SAME then Owl_symbolic_types.SAME_UPPER else Owl_symbolic_types.VALID
+    in
+    Owl_symbolic_operator.conv ~name ~padding:pad ~strides sym_inputs.(0) sym_inputs.(1)
+```
+
+The basic logic is simple: find the type of symbol and its input node in CGraph, and then do the projection to symbolic representation.
+For most of the math operators such as `sin`, the projection is one-to-one, but that's not all the cases.
+For some operations such as subtraction, we have `Sub`, `SubScalar` and `ScalarSub` etc. depending on the type of input, but they can all be projected to the `sub` operator in symbolic representation.
+Or for the convolution operation, we need to first convert the parameters in suitable way before the projection.
+
+Let's see an example of using the Owl engine:
+
+```ocaml env=symbolic:owl-engine
 open Owl_symbolic
 module G = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.S)
 module AD = Owl_algodiff_generic.Make (G)
@@ -485,10 +584,22 @@ let make_graph () =
   let output = [| AD.unpack_arr z |> G.arr_to_node |] in
   G.make_graph ~input ~output "graph"
 
+let g = make_graph () |> OWL_Engine.to_symbolic 
+```
+
+Here we build a simple computation graph with the algorithmic differentiation module in Owl.
+Then we perform the conversion by calling `OWL_Engine.to_symbolic`.
+
+We can also chain multiple engines together. For example, we can use Owl engine to converge the computation define in Owl to symbolic graph, which can then be converted to ONNX model and get executed on multiple frameworks.
+Here is such an example. A simple computation graph created by `make_graph ()` is processed by two chained engines, and generates an ONNX model.
+
+
+```ocaml env=symbolic:owl-engine
 let _ =
   let k = make_graph () |> OWL_Engine.to_symbolic |> ONNX_Engine.of_symbolic in
   ONNX_Engine.save k "test.onnx"
 ```
 
+And this `test.onnx` file can further be processed with Python code as introduced in the previous section.
 
 ## Summary
