@@ -1,7 +1,6 @@
 # Computation Graph
 
-
-This is not a tutorial on how to use the computation graph in Owl. Instead, what I will present is a bird's-eye view on how the computation graph is designed then fitted into Owl's functor stack, and its implications on the architecture of numerical systems.
+This chapter first gives a bird's-eye-view on the computation graph in Owl. Then we will continue to cover the design and implementation details of computation graph and how it is fitted into Owl's functor stack, and its implications on the architecture of numerical systems.
 
 To motivate you to continue reading this article, you can try to run both [mnist_cnn.ml](https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml) and [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml) then compare their performance. Both Zoo scripts train the same convolutional neural network to recognise the handwritten digits using MNIST datasets in 60 iterations. On my laptop, `mnist_cnn.ml` takes 30s to finish and consumes approximate 4GB memory, whilst `lazy_mnist.ml` only takes 5s and consumes about 0.75GB. `lazy_mnist.ml` achieves the state-of-the-art performance which you can obtain by using TensorFlow (with its recent XLA optimisation), actually Owl runs even faster on 3 out of 4 machines we have tested.
 
@@ -26,7 +25,7 @@ Dynamic graph is constructed during the runtime. Due to operator overloading, it
 As we can see, the flexibility of a dynamic graph comes with the price of lower performance. Facebook's Pytorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively. Interestingly, Owl does something slightly different from these two in order to get the best parts of both worlds, we will detail this in the following.
 
 
-## Why Does It Matter?
+## Significance in Computing
 
 Now that you know what is a computation graph, you may ask why it matters? Well, the computation graph makes many things a lot easier. Here is an incomplete list of potential benefits.
 
@@ -48,7 +47,7 @@ The computation graph provides a way to abstract the flow of computations, there
 The computation graph has more profound implications. Because the memory allocated for each node is mutable, Algodiff becomes more scalable when evaluating large and complex graphs. At the same time, mutable transformation is handled by Owl so programmers can still write safe functional code.
 
 
-## How Is It Designed?
+## Design Rationale
 
 How is the computation graph is designed? In the older versions, Algodiff module has some partial support of computation graph in order to perform reverse mode algorithmic differentiation (AD). The full support was only introduced in Owl 0.4.0.
 
@@ -151,7 +150,7 @@ For the new stack, we can see it is indeed much deeper.
 ```
 
 
-## What to Do with GPU?
+## As Intermediate Representations
 
 Programming a GPU is very much like programming a computer cluster. The gain of parallel computing comes with inevitable synchronisation and communication overhead. Therefore GPU computing only makes sense when the computation complexity is high enough to dwarf other overhead.
 
@@ -161,7 +160,7 @@ From implementation perspective, we only need to write a new engine functor for 
 
 
 
-## JIT - From Dynamic to Static
+## From Dynamic to Static
 
 Recall the tradeoff between dynamic and static graph I mentioned before, i.e. flexibility vs efficiency. Many programmers need to make a decision between Google's TensorFlow and Facebook's Pytorch. A common practice is -- "using Pytorch at home and using TensorFlow in the company", In other words, Pytorch is preferred for prototyping and TensorFlow is ideal for production use. Can we get the best parts of both worlds?
 
@@ -173,12 +172,13 @@ Comparing to TensorFlow, the time overhead (for graph conversion and optimisatio
 
 Technically, JIT is very straightforward to implement in Owl's architecture. Given a deep neural network, Owl first runs both forward pass and backward pass. Because of the computation graph, the calculation becomes symbolic and we can obtain the complete computation graph to calculate the loss and gradients of a neural network. We can then pass this static graph to the optimisation engine to optimise. The [Neural Compiler](https://github.com/owlbarn/owl/blob/master/src/base/neural/owl_neural_compiler.ml) functor is parameterised by a computation engine then compiles a DNN definition and training configuration into a device-dependent static graph.
 
+
 ## Examples of Using CGraph
 
 TBD
 
 
-## Computer Vision and CGraph 
+## Optimisation of CGraph 
 
 The design of Owl is often driven by real-world applications.
 Besides the MNIST example, we find the image segmentation another challenging application for Owl. Seeking to push the performance of this application, we manage to further optimise the design of CGraph module.
@@ -327,7 +327,8 @@ You can also check [this page](http://demo.ocaml.xyz/mrcnn.html) for a demo of t
 If you want to apply it on videos, large images or experiment a bit more, see the [GitHub repository](https://github.com/pvdhove/owl-mask-rcnn). 
 Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.
 
-## What Is Next?
+
+## Summary
 
 The [complete functor stack](https://github.com/owlbarn/owl/tree/master/src/base/compute) of the computation graph has already been implemented, and it has been used internally in Owl to speed up many operations. However, to let other programmers take advantage of this power, I still need to do a lot of engineering work to wrap up a set of easy-to-use APIs.
 
