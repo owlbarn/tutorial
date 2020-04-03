@@ -566,3 +566,61 @@ Using NPY files are the same as that of normal serialisation. Here is a simple e
 ```
 
 There are way more functions contained in the Ndarray module than the ones I have introduced here. Please refer to the API documentation for the full list.
+
+## Tensors 
+
+At last, we will briefly introduce the idea of *tensor*. 
+If you look at some articles online the tensor is defined as a n-dimensional array.
+However, mathematically, there are differences between these two. 
+In a n-dimension space, a tensor contains $m$ indices is an mathematical object that obeys certain transformation rules.
+For example, in a three dimension space, we have a value `A = [0, 1, 2]` that indicate an vector in this space. 
+We can find each element in this vector by a single index $i$, e.g. $A_1 = 1$.
+This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems. 
+But if we do so, then the content in $A$ needs to be updated accordingly. 
+Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. 
+That's why we keep using the term "ndarray" in this chapter and through out the book.
+
+Contraction (normal symbol)
+One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication $C_{ij} = \sum_{k}A_{ik}B_{kj}$.
+The *contraction* operations extends this process to multiple dimension space. 
+It sums the products of the two ndarrays' elements over specified axes.
+For example, we have two three-dimensional array A and B. We hope to compute the matrix C so that: 
+
+$$C_{ij} = \sum_{hk}~A_{hki}B_{khj}$$ {#eq:ndarray:contract}
+
+We can use the `contract2` function in the Ndarray module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
+
+```ocaml env=ndarray:contraction
+let x = Arr.sequential [|3;4;5|]
+let y = Arr.sequential [|4;3;2|]
+
+let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y 
+```
+
+The indices means that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`, as shown in [@eq:ndarray:contract].
+We can verify the result with the naive way of implementation:
+
+```ocaml env=ndarray:contraction
+let z2 = Arr.zeros [|5;2|]
+for h = 0 to 2 do
+  for k = 0 to 3 do 
+    for i = 0 to 4 do 
+      for j = 0 to 1 do 
+        let r = (Arr.get x [|h;k;i|]) *. (Arr.get y [|k;h;j|]) in 
+        Arr.set z2 [|i;j|] ((Arr.get z2 [|i;j|]) +. r)
+      done
+    done
+  done
+done
+```
+
+Then check if the two results agree:
+
+```ocaml env=ndarray:contraction
+# Arr.equal z1 z2 
+```
+
+
+BTW, einstein ... 
+
+Going more detail into the topic of tensor 
