@@ -580,7 +580,6 @@ But if we do so, then the content in $A$ needs to be updated accordingly.
 Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. 
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
-Contraction (normal symbol)
 One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication $C_{ij} = \sum_{k}A_{ik}B_{kj}$.
 The *contraction* operations extends this process to multiple dimension space. 
 It sums the products of the two ndarrays' elements over specified axes.
@@ -602,25 +601,53 @@ We can verify the result with the naive way of implementation:
 
 ```ocaml env=ndarray:contraction
 let z2 = Arr.zeros [|5;2|]
-for h = 0 to 2 do
-  for k = 0 to 3 do 
-    for i = 0 to 4 do 
-      for j = 0 to 1 do 
-        let r = (Arr.get x [|h;k;i|]) *. (Arr.get y [|k;h;j|]) in 
-        Arr.set z2 [|i;j|] ((Arr.get z2 [|i;j|]) +. r)
+
+let _ = 
+  for h = 0 to 2 do
+    for k = 0 to 3 do 
+      for i = 0 to 4 do 
+        for j = 0 to 1 do 
+          let r = (Arr.get x [|h;k;i|]) *. (Arr.get y [|k;h;j|]) in 
+          Arr.set z2 [|i;j|] ((Arr.get z2 [|i;j|]) +. r)
+        done
       done
     done
   done
-done
 ```
 
 Then check if the two results agree:
 
 ```ocaml env=ndarray:contraction
 # Arr.equal z1 z2 
+- : bool = true
 ```
 
+The contraction can also be applied on one single ndarray to perform the reduction operation using `contract1` function.
 
-BTW, einstein ... 
+```ocaml
+# let x = Arr.sequential [|2;2;3|]
+val x : Arr.arr =
 
-Going more detail into the topic of tensor 
+       C0 C1 C2
+R[0,0]  0  1  2
+R[0,1]  3  4  5
+R[1,0]  6  7  8
+R[1,1]  9 10 11
+
+# let y = Arr.contract1 [|(0,1)|] x
+val y : Arr.arr =
+  C0 C1 C2
+R  9 11 13
+
+```
+
+We can surely perform the matrix multiplication with the contraction. 
+High-performance implementation of the contraction operation has been a research topic.
+Actually, many tensor operations involve summation over particular indices. 
+Therefore in using tensors in applications such as linear algebra and physics, the *Einstein notation* is used to simplified notations.
+It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term).
+For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$.
+
+More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as [@dullemond1991introduction] for deeper understanding about this topic.
+
+## References
