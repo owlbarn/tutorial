@@ -26,12 +26,16 @@
 <div class="highlight">
 <pre><code class="language-ocaml">let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) /. _eps</code></pre>
+let diff f x = (f (x +. _eps) -. f x) /. _eps</code></pre>
 </div>
-<p><strong>liang: x can in the middle, left, and right. Show that it is optimal to be in the middle. Also, diff is not consistent with eq.27</strong> <span id="eq:optimisation:numdiff2"><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x-\delta)}{2\delta}.\qquad(4)\]</span></span></p>
-<p>We can apply it to a simple case:</p>
+<p><strong>liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.</strong></p>
+<p>We can apply it to a simple case. Let’s say, we want to find the derivative fo <span class="math inline">\(f(x) = x^2\)</span> at point <span class="math inline">\(x=2\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(2x = 4\)</span>. Here is the code:</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = x *. x;;
+&gt;val f : float -&gt; float = &lt;fun&gt;
+let d = diff f 2. ;;
+&gt;val d : float = 4.00001000002703222
+</code></pre>
 </div>
 <p>Looks good.</p>
 <p>Owl has provided numerical differentiation. It’s close to the interface of that of Algodiff:</p>
@@ -53,9 +57,26 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 </div>
 <p>Looks nice, much easier than Algodiff’s approach, right?</p>
 <p>No.&nbsp;Sadly, this naive numerical solution can lead to large errors in reality.</p>
-<p>There are two source of errors: truncating error (explain) and roundoff error (explain). You must be very careful and apply some numerical techniques. While Algodiff guarantees a true derivative value without loss of accuracy. you can see the difference in this example:</p>
+<p>There are two source of errors: truncating error (explain) and round-off error (explain). You must be very careful and apply some numerical techniques. While Algodiff guarantees a true derivative value without loss of accuracy. you can see the difference in this example:</p>
+<p>Truncation error:</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE (how to show the difference)?</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
+  let _eps = 0.1 in
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+  diff f 2.
+;;
+&gt;val d : float = 4.10000000000000142
+</code></pre>
+</div>
+<p>Round-off Error:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
+  let _eps = 1E-15 in
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+  diff f 2.
+;;
+&gt;val d : float = 3.55271367880050049
+</code></pre>
 </div>
 <p>For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.</p>
 </section>
@@ -66,8 +87,8 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 <h3>Bisect, Newton, Secant, and IQI</h3>
 <p>First, the Bisection method. Use <span class="math inline">\(\sqrt{2}\)</span> as an example, just show the string of number here:<span class="math inline">\(1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots\)</span>. (DETAIL) Owl provides <code>Owl_maths_root.bisec</code> method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let’s keep thing concise for now.) This method converges slowly, but it is a solid and reliable method.</p>
 <p>Newton method utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and follows this process:</p>
-<p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(5)\]</span></span></p>
-<p>We can use the Algorithm Differention module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;5.</p>
+<p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(4)\]</span></span></p>
+<p>We can use the Algorithm Differention module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;4.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -94,7 +115,7 @@ The resulting sequence is very short compared to the bisection method:
 </div>
 <p>The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
 <p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
-<p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(6)\]</span></span></p>
+<p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(5)\]</span></span></p>
 <p>In the Secant method, two points are used at each iteration, the <em>Inverse Quadratic Interpolation</em> (IQI) method then uses three points to do that. DETAIL. Benefit/Limit.</p>
 </section>
 <section class="level3" id="brents-method">

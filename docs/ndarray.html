@@ -454,8 +454,17 @@ Arr.(x = y)
 <section class="level2" id="tensors">
 <h2>Tensors</h2>
 <p>At last, we will briefly introduce the idea of <em>tensor</em>. If you look at some articles online the tensor is defined as a n-dimensional array. However, mathematically, there are differences between these two. In a n-dimension space, a tensor contains <span class="math inline">\(m\)</span> indices is an mathematical object that obeys certain transformation rules. For example, in a three dimension space, we have a value <code>A = [0, 1, 2]</code> that indicate an vector in this space. We can find each element in this vector by a single index <span class="math inline">\(i\)</span>, e.g.&nbsp;<span class="math inline">\(A_1 = 1\)</span>. This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems. But if we do so, then the content in <span class="math inline">\(A\)</span> needs to be updated accordingly. Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. That’s why we keep using the term “ndarray” in this chapter and through out the book.</p>
-<p>One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication <span class="math inline">\(C_{ij} = \sum_{k}A_{ik}B_{kj}\)</span>. The <em>contraction</em> operations extends this process to multiple dimension space. It sums the products of the two ndarrays’ elements over specified axes. For example, we have two three-dimensional array A and B. We hope to compute the matrix C so that:</p>
-<p><span id="eq:ndarray:contract"><span class="math display">\[C_{ij} = \sum_{hk}~A_{hki}B_{khj}\qquad(1)\]</span></span></p>
+<p>One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication: <span id="eq:ndarray:matmul"><span class="math display">\[C_{ij} = \sum_{k}A_{ik}B_{kj}.\qquad(1)\]</span></span> The <em>contraction</em> operations extends this process to multiple dimension space. It sums the products of the two ndarrays’ elements over specified axes. For example, we can perform the matrix multiplication with contraction:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Mat.uniform 3 4
+let y = Mat.uniform 4 5 
+
+let z1 = Mat.dot x y 
+let z2 = Arr.contract2 [|(1,0)|] x y</code></pre>
+</div>
+<p>We can see that the matrix multiplication is a special case of and can be implemented with the contraction operation.</p>
+<p>Then let’s extend the two dimension case to multiple dimensions. Let’s say we have two three-dimensional array A and B. We hope to compute the matrix C so that:</p>
+<p><span id="eq:ndarray:contract"><span class="math display">\[C_{ij} = \sum_{hk}~A_{hki}B_{khj}\qquad(2)\]</span></span></p>
 <p>We can use the <code>contract2</code> function in the Ndarray module. It takes an array of <code>int * int</code> tuples to specifies the pair of indices in the two input ndarrays. Here is the code:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Arr.sequential [|3;4;5|]
@@ -463,7 +472,7 @@ let y = Arr.sequential [|4;3;2|]
 
 let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y </code></pre>
 </div>
-<p>The indices means that, in the contraction, the 0th dimension of <code>x</code> corresponds with the 1st dimension of <code>y</code>, an the 1st dimension of <code>x</code> corresponds with the 0th dimension of <code>y</code>, as shown in eq.&nbsp;1. We can verify the result with the naive way of implementation:</p>
+<p>The indices means that, in the contraction, the 0th dimension of <code>x</code> corresponds with the 1st dimension of <code>y</code>, an the 1st dimension of <code>x</code> corresponds with the 0th dimension of <code>y</code>, as shown in eq.&nbsp;2. We can verify the result with the naive way of implementation:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let z2 = Arr.zeros [|5;2|]
 

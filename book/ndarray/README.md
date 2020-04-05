@@ -580,10 +580,24 @@ But if we do so, then the content in $A$ needs to be updated accordingly.
 Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. 
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
-One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication $C_{ij} = \sum_{k}A_{ik}B_{kj}$.
+One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication:
+$$C_{ij} = \sum_{k}A_{ik}B_{kj}.$$ {#eq:ndarray:matmul}
 The *contraction* operations extends this process to multiple dimension space. 
 It sums the products of the two ndarrays' elements over specified axes.
-For example, we have two three-dimensional array A and B. We hope to compute the matrix C so that: 
+For example, we can perform the matrix multiplication with contraction:
+
+```ocaml env=ndarray:matmul
+let x = Mat.uniform 3 4
+let y = Mat.uniform 4 5 
+
+let z1 = Mat.dot x y 
+let z2 = Arr.contract2 [|(1,0)|] x y
+```
+
+We can see that the matrix multiplication is a special case of and can be implemented with the contraction operation.
+
+Then let's extend the two dimension case to multiple dimensions.
+Let's say we have two three-dimensional array A and B. We hope to compute the matrix C so that: 
 
 $$C_{ij} = \sum_{hk}~A_{hki}B_{khj}$$ {#eq:ndarray:contract}
 
@@ -633,6 +647,9 @@ R[0,0]  0  1  2
 R[0,1]  3  4  5
 R[1,0]  6  7  8
 R[1,1]  9 10 11
+
+
+
 
 # let y = Arr.contract1 [|(0,1)|] x
 val y : Arr.arr =

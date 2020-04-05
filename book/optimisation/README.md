@@ -61,19 +61,23 @@ $$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ {#eq:optimisat
 This method is pretty easy to follow: evaluate the given $f$ at point $x$, and then choose a suitable small amount $\delta$, add it to the original $x$ and then re-evaluate the function. Then the derivative can be calculated using [@eq:optimisation:numdiff]. 
 We can implement this method easily using OCaml:
 
-```ocaml
+```ocaml env=optimisation:numdiff
 let _eps = 0.00001
 
-let diff f x = (f (x +. _eps) -. f (x -. _eps)) /. _eps
+let diff f x = (f (x +. _eps) -. f x) /. _eps
 ```
 
-**liang: x can in the middle, left, and right. Show that it is optimal to be in the middle. Also, diff is not consistent with eq.27**
-$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x-\delta)}{2\delta}.$$ {#eq:optimisation:numdiff2}
+**liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.**
 
-We can apply it to a simple case:
+We can apply it to a simple case. Let's say, we want to find the derivative fo $f(x) = x^2$ at point $x=2$. 
+Basic calculus tells us that it should be equals to $2x = 4$.
+Here is the code:
 
-```
-CODE
+```ocaml env=optimisation:numdiff
+# let f x = x *. x
+val f : float -> float = <fun>
+# let d = diff f 2. 
+val d : float = 4.00001000002703222
 ```
 
 Looks good.
@@ -101,12 +105,28 @@ Looks nice, much easier than Algodiff's approach, right?
 
 No. Sadly, this naive numerical solution can lead to large errors in reality.
 
-There are two source of errors: truncating error (explain) and roundoff error (explain). You must be very careful and apply some numerical techniques. 
+There are two source of errors: truncating error (explain) and round-off error (explain). You must be very careful and apply some numerical techniques. 
 While Algodiff guarantees a true derivative value without loss of accuracy.
 you can see the difference in this example:
 
+Truncation error:
+
+```ocaml env=optimisation:numdiff
+# let d = 
+    let _eps = 0.1 in
+    let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+    diff f 2.
+val d : float = 4.10000000000000142
 ```
-CODE (how to show the difference)?
+
+Round-off Error:
+
+```ocaml env=optimisation:numdiff
+# let d = 
+    let _eps = 1E-15 in
+    let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+    diff f 2.
+val d : float = 3.55271367880050049
 ```
 
 For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
