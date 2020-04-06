@@ -323,7 +323,6 @@ We will not talk about this method in detail.
 
 ### Gradient Descent Methods
 
-Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter). 
 
 A *descent method* is an iterative optimisation process.
 The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum. 
@@ -339,7 +338,10 @@ Therefore, we can describe the $n$-th iteration of descent method as:
 
 Repeat this process until a stopping condition is met, such as the update is smaller than a threshold. 
 
-Based on this process, *Gradient Descent* method uses the function gradient to decide its direction $d$.
+Among the descent methods, the *Gradient Descent* method is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks.
+we will talk about it in the Neural Network chapter.
+
+Based on this process, Gradient Descent method uses the function gradient to decide its direction $d$.
 The precess can be described as:
 
 1. calculate a descent direction $-\nabla~f(x_n)$;
@@ -347,39 +349,73 @@ The precess can be described as:
 3. update the location: $x_{n+1} = x_n + \alpha~\nabla~f(x_n)$.
 
 Here $\nabla$ denotes the gradient, and the distance $\alpha$ it moves along certain direction is also called *learning rate*.
-In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient), as shown in the next figure.
-
-IMAGEL: Example of gradient descent process which looks like [this one](https://en.wikipedia.org/wiki/Gradient_descent#/media/File:Gradient_descent.svg).
+In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)
 
 We can easily implement this process with the algorithmic differentiation module in Owl. 
-Let's look at an example.
+Let's look at an example. 
+Here we use define the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) which is usually used as performance test for optimisation problems.
+The function is defined as:
 
-```ocaml
+$$f(x, y) = (a - x)^2 + b(y-x^2)^2.$$ {#eq:optimisation:rosenbrock}
+
+The parameters are usually set as $a=1$ and $b=100$.
+
+```ocaml env=optimisation:gd
 open Algodiff.D
-module N = Dense.Ndarray.D
 
-let a = Mat.uniform 1 2
-
-(* the first simple test function *)
-let f0 x = Maths.(sin x |> sum')
-
-(* the Rosenbrock function *)
-let f1 a =
+let rosenbrock a =
 	let x = Mat.get a 0 0 in 
 	let y = Mat.get a 0 1 in
 	Maths.( (F 100.) * (y - (x ** (F 2.))) ** (F 2.) + (F 1. - x) ** (F 2.) |> sum')
-
-let rec desc ?(eta=F 0.01) ?(eps=2e-5) f x =
-  let g = grad f x in
-  let arr = unpack_arr g in 
-  (* N.print arr; *)
-  if (N.sum' arr) < eps then x
-  else desc ~eta ~eps f Maths.(x - eta * g)
-
-let _ = desc f0 a |> unpack_arr
 ```
 
-IMAGE: contour image, how the circles, and how the dots moves.
+Now we hope to apply the gradient descent method and observe the optimisation trajectory.
+
+```text
+let a = N.of_array [|2.; -0.5|] [|1; 2|] 
+let traj = ref (N.copy a)
+let a = ref a
+let eta = 0.0001
+let n = 200
+```
+
+As preparation, we use the initial starting point `[2, -0.5]`. The step size `eta` is set to `0.0001`, and the iteration number is 100.
+Then we can perform the iterative descent process. You can also run this process in a recursive manner. 
+
+```text
+let _ =
+  for i = 1 to n - 1 do
+	let u = grad rosenbrock (Arr !a) |> unpack_arr in 
+	a := N.(sub !a (scalar_mul eta u));
+	traj := N.concatenate [|!traj; (N.copy !a)|]
+  done
+```
+
+We apply the `grad` method on the Rosenbrock function iteratively, and the updated data `a` is stored in the `traj` array.
+Finally, let's visualise the trajectory of the optimisation process.
+
+```text
+let _ =
+	let a, b = Dense.Matrix.D.meshgrid (-2.) 2. (-1.) 3. 50 50 in
+	let c = N.(scalar_mul 100. (pow_scalar (sub b (pow_scalar a 2.)) 2.) + (pow_scalar (scalar_sub 1. a) 2.)) in
+
+	let h = Plot.create ~m:1 ~n:2 "plot_gradients.png" in
+	Plot.subplot h 0 0;
+	Plot.(mesh ~h ~spec:[ NoMagColor ] a b c);
+
+	Plot.subplot h 0 1;
+	Plot.contour ~h a b c;
+
+	let vx = N.get_slice [[]; [0]] !traj in
+	let vy = N.get_slice [[]; [1]] !traj in
+	Plot.plot ~h vx vy;
+	Plot.output h
+```
+
+We first create a meshgrid based on the Rosenbrock function  to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting porint towards a local minimum point.
+The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
+
+![Optimisation process of gradient descent on multivariate function](images/optimisation/gd_rosenbrock.png "gd_rosenbrock"){width=100% #fig:optimisation:gd_rosenbrock}
 
 In Owl we provide a `minimise_fun` function to do that. 
 
@@ -415,68 +451,7 @@ fun _ _ g p g' ->
   Maths.(neg g' + (b * p))
 ```
 
-Both GD and CG are abstracted in a module in Owl:
-
-
-Let's look at an example. We optimise the function $f(x, y) = x^2 + 3y^2$.
-For this example we use the numerical differentiation mdoule.
-
-```ocaml env=optimisation:gradients
-module P = Owl_numdiff_generic.Make (Dense.Ndarray.D)
-
-let f x y = Maths.(add (pow x 2.) (mul 3. (pow y 2.)))
-
-let gx x y = 
-	let h x = f x y in 
-	P.diff h x 
-
-let gy x y = 
-	let h y = f x y in 
-	P.diff h y 
-```
-
-Here we build two functions `gx` and `gy` for the partial differentiation regarding x and y respectively.
-
-```ocaml env=optimisation:gradients
-let n = 50
-let vx = Array.make n 0.
-let vy = Array.make n 0.
-
-let x = ref 2.5
-let y = ref 2.5
-let h = 0.05
-let _ = 
-for i = 0 to n - 1 do 
-	let x' = !x in 
-	let y' = !y in 
-	x := x' -. (gx x' y') *. h;
-	y := y' -. (gy x' y') *. h;
-	vx.(i) <- !x;
-	vy.(i) <- !y;
-done
-```
-
-First, we try to visualise the basic gradient descent method. 
-The iteration step is fixed, and we observe the trajectory of the optimisation. 
-
-```ocaml env=optimisation:gradients
-let _ = 
-let vx = Mat.of_array vx 1 n in
-let vy = Mat.of_array vy 1 n in
-
-let a, b = Mat.meshgrid (-3.) 3. (-3.) 3. 100 100 in
-let c = Mat.(add (pow_scalar a 2.) (pow_scalar (mul_scalar b 3.) 2.))
-in
-let h = Plot.create "plot_gradients.png" in
-Plot.contour ~h a b c;
-Plot.plot ~h vx vy;
-Plot.output h
-```
-
-As background, we visualise the function as a contour map. 
-[@fig:optimisation:gradients] shows how the optimisation trajectory. 
-
-![Compare the optimisation results of gradient methods](images/optimisation/gradients.png "gradients"){width=80% #fig:optimisation:gradients}
+Both GD and CG are abstracted in a module in Owl
 
 Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG.... 
 
