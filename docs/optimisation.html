@@ -29,12 +29,12 @@
 let diff f x = (f (x +. _eps) -. f x) /. _eps</code></pre>
 </div>
 <p><strong>liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.</strong></p>
-<p>We can apply it to a simple case. Let’s say, we want to find the derivative fo <span class="math inline">\(f(x) = x^2\)</span> at point <span class="math inline">\(x=2\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(2x = 4\)</span>. Here is the code:</p>
+<p>We can apply it to a simple case. Let’s say, we want to find the derivative fo <span class="math inline">\(f(x) = sin(x)\)</span> at point <span class="math inline">\(x=1\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(cos(1) = 0.5403\)</span>. Here is the code:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = x *. x;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f = Maths.cos;;
 &gt;val f : float -&gt; float = &lt;fun&gt;
-let d = diff f 2. ;;
-&gt;val d : float = 4.00001000002703222
+let d = diff f 1. ;;
+&gt;val d : float = -0.841473686319371583
 </code></pre>
 </div>
 <p>Looks good.</p>
@@ -55,30 +55,33 @@ val jacobian : (arr -&gt; arr) -&gt; arr -&gt; arr
 val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 (** transposed jacobian of ``f : vector -&gt; vector``. *)</code></pre>
 </div>
-<p>Looks nice, much easier than Algodiff’s approach, right?</p>
-<p>No.&nbsp;Sadly, this naive numerical solution can lead to large errors in reality.</p>
-<p>There are two source of errors: truncating error (explain) and round-off error (explain). You must be very careful and apply some numerical techniques. While Algodiff guarantees a true derivative value without loss of accuracy. you can see the difference in this example:</p>
-<p>Truncation error:</p>
+<p>Looks nice, much easier than Algodiff’s approach, right? No.&nbsp;Sadly, this naive numerical solution can lead to large errors in reality. There are two source of errors: truncating error and round-off error.</p>
+<p>The <em>truncating error</em> comes from the fact that eq.&nbsp;3 is only an approximation of the true gradient value. We can see their difference with Tayler expansion:</p>
+<p><span class="math display">\[f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)\]</span></p>
+<p>Here <span class="math inline">\(h\)</span> is the step size and <span class="math inline">\(\sigma_h\)</span> is in the range of <span class="math inline">\([x, x+h]\)</span>. This can be transformed into:</p>
+<p><span class="math display">\[-frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.\]</span></p>
+<p>This represent the truncation error in the approximation. For example, for function <span class="math inline">\(f(x) = sin(x)\)</span>, <span class="math inline">\(f''(x) = -sin(x)\)</span>. Suppose we want to calculate the derivative at <span class="math inline">\(x=1\)</span> numerically using a step size of 0.01, then the truncation error should be in the range <span class="math inline">\(\frac{0.01^2}{2}[sin(1), sin(1.01)]\)</span>. Here we can see the effect of this truncation error, by using a improper step size:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
   let _eps = 0.1 in
   let diff f x = (f (x +. _eps) -. f x) /. _eps in 
-  diff f 2.
+  diff f 1.
 ;;
-&gt;val d : float = 4.10000000000000142
+&gt;val d : float = -0.867061844425624506
 </code></pre>
 </div>
-<p>Round-off Error:</p>
+<p>Another source of error is the round-off error. Looking back at eq.&nbsp;3, we need to calculate <span class="math inline">\(f(x+h) - f(x)\)</span>, the subtraction of two almost the same number. That leads to large round-off errors. For example, let’s choose a very small step size:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
-  let _eps = 1E-15 in
+  let _eps = 5E-16 in
   let diff f x = (f (x +. _eps) -. f x) /. _eps in 
-  diff f 2.
+  diff f 1.
 ;;
-&gt;val d : float = 3.55271367880050049
+&gt;val d : float = -0.888178419700125121
 </code></pre>
 </div>
-<p>For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.</p>
+<p>Actually if we use a even smaller step size <span class="math inline">\(1e-16\)</span>, the result becomes 0, which means the round-off error is large enough that <span class="math inline">\(f(x)\)</span> and <span class="math inline">\(f(x+h)\)</span> are deemed the same by the computer.</p>
+<p>Compared to numerical differentiation, Algodiff guarantees a true derivative value without loss of accuracy. If you compute the the derivative of <code>sin</code>, then the returned results would use the <code>cos</code> function. For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.</p>
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
@@ -161,7 +164,9 @@ let _ =
   Plot.set_ylabel h "f'(x)";
   Plot.output h</code></pre>
 </div>
-<p><img alt="The hump function and its derivative function" src="images/optimisation/plot_hump.png">[ width=90% #fig:optimisation:hump ]</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:optimisation:hump" src="images/optimisation/plot_hump.png"><figcaption>Figure 1: The hump function and its derivative function</figcaption>
+</figure>
 <p>And then you can find the extreme values using the root finding algorithm, such as Brent’s:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Owl_maths_root.brent g' 0. 0.4;;
@@ -194,9 +199,9 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
 <p>Compared to the previous solutions, gradient descent is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks (we will talk about it in the Neural Network chapter).</p>
-<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;1(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
+<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;2(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 1: Reach the local minimum by iteratively moving downhill</figcaption>
+<img alt="" style="width:80.0%" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 2: Reach the local minimum by iteratively moving downhill</figcaption>
 </figure>
 <p>Therefore, we can describe the <span class="math inline">\(n\)</span>-th iteration of descent method as:</p>
 <ol type="1">
@@ -253,12 +258,64 @@ let _ = desc f0 a |&gt; unpack_arr</code></pre>
 <p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
 <p>EXPLAIN in detail.</p>
 <p>Instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, CG choose another way to calculate the descent direction: EQUATION of CG</p>
-<p>Both GD and CG are abstracted in a module in Owl:</p>
-<p>Let’s look at an example.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE: it's good if we can minimise a two dimensional example an visualise it, comparing GD and CG.</code></pre>
+<pre><code class="language-clike">fun _ _ g p g' -&gt;
+  let y = Maths.(g' - g) in
+  let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
+  Maths.(neg g' + (b * p))</code></pre>
 </div>
-<p>IMAGE: compare the optimisation route of two methods.</p>
+<p>Both GD and CG are abstracted in a module in Owl:</p>
+<p>Let’s look at an example. We optimise the function <span class="math inline">\(f(x, y) = x^2 + 3y^2\)</span>. For this example we use the numerical differentiation mdoule.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module P = Owl_numdiff_generic.Make (Dense.Ndarray.D)
+
+let f x y = Maths.(add (pow x 2.) (mul 3. (pow y 2.)))
+
+let gx x y = 
+    let h x = f x y in 
+    P.diff h x 
+
+let gy x y = 
+    let h y = f x y in 
+    P.diff h y </code></pre>
+</div>
+<p>Here we build two functions <code>gx</code> and <code>gy</code> for the partial differentiation regarding x and y respectively.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let n = 50
+let vx = Array.make n 0.
+let vy = Array.make n 0.
+
+let x = ref 2.5
+let y = ref 2.5
+let h = 0.05
+let _ = 
+for i = 0 to n - 1 do 
+    let x' = !x in 
+    let y' = !y in 
+    x := x' -. (gx x' y') *. h;
+    y := y' -. (gy x' y') *. h;
+    vx.(i) &lt;- !x;
+    vy.(i) &lt;- !y;
+done</code></pre>
+</div>
+<p>First, we try to visualise the basic gradient descent method. The iteration step is fixed, and we observe the trajectory of the optimisation.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let _ = 
+let vx = Mat.of_array vx 1 n in
+let vy = Mat.of_array vy 1 n in
+
+let a, b = Mat.meshgrid (-3.) 3. (-3.) 3. 100 100 in
+let c = Mat.(add (pow_scalar a 2.) (pow_scalar (mul_scalar b 3.) 2.))
+in
+let h = Plot.create "plot_gradients.png" in
+Plot.contour ~h a b c;
+Plot.plot ~h vx vy;
+Plot.output h</code></pre>
+</div>
+<p>As background, we visualise the function as a contour map. fig.&nbsp;3 shows how the optimisation trajectory.</p>
+<figure>
+<img alt="" style="width:80.0%" id="fig:optimisation:gradients" title="gradients" src="images/optimisation/gradients.png"><figcaption>Figure 3: Compare the optimisation results of gradient methods</figcaption>
+</figure>
 <p>Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
 <div class="highlight">
 <pre><code class="language-clike">let run = function
@@ -320,12 +377,6 @@ let _ =
 <p>Their current status (how difficult to solve etc.), classic methods, and some existing tools.</p>
 <p>Their connection with the unconstrained method we have introduced.</p>
 <p>Refer to these book for more detail.</p>
-</section>
-<section class="level2" id="exercise">
-<h2>Exercise</h2>
-<ol type="1">
-<li>Newton method can be unstable and trapped in a loop: try to solve <span class="math inline">\(f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}\)</span> in the range of [0, 4]. And try to apply the secant method on the same problem.</li>
-</ol>
 </section>
 <section class="level2" id="references">
 <h2>References</h2>

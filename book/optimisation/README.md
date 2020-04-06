@@ -69,15 +69,15 @@ let diff f x = (f (x +. _eps) -. f x) /. _eps
 
 **liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.**
 
-We can apply it to a simple case. Let's say, we want to find the derivative fo $f(x) = x^2$ at point $x=2$. 
-Basic calculus tells us that it should be equals to $2x = 4$.
+We can apply it to a simple case. Let's say, we want to find the derivative fo $f(x) = sin(x)$ at point $x=1$. 
+Basic calculus tells us that it should be equals to $cos(1) = 0.5403$.
 Here is the code:
 
 ```ocaml env=optimisation:numdiff
-# let f x = x *. x
+# let f = Maths.cos
 val f : float -> float = <fun>
-# let d = diff f 2. 
-val d : float = 4.00001000002703222
+# let d = diff f 1. 
+val d : float = -0.841473686319371583
 ```
 
 Looks good.
@@ -102,33 +102,48 @@ val jacobianT : (arr -> arr) -> arr -> arr
 ```
 
 Looks nice, much easier than Algodiff's approach, right?
-
 No. Sadly, this naive numerical solution can lead to large errors in reality.
+There are two source of errors: truncating error and round-off error.
 
-There are two source of errors: truncating error (explain) and round-off error (explain). You must be very careful and apply some numerical techniques. 
-While Algodiff guarantees a true derivative value without loss of accuracy.
-you can see the difference in this example:
+The *truncating error* comes from the fact that [@eq:optimisation:numdiff] is only an approximation of the true gradient value. 
+We can see their difference with Tayler expansion:
 
-Truncation error:
+$$f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)$$
+
+Here $h$ is the step size and $\sigma_h$ is in the range of $[x, x+h]$.
+This can be transformed into:
+
+$$-frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.$$
+
+This represent the truncation error in the approximation. 
+For example, for function $f(x) = sin(x)$, $f''(x) = -sin(x)$. 
+Suppose we want to calculate the derivative at $x=1$ numerically using a step size of 0.01, then the truncation error should be in the range $\frac{0.01^2}{2}[sin(1), sin(1.01)]$.
+Here we can see the effect of this truncation error, by using a improper step size:
 
 ```ocaml env=optimisation:numdiff
 # let d = 
     let _eps = 0.1 in
     let diff f x = (f (x +. _eps) -. f x) /. _eps in 
-    diff f 2.
-val d : float = 4.10000000000000142
+    diff f 1.
+val d : float = -0.867061844425624506
 ```
 
-Round-off Error:
+Another source of error is the round-off error. 
+Looking back at [@eq:optimisation:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost the same number. That leads to large round-off errors.
+For example, let's choose a very small step size:
 
 ```ocaml env=optimisation:numdiff
 # let d = 
-    let _eps = 1E-15 in
+    let _eps = 5E-16 in
     let diff f x = (f (x +. _eps) -. f x) /. _eps in 
-    diff f 2.
-val d : float = 3.55271367880050049
+    diff f 1.
+val d : float = -0.888178419700125121
 ```
 
+Actually if we use a even smaller step size $1e-16$, the result becomes 0, which means the round-off error is large enough that $f(x)$ and $f(x+h)$ are deemed the same by the computer. 
+
+Compared to numerical differentiation, Algodiff guarantees a true derivative value without loss of accuracy. 
+If you compute the the derivative of `sin`, then the returned results would use the `cos` function. 
 For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
 
 
@@ -250,7 +265,7 @@ let _ =
   Plot.output h
 ```
 
-![The hump function and its derivative function](images/optimisation/plot_hump.png)[ width=90% #fig:optimisation:hump ]
+![The hump function and its derivative function](images/optimisation/plot_hump.png){width=90% #fig:optimisation:hump}
 
 And then you can find the extreme values using the root finding algorithm, such as Brent's:
 
@@ -379,21 +394,80 @@ The *Conjugate Gradient* method can solve this problem.
 (HISTORY.)
 It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
 
-
 EXPLAIN in detail.
 
 Instead of $-\nabla~f(x_n)$, CG choose another way to calculate the descent direction:
 EQUATION of CG
 
+```
+fun _ _ g p g' ->
+  let y = Maths.(g' - g) in
+  let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
+  Maths.(neg g' + (b * p))
+```
+
 Both GD and CG are abstracted in a module in Owl:
 
-Let's look at an example.
 
-```
-CODE: it's good if we can minimise a two dimensional example an visualise it, comparing GD and CG.
+Let's look at an example. We optimise the function $f(x, y) = x^2 + 3y^2$.
+For this example we use the numerical differentiation mdoule.
+
+```ocaml env=optimisation:gradients
+module P = Owl_numdiff_generic.Make (Dense.Ndarray.D)
+
+let f x y = Maths.(add (pow x 2.) (mul 3. (pow y 2.)))
+
+let gx x y = 
+	let h x = f x y in 
+	P.diff h x 
+
+let gy x y = 
+	let h y = f x y in 
+	P.diff h y 
 ```
 
-IMAGE: compare the optimisation route of two methods.
+Here we build two functions `gx` and `gy` for the partial differentiation regarding x and y respectively.
+
+```ocaml env=optimisation:gradients
+let n = 50
+let vx = Array.make n 0.
+let vy = Array.make n 0.
+
+let x = ref 2.5
+let y = ref 2.5
+let h = 0.05
+let _ = 
+for i = 0 to n - 1 do 
+	let x' = !x in 
+	let y' = !y in 
+	x := x' -. (gx x' y') *. h;
+	y := y' -. (gy x' y') *. h;
+	vx.(i) <- !x;
+	vy.(i) <- !y;
+done
+```
+
+First, we try to visualise the basic gradient descent method. 
+The iteration step is fixed, and we observe the trajectory of the optimisation. 
+
+```ocaml env=optimisation:gradients
+let _ = 
+let vx = Mat.of_array vx 1 n in
+let vy = Mat.of_array vy 1 n in
+
+let a, b = Mat.meshgrid (-3.) 3. (-3.) 3. 100 100 in
+let c = Mat.(add (pow_scalar a 2.) (pow_scalar (mul_scalar b 3.) 2.))
+in
+let h = Plot.create "plot_gradients.png" in
+Plot.contour ~h a b c;
+Plot.plot ~h vx vy;
+Plot.output h
+```
+
+As background, we visualise the function as a contour map. 
+[@fig:optimisation:gradients] shows how the optimisation trajectory. 
+
+![Compare the optimisation results of gradient methods](images/optimisation/gradients.png "gradients"){width=80% #fig:optimisation:gradients}
 
 Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG.... 
 
@@ -480,10 +554,6 @@ Their current status (how difficult to solve etc.), classic methods, and some ex
 Their connection with the unconstrained method we have introduced. 
 
 Refer to these book for more detail.
-
-## Exercise 
-
-1. Newton method can be unstable and trapped in a loop: try to solve $f(x) = \textrm{sign}(x-2)\sqrt{|x-2|}$ in the range of [0, 4]. And try to apply the secant method on the same problem.
 
 ## References
 
