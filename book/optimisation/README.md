@@ -282,16 +282,25 @@ The issue is that you cannot be certain which is maximum and which is minimum.
 
 ### Golden Section Search
 
-Here we face the similar question again: what if computing derivative of the function is difficult or not available? (NOTE: give specific examples.)
-
-There is a close analogue of bisection method in solving optimisation problems: *Gold Section Search*.
+Here we face the similar question again: what if computing derivative of the function is difficult or not available? 
+That leads us to some search-based approach.
+We have seen how we can keep reducing a pair of range to find the root of a function.
+A close analogue in optimisation is also a search method called *Gold Section Search*.
 It's an optimisation method that does not require calculating derivatives.
 It is one choice to do optimisation if your function has a discontinuous first or second derivative.
 
-Explain the basic idea: in root-finding, you move two number to locate the zero point. Here you need three. And Golden search is an efficient way to do that. 
+The basic idea is simple. It also relies on keep reducing a "range" until it is small enough.
+The difference is that, instead of using only two numbers, this search method uses three numbers: `[a, b, c]`.
+It contains two ranges: `[a,b]` and `[b, c]`.
+For every iteration, we need to find a new number `d` within one of the the two ranges.
+For example, if we choose the `d` within `[b, c]`, and if $f(b) > f(d)$, then the new triplet becomes `[b, d, c]`, otherwise the new triplet is chosen as `[a, b, d]`.
+With the approach, the range of this triplet keep reducing until it is small enough and the minimum value can thus be found.
 
-The Brent method in root finding can also be applied here. 
-EXPLAIN
+Then the only question is: how to choose the suitable `d` point at each step. 
+This approach first chooses the larger the two ranges, either `[a, b]` or `[b, c]`. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet.
+The name comes from the ratio and length of range is closely related with the golden ratio.
+This method is slow but robust. It guarantees that each new iteration will bracket the minimum to an range just 0.61803 times the size of the previous one.
+
 
 ## Multivariate Function Optimisation
 
