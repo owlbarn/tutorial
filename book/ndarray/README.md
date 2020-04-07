@@ -638,7 +638,7 @@ Then check if the two results agree:
 
 The contraction can also be applied on one single ndarray to perform the reduction operation using `contract1` function.
 
-```ocaml
+```ocaml env=ndarray:contraction-01
 # let x = Arr.sequential [|2;2;3|]
 val x : Arr.arr =
 
@@ -648,20 +648,12 @@ R[0,1]  3  4  5
 R[1,0]  6  7  8
 R[1,1]  9 10 11
 
+```
 
-
-
-
-
-
-
-
-
+```ocaml env=ndarray:contraction-01 
 # let y = Arr.contract1 [|(0,1)|] x
-val y : Arr.arr =
-  C0 C1 C2
-R  9 11 13
-
+Line 1, characters 33-34:
+Error: Unbound value x
 ```
 
 We can surely perform the matrix multiplication with the contraction. 

@@ -1,6 +1,6 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Optimisation - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="optimisation">
 <h1>Optimisation</h1>
-<p>(The basic idea of this chapter: give a general introduction of this topic regardless of Owl; when Owl has corresponding function, we provide a simple example.)</p>
+<p>Optimisation is one of the fundamental functionality in numerical computation. In this chapter, we will briefly introduce the optimisation methods. We will use Owl to implement some of these methods.</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
 <p>Mathematical optimisation deals with the problem of finding minimums or maximums of a function. The solution can be numerical if closed-form expression does not exist. An optimisation problem has the form:</p>
@@ -192,7 +192,7 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <section class="level3" id="nelder-mead-simplex-method">
 <h3>Nelder-Mead Simplex Method</h3>
 <p>First, similar to the Golden Section Search or Brent’s, you can always opt for a non-gradient method, which is as slow as it is robust. One such method we can use is the <em>Nelder-Mead Simplex Method</em>. As its name shows, it is probably the simplest way to minimize a fairly well-behaved function. It simply goes downhill in a straightforward way, without special assumptions about the objective function.</p>
-<p>EXPLAIN the algorithm in detail, perhaps with illustration.</p>
+<p>EXPLAIN the algorithm in detail, perhaps with illustration. According to the Numerical Recipe, “the downhill simplex method now takes a series of steps, most steps just moving the point of the simplex where the function is largest (“highest point”) through the opposite face of the simplex to a lower point. These steps are called reflections, and they are constructed to conserve the volume of the simplex (and hence maintain its nondegeneracy). When it can do so, the method expands the simplex in one or another direction to take larger steps. When it reaches a “valley floor”, the method contracts itself in the transverse direction and tries to ooze down the valley."</p>
 <p>There are some other method that does not rely on computing gradients such as Powell’s method. If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method. We will not talk about this method in detail.</p>
 </section>
 <section class="level3" id="gradient-descent-methods">
@@ -221,6 +221,7 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <p>The parameters are usually set as <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=100\)</span>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
+module N = Dense.Ndarray.D
 
 let rosenbrock a =
     let x = Mat.get a 0 0 in 
@@ -229,8 +230,7 @@ let rosenbrock a =
 </div>
 <p>Now we hope to apply the gradient descent method and observe the optimisation trajectory.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">module N = Dense.Ndarray.D
-let a = N.of_array [|2.; -0.5|] [|1; 2|] 
+<pre><code class="language-ocaml">let a = N.of_array [|2.; -0.5|] [|1; 2|] 
 let traj = ref (N.copy a)
 let a = ref a
 let eta = 0.0001
@@ -238,8 +238,7 @@ let n = 200</code></pre>
 </div>
 <p>As preparation, we use the initial starting point <code>[2, -0.5]</code>. The step size <code>eta</code> is set to <code>0.0001</code>, and the iteration number is 100. Then we can perform the iterative descent process. You can also run this process in a recursive manner.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">module N = Dense.Ndarray.D
-let _ =
+<pre><code class="language-ocaml">let _ =
   for i = 1 to n - 1 do
     let u = grad rosenbrock (Arr !a) |&gt; unpack_arr in 
     a := N.(sub !a (scalar_mul eta u));
@@ -248,7 +247,7 @@ let _ =
 </div>
 <p>We apply the <code>grad</code> method on the Rosenbrock function iteratively, and the updated data <code>a</code> is stored in the <code>traj</code> array. Finally, let’s visualise the trajectory of the optimisation process.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let _ =
+<pre><code class="language-text">let _ =
     let a, b = Dense.Matrix.D.meshgrid (-2.) 2. (-1.) 3. 50 50 in
     let c = N.(scalar_mul 100. (pow_scalar (sub b (pow_scalar a 2.)) 2.) + (pow_scalar (scalar_sub 1. a) 2.)) in
 
@@ -264,7 +263,7 @@ let _ =
     Plot.plot ~h vx vy;
     Plot.output h</code></pre>
 </div>
-<p>We first create a meshgrid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting porint towards a local minimum point. The visualisation results are shown in fig.&nbsp;3.</p>
+<p>We first create a meshgrid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting porint towards a local minimum point. The visualisation results are shown in fig.&nbsp;3. On the right figure the black line shows the moving trajectory. You can image it moving downwards along the slope in the right side figure.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:optimisation:gd_rosenbrock" title="gd_rosenbrock" src="images/optimisation/gd_rosenbrock.png"><figcaption>Figure 3: Optimisation process of gradient descent on multivariate function</figcaption>
 </figure>
@@ -282,14 +281,11 @@ let _ =
 <p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
 <p>EXPLAIN in detail.</p>
 <p>Instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, CG choose another way to calculate the descent direction: EQUATION of CG</p>
-<div class="highlight">
-<pre><code class="language-clike">fun _ _ g p g' -&gt;
-  let y = Maths.(g' - g) in
-  let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
-  Maths.(neg g' + (b * p))</code></pre>
-</div>
-<p>Both GD and CG are abstracted in a module in Owl</p>
-<p>Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
+<p>fig.&nbsp;4 compares the</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:optimisation:gradients" title="gradients" src="images/optimisation/gradients.png"><figcaption>Figure 4: Compare conjugate gradient and gradient descent</figcaption>
+</figure>
+<p>Both GD and CG are abstracted in a module in Owl Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
 <div class="highlight">
 <pre><code class="language-clike">let run = function
     | GD -&gt; fun _ _ _ _ g' -&gt; Maths.neg g'
@@ -328,16 +324,14 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
   else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
 
 let _ =
-  (* [f] must be [f : vector -&gt; scalar]. *)
   let f x = Maths.(cos x |&gt; sum') in
   let y = newton f (Mat.uniform 1 2) in
   Mat.print y</code></pre>
 </div>
-<p>EXPLAIN: benefit of newton method.</p>
-<p>However, one big problem with the newton method is the problem size. In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.</p>
-<p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix. The most important method in this category is BFGS, named after its four authors.</p>
+<p>Once nice property about the newton’s method is its rate of convergence: it converges quadratically. However, one big problem with the newton method is the problem size. In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.</p>
+<p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix. Their convergence is fast, but not as efficient as newton method. It takes about <span class="math inline">\(n\)</span> quasi-newton iterations to progress similarly as the newton method. The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors.</p>
 <p>EXPLAIN briefly.</p>
-<p>The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.</p>
+<p>The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS. Instead of propagating updates over all iterations, this method only keeps updates from the last <span class="math inline">\(m\)</span> iterations.</p>
 </section>
 </section>
 <section class="level2" id="global-optimisation-and-constrained-optimisation">

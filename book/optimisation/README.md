@@ -1,6 +1,8 @@
 # Optimisation
 
-(The basic idea of this chapter: give a general introduction of this topic regardless of Owl; when Owl has corresponding function, we provide a simple example.)
+Optimisation is one of the  fundamental functionality in numerical computation. 
+In this chapter, we will briefly introduce the optimisation methods. 
+We will use Owl to implement some of these methods.
 
 
 ## Introduction 
@@ -44,7 +46,6 @@ In this chapter, we mostly cover the unconstrained and local optimisation.
 We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as [@boyd2004convex] and [@fletcher2013practical] for more information.
 
 (NOTE: if we decide to add linear programming later, we can extend the constrained)
-
 
 (NOTE: We need a lot of illustrations to show the gradient process)
 
@@ -316,6 +317,7 @@ As its name shows, it is probably the simplest way to minimize a fairly well-beh
 It simply goes downhill in a straightforward way, without special assumptions about the objective function. 
 
 EXPLAIN the algorithm in detail, perhaps with illustration.
+According to the Numerical Recipe, "the downhill simplex method now takes a series of steps, most steps just moving the point of the simplex where the function is largest (“highest point”) through the opposite face of the simplex to a lower point. These steps are called reflections, and they are constructed to conserve the volume of the simplex (and hence maintain its nondegeneracy). When it can do so, the method expands the simplex in one or another direction to take larger steps. When it reaches a “valley floor”, the method contracts itself in the transverse direction and tries to ooze down the valley."
 
 There are some other method that does not rely on computing gradients such as Powell's method.
 If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method. 
@@ -362,6 +364,7 @@ The parameters are usually set as $a=1$ and $b=100$.
 
 ```ocaml env=optimisation:gd
 open Algodiff.D
+module N = Dense.Ndarray.D
 
 let rosenbrock a =
 	let x = Mat.get a 0 0 in 
@@ -371,7 +374,7 @@ let rosenbrock a =
 
 Now we hope to apply the gradient descent method and observe the optimisation trajectory.
 
-```text
+```ocaml env=optimisation:gd
 let a = N.of_array [|2.; -0.5|] [|1; 2|] 
 let traj = ref (N.copy a)
 let a = ref a
@@ -382,7 +385,7 @@ let n = 200
 As preparation, we use the initial starting point `[2, -0.5]`. The step size `eta` is set to `0.0001`, and the iteration number is 100.
 Then we can perform the iterative descent process. You can also run this process in a recursive manner. 
 
-```text
+```ocaml env=optimisation:gd
 let _ =
   for i = 1 to n - 1 do
 	let u = grad rosenbrock (Arr !a) |> unpack_arr in 
@@ -414,6 +417,7 @@ let _ =
 
 We first create a meshgrid based on the Rosenbrock function  to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting porint towards a local minimum point.
 The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
+On the right figure the black line shows the moving trajectory. You can image it moving downwards along the slope in the right side figure.
 
 ![Optimisation process of gradient descent on multivariate function](images/optimisation/gd_rosenbrock.png "gd_rosenbrock"){width=100% #fig:optimisation:gd_rosenbrock}
 
@@ -444,15 +448,11 @@ EXPLAIN in detail.
 Instead of $-\nabla~f(x_n)$, CG choose another way to calculate the descent direction:
 EQUATION of CG
 
-```
-fun _ _ g p g' ->
-  let y = Maths.(g' - g) in
-  let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
-  Maths.(neg g' + (b * p))
-```
+[@fig:optimisation:gradients] compares the 
+
+![Compare conjugate gradient and gradient descent](images/optimisation/gradients.png "gradients"){width=60% #fig:optimisation:gradients}
 
 Both GD and CG are abstracted in a module in Owl
-
 Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG.... 
 
 ```
@@ -499,24 +499,24 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
   else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))
 
 let _ =
-  (* [f] must be [f : vector -> scalar]. *)
   let f x = Maths.(cos x |> sum') in
   let y = newton f (Mat.uniform 1 2) in
   Mat.print y
 ```
 
-EXPLAIN: benefit of newton method.
-
+Once nice property about the newton's method is its rate of convergence: it converges quadratically.
 However, one big problem with the newton method is the problem size. 
 In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse. 
 
 Towards this end, the *Quasi-newton* methods are proposed. 
 The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix.
-The most important method in this category is BFGS, named after its four authors. 
+Their convergence is fast, but not as efficient as newton method. It takes about $n$ quasi-newton iterations to progress similarly as the newton method.
+The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors. 
 
 EXPLAIN briefly.
 
 The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
+Instead of propagating updates over all iterations, this method only keeps updates from the last $m$ iterations.
 
 ## Global Optimisation and Constrained Optimisation
 

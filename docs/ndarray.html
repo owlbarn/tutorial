@@ -504,10 +504,12 @@ let _ =
 &gt;R[0,1]  3  4  5
 &gt;R[1,0]  6  7  8
 &gt;R[1,1]  9 10 11
-let y = Arr.contract1 [|(0,1)|] x;;
-&gt;val y : Arr.arr =
-&gt;  C0 C1 C2
-&gt;R  9 11 13
+</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.contract1 [|(0,1)|] x;;
+&gt;Line 1, characters 33-34:
+&gt;Error: Unbound value x
 </code></pre>
 </div>
 <p>We can surely perform the matrix multiplication with the contraction. High-performance implementation of the contraction operation has been a research topic. Actually, many tensor operations involve summation over particular indices. Therefore in using tensors in applications such as linear algebra and physics, the <em>Einstein notation</em> is used to simplified notations. It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term). For example, the matrix multiplication notation <span class="math inline">\(C_{ij} = \sum_{k}A_{ik}B_{kj}\)</span> can be simplified as C = <span class="math inline">\(A_{ik}B_{kj}\)</span>.</p>
