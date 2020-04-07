@@ -9,7 +9,7 @@
 <h3>Problem: Where to locate a new McDonald’s restaurant?</h3>
 <p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading. One question then is: where to locate a new McDonald’s restaurant?</p>
 <p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch). Now linear regression would be a good friend when you are deciding where to locate your next branch.</p>
-<p>Here list a part of the data (TODO: link to csv file):</p>
+<p>tbl.&nbsp;1 list a part of the data (TODO: link to csv file). (To be honest, this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.)</p>
 <div id="tbl:regression:data01">
 <table>
 <caption>Table 1: Sample of input data: single feature</caption>
@@ -51,17 +51,34 @@
 </tbody>
 </table>
 </div>
-<p>Visualising these data can present a clear view.</p>
-<p>TODO: CODE and IMAGE in Owl</p>
-<p>According to this figure, there is a clear trend that larger population and larger profit are co-related together. But precisely how?</p>
+<p>Visualising these data can present a clear view. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let data = Owl_io.read_csv ~sep:',' "data_01.csv"
+let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
+
+let x = Mat.get_slice [[];[1]] data
+let y = Mat.get_slice [[];[0]] data
+
+let plot_01 () =
+  let h = Plot.create "regdata.png" in
+  Plot.scatter ~h x y;
+  Plot.output h</code></pre>
+</div>
+<figure>
+<img alt="" style="width:50.0%" id="fig:regression:regdata" title="regdata" src="images/regression/regdata.png"><figcaption>Figure 1: Visualise data for regression problem</figcaption>
+</figure>
+<p>The visualisation is shown in fig.&nbsp;1. As can be expected, there is a clear trend that larger population and larger profit are co-related together. But precisely how?</p>
 </section>
 <section class="level3" id="cost-function">
 <h3>Cost Function</h3>
 <p>Let’s start with a linear model that assumes the the relationship between these two variables be formalised as:</p>
 <p><span id="eq:regression:eq00"><span class="math display">\[ y = \theta_0~ + \theta_1~x_1 + \epsilon,\qquad(1)\]</span></span></p>
 <p>where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Since modelling can hardly make a perfect match with the real data, we use <span class="math inline">\(\epsilon\)</span> to denote the error between our prediction and the data. Specifically, we represent the prediction part as <span class="math inline">\(h(\theta_0, \theta_1)\)</span>: <span id="eq:regression:eq01"><span class="math display">\[h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1\qquad(2)\]</span></span></p>
-<p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plane. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
+<p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plane. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in fig.&nbsp;2. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
 <p>TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:regression:reg_options" title="reg_options" src="images/regression/reg_options.png"><figcaption>Figure 2: Find possible regression line for given data</figcaption>
+</figure>
 <p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimizes the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
 <p><span id="eq:regression:eq02"><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)\qquad(3)\]</span></span></p>
 <p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to ideal cases, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
@@ -218,7 +235,7 @@ let t1_sol () =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:90.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 1: An example of using linear regression to fit data</figcaption>
+<img alt="" style="width:90.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 3: An example of using linear regression to fit data</figcaption>
 </figure>
 </section>
 </section>

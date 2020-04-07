@@ -23,7 +23,9 @@ Now let's simplified this problem by asserting that the potential profit is only
 Suppose you are the decision maker in McDonald's, and also have access to data of each branch store (profit, population around this branch). 
 Now linear regression would be a good friend when you are deciding where to locate your next branch.
 
-Here list a part of the data (TODO: link to csv file):
+[@tbl:regression:data01] list a part of the data (TODO: link to csv file).
+(To be honest, this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. 
+So perhaps you will be disappointed if you are looking for real data from running McDonald's.)
 
 | Profit | Population |
 | :----: | :--------: |
@@ -36,11 +38,28 @@ Here list a part of the data (TODO: link to csv file):
 | ...    | ...        |
 : Sample of input data: single feature {#tbl:regression:data01}
 
-Visualising these data can present a clear view.
+Visualising these data can present a clear view. 
+We can use the code below to do that. 
+It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.
 
-TODO: CODE and IMAGE in Owl 
+```ocaml
+let data = Owl_io.read_csv ~sep:',' "data_01.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 
-According to this figure, there is a clear trend that larger population and larger profit are co-related together. But precisely how?
+let x = Mat.get_slice [[];[1]] data
+let y = Mat.get_slice [[];[0]] data
+
+let plot_01 () =
+  let h = Plot.create "regdata.png" in
+  Plot.scatter ~h x y;
+  Plot.output h
+```
+
+
+![Visualise data for regression problem](images/regression/regdata.png "regdata"){width=50% #fig:regression:regdata}
+
+The visualisation is shown in [@fig:regression:regdata].
+As can be expected, there is a clear trend that larger population and larger profit are co-related together. But precisely how?
 
 ### Cost Function
 
@@ -54,10 +73,12 @@ Specifically, we represent the prediction part as $h(\theta_0, \theta_1)$:
 $$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$ {#eq:regression:eq01}
 
 The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plane. 
-We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively.
+We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in [@fig:regression:reg_options].
 Our target is to choose suitable parameters so that the line is *close* to data we observed. 
 
 TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.
+
+![Find possible regression line for given data](images/regression/reg_options.png "reg_options"){width=100% #fig:regression:reg_options}
 
 How do we define the line being "close" to the observed data then?
 One frequently used method is to use the *ordinary least square* to minimizes the sum of squared distances between the data and line.

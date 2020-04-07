@@ -104,6 +104,8 @@
         images/optimisation/gradient.png
         images/optimisation/gradients.png
         images/optimisation/plot_hump.png
+        images/regression/reg_options.png
+        images/regression/regdata.png
         images/signal/conv.png
         images/signal/lena.png
         images/signal/plot_001.png
