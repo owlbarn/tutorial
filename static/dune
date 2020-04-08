@@ -104,9 +104,13 @@
         images/optimisation/gradient.png
         images/optimisation/gradients.png
         images/optimisation/plot_hump.png
+        images/regression/boston.png
+        images/regression/normalisation.png
         images/regression/reg_cost.png
         images/regression/reg_gd.png
         images/regression/reg_options.png
+        images/regression/reg_poly.png
+        images/regression/reg_poly4.png
         images/regression/regdata.png
         images/signal/conv.png
         images/signal/lena.png

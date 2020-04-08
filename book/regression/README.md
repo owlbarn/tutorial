@@ -1,5 +1,7 @@
 # Regression
 
+TODO: update the format of images: label too small; change color of line to blue or red.
+
 Regression is an important topic in statistical modelling and machine learning. 
 It's about modelling problems which include one or more variables (also called "features" or "predictors") and making predictions of another variable ("output variable") based on previous data of predictors. 
 
@@ -195,6 +197,30 @@ R0 4.72381
 ```
 
 The resulting parameters are similar to what we have get manually.
+
+The API is not limited to the regression module. The `linreg` function in Linear Algebra module can also be used to perform the same task.
+The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
+
+```ocaml file=../../examples/code/linear-algebra/example_00.ml
+let generate_data () =
+  let x = Mat.uniform 500 1 in
+  let p = Mat.uniform 1 1 in
+  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
+  x, y
+
+let t1_sol () =
+  let x, y = generate_data () in
+  let h = Plot.create "plot_00.png" in
+  let a, b = Linalg.D.linreg x y in
+  let y' = Mat.(x *$ b +$ a) in
+  Plot.scatter ~h x y;
+  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
+  Plot.output h
+```
+
+![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=60% #fig:linear-algebra:plot_00}
+
+
 Another approach is from the perspective of function optimisation instead of regression. 
 We can use the gradient descent optimisation method in Owl and apply it directly on the cost function [@eq:regression:eq02].
 As a matter of fact, the regression functions in Owl are mostly implemented using the `minimise_weight` function from the optimisation module. 
@@ -243,28 +269,81 @@ Part of the data are listed below:
 : Sample of input data: multiple features {#tbl:regression:data02}
 
 The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
+The data loading method is exactly the same as before.
+
+```text
+let data = Owl_io.read_csv ~sep:',' "data_02.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let x = Mat.get_slice [[];[0; 1]] data
+let y = Mat.get_slice [[];[2]] data
+
+let theta = Regression.D.ols ~i:true x y
 ```
-CODE + result
+
+The resulting parameter is that:
+
+```text
+val theta : Owl_algodiff_primal_ops.D.arr array =
+  [|
+        C0 
+R0  57.342 
+R1 57.6741 
+; 
+        C0 
+R0 57.6766 
+|]
 ```
+
+So it basically says that the linear model we get is about: 
+
+$$y = 57 + 57x_0 + 57x_1$$
+
+Hmm, it might be right, but something about this model feel wrong. 
+(VALIDATE the result)
+To address this problem, we move on to an important issue: normalisation.
 
 ### Feature Normalisation
 
-However, getting a result doesn't mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.
+Getting a result doesn't mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.
 
 Let's look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature.
 That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. 
+That's why the model we get in the previous section is wrong.
 
 To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. 
 This step is also called feature scaling. 
 There are many ways to do this, and one of them is the *mean normalisation*: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:
 
-```
-CODE: normalisation
+```text
+let m = Arr.mean ~axis:0 data
+let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data))
+let data' = Arr.((data - m) / r)
+let x' = Mat.get_slice [[];[0; 1]] data'
+let y' = Mat.get_slice [[];[2]] data'
+let theta' = Regression.D.ols ~i:true x' y'
 ```
 
-Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration below shows the point.
+This time we get a new set of parameters for the normalised data:
 
-IMAGES: two image, one ellipses, one circles. with arrows showing the steps towards center. 
+```text
+val theta' : Owl_algodiff_primal_ops.D.arr array =
+  [|
+           C0 
+R0   0.952411 
+R1 -0.0659473 
+;
+             C0 
+R0 -1.93878E-17 
+|]
+```
+
+Analyse the result.
+
+Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in [@fig:regression:normalisation] shows the point. ([src](https://stackoverflow.com/questions/46686924/why-scaling-data-is-very-important-in-neural-networklstm/46688787#46688787))
+We have already seen that, in a "slim" slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.
+
+![Compare gradient descent efficiency with and without data normalisation](images/regression/normalisation.png "normalisation"){width=90% #fig:regression:normalisation}
 
 Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. 
 For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. 
@@ -287,10 +366,23 @@ This calculation can be efficiently performed in Owl using its Linear Algebra mo
 Let's use the dataset from multi-variable regression again and perform the computation. 
 
 ```
-CODE: close form solution.
+let o = Arr.ones [|(Arr.shape x).(0); 1|]
+let z = Arr.concatenate ~axis:1 [|o; x'|];;
+
+let solution = Mat.dot (Mat.dot
+    (Linalg.D.inv Mat.(dot (transpose z) z)) (Mat.transpose z)) y'
 ```
 
-TODO: compare the result with previous GD solution. 
+The result is close to what we have gotten using the regression:
+
+```text
+val solution : Mat.mat =
+  
+             C0 
+R0 -3.28614E-17 
+R1     0.952411 
+R2   -0.0659473 
+```
 
 Compared to the gradient descent solution, the methods does not require multiple iterations, and you also don't need to worry about hyper-parameters settings such as the choice of learning rate. 
 On the other hand, however, this approach has its own problems. 
@@ -305,41 +397,39 @@ Then techniques such as choosing feature or regularisation are required.
 
 Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution. 
 
-**Method from Linalg module**
-
-TODO: place these part correctly.
-
-The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
-
-```ocaml file=../../examples/code/linear-algebra/example_00.ml
-let generate_data () =
-  let x = Mat.uniform 500 1 in
-  let p = Mat.uniform 1 1 in
-  let y = Mat.(x *@ p + gaussian ~sigma:0.05 500 1) in
-  x, y
-
-let t1_sol () =
-  let x, y = generate_data () in
-  let h = Plot.create "plot_00.png" in
-  let a, b = Linalg.D.linreg x y in
-  let y' = Mat.(x *$ b +$ a) in
-  Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
-  Plot.output h
-```
-
-![An example of using linear regression to fit data](images/linear-algebra/plot_00.png "linalg plot 00"){ width=90% #fig:linear-algebra:plot_00}
-
 ## Non-linear regressions 
 
 If only the world is as simple as linear regression. But that's not to be. 
 A lot of data can follow other patterns than a linear one. 
-For example, checkout the dataset below:
 
-IMAGE, the dataset that follows a convex curve. 
+We can show this point with data from the [Boston Housing Dataset](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html).
+This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Mass.
+It contains 506 cases.
+Each case contain 14 properties, such as crime rate, nitric oxides concentration, average number of rooms per dwelling, etc.
+For this example, we observe the relationship between percentage of lower status of the population ("LSTAT") and  the median value of owner-occupied homes in $1000's ("MDEV").
 
-You can try to fit a line into these data, but it's quite likely that the result would be very fitting. 
-And that requires non-linear models. 
+```
+let data = Owl_io.read_csv ~sep:' ' "boston.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let lstat = Mat.get_slice [[];[12]] data
+let medv = Mat.get_slice [[];[13]] data
+```
+
+We can then visualise the data with the function below:
+
+```
+let plot_boston () =
+  let h = Plot.create "boston.png" in
+  Plot.scatter ~h lstat medv;
+  Plot.output h
+```
+
+![Visualise part of the boston housing dataset](images/regression/boston.png "boston"){width=60% #fig:regression:boston}
+
+As [@ig:regression:boston] shows, the relationship basically follows a convex curve. 
+You can try to fit a line into these data, but it's quite likely that the result would not be very fitting. 
+And that requires us to use non-linear models. 
 
 In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. 
 We shows how to use them with examples, and won't go into details of the math. Refer to [reference] for more details. 
@@ -360,25 +450,41 @@ val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
 val poly : arr -> arr -> int -> arr
 ```
 
-Let's look at how to use them in the code. The dataset is the same as in previous figure, contained in the file [data_03.csv](Link).
+Let's look at how to use them in the code. The dataset is the same as in previous figure, contained in the file [boston.csv](link).
 
 ```
-CODE: Polynomial. We limit that to 3th order. 
+let poly () = 
+  let a = Regression.D.poly lstat medv 2 in 
+  let a0 = Mat.get a 0 0 in 
+  let a1 = Mat.get a 1 0 in 
+  let a2 = Mat.get a 2 0 in 
+  fun x -> a0 +. a1 *. x +. a2 *. x *. x 
 ```
 
-The result we get is: ... . That gives us the polynomial model $y = x + x^2 + x^3 + \epsilon$.
-
-The code for exponential regression is similar:
+We use the `Regression.D.poly` function to get the model parameter. We limit that to 2nd order. 
+The results are:
 
 ```
-CODE: exponential reg.
+- : Owl_algodiff_primal_ops.D.arr =
+
+          C0 
+R0    42.862 
+R1  -2.33282 
+R2 0.0435469
 ```
 
-The result we get is ... That leads to a model: $y = ab^x + \epsilon$.
+That gives us the polynomial model:
 
-Let's see show the models works in fitting data:
+$$f(x) = 42.8 - 2.3x + 0.04x^2 + \epsilon$$
 
-IMAGE: data scatter point with two curves. 
+We can visualise this model to see how well it fit the data:
+
+![Polynomial regression based on Boston housing dataset](images/regression/reg_poly.png "reg_poly"){width=60% #fig:regression:reg_poly.png}
+
+
+The code for exponential regression is similar.
+That leads to a model: $y = ab^x + \epsilon$.
+EXPLAIN the meaning of exponential fitting.
 
 ## [Regularisation](#regularisation)
 
@@ -386,8 +492,13 @@ Regularisation is an important issue in regression, and is widely used in variou
 The motivation of using regularisation comes from the problem of *over-fitting* in regression.
 In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably.
 Let' use the polynomial regression as an example.
+Instead of using an order of 2, now we use an order of 4, we can get the new model:
 
-IMAGE: two graphs with the same data, one is fit to the 2nd order, the other fit to the 4th order. 
+$$f(x) = 57 - 7x + 0.5x^2 -0.016x^3 + 0.0002x^4.$$
+
+This model could be visualised as:
+
+IMAGE: reg_poly4.png
 
 Apparently, the second model fit too closely with the given data, and you can see that it won't make a good prediction of future output values.
 
