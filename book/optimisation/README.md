@@ -448,7 +448,8 @@ EXPLAIN in detail.
 Instead of $-\nabla~f(x_n)$, CG choose another way to calculate the descent direction:
 EQUATION of CG
 
-[@fig:optimisation:gradients] compares the 
+[@fig:optimisation:gradients] compares the different descent efficiency of the conjugate gradient with gradient descent. 
+([src](https://www.researchgate.net/publication/221533635_A_gradient-based_algorithm_competitive_with_variational_Bayesian_EM_for_mixture_of_Gaussians))
 
 ![Compare conjugate gradient and gradient descent](images/optimisation/gradients.png "gradients"){width=60% #fig:optimisation:gradients}
 

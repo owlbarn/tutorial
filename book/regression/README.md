@@ -42,19 +42,22 @@ Visualising these data can present a clear view.
 We can use the code below to do that. 
 It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.
 
-```ocaml
+TOOD: fix the code syntax w.r.t file loading
+
+```
 let data = Owl_io.read_csv ~sep:',' "data_01.csv"
 let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 
 let x = Mat.get_slice [[];[1]] data
 let y = Mat.get_slice [[];[0]] data
+```
 
+```
 let plot_01 () =
   let h = Plot.create "regdata.png" in
   Plot.scatter ~h x y;
   Plot.output h
 ```
-
 
 ![Visualise data for regression problem](images/regression/regdata.png "regdata"){width=50% #fig:regression:regdata}
 
@@ -85,7 +88,7 @@ One frequently used method is to use the *ordinary least square* to minimizes th
 We have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$, and thus the $i$'th pair of data can be represented with $x_i$ and $y_i$.
 With these notations, we can represent a metric to represent the *closeness* as:
 
-$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i^2) - y_i)$$ {#eq:regression:eq02}
+$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2$$ {#eq:regression:eq02}
 
 In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
 
@@ -96,12 +99,39 @@ TODO: explain the relationship between maximum likelihood estimation and least s
 
 ### Solving Problem with Gradient Descent
 
-To give a clearer view, we can visualise the cost function with a contour graph:
+To give a clearer view, we can visualise the cost function with a contour graph. 
+According to [@eq:regression:eq02], the cost function  `j` is implemented as below:
 
-IMAGE (CODE if we can do that in Owl)
+```
+let j theta0 theta1 = 
+  let f x = x *. theta1 +. theta0 in
+  Mat.(pow_scalar (map f x - y) 2. |> mean') *. 0.5
+```
 
-We can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface. 
+We can then visualise this cost function within a certain range using surf and contour graphs:
+
+```
+let plot_02 () = 
+  let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
+  let z = Mat.(map2 j x y) in
+  let h = Plot.create ~m:1 ~n:2 "reg_cost.png" in
+  Plot.subplot h 0 0;
+  Plot.(mesh ~h ~spec:[ NoMagColor ] x y z);
+  Plot.set_xlabel h "theta0";
+  Plot.set_ylabel h "theta1";
+  Plot.set_zlabel h "cost";
+  Plot.subplot h 0 1;
+  Plot.contour ~h x y z;
+  Plot.set_xlabel h "theta0";
+  Plot.set_ylabel h "theta1";
+  Plot.output h
+```
+
+In [@fig:regression:cost] we can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface. 
 It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.
+(TODO: the figure shows that this dataset is not a very good one for regression problem.)
+
+![Visualise the cost function in linear regression problem](images/regression/reg_cost.png "cost"){width=100% #fig:regression:cost}
 
 Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest desent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
 Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be obtained by using partial derivative on the surface. 
@@ -115,38 +145,60 @@ $$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \
 and 
 $$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.$$ {#eq:regression:eq05}
 
-Here the $x_i0$ and $x_i1$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i0 = 1$ and $x_i1 = x_i$.
+Here the $x_{i0}$ and $x_{i1}$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i0 = 1$ and $x_i1 = x_i$.
 Following these equations, you can manually perform the gradient descent process until it converges.
-Here is the code. 
 
 ```
-TODO: CODE and explanation.
+let alpha = 0.01
+let theta0 = ref 10.
+let theta1 = ref 10.
+
+for i = 0 to 500 do
+	let f x = x *. !theta1 +. !theta0 in
+	theta0 := !theta0 -. Mat.(map f x - y |> mean') *. alpha;
+	theta1 := !theta1 -. Mat.((map f x - y) * x |> mean') *. alpha 
+done
 ```
 
-By executing the code, we can get a pair of parameters: $\theta_0 = xxx$ and $\theta-1 = xxx$.
+In the code above, we step the step size $\alpha = 0.01$, and start from a set of initial parameters: $\theta_0 = 10$ and $\theta_1 = 10$.
+We then iteratively update the parameters using 500 iterations. 
+Note that instead of manual summation, we ues the vectorised operations with ndarray.
+
+By executing the code, we can get a pair of parameters: $\theta_0 = 5.14$ and $\theta_1 = 0.55$.
 To check if they indeed are suitable parameters, we can visualise them against the input data.
-The resulting figure shows a line that aligns with input data.
+The resulting figure [@fig:regression:reg_gd] shows a line that aligns with input data.
 
-TODO: PLOT: the resulting line against data samples. 
+![Validate regression result with original dataset](images/regression/reg_gd.png "reg_gd.png"){width=60% #fig:regression:reg_gd}
 
 Of course, there is no need to use to manually solve a linear regression problem with Owl. 
 It has already provides high-level regression functions for use. 
-For example, `ols` uses the ordinary least square method we have introduced to perform linear regression.
+For example, `ols` function in the `Regression` module uses the ordinary least square method we have introduced to perform linear regression.
 
 ```
 val ols : ?i:bool -> arr -> arr -> arr array
 ```
 
-And we can use that to directly solve the problem, and the resulting parameters are similar to what we have get manually.
-```
-CODE and result (no need to figure).
-```
-
-Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function.
+Here the parameter `i` shows if the constant parameter $\theta_0$ is used or not. By default it is set to `false`.
+We can use this function to directly solve the problem:
 
 ```
-CODE and result (no need to figure).
+# let theta = Regression.D.ols ~i:true x y
+
+val theta : Owl_algodiff_primal_ops.D.arr array =
+  [|
+         C0 
+R0 0.588442 
+; 
+        C0 
+R0 4.72381 
+|]
 ```
+
+The resulting parameters are similar to what we have get manually.
+Another approach is from the perspective of function optimisation instead of regression. 
+We can use the gradient descent optimisation method in Owl and apply it directly on the cost function [@eq:regression:eq02].
+As a matter of fact, the regression functions in Owl are mostly implemented using the `minimise_weight` function from the optimisation module. 
+
 ## Multiple Regression
 
 TODO: [possible real dataset](https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data)
