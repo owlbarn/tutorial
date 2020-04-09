@@ -9,6 +9,8 @@ Regression analysis includes a wide range of models, from linear regression to i
 Explaining all these models are beyond the scope of this book.
 In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve problems. 
 
+Part of the material used in this chapter is attributed to the the Coursera course ["Machine Learning"](https://www.coursera.org/learn/machine-learning) by Andrew Ng.
+
 ## Linear Regression
 
 Linear regression models the relationship of the features and output variable with a linear model. 
@@ -491,16 +493,22 @@ EXPLAIN the meaning of exponential fitting.
 Regularisation is an important issue in regression, and is widely used in various regression models. 
 The motivation of using regularisation comes from the problem of *over-fitting* in regression.
 In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably.
+
 Let' use the polynomial regression as an example.
 Instead of using an order of 2, now we use an order of 4, we can get the new model:
 
-$$f(x) = 57 - 7x + 0.5x^2 -0.016x^3 + 0.0002x^4.$$
+$$f(x) = 63 - 10.4x + 0.9x^2 -0.03x^3 + 0.0004x^4.$$
 
-This model could be visualised as:
+![Polynomial regression with high order](images/regression/reg_poly4s.png "reg_poly4s"){width=60% #fig:regression:poly4s}
 
-IMAGE: reg_poly4.png
+This model could be visualised as in [@fig:regression:poly4s]. 
+Note that we take only a sub set of 50 of the full data set to better visualise the over-fitting problem:
 
-Apparently, the second model fit too closely with the given data, and you can see that it won't make a good prediction of future output values.
+```
+let subdata, _ = Mat.draw_rows ~replacement:false data 50
+```
+
+Apparently, this  model fit too closely with the given data, and you can see that it won't make a good prediction of future output values.
 
 To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. 
 Actually we don't need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:
@@ -513,16 +521,41 @@ That leads to a bit of change in the derivative of $J(\Theta)$ in using gradient
 
 $$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].$$ {#eq:regression:eq11}
 
-We can now apply the new update procedure in gradient descent code, with a polynomial model up to 4th order.
+We can now apply the new update procedure in gradient descent code, with a polynomial model with 4th order.
 
-```
-CODE and IMAGE (data, old overfitted line; new regularised line)
-However, it is quite likely that we need to use a multiple variable regression as example, 
-since I'm not sure if the functions in the next sections supports polynomial regression;
-that requires the overfitting based on these multi-variable data be obvious.
-```
+Currently not all the regression methods support regularisation. But we can implement one easily.
+For the polynomial regression, we can implement this way:
 
-We can see that by using regularisation the over-fitting problem is solved.
+```ocaml
+open Optimise.D
+open Optimise.D.Algodiff
+
+let poly_ridge ~alpha x y n =
+  let z =
+    Array.init (n + 1) (fun i -> A.(pow_scalar x (float_of_int i |> float_to_elt)))
+  in
+  let x = A.concatenate ~axis:1 z in
+  let params =
+    Params.config
+      ~batch:Batch.Full
+      ~learning_rate:(Learning_Rate.Const 1.)
+      ~gradient:Gradient.Newton
+      ~loss:Loss.Quadratic
+      ~regularisation:(Regularisation.L2norm alpha)
+      ~verbosity:false
+      ~stopping:(Stopping.Const 1e-16)
+      100.
+  in
+  (Regression.D._linear_reg false params x y).(0)
+```
+The implementation is based on the optimisation module and the general `_linear_reg` function.
+The key point is to use the L2norml function as regularisation method.
+By using this regularised version of polynomial regression, we can have an updated model:
+
+![Revised polynomial model by applying regularisation in regression](images/regression/reg_poly4s_reg.png "poly reg"){width=60% #fig:regression:poly4s_reg}
+
+Here we choose the alpha parameter to be 20.
+We can see that by using regularisation the model is less prone to the over-fitting problem.
 Note that we use linear regression in the equation, but regularisation is widely use in all kinds of regressions.
 
 ### Ols, Ridge, Lasso, and Elastic_net 
@@ -548,16 +581,12 @@ The elastic net method aims to make the feature selection less dependent on inpu
 
 We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.
 
-```
-CODE using ridge. 
-```
-
 ## Logistic Regression
 
 So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. 
 What if we don't care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
 
-**liang: logicstic regression is for categorical data analysis ... meaning your output var is categorical ... the point is to figure out the decision boundry, restructure your language**
+**liang: logistic regression is for categorical data analysis ... meaning your output var is categorical ... the point is to figure out the decision boundary, restructure your language**
 
 We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
 But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
@@ -596,8 +625,8 @@ With the new model comes new cost function.
 Previously in linear regression we measure the cost with least square, or euclidean distance. 
 Now in the logistic regression, we define its cost function as:
 
-$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if} y = 1, $$ {#eq:regression:eq13} or 
-$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if} y = 0.$$ {#eq:regression:eq14}
+$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if}~y = 1, $$ {#eq:regression:eq13} or 
+$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if}~y = 0.$$ {#eq:regression:eq14}
 
 TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
 
@@ -617,28 +646,72 @@ Instead, we will use the function that Owl provides:
 val logistic : ?i:bool -> arr -> arr -> arr array
 ```
 
-We have prepared some data in [data_04.csv](Link). We can perform the regression with these data. 
+We have prepared some data in [ex2data1.csv](Link). We can perform the regression with these data. 
 
 ```
-CODE: logistic regression; using polynomial kernel.
+let data = Owl_io.read_csv ~sep:',' "ex2data1.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let x = Mat.get_slice [[];[0;1]] data
+let y = Mat.get_slice [[];[2]] data
+
+let theta = Regression.D.logistic ~i:true x y
 ```
 
-IMAGE: plot the data and resulting boundary. 
+The result is 
+
+```
+- : Owl_algodiff_primal_ops.D.arr array =
+[|
+        C0 
+R0    5.63 
+R1 4.45631 
+; 
+        C0 
+R0 4.75192 
+|]
+```
+
+TODO: Validate the result (might be related to Owl implementation)
+
+Code for visualising the dataset:
+
+```ocaml
+let plot_logistic data = 
+  let neg_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 0.) data in 
+  let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
+  let pos_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 1.) data in 
+  let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in 
+  let h = Plot.create "reg_logistic.png" in
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ] 
+      (Mat.get_slice [[];[0]] neg_data) 
+      (Mat.get_slice [[];[1]] neg_data));
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ] 
+      (Mat.get_slice [[];[0]] pos_data) 
+      (Mat.get_slice [[];[1]] pos_data));
+  Plot.output h
+```
+
+EXPLAIN the code.
+
+![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
 
 
 ### Multi-class classification 
 
 Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?
 
-One popular classification problem is the hand-written recognition task. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9.
+One popular classification problem is the hand-written recognition task based on the [MNIST](http://yann.lecun.com/exdb/mnist/) dataset.
+It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. 
+[@fig:regression:mnist] visualises part of the data.
+
+![Visualisation of part of data in the MNIST dataset](images/regression/mnist.png "reg_mnist"){with=70% #fig:regression:mnist}
+
 It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN.
 For now, we solve that from the logistic regression line of thought. 
-
-TODO: Dataset description and Visualise
-
 Similarly, we extend the cost function towards multi-class:
 
-EQUATION
+$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h(x^{(i)})) - (1-y^{(i)})log(1-h(x^{(i)}))).$$
 
 We can also use the generalised version of GD as before, or directly apply GD method in Owl:
 
@@ -650,7 +723,7 @@ Let's apply the model on test data:
 
 Result.
 
-Discussion on accuracy and possible improvement. Leave for exercise. 
+Discussion on accuracy and possible improvement.
 
 ## Support Vector Machine
 
@@ -663,6 +736,31 @@ An SVM model is a representation of the examples as points in space, mapped so t
 Explain the history and basic idea about SVM.
 
 TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
+
+
+```text
+let data = Owl_io.read_csv ~sep:',' "ex2data2.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let x = Mat.get_slice [[];[0;1]] data
+let y = Mat.get_slice [[];[2]] data
+
+let theta = Regression.D.svm x y 
+```
+
+The result is:
+
+```
+val theta : Owl_algodiff_primal_ops.D.arr array =
+  [| C0 
+R0 1.38672 
+R1 0.81756 
+|]
+```
+
+TODO: validate the result; might be related with implementation. 
+
+![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
 
 ## Model error and selection
 

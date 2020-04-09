@@ -36,7 +36,7 @@ let plot_01 () =
   Plot.output h
 
 
-let poly () = 
+let poly lstat medv = 
   let a = Regression.D.poly lstat medv 2 in 
   let a0 = Mat.get a 0 0 in 
   let a1 = Mat.get a 1 0 in 
@@ -44,7 +44,7 @@ let poly () =
   fun x -> a0 +. a1 *. x +. a2 *. x *. x 
 
 
-let poly4 () = 
+let poly4 lstat medv = 
   let a = Regression.D.poly lstat medv 4 in 
   let a0 = Mat.get a 0 0 in 
   let a1 = Mat.get a 1 0 in 
@@ -55,7 +55,7 @@ let poly4 () =
     +. a3 *. x *. x *. x +. a4 *. x *. x *. x *. x 
 
 
-let poly6 () = 
+let poly6 lstat medv = 
   let a = Regression.D.poly lstat medv 6 in 
   let a0 = Mat.get a 0 0 in 
   let a1 = Mat.get a 1 0 in 
@@ -89,3 +89,74 @@ let plot_poly6 () =
   Plot.scatter ~h lstat medv;
   Plot.plot_fun ~h (poly6 ()) 2. 36.;
   Plot.output h
+
+
+(** regularistion on subset *)
+
+let data = Owl_io.read_csv ~sep:' ' "boston.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let subdata, _ = Mat.draw_rows ~replacement:false data 50
+
+let slstat = Mat.get_slice [[];[12]] subdata
+let smedv = Mat.get_slice [[];[13]] subdata
+
+
+let plot_sub () =
+  let h = Plot.create "boston_sub.png" in
+  Plot.scatter ~h slstat smedv;
+  Plot.output h
+
+let plot_poly4s () = 
+  let h = Plot.create "reg_poly4s.png" in
+  Plot.scatter ~h slstat smedv;
+  Plot.plot_fun ~h (poly4 ()) 2. 36.;
+  Plot.output h
+
+let plot_poly6s () = 
+  let h = Plot.create "reg_poly6s.png" in
+  Plot.scatter ~h slstat smedv;
+  Plot.plot_fun ~h (poly6 ()) 2. 36.;
+  Plot.output h
+
+
+
+open Optimise.D
+open Optimise.D.Algodiff
+
+let poly_ridge ~alpha x y n =
+    let z =
+      Array.init (n + 1) (fun i -> A.(pow_scalar x (float_of_int i |> float_to_elt)))
+    in
+    let x = A.concatenate ~axis:1 z in
+    let params =
+      Params.config
+        ~batch:Batch.Full
+        ~learning_rate:(Learning_Rate.Const 1.)
+        ~gradient:Gradient.Newton
+        ~loss:Loss.Quadratic
+        ~regularisation:(Regularisation.L2norm alpha)
+        ~verbosity:false
+        ~stopping:(Stopping.Const 1e-16)
+        100.
+    in
+    (Regression.D._linear_reg false params x y).(0)
+
+module M = Dense.Matrix.D
+
+let poly4_reg lstat medv = 
+  let a = poly_ridge ~alpha:20. lstat medv 4 in 
+  let a0 = M.get a 0 0 in 
+  let a1 = M.get a 1 0 in 
+  let a2 = M.get a 2 0 in 
+  let a3 = M.get a 3 0 in 
+  let a4 = M.get a 4 0 in 
+  fun x -> a0 +. a1 *. x +. a2 *. x *. x
+    +. a3 *. x *. x *. x +. a4 *. x *. x *. x *. x 
+
+let plot_poly4s_reg () = 
+  let h = Plot.create "reg_poly4s_reg.png" in
+  Plot.scatter ~h slstat smedv;
+  Plot.plot_fun ~h (poly4_reg slstat smedv) 2. 36.;
+  Plot.output h
+
