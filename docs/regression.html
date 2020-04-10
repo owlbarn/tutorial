@@ -468,57 +468,103 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <p><span id="eq:regression:eq12"><span class="math display">\[h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.\qquad(16)\]</span></span></p>
 <p>Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1. Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.</p>
 </section>
-<section class="level3" id="decision-boundary">
-<h3>Decision Boundary</h3>
-<p>The physical meaning of classification is to draw a decision boundary in a hyperplane. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.</p>
-<p>IMAGE</p>
-<p>If we use a non-linear polynomial model, then the plane is divided by curve lines. Suppose <span class="math inline">\(h(x) = \theta_0 + \theta_1~x + \theta_2~x^2\)</span>. According to the property of sigmoid function, “y=1 if g(h(x)) &gt; 0.5” equals to “y=1 if h(x)&gt;0”, and thus the classification is divided by a circle:</p>
-<p>IMAGE</p>
-<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
-</section>
 <section class="level3" id="cost-function-1">
 <h3>Cost Function</h3>
 <p>With the new model comes new cost function. Previously in linear regression we measure the cost with least square, or euclidean distance. Now in the logistic regression, we define its cost function as:</p>
 <p><span id="eq:regression:eq13"><span class="math display">\[J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if}~y = 1, \qquad(17)\]</span></span> or <span id="eq:regression:eq14"><span class="math display">\[J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if}~y = 0.\qquad(18)\]</span></span></p>
 <p>TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.</p>
-</section>
-<section class="level3" id="gradient-descent">
-<h3>Gradient Descent</h3>
 <p>Again the question is how to solve this terrible equation? Luckily, The sigmoid function has a nice property: its derivative is simple.</p>
 <p><span id="eq:regression:eq15"><span class="math display">\[\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2\qquad(19)\]</span></span></p>
 <p>This gradient looks the same to that in linear regression, but it’s actually different, since the definition of <span class="math inline">\(h\)</span> is actually different. Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges. The process is similar to that in linear regression so we will not dig into details again. Instead, we will use the function that Owl provides:</p>
 <div class="highlight">
 <pre><code class="language-clike">val logistic : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>We have prepared some data in <a href="Link">data_04.csv</a>. We can perform the regression with these data.</p>
+</section>
+<section class="level3" id="example">
+<h3>Example</h3>
+<p>We have prepared some data in <a href="Link">ex2data1.csv</a>. We can perform the regression with these data.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE: logistic regression; using polynomial kernel.</code></pre>
+<pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "ex2data1.csv"
+let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
+
+let x = Mat.get_slice [[];[0;1]] data
+let y = Mat.get_slice [[];[2]] data
+
+let theta = Regression.D.logistic ~i:true x y</code></pre>
 </div>
-<p>IMAGE: plot the data and resulting boundary.</p>
+<p>The result is</p>
+<div class="highlight">
+<pre><code class="language-clike">- : Owl_algodiff_primal_ops.D.arr array =
+[|
+        C0 
+R0    5.63 
+R1 4.45631 
+; 
+        C0 
+R0 4.75192 
+|]</code></pre>
+</div>
+<p>TODO: Validate the result (might be related to Owl implementation)</p>
+<p><strong>Decision Boundary</strong></p>
+<p>The physical meaning of classification is to draw a decision boundary in a hyperplane. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.</p>
+<p>If we use a non-linear polynomial model, then the plane is divided by curve lines. Suppose <span class="math inline">\(h(x) = \theta_0 + \theta_1~x + \theta_2~x^2\)</span>. According to the property of sigmoid function, “y=1 if g(h(x)) &gt; 0.5” equals to “y=1 if h(x)&gt;0”, and thus the classification is divided by a circle.</p>
+<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
+<p>Code for visualising the dataset:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl
+let plot_logistic data = 
+  let neg_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 0.) data in 
+  let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
+  let pos_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 1.) data in 
+  let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in 
+  let h = Plot.create "reg_logistic.png" in
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ] 
+      (Mat.get_slice [[];[0]] neg_data) 
+      (Mat.get_slice [[];[1]] neg_data));
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ] 
+      (Mat.get_slice [[];[0]] pos_data) 
+      (Mat.get_slice [[];[1]] pos_data));
+  Plot.output h</code></pre>
+</div>
+<p>EXPLAIN the code.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:regression:logistic" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 11: Visualise the logistic regression dataset</figcaption>
+</figure>
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
 <p>Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?</p>
-<p>One popular classification problem is the hand-written recognition task based on the <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. fig.&nbsp;11 visualises part of the data.</p>
-<figure>
-<img alt="" data-with="70%" id="fig:regression:mnist" title="reg_mnist" src="images/regression/mnist.png"><figcaption>Figure 11: Visualisation of part of data in the MNIST dataset</figcaption>
-</figure>
-<p>It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought. Similarly, we extend the cost function towards multi-class:</p>
+<p>One popular classification problem is the hand-written recognition task based on the <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought. Similarly, we extend the cost function towards multi-class:</p>
 <p><span class="math display">\[J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h(x^{(i)})) - (1-y^{(i)})log(1-h(x^{(i)}))).\]</span></p>
-<p>We can also use the generalised version of GD as before, or directly apply GD method in Owl:</p>
-<div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
-</div>
-<p>Let’s apply the model on test data:</p>
-<p>Result.</p>
-<p>Discussion on accuracy and possible improvement. Leave for exercise.</p>
+<p>We can also use the generalised version of GD as before, or directly apply GD method in Owl.</p>
 </section>
 </section>
 <section class="level2" id="support-vector-machine">
 <h2>Support Vector Machine</h2>
 <p>Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. (TODO: explain kernel). SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)</p>
 <p>Explain the history and basic idea about SVM.</p>
-<p>TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.</p>
+<p>Here we apply SVM to another dataset.</p>
+<div class="highlight">
+<pre><code class="language-text">let data = Owl_io.read_csv ~sep:',' "ex2data2.csv"
+let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
+
+let x = Mat.get_slice [[];[0;1]] data
+let y = Mat.get_slice [[];[2]] data
+
+let theta = Regression.D.svm x y </code></pre>
+</div>
+<p>The result is:</p>
+<div class="highlight">
+<pre><code class="language-clike">val theta : Owl_algodiff_primal_ops.D.arr array =
+  [| C0 
+R0 1.38672 
+R1 0.81756 
+|]</code></pre>
+</div>
+<p>TODO: validate the result; might be related with implementation.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 12: Visualise the SVM dataset</figcaption>
+</figure>
 </section>
 <section class="level2" id="model-error-and-selection">
 <h2>Model error and selection</h2>
@@ -547,13 +593,8 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 <p>You might notice that we mention using “certain methods” in selecting the best one from these <span class="math inline">\(n\)</span> models. What are these methods? An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. Instead, we need to estimate the test error. We can directly do that using a validation dataset. Otherwise we can make adjustment to the training error such as RSS to include the bias caused by overfitting. Such methods includes: <span class="math inline">\(\textrm{C}_p\)</span>, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted <span class="math inline">\(\textrm{R}^2\)</span>, etc. To further dig into these statistical methods is beyond the scope of this book. We recommend specific textbooks such as <span data-cites="james2013introduction" class="citation">(James et al. 2013)</span>.</p>
 </section>
 </section>
-<section class="level2" id="exercise">
-<h2>Exercise</h2>
-<ol type="1">
-<li>Manual gradient descent and optimizer on multiple variable problem</li>
-<li>Regularisation of logistic regression could be used as an excise</li>
-<li>In regularisation, what would happen if the <span class="math inline">\(\lambda\)</span> is extremely large?</li>
-</ol>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

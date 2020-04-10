@@ -603,22 +603,6 @@ $$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.$$ {#eq:regression:eq12}
 Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1.
 Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.
 
-### Decision Boundary 
-
-The physical meaning of classification is to draw a decision boundary in a hyperplane. 
-For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.  
-
-IMAGE
-
-If we use a non-linear polynomial model, then the plane is divided by curve lines. 
-Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
-According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle:
-
-IMAGE
-
-Logistic regression uses the linear model as kernel.
-If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
-
 ### Cost Function 
 
 With the new model comes new cost function. 
@@ -629,8 +613,6 @@ $$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if}~y = 1, $$ {#eq:regression:eq13} 
 $$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if}~y = 0.$$ {#eq:regression:eq14}
 
 TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
-
-### Gradient Descent
 
 Again the question is how to solve this terrible equation? 
 Luckily, The sigmoid function has a nice property: its derivative is simple. 
@@ -645,6 +627,8 @@ Instead, we will use the function that Owl provides:
 ```
 val logistic : ?i:bool -> arr -> arr -> arr array
 ```
+
+### Example
 
 We have prepared some data in [ex2data1.csv](Link). We can perform the regression with these data. 
 
@@ -674,9 +658,23 @@ R0 4.75192
 
 TODO: Validate the result (might be related to Owl implementation)
 
+
+**Decision Boundary**
+
+The physical meaning of classification is to draw a decision boundary in a hyperplane. 
+For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.  
+
+If we use a non-linear polynomial model, then the plane is divided by curve lines. 
+Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
+According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle.
+
+Logistic regression uses the linear model as kernel.
+If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
+
 Code for visualising the dataset:
 
 ```ocaml
+open Owl
 let plot_logistic data = 
   let neg_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 0.) data in 
   let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
@@ -703,27 +701,13 @@ Similar to the LR problem, we can hardly stop at only two parameters. What if we
 
 One popular classification problem is the hand-written recognition task based on the [MNIST](http://yann.lecun.com/exdb/mnist/) dataset.
 It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. 
-[@fig:regression:mnist] visualises part of the data.
-
-![Visualisation of part of data in the MNIST dataset](images/regression/mnist.png "reg_mnist"){with=70% #fig:regression:mnist}
-
 It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN.
 For now, we solve that from the logistic regression line of thought. 
 Similarly, we extend the cost function towards multi-class:
 
 $$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h(x^{(i)})) - (1-y^{(i)})log(1-h(x^{(i)}))).$$
 
-We can also use the generalised version of GD as before, or directly apply GD method in Owl:
-
-```
-CODE
-```
-
-Let's apply the model on test data:
-
-Result.
-
-Discussion on accuracy and possible improvement.
+We can also use the generalised version of GD as before, or directly apply GD method in Owl.
 
 ## Support Vector Machine
 
@@ -735,8 +719,7 @@ An SVM model is a representation of the examples as points in space, mapped so t
 
 Explain the history and basic idea about SVM.
 
-TODO: Apply the SVM to the previous problem, with multiple choices of kernel, and then plot the result.
-
+Here we apply SVM to another dataset. 
 
 ```text
 let data = Owl_io.read_csv ~sep:',' "ex2data2.csv"
@@ -758,9 +741,11 @@ R1 0.81756
 |]
 ```
 
+
+
 TODO: validate the result; might be related with implementation. 
 
-![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
+![Visualise the SVM dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:svm}
 
 ## Model error and selection
 
@@ -822,12 +807,7 @@ Such methods includes: $\textrm{C}_p$, Akaike information criterion (AIC), Bayes
 To further dig into these statistical methods is beyond the scope of this book. 
 We recommend specific textbooks such as [@james2013introduction].
 
-## Exercise 
-
-1. Manual gradient descent and optimizer on multiple variable problem
-1. Regularisation of logistic regression could be used as an excise
-1. In regularisation, what would happen if the $\lambda$ is extremely large?
-
+## Summary
 
 ## References
 

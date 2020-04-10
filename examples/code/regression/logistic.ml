@@ -20,6 +20,7 @@ R0 4.75192
 which feels wrong. 
 *)
 
+(** SVM *)
 
 let plot_logistic data = 
   let neg_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 0.) data in 

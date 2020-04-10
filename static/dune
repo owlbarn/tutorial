@@ -109,11 +109,13 @@
         images/regression/normalisation.png
         images/regression/reg_cost.png
         images/regression/reg_gd.png
+        images/regression/reg_logistic.png
         images/regression/reg_options.png
         images/regression/reg_poly.png
         images/regression/reg_poly4.png
         images/regression/reg_poly4s.png
         images/regression/reg_poly4s_reg.png
+        images/regression/reg_svm.png
         images/regression/regdata.png
         images/signal/conv.png
         images/signal/lena.png
