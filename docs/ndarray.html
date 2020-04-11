@@ -454,7 +454,17 @@ Arr.(x = y)
 <section class="level2" id="tensors">
 <h2>Tensors</h2>
 <p>At last, we will briefly introduce the idea of <em>tensor</em>. If you look at some articles online the tensor is defined as a n-dimensional array. However, mathematically, there are differences between these two. In a n-dimension space, a tensor contains <span class="math inline">\(m\)</span> indices is an mathematical object that obeys certain transformation rules. For example, in a three dimension space, we have a value <code>A = [0, 1, 2]</code> that indicate an vector in this space. We can find each element in this vector by a single index <span class="math inline">\(i\)</span>, e.g.&nbsp;<span class="math inline">\(A_1 = 1\)</span>. This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems. But if we do so, then the content in <span class="math inline">\(A\)</span> needs to be updated accordingly. Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. That’s why we keep using the term “ndarray” in this chapter and through out the book.</p>
-<p>One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication: <span id="eq:ndarray:matmul"><span class="math display">\[C_{ij} = \sum_{k}A_{ik}B_{kj}.\qquad(1)\]</span></span> The <em>contraction</em> operations extends this process to multiple dimension space. It sums the products of the two ndarrays’ elements over specified axes. For example, we can perform the matrix multiplication with contraction:</p>
+<p>The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, then the component of the vector needs to be changed to another direction. Considering a single vector <span class="math inline">\(v\)</span> in coordinate system with basis <span class="math inline">\(e\)</span>. We can change the coordinate base to <span class="math inline">\(\tilde{e}\)</span> with linear transformation: <span class="math inline">\(\tilde{e} = Ae\)</span> where A is a matrix, then for any vector in this space using <span class="math inline">\(e\)</span> as base, its content will be transformed as: <span class="math inline">\(\tilde{v} = A^{-1}v\)</span>, or we can write it as;</p>
+<p><span class="math display">\[\tilde{v}^i = \sum_j~B_j^i~v^j.\]</span></p>
+<p>Here <span class="math inline">\(B=A^{-1}\)</span>. We call a vector <em>contravector</em> because it changes in the opposite way to the basis. Note we use the superscript to denote the element in contravectors.</p>
+<p>As a comparison, think about a matrix multiplication <span class="math inline">\(\alpha~v\)</span>. The <span class="math inline">\(\alpha\)</span> itself forms a different vector space, which basis is related to the basis of <span class="math inline">\(v\)</span>’s vector space. It turns out that the direction of change of <span class="math inline">\(\alpha\)</span> is the same as that of <span class="math inline">\(e\)</span>. When <span class="math inline">\(v\)</span> uses new <span class="math inline">\(\tilde{e} = Ae\)</span>, its component changes in the same way:</p>
+<p><span class="math display">\[\tilde{\alpha}_j = \sum_i~A_j^i~\alpha_i.\]</span></p>
+<p>It is called a <em>covector</em>, denoted with subscript. We can further extend it matrix. Think about a linear mapping <span class="math inline">\(L\)</span>. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication. With the change of the coordinate system, it can be proved that the content of the linear map <span class="math inline">\(L\)</span> itself is updated to:</p>
+<p><span class="math display">\[\tilde{L_j^i} = \sum_k~\sum_l~B_k^i~L_l^k~A_j^l.\]</span></p>
+<p>Again, note we use both superscript and subscript for the linear map <span class="math inline">\(L\)</span>, since it contains one covariant component and one contravariant component. Further more, we can extend this process and define the tensor. A tensor <span class="math inline">\(T\)</span> is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way. The way is that:</p>
+<p><span id="eq:ndarray:tensor"><span class="math display">\[\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_i~\sum_j~\sum_r~\sum_s~\ldots~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots\qquad(1)\]</span></span></p>
+<p>Here the <span class="math inline">\(ijk\ldots\)</span> are indices of the contravariant part of the tensor and the <span class="math inline">\(rst\ldots\)</span> are that of the covariant part.</p>
+<p>One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication: <span id="eq:ndarray:matmul"><span class="math display">\[C_j^i = \sum_{k}A_k^iB_j^k.\qquad(2)\]</span></span> The <em>contraction</em> operations extends this process to multiple dimension space. It sums the products of the two ndarrays’ elements over specified axes. For example, we can perform the matrix multiplication with contraction:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Mat.uniform 3 4
 let y = Mat.uniform 4 5 
@@ -464,7 +474,7 @@ let z2 = Arr.contract2 [|(1,0)|] x y</code></pre>
 </div>
 <p>We can see that the matrix multiplication is a special case of and can be implemented with the contraction operation.</p>
 <p>Then let’s extend the two dimension case to multiple dimensions. Let’s say we have two three-dimensional array A and B. We hope to compute the matrix C so that:</p>
-<p><span id="eq:ndarray:contract"><span class="math display">\[C_{ij} = \sum_{hk}~A_{hki}B_{khj}\qquad(2)\]</span></span></p>
+<p><span id="eq:ndarray:contract"><span class="math display">\[C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}\qquad(3)\]</span></span></p>
 <p>We can use the <code>contract2</code> function in the Ndarray module. It takes an array of <code>int * int</code> tuples to specifies the pair of indices in the two input ndarrays. Here is the code:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Arr.sequential [|3;4;5|]
@@ -472,7 +482,7 @@ let y = Arr.sequential [|4;3;2|]
 
 let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y </code></pre>
 </div>
-<p>The indices means that, in the contraction, the 0th dimension of <code>x</code> corresponds with the 1st dimension of <code>y</code>, an the 1st dimension of <code>x</code> corresponds with the 0th dimension of <code>y</code>, as shown in eq.&nbsp;2. We can verify the result with the naive way of implementation:</p>
+<p>The indices means that, in the contraction, the 0th dimension of <code>x</code> corresponds with the 1st dimension of <code>y</code>, an the 1st dimension of <code>x</code> corresponds with the 0th dimension of <code>y</code>, as shown in eq.&nbsp;3. We can verify the result with the naive way of implementation:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let z2 = Arr.zeros [|5;2|]
 
@@ -508,12 +518,16 @@ let _ =
 </div>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.contract1 [|(0,1)|] x;;
-&gt;Line 1, characters 33-34:
-&gt;Error: Unbound value x
+&gt;val y : Arr.arr =
+&gt;  C0 C1 C2
+&gt;R  9 11 13
 </code></pre>
 </div>
-<p>We can surely perform the matrix multiplication with the contraction. High-performance implementation of the contraction operation has been a research topic. Actually, many tensor operations involve summation over particular indices. Therefore in using tensors in applications such as linear algebra and physics, the <em>Einstein notation</em> is used to simplified notations. It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term). For example, the matrix multiplication notation <span class="math inline">\(C_{ij} = \sum_{k}A_{ik}B_{kj}\)</span> can be simplified as C = <span class="math inline">\(A_{ik}B_{kj}\)</span>.</p>
-<p>More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as <span data-cites="dullemond1991introduction" class="citation">(Dullemond and Peeters 1991)</span> for deeper understanding about this topic.</p>
+<p>We can surely perform the matrix multiplication with the contraction. High-performance implementation of the contraction operation has been a research topic. Actually, many tensor operations involve summation over particular indices. Therefore in using tensors in applications such as linear algebra and physics, the <em>Einstein notation</em> is used to simplified notations. It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term). For example, the matrix multiplication notation <span class="math inline">\(C_{ij} = \sum_{k}A_{ik}B_{kj}\)</span> can be simplified as C = <span class="math inline">\(A_{ik}B_{kj}\)</span>. {eq.&nbsp;1} can also be greatly simplified in this way.</p>
+<p>The tensor calculus is of important use in disciplines such as geometry and physics. More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as <span data-cites="dullemond1991introduction" class="citation">(Dullemond and Peeters 1991)</span> for deeper understanding about this topic.</p>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

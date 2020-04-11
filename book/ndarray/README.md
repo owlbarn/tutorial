@@ -580,8 +580,38 @@ But if we do so, then the content in $A$ needs to be updated accordingly.
 Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. 
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
+The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, then the component of the vector needs to be changed to another direction.
+Considering a single vector $v$ in coordinate system with basis $e$. 
+We can change the coordinate base to $\tilde{e}$ with linear transformation: $\tilde{e} = Ae$ where A is a matrix, then for any vector in this space using $e$ as base, its content will be transformed as: $\tilde{v} = A^{-1}v$, or we can write it as;
+
+$$\tilde{v}^i = \sum_j~B_j^i~v^j.$$
+
+Here $B=A^{-1}$.
+We call a vector *contravector* because it changes in the opposite way to the basis. 
+Note we use the superscript to denote the element in contravectors.
+
+As a comparison, think about a matrix multiplication $\alpha~v$. The $\alpha$ itself forms a different vector space, which basis is related to the basis of $v$'s vector space.
+It turns out that the direction of change of $\alpha$ is the same as that of $e$. When $v$ uses new $\tilde{e} = Ae$, its component changes in the same way:
+
+$$\tilde{\alpha}_j = \sum_i~A_j^i~\alpha_i.$$
+
+It is called a *covector*, denoted with subscript.
+We can further extend it matrix. Think about a linear mapping $L$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication. 
+With the change of the coordinate system, it can be proved that the content of the linear map $L$ itself is updated to:
+
+$$\tilde{L_j^i} = \sum_k~\sum_l~B_k^i~L_l^k~A_j^l.$$
+
+Again, note we use both superscript and subscript for the linear map $L$, since it contains one covariant component and one contravariant component.
+Further more, we can extend this process and define the tensor. 
+A tensor $T$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
+The way is that:
+
+$$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_i~\sum_j~\sum_r~\sum_s~\ldots~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$ {#eq:ndarray:tensor}
+
+Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $rst\ldots$ are that of the covariant part.
+
 One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication:
-$$C_{ij} = \sum_{k}A_{ik}B_{kj}.$$ {#eq:ndarray:matmul}
+$$C_j^i = \sum_{k}A_k^iB_j^k.$$ {#eq:ndarray:matmul}
 The *contraction* operations extends this process to multiple dimension space. 
 It sums the products of the two ndarrays' elements over specified axes.
 For example, we can perform the matrix multiplication with contraction:
@@ -599,7 +629,7 @@ We can see that the matrix multiplication is a special case of and can be implem
 Then let's extend the two dimension case to multiple dimensions.
 Let's say we have two three-dimensional array A and B. We hope to compute the matrix C so that: 
 
-$$C_{ij} = \sum_{hk}~A_{hki}B_{khj}$$ {#eq:ndarray:contract}
+$$C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}$$ {#eq:ndarray:contract}
 
 We can use the `contract2` function in the Ndarray module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
 
@@ -650,10 +680,12 @@ R[1,1]  9 10 11
 
 ```
 
-```ocaml env=ndarray:contraction-01 
+```ocaml env=ndarray:contraction-01
 # let y = Arr.contract1 [|(0,1)|] x
-Line 1, characters 33-34:
-Error: Unbound value x
+val y : Arr.arr =
+  C0 C1 C2
+R  9 11 13
+
 ```
 
 We can surely perform the matrix multiplication with the contraction. 
@@ -661,8 +693,12 @@ High-performance implementation of the contraction operation has been a research
 Actually, many tensor operations involve summation over particular indices. 
 Therefore in using tensors in applications such as linear algebra and physics, the *Einstein notation* is used to simplified notations.
 It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term).
-For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$.
+For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$. 
+{@eq:ndarray:tensor} can also be greatly simplified in this way. 
 
+The tensor calculus is of important use in disciplines such as geometry and physics.
 More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as [@dullemond1991introduction] for deeper understanding about this topic.
+
+## Summary
 
 ## References
