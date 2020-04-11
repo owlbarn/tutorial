@@ -114,7 +114,7 @@ $$f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)$$
 Here $h$ is the step size and $\sigma_h$ is in the range of $[x, x+h]$.
 This can be transformed into:
 
-$$-frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.$$
+$$\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.$$
 
 This represent the truncation error in the approximation. 
 For example, for function $f(x) = sin(x)$, $f''(x) = -sin(x)$. 

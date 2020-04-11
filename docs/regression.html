@@ -357,7 +357,7 @@ let medv = Mat.get_slice [[];[13]] data</code></pre>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:boston" title="boston" src="images/regression/boston.png"><figcaption>Figure 7: Visualise part of the boston housing dataset</figcaption>
 </figure>
-<p>As <span data-cites="ig:regression:boston" class="citation">(<span data-reference-id="ig:regression:boston" class="citeproc-not-found"><strong>???</strong></span>)</span> shows, the relationship basically follows a convex curve. You can try to fit a line into these data, but it’s quite likely that the result would not be very fitting. And that requires us to use non-linear models.</p>
+<p>As fig.&nbsp;7 shows, the relationship basically follows a convex curve. You can try to fit a line into these data, but it’s quite likely that the result would not be very fitting. And that requires us to use non-linear models.</p>
 <p>In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. We shows how to use them with examples, and won’t go into details of the math. Refer to [reference] for more details.</p>
 <p>In polynomial regression, the relationship between the feature <span class="math inline">\(x\)</span> and the output variable is modelled as an nth degree polynomial in the feature <span class="math inline">\(x\)</span>:</p>
 <p><span id="eq:regression:eq08"><span class="math display">\[ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots \qquad(11)\]</span></span></p>
@@ -482,41 +482,78 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 </section>
 <section class="level3" id="example">
 <h3>Example</h3>
-<p>We have prepared some data in <a href="Link">ex2data1.csv</a>. We can perform the regression with these data.</p>
+<p>To perform the logistic regression, let’s first prepare some data. We can generate this way:</p>
 <div class="highlight">
-<pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "ex2data1.csv"
-let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
+<pre><code class="language-ocaml">let generate_data () =
+  let open Mat in
+  let c = 500 in
+  let x1 = (gaussian c 2 *$ 2.) in
+  let a, b = float_of_int (Random.int 5), float_of_int (Random.int 5) in
+  let x1 = map_at_col (fun x -&gt; x +. a) x1 0 in
+  let x1 = map_at_col (fun x -&gt; x +. b) x1 1 in
+  let x2 = (gaussian c 2 *$ 1.) in
+  let a, b = float_of_int (Random.int 5), float_of_int (Random.int 5) in
+  let x2 = map_at_col (fun x -&gt; x -. a) x2 0 in
+  let x2 = map_at_col (fun x -&gt; x -. b) x2 1 in
+  let y1 = create c 1 ( 1.) in
+  let y2 = create c 1 ( 0.)in
+  let x = concat_vertical x1 x2 in
+  let y = concat_vertical y1 y2 in
+  x, y
 
-let x = Mat.get_slice [[];[0;1]] data
-let y = Mat.get_slice [[];[2]] data
-
-let theta = Regression.D.logistic ~i:true x y</code></pre>
+let x, y = generate_data () </code></pre>
 </div>
-<p>The result is</p>
+<p>Basically this code creates two groups of random data with <code>gaussian</code>. Data <code>x</code> is of shape <code>[|1000; 2|]</code>, and is equally divided into to groups. The first group is at a higher position, and the corresponding <code>y</code> label is positive. The lower group of nodes are labelled as negative. Therefore, here we train a model:</p>
+<p><span class="math display">\[h(x_0, x_1) = \theta_0~x_0 + \theta_1~x_1 + theta_2.\]</span></p>
+<p>We can get the parameters with:</p>
 <div class="highlight">
-<pre><code class="language-clike">- : Owl_algodiff_primal_ops.D.arr array =
-[|
-        C0 
-R0    5.63 
-R1 4.45631 
-; 
-        C0 
-R0 4.75192 
-|]</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let theta = 
+  Owl.Regression.D.logistic ~i:true x y
+;;
+&gt;val theta : Owl_algodiff_primal_ops.D.arr array =
+&gt;  [|
+&gt;        C0
+&gt;R0 16.4331
+&gt;R1 12.4031
+&gt;;
+&gt;        C0
+&gt;R0 20.7909
+&gt;|]
+</code></pre>
 </div>
-<p>TODO: Validate the result (might be related to Owl implementation)</p>
+<p>Therefore, the model we get is:</p>
+<p><span id="eq:regression:logistic_result"><span class="math display">\[h(x_0, x_1) = 16~x_0 + 12~x_1 + 20.\qquad(20)\]</span></span></p>
+<p>We can validate this model by comparing the inference result with the true label <code>y</code>. Of course, a more suitable approach is to use a new set of test data set.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let test_log x y =
+  let p' = Owl.Regression.D.logistic ~i:true x y in
+  let p = Mat.(p'.(0) @= p'.(1)) in
+  let x = Mat.(concat_horizontal x (ones (row_num x) 1)) in
+  let y' = Mat.(sigmoid (x *@ p)) in
+  let y' = Mat.map (fun x -&gt; if x &gt; 0.5 then 1. else 0.) y' in
+  let e = Mat.((mean' (abs (y - y')))) in
+  Owl_log.info "accuracy: %.4f" (1. -. e)</code></pre>
+</div>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">test_log x y ;;
+&gt;2020-04-11 23:10:58.564 INFO : accuracy: 0.9910
+&gt;- : unit = ()
+</code></pre>
+</div>
 <p><strong>Decision Boundary</strong></p>
-<p>The physical meaning of classification is to draw a decision boundary in a hyperplane. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.</p>
-<p>If we use a non-linear polynomial model, then the plane is divided by curve lines. Suppose <span class="math inline">\(h(x) = \theta_0 + \theta_1~x + \theta_2~x^2\)</span>. According to the property of sigmoid function, “y=1 if g(h(x)) &gt; 0.5” equals to “y=1 if h(x)&gt;0”, and thus the classification is divided by a circle.</p>
-<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
-<p>Code for visualising the dataset:</p>
+<p>The physical meaning of classification is to draw a decision boundary in a hyperplane. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the logistic function, the linear model itself divide the points into two halves in the plane. Use eq.&nbsp;20 as an example, any <span class="math inline">\(x_0\)</span>, <span class="math inline">\(x_1\)</span> that makes the <span class="math inline">\(h(x_0, x_1) &gt; 0\)</span> is taken as positive, otherwise it’s negative. Therefore, the boundary line we need to draw is: <span class="math inline">\(16~x_0 + 12~x_1 + 20 = 0\)</span>, or <span class="math inline">\(x_1 = -(4x_0 + 5)/3\)</span>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
+let data = Mat.concat_horizontal x y
+
+let f x = -.(4. *. x +. 5.) /. 3.
+
 let plot_logistic data = 
   let neg_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 0.) data in 
   let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
   let pos_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 1.) data in 
   let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in 
+  (* plot dataset *)
   let h = Plot.create "reg_logistic.png" in
   Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ] 
       (Mat.get_slice [[];[0]] neg_data) 
@@ -524,12 +561,16 @@ let plot_logistic data =
   Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ] 
       (Mat.get_slice [[];[0]] pos_data) 
       (Mat.get_slice [[];[1]] pos_data));
+  (* plot line *)
+  Plot.plot_fun ~h f (-5.) 5.;
   Plot.output h</code></pre>
 </div>
-<p>EXPLAIN the code.</p>
+<p>The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model. The result is shown in fig.&nbsp;11.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:logistic" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 11: Visualise the logistic regression dataset</figcaption>
 </figure>
+<p>If we use a non-linear polynomial model, then the plane is divided by curve lines. Suppose <span class="math inline">\(h(x) = \theta_0 + \theta_1~x + \theta_2~x^2\)</span>. According to the property of sigmoid function, “y=1 if g(h(x)) &gt; 0.5” equals to “y=1 if h(x)&gt;0”, and thus the classification is divided by a circle.</p>
+<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
@@ -563,7 +604,7 @@ R1 0.81756
 </div>
 <p>TODO: validate the result; might be related with implementation.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 12: Visualise the SVM dataset</figcaption>
+<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 12: Visualise the SVM dataset</figcaption>
 </figure>
 </section>
 <section class="level2" id="model-error-and-selection">

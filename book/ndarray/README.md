@@ -599,14 +599,14 @@ It is called a *covector*, denoted with subscript.
 We can further extend it matrix. Think about a linear mapping $L$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication. 
 With the change of the coordinate system, it can be proved that the content of the linear map $L$ itself is updated to:
 
-$$\tilde{L_j^i} = \sum_k~\sum_l~B_k^i~L_l^k~A_j^l.$$
+$$\tilde{L_j^i} = \sum_{kl}~B_k^i~L_l^k~A_j^l.$$
 
 Again, note we use both superscript and subscript for the linear map $L$, since it contains one covariant component and one contravariant component.
 Further more, we can extend this process and define the tensor. 
 A tensor $T$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
 The way is that:
 
-$$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_i~\sum_j~\sum_r~\sum_s~\ldots~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$ {#eq:ndarray:tensor}
+$$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_{ijk\ldots~rst\ldots}~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$ {#eq:ndarray:tensor}
 
 Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $rst\ldots$ are that of the covariant part.
 

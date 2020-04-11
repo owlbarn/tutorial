@@ -59,7 +59,7 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 <p>The <em>truncating error</em> comes from the fact that eq.&nbsp;3 is only an approximation of the true gradient value. We can see their difference with Tayler expansion:</p>
 <p><span class="math display">\[f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)\]</span></p>
 <p>Here <span class="math inline">\(h\)</span> is the step size and <span class="math inline">\(\sigma_h\)</span> is in the range of <span class="math inline">\([x, x+h]\)</span>. This can be transformed into:</p>
-<p><span class="math display">\[-frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.\]</span></p>
+<p><span class="math display">\[\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.\]</span></p>
 <p>This represent the truncation error in the approximation. For example, for function <span class="math inline">\(f(x) = sin(x)\)</span>, <span class="math inline">\(f''(x) = -sin(x)\)</span>. Suppose we want to calculate the derivative at <span class="math inline">\(x=1\)</span> numerically using a step size of 0.01, then the truncation error should be in the range <span class="math inline">\(\frac{0.01^2}{2}[sin(1), sin(1.01)]\)</span>. Here we can see the effect of this truncation error, by using a improper step size:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 

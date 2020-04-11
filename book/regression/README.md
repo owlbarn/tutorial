@@ -429,7 +429,7 @@ let plot_boston () =
 
 ![Visualise part of the boston housing dataset](images/regression/boston.png "boston"){width=60% #fig:regression:boston}
 
-As [@ig:regression:boston] shows, the relationship basically follows a convex curve. 
+As [@fig:regression:boston] shows, the relationship basically follows a convex curve. 
 You can try to fit a line into these data, but it's quite likely that the result would not be very fitting. 
 And that requires us to use non-linear models. 
 
@@ -630,56 +630,94 @@ val logistic : ?i:bool -> arr -> arr -> arr array
 
 ### Example
 
-We have prepared some data in [ex2data1.csv](Link). We can perform the regression with these data. 
+To perform the logistic regression, let's first prepare some data. We can generate this way:
 
+```ocaml env=regression:logistic
+let generate_data () =
+  let open Mat in
+  let c = 500 in
+  let x1 = (gaussian c 2 *$ 2.) in
+  let a, b = float_of_int (Random.int 5), float_of_int (Random.int 5) in
+  let x1 = map_at_col (fun x -> x +. a) x1 0 in
+  let x1 = map_at_col (fun x -> x +. b) x1 1 in
+  let x2 = (gaussian c 2 *$ 1.) in
+  let a, b = float_of_int (Random.int 5), float_of_int (Random.int 5) in
+  let x2 = map_at_col (fun x -> x -. a) x2 0 in
+  let x2 = map_at_col (fun x -> x -. b) x2 1 in
+  let y1 = create c 1 ( 1.) in
+  let y2 = create c 1 ( 0.)in
+  let x = concat_vertical x1 x2 in
+  let y = concat_vertical y1 y2 in
+  x, y
+
+let x, y = generate_data () 
 ```
-let data = Owl_io.read_csv ~sep:',' "ex2data1.csv"
-let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 
-let x = Mat.get_slice [[];[0;1]] data
-let y = Mat.get_slice [[];[2]] data
+Basically this code creates two groups of random data with `gaussian`. 
+Data `x` is of shape `[|1000; 2|]`, and is equally divided into to groups.
+The first group is at a higher position, and the corresponding `y` label is positive. The lower group of nodes are labelled as negative.
+Therefore, here we train a model: 
 
-let theta = Regression.D.logistic ~i:true x y
-```
+$$h(x_0, x_1) = \theta_0~x_0 + \theta_1~x_1 + \theta_2.$$
 
-The result is 
+We can get the parameters with:
 
-```
-- : Owl_algodiff_primal_ops.D.arr array =
-[|
-        C0 
-R0    5.63 
-R1 4.45631 
-; 
-        C0 
-R0 4.75192 
+```ocaml env=regression:logistic
+# let theta = 
+    Owl.Regression.D.logistic ~i:true x y
+val theta : Owl_algodiff_primal_ops.D.arr array =
+  [|
+        C0
+R0 16.4331
+R1 12.4031
+;
+        C0
+R0 20.7909
 |]
 ```
 
-TODO: Validate the result (might be related to Owl implementation)
+Therefore, the model we get is: 
 
+$$h(x_0, x_1) = 16~x_0 + 12~x_1 + 20.$$ {#eq:regression:logistic_result}
+
+We can validate this model by comparing the inference result with the true label `y`. 
+Of course, a more suitable approach is to use a new set of test data set. 
+
+```ocaml env=regression:logistic
+let test_log x y =
+  let p' = Owl.Regression.D.logistic ~i:true x y in
+  let p = Mat.(p'.(0) @= p'.(1)) in
+  let x = Mat.(concat_horizontal x (ones (row_num x) 1)) in
+  let y' = Mat.(sigmoid (x *@ p)) in
+  let y' = Mat.map (fun x -> if x > 0.5 then 1. else 0.) y' in
+  let e = Mat.((mean' (abs (y - y')))) in
+  Owl_log.info "accuracy: %.4f" (1. -. e)
+```
+```ocaml env=regression:logistic
+# test_log x y 
+2020-04-11 23:10:58.564 INFO : accuracy: 0.9910
+- : unit = ()
+```
 
 **Decision Boundary**
 
 The physical meaning of classification is to draw a decision boundary in a hyperplane. 
-For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane, as shown in the figure.  
+For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane.
+Use [@eq:regression:logistic_result] as an example, any $x_0$, $x_1$ that makes the $h(x_0, x_1) > 0$ is taken as positive, otherwise it's negative.
+Therefore, the boundary line we need to draw is: $16~x_0 + 12~x_1 + 20 = 0$, or  $x_1 = -(4x_0 + 5)/3$.
 
-If we use a non-linear polynomial model, then the plane is divided by curve lines. 
-Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
-According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle.
-
-Logistic regression uses the linear model as kernel.
-If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
-
-Code for visualising the dataset:
-
-```ocaml
+```ocaml env=regression:logistic
 open Owl
+let data = Mat.concat_horizontal x y
+
+let f x = -.(4. *. x +. 5.) /. 3.
+
 let plot_logistic data = 
   let neg_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 0.) data in 
   let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
   let pos_idx = Mat.filter_rows (fun m -> Mat.get m 0 2 = 1.) data in 
   let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in 
+  (* plot dataset *)
   let h = Plot.create "reg_logistic.png" in
   Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ] 
       (Mat.get_slice [[];[0]] neg_data) 
@@ -687,13 +725,22 @@ let plot_logistic data =
   Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ] 
       (Mat.get_slice [[];[0]] pos_data) 
       (Mat.get_slice [[];[1]] pos_data));
+  (* plot line *)
+  Plot.plot_fun ~h f (-5.) 5.;
   Plot.output h
 ```
 
-EXPLAIN the code.
+The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model.
+The result is shown in [@fig:regression:logistic].
 
 ![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
 
+If we use a non-linear polynomial model, then the plane is divided by curve lines. 
+Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
+According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle.
+
+Logistic regression uses the linear model as kernel.
+If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
 
 ### Multi-class classification 
 
@@ -745,7 +792,7 @@ R1 0.81756
 
 TODO: validate the result; might be related with implementation. 
 
-![Visualise the SVM dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:svm}
+![Visualise the SVM dataset](images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
 
 ## Model error and selection
 
