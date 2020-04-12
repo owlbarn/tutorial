@@ -504,7 +504,7 @@ val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&g
 let x, y = generate_data () </code></pre>
 </div>
 <p>Basically this code creates two groups of random data with <code>gaussian</code>. Data <code>x</code> is of shape <code>[|1000; 2|]</code>, and is equally divided into to groups. The first group is at a higher position, and the corresponding <code>y</code> label is positive. The lower group of nodes are labelled as negative. Therefore, here we train a model:</p>
-<p><span class="math display">\[h(x_0, x_1) = \theta_0~x_0 + \theta_1~x_1 + theta_2.\]</span></p>
+<p><span class="math display">\[h(x_0, x_1) = \theta_0~x_0 + \theta_1~x_1 + \theta_2.\]</span></p>
 <p>We can get the parameters with:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let theta = 
@@ -532,11 +532,11 @@ let x, y = generate_data () </code></pre>
   let y' = Mat.(sigmoid (x *@ p)) in
   let y' = Mat.map (fun x -&gt; if x &gt; 0.5 then 1. else 0.) y' in
   let e = Mat.((mean' (abs (y - y')))) in
-  Owl_log.info "accuracy: %.4f" (1. -. e)</code></pre>
+  Printf.printf "accuracy: %.4f\n" (1. -. e)</code></pre>
 </div>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">test_log x y ;;
-&gt;2020-04-11 23:10:58.564 INFO : accuracy: 0.9910
+&gt;accuracy: 0.9910
 &gt;- : unit = ()
 </code></pre>
 </div>
@@ -582,30 +582,30 @@ let plot_logistic data =
 </section>
 <section class="level2" id="support-vector-machine">
 <h2>Support Vector Machine</h2>
-<p>Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. (TODO: explain kernel). SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)</p>
-<p>Explain the history and basic idea about SVM.</p>
-<p>Here we apply SVM to another dataset.</p>
-<div class="highlight">
-<pre><code class="language-text">let data = Owl_io.read_csv ~sep:',' "ex2data2.csv"
-let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
-
-let x = Mat.get_slice [[];[0;1]] data
-let y = Mat.get_slice [[];[2]] data
-
-let theta = Regression.D.svm x y </code></pre>
-</div>
-<p>The result is:</p>
+<p>Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. (TODO: explain kernel).</p>
+<p>SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)</p>
+<p>Explain the history and basic idea about SVM. SVM is an important topic; explain it well.</p>
+<p>Owl provides support for linear kernel SVM. Let’s look at an example. Here we apply SVM to another randomly generated dataset in the similar way. The only difference is that previous we have label <code>0</code> and <code>1</code>, but now we have label <code>1</code> and <code>-1</code>.</p>
+<p>After applying <code>Regression.D.svm ~i:true x y</code>, for a certain data we get, the result we get is:</p>
 <div class="highlight">
 <pre><code class="language-clike">val theta : Owl_algodiff_primal_ops.D.arr array =
-  [| C0 
-R0 1.38672 
-R1 0.81756 
+[|
+          C0
+R0 -0.438535
+R1 -0.922763
+;
+       C0
+R0 5.7011
 |]</code></pre>
 </div>
-<p>TODO: validate the result; might be related with implementation.</p>
+<p>That means a boundary line is given by:</p>
+<p><span class="math display">\[y = -(-0.43x + 5.7) / (-0.92).\]</span></p>
+<p>Explain how this model comes about.</p>
+<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;12.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 12: Visualise the SVM dataset</figcaption>
 </figure>
+<p><strong>TODO:</strong> 1) validate the implementation of current linear SVM; 2) implement gaussian kernel SVM; refer to ML004; 3) apply gaussian svm on existing circle dataset.</p>
 </section>
 <section class="level2" id="model-error-and-selection">
 <h2>Model error and selection</h2>

@@ -691,11 +691,11 @@ let test_log x y =
   let y' = Mat.(sigmoid (x *@ p)) in
   let y' = Mat.map (fun x -> if x > 0.5 then 1. else 0.) y' in
   let e = Mat.((mean' (abs (y - y')))) in
-  Owl_log.info "accuracy: %.4f" (1. -. e)
+  Printf.printf "accuracy: %.4f\n" (1. -. e)
 ```
 ```ocaml env=regression:logistic
 # test_log x y 
-2020-04-11 23:10:58.564 INFO : accuracy: 0.9910
+accuracy: 0.9910
 - : unit = ()
 ```
 
@@ -760,39 +760,48 @@ We can also use the generalised version of GD as before, or directly apply GD me
 
 Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. 
 (TODO: explain kernel).
+
 SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. 
 Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. 
 An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)
 
-Explain the history and basic idea about SVM.
+Explain the history and basic idea about SVM. 
+SVM is an important topic; explain it well.
 
-Here we apply SVM to another dataset. 
 
-```text
-let data = Owl_io.read_csv ~sep:',' "ex2data2.csv"
-let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+Owl provides support for linear kernel SVM. 
+Let's look at an example.
+Here we apply SVM to another randomly generated dataset in the similar way.
+The only difference is that previous we have label `0` and `1`, but now we have label `1` and `-1`.
 
-let x = Mat.get_slice [[];[0;1]] data
-let y = Mat.get_slice [[];[2]] data
-
-let theta = Regression.D.svm x y 
-```
-
-The result is:
+After applying `Regression.D.svm ~i:true x y`, for a certain data we get, the result we get is:
 
 ```
 val theta : Owl_algodiff_primal_ops.D.arr array =
-  [| C0 
-R0 1.38672 
-R1 0.81756 
+[|
+          C0
+R0 -0.438535
+R1 -0.922763
+;
+       C0
+R0 5.7011
 |]
 ```
 
+That means a boundary line is given by:
 
+$$y = -(-0.43x + 5.7) / (-0.92).$$
 
-TODO: validate the result; might be related with implementation. 
+Explain how this model comes about.
+
+Similar to the logistic example, the data and boundary line can be visualised as [@fig:regression:svm].
 
 ![Visualise the SVM dataset](images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
+
+**TODO:** 
+1) validate the implementation of current linear SVM; 
+2) implement gaussian kernel SVM; refer to ML004;
+3) apply gaussian svm on existing circle dataset.
 
 ## Model error and selection
 
