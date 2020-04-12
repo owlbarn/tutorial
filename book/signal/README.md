@@ -372,35 +372,71 @@ In the N-dimensional Array chapter, we have introduced the idea of `filter`, whi
 ### Example: Smoothing
 
 Let's start with a simple and common filter task: smoothing. 
-Suppose you have have a segment of noisy signal: the stock price of Google.
+Suppose you have a segment of noisy signal: the stock price.
 In many cases we hope to remove the extreme trends and see a long-term trend from the historical data.
+We take the stock price of Google in the past year, April 09, from 2019 to 2020.
+The data is taken from Yahoo Finance.
+We can load the data into a matrix:
 
-DATA
-
-```
-CODE: visualise dataset 
-```
-
-To compute the moving average of this signal, I'll create a *window* with 10 elements: 
-
-```
-CODE: short, create an array (not ndarray, since we want to start easy), and normalise to the same 0.1.
-```
-
-Now, we can sliding this window along input signal:
-
-IMAGES: three images that shows the sliding. Two arrays "collide" with each other in opposite direction. 
-
-```
-CODE: moving average
+```text
+let data = Owl_io.read_csv ~sep:',' "goog.csv"
+let data = Array.map (fun x -> 
+    Array.map float_of_string (Array.sub x 1 6))
+    (Array.sub data 1 (Array.length data - 1)) 
+    |> Mat.of_arrays
 ```
 
-IMAGE: original data + resulting average.
+The data `y` contains several columns, each representing opening price, volume, high price, etc.
+Here we use the daily closing price as example.
+
+```text
+let y = Mat.get_slice [[];[3]] data
+```
+
+To compute the moving average of this signal, I'll create a *window* with 10 elements.
+Here we only use a simple filter which normalises each element to the same `0.1`.
+
+```text
+let filter = Mat.of_array (Array.make 10 0.1 ) 1 10
+```
+
+Now, we can sliding this filter window along input signal to smooth the data step by step.
+
+```text
+let y' = Mat.mapi (fun i _ ->
+  let r = Mat.get_fancy [R [i; i+9]; R []] y in 
+  Mat.dot filter r |> Mat.sum'
+) (Mat.get_slice [[0; (Arr.shape y).(0) - 10]; []] y)
+```
+
+Finally, we can plot the resulting smoothed data with the original data.
+
+```text
+let plot_goog y y' = 
+  let n = (Arr.shape x).(0) in 
+  let x = Mat.sequential n 1 in 
+  let h = Plot.create "plot_goog.png" in
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.set_xlabel h "date";
+  Plot.set_ylabel h "Google stock price ($)";
+  Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] x y;
+  Plot.plot ~h ~spec:[ RGB (0,0,255); LineStyle 2] x y';
+  Plot.(legend_on h ~position:NorthWest [|"original"; "smooth"|]);
+  Plot.output h
+```
+
+![Smoothed stock price of Google](images/signal/plot_goog.png "goog.png"){width=60% #fig:signal:goog}
+
+The results are shown in [@fig:signal:goog].
+The sudden drop in the last month might be related with the COVID-19.
 
 ### Gaussian Filter
 
 The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result). 
 We can change to another one: the gaussian filter.
+
+(numpy [implementation](https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135) and [doc](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html))
 
 ```
 CODE
@@ -440,14 +476,43 @@ To put equation [@eq:signal:02] into plain words, to get DFT of two signals' con
 Someone may also prefer to express it in this way: convolution in the time domain can be expressed in multiplication in the frequency domain. And multiplication we are very familiar with.
 Once you have the $\textrm{DFT}(f * g)$, you can naturally apply the inverse transform and get $f * g$.
 
-Example: the same problem, but solve with FFT (use either average filter or gaussian filter, depending on which one is easy to do):
+Let's apply the DFT approach to the previous data, and move it to the frequency domain:
 
 ```
-CODE: fft -> ifft -> smoothed stock price data.
+let yf = Owl_fft.D.rfft ~axis:0 y
 ```
 
-IMAGE
+The resulting data `yf` looks like this:
 
+```text
+val yf : (Complex.t, Bigarray.complex64_elt) Owl_dense_ndarray_generic.t =
+                        C0 
+  R0          (312445, 0i) 
+  R1  (-2664.07, 17064.3i) 
+  R2  (-5272.52, 3899.16i) 
+  R3 (-2085.98, -3101.46i) 
+                       ... 
+R124   (23.0005, -38.841i) 
+R125   (153.294, 68.7544i) 
+```
+
+We only keep the first most notable frequencies, and set the rest to zero.
+
+```text
+let n = (Dense.Ndarray.Z.shape yf).(0)
+let z = Dense.Ndarray.Z.zeros [|n-5; 1|]
+let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z
+```
+
+Now, we can apply reverse FFT and get the smoothed data:
+
+```
+let y2 = Owl_fft.D.irfft ~axis:0 yf
+```
+
+![Smoothed stock price of Google using FFT method](images/signal/plot_goog2.png "goog2.png"){width=60% #fig:signal:goog2}
+
+We can similarly check how the smoothing approach works in [@fig:signal:goog2].
 
 ### FFT and Image Convolution
 
@@ -477,11 +542,16 @@ It's OK if none of this makes sense to you now. We'll explain the convolution an
 The point is that, if you look closely, you can find that the image convolution is but only a special high dimensional case of the convolution equation: a given input signal (the image), another similar but smaller filter signal (the kernel), and the filter slides across the input signal and perform element-wise multiplication.
 
 Therefore, we can implement the convolution with FFT and vice versa. 
-For example, we can use `conv1d` function in Owl to solve the previous smoothing problem:
+For example, we can use `conv1d` function in Owl to solve the previous simple smoothing problem:
 
+```text
+let y3  = Arr.reshape y [|1;251;1|]
+let f3  = Arr.reshape filter [|10;1;1|]
+let y3' = Arr.conv1d y3 f3 [|1|]
 ```
-CODE: conv1d of two vectors. 
-```
+
+The smoothed data is similar to that in [@fig:signal:goog] since the calculation is the same, only with more concise code.
+
 Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
 
 
