@@ -327,7 +327,7 @@ The frequency `cycle/year` seems a bit confusing.
 To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of `years/cycle` (periodogram).
 Both are plotted with:
 
-```ocaml
+```text
 let plot_sunspot_freq f p = 
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
@@ -352,24 +352,73 @@ We can see the most prominent cycle is a little bit less than 11 years.
 
 ### Decipher the Tone 
 
-The tune of phone is combination of two different frequencies: 
-
-IMAGE (Reference required)
-
-Data set from Matlab book. Also 1-D signal. 
-
-IMAGE: visualise the data.
-
-The problem is to find out the dial number. 
-Let's take the first segment as example. 
+This examples uses the data of [@moler2008numerical].
 
 ```
-CODE
+let data = Owl_io.read_csv ~sep:',' "touchtone.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+let data = Mat.div_scalar data 128.
 ```
 
-IMAGE: only two prominent frequencies. According to the table, we can be sure that the first digit in the phone number is xx.
+The dataset specifies a sampling rate of 8192.
 
-The whole number can be used as exercise. 
+```
+let fs = 8192.
+```
+
+We have a segment of signal that shows the touch tone of dialling a phone number.
+We can visualise the signal:
+
+```
+let plot_tone x y filename = 
+  let h = Plot.create filename in
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.set_xlabel h "time(s)";
+  Plot.set_ylabel h "signal magnitude";
+  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x y;
+  Plot.output h
+
+let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs
+let _ = plot_tone x y "plot_tone.png"
+```
+
+The result is shown in [@fig:signal:tone](a).
+Apparently there are 11 digits in this phone number. The question we want to answer is: which numbers?
+
+![Recording of an 11-digit number and its FFT decomposition](images/signal/tone.png "tone"){width=100% #fig:signal:tone}
+
+This is a suitable question for FFT. We can apply the FFT to the original data. 
+
+```
+let yf = Owl_fft.D.rfft data
+let y' = Dense.Ndarray.Z.(abs yf |> re)
+let n = (Arr.shape y').(1)
+let x' = Mat.linspace 0. (fs /. 2.) n
+```
+
+We plot `x'` with `y'` similarly using the previous plotting function, and the result is shown in [@fig:signal:tone](b).
+All the 11 digits are composed from 7 prominent frequencies. 
+
+Actually...
+(Explain the theory: how they combine into 10 digits. With IMAGE or TABLE)
+
+We can use the first tone as an example. 
+We get a subset:
+
+```
+let data2 = Arr.get_slice [[];[0; 4999]] data
+```
+
+And then perform the same process as before, the results are shown in [@fig:signal:tone2].
+We can see that the first digit is mainly composed from two frequencies: 600 and 1200. 
+Looking it up in out table, we can see that the first digit is `1`.
+
+![Recording of the first digit and its FFT decomposition](images/signal/tone2.png "tone"){width=100% #fig:signal:tone2}
+
+The tune of phone is combination of two different frequencies.
+You can investigate the whole phone number if you want.
+
 
 ### Image Processing
 

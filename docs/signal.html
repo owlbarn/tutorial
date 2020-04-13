@@ -255,7 +255,7 @@ let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
 </div>
 <p>The frequency <code>cycle/year</code> seems a bit confusing. To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of <code>years/cycle</code> (periodogram). Both are plotted with:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let plot_sunspot_freq f p = 
+<pre><code class="language-text">let plot_sunspot_freq f p = 
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
   Plot.subplot h 0 0;
@@ -278,16 +278,52 @@ let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
 </section>
 <section class="level3" id="decipher-the-tone">
 <h3>Decipher the Tone</h3>
-<p>The tune of phone is combination of two different frequencies:</p>
-<p>IMAGE (Reference required)</p>
-<p>Data set from Matlab book. Also 1-D signal.</p>
-<p>IMAGE: visualise the data.</p>
-<p>The problem is to find out the dial number. Let’s take the first segment as example.</p>
+<p>This examples uses the data of <span data-cites="moler2008numerical" class="citation">(Moler 2008)</span>.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
+<pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "touchtone.csv"
+let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
+let data = Mat.div_scalar data 128.</code></pre>
 </div>
-<p>IMAGE: only two prominent frequencies. According to the table, we can be sure that the first digit in the phone number is xx.</p>
-<p>The whole number can be used as exercise.</p>
+<p>The dataset specifies a sampling rate of 8192.</p>
+<div class="highlight">
+<pre><code class="language-clike">let fs = 8192.</code></pre>
+</div>
+<p>We have a segment of signal that shows the touch tone of dialling a phone number. We can visualise the signal:</p>
+<div class="highlight">
+<pre><code class="language-clike">let plot_tone x y filename = 
+  let h = Plot.create filename in
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.set_xlabel h "time(s)";
+  Plot.set_ylabel h "signal magnitude";
+  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x y;
+  Plot.output h
+
+let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs
+let _ = plot_tone x y "plot_tone.png"</code></pre>
+</div>
+<p>The result is shown in fig.&nbsp;3(a). Apparently there are 11 digits in this phone number. The question we want to answer is: which numbers?</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:signal:tone" title="tone" src="images/signal/tone.png"><figcaption>Figure 3: Recording of an 11-digit number and its FFT decomposition</figcaption>
+</figure>
+<p>This is a suitable question for FFT. We can apply the FFT to the original data.</p>
+<div class="highlight">
+<pre><code class="language-clike">let yf = Owl_fft.D.rfft data
+let y' = Dense.Ndarray.Z.(abs yf |&gt; re)
+let n = (Arr.shape y').(1)
+let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
+</div>
+<p>We plot <code>x'</code> with <code>y'</code> similarly using the previous plotting function, and the result is shown in fig.&nbsp;3(b). All the 11 digits are composed from 7 prominent frequencies.</p>
+<p>Actually… (Explain the theory: how they combine into 10 digits. With IMAGE or TABLE)</p>
+<p>We can use the first tone as an example. We get a subset:</p>
+<div class="highlight">
+<pre><code class="language-clike">let data2 = Arr.get_slice [[];[0; 4999]] data</code></pre>
+</div>
+<p>And then perform the same process as before, the results are shown in fig.&nbsp;4. We can see that the first digit is mainly composed from two frequencies: 600 and 1200. Looking it up in out table, we can see that the first digit is <code>1</code>.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:signal:tone2" title="tone" src="images/signal/tone2.png"><figcaption>Figure 4: Recording of the first digit and its FFT decomposition</figcaption>
+</figure>
+<p>The tune of phone is combination of two different frequencies. You can investigate the whole phone number if you want.</p>
 </section>
 <section class="level3" id="image-processing">
 <h3>Image Processing</h3>
@@ -295,7 +331,7 @@ let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
 <p>FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.</p>
 <p>We use the famous Lena image as example:</p>
 <figure>
-<img alt="" style="width:50.0%" id="fig:signal:lena" src="images/signal/lena.png"><figcaption>Figure 3: Lena</figcaption>
+<img alt="" style="width:50.0%" id="fig:signal:lena" src="images/signal/lena.png"><figcaption>Figure 5: Lena</figcaption>
 </figure>
 <p>As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.</p>
 <div class="highlight">
@@ -364,9 +400,9 @@ let data = Array.map (fun x -&gt;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 4: Smoothed stock price of Google</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 6: Smoothed stock price of Google</figcaption>
 </figure>
-<p>The results are shown in fig.&nbsp;4. The sudden drop in the last month might be related with the COVID-19.</p>
+<p>The results are shown in fig.&nbsp;6. The sudden drop in the last month might be related with the COVID-19.</p>
 </section>
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
@@ -414,15 +450,15 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z</code></pre>
 <pre><code class="language-clike">let y2 = Owl_fft.D.irfft ~axis:0 yf</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 5: Smoothed stock price of Google using FFT method</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 7: Smoothed stock price of Google using FFT method</figcaption>
 </figure>
-<p>We can similarly check how the smoothing approach works in fig.&nbsp;5.</p>
+<p>We can similarly check how the smoothing approach works in fig.&nbsp;7.</p>
 </section>
 <section class="level3" id="fft-and-image-convolution">
 <h3>FFT and Image Convolution</h3>
-<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;6 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
+<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;8 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 6: Image convolution illustration</figcaption>
+<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 8: Image convolution illustration</figcaption>
 </figure>
 <p>Owl has provided thorough support of convolution operation:</p>
 <div class="highlight">
@@ -440,7 +476,7 @@ val conv3d : ?padding:padding -&gt; (float, 'a) t -&gt; (float, 'a) t -&gt; int 
 let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]</code></pre>
 </div>
-<p>The smoothed data is similar to that in fig.&nbsp;4 since the calculation is the same, only with more concise code.</p>
+<p>The smoothed data is similar to that in fig.&nbsp;6 since the calculation is the same, only with more concise code.</p>
 <p>Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.</p>
 </section>
 </section>
