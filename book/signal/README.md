@@ -280,21 +280,75 @@ These three applications together present a full picture about how the wide usag
 Build data from a [dataset](http://sidc.oma.be/silso/newdataset) from the Solar Influences Data Center.
 Explain the background of dataset, meaning of Wolfer index, and the dataset itself. 
 
-IMAGE: visualise the dataset.
+The dataset provided are of different granularity. Here we use the yearly data, from 1700 to 2020. 
+You can also try the monthly data to get more detailed knowledge. 
+First, load the data:
 
-We can see there is a cycle. We want to know how long it is.
+```text
+let data = Owl_io.read_csv ~sep:';' "sunspot_full.csv"
+let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
+
+let x = Mat.get_slice [[];[0]] data
+let y = Mat.get_slice [[];[1]] data
+```
+
+We can then visualise the data:
+
+```ocaml
+let plot_sunspot x y = 
+  let h = Plot.create "plot_sunspot.png" in
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.set_xlabel h "Date";
+  Plot.set_ylabel h "Sunspot number";
+  Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] x y;
+  Plot.output h
+```
+
+![Yearly sunspot data](images/signal/plot_sunspot.png "sunspot"){width=60% #fig:signal:sunspot}
+
+We can see there is a cycle. We want to know exactly how long it is.
 
 ```
-CODE
+let y' = Owl_fft.D.rfft ~axis:0 y
 ```
 
-IMAGE: absolute fft'ed result vs. cycles per year. (periodogram)
+To process the data, we first remove the first element of `y`, since it stores the sum of the data. 
+The frequency is reduced to half, since we plot only half of the coefficients.
 
-Change x-axis into years per cycle
+```text
+let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y'
+let p = Dense.Ndarray.Z.abs y' |> Dense.Ndarray.Z.re
+let n = (Arr.shape p).(0)
+let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)
+```
 
-IMAGE
+The frequency `cycle/year` seems a bit confusing.
+To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of `years/cycle` (periodogram).
+Both are plotted with:
 
-and we can see 11 years is a prominent cycle. 
+```ocaml
+let plot_sunspot_freq f p = 
+  let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
+  Plot.set_pen_size h 3.;
+  Plot.subplot h 0 0;
+  Plot.set_xlabel h "cycle/year";
+  Plot.set_ylabel h "squared power";
+  Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] f p;
+
+  Plot.subplot h 0 1;
+  Plot.set_xlabel h "year/cycle";
+  Plot.set_ylabel h "squared power";
+  let f' = Arr.(scalar_div 1. (get_slice [[1; Stdlib.(n'-1)]] f)) in
+  Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] f' p;
+  Plot.set_xrange h 0. 40.;
+  Plot.output h
+```
+
+The result is shown in [@fig:signal:freq].
+We can see the most prominent cycle is a little bit less than 11 years.
+
+![Find sunspot cycle with FFT](images/signal/plot_sunspot_freq.png "sunspot_freq"){width=100% #fig:signal:freq}
 
 ### Decipher the Tone 
 
