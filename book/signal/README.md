@@ -539,15 +539,30 @@ The sudden drop in the last month might be related with the COVID-19.
 The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result). 
 We can change to another one: the gaussian filter.
 
+EXPLAIN
+
 (numpy [implementation](https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135) and [doc](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html))
 
+The code below generate a simple 1-D gaussian filter based on the equation: $\exp{-\frac{x^2}{2\sigma^2}}$.
+Similar to the previous simple example, the filter also needs to be normalised.
+The range of radius is set to truncate standard deviations.
+
 ```
-CODE
+let gaussian_kernel sigma = 
+  let truncate = 4. in 
+  let radius = truncate *. sigma +. 0.5 |> int_of_float in
+  let r = float_of_int radius in 
+  let x = Mat.linspace (-.r) r (2 * radius + 1) in 
+  let f a = Maths.exp (-0.5 *. a ** 2. /. (sigma *. sigma)) in 
+  let x = Mat.map f x in
+  Mat.(div_scalar x (sum' x))
+
+let filter = gaussian_kernel 3.
 ```
 
-IMAGE: the result, should be a better smoothing curve. 
+Computing the correlation between filter and the input data as before, we get a better smoothed curve in [@fig:signal:goog_gauss].
 
-(IMPLEMENTATION maybe required: Currently none filter implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering.)
+![Smoothed stock price of Google with Gaussian filtering](images/signal/plot_goog_gauss.png "goog_gauss.png"){width=60% #fig:signal:goog_gauss}
 
 Filters can be generally by their usage into time domain filters and frequency domain filters.
 Time domain filters are used when the information is encoded in the shape of the signal's waveform, and can be used for tasks such as smoothing, waveform shaping, etc. 
@@ -657,5 +672,6 @@ The smoothed data is similar to that in [@fig:signal:goog] since the calculation
 
 Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
 
+## Summary
 
 ## References

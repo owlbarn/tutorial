@@ -407,12 +407,25 @@ let data = Array.map (fun x -&gt;
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
 <p>The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result). We can change to another one: the gaussian filter.</p>
+<p>EXPLAIN</p>
 <p>(numpy <a href="https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135">implementation</a> and <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html">doc</a>)</p>
+<p>The code below generate a simple 1-D gaussian filter based on the equation: <span class="math inline">\(\exp{-\frac{x^2}{2\sigma^2}}\)</span>. Similar to the previous simple example, the filter also needs to be normalised. The range of radius is set to truncate standard deviations.</p>
 <div class="highlight">
-<pre><code class="language-clike">CODE</code></pre>
+<pre><code class="language-clike">let gaussian_kernel sigma = 
+  let truncate = 4. in 
+  let radius = truncate *. sigma +. 0.5 |&gt; int_of_float in
+  let r = float_of_int radius in 
+  let x = Mat.linspace (-.r) r (2 * radius + 1) in 
+  let f a = Maths.exp (-0.5 *. a ** 2. /. (sigma *. sigma)) in 
+  let x = Mat.map f x in
+  Mat.(div_scalar x (sum' x))
+
+let filter = gaussian_kernel 3.</code></pre>
 </div>
-<p>IMAGE: the result, should be a better smoothing curve.</p>
-<p>(IMPLEMENTATION maybe required: Currently none filter implemented; need to pick 1-2 to implement and demonstrate the general idea of filtering.)</p>
+<p>Computing the correlation between filter and the input data as before, we get a better smoothed curve in fig.&nbsp;7.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 7: Smoothed stock price of Google with Gaussian filtering</figcaption>
+</figure>
 <p>Filters can be generally by their usage into time domain filters and frequency domain filters. Time domain filters are used when the information is encoded in the shape of the signal’s waveform, and can be used for tasks such as smoothing, waveform shaping, etc. It includes filter methods such as moving average and single pole. Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. There are many filters, each with different shape (or <em>impulse response</em>) and application scenarios, and we cannot cover them fully here. Please refer to some classical textbooks on signal processing such as <span data-cites="smith1997scientist" class="citation">(Smith and others 1997)</span> for more information.</p>
 </section>
 <section class="level3" id="signal-convolution">
@@ -450,15 +463,15 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z</code></pre>
 <pre><code class="language-clike">let y2 = Owl_fft.D.irfft ~axis:0 yf</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 7: Smoothed stock price of Google using FFT method</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 8: Smoothed stock price of Google using FFT method</figcaption>
 </figure>
-<p>We can similarly check how the smoothing approach works in fig.&nbsp;7.</p>
+<p>We can similarly check how the smoothing approach works in fig.&nbsp;8.</p>
 </section>
 <section class="level3" id="fft-and-image-convolution">
 <h3>FFT and Image Convolution</h3>
-<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;8 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
+<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;9 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 8: Image convolution illustration</figcaption>
+<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 9: Image convolution illustration</figcaption>
 </figure>
 <p>Owl has provided thorough support of convolution operation:</p>
 <div class="highlight">
@@ -479,6 +492,9 @@ let y3' = Arr.conv1d y3 f3 [|1|]</code></pre>
 <p>The smoothed data is similar to that in fig.&nbsp;6 since the calculation is the same, only with more concise code.</p>
 <p>Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.</p>
 </section>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
