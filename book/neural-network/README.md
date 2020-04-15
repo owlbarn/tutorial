@@ -1,35 +1,84 @@
 # Deep Neural Networks
 
+## Introduction
+
+Brain neuron ect.
+
+## Simple NN
+
+Follow the previous logistic regression.
+In this section we use build a simple neural network with a hidden layer, and train its parameters. 
+The task is hand-written recognition. 
+
 Basically follow ML004
 
-- Introduction: brain neuron ect.
+**Model Representation**
 
-- Simple NN: follow the previous logistic regression
-  + Forward
-  + Backward
-  + Gradient checking: using Numdiff -> Algodiff
-  + Learning rate 
-  + Putting it together
+In logistic regression we have... now we need to extend it towards multiple classes.
+Add an internal layer (why).
 
-- Deep Neural Networks: Building a DNN step by step
-  + the design of Owl NN module
-  + introduce neurons
-  + optimisation 
+IMAGE: 1x2, first logistic, second NN.
 
-- Applications
+DATASET
+
+(Optional: visualisation)
+
+### Forward Propagation
+
+Extending the cost function of LR, we can have:
+
+EQUATION
+
+We can implement the forward process with 
+
+```
+code: including parameters loading, regularisation etc.
+```
+
+Now we can perform an inference with inference using this untrained model:
+
+```
+code: a simple forward pass
+```
+
+### Backward Propagation
+
+First, recall how we train the parameters in LR.
+
+EXPLAIN 
+
+Now, we extend that to NN.
+Let's first look at one single pass of back propagation.
+
+EXPLAIN
+
+We can actually perform that with AD:
+
+```
+code
+```
+
+**Learning Rate**
+For multiple iterations, we can use the optimisation module described in previous chapters.
+
+**Putting it together**
+
+CODE: Use the trained model to perform inference, and show the accuracy.
 
 
+## Deep Neural Networks
+
+More layers, but you can find that previous approach is hard to scale. 
 
 Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
 
-In the end, I became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
+In the end, we became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
 
 The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow's performance on CPU (by the time we measured in 2018).
 
-In this chapter, I will cover the functionality in `Neural` module with various examples.
+In this section we talk about the deesign of NN module
 
-
-## A Naive Example
+### A Naive Example
 
 To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual `Neural` module, let's build a small neural network from scratch. Don't get scared, the whole application is around 60 LOC.
 
@@ -144,7 +193,7 @@ After training finished, we test the accuracy of the network. Here is one exampl
 The `Neural` module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.
 
 
-## Module Structure
+### Module Structure
 
 The [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml) provides two submodules `S` and `D` for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.
 
@@ -163,7 +212,7 @@ The [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_ne
 * `Parallel` : provide parallel computation capability, need to compose with Actor engine. (Experimental, a research project in progress.)
 
 
-## Model Definition
+### Model Definition
 
 I have implemented a set of commonly used neurons in [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml). Each neuron is a standalone module and adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl's [Algodiff](https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli) module.
 
@@ -209,7 +258,7 @@ In practice, you do not need to use the modules defined in  [Owl.Neural.Neuron](
 These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
 
 
-## Model Training
+### Model Training
 
 Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
 
@@ -270,9 +319,25 @@ After the training is finished, you can call `Graph.model` to generate a functio
 You can have a look at Owl's [MNIST CNN example](https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml) for more details and run the code by yourself.
 
 
-## Model Inference
+### Model Inference
 
 TBD
+
+### Example 
+
+Implement the previous example with several lines of code. 
+
+
+## Convolutional Neural Network 
+
+Introduce CNN
+
+Implement the same MNIST task with CNN. 
+
+
+**Applications**
+
+For more applications, please check the image recognition, NST, and instance segmentation cases.
 
 
 ## Examples

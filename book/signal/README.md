@@ -126,7 +126,7 @@ Typically, only the FFT corresponding to positive frequencies is plotted.
 
 The next example plots the FFT of the sum of two sines, showing the power of FFT to separate signals of different frequency.
 
-```text
+```ocaml env=fft_env02
 # module G = Dense.Ndarray.Generic
 module G = Owl.Dense.Ndarray.Generic
 
@@ -140,30 +140,45 @@ val x : Arr.arr =
   C0         C1         C2         C3         C4         C595     C596     C597     C598 C599
 R  0 0.00125209 0.00250417 0.00375626 0.00500835 ... 0.744992 0.746244 0.747496 0.748748 0.75
 
+```
+
+```ocaml env=fft_env02
 # let y1 = Arr.((50. *. 2. *. Owl_const.pi) $* x |> sin)
 val y1 : Arr.arr =
 
   C0       C1       C2      C3       C4         C595    C596     C597     C598        C599
 R  0 0.383289 0.708033 0.92463 0.999997 ... 0.999997 0.92463 0.708033 0.383289 1.27376E-14
 
+```
+
+```ocaml env=fft_env02
 # let y2 = Arr.(0.5 $* ((80. *. 2. *. Owl_const.pi) $* x |> sin))
 val y2 : (float, float64_elt) Owl_dense_ndarray_generic.t =
 
   C0       C1       C2      C3       C4          C595     C596      C597      C598         C599
 R  0 0.294317 0.475851 0.47504 0.292193 ... -0.292193 -0.47504 -0.475851 -0.294317 -2.15587E-14
 
+```
+
+```ocaml env=fft_env02
 # let y = Arr.(y1 + y2) |> G.cast_d2z 
 val y : (Complex.t, complex64_elt) G.t =
 
        C0             C1            C2            C3            C4               C595           C596           C597            C598               C599
 R (0, 0i) (0.677606, 0i) (1.18388, 0i) (1.39967, 0i) (1.29219, 0i) ... (0.707804, 0i) (0.449591, 0i) (0.232182, 0i) (0.0889723, 0i) (-8.82117E-15, 0i)
 
+```
+
+```ocaml env=fft_env02
 # let yf = Owl_fft.D.fft y
 val yf : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 
              C0                    C1                    C2                    C3                  C4                     C595                 C596                   C597                   C598                   C599
 R (5.01874, 0i) (5.02225, 0.0182513i) (5.03281, 0.0366004i) (5.05051, 0.0551465i) (5.0755, 0.073992i) ... (5.108, -0.0932438i) (5.0755, -0.073992i) (5.05051, -0.0551465i) (5.03281, -0.0366004i) (5.02225, -0.0182513i)
 
+```
+
+```ocaml env=fft_env02
 # let z = Dense.Ndarray.Z.(abs yf |> re)
 val z : Dense.Ndarray.Z.cast_arr =
 
@@ -173,11 +188,12 @@ R 5.01874 5.02228 5.03294 5.05081 5.07604 ... 5.10886 5.07604 5.05081 5.03294 5.
 ```
 
 Plot the result. 
-```text
+```ocaml env=fft_env02
 # let h = Plot.create "plot_001.png" in 
   let xa = Arr.linspace 1. 600. 600 in
   Plot.plot ~h xa z;
   Plot.output h 
+- : unit = ()
 ```
 
 ![Using FFT to separate two sine signals from their mixed signal](images/signal/plot_001.png "plot_001"){.align-center width=70%}
@@ -189,7 +205,7 @@ The negative part is implied by the Hermitian symmetry of the FFT.
 Similarly, `irfft` performs the reverse step of `rfft`. 
 First, let's make the input even number.
 
-```text
+```ocaml env=fft_env03
 # let a = [|1.; 2.; 1.; -1.; 1.5; 1.0|]
 val a : float array = [|1.; 2.; 1.; -1.; 1.5; 1.|]
 # let b = Arr.of_array a [|6|]
@@ -197,12 +213,18 @@ val b : Arr.arr =
   C0 C1 C2 C3  C4 C5
 R  1  2  1 -1 1.5  1
 
+```
 
+```ocaml env=fft_env03
 # let c = Owl_fft.D.rfft b
 val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
+
          C0                 C1                 C2        C3
 R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 0i)
 
+```
+
+```ocaml env=fft_env03
 # let d = Owl_fft.D.irfft c
 val d : (float, float64_elt) Owl_dense_ndarray_generic.t =
 
@@ -213,7 +235,7 @@ R  1  2  1 -1 1.5  1
 
 And then we change the length of signal to odd.
 
-```text
+```ocaml env=fft_env04
 # let a = [|1.; 2.; 1.; -1.; 1.5;|]
 val a : float array = [|1.; 2.; 1.; -1.; 1.5|]
 # let b = Arr.of_array a [|5|]
@@ -221,8 +243,12 @@ val b : Arr.arr =
   C0 C1 C2 C3  C4
 R  1  2  1 -1 1.5
 
+```
+
+```ocaml env=fft_env04
 # let c = Owl_fft.D.rfft b
 val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
+
          C0                  C1                   C2
 R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 
@@ -239,7 +265,7 @@ TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Bo
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
 
-```text
+```ocaml env=fft_env05
 # let a = Dense.Matrix.Z.eye 5
 val a : Dense.Matrix.Z.mat =
 
@@ -250,6 +276,9 @@ R2 (0, 0i) (0, 0i) (1, 0i) (0, 0i) (0, 0i)
 R3 (0, 0i) (0, 0i) (0, 0i) (1, 0i) (0, 0i)
 R4 (0, 0i) (0, 0i) (0, 0i) (0, 0i) (1, 0i)
 
+```
+
+```ocaml env=fft_env05
 # let b = Owl_fft.D.fft a
 val b : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 

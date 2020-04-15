@@ -1,30 +1,55 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Deep Neural Networks - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="deep-neural-networks">
 <h1>Deep Neural Networks</h1>
+<section class="level2" id="introduction">
+<h2>Introduction</h2>
+<p>Brain neuron ect.</p>
+</section>
+<section class="level2" id="simple-nn">
+<h2>Simple NN</h2>
+<p>Follow the previous logistic regression. In this section we use build a simple neural network with a hidden layer, and train its parameters. The task is hand-written recognition.</p>
 <p>Basically follow ML004</p>
-<ul>
-<li><p>Introduction: brain neuron ect.</p></li>
-<li><p>Simple NN: follow the previous logistic regression</p>
-<ul>
-<li>Forward</li>
-<li>Backward</li>
-<li>Gradient checking: using Numdiff -&gt; Algodiff</li>
-<li>Learning rate</li>
-<li>Putting it together</li>
-</ul></li>
-<li><p>Deep Neural Networks: Building a DNN step by step</p>
-<ul>
-<li>the design of Owl NN module</li>
-<li>introduce neurons</li>
-<li>optimisation</li>
-</ul></li>
-<li><p>Applications</p></li>
-</ul>
+<p><strong>Model Representation</strong></p>
+<p>In logistic regression we have… now we need to extend it towards multiple classes. Add an internal layer (why).</p>
+<p>IMAGE: 1x2, first logistic, second NN.</p>
+<p>DATASET</p>
+<p>(Optional: visualisation)</p>
+<section class="level3" id="forward-propagation">
+<h3>Forward Propagation</h3>
+<p>Extending the cost function of LR, we can have:</p>
+<p>EQUATION</p>
+<p>We can implement the forward process with</p>
+<div class="highlight">
+<pre><code class="language-clike">code: including parameters loading, regularisation etc.</code></pre>
+</div>
+<p>Now we can perform an inference with inference using this untrained model:</p>
+<div class="highlight">
+<pre><code class="language-clike">code: a simple forward pass</code></pre>
+</div>
+</section>
+<section class="level3" id="backward-propagation">
+<h3>Backward Propagation</h3>
+<p>First, recall how we train the parameters in LR.</p>
+<p>EXPLAIN</p>
+<p>Now, we extend that to NN. Let’s first look at one single pass of back propagation.</p>
+<p>EXPLAIN</p>
+<p>We can actually perform that with AD:</p>
+<div class="highlight">
+<pre><code class="language-clike">code</code></pre>
+</div>
+<p><strong>Learning Rate</strong> For multiple iterations, we can use the optimisation module described in previous chapters.</p>
+<p><strong>Putting it together</strong></p>
+<p>CODE: Use the trained model to perform inference, and show the accuracy.</p>
+</section>
+</section>
+<section class="level2" id="deep-neural-networks-1">
+<h2>Deep Neural Networks</h2>
+<p>More layers, but you can find that previous approach is hard to scale.</p>
 <p>Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
-<p>In the end, I became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn’t know how easy it is. I think it is an excellent opportunity to test Owl’s capability and expressiveness in developing complicated analytical applications.</p>
+<p>In the end, we became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn’t know how easy it is. I think it is an excellent opportunity to test Owl’s capability and expressiveness in developing complicated analytical applications.</p>
 <p>The outcome is wonderful. It turns out with Owl’s architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml’s powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow’s performance on CPU (by the time we measured in 2018).</p>
-<p>In this chapter, I will cover the functionality in <code>Neural</code> module with various examples.</p>
-<section class="level2" id="a-naive-example">
-<h2>A Naive Example</h2>
+<p>In this section we talk about the deesign of NN module</p>
+<section class="level3" id="a-naive-example">
+<h3>A Naive Example</h3>
 <p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch. Don’t get scared, the whole application is around 60 LOC.</p>
 <p>We will build a neural network to recognise hand-written digits. The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset. The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
 <div class="highlight">
@@ -120,8 +145,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </figure>
 <p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.</p>
 </section>
-<section class="level2" id="module-structure">
-<h2>Module Structure</h2>
+<section class="level3" id="module-structure">
+<h3>Module Structure</h3>
 <p>The <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml">Owl.Neural</a> provides two submodules <code>S</code> and <code>D</code> for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.</p>
 <ul>
 <li><code>Graph</code> : create and manipulate the neural network structure.</li>
@@ -139,8 +164,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <li><code>Parallel</code> : provide parallel computation capability, need to compose with Actor engine. (Experimental, a research project in progress.)</li>
 </ul>
 </section>
-<section class="level2" id="model-definition">
-<h2>Model Definition</h2>
+<section class="level3" id="model-definition">
+<h3>Model Definition</h3>
 <p>I have implemented a set of commonly used neurons in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a>. Each neuron is a standalone module and adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli">Algodiff</a> module.</p>
 <p><code>Algodiff</code> is the most powerful part of Owl and offers great benefits to the modules built atop of it. In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the <code>Algodiff</code> figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/examples/feedforward.ml">Feedforward Network</a> which only uses a couple of hundreds lines of code to implement a complete Feedforward network.</p>
 <p>In practice, you do not need to use the modules defined in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a> directly. Instead, you should call the functions in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_graph.ml">Graph</a> module to create a new neuron and add it to the network. Currently, Graph module contains the following neurons.</p>
@@ -182,8 +207,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </ul>
 <p>These neurons should be sufficient for creating from simple MLP to the most complicated Google’s Inception network.</p>
 </section>
-<section class="level2" id="model-training">
-<h2>Model Training</h2>
+<section class="level3" id="model-training">
+<h3>Model Training</h3>
 <p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
 <p>Let’s use the single precision neural network as an example. To work with single precision networks, you need to use/open the following modules</p>
 <div class="highlight">
@@ -233,9 +258,21 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>You can have a look at Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml">MNIST CNN example</a> for more details and run the code by yourself.</p>
 </section>
-<section class="level2" id="model-inference">
-<h2>Model Inference</h2>
+<section class="level3" id="model-inference">
+<h3>Model Inference</h3>
 <p>TBD</p>
+</section>
+<section class="level3" id="example">
+<h3>Example</h3>
+<p>Implement the previous example with several lines of code.</p>
+</section>
+</section>
+<section class="level2" id="convolutional-neural-network">
+<h2>Convolutional Neural Network</h2>
+<p>Introduce CNN</p>
+<p>Implement the same MNIST task with CNN.</p>
+<p><strong>Applications</strong></p>
+<p>For more applications, please check the image recognition, NST, and instance segmentation cases.</p>
 </section>
 <section class="level2" id="examples">
 <h2>Examples</h2>

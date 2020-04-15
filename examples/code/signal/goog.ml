@@ -42,7 +42,21 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z
 
 let y2 = Owl_fft.D.irfft ~axis:0 yf
 
-(* plot_goog y y2 *)
+
+let plot_goog_fft y y' = 
+  let n = (Arr.shape y).(0) in 
+  let x = Mat.sequential n 1 in 
+  let h = Plot.create "plot_goog_fft.png" in
+  Plot.set_font_size h 8.;
+  Plot.set_pen_size h 3.;
+  Plot.set_xlabel h "date";
+  Plot.set_ylabel h "Google stock price ($)";
+  Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] x y;
+  Plot.plot ~h ~spec:[ RGB (0,0,255); LineStyle 2] x y';
+  Plot.(legend_on h ~position:NorthWest [|"original"; "FFT smooth"|]);
+  Plot.output h
+
+(* plot_goog_fft y y2 *)
 
 
 (** 3. *)
