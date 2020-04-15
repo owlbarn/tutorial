@@ -1,5 +1,25 @@
 # Deep Neural Networks
 
+Basically follow ML004
+
+- Introduction: brain neuron ect.
+
+- Simple NN: follow the previous logistic regression
+  + Forward
+  + Backward
+  + Gradient checking: using Numdiff -> Algodiff
+  + Learning rate 
+  + Putting it together
+
+- Deep Neural Networks: Building a DNN step by step
+  + the design of Owl NN module
+  + introduce neurons
+  + optimisation 
+
+- Applications
+
+
+
 Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
 
 In the end, I became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
