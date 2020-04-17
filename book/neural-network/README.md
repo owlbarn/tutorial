@@ -17,11 +17,11 @@ Basically follow ML004
 In logistic regression we have... now we need to extend it towards multiple classes.
 Add an internal layer (why).
 
-IMAGE: 1x2, first logistic, second NN.
+![Extend logistic regression to neural network with one hidden layer](images/neural-network/simple_nn.png "simple_nn"){width=100% #fig:neural-network:simple_nn}
 
-DATASET
+The data we will use is from [MNIST dataset](http://yann.lecun.com/exdb/mnist/). You can use `Owl.Dataset.download_all()` to download the dataset. 
 
-(Optional: visualisation)
+![Visualise part of MNIST dataset](images/regression/mnist.png "mnist"){width=60% #fig:neural-network:mnist}
 
 ### Forward Propagation
 
@@ -82,7 +82,7 @@ In this section we talk about the deesign of NN module
 
 To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual `Neural` module, let's build a small neural network from scratch. Don't get scared, the whole application is around 60 LOC.
 
-We will build a neural network to recognise hand-written digits. The data we will use is from [MNIST dataset](http://yann.lecun.com/exdb/mnist/). You can use `Owl.Dataset.download_all()` to download the dataset. The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight `w`, bias `b`, and activation function `a`. A network is just a collection of layers.
+The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight `w`, bias `b`, and activation function `a`. A network is just a collection of layers.
 
 ```ocaml env=neural_01
 open Algodiff.S

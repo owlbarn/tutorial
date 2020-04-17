@@ -10,9 +10,13 @@
 <p>Basically follow ML004</p>
 <p><strong>Model Representation</strong></p>
 <p>In logistic regression we have… now we need to extend it towards multiple classes. Add an internal layer (why).</p>
-<p>IMAGE: 1x2, first logistic, second NN.</p>
-<p>DATASET</p>
-<p>(Optional: visualisation)</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:neural-network:simple_nn" title="simple_nn" src="images/neural-network/simple_nn.png"><figcaption>Figure 1: Extend logistic regression to neural network with one hidden layer</figcaption>
+</figure>
+<p>The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:neural-network:mnist" title="mnist" src="images/regression/mnist.png"><figcaption>Figure 2: Visualise part of MNIST dataset</figcaption>
+</figure>
 <section class="level3" id="forward-propagation">
 <h3>Forward Propagation</h3>
 <p>Extending the cost function of LR, we can have:</p>
@@ -51,7 +55,7 @@
 <section class="level3" id="a-naive-example">
 <h3>A Naive Example</h3>
 <p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch. Don’t get scared, the whole application is around 60 LOC.</p>
-<p>We will build a neural network to recognise hand-written digits. The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset. The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
+<p>The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.S
 
@@ -141,7 +145,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with <span class="math inline">\(90.14%\)</span> chance it is a number 3. Quite accurate!</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 1: Prediction from the model</figcaption>
+<img alt="" style="width:90.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 3: Prediction from the model</figcaption>
 </figure>
 <p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.</p>
 </section>
@@ -471,7 +475,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit <code>6</code>. The code has been included in Owl’s example and you can find the complete example in <a href="https://github.com/owlbarb/owl/blob/master/examples/backprop.ml">backprop.ml</a>.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:plot34" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>Figure 2: Mnist experiments on back propagation</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot34" title="plot 034" src="images/algodiff/plot_034.png"><figcaption>Figure 4: Mnist experiments on back propagation</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-simple-functions">
@@ -494,7 +498,7 @@ let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |&gt; 
 </div>
 <p>The generated computation graph looks like this.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 3: Computation graph of a simple math function</figcaption>
+<img alt="" style="width:60.0%" id="fig:algodiff:plot28" title="plot 028" src="images/algodiff/plot_028.png"><figcaption>Figure 5: Computation graph of a simple math function</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-vgg-like-neural-network">
@@ -521,7 +525,7 @@ let make_network input_shape =
 </div>
 <p>The computation graph for this neural network become a bit more complicated now.</p>
 <figure>
-<img alt="" id="fig:algodiff:plot29" title="plot 029" src="images/algodiff/plot_029.png"><figcaption>Figure 4: Computation graph of the VGG neural network</figcaption>
+<img alt="" id="fig:algodiff:plot29" title="plot 029" src="images/algodiff/plot_029.png"><figcaption>Figure 6: Computation graph of the VGG neural network</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-lstm-network">
@@ -541,7 +545,7 @@ let make_network wndsz vocabsz =
 </div>
 <p>However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:plot30" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>Figure 5: Computation graph of LSTM network</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot30" title="plot 030" src="images/algodiff/plot_030.png"><figcaption>Figure 7: Computation graph of LSTM network</figcaption>
 </figure>
 </section>
 <section class="level3" id="example-computation-graph-of-googles-inception">
@@ -549,7 +553,7 @@ let make_network wndsz vocabsz =
 <p>If the computation graph above hasn’t scared you yet, here is another one generated from Google’s Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl’s zoo system <code>#zoo "6dfed11c521fb2cd286f2519fb88d3bf"</code>.</p>
 <p>The image below is too small to check details, please download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf">PDF file 2</a>.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:algodiff:plot31" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>Figure 6: Computation graph of the InceptionV3 neural network</figcaption>
+<img alt="" style="width:100.0%" id="fig:algodiff:plot31" title="plot 031" src="images/algodiff/plot_031.png"><figcaption>Figure 8: Computation graph of the InceptionV3 neural network</figcaption>
 </figure>
 </section>
 </section>
