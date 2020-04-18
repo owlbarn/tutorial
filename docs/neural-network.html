@@ -6,6 +6,7 @@
 </section>
 <section class="level2" id="simple-nn">
 <h2>Simple NN</h2>
+<p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch.</p>
 <p>Follow the previous logistic regression. In this section we use build a simple neural network with a hidden layer, and train its parameters. The task is hand-written recognition.</p>
 <p>Basically follow ML004</p>
 <p><strong>Model Representation</strong></p>
@@ -14,48 +15,85 @@
 <img alt="" style="width:100.0%" id="fig:neural-network:simple_nn" title="simple_nn" src="images/neural-network/simple_nn.png"><figcaption>Figure 1: Extend logistic regression to neural network with one hidden layer</figcaption>
 </figure>
 <p>The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset.</p>
+<div class="highlight">
+<pre><code class="language-text">let x, _, y = Dataset.load_mnist_train_data_arr () </code></pre>
+</div>
+<div class="highlight">
+<pre><code class="language-text"># let x_shape, y_shape = 
+   Dense.Ndarray.S.shape x, Dense.Ndarray.S.shape y
+
+val x_shape : int array = [|60000; 28; 28; 1|]
+val y_shape : int array = [|60000; 10|]</code></pre>
+</div>
+<p>The label is in the one-hot format:</p>
+<div class="highlight">
+<pre><code class="language-text">val y : Owl_dense_matrix.S.mat =
+
+        C0  C1  C2  C3  C4  C5  C6  C7  C8  C9
+    R0   0   0   0   0   0   1   0   0   0   0
+    R1   1   0   0   0   0   0   0   0   0   0
+    R2   0   0   0   0   1   0   0   0   0   0
+       ... ... ... ... ... ... ... ... ... ...</code></pre>
+</div>
+<p>It shows the first three labels are 5, 0, and 4.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:neural-network:mnist" title="mnist" src="images/regression/mnist.png"><figcaption>Figure 2: Visualise part of MNIST dataset</figcaption>
 </figure>
-<section class="level3" id="forward-propagation">
-<h3>Forward Propagation</h3>
-<p>Extending the cost function of LR, we can have:</p>
-<p>EQUATION</p>
-<p>We can implement the forward process with</p>
+<p><strong>Forward Propagation</strong></p>
+<p>Specifically we use a hidden layer of size 25, and the output class is 10.</p>
+<p>Since we will use derivatives in training parameters, we construct all the computation using the Algorithmic Differentiation module.</p>
+<p>The computation is simple. The logistic regression is repeated:</p>
+<p><span class="math display">\[h_\Theta(x) = f(f(x~\theta_0)~\theta_1).\]</span></p>
+<p>It can be implemented as:</p>
 <div class="highlight">
-<pre><code class="language-clike">code: including parameters loading, regularisation etc.</code></pre>
+<pre><code class="language-ocaml">open Algodiff.D
+module N = Dense.Ndarray.D
+
+let input_size = 28 * 28
+let hidden_size = 25
+let classes = 10
+
+let theta0 = Arr (N.uniform [|input_size; hidden_size|])
+let theta1 = Arr (N.uniform [|hidden_size; classes|])
+
+let h theta0 theta1 x = 
+  let t = Arr.dot x theta0 |&gt; Maths.sigmoid in 
+  Arr.dot t theta1 |&gt; Maths.sigmoid</code></pre>
 </div>
-<p>Now we can perform an inference with inference using this untrained model:</p>
+<p>That’s it. We can now classify an input <code>28x28</code> array into one of the ten classes… except that we can’t. Currently we only use random content as the parameters. We need to train the model and find suitable <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> parameters.</p>
+<p><strong>Back propagation</strong></p>
+<p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a netowrk back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters <code>&gt;&gt;</code> output parameters.</p>
+<p>Recall in the Regression chapter, training parameters is the process is to find the parameters that minimise the cost function of iteratively. In the case of this neural network, its cost function <span class="math inline">\(J\)</span> is similar to that of logistic regression. Suppose we have <span class="math inline">\(m\)</span> training data pairs, then it can be expressed as:</p>
+<p><span id="eq:neural-network:costfun"><span class="math display">\[J(\theta+0, \theta_1) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).\qquad(1)\]</span></span></p>
 <div class="highlight">
-<pre><code class="language-clike">code: a simple forward pass</code></pre>
+<pre><code class="language-ocaml">let j t0 t1 x y =
+  let z = h t0 t1 x in 
+  Maths.add
+    (Maths.cross_entropy y z)
+    (Maths.cross_entropy Arr.(sub (ones (shape y)) y)
+       Arr.(sub (ones (shape z)) z))</code></pre>
 </div>
-</section>
-<section class="level3" id="backward-propagation">
-<h3>Backward Propagation</h3>
-<p>First, recall how we train the parameters in LR.</p>
-<p>EXPLAIN</p>
-<p>Now, we extend that to NN. Let’s first look at one single pass of back propagation.</p>
-<p>EXPLAIN</p>
-<p>We can actually perform that with AD:</p>
+<p>Here the the <code>cross_entropy y x</code> means <span class="math inline">\(-h~\log(x)\)</span>.</p>
+<p>In the regression chapter, to find the suitable parameters that minimise <span class="math inline">\(J\)</span>, we iteratively apply:</p>
+<p><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)\]</span></p>
+<p>until it converges. The same also applies here. But the partial derivative is not intuitive to give a analytical solution. But actually we don’t have to now that we are using the AD module. The partial derivatives of both parameters can be correctly calculated. We have show in the Algorithmic Differentiation chapter how it can be done in Owl:</p>
 <div class="highlight">
-<pre><code class="language-clike">code</code></pre>
+<pre><code class="language-text">let x', y' = Dataset.draw_samples x y 1
+let cost = j t0 t1 (Arr x') (Arr y')
+let _ = reverse_prop (F 1.) cost
+let theta0' =  adjval t0 |&gt; unpack_arr
+let theta1' =  adjval t1 |&gt; unpack_arr</code></pre>
 </div>
-<p><strong>Learning Rate</strong> For multiple iterations, we can use the optimisation module described in previous chapters.</p>
-<p><strong>Putting it together</strong></p>
-<p>CODE: Use the trained model to perform inference, and show the accuracy.</p>
+<p>That’s it for one iteration. We get <span class="math inline">\(\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)\)</span>, and then can iteratively update the <span class="math inline">\(\Theta\)</span> parameters.</p>
+<p>TODO: finish this example with accuracy value.</p>
 </section>
-</section>
-<section class="level2" id="deep-neural-networks-1">
-<h2>Deep Neural Networks</h2>
-<p>More layers, but you can find that previous approach is hard to scale.</p>
-<p>Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
-<p>In the end, we became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn’t know how easy it is. I think it is an excellent opportunity to test Owl’s capability and expressiveness in developing complicated analytical applications.</p>
-<p>The outcome is wonderful. It turns out with Owl’s architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml’s powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow’s performance on CPU (by the time we measured in 2018).</p>
-<p>In this section we talk about the deesign of NN module</p>
-<section class="level3" id="a-naive-example">
-<h3>A Naive Example</h3>
-<p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch. Don’t get scared, the whole application is around 60 LOC.</p>
-<p>The following code defines the layer and network type, both are OCaml record types. Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
+<section class="level2" id="simple-nn-revised">
+<h2>Simple NN: Revised</h2>
+<p>In the next step, we revise the previous example, with a bit of more details added.</p>
+<p>First, the previous example mixes all the computation together. We need to add the abstraction of <em>layers</em> (Explain). The following code defines the layer and network type, both are OCaml record types.</p>
+<p>Also note that for each layer, besides the matrix multiplication, we also added an extra <em>bias</em> (Explain). Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
+<p><span class="math display">\[ y = a(x \times w + b) \]</span></p>
+<p>Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.S
 
@@ -67,39 +105,47 @@ type layer = {
 
 type network = { layers : layer array }</code></pre>
 </div>
-<p>Despite of the complicated internal structure, we can treat a neural network as a function, which is fed with input data and outputs predictions. The question is how to evaluate a network. Evaluating a network can be decomposed as a sequence of evaluation of layers. Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
-<p><span class="math display">\[ y = a(x \times w + b) \]</span></p>
+<p>Despite of the complicated internal structure, we can treat a neural network as a function, which is fed with input data and outputs predictions. The question is how to evaluate a network. Evaluating a network can be decomposed as a sequence of evaluation of layers.</p>
 <p>The output of one layer will feed into the next layer as its input, moving forward until it reaches the end. The following two lines shows how to evaluate a neural network in <em>forward mode</em>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let run_layer x l = Maths.((x *@ l.w) + l.b) |&gt; l.a
 
 let run_network x nn = Array.fold_left run_layer x nn.layers</code></pre>
 </div>
-<p>In this small example, we will only use two layer, <code>l0</code> and <code>l1</code>. <code>l0</code> uses a <code>784 x 300</code> matrix as weight, and <code>tanh</code> as activation function. <code>l1</code> is the output layer and <code>softmax</code> is the cost function.</p>
+<p>The <code>run_network</code> can generate what equals to the <span class="math inline">\(h_\Theta(x)\)</span> function in previous section.</p>
+<p>Here we note there is an extra function <code>a</code>. It is the activation function. (Explain activation function and why they are necessary.) Previously we use the <code>sigmoid</code> function, but that’s not the only option. We can also use <code>tanh</code> and <code>softmax</code>.</p>
+<p>In this small example, we will only use two layers, <code>l0</code> and <code>l1</code>. <code>l0</code> uses a <code>784 x 40</code> matrix as weight, and <code>tanh</code> as activation function. <code>l1</code> is the output layer and <code>softmax</code> is the cost function.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let l0 = {
-  w = Maths.(Mat.uniform 784 300 * F 0.15 - F 0.075);
+  w = Maths.(Mat.uniform 784 40 * F 0.15 - F 0.075);
   b = Mat.zeros 1 300;
   a = Maths.tanh;
 }
 
 let l1 = {
-  w = Maths.(Mat.uniform 300 10 * F 0.15 - F 0.075);
+  w = Maths.(Mat.uniform 40 10 * F 0.15 - F 0.075);
   b = Mat.zeros 1 10;
   a = Maths.softmax ~axis:1;
 }
 
 let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
-<p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a netowrk back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters <code>&gt;&gt;</code> output parameters.</p>
+<p>This definition is plain, but there is still one thing to say. <em>Initialisation</em>: previously we use a uniformly random array, but choosing a good initial status is important. Explain. Here we use…</p>
+<p><strong>Training</strong></p>
+<p>The loss function is constructed in the same way.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let backprop nn eta x y =
+<pre><code class="language-ocaml">let loss_fun nn x y = 
   let t = tag () in
   Array.iter (fun l -&gt;
     l.w &lt;- make_reverse l.w t;
     l.b &lt;- make_reverse l.b t;
   ) nn.layers;
-  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |&gt; float_of_int))) in
+  Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |&gt; float_of_int)))</code></pre>
+</div>
+<p>(Explain why we use only one <code>cross_entropy</code>)</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let backprop nn eta x y =
+  let loss = loss_fun nn x y in 
   reverse_prop (F 1.) loss;
   Array.iter (fun l -&gt;
     l.w &lt;- Maths.((primal l.w) - (eta * (adjval l.w))) |&gt; primal;
@@ -107,17 +153,18 @@ let nn = {layers = [|l0; l1|]}</code></pre>
   ) nn.layers;
   loss |&gt; unpack_flt</code></pre>
 </div>
-<p>The <code>test</code> function performs model inferece and compares the predictions with the labelled data. By so doing, we can evaluate the accuracy of a neural network.</p>
+<p>The <code>backprop</code> also uses the same procedure as previous example. The partial derivative is gotten using <code>adjval</code>, and the parameter <code>w</code> and <code>b</code> of each layer are updated accordingly. It then uses the gradient descent method we introduced in previous example. The learning rate <code>eta</code> is fixed.</p>
+<p><strong>Test</strong></p>
+<p>We need to see how well our trained model works. The <code>test</code> function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let test nn x y =
   Dense.Matrix.S.iter2_rows (fun u v -&gt;
-    Dataset.print_mnist_image u;
     let p = run_network (Arr u) nn |&gt; unpack_arr in
     Dense.Matrix.Generic.print p;
     Printf.printf "prediction: %i\n" (let _, i = Dense.Matrix.Generic.max_i p in i.(1))
   ) (unpack_arr x) (unpack_arr y)</code></pre>
 </div>
-<p>Finally, the following code starts the training for 999 iterations.</p>
+<p>Finally, we put all the previous parts together. The following code starts the training for 999 iterations.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let main () =
   let x, _, y = Dataset.load_mnist_train_data () in
@@ -147,8 +194,16 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <figure>
 <img alt="" style="width:90.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 3: Prediction from the model</figcaption>
 </figure>
-<p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to varioud neurons.</p>
+<p>TODO: replace with code.</p>
 </section>
+<section class="level2" id="deep-neural-networks-1">
+<h2>Deep Neural Networks</h2>
+<p>More layers, but you can find that previous approach is hard to scale.</p>
+<p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to various neurons.</p>
+<p>Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
+<p>In the end, we became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn’t know how easy it is. I think it is an excellent opportunity to test Owl’s capability and expressiveness in developing complicated analytical applications.</p>
+<p>The outcome is wonderful. It turns out with Owl’s architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml’s powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow’s performance on CPU (by the time we measured in 2018).</p>
+<p>In this section we talk about the deesign of NN module</p>
 <section class="level3" id="module-structure">
 <h3>Module Structure</h3>
 <p>The <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml">Owl.Neural</a> provides two submodules <code>S</code> and <code>D</code> for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.</p>
