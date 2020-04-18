@@ -4,7 +4,23 @@
 
 Brain neuron ect.
 
-## Simple NN
+## Perceptron
+
+The origin; why do we connect at all.
+
+Non-linearity
+
+An example code, but do no use the code for now.
+
+```
+let make_network input_shape =
+  input input_shape
+  |> linear 300 ~act_typ:Activation.Tanh
+  |> linear 10 ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
+
+## Feed Forward Network
 
 To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual `Neural` module, let's build a small neural network from scratch. 
 
@@ -14,7 +30,7 @@ The task is hand-written recognition.
 
 Basically follow ML004
 
-**Model Representation**
+### Model Representation
 
 In logistic regression we have... now we need to extend it towards multiple classes.
 Add an internal layer (why).
@@ -51,7 +67,7 @@ It shows the first three labels are 5, 0, and 4.
 
 ![Visualise part of MNIST dataset](images/regression/mnist.png "mnist"){width=60% #fig:neural-network:mnist}
 
-**Forward Propagation**
+### Forward Propagation
 
 Specifically we use a hidden layer of size 25, and the output class is 10. 
 
@@ -83,10 +99,12 @@ That's it. We can now classify an input `28x28` array into one of the ten classe
 Currently we only use random content as the parameters. 
 We need to train the model and find suitable $\theta_0$ and $\theta_1$ parameters. 
 
-**Back propagation**
+### Back propagation
 
 Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. 
-The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a netowrk back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters `>>` output parameters.
+The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a network back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters `>>` output parameters.
+
+Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
 
 Recall in the Regression chapter, training parameters is the process is to find the parameters that minimise the cost function of iteratively.
 In the case of this neural network, its cost function $J$ is similar to that of logistic regression.
@@ -128,7 +146,7 @@ We get $\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)$, and then can 
 
 TODO: finish this example with accuracy value.
 
-## Simple NN: Revised
+## Feed Forward Network: Revised
 
 In the next step, we revise the previous example, with a bit of more details added. 
 
@@ -273,18 +291,16 @@ When the training starts, our application keeps printing the value of loss funct
 2019-11-12 01:04:14.720 INFO : #006 : loss = 2.21974
 2019-11-12 01:04:14.730 INFO : #007 : loss = 2.0249
 2019-11-12 01:04:14.740 INFO : #008 : loss = 1.96638
-2019-11-12 01:04:14.750 INFO : #009 : loss = 1.92944
-2019-11-12 01:04:14.762 INFO : #010 : loss = 1.98345
 ```
 
 After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with $90.14%$ chance it is a number 3. Quite accurate!
 
-![Prediction from the model](images/neural-network/plot_01.png "plot_01"){ width=90% #fig:neural-network:plot01 }
+![Prediction from the model](images/neural-network/plot_01.png "plot_01"){ width=40% #fig:neural-network:plot01 }
 
 TODO: replace with code. 
 
 
-## Deep Neural Networks
+## Deep Feed Forward Network
 
 More layers, but you can find that previous approach is hard to scale. 
 
@@ -297,7 +313,6 @@ In the end, we became curious about this question myself, although the perspecti
 The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow's performance on CPU (by the time we measured in 2018).
 
 In this section we talk about the deesign of NN module
-
 
 
 ### Module Structure
@@ -327,40 +342,7 @@ I have implemented a set of commonly used neurons in [Owl.Neural.Neuron](https:/
 
 In practice, you do not need to use the modules defined in  [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml) directly. Instead, you should call the functions in [Graph](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_graph.ml) module to create a new neuron and add it to the network. Currently, Graph module contains the following neurons.
 
-* `input`
-* `activation`
-* `linear`
-* `linear_nobias`
-* `embedding`
-* `recurrent`
-* `lstm`
-* `gru`
-* `conv1d`
-* `conv2d`
-* `conv3d`
-* `max_pool1d`
-* `max_pool2d`
-* `avg_pool1d`
-* `avg_pool2d`
-* `global_max_pool1d`
-* `global_max_pool2d`
-* `global_avg_pool1d`
-* `global_avg_pool2d`
-* `fully_connected`
-* `dropout`
-* `gaussian_noise`
-* `gaussian_dropout`
-* `alpha_dropout`
-* `normalisation`
-* `reshape`
-* `flatten`
-* `lambda`
-* `add`
-* `mul`
-* `dot`
-* `max`
-* `average`
-* `concatenate`
+`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`
 
 These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
 
@@ -435,36 +417,14 @@ TBD
 Implement the previous example with several lines of code. 
 
 
-## Convolutional Neural Network 
+## Convolution Neural Network 
 
 Introduce CNN
 
+More about the structure in NN module/Optimise module
+
 Implement the same MNIST task with CNN. 
 
-
-**Applications**
-
-For more applications, please check the image recognition, NST, and instance segmentation cases.
-
-
-## Examples
-
-In the following, I will present several neural networks defined in Owl. All have been included in Owl's [examples](https://github.com/ryanrhymes/owl/tree/master/examples) and can be run separately. If you are interested in the computation graph Owl generated for these networks, you can also have a look at [this chapter on Algodiff](algodiff.html).
-
-
-### Multilayer Perceptron (MLP) for MNIST
-
-```ocaml env=neural_00
-
-  let make_network input_shape =
-    input input_shape
-    |> linear 300 ~act_typ:Activation.Tanh
-    |> linear 10 ~act_typ:Activation.(Softmax 1)
-    |> get_network
-
-```
-
-### Convolutional Neural Network for MNIST
 
 ```ocaml env=neural_00
 
@@ -481,29 +441,14 @@ In the following, I will present several neural networks defined in Owl. All hav
 ```
 
 
-### VGG-like Neural Network for CIFAR10
+**Applications**
 
-```ocaml env=neural_00
-
-  let make_network input_shape =
-    input input_shape
-    |> normalisation ~decay:0.9
-    |> conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
-    |> conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-    |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-    |> dropout 0.1
-    |> conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
-    |> conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-    |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-    |> dropout 0.1
-    |> fully_connected 512 ~act_typ:Activation.Relu
-    |> linear 10 ~act_typ:Activation.(Softmax 1)
-    |> get_network
-
-```
+For more applications, please check the image recognition, NST, and instance segmentation cases.
 
 
-### LSTM Network for Text Generation
+## Recurrent Neural Network and LSTM
+
+Include GRU
 
 ```ocaml env=neural_00
 
@@ -517,232 +462,8 @@ In the following, I will present several neural networks defined in Owl. All hav
 
 ```
 
+The generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
-### Google's Inception for Image Classification
+## GAN 
 
-```ocaml env=neural_00
-
-  let conv2d_bn ?(padding=SAME) kernel stride nn =
-    conv2d ~padding kernel stride nn
-    |> normalisation ~training:false ~axis:3
-    |> activation Activation.Relu
-
-  let mix_typ1 in_shape bp_size nn =
-    let branch1x1 = conv2d_bn [|1;1;in_shape;64|] [|1;1|] nn in
-    let branch5x5 = nn
-      |> conv2d_bn [|1;1;in_shape;48|] [|1;1|]
-      |> conv2d_bn [|5;5;48;64|] [|1;1|]
-    in
-    let branch3x3dbl = nn
-      |> conv2d_bn [|1;1;in_shape;64|] [|1;1|]
-      |> conv2d_bn [|3;3;64;96|]  [|1;1|]
-      |> conv2d_bn [|3;3;96;96|]  [|1;1|]
-    in
-    let branch_pool = nn
-      |> avg_pool2d [|3;3|] [|1;1|]
-      |> conv2d_bn [|1;1;in_shape; bp_size |] [|1;1|]
-    in
-    concatenate 3 [|branch1x1; branch5x5; branch3x3dbl; branch_pool|]
-
-  let mix_typ3 nn =
-    let branch3x3 = conv2d_bn [|3;3;288;384|] [|2;2|] ~padding:VALID nn in
-    let branch3x3dbl = nn
-      |> conv2d_bn [|1;1;288;64|] [|1;1|]
-      |> conv2d_bn [|3;3;64;96|] [|1;1|]
-      |> conv2d_bn [|3;3;96;96|] [|2;2|] ~padding:VALID
-    in
-    let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
-    concatenate 3 [|branch3x3; branch3x3dbl; branch_pool|]
-
-  let mix_typ4 size nn =
-    let branch1x1 = conv2d_bn [|1;1;768;192|] [|1;1|] nn in
-    let branch7x7 = nn
-      |> conv2d_bn [|1;1;768;size|] [|1;1|]
-      |> conv2d_bn [|1;7;size;size|] [|1;1|]
-      |> conv2d_bn [|7;1;size;192|] [|1;1|]
-    in
-    let branch7x7dbl = nn
-      |> conv2d_bn [|1;1;768;size|] [|1;1|]
-      |> conv2d_bn [|7;1;size;size|] [|1;1|]
-      |> conv2d_bn [|1;7;size;size|] [|1;1|]
-      |> conv2d_bn [|7;1;size;size|] [|1;1|]
-      |> conv2d_bn [|1;7;size;192|] [|1;1|]
-    in
-    let branch_pool = nn
-      |> avg_pool2d [|3;3|] [|1;1|] (* padding = SAME *)
-      |> conv2d_bn [|1;1; 768; 192|] [|1;1|]
-    in
-    concatenate 3 [|branch1x1; branch7x7; branch7x7dbl; branch_pool|]
-
-  let mix_typ8 nn =
-    let branch3x3 = nn
-      |> conv2d_bn [|1;1;768;192|] [|1;1|]
-      |> conv2d_bn [|3;3;192;320|] [|2;2|] ~padding:VALID
-    in
-    let branch7x7x3 = nn
-      |> conv2d_bn [|1;1;768;192|] [|1;1|]
-      |> conv2d_bn [|1;7;192;192|] [|1;1|]
-      |> conv2d_bn [|7;1;192;192|] [|1;1|]
-      |> conv2d_bn [|3;3;192;192|] [|2;2|] ~padding:VALID
-    in
-    let branch_pool = max_pool2d [|3;3|] [|2;2|] ~padding:VALID nn in
-    concatenate 3 [|branch3x3; branch7x7x3; branch_pool|]
-
-  let mix_typ9 input nn =
-    let branch1x1 = conv2d_bn [|1;1;input;320|] [|1;1|] nn in
-    let branch3x3 = conv2d_bn [|1;1;input;384|] [|1;1|] nn in
-    let branch3x3_1 = branch3x3 |> conv2d_bn [|1;3;384;384|] [|1;1|] in
-    let branch3x3_2 = branch3x3 |> conv2d_bn [|3;1;384;384|] [|1;1|] in
-    let branch3x3 = concatenate 3 [| branch3x3_1; branch3x3_2 |] in
-    let branch3x3dbl = nn |> conv2d_bn [|1;1;input;448|] [|1;1|] |> conv2d_bn [|3;3;448;384|] [|1;1|] in
-    let branch3x3dbl_1 = branch3x3dbl |> conv2d_bn [|1;3;384;384|] [|1;1|]  in
-    let branch3x3dbl_2 = branch3x3dbl |> conv2d_bn [|3;1;384;384|] [|1;1|]  in
-    let branch3x3dbl = concatenate 3 [|branch3x3dbl_1; branch3x3dbl_2|] in
-    let branch_pool = nn |> avg_pool2d [|3;3|] [|1;1|] |> conv2d_bn [|1;1;input;192|] [|1;1|] in
-    concatenate 3 [|branch1x1; branch3x3; branch3x3dbl; branch_pool|]
-
-  let make_network img_size =
-    input [|img_size;img_size;3|]
-    |> conv2d_bn [|3;3;3;32|] [|2;2|] ~padding:VALID
-    |> conv2d_bn [|3;3;32;32|] [|1;1|] ~padding:VALID
-    |> conv2d_bn [|3;3;32;64|] [|1;1|]
-    |> max_pool2d [|3;3|] [|2;2|] ~padding:VALID
-    |> conv2d_bn [|1;1;64;80|] [|1;1|] ~padding:VALID
-    |> conv2d_bn [|3;3;80;192|] [|1;1|] ~padding:VALID
-    |> max_pool2d [|3;3|] [|2;2|] ~padding:VALID
-    |> mix_typ1 192 32 |> mix_typ1 256 64 |> mix_typ1 288 64
-    |> mix_typ3
-    |> mix_typ4 128 |> mix_typ4 160 |> mix_typ4 160 |> mix_typ4 192
-    |> mix_typ8
-    |> mix_typ9 1280 |> mix_typ9 2048
-    |> global_avg_pool2d
-    |> linear 1000 ~act_typ:Activation.(Softmax 1)
-    |> get_network
-
-  let _ = make_network 299 |> print
-
-```
-
-
-There is a great space for optimisation. There are also some new neurons need to be added, e.g., upsampling, transposed convolution, and etc. Anyway, things will get better and better.
-
-
-## Algorithmic Differentiation: The Engine of Neural Network
-
-TODO: This section to be rescheduled. 
-
-### Backpropagation in Neural Network
-
-AD was proposed in 1970, and backpropagation was proposed in 1980s. They are different, but backprop is frequently implemented using the reverse mode AD.
-
-Now let's talk about the hyped neural network. Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
-
-```text
-let backprop nn eta x y =
-  let t = tag () in
-  Array.iter (fun l ->
-    l.w <- make_reverse l.w t;
-    l.b <- make_reverse l.b t;
-  ) nn.layers;
-  let loss = Maths.(cross_entropy y (run_network x nn) / (F (Mat.row_num y |> float_of_int))) in
-  reverse_prop (F 1.) loss;
-  Array.iter (fun l ->
-    l.w <- Maths.((primal l.w) - (eta * (adjval l.w))) |> primal;
-    l.b <- Maths.((primal l.b) - (eta * (adjval l.b))) |> primal;
-  ) nn.layers;
-  loss |> unpack_flt
-```
-
-Yes, we just used only 13 lines of code to implement the backpropagation. Actually, with some extra coding, we can make a smart application to recognise handwritten digits. E.g., running the application will give you the following prediction on handwritten digit `6`. The code has been included in Owl's example and you can find the complete example in [backprop.ml](https://github.com/owlbarb/owl/blob/master/examples/backprop.ml).
-
-![Mnist experiments on back propagation](images/algodiff/plot_034.png "plot 034"){ width=100% #fig:algodiff:plot34 }
-
-
-### Example: Computation Graph of Simple Functions
-
-Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
-
-```text
-  val to_trace: t list -> string
-  (* print out the trace in human-readable format *)
-
-  val to_dot : tlist -> string
-  (* print out the computation graph in dot format *)
-```
-
-`to_trace` is useful when the graph is small and you can print it out on the terminal then observe it directly. `to_dot` is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.
-
-In the following, I will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the [computation_graph.ml](https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml).
-
-Let's start with a simple function as below.
-
-```ocaml env=algodiff_00
-open Algodiff.D;;
-
-let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
-```
-
-The generated computation graph looks like this.
-
-![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
-
-
-### Example: Computation Graph of VGG-like Neural Network
-
-Let's define a VGG-like neural network as below.
-
-```ocaml
-open Neural.S
-open Neural.S.Graph
-
-let make_network input_shape =
-  input input_shape
-  |> normalisation ~decay:0.9
-  |> conv2d [|3;3;3;32|] [|1;1|] ~act_typ:Activation.Relu
-  |> conv2d [|3;3;32;32|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-  |> dropout 0.1
-  |> conv2d [|3;3;32;64|] [|1;1|] ~act_typ:Activation.Relu
-  |> conv2d [|3;3;64;64|] [|1;1|] ~act_typ:Activation.Relu ~padding:VALID
-  |> max_pool2d [|2;2|] [|2;2|] ~padding:VALID
-  |> dropout 0.1
-  |> fully_connected 512 ~act_typ:Activation.Relu
-  |> linear 10 ~act_typ:Activation.(Softmax 1)
-  |> get_network
-```
-
-The computation graph for this neural network become a bit more complicated now.
-
-![Computation graph of the VGG neural network](images/algodiff/plot_029.png "plot 029"){ width=100%, #fig:algodiff:plot29 }
-
-
-### Example: Computation Graph of LSTM Network
-
-How about LSTM network? The following definition seems much lighter than convolutional neural network in the previous example.
-
-```ocaml
-open Neural.S
-open Neural.S.Graph
-
-let make_network wndsz vocabsz =
-  input [|wndsz|]
-  |> embedding vocabsz 40
-  |> lstm 128
-  |> linear 512 ~act_typ:Activation.Relu
-  |> linear vocabsz ~act_typ:Activation.(Softmax 1)
-  |> get_network
-```
-
-However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
-
-![Computation graph of LSTM network ](images/algodiff/plot_030.png "plot 030"){ width=100% #fig:algodiff:plot30}
-
-
-### Example: Computation Graph of Google's Inception
-
-If the computation graph above hasn't scared you yet, here is another one generated from Google's Inception network for image classification. I will not paste the code here since the definition of the network per se is already quite complicated. You can use Owl's zoo system `#zoo "6dfed11c521fb2cd286f2519fb88d3bf"`.
-
-The image below is too small to check details, please download the [PDF file 2](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_031.pdf).
-
-
-![Computation graph of the InceptionV3 neural network](images/algodiff/plot_031.png "plot 031"){ width=100% #fig:algodiff:plot31}
+## Summary

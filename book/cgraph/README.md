@@ -193,6 +193,37 @@ Since the whole graph is evaluated, then surely the output ndarray `z` is also e
 - : float = 4.20861827873129801
 ```
 
+**Extra: visualisation**
+
+(TODO: better merge the content below with other content of this section.)
+
+Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
+
+```text
+  val to_trace: t list -> string
+  (* print out the trace in human-readable format *)
+
+  val to_dot : tlist -> string
+  (* print out the computation graph in dot format *)
+```
+
+`to_trace` is useful when the graph is small and you can print it out on the terminal then observe it directly. `to_dot` is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.
+
+In the following, we will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the [computation_graph.ml](https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml).
+
+Let's look at a simple function as below.
+
+```ocaml env=algodiff_00
+open Algodiff.D;;
+
+let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
+```
+
+The generated computation graph looks like this.
+
+![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
+
+
 ### Example 03: CGraph with DNN
 
 Since the optimisation and neural network modules are built on Algorithmic Differentiation module, they can also benefit from the power of CGraph. 
