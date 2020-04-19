@@ -19,7 +19,6 @@
     neural-network
     nlp
     dataframe
-    ppl
     symbolic
     ))))
 
@@ -44,7 +43,6 @@
    (case-image-inception
     case-obj-detect
     case-nst
-    case-gpu
     case-recommender
     case-finance
     ))))
