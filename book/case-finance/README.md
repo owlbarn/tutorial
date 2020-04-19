@@ -1,7 +1,29 @@
 # Case - Applications in Finance
 
-## Example 1: Bond Pricing
+## Introduction
 
-## Example 2: Black-Scholes Model 
+Introduce the importance of numerical computing in Finance. 
+Introduce what companies use what functional languages in their applications.
 
-## Example 3: Portfolio Optimisation
+
+## Bond Pricing
+
+Net present value ...
+
+
+## Black-Scholes Model 
+
+### Mathematical Model
+
+### Option Pricing
+
+
+## Portfolio Optimisation
+
+Introduce Modern portfolio theory (MPT), Markowitz model.
+
+### Mathematical Model
+
+### Efficient Frontier
+
+### Maximise Sharpe Ratio
