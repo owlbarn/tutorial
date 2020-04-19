@@ -454,7 +454,13 @@ For more applications, please check the image recognition, NST, and instance seg
 
 ## Recurrent Neural Network
 
-Include GRU
+Introduce vanilla RNN ...
+
+### Gated Recurrent Unit (GRU)
+
+Include GRU, briefly introduce RNN, then jump to 
+
+### Long Short Term Memory (LSTM)
 
 ```ocaml env=neural_00
 
@@ -471,10 +477,9 @@ Include GRU
 The generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
 
-## Long Short Term Memory
+## Generative Adversarial Network
 
-
-## Generative adversarial network
+Only define the structure, no training ...
 
 
 ## Summary

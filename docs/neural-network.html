@@ -340,7 +340,13 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </section>
 <section class="level2" id="recurrent-neural-network">
 <h2>Recurrent Neural Network</h2>
-<p>Include GRU</p>
+<p>Introduce vanilla RNN …</p>
+<section class="level3" id="gated-recurrent-unit-gru">
+<h3>Gated Recurrent Unit (GRU)</h3>
+<p>Include GRU, briefly introduce RNN, then jump to</p>
+</section>
+<section class="level3" id="long-short-term-memory-lstm">
+<h3>Long Short Term Memory (LSTM)</h3>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let make_network wndsz vocabsz =
@@ -354,11 +360,10 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>The generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
 </section>
-<section class="level2" id="long-short-term-memory">
-<h2>Long Short Term Memory</h2>
 </section>
 <section class="level2" id="generative-adversarial-network">
-<h2>Generative adversarial network</h2>
+<h2>Generative Adversarial Network</h2>
+<p>Only define the structure, no training …</p>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
