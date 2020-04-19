@@ -6,9 +6,19 @@ Brain neuron ect.
 
 ## Perceptron
 
-The origin; why do we connect at all.
+The origin; why do we connect at all. [ liang: you can refer to wiki page ]
 
-Non-linearity
+Threshold function ...
+
+$$
+f(x)=
+    \begin{cases}
+        1 & \text{if } \mathbf{w \cdot x + b > 0}\\
+        0 & \text{otherwise}
+    \end{cases}  
+$$
+
+Non-linearity [ show various step functions ]
 
 An example code, but do no use the code for now.
 
@@ -217,7 +227,7 @@ Explain.
 Here we use...
 
 
-**Training**
+### Training
 
 The loss function is constructed in the same way. 
 
@@ -250,7 +260,7 @@ It then uses the gradient descent method we introduced in previous example.
 The learning rate `eta` is fixed.
 
 
-**Test**
+## Test
 
 We need to see how well our trained model works.
 The `test` function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.

@@ -6,8 +6,16 @@
 </section>
 <section class="level2" id="perceptron">
 <h2>Perceptron</h2>
-<p>The origin; why do we connect at all.</p>
-<p>Non-linearity</p>
+<p>The origin; why do we connect at all. [ liang: you can refer to wiki page ]</p>
+<p>Threshold function …</p>
+<p><span class="math display">\[
+f(x)=
+    \begin{cases}
+        1 &amp; \text{if } \mathbf{w \cdot x + b &gt; 0}\\
+        0 &amp; \text{otherwise}
+    \end{cases}  
+\]</span></p>
+<p>Non-linearity [ show various step functions ]</p>
 <p>An example code, but do no use the code for now.</p>
 <div class="highlight">
 <pre><code class="language-clike">let make_network input_shape =
@@ -151,7 +159,8 @@ let l1 = {
 let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>This definition is plain, but there is still one thing to say. <em>Initialisation</em>: previously we use a uniformly random array, but choosing a good initial status is important. Explain. Here we use…</p>
-<p><strong>Training</strong></p>
+<section class="level3" id="training">
+<h3>Training</h3>
 <p>The loss function is constructed in the same way.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let loss_fun nn x y = 
@@ -174,7 +183,10 @@ let nn = {layers = [|l0; l1|]}</code></pre>
   loss |&gt; unpack_flt</code></pre>
 </div>
 <p>The <code>backprop</code> also uses the same procedure as previous example. The partial derivative is gotten using <code>adjval</code>, and the parameter <code>w</code> and <code>b</code> of each layer are updated accordingly. It then uses the gradient descent method we introduced in previous example. The learning rate <code>eta</code> is fixed.</p>
-<p><strong>Test</strong></p>
+</section>
+</section>
+<section class="level2" id="test">
+<h2>Test</h2>
 <p>We need to see how well our trained model works. The <code>test</code> function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let test nn x y =
