@@ -184,9 +184,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>The <code>backprop</code> also uses the same procedure as previous example. The partial derivative is gotten using <code>adjval</code>, and the parameter <code>w</code> and <code>b</code> of each layer are updated accordingly. It then uses the gradient descent method we introduced in previous example. The learning rate <code>eta</code> is fixed.</p>
 </section>
-</section>
-<section class="level2" id="test">
-<h2>Test</h2>
+<section class="level3" id="test">
+<h3>Test</h3>
 <p>We need to see how well our trained model works. The <code>test</code> function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let test nn x y =
@@ -225,6 +224,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <img alt="" style="width:40.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 3: Prediction from the model</figcaption>
 </figure>
 <p>TODO: replace with code.</p>
+</section>
 </section>
 <section class="level2" id="neural-network-module">
 <h2>Neural Network Module</h2>

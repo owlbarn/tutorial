@@ -260,7 +260,7 @@ It then uses the gradient descent method we introduced in previous example.
 The learning rate `eta` is fixed.
 
 
-## Test
+### Test
 
 We need to see how well our trained model works.
 The `test` function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.
