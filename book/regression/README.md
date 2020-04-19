@@ -548,6 +548,7 @@ let poly_ridge ~alpha x y n =
   in
   (Regression.D._linear_reg false params x y).(0)
 ```
+
 The implementation is based on the optimisation module and the general `_linear_reg` function.
 The key point is to use the L2norml function as regularisation method.
 By using this regularised version of polynomial regression, we can have an updated model:

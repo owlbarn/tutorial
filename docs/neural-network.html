@@ -6,24 +6,22 @@
 </section>
 <section class="level2" id="perceptron">
 <h2>Perceptron</h2>
-<p>The origin; why do we connect at all. [ liang: you can refer to wiki page ]</p>
-<p>Threshold function …</p>
+<p>Before diving into the complex neural network structures, let’s briefly recount where everything begins: the <em>perceptron</em>. The definition is actually very similar to that of logistic regression. Look at fig.&nbsp;1 and remember that logistic regression can be expressed as:</p>
+<p><span class="math display">\[h_\Theta(x) = g(x^T\Theta),\]</span></p>
+<p>where the <span class="math inline">\(g\)</span> function is a sigmoid function: <span class="math inline">\(g(x) = \frac{1}{1+e^{-x}}\)</span>. This function projects a number in <span class="math inline">\([-\infty, \infty]\)</span> to <span class="math inline">\([0, 1]\)</span>.</p>
+<p>To get a perceptron, all we need to do is to change the function to:</p>
 <p><span class="math display">\[
-f(x)=
+g(x)=
     \begin{cases}
         1 &amp; \text{if } \mathbf{w \cdot x + b &gt; 0}\\
         0 &amp; \text{otherwise}
     \end{cases}  
 \]</span></p>
-<p>Non-linearity [ show various step functions ]</p>
-<p>An example code, but do no use the code for now.</p>
-<div class="highlight">
-<pre><code class="language-clike">let make_network input_shape =
-  input input_shape
-  |&gt; linear 300 ~act_typ:Activation.Tanh
-  |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
-  |&gt; get_network</code></pre>
-</div>
+<p>This function is called a <em>Unit Step Function</em>, or heaviside/binary step function. Instead of a range <span class="math inline">\([0, 1]\)</span>, the result can only be either 0 or 1. It is thus suitable for binary classification. In the perceptron learning algorithm, we can still follow the previous parameter update method:</p>
+<p><span class="math display">\[\theta_i = \theta_i - \lambda~(y - h_\Theta(x))x_i\]</span></p>
+<p>for each pair of training data <code>x</code> and <code>y</code>.</p>
+<p>The perceptron was first proposed in 1950’s to perform binary image classification. Back then it was thought to model how individual neurons in the brain works. Though initially deemed promising, people quickly realise that perceptrons could not be trained to recognise many classes of patterns, which is almost the case in image recognition. To fix this problem requires introducing more layers of interconnected perceptrons. That is called <em>feedforward neural network</em>, and we will talk about it in detail in the later two sections.</p>
+<p>(Non-linearity to be introduced later)</p>
 </section>
 <section class="level2" id="yet-another-regression">
 <h2>Yet Another Regression</h2>

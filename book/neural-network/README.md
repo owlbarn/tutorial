@@ -6,29 +6,41 @@ Brain neuron ect.
 
 ## Perceptron
 
-The origin; why do we connect at all. [ liang: you can refer to wiki page ]
+Before diving into the complex neural network structures, let's briefly recount where everything begins: the *perceptron*.
+The definition is actually very similar to that of logistic regression. 
+Look at [@fig:neural-network:simple_nn] and remember that logistic regression can be expressed as:
 
-Threshold function ...
+$$h_\Theta(x) = g(x^T\Theta),$$
+
+where the $g$ function is a sigmoid function: $g(x) = \frac{1}{1+e^{-x}}$. 
+This function projects a number in $[-\infty, \infty]$ to $[0, 1]$.
+
+To get a perceptron, all we need to do is to change the function to:
 
 $$
-f(x)=
+g(x)=
     \begin{cases}
         1 & \text{if } \mathbf{w \cdot x + b > 0}\\
         0 & \text{otherwise}
     \end{cases}  
 $$
 
-Non-linearity [ show various step functions ]
+This function is called a *Unit Step Function*, or heaviside/binary step function.
+Instead of a range $[0, 1]$, the result can only be either 0 or 1.
+It is thus suitable for binary classification.
+In the perceptron learning algorithm, we can still follow the previous parameter update method:
 
-An example code, but do no use the code for now.
+$$\theta_i = \theta_i - \lambda~(y - h_\Theta(x))x_i$$
 
-```
-let make_network input_shape =
-  input input_shape
-  |> linear 300 ~act_typ:Activation.Tanh
-  |> linear 10 ~act_typ:Activation.(Softmax 1)
-  |> get_network
-```
+for each pair of training data `x` and `y`. 
+
+The perceptron was first proposed in 1950's to perform binary image classification.
+Back then it was thought to model how individual neurons in the brain works.
+Though initially deemed promising, people quickly realise that perceptrons could not be trained to recognise many classes of patterns, which is almost the case in image recognition.
+To fix this problem requires introducing more layers of interconnected perceptrons. 
+That is called *feedforward neural network*, and we will talk about it in detail in the later two sections.
+
+(Non-linearity to be introduced later)
 
 ## Yet Another Regression
 
