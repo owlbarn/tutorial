@@ -17,8 +17,8 @@
   |&gt; get_network</code></pre>
 </div>
 </section>
-<section class="level2" id="feed-forward-network">
-<h2>Feed Forward Network</h2>
+<section class="level2" id="yet-another-regression">
+<h2>Yet Another Regression</h2>
 <p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch.</p>
 <p>Follow the previous logistic regression. In this section we use build a simple neural network with a hidden layer, and train its parameters. The task is hand-written recognition.</p>
 <p>Basically follow ML004</p>
@@ -107,8 +107,8 @@ let theta1' =  adjval t1 |&gt; unpack_arr</code></pre>
 <p>TODO: finish this example with accuracy value.</p>
 </section>
 </section>
-<section class="level2" id="feed-forward-network-revised">
-<h2>Feed Forward Network: Revised</h2>
+<section class="level2" id="feed-forward-network">
+<h2>Feed Forward Network</h2>
 <p>In the next step, we revise the previous example, with a bit of more details added.</p>
 <p>First, the previous example mixes all the computation together. We need to add the abstraction of <em>layers</em> (Explain). The following code defines the layer and network type, both are OCaml record types.</p>
 <p>Also note that for each layer, besides the matrix multiplication, we also added an extra <em>bias</em> (Explain). Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
@@ -214,8 +214,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </figure>
 <p>TODO: replace with code.</p>
 </section>
-<section class="level2" id="deep-feed-forward-network">
-<h2>Deep Feed Forward Network</h2>
+<section class="level2" id="neural-network-module">
+<h2>Neural Network Module</h2>
 <p>More layers, but you can find that previous approach is hard to scale.</p>
 <p>The <code>Neural</code> module is actually very similar to the naive framework we just built, but with more compete support to various neurons.</p>
 <p>Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
@@ -304,10 +304,6 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <h3>Model Inference</h3>
 <p>TBD</p>
 </section>
-<section class="level3" id="example">
-<h3>Example</h3>
-<p>Implement the previous example with several lines of code.</p>
-</section>
 </section>
 <section class="level2" id="convolution-neural-network">
 <h2>Convolution Neural Network</h2>
@@ -330,8 +326,8 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <p><strong>Applications</strong></p>
 <p>For more applications, please check the image recognition, NST, and instance segmentation cases.</p>
 </section>
-<section class="level2" id="recurrent-neural-network-and-lstm">
-<h2>Recurrent Neural Network and LSTM</h2>
+<section class="level2" id="recurrent-neural-network">
+<h2>Recurrent Neural Network</h2>
 <p>Include GRU</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -346,8 +342,11 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>The generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> for better image quality.</p>
 </section>
+<section class="level2" id="long-short-term-memory">
+<h2>Long Short Term Memory</h2>
+</section>
 <section class="level2" id="generative-adversarial-network">
-<h2>Generative Adversarial Network</h2>
+<h2>Generative adversarial network</h2>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>

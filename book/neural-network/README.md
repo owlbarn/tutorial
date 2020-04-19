@@ -20,7 +20,7 @@ let make_network input_shape =
   |> get_network
 ```
 
-## Feed Forward Network
+## Yet Another Regression
 
 To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual `Neural` module, let's build a small neural network from scratch. 
 
@@ -146,7 +146,7 @@ We get $\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)$, and then can 
 
 TODO: finish this example with accuracy value.
 
-## Feed Forward Network: Revised
+## Feed Forward Network
 
 In the next step, we revise the previous example, with a bit of more details added. 
 
@@ -300,7 +300,7 @@ After training finished, we test the accuracy of the network. Here is one exampl
 TODO: replace with code. 
 
 
-## Deep Feed Forward Network
+## Neural Network Module
 
 More layers, but you can find that previous approach is hard to scale. 
 
@@ -412,10 +412,6 @@ You can have a look at Owl's [MNIST CNN example](https://github.com/ryanrhymes/o
 
 TBD
 
-### Example 
-
-Implement the previous example with several lines of code. 
-
 
 ## Convolution Neural Network 
 
@@ -446,7 +442,7 @@ Implement the same MNIST task with CNN.
 For more applications, please check the image recognition, NST, and instance segmentation cases.
 
 
-## Recurrent Neural Network and LSTM
+## Recurrent Neural Network
 
 Include GRU
 
@@ -464,6 +460,11 @@ Include GRU
 
 The generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
 
-## GAN 
+
+## Long Short Term Memory
+
+
+## Generative adversarial network
+
 
 ## Summary
