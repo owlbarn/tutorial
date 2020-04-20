@@ -231,7 +231,7 @@ Then there is the familiar `sigmoid` function. It limits the value to be within 
 
 Besides these two, there are many other types of non-linear activation functions, as shows in [@fig:neural-network:activations].
 The `tanh(x)` function computes $\frac{e^x - e^{-x}}{e^x + e^{-x}}$.
-Softsign computes `\frac{x}{1+|x|}`.
+Softsign computes $\frac{x}{1+|x|}$.
 The `relu(x)` computes:
 
 $$
@@ -261,7 +261,7 @@ In this small example, we will only use two layers, `l0` and `l1`.
 ```ocaml env=neural_01
 let l0 = {
   w = Maths.(Mat.uniform 784 40 * F 0.15 - F 0.075);
-  b = Mat.zeros 1 300;
+  b = Mat.zeros 1 40;
   a = Maths.tanh;
 }
 
@@ -295,6 +295,8 @@ $$\sqrt{\frac{1}{n}}.$$
 This parameter is shared by two layers, and $n$ is the size the first layer. 
 This approach is especially suitable to use with `tanh` activation function.
 (That's what we use in the example.)
+
+TODO: different type of initialisation we use in OWL
 
 ### Training
 
@@ -381,52 +383,232 @@ TODO: replace with code.
 
 ## Neural Network Module
 
-More layers, but you can find that previous approach is hard to scale. 
-
-The `Neural` module is actually very similar to the naive framework we just built, but with more compete support to various neurons.
-
-Owl is designed as a general-purpose numerical library, and I never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation I had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
-
-In the end, we became curious about this question myself, although the perspective was slightly different. I was very sure I could implement a proper neural network framework atop of Owl, but I didn't know how easy it is. I think it is an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
-
-The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, CGraph, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it beats TensorFlow's performance on CPU (by the time we measured in 2018).
-
-In this section we talk about the deesign of NN module
-
+The simple implementation looks promising enough, but we cannot really leave it for the users to define layers, networks, and the training procedure all by themselves. 
+That would hard be a scalable approach.
+Therefore, now is finally the time to introduce the Neural Network module provided by Owl. 
+It is actually very similar to the naive framework we just built, but with more compete support to various neurons.
 
 ### Module Structure
 
-The [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml) provides two submodules `S` and `D` for both single precision and double precision neural networks. In each submodule, it contains the following modules to allow you to work with the structure of the network and fine-tune the training.
+First thing first: a bit of history about neural network module in Owl. 
+Owl has always been designed as a general-purpose numerical library, and we never planned to make it yet another framework for deep neural networks. 
+The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation we had been to, there were always the same question from audience: *"can owl do deep neural network by the way?"*
 
-* `Graph` : create and manipulate the neural network structure.
-* `Init` : control the initialisation of the weights in the network.
-* `Activation` : provide a set of frequently used activation functions.
-* `Params` : maintains a set of training parameters.
+In the end, we became curious about this question ourselves, although the perspective was slightly different. 
+We were sure we could implement a proper neural network framework atop of Owl, but we didn't know how easy it is. We take it as an excellent opportunity to test Owl's capability and expressiveness in developing complicated analytical applications.
+
+The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (Algodiff, Optimisation, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it reach TensorFlow's level of performance on CPU (by the time we measured in 2018).
+
+![Neural network module structure](images/neural-network/neural_module.png "neural module"){width=50% #fig:neural-network:modules}
+
+To understand how we do that, let's look at [@fig:neural-network:modules].
+It shows the basic module architecture of the neural network module. 
+The neural network in Owl mainly consists of two sub modules: `Neuron` and `Graph`.
+In the module system, they are built based on the Optimisation module, which are in turn based on the Algorithmic Differentiation module (`Algodiff`).
+
+`Algodiff` is the most powerful part of Owl and offers great benefits to the modules built atop of it. 
+In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the `Algodiff` figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl's [Feedforward Network](https://github.com/owlbarn/owl/blob/master/examples/feedforward.ml) which only uses a couple of hundreds lines of code to implement a complete Feedforward network.
+We have already introduced the Alogdiff module in Owl in previous chapter. 
+
+### Neurons 
+
+The basic unit in neural network is *Neuron*. 
+We have implemented a set of commonly used neurons in [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml). Each neuron is a standalone module.
+We have encapsulate the computation introduced above into a neuron. 
+In previous chapter we have seen how the input and hidden layer can be connected, and we abstract it into the `FullyConnected` layer.
+We take this neuron as an example. 
+
+```
+module FullyConnected = struct
+    type neuron_typ =
+      { mutable w : t
+      ; mutable b : t
+      ; mutable init_typ : Init.typ
+      ; mutable in_shape : int array
+      ; mutable out_shape : int array
+      }
+    ...
+end 
+```
+
+This module contains the two parameters we have seen: `w` and `b`, both of type `t` which means the Algodiff array.
+Besides, we also need to specify the input and output shape. They are actually the length of input vector and the length of the hidden layer itself.
+The last part in the definition of this neuron `init_typ` is about what kind of initialisation we use, as has been discussed before. 
+
+Then this module contain several standard functions that are shared by all the neuron modules.
+
+```text
+let create ?inputs o init_typ =
+  let in_shape =
+    match inputs with
+    | Some i -> [| i |]
+    | None   -> [| 0 |]
+  in
+  { w = Mat.empty 0 o; b = Mat.empty 1 o; init_typ; in_shape; out_shape = [| o |] }
+```
+
+After definition of its type, a neuron is created using the `create` function. 
+Here we only need to specify the output shape, or the size of hidden layer `o`. 
+
+```text
+let connect out_shape l =
+  assert (Array.length out_shape > 0);
+  l.in_shape <- Array.copy out_shape
+```
+
+The input shape is actually taken from the previous layer.
+We will see why we need this function later.
+Next we initialise the parameters accordingly:
+
+```text
+let init l =
+  let m = Array.fold_left (fun a b -> a * b) 1 l.in_shape in
+  let n = l.out_shape.(0) in
+  l.w <- Init.run l.init_typ [| m; n |] l.w;
+  l.b <- Mat.zeros 1 n
+```
+
+There is nothing magical in the `init` function. The `m` is a flattened input size in case input ndarray is of multiple dimension. 
+The `w` parameter is initialised with predefined initialisation function, and we can just make `b` all zero, which means no bias at the beginning. 
+Then we have the forward propagation part, in the `run` function:
+
+```text
+let run x l =
+  let m = Mat.row_num l.w in
+  let n = Arr.numel x / m in
+  let x = Maths.reshape x [| n; m |] in
+  let y = Maths.((x *@ l.w) + l.b) in
+  y
+```
+
+It's the familiar matrix multiplication and summation we have shown previously. The only thing we add is to reshape the possible multiple dimension input into a matrix. 
+
+Finally, we divide the backpropagation into several parts: tagging the parameters, get the derivatives, and update parameters.
+They are also included in the neuron module:
+
+```
+let mktag t l =
+  l.w <- make_reverse l.w t;
+  l.b <- make_reverse l.b t
+
+let mkpri l = [| primal l.w; primal l.b |]
+
+let mkadj l = [| adjval l.w; adjval l.b |]
+
+let update l u =
+  l.w <- u.(0) |> primal';
+  l.b <- u.(1) |> primal'
+```
+
+That's about the main part of `FullyConnected` neuron and the other neurons. 
+Adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl's [Algodiff](https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli) module.
+
+As we other modules such as Ndarray and Algodiff, the [Owl.Neural](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml) provides two submodules `S` and `D` for both single precision and double precision neural networks. 
+
+### Neural Graph 
+
+Neuron is the core of the neural network module, we cannot directly work on the neurons. 
+In a neural network, the individual neuron has to be instantiated into a node and constructed into a *graph* to be really useful. 
+And it's the `Graph` module we users have access to.
+
+The `node` in a neural network is defined as:
+
+```text
+type node =
+{ mutable name : string; 
+  mutable prev : node array; 
+  mutable next : node array
+  mutable neuron : neuron
+  mutable output : t option
+  mutable network : network
+  mutable train : bool 
+}
+```
+
+Besides the neuron itself, a node also contain information such as its parents, children, output, the network this node belongs to, a flag if this node is only for training, etc.
+
+In the Graph module, the most we need to deal with is function that builds node and connect it to existing network. For example:
+
+```text
+let fully_connected ?name ?(init_typ = Init.Standard) outputs input_node =
+  let neuron = FullyConnected (FullyConnected.create outputs init_typ) in
+  let nn = get_network input_node in
+  let n = make_node ?name [||] [||] neuron None nn in
+  add_node nn [| input_node |] n
+```
+
+What is function do is simple: instantiate the `FullyConnected` neuron using its `create` function, and wrap it into a node `n`. 
+The current network `nn` is found from its input node `input_node`. 
+Then we add `n` as child node to `nn` and connect to parents using the `add_node` function.
+This step uses the `connect` function of the neuron, and also update the child's input and output shape during connection.
+
+
+Finally, after understanding the `Graph` module of Owl, we can now "officially" re-define the network in previous example with the Owl neural network module:
+
+```ocaml env=neural-network:example-02
+open Neural.S
+open Neural.S.Graph
+open Neural.S.Algodiff
+
+let make_network () =
+  input [|28; 28|]
+  |> fully_connected 40 ~act_typ:Activation.Tanh
+  |> linear 10 ~act_typ:Activation.(Softmax 1)
+  |> get_network
+```
+
+We can see how the input, the hidden layer, and the output from previous example are concisely expressed using the Owl neural network graph API. 
+The `linear` is similar to `fully_connected`, only that it accepts one-dimensional input. 
+The parameter `act_typ` specifies the activation function applied on the output of this node.
+
+### Model Training
+
+Now the last thing to do is to train the model. 
+Again, we want to encapsulate all the manual back-propagation and parameter update into one simple function. 
+It is mainly implemented in the`minimise_network` in the `Optimise` module. 
+
+This module provide the `Params` submodule which maintains a set of training hyper-parameters.
+Without getting into the sea of implementation details, we focus on one single $i$-th update iteration and see how these hyper-parameters work.
+
+```
+let xt, yt = bach_fun x y i 
+```
+
+Batch 
+
+```
+let yt', ws = forward xt
+```
+
+```
+let loss = loss_fun yt yt'
+let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
+```
+
+take the mean of the loss 
+
+```
+let reg =
+  match params.regularisation <> Regularisation.None with
+  | true  -> Owl_utils.aarr_fold (fun a w -> Maths.(a + regl_fun w)) (_f 0.) ws
+  | false -> _f 0.
+let loss = Maths.(loss + reg)
+```
+
+
+
+* 
 * `Batch` : the batch parameter of training.
 * `Learning_Rate` : the learning rate parameter of training.
 * `Loss` : the loss function parameter of training.
 * `Gradient` : the gradient method parameter of training.
 * `Momentum` : the momentum parameter of training.
 * `Regularisation` : the regularisation parameter of training.
+
 * `Clipping` : the gradient clipping parameter of training.
 * `Checkpoint` : the checkpoint parameter of training.
-* `Parallel` : provide parallel computation capability, need to compose with Actor engine. (Experimental, a research project in progress.)
 
 
-### Model Definition
-
-I have implemented a set of commonly used neurons in [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml). Each neuron is a standalone module and adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl's [Algodiff](https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli) module.
-
-`Algodiff` is the most powerful part of Owl and offers great benefits to the modules built atop of it. In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the `Algodiff` figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl's [Feedforward Network](https://github.com/ryanrhymes/owl/blob/master/examples/feedforward.ml) which only uses a couple of hundreds lines of code to implement a complete Feedforward network.
-
-In practice, you do not need to use the modules defined in  [Owl.Neural.Neuron](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml) directly. Instead, you should call the functions in [Graph](https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_graph.ml) module to create a new neuron and add it to the network. Currently, Graph module contains the following neurons.
-
-`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`
-
-These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
-
-
-### Model Training
 
 Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
 
@@ -440,6 +622,13 @@ Let's use the single precision neural network as an example. To work with single
   open Neural.S.Algodiff
 
 ```
+
+
+
+
+`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`
+
+These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
 
 The code below creates a small convolutional neural network of six layers. Usually, the network definition always starts with `input` neuron and ends with `get_network` function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the `input_shape` is determined.
 
