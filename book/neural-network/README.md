@@ -8,7 +8,7 @@ Brain neuron ect.
 
 Before diving into the complex neural network structures, let's briefly recount where everything begins: the *perceptron*.
 The definition is actually very similar to that of logistic regression. 
-Look at [@fig:neural-network:simple_nn] and remember that logistic regression can be expressed as:
+Look at [@fig:neural-network:simple_nn](a) and remember that logistic regression can be expressed as:
 
 $$h_\Theta(x) = g(x^T\Theta),$$
 
@@ -172,6 +172,8 @@ TODO: finish this example with accuracy value.
 
 In the next step, we revise the previous example, with a bit of more details added. 
 
+### Layers
+
 First, the previous example mixes all the computation together.
 We need to add the abstraction of *layers*
 (Explain).
@@ -208,10 +210,49 @@ let run_network x nn = Array.fold_left run_layer x nn.layers
 
 The `run_network` can generate what equals to the $h_\Theta(x)$ function in previous section.
 
-Here we note there is an extra function `a`. It is the activation function.
-(Explain activation function and why they are necessary.)
-Previously we use the `sigmoid` function, but that's not the only option.
-We can also use `tanh` and `softmax`.
+
+### Activation Functions
+
+Let's step back and check again the similarity between neural network and what we think biological neuron works. 
+So far we have seen how to connect every node (or "neuron") to every node between two layers. 
+That's hardly how the real neuron works.
+Instead of activating all the connecting neurons during information transformation, different neurons are electrically activated differently in a kind of irregular fashion.
+
+Biology aside, think about it in the mathematical way: if we keep fully connect multiple layers, that's in essence multiple matrix multiplication, and that would equals to only one single matrix multiplication. 
+
+Therefore, to make adding more layers mean something, we frequently use the *activation* functions to simulate how neuron works in biology and introduce *non-linearity* into the network. 
+Non-linearity is a property we are looking for in neural network, since most real world data demonstrate non-linear features.
+If it is linear, then we human can often simply observe it and use something like linear regression to find the solution. 
+
+Actually we have seen two types of activation function so far. 
+The first is the Unit Step Function. 
+It works like a simple on/off digital gate that allows part of neurons to be activated.
+Then there is the familiar `sigmoid` function. It limits the value to be within 0 and 1, and therefore we can think of it as a kind of probability of being activated.
+
+Besides these two, there are many other types of non-linear activation functions, as shows in [@fig:neural-network:activations].
+The `tanh(x)` function computes $\frac{e^x - e^{-x}}{e^x + e^{-x}}$.
+Softsign computes `\frac{x}{1+|x|}`.
+The `relu(x)` computes:
+
+$$
+\textrm{relu}(x)=
+    \begin{cases}
+        x & \text{if } \mathbf{x > 0}\\
+        0 & \text{otherwise}
+    \end{cases}  
+$$
+
+
+![Different activation functions in neural network](images/neural-network/activations.png "activations"){width=100% #fig:neural-network:activations}
+
+And there is the `softmax` function.
+It takes a vector of $K$ real numbers, and normalizes it into a probability distribution consisting of $K$ probabilities proportional to the exponentials of the input numbers:
+
+$$f_i(x) = \frac{e^{x_i}}{\sum_{k=1}^K~e^{x_k}} \textrm{for} i=1, 2, \ldots, K.$$
+
+We will keep using these activation functions in later network structures.
+
+### Initialisation
 
 In this small example, we will only use two layers, `l0` and `l1`. 
 `l0` uses a `784 x 40` matrix as weight, and `tanh` as activation function. 
@@ -233,11 +274,27 @@ let l1 = {
 let nn = {layers = [|l0; l1|]}
 ```
 
-This definition is plain, but there is still one thing to say.
-*Initialisation*: previously we use a uniformly random array, but choosing a good initial status is important.
-Explain.
-Here we use...
+This definition is plain to see, but there is still one thing to say: the *Initialisation* of parameters.
+From the regression chapter we have seen that how finding a good initial starting point can be beneficial to the performance of gradient descent. 
+Then you might be thinking that uniformly generated parameters should work fine, but that's not the case. 
 
+Now we know that the essence of a layer is basically a matrix multiplication.
+If we use randomly initialise the parameter using uniform or normal distribution, you will find out that the results will soon explode after several layers. 
+(A bit of example code to show this point).
+Even if by using `sigmoid` activation function we can control the number within `[0, 1]`, that still means the results are very near to 1, and the gradient will be extremely small.
+On the other hand, if we choose initial parameters that are close to `0`, then the output result from the network itself would be close zero. 
+It is call the "vanishing gradient" problem, and in both cases, the network cannot learn well. 
+
+There are many work that aims to solve this problem.
+One common solution is to use `ReLU` as activation functions since it is more robust to this issue.
+As to initialisation itself, there are multiple heuristics that can be used.
+For example, the Xavier initialization approach proposes to scale the randomly generated parameters with: 
+
+$$\sqrt{\frac{1}{n}}.$$
+
+This parameter is shared by two layers, and $n$ is the size the first layer. 
+This approach is especially suitable to use with `tanh` activation function.
+(That's what we use in the example.)
 
 ### Training
 
