@@ -368,12 +368,14 @@ open Neural.S.Graph
 open Neural.S.Algodiff
 
 let make_network () =
-  input [|28; 28|]
+  input [|28; 28; 1|]
   |&gt; fully_connected 40 ~act_typ:Activation.Tanh
   |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
   |&gt; get_network</code></pre>
 </div>
 <p>We can see how the input, the hidden layer, and the output from previous example are concisely expressed using the Owl neural network graph API. The <code>linear</code> is similar to <code>fully_connected</code>, only that it accepts one-dimensional input. The parameter <code>act_typ</code> specifies the activation function applied on the output of this node.</p>
+<p>Usually, the network definition always starts with <code>input</code> neuron and ends with <code>get_network</code> function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the <code>input_shape</code> is determined.</p>
+<p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
 </section>
 <section class="level3" id="model-training">
 <h3>Model Training</h3>
@@ -382,7 +384,7 @@ let make_network () =
 <div class="highlight">
 <pre><code class="language-clike">let xt, yt = bach_fun x y i </code></pre>
 </div>
-<p>Batch</p>
+<p>TODO: the batch parameter of training.</p>
 <div class="highlight">
 <pre><code class="language-clike">let yt', ws = forward xt</code></pre>
 </div>
@@ -390,7 +392,7 @@ let make_network () =
 <pre><code class="language-clike">let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |&gt; float_of_int))</code></pre>
 </div>
-<p>take the mean of the loss</p>
+<p>TODO: <code>Loss</code>, the loss function parameter of training. take the mean of the loss</p>
 <div class="highlight">
 <pre><code class="language-clike">let reg =
   match params.regularisation &lt;&gt; Regularisation.None with
@@ -398,93 +400,75 @@ let loss = Maths.(loss / _f (Mat.row_num yt |&gt; float_of_int))</code></pre>
   | false -&gt; _f 0.
 let loss = Maths.(loss + reg)</code></pre>
 </div>
+<p>TODO: the regularisation parameter of training.</p>
+<p>TODO: <strong>Other:</strong></p>
 <ul>
-<li></li>
-<li><p><code>Batch</code> : the batch parameter of training.</p></li>
 <li><p><code>Learning_Rate</code> : the learning rate parameter of training.</p></li>
-<li><p><code>Loss</code> : the loss function parameter of training.</p></li>
-<li><p><code>Gradient</code> : the gradient method parameter of training.</p></li>
+<li><p><code>Gradient</code> : the gradient method parameter of training (explained)</p></li>
 <li><p><code>Momentum</code> : the momentum parameter of training.</p></li>
-<li><p><code>Regularisation</code> : the regularisation parameter of training.</p></li>
 <li><p><code>Clipping</code> : the gradient clipping parameter of training.</p></li>
 <li><p><code>Checkpoint</code> : the checkpoint parameter of training.</p></li>
 </ul>
-<p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
-<p>Let’s use the single precision neural network as an example. To work with single precision networks, you need to use/open the following modules</p>
+<p>In the <code>Graph</code> module, we provide a <code>train</code> function that is a wrapper of this optimisation function. As a result, we can train the network by simply calling:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  open Owl
-  open Neural.S
-  open Neural.S.Graph
-  open Neural.S.Algodiff
-</code></pre>
+<pre><code class="language-ocaml">let train () =
+  let x, _, y = Dataset.load_mnist_train_data_arr () in
+  let network = make_network () in
+  let params = Params.config
+    ~batch:(Batch.Mini 100) 
+    ~learning_rate:(Learning_Rate.Adagrad 0.005) 0.1
+  in
+  Graph.train ~params network x y |&gt; ignore;
+  network</code></pre>
 </div>
-<p><code>input</code>, <code>activation</code>, <code>linear</code>, <code>linear_nobias</code>, <code>embedding</code>, <code>recurrent</code>, <code>lstm</code>, <code>gru</code>, <code>conv1d</code>, <code>conv2d</code>, <code>conv3d</code>, <code>max_pool1d</code>, <code>max_pool2d</code>, <code>avg_pool1d</code>, <code>avg_pool2d</code>, <code>global_max_pool1d</code>, <code>global_max_pool2d</code>, <code>global_avg_pool1d</code>, <code>global_avg_pool2d</code>, <code>fully_connected</code>, <code>dropout</code>, <code>gaussian_noise</code>, <code>gaussian_dropout</code>, <code>alpha_dropout</code>, <code>normalisation</code>, <code>reshape</code>, <code>flatten</code>, <code>lambda</code>, <code>add</code>, <code>mul</code>, <code>dot</code>, <code>max</code>, <code>average</code>, <code>concatenate</code></p>
-<p>These neurons should be sufficient for creating from simple MLP to the most complicated Google’s Inception network.</p>
-<p>The code below creates a small convolutional neural network of six layers. Usually, the network definition always starts with <code>input</code> neuron and ends with <code>get_network</code> function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the <code>input_shape</code> is determined.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">
-  let make_network input_shape =
-    input input_shape
-    |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
-    |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
-    |&gt; max_pool2d [|2;2|] [|2;2|]
-    |&gt; dropout 0.1
-    |&gt; fully_connected 1024 ~act_typ:Activation.Relu
-    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
-    |&gt; get_network
-</code></pre>
-</div>
-<p>Next, I will show you how the <code>train</code> function looks like. The first three lines in the <code>train</code> function is for loading the <code>MNIST</code> dataset and print out the network structure on the terminal. The rest lines defines a <code>params</code> which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call <code>Graph.train</code> to kick off the training process.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">
-  let train () =
-    let x, _, y = Dataset.load_mnist_train_data_arr () in
-    let network = make_network [|28;28;1|] in
-    Graph.print network;
-
-    let params = Params.config
-      ~batch:(Batch.Mini 100) ~learning_rate:(Learning_Rate.Adagrad 0.005) 2.
-    in
-    Graph.train ~params network x y |&gt; ignore
-</code></pre>
-</div>
+<p>The first three lines in the <code>train</code> function is for loading the <code>MNIST</code> dataset and print out the network structure on the terminal. The rest lines defines a <code>params</code> which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call <code>Graph.train</code> to kick off the training process.</p>
+<p>The iteration number in params.</p>
 <p>After the training is finished, you can call <code>Graph.model</code> to generate a functional model to perform inference. Moreover, <code>Graph</code> module also provides functions such as <code>save</code>, <code>load</code>, <code>print</code>, <code>to_string</code> and so on to help you in manipulating the neural network.</p>
+<p>Test:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let test network =
+  let imgs, _, labels = Dataset.load_mnist_test_data () in
+  let m = Dense.Matrix.S.row_num imgs in
+  let imgs = Dense.Ndarray.S.reshape imgs [|m;28;28;1|] in
+
+  let mat2num x = Dense.Matrix.S.of_array (
+      x |&gt; Dense.Matrix.Generic.max_rows
+        |&gt; Array.map (fun (_,_,num) -&gt; float_of_int num)
+    ) 1 m
+  in
+
+  let pred = mat2num (Graph.model network imgs) in
+  let fact = mat2num labels in
+  let accu = Dense.Matrix.S.(elt_equal pred fact |&gt; sum') in
+  Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))</code></pre>
+</div>
+<p>Result.</p>
+</section>
+</section>
+<section class="level2" id="convolutional-neural-network">
+<h2>Convolutional Neural Network</h2>
+<p>So far we have seen how an example of fully connected feed forward neural network evolves step by step. However, there is so much more than just this kind of neural networks. One of the most widely used is the <em>convolution neural network</em>.</p>
+<p>We have seen the 1D convolution from signal processing chapter. The 2D convolution is… (explain)</p>
+<p>FIGURE</p>
+<p>Its property and why suitable for the computer vision tasks.</p>
+<p>To perform computer vision we need more types of neurons, and so far we have implemented: <code>input</code>, <code>activation</code>, <code>linear</code>, <code>linear_nobias</code>, <code>embedding</code>, <code>recurrent</code>, <code>lstm</code>, <code>gru</code>, <code>conv1d</code>, <code>conv2d</code>, <code>conv3d</code>, <code>max_pool1d</code>, <code>max_pool2d</code>, <code>avg_pool1d</code>, <code>avg_pool2d</code>, <code>global_max_pool1d</code>, <code>global_max_pool2d</code>, <code>global_avg_pool1d</code>, <code>global_avg_pool2d</code>, <code>fully_connected</code>, <code>dropout</code>, <code>gaussian_noise</code>, <code>gaussian_dropout</code>, <code>alpha_dropout</code>, <code>normalisation</code>, <code>reshape</code>, <code>flatten</code>, <code>lambda</code>, <code>add</code>, <code>mul</code>, <code>dot</code>, <code>max</code>, <code>average</code>, <code>concatenate</code>.</p>
+<p>These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.</p>
+<p>Since the MNIST handwritten recognition task is also a computer vision task, let’s use the CNN to do it again. The code below creates a small convolutional neural network of six layers.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
-  let predict network data =
-    let model = Graph.model network in
-    let predication = model data in
-    predication
+let make_network input_shape =
+  input input_shape
+  |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
+  |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+  |&gt; max_pool2d [|2;2|] [|2;2|]
+  |&gt; dropout 0.1
+  |&gt; fully_connected 1024 ~act_typ:Activation.Relu
+  |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
+  |&gt; get_network
 </code></pre>
 </div>
-<p>You can have a look at Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml">MNIST CNN example</a> for more details and run the code by yourself.</p>
-</section>
-<section class="level3" id="model-inference">
-<h3>Model Inference</h3>
-<p>TBD</p>
-</section>
-</section>
-<section class="level2" id="convolution-neural-network">
-<h2>Convolution Neural Network</h2>
-<p>Introduce CNN</p>
-<p>More about the structure in NN module/Optimise module</p>
-<p>Implement the same MNIST task with CNN.</p>
-<div class="highlight">
-<pre><code class="language-ocaml">
-  let make_network input_shape =
-    input input_shape
-    |&gt; lambda (fun x -&gt; Maths.(x / F 256.))
-    |&gt; conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
-    |&gt; max_pool2d [|2;2|] [|2;2|]
-    |&gt; dropout 0.1
-    |&gt; fully_connected 1024 ~act_typ:Activation.Relu
-    |&gt; linear 10 ~act_typ:Activation.(Softmax 1)
-    |&gt; get_network
-</code></pre>
-</div>
-<p><strong>Applications</strong></p>
-<p>For more applications, please check the image recognition, NST, and instance segmentation cases.</p>
+<p>Result: accuracy.</p>
+<p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neuron such as <code>pooling</code> work, how these networks are constructured etc. Plese refer to these chapters for more detailed understanding about convolutional neural network.</p>
 </section>
 <section class="level2" id="recurrent-neural-network">
 <h2>Recurrent Neural Network</h2>
@@ -496,7 +480,7 @@ let loss = Maths.(loss + reg)</code></pre>
 <section class="level3" id="long-short-term-memory-lstm">
 <h3>Long Short Term Memory (LSTM)</h3>
 <div class="highlight">
-<pre><code class="language-ocaml">
+<pre><code class="language-text">
   let make_network wndsz vocabsz =
     input [|wndsz|]
     |&gt; embedding vocabsz 40

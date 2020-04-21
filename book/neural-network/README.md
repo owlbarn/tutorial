@@ -551,7 +551,7 @@ open Neural.S.Graph
 open Neural.S.Algodiff
 
 let make_network () =
-  input [|28; 28|]
+  input [|28; 28; 1|]
   |> fully_connected 40 ~act_typ:Activation.Tanh
   |> linear 10 ~act_typ:Activation.(Softmax 1)
   |> get_network
@@ -560,6 +560,10 @@ let make_network () =
 We can see how the input, the hidden layer, and the output from previous example are concisely expressed using the Owl neural network graph API. 
 The `linear` is similar to `fully_connected`, only that it accepts one-dimensional input. 
 The parameter `act_typ` specifies the activation function applied on the output of this node.
+
+Usually, the network definition always starts with `input` neuron and ends with `get_network` function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the `input_shape` is determined.
+
+Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
 
 ### Model Training
 
@@ -574,17 +578,19 @@ Without getting into the sea of implementation details, we focus on one single $
 let xt, yt = bach_fun x y i 
 ```
 
-Batch 
+TODO: the batch parameter of training.
 
 ```
 let yt', ws = forward xt
 ```
+
 
 ```
 let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
 ```
 
+TODO: `Loss`, the loss function parameter of training.
 take the mean of the loss 
 
 ```
@@ -595,119 +601,103 @@ let reg =
 let loss = Maths.(loss + reg)
 ```
 
+TODO: the regularisation parameter of training.
+ 
 
+TODO:
+**Other:** 
 
-* 
-* `Batch` : the batch parameter of training.
 * `Learning_Rate` : the learning rate parameter of training.
-* `Loss` : the loss function parameter of training.
-* `Gradient` : the gradient method parameter of training.
+* `Gradient` : the gradient method parameter of training (explained)
 * `Momentum` : the momentum parameter of training.
-* `Regularisation` : the regularisation parameter of training.
 
 * `Clipping` : the gradient clipping parameter of training.
 * `Checkpoint` : the checkpoint parameter of training.
 
+In the `Graph` module, we provide a `train` function that is a wrapper of this optimisation function.
+As a result, we can train the network by simply calling:
 
-
-Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
-
-Let's use the single precision neural network as an example. To work with single precision networks, you need to use/open the following modules
-
-```ocaml env=neural_00
-
-  open Owl
-  open Neural.S
-  open Neural.S.Graph
-  open Neural.S.Algodiff
-
+```ocaml env=neural-network:example-02
+let train () =
+  let x, _, y = Dataset.load_mnist_train_data_arr () in
+  let network = make_network () in
+  let params = Params.config
+    ~batch:(Batch.Mini 100) 
+    ~learning_rate:(Learning_Rate.Adagrad 0.005) 0.1
+  in
+  Graph.train ~params network x y |> ignore;
+  network
 ```
 
 
+The first three lines in the `train` function is for loading the `MNIST` dataset and print out the network structure on the terminal. The rest lines defines a `params` which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call `Graph.train` to kick off the training process.
 
-
-`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`
-
-These neurons should be sufficient for creating from simple MLP to the most complicated Google's Inception network.
-
-The code below creates a small convolutional neural network of six layers. Usually, the network definition always starts with `input` neuron and ends with `get_network` function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the `input_shape` is determined.
-
-```ocaml env=neural_00
-
-  let make_network input_shape =
-    input input_shape
-    |> lambda (fun x -> Maths.(x / F 256.))
-    |> conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
-    |> max_pool2d [|2;2|] [|2;2|]
-    |> dropout 0.1
-    |> fully_connected 1024 ~act_typ:Activation.Relu
-    |> linear 10 ~act_typ:Activation.(Softmax 1)
-    |> get_network
-
-```
-
-Next, I will show you how the `train` function looks like. The first three lines in the `train` function is for loading the `MNIST` dataset and print out the network structure on the terminal. The rest lines defines a `params` which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call `Graph.train` to kick off the training process.
-
-```ocaml env=neural_00
-
-  let train () =
-    let x, _, y = Dataset.load_mnist_train_data_arr () in
-    let network = make_network [|28;28;1|] in
-    Graph.print network;
-
-    let params = Params.config
-      ~batch:(Batch.Mini 100) ~learning_rate:(Learning_Rate.Adagrad 0.005) 2.
-    in
-    Graph.train ~params network x y |> ignore
-
-```
+The iteration number in params. 
 
 After the training is finished, you can call `Graph.model` to generate a functional model to perform inference. Moreover, `Graph` module also provides functions such as `save`, `load`, `print`, `to_string` and so on to help you in manipulating the neural network.
 
-```ocaml env=neural_00
+Test:
 
-  let predict network data =
-    let model = Graph.model network in
-    let predication = model data in
-    predication
+```ocaml env=neural-network:example-02
+let test network =
+  let imgs, _, labels = Dataset.load_mnist_test_data () in
+  let m = Dense.Matrix.S.row_num imgs in
+  let imgs = Dense.Ndarray.S.reshape imgs [|m;28;28;1|] in
+
+  let mat2num x = Dense.Matrix.S.of_array (
+      x |> Dense.Matrix.Generic.max_rows
+        |> Array.map (fun (_,_,num) -> float_of_int num)
+    ) 1 m
+  in
+
+  let pred = mat2num (Graph.model network imgs) in
+  let fact = mat2num labels in
+  let accu = Dense.Matrix.S.(elt_equal pred fact |> sum') in
+  Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))
+```
+
+Result.
+
+## Convolutional Neural Network
+
+So far we have seen how an example of fully connected feed forward neural network evolves step by step. 
+However, there is so much more than just this kind of neural networks. 
+One of the most widely used is the *convolution neural network*.
+
+We have seen the 1D convolution from signal processing chapter. 
+The 2D convolution is... (explain)
+
+FIGURE
+
+Its property and why suitable for the computer vision tasks. 
+
+To perform computer vision we need more types of neurons, and so far we have implemented:
+`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`.
+
+These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.
+
+Since the MNIST handwritten recognition task is also a computer vision task, let's use the CNN to do it again.
+The code below creates a small convolutional neural network of six layers. 
+
+```ocaml env=neural-network:example-02
+
+let make_network input_shape =
+  input input_shape
+  |> lambda (fun x -> Maths.(x / F 256.))
+  |> conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
+  |> max_pool2d [|2;2|] [|2;2|]
+  |> dropout 0.1
+  |> fully_connected 1024 ~act_typ:Activation.Relu
+  |> linear 10 ~act_typ:Activation.(Softmax 1)
+  |> get_network
 
 ```
 
-You can have a look at Owl's [MNIST CNN example](https://github.com/ryanrhymes/owl/blob/master/examples/mnist_cnn.ml) for more details and run the code by yourself.
+Result: accuracy.
 
-
-### Model Inference
-
-TBD
-
-
-## Convolution Neural Network 
-
-Introduce CNN
-
-More about the structure in NN module/Optimise module
-
-Implement the same MNIST task with CNN. 
-
-
-```ocaml env=neural_00
-
-  let make_network input_shape =
-    input input_shape
-    |> lambda (fun x -> Maths.(x / F 256.))
-    |> conv2d [|5;5;1;32|] [|1;1|] ~act_typ:Activation.Relu
-    |> max_pool2d [|2;2|] [|2;2|]
-    |> dropout 0.1
-    |> fully_connected 1024 ~act_typ:Activation.Relu
-    |> linear 10 ~act_typ:Activation.(Softmax 1)
-    |> get_network
-
-```
-
-
-**Applications**
-
-For more applications, please check the image recognition, NST, and instance segmentation cases.
+Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: **image recognition**, **instance segmentation**, and **neural style transfer** to demonstrate how we can use Owl to implement these state-of-art computer vision networks. 
+We will then also introduce how these different neuron such as `pooling` work, how these networks are constructured etc.
+Plese refer to these chapters for more detailed understanding about convolutional neural network.
 
 
 ## Recurrent Neural Network
@@ -720,7 +710,7 @@ Include GRU, briefly introduce RNN, then jump to
 
 ### Long Short Term Memory (LSTM)
 
-```ocaml env=neural_00
+```text
 
   let make_network wndsz vocabsz =
     input [|wndsz|]
