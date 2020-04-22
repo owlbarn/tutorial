@@ -582,7 +582,27 @@ Without getting into the sea of implementation details, we focus on one single $
 let xt, yt = bach_fun x y i 
 ```
 
-TODO: the batch parameter of training.
+In parameters we can use `Batch` module to specify how the training data are batched. 
+In the definition of cost functions, we often assume that to update the parameters, we need to include all them data.
+This approach is `Batch.Full`.
+However, for large scale training task, there can be millions of training data.
+Besides the memory issue, it is also a waste to wait for all the data be processed to get an updated parameter.
+
+The mostly commonly used batching method is mini-batch (`Batch.Mini`).
+It only takes a small part of the training data. 
+As long the data is fully covered after certain number of iterations, this approach is mathematically equivalent to the full batch.
+However, this method is usually more efficient, since most of time, the training data are often correlated. 
+You don't need to cover all the training data.
+For example, if you have seen 10 cat images, then probably your model does not need to be trained on another 10 cat images to get a fairly good model to recognise cat.
+
+To move this method to extreme where only one data sample is used every time, we get the *stochastic* batch (`Batch.Stochastic`).
+It is often not a very good choice, since the vectorised computation optimisation will then not be efficiently utilised. 
+
+Another batching approach is `Batch.Sample`. It is the same as mini batch, except that every mini batch is randomly chosen from the training data.
+It is especially important for the data that are "in order". 
+Imagine that in the MNIST task, all the training data are ordered according to the digit value.
+In that case, you may have a model that only works for the lower digits like 0, 1, and 2 at the beginning. 
+
 
 ```
 let yt', ws = forward xt
@@ -775,7 +795,7 @@ LSTM: wide application.
 
 Using the neural network module in Owl, we can easily built a RNN that generates text by itself, follwing the style of existing text, say, Alice's Adventures in Wonderland.
 
-```ocaml
+```ocaml env=neural-network:lstm-example01
 open Neural.S
 open Neural.S.Graph
 
@@ -793,7 +813,25 @@ However, the generated computation graph is way more complicated due to LSTM's i
 
 Here the only parameter to need to specify in building the LSTM is the length of vectors.
 
+
 EXPLAIN more about this example. 
+
+```ocaml env=neural-network:lstm-example01
+let sample nn vocab wndsz tlen x =
+  let all_char = Dense.Matrix.S.resize x [|1; wndsz + tlen|] in
+  for i = 0 to tlen - 1 do
+    let xt = Dense.Matrix.S.get_slice [[];[i;i+wndsz-1]] all_char in
+    let yt = Graph.run (Arr xt) nn |> Algodiff.unpack_arr |> Dense.Matrix.S.to_array in
+    let next_i = Stats.(choose (Array.sub (argsort ~inc:false yt) 0 3) 1).(0) in
+    Dense.Matrix.S.set all_char 0 (wndsz + i) (float_of_int next_i);
+  done;
+  Dense.Matrix.S.(to_array all_char.${ [[];[wndsz;-1]] })
+  |> Array.fold_left (fun a i -> a ^ Nlp.Vocabulary.index2word vocab (int_of_float i)) ""
+  |> Printf.printf "generated text: %s\n"
+  |> flush_all
+```
+
+
 Result. 
 
 
