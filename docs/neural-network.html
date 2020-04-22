@@ -377,8 +377,8 @@ let make_network () =
 <p>Usually, the network definition always starts with <code>input</code> neuron and ends with <code>get_network</code> function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the <code>input_shape</code> is determined.</p>
 <p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
 </section>
-<section class="level3" id="model-training">
-<h3>Model Training</h3>
+<section class="level3" id="training-parameters">
+<h3>Training Parameters</h3>
 <p>Now the last thing to do is to train the model. Again, we want to encapsulate all the manual back-propagation and parameter update into one simple function. It is mainly implemented in the<code>minimise_network</code> in the <code>Optimise</code> module.</p>
 <p>This module provide the <code>Params</code> submodule which maintains a set of training hyper-parameters. Without getting into the sea of implementation details, we focus on one single <span class="math inline">\(i\)</span>-th update iteration and see how these hyper-parameters work.</p>
 <div class="highlight">
@@ -391,27 +391,26 @@ let make_network () =
 <div class="highlight">
 <pre><code class="language-clike">let yt', ws = forward xt</code></pre>
 </div>
+<p>There is nothing magical about the <code>forward</code> function. It executes the computation layer by layer, and accumulate the result in <code>yt'</code>. Note that <code>yt'</code> is not simply an ndarray, but an AlgoDiff data type that contains all the computation graph information. The <code>ws</code> is an array of all the parameters in the neural network.</p>
 <div class="highlight">
-<pre><code class="language-clike">let loss = loss_fun yt yt'
+<pre><code class="language-text">let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |&gt; float_of_int))</code></pre>
 </div>
-<p>TODO: <code>Loss</code>, the loss function parameter of training. take the mean of the loss</p>
+<p>To compare how different the inference result <code>y'</code> is from the true label <code>y</code>, we need the loss function. Previously we have used the <code>cross_entropy</code>, and in the <code>Loss</code> module, the optimisation module provides other popular loss function:</p>
+<ul>
+<li><code>Loss.L1norm</code>: <span class="math inline">\(\sum|y - y'|\)</span></li>
+<li><code>Loss.L2norm</code>: <span class="math inline">\(\sum\|y - y'\|_2\)</span></li>
+<li><code>Loss.Quadratic</code>: <span class="math inline">\(\sum\|y - y'\|_2^2\)</span></li>
+<li><code>Loss.Hinge</code>: <span class="math inline">\(\sum\textrm{max}(0, 1-yy')\)</span></li>
+</ul>
 <div class="highlight">
-<pre><code class="language-clike">let reg =
+<pre><code class="language-text">let reg =
   match params.regularisation &lt;&gt; Regularisation.None with
   | true  -&gt; Owl_utils.aarr_fold (fun a w -&gt; Maths.(a + regl_fun w)) (_f 0.) ws
   | false -&gt; _f 0.
 let loss = Maths.(loss + reg)</code></pre>
 </div>
-<p>TODO: the regularisation parameter of training.</p>
-<p>TODO: <strong>Other:</strong></p>
-<ul>
-<li><p><code>Learning_Rate</code> : the learning rate parameter of training.</p></li>
-<li><p><code>Gradient</code> : the gradient method parameter of training (explained)</p></li>
-<li><p><code>Momentum</code> : the momentum parameter of training.</p></li>
-<li><p><code>Clipping</code> : the gradient clipping parameter of training.</p></li>
-<li><p><code>Checkpoint</code> : the checkpoint parameter of training.</p></li>
-</ul>
+<p>In the regression chapter we have talked about the idea of regularisation and its benefit. We have also introduced different types of regularisation methods. In the optimisation module, we can use <code>Regularisation.L1norm</code>, <code>Regularisation.L2norm</code>, or <code>Regularisation.Elastic_net</code> in training. We can also use <code>None</code> parameter to not apply regularisation.</p>
 <p>In the <code>Graph</code> module, we provide a <code>train</code> function that is a wrapper of this optimisation function. As a result, we can train the network by simply calling:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let train () =
@@ -424,10 +423,11 @@ let loss = Maths.(loss + reg)</code></pre>
   Graph.train ~params network x y |&gt; ignore;
   network</code></pre>
 </div>
-<p>The first three lines in the <code>train</code> function is for loading the <code>MNIST</code> dataset and print out the network structure on the terminal. The rest lines defines a <code>params</code> which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call <code>Graph.train</code> to kick off the training process.</p>
-<p>The iteration number in params.</p>
+<p>So far we keep using a constant learning rate (<code>Learning_rate.Const</code>), but the problem is that, this is hardly the idea setting. We hope the gradient descent at the beginning to be fast with large step, but we also hope it to be in small steps when it reaches the minimum point. We provide the <code>Decay</code> and <code>Exp_decay</code> learning rate method, both reduce the base learning rate according to the iteration. The first reduces the learning rate by a factor of <span class="math inline">\(\frac{1}{1+ik}\)</span>, where <span class="math inline">\(i\)</span> is the iteration number and <span class="math inline">\(k\)</span> is the reduction rate. Similarly, the second method reduces the leaning rate by factor of <span class="math inline">\(e^{-ik}\)</span>.</p>
+<p>We also implement the other more advanced learning methods. The <code>Adagrad</code> we use here adapts the learning rate to the parameters, not just iteration number. Ituses smaller step for parameters associated with frequently occurring features. Therefore, it is very suitable for sparse training data. The <code>Adagrad</code> achieved this by storing all the past squared gradients. Based on this method, the <code>RMSprop</code> proposes to restricts the window of accumulated past gradients by keeping an exponentially decaying average of past squared gradients, so as to reduce the aggressive learning rate reduction strategy. Furthermore, besides the squared gradients, the <code>Adam</code> method also keeps an exponentially decaying average of gradients themselves.</p>
+<p>The one last thing we need to notice in the training parameter is the last number <code>0.1</code>. It denotes the training epochs, or how many times we should repeat on the whole dataset. Here by taking a 0.1 epoch, we process only a tenth of all the training data.</p>
 <p>After the training is finished, you can call <code>Graph.model</code> to generate a functional model to perform inference. Moreover, <code>Graph</code> module also provides functions such as <code>save</code>, <code>load</code>, <code>print</code>, <code>to_string</code> and so on to help you in manipulating the neural network.</p>
-<p>Test:</p>
+<p>After training, we can test the trained parameter on test set, by comparing the accuracy of correct inference result.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let test network =
   let imgs, _, labels = Dataset.load_mnist_test_data () in
@@ -445,7 +445,7 @@ let loss = Maths.(loss + reg)</code></pre>
   let accu = Dense.Matrix.S.(elt_equal pred fact |&gt; sum') in
   Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))</code></pre>
 </div>
-<p>Result.</p>
+<p>The result shows that we can achieve an accuracy of .</p>
 </section>
 </section>
 <section class="level2" id="convolutional-neural-network">
@@ -527,7 +527,7 @@ let make_network wndsz vocabsz =
     let next_i = Stats.(choose (Array.sub (argsort ~inc:false yt) 0 3) 1).(0) in
     Dense.Matrix.S.set all_char 0 (wndsz + i) (float_of_int next_i);
   done;
-  Dense.Matrix.S.(to_array all_char.${ [[];[wndsz;-1]] })
+  Dense.Matrix.S.(to_array (get_slice [[];[wndsz;-1]] all_char))
   |&gt; Array.fold_left (fun a i -&gt; a ^ Nlp.Vocabulary.index2word vocab (int_of_float i)) ""
   |&gt; Printf.printf "generated text: %s\n"
   |&gt; flush_all</code></pre>

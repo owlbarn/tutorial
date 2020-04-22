@@ -569,7 +569,7 @@ Usually, the network definition always starts with `input` neuron and ends with 
 
 Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often `input` neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.
 
-### Model Training
+### Training Parameters
 
 Now the last thing to do is to train the model. 
 Again, we want to encapsulate all the manual back-propagation and parameter update into one simple function. 
@@ -603,21 +603,30 @@ It is especially important for the data that are "in order".
 Imagine that in the MNIST task, all the training data are ordered according to the digit value.
 In that case, you may have a model that only works for the lower digits like 0, 1, and 2 at the beginning. 
 
-
 ```
 let yt', ws = forward xt
 ```
 
+There is nothing magical about the `forward` function.
+It executes the computation layer by layer, and accumulate the result in `yt'`. 
+Note that `yt'` is not simply an ndarray, but an AlgoDiff data type that contains all the computation graph information.
+The `ws` is an array of all the parameters in the neural network.
 
-```
+```text
 let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
 ```
 
-TODO: `Loss`, the loss function parameter of training.
-take the mean of the loss 
+To compare how different the inference result `y'` is from the true label `y`, we need the loss function. 
+Previously we have used the `cross_entropy`, and in the `Loss` module, the optimisation module provides other popular loss function:
 
-```
+- `Loss.L1norm`: $\sum|y - y'|$
+- `Loss.L2norm`: $\sum\|y - y'\|_2$
+- `Loss.Quadratic`: $\sum\|y - y'\|_2^2$
+- `Loss.Hinge`: $\sum\textrm{max}(0, 1-yy')$
+
+
+```text
 let reg =
   match params.regularisation <> Regularisation.None with
   | true  -> Owl_utils.aarr_fold (fun a w -> Maths.(a + regl_fun w)) (_f 0.) ws
@@ -625,18 +634,10 @@ let reg =
 let loss = Maths.(loss + reg)
 ```
 
-TODO: the regularisation parameter of training.
- 
-
-TODO:
-**Other:** 
-
-* `Learning_Rate` : the learning rate parameter of training.
-* `Gradient` : the gradient method parameter of training (explained)
-* `Momentum` : the momentum parameter of training.
-
-* `Clipping` : the gradient clipping parameter of training.
-* `Checkpoint` : the checkpoint parameter of training.
+In the regression chapter we have talked about the idea of regularisation and its benefit.
+We have also introduced different types of regularisation methods.
+In the optimisation module, we can use `Regularisation.L1norm`, `Regularisation.L2norm`, or `Regularisation.Elastic_net` in training.
+We can also use `None` parameter to not apply regularisation.
 
 In the `Graph` module, we provide a `train` function that is a wrapper of this optimisation function.
 As a result, we can train the network by simply calling:
@@ -653,14 +654,24 @@ let train () =
   network
 ```
 
+So far we keep using a constant learning rate (`Learning_rate.Const`), but the problem is that, this is hardly the idea setting.
+We hope the gradient descent at the beginning to be fast with large step, but we also hope it to be in small steps when it reaches the minimum point. 
+We provide the `Decay` and `Exp_decay` learning rate method, both reduce the base learning rate according to the iteration. 
+The first reduces the learning rate by a factor of $\frac{1}{1+ik}$, where $i$ is the iteration number and $k$ is the reduction rate.
+Similarly, the second method reduces the leaning rate by factor of $e^{-ik}$.
 
-The first three lines in the `train` function is for loading the `MNIST` dataset and print out the network structure on the terminal. The rest lines defines a `params` which contains the training parameters such as batch size, learning rate, number of epochs to run. In the end, we call `Graph.train` to kick off the training process.
+We also implement the other more advanced learning methods. 
+The `Adagrad` we use here adapts the learning rate to the parameters, not just iteration number. Ituses smaller step for parameters associated with frequently occurring features. Therefore, it is very suitable for sparse training data. 
+The `Adagrad` achieved this by storing all the past squared gradients.
+Based on this method, the `RMSprop` proposes to restricts the window of accumulated past gradients by keeping an exponentially decaying average of past squared gradients, so as to reduce the aggressive learning rate reduction strategy.
+Furthermore, besides the squared gradients, the `Adam` method also keeps an exponentially decaying average of gradients themselves. 
 
-The iteration number in params. 
+The one last thing we need to notice in the training parameter is the last number `0.1`. It denotes the training epochs, or how many times we should repeat on the whole dataset.
+Here by taking a 0.1 epoch, we process only a tenth of all the training data.
 
 After the training is finished, you can call `Graph.model` to generate a functional model to perform inference. Moreover, `Graph` module also provides functions such as `save`, `load`, `print`, `to_string` and so on to help you in manipulating the neural network.
 
-Test:
+After training, we can test the trained parameter on test set, by comparing the accuracy of correct inference result.
 
 ```ocaml env=neural-network:example-02
 let test network =
@@ -680,7 +691,7 @@ let test network =
   Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))
 ```
 
-Result.
+The result shows that we can achieve an accuracy of .
 
 ## Convolutional Neural Network
 
@@ -825,7 +836,7 @@ let sample nn vocab wndsz tlen x =
     let next_i = Stats.(choose (Array.sub (argsort ~inc:false yt) 0 3) 1).(0) in
     Dense.Matrix.S.set all_char 0 (wndsz + i) (float_of_int next_i);
   done;
-  Dense.Matrix.S.(to_array all_char.${ [[];[wndsz;-1]] })
+  Dense.Matrix.S.(to_array (get_slice [[];[wndsz;-1]] all_char))
   |> Array.fold_left (fun a i -> a ^ Nlp.Vocabulary.index2word vocab (int_of_float i)) ""
   |> Printf.printf "generated text: %s\n"
   |> flush_all
