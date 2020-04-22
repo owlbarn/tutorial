@@ -98,8 +98,12 @@
         images/maths/trio.png
         images/matrix/plot_00.png
         images/neural-network/activations.png
+        images/neural-network/gru.png
+        images/neural-network/lstm.png
         images/neural-network/neural_module.png
         images/neural-network/plot_01.png
+        images/neural-network/rnn-unit.png
+        images/neural-network/rnn-unrolled.png
         images/neural-network/simple_nn.png
         images/nlp/plot_01.png
         images/optimisation/gd.png

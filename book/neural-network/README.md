@@ -248,7 +248,7 @@ $$
 And there is the `softmax` function.
 It takes a vector of $K$ real numbers, and normalizes it into a probability distribution consisting of $K$ probabilities proportional to the exponentials of the input numbers:
 
-$$f_i(x) = \frac{e^{x_i}}{\sum_{k=1}^K~e^{x_k}} \textrm{for} i=1, 2, \ldots, K.$$
+$$f_i(x) = \frac{e^{x_i}}{\sum_{k=1}^K~e^{x_k}} \textrm{for } i=1, 2, \ldots, K.$$
 
 We will keep using these activation functions in later network structures.
 
@@ -671,8 +671,8 @@ FIGURE
 
 Its property and why suitable for the computer vision tasks. 
 
-To perform computer vision we need more types of neurons, and so far we have implemented:
-`input`, `activation`, `linear`, `linear_nobias`, `embedding`, `recurrent`, `lstm`, `gru`, `conv1d`, `conv2d`, `conv3d`, `max_pool1d`, `max_pool2d`, `avg_pool1d`, `avg_pool2d`, `global_max_pool1d`, `global_max_pool2d`, `global_avg_pool1d`, `global_avg_pool2d`, `fully_connected`, `dropout`, `gaussian_noise`, `gaussian_dropout`, `alpha_dropout`, `normalisation`, `reshape`, `flatten`, `lambda`, `add`, `mul`, `dot`, `max`, `average`, `concatenate`.
+To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc. 
+They are enough to support building state-of-the-art network structures.
 
 These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.
 
@@ -702,32 +702,119 @@ Plese refer to these chapters for more detailed understanding about convolutiona
 
 ## Recurrent Neural Network
 
-Introduce vanilla RNN ...
+The figures in this sections comes from [colah's blog](https://colah.github.io/posts/2015-08-Understanding-LSTMs/).
 
-### Gated Recurrent Unit (GRU)
+In all the previous examples, even the computer vision tasks, the pattern is obvious to see: given one input, the trained network generates another output. 
+However, that's not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. 
+For example, if we need to generate English based on French, or label each frame in a video, only focuing on the current word/frame is not enough.
 
-Include GRU, briefly introduce RNN, then jump to 
+That's where the Recurrent Neural Network (RNN) comes to help. It allows the input and output to be in sequence. 
+The basic structure of RNN is quite simple: it is a neural network with loops, and the output of the previous loop is fed into the next loop as input, together with the current data in sequence.
+In this way, the information from previous data in the sequence is kept. 
+
+
+![Unroll the recurrent neural network](images/neural-network/rnn-unrolled.png "rnn-unrolled"){width=80% #fig:neural-network:rnn-unrolled}
+
+As shown in [@fig:neural-network:rnn-unrolled], a RNN can actually be unrolled into a chain of multiple connected neural networks. 
+Here the $x_i$'s are sequential input, and the $h_i$'s are the *hidden status*, or output of the RNN.
+The function of RNN therefore mainly relies on the processing logic in $A$. 
+
+![Basic processing unit in classic recurrent neural network](images/neural-network/rnn-unit.png "rnn-unit"){width=80% #fig:neural-network:rnn-unit}
+
+In a vanilla recurrent neural network, the function can be really simple and familar: 
+
+$$h_i = \textrm{activation}(w(h_{i-1}x_i) + b).$$ {#eq:neural-network:update}
+
+This is exactly what we have seen in the feed forward networks. Here `w` and `b` are the parameter to be trained in this RNN.
+This process is shown in [@fig:neural-network:rnn-unit].
+The activation function here is usually the `tanh` function to keep the value within range of `[-1, 1]`.
+
+However, this unit has a problem. 
+Think about it: it's like you keep updating a diary based on input data; after a while, the information from the old days will certainly be flooded out with the new information. 
+It's exactly like what Sherlock Holmes describes how brain works: if you keep dumping information into your head, you will have to throw away existing stuff out, be it useful or not. 
+As a result, in this RNN the old data in the sequence would have diminishing effect on the output, which means the output would be less sensitive to the context. 
+That's why currently when put into use, we often a special kind of RNN: the Long/Short Term Memory (LSTM).
 
 ### Long Short Term Memory (LSTM)
 
-```text
+LSTM is proposed by Hochreiter & Schmidhuber (1997) and since widely used and refined by many work.
+Based on RNN, the basic idea of LSTM is simple. 
+We still need to pass in the output from previous loop, but instead of take it as is, the processing unit make three choices:
+1) what to forget, 2) what to remember, and 3) what to output. 
+In this way, the useful information from previous data can be kept longer and the RNN would then have a "longer memory".
 
-  let make_network wndsz vocabsz =
-    input [|wndsz|]
-    |> embedding vocabsz 40
-    |> lstm 128
-    |> linear 512 ~act_typ:Activation.Relu
-    |> linear vocabsz ~act_typ:Activation.(Softmax 1)
-    |> get_network
+![Basic processing unit in LSTM](images/neural-network/lstm.png "lstm"){width=80% #fig:neural-network:lstm}
 
+Let's then see how it achieves this effecct. 
+The process unit of LSTM is shown in [@fig:neural-network:lstm].
+It consists of three part that corresponds to the three choices listed above.
+
+Unlike standard RNN, each unit also takes in and procduces a state $C$ that flows along the whole loop process. 
+This state is modified twice within the unit. 
+
+The first part is called *forget gate layer*. 
+It combines the output $h_{t-1}$ from previous loop and the the data $x_i$, and outputs a probablity number between [0, 1] to decide how much of the existing information should be kept.
+This probablity, as you may have guessed, is achieved using the `sigmoid` activation function, denoted by $\sigma$.
+
+Next, we need to decide "what to remember" from the exising data. 
+This is done with two branches. 
+The first branch uses the `sigmoid` function to denote which part of the new data $h_{t-1}+x_t$ should be updated, and the second branch using the `tanh` function decide how much value to update for the vector. 
+Both branch follow the procedure in [@eq:neural-network:update], but with different `w` and `b` parameters.
+
+By multiplying these two branches together, we know how much new information we should add to the information flow $C$.
+The flow $C$ is therefore first multiplied with the output from the *forget gate* to remove unnecessary information, and it adds the output from the second step to gain necessary know knoledge. 
+
+Now the only step left is to decide what to output. 
+This time again we first run a `sigmoid` function to decide which part of information flow $C$ to keep, and then apply this filter to a `tanh`-scaled information flow to finally get the output $h_t$.
+
+LSTM: wide application. 
+
+Using the neural network module in Owl, we can easily built a RNN that generates text by itself, follwing the style of existing text, say, Alice's Adventures in Wonderland.
+
+```ocaml
+open Neural.S
+open Neural.S.Graph
+
+let make_network wndsz vocabsz =
+  input [|wndsz|]
+  |> embedding vocabsz 40
+  |> lstm 128
+  |> linear 512 ~act_typ:Activation.Relu
+  |> linear vocabsz ~act_typ:Activation.(Softmax 1)
+  |> get_network
 ```
 
-The generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) for better image quality.
+That's it. The network is even simpler than than of the CNN.
+However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) to take a look if you are interested.
 
+Here the only parameter to need to specify in building the LSTM is the length of vectors.
+
+EXPLAIN more about this example. 
+Result. 
+
+
+**Gated Recurrent Unit (GRU)**
+
+The LSTM is kept refined in later work since its proposal. 
+There are many variants of it, and one of them is the *Gated Recurrent Unit* (GRU) which is proposed by Cho, et al. in 2014. 
+Its processing unit is shown in [@fig:neural-network:gru].
+
+![Basic processing unit in GRU](images/neural-network/gru.png "gru"){width=80% #fig:neural-network:gru}
+
+Compared to LSTM, the GRU consists of two parts.
+The first is a "reset gate" that decide how much information to forget from the past, and then then "update gate" behaves like a combination of LSTM's forget and input gate.
+Besides, it also merges the information flow $C$ and output status $h$.
+With these changes, the GRU can achieve the same effect as LSTM with less operations, and therefore is a bit faster than LSTM in training. 
 
 ## Generative Adversarial Network
 
-Only define the structure, no training ...
+There is one more type of neural network we need to discus. Actually it's not a paticular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator.
+During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. 
+This mutual decption process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means we human beings are also not very like to do that). 
+This approach is successfully applied in mnany applications, such as Pix2Pix, face ageing, increase photo resolution, etc.
+In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world. 
 
+Here is an example of defining a GAN with the neural network module. 
+TODO: define the structure. 
 
 ## Summary
