@@ -183,10 +183,10 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>This definition is plain to see, but there is still one thing to say: the <em>Initialisation</em> of parameters. From the regression chapter we have seen that how finding a good initial starting point can be beneficial to the performance of gradient descent. Then you might be thinking that uniformly generated parameters should work fine, but that’s not the case.</p>
 <p>Now we know that the essence of a layer is basically a matrix multiplication. If we use randomly initialise the parameter using uniform or normal distribution, you will find out that the results will soon explode after several layers. (A bit of example code to show this point). Even if by using <code>sigmoid</code> activation function we can control the number within <code>[0, 1]</code>, that still means the results are very near to 1, and the gradient will be extremely small. On the other hand, if we choose initial parameters that are close to <code>0</code>, then the output result from the network itself would be close zero. It is call the “vanishing gradient” problem, and in both cases, the network cannot learn well.</p>
-<p>There are many work that aims to solve this problem. One common solution is to use <code>ReLU</code> as activation functions since it is more robust to this issue. As to initialisation itself, there are multiple heuristics that can be used. For example, the Xavier initialization approach proposes to scale the randomly generated parameters with:</p>
-<p><span class="math display">\[\sqrt{\frac{1}{n}}.\]</span></p>
-<p>This parameter is shared by two layers, and <span class="math inline">\(n\)</span> is the size the first layer. This approach is especially suitable to use with <code>tanh</code> activation function. (That’s what we use in the example.)</p>
-<p>TODO: different type of initialisation we use in OWL</p>
+<p>There are many work that aims to solve this problem. One common solution is to use <code>ReLU</code> as activation functions since it is more robust to this issue. As to initialisation itself, there are multiple heuristics that can be used.</p>
+<p>For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span>. This parameter is shared by two layers, and <span class="math inline">\(n\)</span> is the size the first layer. This approach is especially suitable to use with <code>tanh</code> activation function. It is provided by the <code>Init.Standard</code> method in the initialisation module. The <code>Init.LecunNormal</code> is similar, but it uses <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span> as the standard deviation of the gaussian random generator.</p>
+<p>In <span data-cites="glorot2010understanding" class="citation">(Glorot and Bengio 2010)</span> the authors propose to use <span class="math inline">\(\sqrt{\frac{2}{n_0 + n_1}}\)</span> as the standard deviation in gaussian random generation. Here <span class="math inline">\(n_0\)</span> and <span class="math inline">\(n_1\)</span> is the input and output size of the current layer, or the length of two edges of the parameter matrix. It can be used with <code>Init.GlorotNormal</code>. If we want to use the uniformly generation approach, then the parameters should be scaled by <span class="math inline">\(\sqrt{\frac{6}{n_0 + n_1}}\)</span>. For this method we use <code>Init.GlorotUniform</code> or <code>Init.Tanh</code>.</p>
+<p>Of course, besides these methods, we still provide the mechanism to use the vanilla uniform (<code>Init.Uniform</code>) or gaussian (<code>Init.Gaussian</code>) randomisation, or a custom method (<code>Init.Custom</code>), if the user is sure about what she is doing.</p>
 </section>
 <section class="level3" id="training">
 <h3>Training</h3>
@@ -528,8 +528,13 @@ let make_network wndsz vocabsz =
 <p>There is one more type of neural network we need to discus. Actually it’s not a paticular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator. During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. This mutual decption process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means we human beings are also not very like to do that). This approach is successfully applied in mnany applications, such as Pix2Pix, face ageing, increase photo resolution, etc. In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.</p>
 <p>Here is an example of defining a GAN with the neural network module. TODO: define the structure.</p>
 </section>
-<section class="level2" id="summary">
-<h2>Summary</h2>
+<section class="level2 unnumbered" id="summary">
+<h2 class="unnumbered">Summary</h2>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-glorot2010understanding">
+<p>Glorot, Xavier, and Yoshua Bengio. 2010. “Understanding the Difficulty of Training Deep Feedforward Neural Networks.” In <em>Proceedings of the Thirteenth International Conference on Artificial Intelligence and Statistics</em>, 249–56.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="nlp.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 15</small>Natural Language Processing</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

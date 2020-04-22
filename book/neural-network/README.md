@@ -288,15 +288,19 @@ It is call the "vanishing gradient" problem, and in both cases, the network cann
 There are many work that aims to solve this problem.
 One common solution is to use `ReLU` as activation functions since it is more robust to this issue.
 As to initialisation itself, there are multiple heuristics that can be used.
-For example, the Xavier initialization approach proposes to scale the randomly generated parameters with: 
 
-$$\sqrt{\frac{1}{n}}.$$
-
+For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: $\sqrt{\frac{1}{n}}$.
 This parameter is shared by two layers, and $n$ is the size the first layer. 
 This approach is especially suitable to use with `tanh` activation function.
-(That's what we use in the example.)
+It is provided by the `Init.Standard` method in the initialisation module. 
+The `Init.LecunNormal` is similar, but it uses $\sqrt{\frac{1}{n}}$ as the standard deviation of the gaussian random generator. 
 
-TODO: different type of initialisation we use in OWL
+In [@glorot2010understanding] the authors propose to use $\sqrt{\frac{2}{n_0 + n_1}}$ as the standard deviation in gaussian random generation.
+Here $n_0$ and $n_1$ is the input and output size of the current layer, or the length of two edges of the parameter matrix. 
+It can be used with `Init.GlorotNormal`.
+If we want to use the uniformly generation approach, then the parameters should be scaled by $\sqrt{\frac{6}{n_0 + n_1}}$. For this method we use `Init.GlorotUniform` or `Init.Tanh`.
+
+Of course, besides these methods, we still provide the mechanism to use the vanilla uniform (`Init.Uniform`) or gaussian (`Init.Gaussian`) randomisation, or a custom method (`Init.Custom`), if the user is sure about what she is doing. 
 
 ### Training
 
