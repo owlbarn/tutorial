@@ -35,7 +35,7 @@ $$\theta_i = \theta_i - \lambda~(y - h_\Theta(x))x_i$$
 for each pair of training data `x` and `y`.
 
 The perceptron was first proposed in 1950's to perform binary image classification.
-Back then it was thought to model how individual neurons in the brain works.
+Back then it was thought to model how individual neuron in the brain works.
 Though initially deemed promising, people quickly realise that perceptrons could not be trained to recognise many classes of patterns, which is almost the case in image recognition.
 To fix this problem requires introducing more layers of interconnected perceptrons.
 That is called *feedforward neural network*, and we will talk about it in detail in the two sections below.
@@ -853,22 +853,27 @@ With these changes, the GRU can achieve the same effect as LSTM with fewer opera
 
 ## Generative Adversarial Network
 
-There is one more type of neural network we need to discuss. Actually it's not a particular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator.
+
+There is one more type of neural network we need to discuss.
+Actually it's not a particular type of neural network with new neurons like DNN or RNN, but more like a huge family of networks that shows a particular pattern.
+A Generative Adversarial Network (GAN) consists of two parts: generator and discriminator.
 During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data.
 This mutual deception process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means us human beings are also not very like to do that).
-This approach is successfully applied in many applications, such as Pix2Pix, face ageing, increase photo resolution, etc.
-In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.
 
-Here is an example of defining a GAN with the neural network module. ([Reference](https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889))
+It might still be difficult to fathom how does a GAN work in action only by text introduction. Let's look at an example.
+Previously we have used the MNIST dataset extensively in image recognition task, but now let's try something different with it.
+Say we want to build a neural network that can produce a digit picture that looks like it's taken from the MNIST dataset.
+It doesn't matter which digits; the point is being "real", since this output is actually NOT in the dataset.
 
-Generateor:
+To generate such an image does not really needs too complicated network structure.
+For example, we can use something like below ([Reference](https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889)):
 
 ```ocaml env=neural-network:gan
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
 
-let make_network input_shape =
+let make_generator input_shape =
   let out_size = Owl_utils_array.fold_left ( * ) 1 input_shape in
   input input_shape
   |> fully_connected 256 ~act_typ:(Activation.LeakyRelu 0.2)
@@ -882,7 +887,12 @@ let make_network input_shape =
   |> get_network
 ```
 
-Decoder:
+We pile up multiple linear layers, activation layers, and normalisation layers.
+We don't even have to use the convolution layer.
+By now you should be familiar with this kind of network structure.
+This network accepts an ndarray of image shape `28x28` and outputs an ndarray of the same shape, i.e. a black and white image.
+
+Besides this generator, the other half of the GAN is the discriminator. The structure is also quite simple:
 
 ```ocaml env=neural-network:gan
 let make_discriminator input_shape =
@@ -893,7 +903,33 @@ let make_discriminator input_shape =
   |> get_network
 ```
 
-TODO: introduce more about how to use these two parts to generate handwitten digits.
+The discriminator takes in the image as input.
+The output from this network is only one value. Since we apply the sigmoid activation function on it, this output means the probability how good the discriminator thinks the outputs from generator are.
+`1` means the discriminator think this output is taken from MNIST and `0` means the input is obviously a fake.
+
+The question is: how to train these two parts so that they can do their own job perfectly?
+Here is the loss values are constructed.
+Let's assume that we each time we only take one picture from MNIST and training data.
+First, to train the discriminator, we consider the *ground truth*: we know that the data take from MNSIT must be true, so it is labelled `1`; on the other hand, we know that anything that comes from generator, however good it is, must be a fake, and thus labelled `0`.
+By adding these two parts together, we can get loss value for training the discriminator.
+The point this step is to make the discriminator to tell the output from generators from the true images as much as possible.
+
+With the same batch of training data, we want to train the generator.
+The strategy is totally the reverse now.
+We combine the generator network and discriminator network together, give it a random noise image as input, and label the true output as `1`, even though we know that at the begin the output from generator would be totally fake.
+The loss value is got from compare the output from this combined network and the true label `1`.
+For training of this loss value, we need to make the discriminator as non-trainable.
+The point of this step is to make generator produce images that can fool the discriminator as much as possible.
+
+That's all. It's kind of like a small scale darwinism experiment. By iteratively strengthening both parties, the generator can finally become so good that even a good discriminator cannot tell if an input image is faked or really taken from MNIST.
+At that stage, the generator is trained well and the job is done.
+
+This approach is successfully applied in many applications, such as Pix2Pix, face ageing, increase photo resolution, etc.
+For Pix2Pix, you give it a pencil-drawn picture of bag and it can render it into a real-looking bag.
+Or think about the popular applications that create an animation character that does not really exist in real life previously.
+In these applications, the generators are all required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.
+They may require much more complex network structure, but the general idea of GAN would the same as what we have introduced.
+
 
 ## Summary
 
