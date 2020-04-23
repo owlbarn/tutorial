@@ -15,31 +15,29 @@ g(x)=
     \begin{cases}
         1 &amp; \text{if } \mathbf{w \cdot x + b &gt; 0}\\
         0 &amp; \text{otherwise}
-    \end{cases}  
+    \end{cases}
 \]</span></p>
 <p>This function is called a <em>Unit Step Function</em>, or heaviside/binary step function. Instead of a range <span class="math inline">\([0, 1]\)</span>, the result can only be either 0 or 1. It is thus suitable for binary classification. In the perceptron learning algorithm, we can still follow the previous parameter update method:</p>
 <p><span class="math display">\[\theta_i = \theta_i - \lambda~(y - h_\Theta(x))x_i\]</span></p>
 <p>for each pair of training data <code>x</code> and <code>y</code>.</p>
-<p>The perceptron was first proposed in 1950’s to perform binary image classification. Back then it was thought to model how individual neurons in the brain works. Though initially deemed promising, people quickly realise that perceptrons could not be trained to recognise many classes of patterns, which is almost the case in image recognition. To fix this problem requires introducing more layers of interconnected perceptrons. That is called <em>feedforward neural network</em>, and we will talk about it in detail in the later two sections.</p>
-<p>(Non-linearity to be introduced later)</p>
+<p>The perceptron was first proposed in 1950’s to perform binary image classification. Back then it was thought to model how individual neurons in the brain works. Though initially deemed promising, people quickly realise that perceptrons could not be trained to recognise many classes of patterns, which is almost the case in image recognition. To fix this problem requires introducing more layers of interconnected perceptrons. That is called <em>feedforward neural network</em>, and we will talk about it in detail in the two sections below.</p>
 </section>
 <section class="level2" id="yet-another-regression">
 <h2>Yet Another Regression</h2>
-<p>To some extend, a deep neural netowrk is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch.</p>
-<p>Follow the previous logistic regression. In this section we use build a simple neural network with a hidden layer, and train its parameters. The task is hand-written recognition.</p>
-<p>Basically follow ML004</p>
+<p>To some extent, a deep neural network is nothing but a regression problem in a very high-dimensional space. We need to minimise its cost function by utilising higher-order derivatives. Before looking into the actual <code>Neural</code> module, let’s build a small neural network from scratch.</p>
+<p>Follow the previous logistic regression. In this section we use build a simple neural network with a hidden layer, and train its parameters. The task is hand-written recognition. The starting example is inspired by the Machine Learning course by Andrew Ng.</p>
 <section class="level3" id="model-representation">
 <h3>Model Representation</h3>
-<p>In logistic regression we have… now we need to extend it towards multiple classes. Add an internal layer (why).</p>
+<p>In logistic regression we have multiple parameter as one layer to decide if the input data belongs to one type or the other, as shown in fig.&nbsp;1(a). Now we need to extend it towards multiple classes, with a new hidden layer.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:neural-network:simple_nn" title="simple_nn" src="images/neural-network/simple_nn.png"><figcaption>Figure 1: Extend logistic regression to neural network with one hidden layer</figcaption>
 </figure>
 <p>The data we will use is from <a href="http://yann.lecun.com/exdb/mnist/">MNIST dataset</a>. You can use <code>Owl.Dataset.download_all()</code> to download the dataset.</p>
 <div class="highlight">
-<pre><code class="language-text">let x, _, y = Dataset.load_mnist_train_data_arr () </code></pre>
+<pre><code class="language-text">let x, _, y = Dataset.load_mnist_train_data_arr ()</code></pre>
 </div>
 <div class="highlight">
-<pre><code class="language-text"># let x_shape, y_shape = 
+<pre><code class="language-text"># let x_shape, y_shape =
    Dense.Ndarray.S.shape x, Dense.Ndarray.S.shape y
 
 val x_shape : int array = [|60000; 28; 28; 1|]
@@ -62,9 +60,7 @@ val y_shape : int array = [|60000; 10|]</code></pre>
 </section>
 <section class="level3" id="forward-propagation">
 <h3>Forward Propagation</h3>
-<p>Specifically we use a hidden layer of size 25, and the output class is 10.</p>
-<p>Since we will use derivatives in training parameters, we construct all the computation using the Algorithmic Differentiation module.</p>
-<p>The computation is simple. The logistic regression is repeated:</p>
+<p>Specifically we use a hidden layer of size 25, and the output class is 10. Since we will use derivatives in training parameters, we construct all the computation using the Algorithmic Differentiation module. The computation is simple. The logistic regression is repeated:</p>
 <p><span class="math display">\[h_\Theta(x) = f(f(x~\theta_0)~\theta_1).\]</span></p>
 <p>It can be implemented as:</p>
 <div class="highlight">
@@ -78,30 +74,30 @@ let classes = 10
 let theta0 = Arr (N.uniform [|input_size; hidden_size|])
 let theta1 = Arr (N.uniform [|hidden_size; classes|])
 
-let h theta0 theta1 x = 
-  let t = Arr.dot x theta0 |&gt; Maths.sigmoid in 
+let h theta0 theta1 x =
+  let t = Arr.dot x theta0 |&gt; Maths.sigmoid in
   Arr.dot t theta1 |&gt; Maths.sigmoid</code></pre>
 </div>
 <p>That’s it. We can now classify an input <code>28x28</code> array into one of the ten classes… except that we can’t. Currently we only use random content as the parameters. We need to train the model and find suitable <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> parameters.</p>
 </section>
 <section class="level3" id="back-propagation">
 <h3>Back propagation</h3>
-<p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a network back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters <code>&gt;&gt;</code> output parameters.</p>
-<p>Backpropagation is the core of all neural networks, actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
+<p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a network back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters are far larger than output parameters.</p>
+<p>Backpropagation is the core of all neural networks; actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
 <p>Recall in the Regression chapter, training parameters is the process is to find the parameters that minimise the cost function of iteratively. In the case of this neural network, its cost function <span class="math inline">\(J\)</span> is similar to that of logistic regression. Suppose we have <span class="math inline">\(m\)</span> training data pairs, then it can be expressed as:</p>
 <p><span id="eq:neural-network:costfun"><span class="math display">\[J(\theta+0, \theta_1) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).\qquad(1)\]</span></span></p>
 <div class="highlight">
 <pre><code class="language-ocaml">let j t0 t1 x y =
-  let z = h t0 t1 x in 
+  let z = h t0 t1 x in
   Maths.add
     (Maths.cross_entropy y z)
     (Maths.cross_entropy Arr.(sub (ones (shape y)) y)
        Arr.(sub (ones (shape z)) z))</code></pre>
 </div>
-<p>Here the the <code>cross_entropy y x</code> means <span class="math inline">\(-h~\log(x)\)</span>.</p>
+<p>Here the <code>cross_entropy y x</code> means <span class="math inline">\(-h~\log(x)\)</span>.</p>
 <p>In the regression chapter, to find the suitable parameters that minimise <span class="math inline">\(J\)</span>, we iteratively apply:</p>
 <p><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)\]</span></p>
-<p>until it converges. The same also applies here. But the partial derivative is not intuitive to give a analytical solution. But actually we don’t have to now that we are using the AD module. The partial derivatives of both parameters can be correctly calculated. We have show in the Algorithmic Differentiation chapter how it can be done in Owl:</p>
+<p>until it converges. The same also applies here. But the partial derivative is not intuitive to give a analytical solution. But actually we don’t have to now that we are using the AD module. The partial derivatives of both parameters can be correctly calculated. We have shown in the Algorithmic Differentiation chapter how it can be done in Owl:</p>
 <div class="highlight">
 <pre><code class="language-text">let x', y' = Dataset.draw_samples x y 1
 let cost = j t0 t1 (Arr x') (Arr y')
@@ -118,7 +114,7 @@ let theta1' =  adjval t1 |&gt; unpack_arr</code></pre>
 <p>In the next step, we revise the previous example, with a bit of more details added.</p>
 <section class="level3" id="layers">
 <h3>Layers</h3>
-<p>First, the previous example mixes all the computation together. We need to add the abstraction of <em>layers</em> (Explain). The following code defines the layer and network type, both are OCaml record types.</p>
+<p>First, the previous example mixes all the computation together. We need to add the abstraction of <em>layer</em> as the building block of neural network instead of numerous basic computations. The following code defines the layer and network type, both are OCaml record types.</p>
 <p>Also note that for each layer, besides the matrix multiplication, we also added an extra <em>bias</em> (Explain). Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
 <p><span class="math display">\[ y = a(x \times w + b) \]</span></p>
 <p>Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
@@ -134,7 +130,7 @@ type layer = {
 type network = { layers : layer array }</code></pre>
 </div>
 <p>Despite of the complicated internal structure, we can treat a neural network as a function, which is fed with input data and outputs predictions. The question is how to evaluate a network. Evaluating a network can be decomposed as a sequence of evaluation of layers.</p>
-<p>The output of one layer will feed into the next layer as its input, moving forward until it reaches the end. The following two lines shows how to evaluate a neural network in <em>forward mode</em>.</p>
+<p>The output of one layer will feed into the next layer as its input, moving forward until it reaches the end. The following two lines show how to evaluate a neural network in <em>forward mode</em>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let run_layer x l = Maths.((x *@ l.w) + l.b) |&gt; l.a
 
@@ -154,7 +150,7 @@ let run_network x nn = Array.fold_left run_layer x nn.layers</code></pre>
     \begin{cases}
         x &amp; \text{if } \mathbf{x &gt; 0}\\
         0 &amp; \text{otherwise}
-    \end{cases}  
+    \end{cases}
 \]</span></p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:neural-network:activations" title="activations" src="images/neural-network/activations.png"><figcaption>Figure 3: Different activation functions in neural network</figcaption>
@@ -182,9 +178,9 @@ let l1 = {
 let nn = {layers = [|l0; l1|]}</code></pre>
 </div>
 <p>This definition is plain to see, but there is still one thing to say: the <em>Initialisation</em> of parameters. From the regression chapter we have seen that how finding a good initial starting point can be beneficial to the performance of gradient descent. Then you might be thinking that uniformly generated parameters should work fine, but that’s not the case.</p>
-<p>Now we know that the essence of a layer is basically a matrix multiplication. If we use randomly initialise the parameter using uniform or normal distribution, you will find out that the results will soon explode after several layers. (A bit of example code to show this point). Even if by using <code>sigmoid</code> activation function we can control the number within <code>[0, 1]</code>, that still means the results are very near to 1, and the gradient will be extremely small. On the other hand, if we choose initial parameters that are close to <code>0</code>, then the output result from the network itself would be close zero. It is call the “vanishing gradient” problem, and in both cases, the network cannot learn well.</p>
-<p>There are many work that aims to solve this problem. One common solution is to use <code>ReLU</code> as activation functions since it is more robust to this issue. As to initialisation itself, there are multiple heuristics that can be used.</p>
-<p>For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span>. This parameter is shared by two layers, and <span class="math inline">\(n\)</span> is the size the first layer. This approach is especially suitable to use with <code>tanh</code> activation function. It is provided by the <code>Init.Standard</code> method in the initialisation module. The <code>Init.LecunNormal</code> is similar, but it uses <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span> as the standard deviation of the gaussian random generator.</p>
+<p>Now we know that the essence of a layer is basically a matrix multiplication. If we use randomly initialise the parameter using uniform or normal distribution, you will find out that the results will soon explode after several layers. Even if by using <code>sigmoid</code> activation function we can control the number within <code>[0, 1]</code>, that still means the results are very near to 1, and the gradient will be extremely small. On the other hand, if we choose initial parameters that are close to <code>0</code>, then the output result from the network itself would be close zero. It is call the “vanishing gradient” problem, and in both cases, the network cannot learn well.</p>
+<p>There are many works that aim to solve this problem. One common solution is to use <code>ReLU</code> as activation functions since it is more robust to this issue. As to initialisation itself, there are multiple heuristics that can be used.</p>
+<p>For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span>. This parameter is shared by two layers, and <span class="math inline">\(n\)</span> is the size the first layer. This approach is especially suitable to use with <code>tanh</code> activation function. It is provided by the <code>Init.Standard</code> method in the initialisation module. The <code>Init.LecunNormal</code> is similar, but it uses <span class="math inline">\(\sqrt{\frac{1}{n}}\)</span> as the standard deviation of the Gaussian random generator.</p>
 <p>In <span data-cites="glorot2010understanding" class="citation">(Glorot and Bengio 2010)</span> the authors propose to use <span class="math inline">\(\sqrt{\frac{2}{n_0 + n_1}}\)</span> as the standard deviation in gaussian random generation. Here <span class="math inline">\(n_0\)</span> and <span class="math inline">\(n_1\)</span> is the input and output size of the current layer, or the length of two edges of the parameter matrix. It can be used with <code>Init.GlorotNormal</code>. If we want to use the uniformly generation approach, then the parameters should be scaled by <span class="math inline">\(\sqrt{\frac{6}{n_0 + n_1}}\)</span>. For this method we use <code>Init.GlorotUniform</code> or <code>Init.Tanh</code>.</p>
 <p>Of course, besides these methods, we still provide the mechanism to use the vanilla uniform (<code>Init.Uniform</code>) or gaussian (<code>Init.Gaussian</code>) randomisation, or a custom method (<code>Init.Custom</code>), if the user is sure about what she is doing.</p>
 </section>
@@ -192,7 +188,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <h3>Training</h3>
 <p>The loss function is constructed in the same way.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let loss_fun nn x y = 
+<pre><code class="language-ocaml">let loss_fun nn x y =
   let t = tag () in
   Array.iter (fun l -&gt;
     l.w &lt;- make_reverse l.w t;
@@ -203,7 +199,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <p>(Explain why we use only one <code>cross_entropy</code>)</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let backprop nn eta x y =
-  let loss = loss_fun nn x y in 
+  let loss = loss_fun nn x y in
   reverse_prop (F 1.) loss;
   Array.iter (fun l -&gt;
     l.w &lt;- Maths.((primal l.w) - (eta * (adjval l.w))) |&gt; primal;
@@ -237,7 +233,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
   let x, y = Dataset.draw_samples x y 10 in
   test nn (Arr x) (Arr y)</code></pre>
 </div>
-<p>When the training starts, our application keeps printing the value of loss function in the end of each iteration. From the output, we can see the value of loss function keeps decreasing quickly after training starts.</p>
+<p>When the training starts, our application keeps printing the value of loss function at the end of iteration. From the output, we can see the value of loss function keeps decreasing quickly after training starts.</p>
 <div class="highlight">
 <pre><code class="language-text">2019-11-12 01:04:14.632 INFO : #001 : loss = 2.54432
 2019-11-12 01:04:14.645 INFO : #002 : loss = 2.48446
@@ -248,7 +244,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 2019-11-12 01:04:14.730 INFO : #007 : loss = 2.0249
 2019-11-12 01:04:14.740 INFO : #008 : loss = 1.96638</code></pre>
 </div>
-<p>After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with <span class="math inline">\(90.14%\)</span> chance it is a number 3. Quite accurate!</p>
+<p>After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with <span class="math inline">\(90.14%\)</span> chance it is a number 3, which is quite accurate.</p>
 <figure>
 <img alt="" style="width:40.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 4: Prediction from the model</figcaption>
 </figure>
@@ -257,10 +253,10 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </section>
 <section class="level2" id="neural-network-module">
 <h2>Neural Network Module</h2>
-<p>The simple implementation looks promising enough, but we cannot really leave it for the users to define layers, networks, and the training procedure all by themselves. That would hard be a scalable approach. Therefore, now is finally the time to introduce the Neural Network module provided by Owl. It is actually very similar to the naive framework we just built, but with more compete support to various neurons.</p>
+<p>The simple implementation looks promising enough, but we cannot really leave it for the users to define layers, networks, and the training procedure all by themselves. That would hard be a scalable approach. Therefore, now is finally the time to introduce the Neural Network module provided by Owl. It is actually very similar to the naive framework we just built, but with more complete support to various neurons.</p>
 <section class="level3" id="module-structure">
 <h3>Module Structure</h3>
-<p>First thing first: a bit of history about neural network module in Owl. Owl has always been designed as a general-purpose numerical library, and we never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation we had been to, there were always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
+<p>First thing first: a bit of history about neural network module in Owl. Owl has always been designed as a general-purpose numerical library, and we never planned to make it yet another framework for deep neural networks. The original motivation of including such a neural network module was simply for demo purpose, since in almost every presentation we had been to, there was always the same question from audience: <em>“can owl do deep neural network by the way?”</em></p>
 <p>In the end, we became curious about this question ourselves, although the perspective was slightly different. We were sure we could implement a proper neural network framework atop of Owl, but we didn’t know how easy it is. We take it as an excellent opportunity to test Owl’s capability and expressiveness in developing complicated analytical applications.</p>
 <p>The outcome is wonderful. It turns out with Owl’s architecture and its internal functionality (Algodiff, Optimisation, etc.), combined with OCaml’s powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it reach TensorFlow’s level of performance on CPU (by the time we measured in 2018).</p>
 <figure>
@@ -271,7 +267,7 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 </section>
 <section class="level3" id="neurons">
 <h3>Neurons</h3>
-<p>The basic unit in neural network is <em>Neuron</em>. We have implemented a set of commonly used neurons in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a>. Each neuron is a standalone module. We have encapsulate the computation introduced above into a neuron. In previous chapter we have seen how the input and hidden layer can be connected, and we abstract it into the <code>FullyConnected</code> layer. We take this neuron as an example.</p>
+<p>The basic unit in neural network is <em>Neuron</em>. We have implemented a set of commonly used neurons in <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural_neuron.ml">Owl.Neural.Neuron</a>. Each neuron is a standalone module. We have encapsulated the computation introduced above into a neuron. In previous chapter we have seen how the input and hidden layer can be connected, and we abstract it into the <code>FullyConnected</code> layer. We take this neuron as an example.</p>
 <div class="highlight">
 <pre><code class="language-clike">module FullyConnected = struct
     type neuron_typ =
@@ -282,10 +278,10 @@ let nn = {layers = [|l0; l1|]}</code></pre>
       ; mutable out_shape : int array
       }
     ...
-end </code></pre>
+end</code></pre>
 </div>
 <p>This module contains the two parameters we have seen: <code>w</code> and <code>b</code>, both of type <code>t</code> which means the Algodiff array. Besides, we also need to specify the input and output shape. They are actually the length of input vector and the length of the hidden layer itself. The last part in the definition of this neuron <code>init_typ</code> is about what kind of initialisation we use, as has been discussed before.</p>
-<p>Then this module contain several standard functions that are shared by all the neuron modules.</p>
+<p>Then this module contains several standard functions that are shared by all the neuron modules.</p>
 <div class="highlight">
 <pre><code class="language-text">let create ?inputs o init_typ =
   let in_shape =
@@ -309,7 +305,7 @@ end </code></pre>
   l.w &lt;- Init.run l.init_typ [| m; n |] l.w;
   l.b &lt;- Mat.zeros 1 n</code></pre>
 </div>
-<p>There is nothing magical in the <code>init</code> function. The <code>m</code> is a flattened input size in case input ndarray is of multiple dimension. The <code>w</code> parameter is initialised with predefined initialisation function, and we can just make <code>b</code> all zero, which means no bias at the beginning. Then we have the forward propagation part, in the <code>run</code> function:</p>
+<p>There is nothing magical in the <code>init</code> function. The <code>m</code> is a flattened input size in case input ndarray is of multiple dimensions. The <code>w</code> parameter is initialised with predefined initialisation function, and we can just make <code>b</code> all zero, which means no bias at the beginning. Then we have the forward propagation part, in the <code>run</code> function:</p>
 <div class="highlight">
 <pre><code class="language-text">let run x l =
   let m = Mat.row_num l.w in
@@ -333,25 +329,25 @@ let update l u =
   l.w &lt;- u.(0) |&gt; primal';
   l.b &lt;- u.(1) |&gt; primal'</code></pre>
 </div>
-<p>That’s about the main part of <code>FullyConnected</code> neuron and the other neurons. Adding a new type of neuron is much easier than adding a new one in Tensorflow or other framework thanks to Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli">Algodiff</a> module.</p>
+<p>That’s about the main part of <code>FullyConnected</code> neuron and the other neurons. Adding a new type of neuron is much easier than adding a new one in TensorFlow or other framework thanks to Owl’s <a href="https://github.com/ryanrhymes/owl/blob/master/lib/owl_algodiff_generic.mli">Algodiff</a> module.</p>
 <p>As we other modules such as Ndarray and Algodiff, the <a href="https://github.com/ryanrhymes/owl/blob/master/lib/neural/owl_neural.ml">Owl.Neural</a> provides two submodules <code>S</code> and <code>D</code> for both single precision and double precision neural networks.</p>
 </section>
 <section class="level3" id="neural-graph">
 <h3>Neural Graph</h3>
-<p>Neuron is the core of the neural network module, we cannot directly work on the neurons. In a neural network, the individual neuron has to be instantiated into a node and constructed into a <em>graph</em> to be really useful. And it’s the <code>Graph</code> module we users have access to.</p>
+<p>Neuron is the core of the neural network module; we cannot directly work on the neurons. In a neural network, the individual neuron has to be instantiated into a node and constructed into a <em>graph</em> to be really useful. And it’s the <code>Graph</code> module we users have access to.</p>
 <p>The <code>node</code> in a neural network is defined as:</p>
 <div class="highlight">
 <pre><code class="language-text">type node =
-{ mutable name : string; 
-  mutable prev : node array; 
+{ mutable name : string;
+  mutable prev : node array;
   mutable next : node array
   mutable neuron : neuron
   mutable output : t option
   mutable network : network
-  mutable train : bool 
+  mutable train : bool
 }</code></pre>
 </div>
-<p>Besides the neuron itself, a node also contain information such as its parents, children, output, the network this node belongs to, a flag if this node is only for training, etc.</p>
+<p>Besides the neuron itself, a node also contains information such as its parents, children, output, the network this node belongs to, a flag if this node is only for training, etc.</p>
 <p>In the Graph module, the most we need to deal with is function that builds node and connect it to existing network. For example:</p>
 <div class="highlight">
 <pre><code class="language-text">let fully_connected ?name ?(init_typ = Init.Standard) outputs input_node =
@@ -375,23 +371,23 @@ let make_network () =
 </div>
 <p>We can see how the input, the hidden layer, and the output from previous example are concisely expressed using the Owl neural network graph API. The <code>linear</code> is similar to <code>fully_connected</code>, only that it accepts one-dimensional input. The parameter <code>act_typ</code> specifies the activation function applied on the output of this node.</p>
 <p>Usually, the network definition always starts with <code>input</code> neuron and ends with <code>get_network</code> function which finalises and returns the constructed network. We can also see the input shape is reserved as a passed in parameter so the shape of the data and the parameters will be inferred later whenever the <code>input_shape</code> is determined.</p>
-<p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which saves us a lot of efforts and significantly reduces the potential bugs.</p>
+<p>Owl provides a very functional way to construct a neural network. You only need to provide the shape of the date in the first node (often <code>input</code> neuron), then Owl will automatically infer the shape for you in the downstream nodes which save us a lot of efforts and significantly reduces the potential bugs.</p>
 </section>
 <section class="level3" id="training-parameters">
 <h3>Training Parameters</h3>
 <p>Now the last thing to do is to train the model. Again, we want to encapsulate all the manual back-propagation and parameter update into one simple function. It is mainly implemented in the<code>minimise_network</code> in the <code>Optimise</code> module.</p>
-<p>This module provide the <code>Params</code> submodule which maintains a set of training hyper-parameters. Without getting into the sea of implementation details, we focus on one single <span class="math inline">\(i\)</span>-th update iteration and see how these hyper-parameters work.</p>
+<p>This module provides the <code>Params</code> submodule which maintains a set of training hyper-parameters. Without getting into the sea of implementation details, we focus on one single <span class="math inline">\(i\)</span>-th update iteration and see how these hyper-parameters work.</p>
 <div class="highlight">
-<pre><code class="language-clike">let xt, yt = bach_fun x y i </code></pre>
+<pre><code class="language-clike">let xt, yt = bach_fun x y i</code></pre>
 </div>
-<p>In parameters we can use <code>Batch</code> module to specify how the training data are batched. In the definition of cost functions, we often assume that to update the parameters, we need to include all them data. This approach is <code>Batch.Full</code>. However, for large scale training task, there can be millions of training data. Besides the memory issue, it is also a waste to wait for all the data be processed to get an updated parameter.</p>
+<p>In parameters we can use <code>Batch</code> module to specify how the training data are batched. In the definition of cost functions, we often assume that to update the parameters, we need to include all the data. This approach is <code>Batch.Full</code>. However, for large scale training task, there can be millions of training data. Besides the memory issue, it is also a waste to wait for all the data to be processed to get an updated parameter.</p>
 <p>The mostly commonly used batching method is mini-batch (<code>Batch.Mini</code>). It only takes a small part of the training data. As long the data is fully covered after certain number of iterations, this approach is mathematically equivalent to the full batch. However, this method is usually more efficient, since most of time, the training data are often correlated. You don’t need to cover all the training data. For example, if you have seen 10 cat images, then probably your model does not need to be trained on another 10 cat images to get a fairly good model to recognise cat.</p>
 <p>To move this method to extreme where only one data sample is used every time, we get the <em>stochastic</em> batch (<code>Batch.Stochastic</code>). It is often not a very good choice, since the vectorised computation optimisation will then not be efficiently utilised.</p>
 <p>Another batching approach is <code>Batch.Sample</code>. It is the same as mini batch, except that every mini batch is randomly chosen from the training data. It is especially important for the data that are “in order”. Imagine that in the MNIST task, all the training data are ordered according to the digit value. In that case, you may have a model that only works for the lower digits like 0, 1, and 2 at the beginning.</p>
 <div class="highlight">
 <pre><code class="language-clike">let yt', ws = forward xt</code></pre>
 </div>
-<p>There is nothing magical about the <code>forward</code> function. It executes the computation layer by layer, and accumulate the result in <code>yt'</code>. Note that <code>yt'</code> is not simply an ndarray, but an AlgoDiff data type that contains all the computation graph information. The <code>ws</code> is an array of all the parameters in the neural network.</p>
+<p>There is nothing magical about the <code>forward</code> function. It executes the computation layer by layer, and accumulates the result in <code>yt'</code>. Note that <code>yt'</code> is not simply an ndarray, but an AlgoDiff data type that contains all the computation graph information. The <code>ws</code> is an array of all the parameters in the neural network.</p>
 <div class="highlight">
 <pre><code class="language-text">let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |&gt; float_of_int))</code></pre>
@@ -417,14 +413,14 @@ let loss = Maths.(loss + reg)</code></pre>
   let x, _, y = Dataset.load_mnist_train_data_arr () in
   let network = make_network () in
   let params = Params.config
-    ~batch:(Batch.Mini 100) 
+    ~batch:(Batch.Mini 100)
     ~learning_rate:(Learning_Rate.Adagrad 0.005) 0.1
   in
   Graph.train ~params network x y |&gt; ignore;
   network</code></pre>
 </div>
-<p>So far we keep using a constant learning rate (<code>Learning_rate.Const</code>), but the problem is that, this is hardly the idea setting. We hope the gradient descent at the beginning to be fast with large step, but we also hope it to be in small steps when it reaches the minimum point. We provide the <code>Decay</code> and <code>Exp_decay</code> learning rate method, both reduce the base learning rate according to the iteration. The first reduces the learning rate by a factor of <span class="math inline">\(\frac{1}{1+ik}\)</span>, where <span class="math inline">\(i\)</span> is the iteration number and <span class="math inline">\(k\)</span> is the reduction rate. Similarly, the second method reduces the leaning rate by factor of <span class="math inline">\(e^{-ik}\)</span>.</p>
-<p>We also implement the other more advanced learning methods. The <code>Adagrad</code> we use here adapts the learning rate to the parameters, not just iteration number. Ituses smaller step for parameters associated with frequently occurring features. Therefore, it is very suitable for sparse training data. The <code>Adagrad</code> achieved this by storing all the past squared gradients. Based on this method, the <code>RMSprop</code> proposes to restricts the window of accumulated past gradients by keeping an exponentially decaying average of past squared gradients, so as to reduce the aggressive learning rate reduction strategy. Furthermore, besides the squared gradients, the <code>Adam</code> method also keeps an exponentially decaying average of gradients themselves.</p>
+<p>So far we keep using a constant learning rate (<code>Learning_rate.Const</code>), but the problem is that, this is hardly the idea setting. We hope the gradient descent at the beginning to be fast with large step, but we also hope it to be in small steps when it reaches the minimum point. We provide the <code>Decay</code> and <code>Exp_decay</code> learning rate methods; both reduce the base learning rate according to the iteration. The first reduces the learning rate by a factor of <span class="math inline">\(\frac{1}{1+ik}\)</span>, where <span class="math inline">\(i\)</span> is the iteration number and <span class="math inline">\(k\)</span> is the reduction rate. Similarly, the second method reduces the leaning rate by factor of <span class="math inline">\(e^{-ik}\)</span>.</p>
+<p>We also implement the other more advanced learning methods. The <code>Adagrad</code> we use here adapts the learning rate to the parameters, not just iteration number. It uses smaller step for parameters associated with frequently occurring features. Therefore, it is very suitable for sparse training data. The <code>Adagrad</code> achieves this by storing all the past squared gradients. Based on this method, the <code>RMSprop</code> proposes to restrict the window of accumulated past gradients by keeping an exponentially decaying average of past squared gradients, so as to reduce the aggressive learning rate reduction strategy. Furthermore, besides the squared gradients, the <code>Adam</code> method also keeps an exponentially decaying average of gradients themselves.</p>
 <p>The one last thing we need to notice in the training parameter is the last number <code>0.1</code>. It denotes the training epochs, or how many times we should repeat on the whole dataset. Here by taking a 0.1 epoch, we process only a tenth of all the training data.</p>
 <p>After the training is finished, you can call <code>Graph.model</code> to generate a functional model to perform inference. Moreover, <code>Graph</code> module also provides functions such as <code>save</code>, <code>load</code>, <code>print</code>, <code>to_string</code> and so on to help you in manipulating the neural network.</p>
 <p>After training, we can test the trained parameter on test set, by comparing the accuracy of correct inference result.</p>
@@ -471,12 +467,12 @@ let make_network input_shape =
 </code></pre>
 </div>
 <p>Result: accuracy.</p>
-<p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neuron such as <code>pooling</code> work, how these networks are constructured etc. Plese refer to these chapters for more detailed understanding about convolutional neural network.</p>
+<p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neurons such as <code>pooling</code> work, how these networks are constructed etc. Please refer to these chapters for more detailed understanding about convolutional neural network.</p>
 </section>
 <section class="level2" id="recurrent-neural-network">
 <h2>Recurrent Neural Network</h2>
-<p>The figures in this sections comes from <a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">colah’s blog</a>.</p>
-<p>In all the previous examples, even the computer vision tasks, the pattern is obvious to see: given one input, the trained network generates another output. However, that’s not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. For example, if we need to generate English based on French, or label each frame in a video, only focuing on the current word/frame is not enough.</p>
+<p>The figures in this sections come from <a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">colah’s blog</a>.</p>
+<p>In all the previous examples, even the computer vision tasks, the pattern is obvious to see: given one input, the trained network generates another output. However, that’s not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. For example, if we need to generate English based on French, or label each frame in a video, only focusing on the current word/frame is not enough.</p>
 <p>That’s where the Recurrent Neural Network (RNN) comes to help. It allows the input and output to be in sequence. The basic structure of RNN is quite simple: it is a neural network with loops, and the output of the previous loop is fed into the next loop as input, together with the current data in sequence. In this way, the information from previous data in the sequence is kept.</p>
 <figure>
 <img alt="" style="width:80.0%" id="fig:neural-network:rnn-unrolled" title="rnn-unrolled" src="images/neural-network/rnn-unrolled.png"><figcaption>Figure 6: Unroll the recurrent neural network</figcaption>
@@ -485,7 +481,7 @@ let make_network input_shape =
 <figure>
 <img alt="" style="width:80.0%" id="fig:neural-network:rnn-unit" title="rnn-unit" src="images/neural-network/rnn-unit.png"><figcaption>Figure 7: Basic processing unit in classic recurrent neural network</figcaption>
 </figure>
-<p>In a vanilla recurrent neural network, the function can be really simple and familar:</p>
+<p>In a vanilla recurrent neural network, the function can be really simple and familiar:</p>
 <p><span id="eq:neural-network:update"><span class="math display">\[h_i = \textrm{activation}(w(h_{i-1}x_i) + b).\qquad(2)\]</span></span></p>
 <p>This is exactly what we have seen in the feed forward networks. Here <code>w</code> and <code>b</code> are the parameter to be trained in this RNN. This process is shown in fig.&nbsp;7. The activation function here is usually the <code>tanh</code> function to keep the value within range of <code>[-1, 1]</code>.</p>
 <p>However, this unit has a problem. Think about it: it’s like you keep updating a diary based on input data; after a while, the information from the old days will certainly be flooded out with the new information. It’s exactly like what Sherlock Holmes describes how brain works: if you keep dumping information into your head, you will have to throw away existing stuff out, be it useful or not. As a result, in this RNN the old data in the sequence would have diminishing effect on the output, which means the output would be less sensitive to the context. That’s why currently when put into use, we often a special kind of RNN: the Long/Short Term Memory (LSTM).</p>
@@ -495,14 +491,14 @@ let make_network input_shape =
 <figure>
 <img alt="" style="width:80.0%" id="fig:neural-network:lstm" title="lstm" src="images/neural-network/lstm.png"><figcaption>Figure 8: Basic processing unit in LSTM</figcaption>
 </figure>
-<p>Let’s then see how it achieves this effecct. The process unit of LSTM is shown in fig.&nbsp;8. It consists of three part that corresponds to the three choices listed above.</p>
-<p>Unlike standard RNN, each unit also takes in and procduces a state <span class="math inline">\(C\)</span> that flows along the whole loop process. This state is modified twice within the unit.</p>
-<p>The first part is called <em>forget gate layer</em>. It combines the output <span class="math inline">\(h_{t-1}\)</span> from previous loop and the the data <span class="math inline">\(x_i\)</span>, and outputs a probablity number between [0, 1] to decide how much of the existing information should be kept. This probablity, as you may have guessed, is achieved using the <code>sigmoid</code> activation function, denoted by <span class="math inline">\(\sigma\)</span>.</p>
-<p>Next, we need to decide “what to remember” from the exising data. This is done with two branches. The first branch uses the <code>sigmoid</code> function to denote which part of the new data <span class="math inline">\(h_{t-1}+x_t\)</span> should be updated, and the second branch using the <code>tanh</code> function decide how much value to update for the vector. Both branch follow the procedure in eq.&nbsp;2, but with different <code>w</code> and <code>b</code> parameters.</p>
-<p>By multiplying these two branches together, we know how much new information we should add to the information flow <span class="math inline">\(C\)</span>. The flow <span class="math inline">\(C\)</span> is therefore first multiplied with the output from the <em>forget gate</em> to remove unnecessary information, and it adds the output from the second step to gain necessary know knoledge.</p>
+<p>Let’s then see how it achieves this effect. The process unit of LSTM is shown in fig.&nbsp;8. It consists of three parts that corresponds to the three choices listed above.</p>
+<p>Unlike standard RNN, each unit also takes in and produces a state <span class="math inline">\(C\)</span> that flows along the whole loop process. This state is modified twice within the unit.</p>
+<p>The first part is called <em>forget gate layer</em>. It combines the output <span class="math inline">\(h_{t-1}\)</span> from previous loop and the data <span class="math inline">\(x_i\)</span>, and outputs a probability number between [0, 1] to decide how much of the existing information should be kept. This probability, as you may have guessed, is achieved using the <code>sigmoid</code> activation function, denoted by <span class="math inline">\(\sigma\)</span>.</p>
+<p>Next, we need to decide “what to remember” from the existing data. This is done with two branches. The first branch uses the <code>sigmoid</code> function to denote which part of the new data <span class="math inline">\(h_{t-1}+x_t\)</span> should be updated, and the second branch using the <code>tanh</code> function decides how much value to update for the vector. Both branches follow the procedure in eq.&nbsp;2, but with different <code>w</code> and <code>b</code> parameters.</p>
+<p>By multiplying these two branches together, we know how much new information we should add to the information flow <span class="math inline">\(C\)</span>. The flow <span class="math inline">\(C\)</span> is therefore first multiplied with the output from the <em>forget gate</em> to remove unnecessary information, and it adds the output from the second step to gain necessary know knowledge.</p>
 <p>Now the only step left is to decide what to output. This time again we first run a <code>sigmoid</code> function to decide which part of information flow <span class="math inline">\(C\)</span> to keep, and then apply this filter to a <code>tanh</code>-scaled information flow to finally get the output <span class="math inline">\(h_t\)</span>.</p>
 <p>LSTM: wide application.</p>
-<p>Using the neural network module in Owl, we can easily built a RNN that generates text by itself, follwing the style of existing text, say, Alice’s Adventures in Wonderland.</p>
+<p>Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of existing text, say, Alice’s Adventures in Wonderland.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Neural.S
 open Neural.S.Graph
@@ -515,7 +511,7 @@ let make_network wndsz vocabsz =
   |&gt; linear vocabsz ~act_typ:Activation.(Softmax 1)
   |&gt; get_network</code></pre>
 </div>
-<p>That’s it. The network is even simpler than than of the CNN. However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> to take a look if you are interested.</p>
+<p>That’s it. The network is even simpler than that of the CNN. However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> to take a look if you are interested.</p>
 <p>Here the only parameter to need to specify in building the LSTM is the length of vectors.</p>
 <p>EXPLAIN more about this example.</p>
 <div class="highlight">
@@ -538,12 +534,12 @@ let make_network wndsz vocabsz =
 <figure>
 <img alt="" style="width:80.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 9: Basic processing unit in GRU</figcaption>
 </figure>
-<p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decide how much information to forget from the past, and then then “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with less operations, and therefore is a bit faster than LSTM in training.</p>
+<p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decide how much information to forget from the past, and then then “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training.</p>
 </section>
 </section>
 <section class="level2" id="generative-adversarial-network">
 <h2>Generative Adversarial Network</h2>
-<p>There is one more type of neural network we need to discus. Actually it’s not a paticular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator. During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. This mutual decption process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means we human beings are also not very like to do that). This approach is successfully applied in mnany applications, such as Pix2Pix, face ageing, increase photo resolution, etc. In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.</p>
+<p>There is one more type of neural network we need to discuss. Actually it’s not a particular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator. During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. This mutual deception process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means us human beings are also not very like to do that). This approach is successfully applied in many applications, such as Pix2Pix, face ageing, increase photo resolution, etc. In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.</p>
 <p>Here is an example of defining a GAN with the neural network module. (<a href="https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889">Reference</a>)</p>
 <p>Generateor:</p>
 <div class="highlight">
@@ -570,13 +566,16 @@ let make_network input_shape =
   input input_shape
   |&gt; fully_connected 512 ~act_typ:(Activation.LeakyRelu 0.2)
   |&gt; linear 256 ~act_typ:(Activation.LeakyRelu 0.2)
-  |&gt; linear 1 ~act_typ:Activation.Sigmoid 
+  |&gt; linear 1 ~act_typ:Activation.Sigmoid
   |&gt; get_network</code></pre>
 </div>
 <p>TODO: introduce more about how to use these two parts to generate handwitten digits.</p>
 </section>
-<section class="level2 unnumbered" id="summary">
-<h2 class="unnumbered">Summary</h2>
+<section class="level2" id="summary">
+<h2>Summary</h2>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-glorot2010understanding">
 <p>Glorot, Xavier, and Yoshua Bengio. 2010. “Understanding the Difficulty of Training Deep Feedforward Neural Networks.” In <em>Proceedings of the Thirteenth International Conference on Artificial Intelligence and Statistics</em>, 249–56.</p>

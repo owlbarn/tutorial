@@ -138,7 +138,7 @@ let j t0 t1 x y =
   	   Arr.(sub (ones (shape z)) z))
 ```
 
-Here the the `cross_entropy y x` means $-h~\log(x)$.
+Here the `cross_entropy y x` means $-h~\log(x)$.
 
 In the regression chapter, to find the suitable parameters that minimise $J$, we iteratively apply:
 
