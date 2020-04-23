@@ -842,8 +842,7 @@ let sample nn vocab wndsz tlen x =
   |> flush_all
 ```
 
-
-Result. 
+EXPLAIN how to generate the text based on model.
 
 
 **Gated Recurrent Unit (GRU)**
@@ -867,7 +866,40 @@ This mutual decption process is iterated until the discriminator can no longer t
 This approach is successfully applied in mnany applications, such as Pix2Pix, face ageing, increase photo resolution, etc.
 In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world. 
 
-Here is an example of defining a GAN with the neural network module. 
-TODO: define the structure. 
+Here is an example of defining a GAN with the neural network module. ([Reference](https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889))
+
+Generateor:
+
+```ocaml env=neural-network:gan
+open Neural.S
+open Neural.S.Graph
+open Neural.S.Algodiff
+
+let make_network input_shape =
+  let out_size = Owl_utils_array.fold_left ( * ) 1 input_shape in
+  input input_shape
+  |> fully_connected 256 ~act_typ:(Activation.LeakyRelu 0.2)
+  |> normalisation ~decay:0.8
+  |> linear 512 ~act_typ:(Activation.LeakyRelu 0.2)
+  |> normalisation ~decay:0.8
+  |> linear 1024 ~act_typ:(Activation.LeakyRelu 0.2)
+  |> normalisation ~decay:0.8
+  |> linear out_size ~act_typ:Activation.Tanh
+  |> reshape input_shape
+  |> get_network
+```
+
+Decoder:
+
+```ocaml env=neural-network:gan
+let make_discriminator input_shape =
+  input input_shape
+  |> fully_connected 512 ~act_typ:(Activation.LeakyRelu 0.2)
+  |> linear 256 ~act_typ:(Activation.LeakyRelu 0.2)
+  |> linear 1 ~act_typ:Activation.Sigmoid 
+  |> get_network
+```
+
+TODO: introduce more about how to use these two parts to generate handwitten digits.
 
 ## Summary

@@ -532,7 +532,7 @@ let make_network wndsz vocabsz =
   |&gt; Printf.printf "generated text: %s\n"
   |&gt; flush_all</code></pre>
 </div>
-<p>Result.</p>
+<p>EXPLAIN how to generate the text based on model.</p>
 <p><strong>Gated Recurrent Unit (GRU)</strong></p>
 <p>The LSTM is kept refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;9.</p>
 <figure>
@@ -544,7 +544,36 @@ let make_network wndsz vocabsz =
 <section class="level2" id="generative-adversarial-network">
 <h2>Generative Adversarial Network</h2>
 <p>There is one more type of neural network we need to discus. Actually it’s not a paticular type of neural network with new neurons, but more like a huge family of networks that consists of two parts: generator and discriminator. During training, the generator tries its best to synthesises images based on existing parameters, and the discriminator tries its best to separate the generated data and true data. This mutual decption process is iterated until the discriminator can no longer tell the difference between the generated data and the true data (which means we human beings are also not very like to do that). This approach is successfully applied in mnany applications, such as Pix2Pix, face ageing, increase photo resolution, etc. In these applications, the generators are required to generate images that just do not exist but somehow are real enough to fool the people to think that they do exist in the real world.</p>
-<p>Here is an example of defining a GAN with the neural network module. TODO: define the structure.</p>
+<p>Here is an example of defining a GAN with the neural network module. (<a href="https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889">Reference</a>)</p>
+<p>Generateor:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Neural.S
+open Neural.S.Graph
+open Neural.S.Algodiff
+
+let make_network input_shape =
+  let out_size = Owl_utils_array.fold_left ( * ) 1 input_shape in
+  input input_shape
+  |&gt; fully_connected 256 ~act_typ:(Activation.LeakyRelu 0.2)
+  |&gt; normalisation ~decay:0.8
+  |&gt; linear 512 ~act_typ:(Activation.LeakyRelu 0.2)
+  |&gt; normalisation ~decay:0.8
+  |&gt; linear 1024 ~act_typ:(Activation.LeakyRelu 0.2)
+  |&gt; normalisation ~decay:0.8
+  |&gt; linear out_size ~act_typ:Activation.Tanh
+  |&gt; reshape input_shape
+  |&gt; get_network</code></pre>
+</div>
+<p>Decoder:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let make_discriminator input_shape =
+  input input_shape
+  |&gt; fully_connected 512 ~act_typ:(Activation.LeakyRelu 0.2)
+  |&gt; linear 256 ~act_typ:(Activation.LeakyRelu 0.2)
+  |&gt; linear 1 ~act_typ:Activation.Sigmoid 
+  |&gt; get_network</code></pre>
+</div>
+<p>TODO: introduce more about how to use these two parts to generate handwitten digits.</p>
 </section>
 <section class="level2 unnumbered" id="summary">
 <h2 class="unnumbered">Summary</h2>
