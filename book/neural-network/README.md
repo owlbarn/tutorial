@@ -935,4 +935,14 @@ They may require much more complex network structure, but the general idea of GA
 
 ## Summary
 
+A recap of what we have learnt in this chapter:
+
+- The most basic and early form of neural network: perceptron
+- Manually build feedforward network to perform muli-class handwritten digit recognition by extending logistic regression
+- Introduction of the Neural Network module, including the how it works and how it is built
+- The training paramter setting regression module in Owl
+- Introduction to the convolutional neural network, and its superior performance against simple feedforward network
+- Introduction of the recurrent neural network, including two of its variants: the LSTM and GRU
+- Introduction of the basic idea of Generative Adverserial Network
+
 ## References
