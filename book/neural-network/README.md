@@ -729,7 +729,8 @@ The training method is exactly the same as before, and the training accuracy we 
 
 Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: **image recognition**, **instance segmentation**, and **neural style transfer** to demonstrate how we can use Owl to implement these state-of-art computer vision networks.
 We will then also introduce how these different neurons such as `pooling` work, how these networks are constructed etc.
-Please refer to these chapters for more detailed understanding about convolutional neural network.
+Please check these chapters for more examples on building CNN in Owl.
+Another great reference on this topic is the Stanford CS class CS231n: Convolutional Neural Networks for Visual Recognition. We refer you to its [course notes](https://cs231n.github.io/) for more detailed information.
 
 
 ## Recurrent Neural Network
