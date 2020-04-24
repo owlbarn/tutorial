@@ -463,7 +463,7 @@ let make_network input_shape =
 </code></pre>
 </div>
 <p>The training method is exactly the same as before, and the training accuracy we can achieve about 93.3%, within only one 0.1 epoch. Compare this result to the previous simple feedforward network, and we can see the effectiveness of CNN.</p>
-<p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neurons such as <code>pooling</code> work, how these networks are constructed etc. Please refer to these chapters for more detailed understanding about convolutional neural network.</p>
+<p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neurons such as <code>pooling</code> work, how these networks are constructed etc. Please check these chapters for more examples on building CNN in Owl. Another great reference on this topic is the Stanford CS class CS231n: Convolutional Neural Networks for Visual Recognition. We refer you to its <a href="https://cs231n.github.io/">course notes</a> for more detailed information.</p>
 </section>
 <section class="level2" id="recurrent-neural-network">
 <h2>Recurrent Neural Network</h2>
@@ -572,6 +572,16 @@ let make_generator input_shape =
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
+<p>A recap of what we have learnt in this chapter:</p>
+<ul>
+<li>The most basic and early form of neural network: perceptron</li>
+<li>Manually build feedforward network to perform muli-class handwritten digit recognition by extending logistic regression</li>
+<li>Introduction of the Neural Network module, including the how it works and how it is built</li>
+<li>The training paramter setting regression module in Owl</li>
+<li>Introduction to the convolutional neural network, and its superior performance against simple feedforward network</li>
+<li>Introduction of the recurrent neural network, including two of its variants: the LSTM and GRU</li>
+<li>Introduction of the basic idea of Generative Adverserial Network</li>
+</ul>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
