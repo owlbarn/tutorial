@@ -1,9 +1,7 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Deep Neural Networks - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="deep-neural-networks">
 <h1>Deep Neural Networks</h1>
-<section class="level2" id="introduction">
-<h2>Introduction</h2>
-<p>Brain neuron ect.</p>
-</section>
+<p>The Neural Network has been a hot research topic and widely used in engineering and social life. The name “neural network” and its original idea comes from modelling how (the computer scientists think) the biological neural systems work. The signal processing in neurons are modelled as computation, and the complex transmission and triggering of impulses are simplified as activations, etc.</p>
+<p>Since the inception of this idea in about 1940’s, the neural network has been revised and achieved astounding result. In this chapter, we will first explain that, as complex as it seems, the neural network is nothing more than a step forward based on the regression we have introduced. Then we will present the neural network module, including how to use it and how this module is designed and built based on existing mechanisms such as Algorithmic Differentiation and Optimisation. After we are familiar the basic feedforward neural network and the Owl module, we then proceed to introduced some more advanced type of neural networks, including the Convolutional Neural Network, the Recurrent Neural Network, and Generative Adversarial Network. Let’s begin.</p>
 <section class="level2" id="perceptron">
 <h2>Perceptron</h2>
 <p>Before diving into the complex neural network structures, let’s briefly recount where everything begins: the <em>perceptron</em>. The definition is actually very similar to that of logistic regression. Look at fig.&nbsp;1(a) and remember that logistic regression can be expressed as:</p>
@@ -106,7 +104,6 @@ let theta0' =  adjval t0 |&gt; unpack_arr
 let theta1' =  adjval t1 |&gt; unpack_arr</code></pre>
 </div>
 <p>That’s it for one iteration. We get <span class="math inline">\(\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)\)</span>, and then can iteratively update the <span class="math inline">\(\Theta\)</span> parameters.</p>
-<p>TODO: finish this example with accuracy value.</p>
 </section>
 </section>
 <section class="level2" id="feed-forward-network">
@@ -115,7 +112,7 @@ let theta1' =  adjval t1 |&gt; unpack_arr</code></pre>
 <section class="level3" id="layers">
 <h3>Layers</h3>
 <p>First, the previous example mixes all the computation together. We need to add the abstraction of <em>layer</em> as the building block of neural network instead of numerous basic computations. The following code defines the layer and network type, both are OCaml record types.</p>
-<p>Also note that for each layer, besides the matrix multiplication, we also added an extra <em>bias</em> (Explain). Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
+<p>Also note that for each layer, besides the matrix multiplication, we also added an extra <em>bias</em> parameter. The bias vector influences the output without actually interacting with the data. Each linear layer performs the following calculation where <span class="math inline">\(a\)</span> is a non-linear activation function.</p>
 <p><span class="math display">\[ y = a(x \times w + b) \]</span></p>
 <p>Each layer consists of three components: weight <code>w</code>, bias <code>b</code>, and activation function <code>a</code>. A network is just a collection of layers.</p>
 <div class="highlight">
@@ -248,7 +245,6 @@ let nn = {layers = [|l0; l1|]}</code></pre>
 <figure>
 <img alt="" style="width:40.0%" id="fig:neural-network:plot01" title="plot_01" src="images/neural-network/plot_01.png"><figcaption>Figure 4: Prediction from the model</figcaption>
 </figure>
-<p>TODO: replace with code.</p>
 </section>
 </section>
 <section class="level2" id="neural-network-module">
@@ -382,7 +378,7 @@ let make_network () =
 </div>
 <p>In parameters we can use <code>Batch</code> module to specify how the training data are batched. In the definition of cost functions, we often assume that to update the parameters, we need to include all the data. This approach is <code>Batch.Full</code>. However, for large scale training task, there can be millions of training data. Besides the memory issue, it is also a waste to wait for all the data to be processed to get an updated parameter.</p>
 <p>The mostly commonly used batching method is mini-batch (<code>Batch.Mini</code>). It only takes a small part of the training data. As long the data is fully covered after certain number of iterations, this approach is mathematically equivalent to the full batch. However, this method is usually more efficient, since most of time, the training data are often correlated. You don’t need to cover all the training data. For example, if you have seen 10 cat images, then probably your model does not need to be trained on another 10 cat images to get a fairly good model to recognise cat.</p>
-<p>To move this method to extreme where only one data sample is used every time, we get the <em>stochastic</em> batch (<code>Batch.Stochastic</code>). It is often not a very good choice, since the vectorised computation optimisation will then not be efficiently utilised.</p>
+<p>To move this method to extreme where only one data sample is used every time, we get the <em>stochastic</em> batch (<code>Batch.Stochastic</code>) method. It is often not a very good choice, since the vectorised computation optimisation will then not be efficiently utilised.</p>
 <p>Another batching approach is <code>Batch.Sample</code>. It is the same as mini batch, except that every mini batch is randomly chosen from the training data. It is especially important for the data that are “in order”. Imagine that in the MNIST task, all the training data are ordered according to the digit value. In that case, you may have a model that only works for the lower digits like 0, 1, and 2 at the beginning.</p>
 <div class="highlight">
 <pre><code class="language-clike">let yt', ws = forward xt</code></pre>
@@ -441,17 +437,17 @@ let loss = Maths.(loss + reg)</code></pre>
   let accu = Dense.Matrix.S.(elt_equal pred fact |&gt; sum') in
   Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))</code></pre>
 </div>
-<p>The result shows that we can achieve an accuracy of .</p>
+<p>The result shows that we can achieve an accuracy of 71.7% with only 0.1 epoch. Increase the training epoch to 1, and the the accuracy will be improved to 88.2%. Further changing the epoch number to 2 can lead to an accuracy of about 90%. This result is OK, but not very ideal. Next we will see how a new type of neuron can improve the performance of the network dramatically.</p>
 </section>
 </section>
 <section class="level2" id="convolutional-neural-network">
 <h2>Convolutional Neural Network</h2>
 <p>So far we have seen how an example of fully connected feed forward neural network evolves step by step. However, there is so much more than just this kind of neural networks. One of the most widely used is the <em>convolution neural network</em>.</p>
-<p>We have seen the 1D convolution from signal processing chapter. The 2D convolution is… (explain)</p>
-<p>FIGURE</p>
-<p>Its property and why suitable for the computer vision tasks.</p>
-<p>To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc. They are enough to support building state-of-the-art network structures.</p>
-<p>These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.</p>
+<p>We have seen the 1D convolution from signal processing chapter. The 2D convolution is similar, and the only difference is that now the input and filter/kernel are both matrices instead of vectors. As shown in fig.&nbsp;6 (<a href="https://github.com/PetarV-/TikZ/tree/master/2D%20Convolution">src</a>), the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel. This operation is especially good at capturing the features in images. It is the key to image process in neural network.</p>
+<figure>
+<img alt="" style="width:90.0%" id="fig:neural-network:conv2d" title="conv2d" src="images/neural-network/conv2d.png"><figcaption>Figure 6: Convolution Operation on 2-dimension space</figcaption>
+</figure>
+<p>To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc. They are enough to support building state-of-the-art network structures. These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.</p>
 <p>Since the MNIST handwritten recognition task is also a computer vision task, let’s use the CNN to do it again. The code below creates a small convolutional neural network of six layers.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -466,7 +462,7 @@ let make_network input_shape =
   |&gt; get_network
 </code></pre>
 </div>
-<p>Result: accuracy.</p>
+<p>The training method is exactly the same as before, and the training accuracy we can achieve about 93.3%, within only one 0.1 epoch. Compare this result to the previous simple feedforward network, and we can see the effectiveness of CNN.</p>
 <p>Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: <strong>image recognition</strong>, <strong>instance segmentation</strong>, and <strong>neural style transfer</strong> to demonstrate how we can use Owl to implement these state-of-art computer vision networks. We will then also introduce how these different neurons such as <code>pooling</code> work, how these networks are constructed etc. Please refer to these chapters for more detailed understanding about convolutional neural network.</p>
 </section>
 <section class="level2" id="recurrent-neural-network">
@@ -475,30 +471,29 @@ let make_network input_shape =
 <p>In all the previous examples, even the computer vision tasks, the pattern is obvious to see: given one input, the trained network generates another output. However, that’s not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. For example, if we need to generate English based on French, or label each frame in a video, only focusing on the current word/frame is not enough.</p>
 <p>That’s where the Recurrent Neural Network (RNN) comes to help. It allows the input and output to be in sequence. The basic structure of RNN is quite simple: it is a neural network with loops, and the output of the previous loop is fed into the next loop as input, together with the current data in sequence. In this way, the information from previous data in the sequence is kept.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unrolled" title="rnn-unrolled" src="images/neural-network/rnn-unrolled.png"><figcaption>Figure 6: Unroll the recurrent neural network</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unrolled" title="rnn-unrolled" src="images/neural-network/rnn-unrolled.png"><figcaption>Figure 7: Unroll the recurrent neural network</figcaption>
 </figure>
-<p>As shown in fig.&nbsp;6, a RNN can actually be unrolled into a chain of multiple connected neural networks. Here the <span class="math inline">\(x_i\)</span>’s are sequential input, and the <span class="math inline">\(h_i\)</span>’s are the <em>hidden status</em>, or output of the RNN. The function of RNN therefore mainly relies on the processing logic in <span class="math inline">\(A\)</span>.</p>
+<p>As shown in fig.&nbsp;7, a RNN can actually be unrolled into a chain of multiple connected neural networks. Here the <span class="math inline">\(x_i\)</span>’s are sequential input, and the <span class="math inline">\(h_i\)</span>’s are the <em>hidden status</em>, or output of the RNN. The function of RNN therefore mainly relies on the processing logic in <span class="math inline">\(A\)</span>.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unit" title="rnn-unit" src="images/neural-network/rnn-unit.png"><figcaption>Figure 7: Basic processing unit in classic recurrent neural network</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unit" title="rnn-unit" src="images/neural-network/rnn-unit.png"><figcaption>Figure 8: Basic processing unit in classic recurrent neural network</figcaption>
 </figure>
 <p>In a vanilla recurrent neural network, the function can be really simple and familiar:</p>
 <p><span id="eq:neural-network:update"><span class="math display">\[h_i = \textrm{activation}(w(h_{i-1}x_i) + b).\qquad(2)\]</span></span></p>
-<p>This is exactly what we have seen in the feed forward networks. Here <code>w</code> and <code>b</code> are the parameter to be trained in this RNN. This process is shown in fig.&nbsp;7. The activation function here is usually the <code>tanh</code> function to keep the value within range of <code>[-1, 1]</code>.</p>
+<p>This is exactly what we have seen in the feed forward networks. Here <code>w</code> and <code>b</code> are the parameters to be trained in this RNN. This process is shown in fig.&nbsp;8. The activation function here is usually the <code>tanh</code> function to keep the value within range of <code>[-1, 1]</code>.</p>
 <p>However, this unit has a problem. Think about it: it’s like you keep updating a diary based on input data; after a while, the information from the old days will certainly be flooded out with the new information. It’s exactly like what Sherlock Holmes describes how brain works: if you keep dumping information into your head, you will have to throw away existing stuff out, be it useful or not. As a result, in this RNN the old data in the sequence would have diminishing effect on the output, which means the output would be less sensitive to the context. That’s why currently when put into use, we often a special kind of RNN: the Long/Short Term Memory (LSTM).</p>
 <section class="level3" id="long-short-term-memory-lstm">
 <h3>Long Short Term Memory (LSTM)</h3>
 <p>LSTM is proposed by Hochreiter &amp; Schmidhuber (1997) and since widely used and refined by many work. Based on RNN, the basic idea of LSTM is simple. We still need to pass in the output from previous loop, but instead of take it as is, the processing unit make three choices: 1) what to forget, 2) what to remember, and 3) what to output. In this way, the useful information from previous data can be kept longer and the RNN would then have a “longer memory”.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:lstm" title="lstm" src="images/neural-network/lstm.png"><figcaption>Figure 8: Basic processing unit in LSTM</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:lstm" title="lstm" src="images/neural-network/lstm.png"><figcaption>Figure 9: Basic processing unit in LSTM</figcaption>
 </figure>
-<p>Let’s then see how it achieves this effect. The process unit of LSTM is shown in fig.&nbsp;8. It consists of three parts that corresponds to the three choices listed above.</p>
+<p>Let’s see how it achieves this effect. The process unit of LSTM is shown in fig.&nbsp;9. It consists of three parts that corresponds to the three choices listed above.</p>
 <p>Unlike standard RNN, each unit also takes in and produces a state <span class="math inline">\(C\)</span> that flows along the whole loop process. This state is modified twice within the unit.</p>
 <p>The first part is called <em>forget gate layer</em>. It combines the output <span class="math inline">\(h_{t-1}\)</span> from previous loop and the data <span class="math inline">\(x_i\)</span>, and outputs a probability number between [0, 1] to decide how much of the existing information should be kept. This probability, as you may have guessed, is achieved using the <code>sigmoid</code> activation function, denoted by <span class="math inline">\(\sigma\)</span>.</p>
 <p>Next, we need to decide “what to remember” from the existing data. This is done with two branches. The first branch uses the <code>sigmoid</code> function to denote which part of the new data <span class="math inline">\(h_{t-1}+x_t\)</span> should be updated, and the second branch using the <code>tanh</code> function decides how much value to update for the vector. Both branches follow the procedure in eq.&nbsp;2, but with different <code>w</code> and <code>b</code> parameters.</p>
 <p>By multiplying these two branches together, we know how much new information we should add to the information flow <span class="math inline">\(C\)</span>. The flow <span class="math inline">\(C\)</span> is therefore first multiplied with the output from the <em>forget gate</em> to remove unnecessary information, and it adds the output from the second step to gain necessary know knowledge.</p>
 <p>Now the only step left is to decide what to output. This time again we first run a <code>sigmoid</code> function to decide which part of information flow <span class="math inline">\(C\)</span> to keep, and then apply this filter to a <code>tanh</code>-scaled information flow to finally get the output <span class="math inline">\(h_t\)</span>.</p>
-<p>LSTM: wide application.</p>
-<p>Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of existing text, say, Alice’s Adventures in Wonderland.</p>
+<p>LSTM is widely used in time-series related applications such as speech recognition, time-series prediction, human action recognition, robot control, etc. Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of existing text, say, Alice’s Adventures in Wonderland.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Neural.S
 open Neural.S.Graph
@@ -512,8 +507,7 @@ let make_network wndsz vocabsz =
   |&gt; get_network</code></pre>
 </div>
 <p>That’s it. The network is even simpler than that of the CNN. However, the generated computation graph is way more complicated due to LSTM’s internal recurrent structure. You can download the <a href="https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf">PDF file 1</a> to take a look if you are interested.</p>
-<p>Here the only parameter to need to specify in building the LSTM is the length of vectors.</p>
-<p>EXPLAIN more about this example.</p>
+<p>The only parameter we need to specify in building the LSTM is the length of vectors. EXPLAIN more about this example.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let sample nn vocab wndsz tlen x =
   let all_char = Dense.Matrix.S.resize x [|1; wndsz + tlen|] in
@@ -528,13 +522,13 @@ let make_network wndsz vocabsz =
   |&gt; Printf.printf "generated text: %s\n"
   |&gt; flush_all</code></pre>
 </div>
-<p>EXPLAIN how to generate the text based on model.</p>
+<p>EXPLAIN how to generate the text based on model after NLP.</p>
 <p><strong>Gated Recurrent Unit (GRU)</strong></p>
-<p>The LSTM is kept refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;9.</p>
+<p>The LSTM is kept refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;10.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 9: Basic processing unit in GRU</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 10: Basic processing unit in GRU</figcaption>
 </figure>
-<p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decide how much information to forget from the past, and then then “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training.</p>
+<p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decide how much information to forget from the past, and then then “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training. In the LSTM code above, we can just replace the <code>lstm</code> node to <code>gru</code>.</p>
 </section>
 </section>
 <section class="level2" id="generative-adversarial-network">

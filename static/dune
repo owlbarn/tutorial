@@ -98,6 +98,7 @@
         images/maths/trio.png
         images/matrix/plot_00.png
         images/neural-network/activations.png
+        images/neural-network/conv2d.png
         images/neural-network/gru.png
         images/neural-network/lstm.png
         images/neural-network/neural_module.png

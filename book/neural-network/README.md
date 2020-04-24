@@ -1,8 +1,14 @@
 # Deep Neural Networks
 
-## Introduction
+The Neural Network has been a hot research topic and widely used in engineering and social life.
+The name "neural network" and its original idea comes from modelling how (the computer scientists think) the biological neural systems work.
+The signal processing in neurons are modelled as computation, and the complex transmission and triggering of impulses are simplified as activations, etc.
 
-Brain neuron ect.
+Since the inception of this idea in about 1940's, the neural network has been revised and achieved astounding result.
+In this chapter, we will first explain that, as complex as it seems, the neural network is nothing more than a step forward based on the regression we have introduced.
+Then we will present the neural network module, including how to use it and how this module is designed and built based on existing mechanisms such as Algorithmic Differentiation and Optimisation.
+After we are familiar the basic feedforward neural network and the Owl module, we then proceed to introduced some more advanced type of neural networks, including the Convolutional Neural Network, the Recurrent Neural Network, and Generative Adversarial Network.
+Let's begin.
 
 ## Perceptron
 
@@ -161,8 +167,6 @@ let theta1' =  adjval t1 |> unpack_arr
 That's it for one iteration.
 We get $\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1)$, and then can iteratively update the $\Theta$ parameters.
 
-TODO: finish this example with accuracy value.
-
 ## Feed Forward Network
 
 In the next step, we revise the previous example, with a bit of more details added.
@@ -173,8 +177,7 @@ First, the previous example mixes all the computation together.
 We need to add the abstraction of *layer* as the building block of neural network instead of numerous basic computations.
 The following code defines the layer and network type, both are OCaml record types.
 
-Also note that for each layer, besides the matrix multiplication, we also added an extra *bias*
-(Explain).
+Also note that for each layer, besides the matrix multiplication, we also added an extra *bias* parameter. The bias vector influences the output without actually interacting with the data.
 Each linear layer performs the following calculation where $a$ is a non-linear activation function.
 
 $$ y = a(x \times w + b) $$
@@ -374,8 +377,6 @@ When the training starts, our application keeps printing the value of loss funct
 After training finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction, we see the model says with $90.14%$ chance it is a number 3, which is quite accurate.
 
 ![Prediction from the model](images/neural-network/plot_01.png "plot_01"){ width=40% #fig:neural-network:plot01 }
-
-TODO: replace with code.
 
 
 ## Neural Network Module
@@ -588,7 +589,7 @@ However, this method is usually more efficient, since most of time, the training
 You don't need to cover all the training data.
 For example, if you have seen 10 cat images, then probably your model does not need to be trained on another 10 cat images to get a fairly good model to recognise cat.
 
-To move this method to extreme where only one data sample is used every time, we get the *stochastic* batch (`Batch.Stochastic`).
+To move this method to extreme where only one data sample is used every time, we get the *stochastic* batch (`Batch.Stochastic`) method.
 It is often not a very good choice, since the vectorised computation optimisation will then not be efficiently utilised.
 
 Another batching approach is `Batch.Sample`. It is the same as mini batch, except that every mini batch is randomly chosen from the training data.
@@ -684,7 +685,10 @@ let test network =
   Owl_log.info "Accuracy on test set: %f" (accu /. (float_of_int m))
 ```
 
-The result shows that we can achieve an accuracy of .
+The result shows that we can achieve an accuracy of 71.7% with only 0.1 epoch.
+Increase the training epoch to 1, and the the accuracy will be improved to 88.2%.
+Further changing the epoch number to 2 can lead to an accuracy of about 90%.
+This result is OK, but not very ideal. Next we will see how a new type of neuron can improve the performance of the network dramatically.
 
 ## Convolutional Neural Network
 
@@ -693,15 +697,15 @@ However, there is so much more than just this kind of neural networks.
 One of the most widely used is the *convolution neural network*.
 
 We have seen the 1D convolution from signal processing chapter.
-The 2D convolution is... (explain)
+The 2D convolution is similar, and the only difference is that now the input and filter/kernel are both matrices instead of vectors.
+As shown in [@fig:neural-network:conv2d] ([src](https://github.com/PetarV-/TikZ/tree/master/2D%20Convolution)), the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel.
+This operation is especially good at capturing the features in images.
+It is the key to image process in neural network.
 
-FIGURE
-
-Its property and why suitable for the computer vision tasks.
+![Convolution Operation on 2-dimension space](images/neural-network/conv2d.png "conv2d"){width=90% #fig:neural-network:conv2d}
 
 To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc.
 They are enough to support building state-of-the-art network structures.
-
 These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.
 
 Since the MNIST handwritten recognition task is also a computer vision task, let's use the CNN to do it again.
@@ -721,7 +725,7 @@ let make_network input_shape =
 
 ```
 
-Result: accuracy.
+The training method is exactly the same as before, and the training accuracy we can achieve about 93.3%, within only one 0.1 epoch. Compare this result to the previous simple feedforward network, and we can see the effectiveness of CNN.
 
 Actually, the convolutional neural network is such an important driving force in the computer vision that in the Part III of this book we have prepared three cases: **image recognition**, **instance segmentation**, and **neural style transfer** to demonstrate how we can use Owl to implement these state-of-art computer vision networks.
 We will then also introduce how these different neurons such as `pooling` work, how these networks are constructed etc.
@@ -753,7 +757,7 @@ In a vanilla recurrent neural network, the function can be really simple and fam
 
 $$h_i = \textrm{activation}(w(h_{i-1}x_i) + b).$$ {#eq:neural-network:update}
 
-This is exactly what we have seen in the feed forward networks. Here `w` and `b` are the parameter to be trained in this RNN.
+This is exactly what we have seen in the feed forward networks. Here `w` and `b` are the parameters to be trained in this RNN.
 This process is shown in [@fig:neural-network:rnn-unit].
 The activation function here is usually the `tanh` function to keep the value within range of `[-1, 1]`.
 
@@ -773,7 +777,7 @@ In this way, the useful information from previous data can be kept longer and th
 
 ![Basic processing unit in LSTM](images/neural-network/lstm.png "lstm"){width=80% #fig:neural-network:lstm}
 
-Let's then see how it achieves this effect.
+Let's see how it achieves this effect.
 The process unit of LSTM is shown in [@fig:neural-network:lstm].
 It consists of three parts that corresponds to the three choices listed above.
 
@@ -795,8 +799,7 @@ The flow $C$ is therefore first multiplied with the output from the *forget gate
 Now the only step left is to decide what to output.
 This time again we first run a `sigmoid` function to decide which part of information flow $C$ to keep, and then apply this filter to a `tanh`-scaled information flow to finally get the output $h_t$.
 
-LSTM: wide application.
-
+LSTM is widely used in time-series related applications such as speech recognition, time-series prediction, human action recognition, robot control, etc.
 Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of existing text, say, Alice's Adventures in Wonderland.
 
 ```ocaml env=neural-network:lstm-example01
@@ -815,9 +818,7 @@ let make_network wndsz vocabsz =
 That's it. The network is even simpler than that of the CNN.
 However, the generated computation graph is way more complicated due to LSTM's internal recurrent structure. You can download the [PDF file 1](https://raw.githubusercontent.com/wiki/ryanrhymes/owl/image/plot_030.pdf) to take a look if you are interested.
 
-Here the only parameter to need to specify in building the LSTM is the length of vectors.
-
-
+The only parameter we need to specify in building the LSTM is the length of vectors.
 EXPLAIN more about this example.
 
 ```ocaml env=neural-network:lstm-example01
@@ -835,7 +836,7 @@ let sample nn vocab wndsz tlen x =
   |> flush_all
 ```
 
-EXPLAIN how to generate the text based on model.
+EXPLAIN how to generate the text based on model after NLP.
 
 
 **Gated Recurrent Unit (GRU)**
@@ -850,9 +851,9 @@ Compared to LSTM, the GRU consists of two parts.
 The first is a "reset gate" that decide how much information to forget from the past, and then then "update gate" behaves like a combination of LSTM's forget and input gate.
 Besides, it also merges the information flow $C$ and output status $h$.
 With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training.
+In the LSTM code above, we can just replace the `lstm` node to `gru`.
 
 ## Generative Adversarial Network
-
 
 There is one more type of neural network we need to discuss.
 Actually it's not a particular type of neural network with new neurons like DNN or RNN, but more like a huge family of networks that shows a particular pattern.
