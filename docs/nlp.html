@@ -1,7 +1,8 @@
 <html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>Natural Language Processing - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="natural-language-processing">
 <h1>Natural Language Processing</h1>
-<p>Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing is a powerful tool to extract insights from text copora.</p>
-<p>This chapter focusses on the vector space models and topic modelling.</p>
+<p>Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing (NLP) is a powerful tool to extract insights from text corpora.</p>
+<p>NLP is a large topic that covers many different advanced problems, such as speech tagging, named entity recognition, machine translation, speech recognition, etc. We surely cannot cover all of them in this one single chapter, perhaps not even a whole book. To this end, in this chapter we mainly focus on the vector space models and topic modelling.</p>
+<p>TODO: Explain Topic modelling briefly</p>
 <p>TODO: this chapter now mainly lacks general text introduction of NLP.</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
@@ -13,12 +14,13 @@
 </section>
 <section class="level2" id="text-corpus">
 <h2>Text Corpus</h2>
-<p>We call a collection of documents a <em>text corpus</em>, which is normally a large and structured set of texts. Our news collection is also one such example. However, to perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.</p>
+<p>Normally we call a collection of documents a <em>text corpus</em>, which contains a large and structured set of texts. For example, for the English language there are the <a href="https://www.english-corpora.org/coca/">Corpus of Contemporary American English</a>, <a href="https://corpling.uis.georgetown.edu/gum">Georgetown University Multilayer Corpus</a>, etc. Our news collection is also one such example. To perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.</p>
+<p>TODO: A survey of annotation methods.</p>
+<p>For the task of topic modelling, we perform the tokenisation on the input English text. The target is to represent each word as an integer index so that we can further process the numbers instead of words. This is called the <em>tokenisation</em> of the text. Of course we also need to have a mapping from index to word.</p>
 <section class="level3" id="step-by-step-operation">
 <h3>Step-by-step Operation</h3>
 <p>The NLP module in Owl supports building a proper text corpus from given text dataset. In this section we will show how we can build a corpus from a collection of documents, in a step step way.</p>
-<p>In the first step, remove the special characters. We define a regular expression <code>regexp_split</code> for special characters such as <code>,</code>, <code>?</code>, <code>\t</code> etc.</p>
-<p>First remove them, and then convert all the text into lower-case. The code below define such a process function, and the <code>Nlp.Corpus.preprocess</code> apply it to all the text. Note this function will not change the number of lines in a corpus.</p>
+<p>In the first step, remove the special characters. We define a regular expression <code>regexp_split</code> for special characters such as <code>,</code>, <code>?</code>, <code>\t</code> etc. First remove them, and then convert all the text into lower-case. The code below define such a process function, and the <code>Nlp.Corpus.preprocess</code> apply it to all the text. Note this function will not change the number of lines in a corpus.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let simple_process s =
   Str.split Owl_nlp_utils.regexp_split s
@@ -38,19 +40,13 @@ let preprocess input_file =
   let output_file = input_file ^ ".vocab" in
   Nlp.Vocabulary.save vocab output_file</code></pre>
 </div>
-<div class="highlight">
-<pre><code class="language-text">2020-01-28 20:29:41.592 INFO : processed 13485, avg. 2696 docs/s
-2020-01-28 20:29:46.593 INFO : processed 24975, avg. 2497 docs/s
-2020-01-28 20:29:51.593 INFO : processed 39728, avg. 2648 docs/s
-...</code></pre>
-</div>
-<p>The returned result <code>vocab</code> contains three <code>Hasthtbl</code>. The first maps a word to an index, and the second index to word. The last hash table is a map between index and its frequency, i.e.&nbsp;number of occurrence in the whole text body. We can check out the words of highest frequency with:</p>
+<p>The <code>build</code> function returns a vocabulary. It contains three <code>Hasthtbl</code>s. The first maps a word to an index, and the second index to word. The last hash table is a map between index and its frequency, i.e.&nbsp;number of occurrence in the whole text body. We can check out the words of highest frequency with:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let print_freq vocab =
   Nlp.Vocabulary.top vocab 10 |&gt;
   Owl.Utils.Array.to_string ~sep:", " fst</code></pre>
 </div>
-<p>We can see that unsurprisingly, the “the”’s and “a”’s are most frequently used:</p>
+<p>Unsurprisingly, the “the”’s and “a”’s are most frequently used:</p>
 <div class="highlight">
 <pre><code class="language-text">- : string =
 "the, to, of, a, and, in, \", s, that, on"</code></pre>
@@ -59,12 +55,12 @@ let preprocess input_file =
 <div class="highlight">
 <pre><code class="language-text">"eichorst, gcs, freeross, depoliticisation, humping, shopable, appurify, intersperse, vyaecheslav, raphaelle"</code></pre>
 </div>
-<p>Now let’s trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely trimming off top and bottom 1% of the words.</p>
+<p>However, in a topic modelling task, we don’t want these too frequent but meaningless words and perhaps also the least frequent words that are not about the topic of this document. Now let’s trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely trimming off top and bottom 1% of the words.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let trim_vocabulary vocab =
   Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab</code></pre>
 </div>
-<p>With a vocabulary at hands, now we are ready to tokenise a piece of text.</p>
+<p>With a proper vocabulary at hands, now we are ready to tokenise a piece of text.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let tokenise vocab text =
   String.split_on_char ' ' text |&gt;
@@ -79,7 +75,6 @@ let preprocess input_file =
 <div class="highlight">
 <pre><code class="language-ocaml">let tokenise_all vocab input_file =
   let doc_s = Owl_utils.Stack.make () in
-
   Owl_io.iteri_lines_of_file
     (fun i s -&gt;
       let t =
@@ -90,51 +85,27 @@ let preprocess input_file =
       in
       Owl_utils.Stack.push doc_s i)
     input_file;
-
   doc_s</code></pre>
 </div>
-<p>Even though this is a simplified case, it well illustrates the typical starting point of text analysis before delving into any topic modelling.</p>
+<p>The process is simple: in the text corpus each line is a document and we iterate through the text line by line. For each line/document, we remove the special characters, filter out the words that exist in the vocabulary, and map each word to an integer index accordingly. Even though this is a simplified case, it well illustrates the typical starting point of text analysis before delving into any topic modelling.</p>
 </section>
-<section class="level3" id="use-corpus-module">
-<h3>Use Corpus Module</h3>
-<p>But we don’t have to build a text corpus step by step. We provide the <code>NLP.Corpus</code> module. A corpus is defined to contain these parts:</p>
-<ul>
-<li><code>uri</code> : path of the binary corpus</li>
-<li><code>bin_ofs</code> : an int array, index of the string corpus</li>
-<li><code>tok_ofs</code> : int array, index of the tokenised corpus</li>
-<li><code>bin_fh</code> : a file descriptor of the binary corpus</li>
-<li><code>tok_fh</code> : a file descriptor of the tokenised corpus</li>
-<li><code>vocab</code> : vocabulary of the corpus, as we have seen before</li>
-<li><code>minlen</code> : minimum length of document to save</li>
-<li><code>docid</code> : int array to show the document id, which can refer to original data</li>
-</ul>
-<p>Show how to build corpus using a convenient function in <code>Nlp.Corpus</code>. The convenient function builds the dictionary and tokenise the text corpus at the same time. You can further specify how to trim off the high-frequency and low-frequency words when calling the function.</p>
+<section class="level3" id="use-the-corpus-module">
+<h3>Use the Corpus Module</h3>
+<p>But we don’t have to build a text corpus step by step. We provide the <code>NLP.Corpus</code> module for convenience. By using the <code>Nlp.Corpus.build</code> we perform both tasks we have introduced: building vocabulary, and tokenising the text corpus. With this function we can also specify how to trim off the high-frequency and low-frequency words. Here is an example:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let main () =
-  (* remove duplicates *)
   let ids = Nlp.Corpus.unique "news.txt" "clean.txt" in
   Printf.printf "removed %i duplicates." (Array.length ids);
-
-  (* build vocabulary and tokenise *)
   let corpus = Nlp.Corpus.build ~lo:0.01 ~hi:0.01 "clean.txt" in
-  Nlp.Corpus.save corpus "news.corpus";
   Nlp.Corpus.print corpus</code></pre>
 </div>
-<p>The output is like this …</p>
+<p>The <code>Nlp.Corpus.unique</code> function is just one more layer of pre-processing. It removes the possible duplicated lines/documents. The output prints out the processing progress, and then a summary of the corpus is printed out.</p>
 <div class="highlight">
 <pre><code class="language-text">2020-01-28 19:07:05.461 INFO : build up vocabulary ...
 2020-01-28 19:07:10.461 INFO : processed 13587, avg. 2717 docs/s
 2020-01-28 19:07:15.463 INFO : processed 26447, avg. 2644 docs/s
-2020-01-28 19:07:20.463 INFO : processed 43713, avg. 2913 docs/s
-2020-01-28 19:07:25.463 INFO : processed 57699, avg. 2884 docs/s
-2020-01-28 19:07:30.463 INFO : processed 65537, avg. 2621 docs/s
-2020-01-28 19:07:35.463 INFO : processed 76199, avg. 2539 docs/s
 ...
 2020-01-28 19:08:09.125 INFO : convert to binary and tokenise ...
-2020-01-28 19:08:14.126 INFO : processed 16756, avg. 3350 docs/s
-2020-01-28 19:08:19.126 INFO : processed 32888, avg. 3288 docs/s
-2020-01-28 19:08:24.127 INFO : processed 43110, avg. 2873 docs/s
-2020-01-28 19:08:29.127 INFO : processed 48362, avg. 2417 docs/s
 2020-01-28 19:08:34.130 INFO : processed 52628, avg. 2104 docs/s
 2020-01-28 19:08:39.132 INFO : processed 55727, avg. 1857 docs/s
 ...
@@ -144,11 +115,20 @@ corpus info
   doc minlen : 10
 - : unit = ()</code></pre>
 </div>
-<p>The <code>save</code> function will create several files, explain these files …</p>
-</section>
-<section class="level3" id="iterate-documents">
-<h3>Iterate Documents</h3>
-<p>Teach how to use <code>Nlp.Corpus.next</code> and etc. to iterate and map documents.</p>
+<p>The corpus contains xxx parts: the vocabulary, token, and text string. By calling the <code>build</code> function, we also save them for later use. It creates several files in the current directory. First, there is the vocabulary file <code>news.txt.voc</code> and <code>news.txt.voc.txt</code>. They are the same; only that the latter is in a human-readable format that has each line a word and the corresponding index number. We can get the vocabulary with <code>Corpus.get_vocab</code>.</p>
+<p>The tokenised text corpus is marshalled to the <code>news.txt.tok</code> file, and the string format content is saved as binary file to <code>news.txt.bin</code>. We choose to save the content as binary format to save file size. To get the i-th document, we can use <code>Corpus.get corpus i</code> to get the text string, or <code>Corpus.get_tok corpus i</code> to get an integer array that is tokenised version of this document.</p>
+<p>To efficiently access different documents by the document index (line number), we keep track of the accumulated length of text corpus and token array after processing each document. These two type of indexes are saved in the <code>news.txt.mdl</code> file. This file also contains the document id. We have seen the <code>minlen</code> value in the output of corpus information. Each document with less than 10 words will not be included in the corpus. The document id is an int array that shows the index (line number) of each document in the original text corpus so that it can be traced back. The document id can be retrieved by <code>Corpus.get_docid corpus</code></p>
+<p>In the <code>Corpus</code> module, we provide three mechanisms to iterate through the text corpus: <code>next</code>, <code>iteri</code>, <code>mapi</code>. The <code>next</code> function is a generator that yields the next line of text document string in the text corpus until it hits the end of file. The <code>iteri</code> and <code>mapi</code> functions work exactly like in the normal Array module. The first function iterates all the documents one by one in the corpus, and the second maps all the documents in a corpus into another array. The <code>iteri_tok</code> and <code>mapi_tok</code> work the same, except that the function should work on integer array instead of string. Their signatures is shown below:</p>
+<div class="highlight">
+<pre><code class="language-text">val iteri : (int -&gt; string -&gt; unit) -&gt; t -&gt; unit
+
+val iteri_tok : (int -&gt; int array -&gt; unit) -&gt; t -&gt; unit
+
+val mapi : (int -&gt; string -&gt; 'a) -&gt; t -&gt; 'a array
+
+val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
+</div>
+<p>The <code>Corpus</code> module is designed to support a large number of text corpus. With this tool in hand, we can further proceed with the discussion of topic modelling.</p>
 </section>
 </section>
 <section class="level2" id="vector-space-models">
@@ -183,7 +163,7 @@ let build_bow corpus =
 <section class="level2" id="term-frequencyinverse-document-frequency-tfidf">
 <h2>Term Frequency–Inverse Document Frequency (TFIDF)</h2>
 <p>Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.</p>
-<p>Explain why TFIDF is better than BOW, what is the motivation. Give an examble to illustrate.</p>
+<p>Explain why TFIDF is better than BOW, what is the motivation. Give an example to illustrate.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_tfidf corpus =
   (* configure and build the model *)
@@ -229,19 +209,19 @@ let build_lda corpus topics =
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
 <h2>Latent Semantic Analysis (LSA)</h2>
-<p>Explain what is LSA, and how it differs from LDA wrt to derived topics.</p>
+<p>Explain what is LSA, and how it differs from LDA w.r.t. derived topics.</p>
 <p>Read * https://en.wikipedia.org/wiki/Latent_semantic_analysis * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/</p>
 </section>
 <section class="level2" id="indexing-and-searching">
 <h2>Indexing and Searching</h2>
-<p>Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modeling method.</p>
-<section class="level3" id="euclidean-and-consine-similarity">
-<h3>Euclidean and Consine Similarity</h3>
-<p>Define what is euclidean and consine similarity. Emphasise both are correlated on a high-dimensional ball model.</p>
+<p>Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modelling method.</p>
+<section class="level3" id="euclidean-and-cosine-similarity">
+<h3>Euclidean and Cosine Similarity</h3>
+<p>Define what is euclidean and cosine similarity. Emphasise both are correlated on a high-dimensional ball model.</p>
 <p>TODO: use an image to illustrate.</p>
 </section>
-<section class="level3" id="liear-searching">
-<h3>Liear Searching</h3>
+<section class="level3" id="linear-searching">
+<h3>Linear Searching</h3>
 <p>First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).</p>
 <div class="highlight">
 <pre><code class="language-ocaml">(* calculate pairwise distance for the whole model, format (id,dist) *)
@@ -277,8 +257,8 @@ let query corpus doc k =
 </figure>
 </section>
 </section>
-<section class="level2" id="conclusion">
-<h2>Conclusion</h2>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 <p>TBD</p>
 </section>
 </section>

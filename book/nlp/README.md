@@ -1,8 +1,12 @@
 # Natural Language Processing
 
-Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing is a powerful tool to extract insights from text copora.
+Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing (NLP) is a powerful tool to extract insights from text corpora.
 
-This chapter focusses on the vector space models and topic modelling.
+NLP is a large topic that covers many different advanced problems, such as speech tagging, named entity recognition, machine translation, speech recognition, etc.
+We surely cannot cover all of them in this one single chapter, perhaps not even a whole book.
+To this end, in this chapter we mainly focus on the vector space models and topic modelling.
+
+TODO: Explain Topic modelling briefly
 
 TODO: this chapter now mainly lacks general text introduction of NLP.
 
@@ -20,9 +24,17 @@ a brazilian man who earns a living by selling space for tattoo adverts on his bo
 
 ## Text Corpus
 
-We call a collection of documents a *text corpus*, which is normally a large and structured set of texts.
+Normally we call a collection of documents a *text corpus*, which contains a large and structured set of texts.
+For example, for the English language there are the [Corpus of Contemporary American English](https://www.english-corpora.org/coca/), [Georgetown University Multilayer Corpus](https://corpling.uis.georgetown.edu/gum), etc.
 Our news collection is also one such example.
-However, to perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.
+To perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.
+
+TODO: A survey of annotation methods.
+
+For the task of topic modelling, we perform the tokenisation on the input English text.
+The target is to represent each word as an integer index so that we can further process the numbers instead of words.
+This is called the *tokenisation* of the text.
+Of course we also need to have a mapping from index to word.
 
 ### Step-by-step Operation
 
@@ -30,12 +42,8 @@ The NLP module in Owl supports building a proper text corpus from given text dat
 In this section we will show how we can build a corpus from a collection of documents, in a step step way.
 
 In the first step, remove the special characters. We define a regular expression `regexp_split` for special characters such as `,`, `?`, `\t` etc.
-
-
-
 First remove them, and then convert all the text into lower-case.
 The code below define such a process function, and the `Nlp.Corpus.preprocess` apply it to all the text. Note this function will not change the number of lines in a corpus.
-
 
 ```ocaml
 let simple_process s =
@@ -61,14 +69,7 @@ let build_vocabulary input_file =
   Nlp.Vocabulary.save vocab output_file
 ```
 
-```text
-2020-01-28 20:29:41.592 INFO : processed 13485, avg. 2696 docs/s
-2020-01-28 20:29:46.593 INFO : processed 24975, avg. 2497 docs/s
-2020-01-28 20:29:51.593 INFO : processed 39728, avg. 2648 docs/s
-...
-```
-
-The returned result `vocab` contains three `Hasthtbl`.
+The `build` function returns a vocabulary. It contains three `Hasthtbl`s.
 The first maps a word to an index, and the second index to word.
 The last hash table is a map between index and its frequency, i.e. number of occurrence in the whole text body.
 We can check out the words of highest frequency with:
@@ -79,7 +80,7 @@ let print_freq vocab =
   Owl.Utils.Array.to_string ~sep:", " fst
 ```
 
-We can see that unsurprisingly, the "the"'s and "a"'s are most frequently used:
+Unsurprisingly, the "the"'s and "a"'s are most frequently used:
 
 ```text
 - : string =
@@ -92,15 +93,15 @@ Change `Nlp.Vocabulary.top` to `Nlp.Vocabulary.bottom` can shows the words of lo
 "eichorst, gcs, freeross, depoliticisation, humping, shopable, appurify, intersperse, vyaecheslav, raphaelle"
 ```
 
+However, in a topic modelling task, we don't want these too frequent but meaningless words and perhaps also the least frequent words that are not about the topic of this document.
 Now let's trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely trimming off top and bottom 1% of the words.
-
 
 ```ocaml
 let trim_vocabulary vocab =
   Nlp.Vocabulary.trim_percent ~lo:0.01 ~hi:0.01 vocab
 ```
 
-With a vocabulary at hands, now we are ready to tokenise a piece of text.
+With a proper vocabulary at hands, now we are ready to tokenise a piece of text.
 
 ```ocaml
 let tokenise vocab text =
@@ -120,7 +121,6 @@ Furthermore, we can now tokenise the whole news collection.
 ```ocaml
 let tokenise_all vocab input_file =
   let doc_s = Owl_utils.Stack.make () in
-
   Owl_io.iteri_lines_of_file
     (fun i s ->
       let t =
@@ -131,59 +131,37 @@ let tokenise_all vocab input_file =
       in
       Owl_utils.Stack.push doc_s i)
     input_file;
-
   doc_s
 ```
 
+The process is simple: in the text corpus each line is a document and we iterate through the text line by line.
+For each line/document, we remove the special characters, filter out the words that exist in the vocabulary, and map each word to an integer index accordingly.
 Even though this is a simplified case, it well illustrates the typical starting point of text analysis before delving into any topic modelling.
 
+### Use the Corpus Module
 
-### Use Corpus Module
-
-But we don't have to build a text corpus step by step. We provide the `NLP.Corpus` module.
-A corpus is defined to contain these parts:
-
-- `uri` : path of the binary corpus
-- `bin_ofs` : an int array, index of the string corpus
-- `tok_ofs` : int array, index of the tokenised corpus
-- `bin_fh` : a file descriptor of the binary corpus
-- `tok_fh` : a file descriptor of the tokenised corpus
-- `vocab` : vocabulary of the corpus, as we have seen before
-- `minlen` : minimum length of document to save
-- `docid` : int array to show the document id, which can refer to original data
-
-Show how to build corpus using a convenient function in `Nlp.Corpus`. The convenient function builds the dictionary and tokenise the text corpus at the same time. You can further specify how to trim off the high-frequency and low-frequency words when calling the function.
-
-
+But we don't have to build a text corpus step by step. We provide the `NLP.Corpus` module for convenience.
+By using the `Nlp.Corpus.build` we perform both tasks we have introduced: building vocabulary, and tokenising the text corpus.
+With this function we can also specify how to trim off the high-frequency and low-frequency words.
+Here is an example:
 
 ```ocaml
 let main () =
-  (* remove duplicates *)
   let ids = Nlp.Corpus.unique "news.txt" "clean.txt" in
   Printf.printf "removed %i duplicates." (Array.length ids);
-
-  (* build vocabulary and tokenise *)
   let corpus = Nlp.Corpus.build ~lo:0.01 ~hi:0.01 "clean.txt" in
-  Nlp.Corpus.save corpus "news.corpus";
   Nlp.Corpus.print corpus
 ```
 
-The output is like this ...
+The `Nlp.Corpus.unique` function is just one more layer of pre-processing. It removes the possible duplicated lines/documents.
+The output prints out the processing progress, and then a summary of the corpus is printed out.
 
 ```text
 2020-01-28 19:07:05.461 INFO : build up vocabulary ...
 2020-01-28 19:07:10.461 INFO : processed 13587, avg. 2717 docs/s
 2020-01-28 19:07:15.463 INFO : processed 26447, avg. 2644 docs/s
-2020-01-28 19:07:20.463 INFO : processed 43713, avg. 2913 docs/s
-2020-01-28 19:07:25.463 INFO : processed 57699, avg. 2884 docs/s
-2020-01-28 19:07:30.463 INFO : processed 65537, avg. 2621 docs/s
-2020-01-28 19:07:35.463 INFO : processed 76199, avg. 2539 docs/s
 ...
 2020-01-28 19:08:09.125 INFO : convert to binary and tokenise ...
-2020-01-28 19:08:14.126 INFO : processed 16756, avg. 3350 docs/s
-2020-01-28 19:08:19.126 INFO : processed 32888, avg. 3288 docs/s
-2020-01-28 19:08:24.127 INFO : processed 43110, avg. 2873 docs/s
-2020-01-28 19:08:29.127 INFO : processed 48362, avg. 2417 docs/s
 2020-01-28 19:08:34.130 INFO : processed 52628, avg. 2104 docs/s
 2020-01-28 19:08:39.132 INFO : processed 55727, avg. 1857 docs/s
 ...
@@ -194,13 +172,41 @@ corpus info
 - : unit = ()
 ```
 
-The `save` function will create several files, explain these files ...
+The corpus contains xxx parts: the vocabulary, token, and text string.
+By calling the `build` function, we also save them for later use.
+It creates several files in the current directory.
+First, there is the vocabulary file `news.txt.voc` and `news.txt.voc.txt`. They are the same; only that the latter is in a human-readable format that has each line a word and the corresponding index number.
+We can get the vocabulary with `Corpus.get_vocab`.
+
+The tokenised text corpus is marshalled to the `news.txt.tok` file, and the string format content is saved as binary file to `news.txt.bin`.
+We choose to save the content as binary format to save file size.
+To get the i-th document, we can use `Corpus.get corpus i` to get the text string, or `Corpus.get_tok corpus i` to get an integer array that is tokenised version of this document.  
+
+To efficiently access different documents by the document index (line number), we keep track of the accumulated length of text corpus and token array after processing each document. These two type of indexes are saved in the `news.txt.mdl` file.
+This file also contains the document id. We have seen the `minlen` value in the output of corpus information.
+Each document with less than 10 words will not be included in the corpus.
+The document id is an int array that shows the index (line number) of each document in the original text corpus so that it can be traced back.
+The document id can be retrieved by `Corpus.get_docid corpus`
 
 
-### Iterate Documents
+In the `Corpus` module, we provide three mechanisms to iterate through the text corpus: `next`, `iteri`, `mapi`.
+The `next` function is a generator that yields the next line of text document string in the text corpus until it hits the end of file.
+The `iteri` and `mapi` functions work exactly like in the normal Array module.
+The first function iterates all the documents one by one in the corpus, and the second maps all the documents in a corpus into another array.
+The `iteri_tok` and `mapi_tok` work the same, except that the function should work on integer array instead of string.
+Their signatures is shown below:
 
-Teach how to use `Nlp.Corpus.next` and etc. to iterate and map documents.
+```text
+val iteri : (int -> string -> unit) -> t -> unit
 
+val iteri_tok : (int -> int array -> unit) -> t -> unit
+
+val mapi : (int -> string -> 'a) -> t -> 'a array
+
+val mapi_tok : (int -> 'a -> 'b) -> t -> 'b array
+```
+
+The `Corpus` module is designed to support a large number of text corpus. With this tool in hand, we can further proceed with the discussion of topic modelling.
 
 ## Vector Space Models
 
@@ -238,7 +244,7 @@ let build_bow corpus =
 
 Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.
 
-Explain why TFIDF is better than BOW, what is the motivation. Give an examble to illustrate.
+Explain why TFIDF is better than BOW, what is the motivation. Give an example to illustrate.
 
 ```ocaml
 let build_tfidf corpus =
@@ -293,7 +299,7 @@ let build_lda corpus topics =
 
 ## Latent Semantic Analysis (LSA)
 
-Explain what is LSA, and how it differs from LDA wrt to derived topics.
+Explain what is LSA, and how it differs from LDA w.r.t. derived topics.
 
 Read
   * https://en.wikipedia.org/wiki/Latent_semantic_analysis
@@ -302,16 +308,16 @@ Read
 
 ## Indexing and Searching
 
-Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modeling method.
+Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modelling method.
 
-### Euclidean and Consine Similarity
+### Euclidean and Cosine Similarity
 
-Define what is euclidean and consine similarity. Emphasise both are correlated on a high-dimensional ball model.
+Define what is euclidean and cosine similarity. Emphasise both are correlated on a high-dimensional ball model.
 
 TODO: use an image to illustrate.
 
 
-### Liear Searching
+### Linear Searching
 
 First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).
 
@@ -353,6 +359,6 @@ Only give a teaser here which goes like:
 ![Random projection on 2D plane](images/nlp/plot_01.png "plot_01"){ width=90% #fig:nlp:plot_01 }
 
 
-## Conclusion
+## Summary
 
 TBD
