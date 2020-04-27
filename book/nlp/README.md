@@ -1,6 +1,6 @@
 # Natural Language Processing
 
-Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing is a powerful tool to extract insights from text copora. 
+Text is a dominant media type on the Internet along with images, videos, and audios. Many of our day-to-day tasks involve text analysis. Natural language processing is a powerful tool to extract insights from text copora.
 
 This chapter focusses on the vector space models and topic modelling.
 
@@ -12,17 +12,30 @@ TODO: this chapter now mainly lacks general text introduction of NLP.
 Survey the literature, give a high-level picture of NLP. Talk about classic NLP ... structured and unstructured text ...
 
 In this chapter, we will use a [news dataset](https://github.com/ryanrhymes/owl_dataset/raw/master/news.txt.gz) crawled from the Internet. It contains 130000 pieces of news from various sources, each line in the file represents one entry.
+For example we the first line/document is:
 
+```text
+a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead , it appears . edson aparecido borim already has 49 adverts tattooed on his chest , back and arms , the g1 news portal reports. he says it all started eight years ago with " a dare in a bar " , but now the ads are his main source of income. " my goal now is to get a big company to tattoo my forehead , but it would have to be a good contract , " he says . he walks around bare-chested in the small town of tabani in the state of sao paulo , but says he 's not obliged to do so all the time. the brazilian charges between 50 and 400 reals ( $ 14- $ 110 ) a month for a tattoo , depending on its size and location on his body , and on the client. borim says when clients do n't pay or cancel an ad , he crosses them out . " skinvertising " caused a stir in the mid-2000s , when many dot.com companies experimented with it. the practice left behind a trail of ads for companies that do n't exist any more , buzzfeed reports . use # newsfromelsewhere to stay up-to-date with our reports via twitter .
+```
 
 ## Text Corpus
 
-We call a collection of documents a text corpus. 
+We call a collection of documents a *text corpus*, which is normally a large and structured set of texts.
+Our news collection is also one such example.
+However, to perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.
 
 ### Step-by-step Operation
 
-Show how to build a corpus from a collection of documents, in a step step way.
+The NLP module in Owl supports building a proper text corpus from given text dataset.
+In this section we will show how we can build a corpus from a collection of documents, in a step step way.
 
-Preprocess the text, convert all the text into lowercase.
+In the first step, remove the special characters. We define a regular expression `regexp_split` for special characters such as `,`, `?`, `\t` etc.
+
+
+
+First remove them, and then convert all the text into lower-case.
+The code below define such a process function, and the `Nlp.Corpus.preprocess` apply it to all the text. Note this function will not change the number of lines in a corpus.
+
 
 ```ocaml
 let simple_process s =
@@ -37,41 +50,50 @@ let preprocess input_file =
   Nlp.Corpus.preprocess simple_process input_file output_file
 ```
 
-Then let's build vocabulary out of the text corpus.
+Based on the processed text corpus, we can build the *vocabulary*.
+Each word is assigned a number id, or index, and we have the dictionary to map word to index, and index to word.
+This is achieved by using the `Nlp.Vocabulary.build` function.
 
 ```ocaml
 let build_vocabulary input_file =
   let vocab = Nlp.Vocabulary.build input_file in
-
-  (* print out the words of highest frequency *)
-  Nlp.Vocabulary.top vocab 10 |>
-  Owl.Utils.Array.to_string ~sep:", " fst;
-
-  (* print out the words of lowest frequency*)
-  Nlp.Vocabulary.bottom vocab 10 |>
-  Owl.Utils.Array.to_string ~sep:", " fst;
-
-  (* save the vocabulary *)
-  let output_file = input_file ^ ".vocab" in 
+  let output_file = input_file ^ ".vocab" in
   Nlp.Vocabulary.save vocab output_file
 ```
-
-The progress of building the vocabulary is printed out. After the vocabular is built, the token of the highest frequency is printed out.
 
 ```text
 2020-01-28 20:29:41.592 INFO : processed 13485, avg. 2696 docs/s
 2020-01-28 20:29:46.593 INFO : processed 24975, avg. 2497 docs/s
 2020-01-28 20:29:51.593 INFO : processed 39728, avg. 2648 docs/s
-2020-01-28 20:29:56.595 INFO : processed 53277, avg. 2663 docs/s
-2020-01-28 20:30:01.595 INFO : processed 62908, avg. 2516 docs/s
-2020-01-28 20:30:06.595 INFO : processed 69924, avg. 2330 docs/s
 ...
+```
+
+The returned result `vocab` contains three `Hasthtbl`.
+The first maps a word to an index, and the second index to word.
+The last hash table is a map between index and its frequency, i.e. number of occurrence in the whole text body.
+We can check out the words of highest frequency with:
+
+```ocaml
+let print_freq vocab =
+  Nlp.Vocabulary.top vocab 10 |>
+  Owl.Utils.Array.to_string ~sep:", " fst
+```
+
+We can see that unsurprisingly, the "the"'s and "a"'s are most frequently used:
+
+```text
 - : string =
 "the, to, of, a, and, in, \", s, that, on"
+```
+
+Change `Nlp.Vocabulary.top` to `Nlp.Vocabulary.bottom` can shows the words of lowest frequency:
+
+```text
 "eichorst, gcs, freeross, depoliticisation, humping, shopable, appurify, intersperse, vyaecheslav, raphaelle"
 ```
 
-Now let's trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely triming off top and bottom 1% of the words.
+Now let's trim off some most and least frequency words. You can trim either by absolute number or by percent. We use percent here, namely trimming off top and bottom 1% of the words.
+
 
 ```ocaml
 let trim_vocabulary vocab =
@@ -82,7 +104,7 @@ With a vocabulary at hands, now we are ready to tokenise a piece of text.
 
 ```ocaml
 let tokenise vocab text =
-  String.split_on_char ' ' text |> 
+  String.split_on_char ' ' text |>
   List.map (Nlp.Vocabulary.word2index vocab)
 ```
 
@@ -116,9 +138,23 @@ let tokenise_all vocab input_file =
 Even though this is a simplified case, it well illustrates the typical starting point of text analysis before delving into any topic modelling.
 
 
-### Use Convenient Function
+### Use Corpus Module
 
-Show how to build corpus using a convenient function in `Nlp.Corpus`. The convenient function builds the dictionary and tokienise the text corpus at the same time. You can further specify how to trim off the high-frequency and low-frenquency words when calling the function.
+But we don't have to build a text corpus step by step. We provide the `NLP.Corpus` module.
+A corpus is defined to contain these parts:
+
+- `uri` : path of the binary corpus
+- `bin_ofs` : an int array, index of the string corpus
+- `tok_ofs` : int array, index of the tokenised corpus
+- `bin_fh` : a file descriptor of the binary corpus
+- `tok_fh` : a file descriptor of the tokenised corpus
+- `vocab` : vocabulary of the corpus, as we have seen before
+- `minlen` : minimum length of document to save
+- `docid` : int array to show the document id, which can refer to original data
+
+Show how to build corpus using a convenient function in `Nlp.Corpus`. The convenient function builds the dictionary and tokenise the text corpus at the same time. You can further specify how to trim off the high-frequency and low-frequency words when calling the function.
+
+
 
 ```ocaml
 let main () =
@@ -189,7 +225,7 @@ let term_count htbl doc =
 
 (* build bag-of-words for the corpus *)
 let build_bow corpus =
-  Nlp.Corpus.mapi_tok 
+  Nlp.Corpus.mapi_tok
     (fun i doc ->
       let htbl = Hashtbl.create 128 in
       term_count htbl;
