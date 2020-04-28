@@ -133,13 +133,20 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
 </section>
 <section class="level2" id="vector-space-models">
 <h2>Vector Space Models</h2>
-<p>Survey, explain what is VSM, documents become vectors, i.e.&nbsp;a point in high-dimensional space. With VSM, we can cluster the documents based on their proximity, i.e.&nbsp;similarity.</p>
+<p>Based on the tokenised text corpus, the next thing we need is a mathematical model to express abstract ideas such as “this sentence makes sense and that one does not”, “these two documents are similar”, or “the key word in that paragraph is such and such”. To perform NLP tasks such as text retrieval and topic modelling, we use the <em>Vector Space Model</em> (VSM) to do that.</p>
+<p>According to the wikipedia, a VSM is “an algebraic model for representing text documents (and any objects, in general) as vectors of identifiers”. It may sounds tricky but the basic idea is actually very simple. For example, let’s assume we only care about three topics in any news: covid19, economics, and election. Then we can represent any news article with a three-element vector, each representing the weight of this topic in it. For the BBC news <a href="https://www.bbc.co.uk/news/uk-52462928">“Coronavirus: Millions more to be eligible for testing”</a>, we can represent it with vector <code>(100, 2.5, 0)</code>. The specific value does not actually matter here. The point is that now instead of a large chunks of text corpus, we only need to deal with this vector for further processing.</p>
+<p>The vector space model proposes a framework that maps a document to a vector <span class="math inline">\(d = (x_1, x_1, \ldots, x_N)\)</span>. This N-dimensional vector space is defined by <span class="math inline">\(N\)</span> basic terms. Under this framework, we mainly have to decide on three factors. The first is to choose the meaning of each dimension, or the <span class="math inline">\(N\)</span> basic concepts in the vector space. The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to <code>100</code> instead of <code>50</code>? There should be rules about it. Finally, after learning the vector representation, how should we measure their similarity? The similarity of document is a basic idea in text processing. For topic modelling, we can cluster the documents based on their similarity. (TODO: Extend this point)</p>
+<p>In this chapter we focusing on mapping a document to a vector space. However, VSM is not limited to only documents. We can also map a word into a vector that represents a point in a certain vector space. This vector is also called <em>word embedding</em>. In a proper representation, the similar words should be cluster together, and can even be used for calculation such as:</p>
+<p><span class="math display">\[V_\textrm{king} - V_\textrm{man} + V_\textrm{women} \approx V_\textrm{queen}.\]</span></p>
+<p>One of the most widely used method for word embedding is the <code>word2vec</code> proposed in <span data-cites="mikolov2013exploiting" class="citation">(Mikolov, Le, and Sutskever 2013)</span>. It includes different algorithms such as the skip-gram for computing the vector representation of words. For general purpose use, Google has already published a <a href="https://code.google.com/archive/p/word2vec/">pre-trained</a> word2vec-based word embedding vector set based on part of the GoogleNews dataset. This vector set contains 300-dimensional vectors for 3 million words and phrases.</p>
+<p>Back to the theme of mapping documents to vector space. In the next chapter, we will start with a simple method that instantiate the VSM: the Bag of Words.</p>
 </section>
 <section class="level2" id="bag-of-words-bow">
 <h2>Bag of Words (BOW)</h2>
 <p>Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?</p>
+<p>Simple example</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* count the term occurrency in a document *)
+<pre><code class="language-ocaml">(* count the term occurrence in a document *)
 let term_count htbl doc =
   Array.iter
     (fun w -&gt;
@@ -155,7 +162,7 @@ let build_bow corpus =
   Nlp.Corpus.mapi_tok
     (fun i doc -&gt;
       let htbl = Hashtbl.create 128 in
-      term_count htbl;
+      term_count htbl doc;
       htbl)
     corpus</code></pre>
 </div>
@@ -260,6 +267,11 @@ let query corpus doc k =
 <section class="level2" id="summary">
 <h2>Summary</h2>
 <p>TBD</p>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-mikolov2013exploiting">
+<p>Mikolov, Tomas, Quoc V Le, and Ilya Sutskever. 2013. “Exploiting Similarities Among Languages for Machine Translation.” <em>arXiv Preprint arXiv:1309.4168</em>.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="dataframe.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 16</small>Dataframe for Tabular Data</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

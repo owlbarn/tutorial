@@ -210,15 +210,45 @@ The `Corpus` module is designed to support a large number of text corpus. With t
 
 ## Vector Space Models
 
-Survey, explain what is VSM, documents become vectors, i.e. a point in high-dimensional space. With VSM, we can cluster the documents based on their proximity, i.e. similarity.
+Based on the tokenised text corpus, the next thing we need is a mathematical model to express abstract ideas such as "this sentence makes sense and that one does not", "these two documents are similar", or "the key word in that paragraph is such and such".
+To perform NLP tasks such as text retrieval and topic modelling, we use the *Vector Space Model* (VSM) to do that.
 
+According to the wikipedia, a VSM is "an algebraic model for representing text documents (and any objects, in general) as vectors of identifiers".
+It may sounds tricky but the basic idea is actually very simple.
+For example, let's assume we only care about three topics in any news: covid19, economics, and election.
+Then we can represent any news article with a three-element vector, each representing the weight of this topic in it.
+For the BBC news ["Coronavirus: Millions more to be eligible for testing"](https://www.bbc.co.uk/news/uk-52462928), we can represent it with vector `(100, 2.5, 0)`.
+The specific value does not actually matter here. The point is that now instead of a large chunks of text corpus, we only need to deal with this vector for further processing.
+
+The vector space model proposes a framework that maps a document to a vector $d = (x_1, x_1, \ldots, x_N)$. This N-dimensional vector space is defined by $N$ basic terms.
+Under this framework, we mainly have to decide on three factors.
+The first is to choose the meaning of each dimension, or the $N$ basic concepts in the vector space.
+The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to `100` instead of `50`? There should be rules about it.
+Finally, after learning the vector representation, how should we measure their similarity?
+The similarity of document is a basic idea in text processing.
+For topic modelling, we can cluster the documents based on their similarity.
+(TODO: Extend this point)
+
+In this chapter we focusing on mapping a document to a vector space. However, VSM is not limited to only documents.
+We can also map a word into a vector that represents a point in a certain vector space. This vector is also called *word embedding*.
+In a proper representation, the similar words should be cluster together, and can even be used for calculation such as:
+
+$$V_\textrm{king} - V_\textrm{man} + V_\textrm{women} \approx V_\textrm{queen}.$$
+
+One of the most widely used method for word embedding is the `word2vec` proposed in [@mikolov2013exploiting]. It includes different algorithms such as the skip-gram for computing the vector representation of words.
+For general purpose use, Google has already published a [pre-trained](https://code.google.com/archive/p/word2vec/) word2vec-based word embedding vector set based on part of the GoogleNews dataset.
+This vector set contains 300-dimensional vectors for 3 million words and phrases.
+
+Back to the theme of mapping documents to vector space. In the next chapter, we will start with a simple method that instantiate the VSM: the Bag of Words.
 
 ## Bag of Words (BOW)
 
 Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?
 
+Simple example
+
 ```ocaml
-(* count the term occurrency in a document *)
+(* count the term occurrence in a document *)
 let term_count htbl doc =
   Array.iter
     (fun w ->
@@ -234,7 +264,7 @@ let build_bow corpus =
   Nlp.Corpus.mapi_tok
     (fun i doc ->
       let htbl = Hashtbl.create 128 in
-      term_count htbl;
+      term_count htbl doc;
       htbl)
     corpus
 ```
@@ -362,3 +392,5 @@ Only give a teaser here which goes like:
 ## Summary
 
 TBD
+
+## References
