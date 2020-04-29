@@ -19,7 +19,7 @@ In this chapter, we will use a [news dataset](https://github.com/ryanrhymes/owl_
 For example we the first line/document is:
 
 ```text
-a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead , it appears . edson aparecido borim already has 49 adverts tattooed on his chest , back and arms , the g1 news portal reports. he says it all started eight years ago with " a dare in a bar " , but now the ads are his main source of income. " my goal now is to get a big company to tattoo my forehead , but it would have to be a good contract , " he says . he walks around bare-chested in the small town of tabani in the state of sao paulo , but says he 's not obliged to do so all the time. the brazilian charges between 50 and 400 reals ( $ 14- $ 110 ) a month for a tattoo , depending on its size and location on his body , and on the client. borim says when clients do n't pay or cancel an ad , he crosses them out . " skinvertising " caused a stir in the mid-2000s , when many dot.com companies experimented with it. the practice left behind a trail of ads for companies that do n't exist any more , buzzfeed reports . use # newsfromelsewhere to stay up-to-date with our reports via twitter .
+a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead , it appears ... borim says when clients do n't pay or cancel an ad , he crosses them out . " skinvertising " caused a stir in the mid-2000s , when many dot.com companies experimented with it...
 ```
 
 ## Text Corpus
@@ -34,7 +34,7 @@ TODO: A survey of annotation methods.
 For the task of topic modelling, we perform the tokenisation on the input English text.
 The target is to represent each word as an integer index so that we can further process the numbers instead of words.
 This is called the *tokenisation* of the text.
-Of course we also need to have a mapping from index to word.
+Of course we also need to have a mapping function that from index to word.
 
 ### Step-by-step Operation
 
@@ -224,6 +224,7 @@ The vector space model proposes a framework that maps a document to a vector $d 
 Under this framework, we mainly have to decide on three factors.
 The first is to choose the meaning of each dimension, or the $N$ basic concepts in the vector space.
 The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to `100` instead of `50`? There should be rules about it.
+That means we need a proper mapping function $f$ defined. 
 Finally, after learning the vector representation, how should we measure their similarity?
 The similarity of document is a basic idea in text processing.
 For topic modelling, we can cluster the documents based on their similarity.
@@ -325,6 +326,7 @@ type tf_typ =
 ```
 
 The same goes for the IDF. To measure how common a word $w$ is across all the document, a common way to compute is to do: $log(\frac{N_D}{n_w})$, where $N_D$ is the total number of documents and $n_w$ is the number of documents with term $w$ in it.
+This metric is within the range of $[0, \infty]$. It increases with larger total document number or smaller number of documents that contain a specific word.
 An improved version is called `Idf_Smooth`. It is calculated as $log(\frac{N_D}{n_w + 1})$.
 This method avoid the $n_w$ to be zero to cause divide error, and also avoid getting a `0` for a word just because it used across all the documents.
 In Owl they are included in the type `df_typ`.
@@ -337,34 +339,71 @@ type df_typ =
   | Idf_Smooth
 ```
 
-
-The corpus we have built in the previous section is used as input to the following function.
-Give an example to illustrate.
+We provide the `Owl_nlp.Tfidf` module to perform the TF-IDF method.
+The corpus we have built in the previous section is used as input to it.
+Specifically, we use the `Nlp.Tfidf.build` function to build the TFIDF model:
 
 ```ocaml
 let build_tfidf corpus =
-  (* configure and build the model *)
   let tf = Nlp.Tfidf.Count in
   let df = Nlp.Tfidf.Idf in
   let model = Nlp.Tfidf.build ~tf ~df corpus in
-
-  (* print and save model *)
-  Nlp.Tfidf.print model;
   Nlp.Tfidf.save model "news.tfidf";
-
   model
 ```
 
-After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model. Note do NOT teach how to index and how the similarity is calculted here, teach in Indexing and Searching section.
+In this code, we configure to use the bag-of-words style word count method to calculate term frequency, and use the normal logarithm method to compute inverse document frequency.
+The model can be saved for later use.
+After the model is build, we can search similar documents according to a given string.
+As a random example, let's just use the first sentence in our first piece of news in the dataset as search target: `"a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead"`.
 
 ```ocaml
 let query model doc k =
-  (* TODO: change api *)
   let typ = Owl_nlp_similarity.Cosine in
   let vec = Nlp.Tfidf.apply model doc in
   let knn = Nlp.Tfidf.nearest ~typ model vec k in
   knn
 ```
+
+Recall the three gradients in vector space model: choosing dimension topic words, mapping document to vector, and the measurement of similarity.
+Here we use the *consine similarity* as a way to measure how aligned two vectors $A$ and $B$ are.
+It is defined as:
+
+$$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}$$.
+
+We will talk about the similarity measurement in detail later.
+Next, the `vec` returned by the `apply` functions return an array of `(int * float)` tuples. For each item, the integer is the tokenised index of a word in the input document `doc`, and the float number is the corresponding TF-IDF value, based on the `model` we get from previous step.
+Finally, the `nearest` function search all the documents and find the vectors that has the largest similarity with the target document.
+Let's show the top-10 result by setting `k` to 10:
+
+```text
+val knn : (int * float) array =
+  [|(11473, -783.546068863270875); (87636, -669.76533603535529);
+    (121966, -633.92555577720907); (57239, -554.838541799660675);
+    (15810, -550.95468134048258); (15817, -550.775276912183131);
+    (15815, -550.775276912183131); (83282, -547.322385552312426);
+    (44647, -526.074567425088844); (0, -496.924176137374445)|]
+```
+
+The returned result shows the id of the matched documents. We can retrieve each document by running e.g. `Owl_nlp.Corpus.get corpus 11473`.
+(TODO: what is the second number?)
+To save you some effort to do that, here we list link to some of the original news that are matched to be similar to the target document:
+
+1. *Every tatto tells a story*, doc id: 11473. [[Link](https://www.bbc.co.uk/news/magazine-27831231)]
+1. *The Complete Guide to Using Social Media for Customer Service*, doc id: 87636. [[Link](https://buffer.com/resources/social-media-for-customer-service-guide)]
+1. *Murder ink? Tattoos can be tricky as evidence*, doc id: 57239. [[Link](https://www.gazettenet.com/Archives/2014/06/tattoos-hg-060514)]
+1. *Scottish independence: Cinemas pull referendum adverts*, doc id: 15810. [[Link](https://www.bbc.co.uk/news/uk-scotland-scotland-politics-27602601)]
+1. *The profusion of temporarily Brazilian-themed products*, doc id:44647.
+[[Link](https://www.bbc.co.uk/news/magazine-27879430)]
+
+If you are interested, the input document comes from [this](https://www.bbc.co.uk/news/blogs-news-from-elsewhere-27051009) BBC news: *Brazil: Man 'earns a living' from tattoo ads*.
+Then you can see that, the searched result is actually quite related to the input document, especially the first one, which is exactly the same story written in another piece of news.
+The second result is somewhat distant. The word "customer" is heavily used in this document, and we can guess that it is also not frequently seen throughout the text corpus.
+The fourth news is not about the tattoo guy, but this news features the topic of "customer" and "adverts".
+The fifth news is chosen apparently because of the non-frequent word "brazilian" carries a lot of weight in TF-IDF.
+The interesting thing is that the same document, the first document, is ranked only 10th closest.
+Note that we just simply take a random sentence without any preprocessing or keyword design, also we use the un-trimmed version of text corpus.
+Even so, we can still achieves a somewhat satisfactory matching result, and the result fits nicely with the working mechanisms of the TF-IDF method.
 
 
 ## Latent Dirichlet Allocation (LDA)

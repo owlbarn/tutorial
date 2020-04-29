@@ -9,14 +9,14 @@
 <p>Survey the literature, give a high-level picture of NLP. Talk about classic NLP … structured and unstructured text …</p>
 <p>In this chapter, we will use a <a href="https://github.com/ryanrhymes/owl_dataset/raw/master/news.txt.gz">news dataset</a> crawled from the Internet. It contains 130000 pieces of news from various sources, each line in the file represents one entry. For example we the first line/document is:</p>
 <div class="highlight">
-<pre><code class="language-text">a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead , it appears . edson aparecido borim already has 49 adverts tattooed on his chest , back and arms , the g1 news portal reports. he says it all started eight years ago with " a dare in a bar " , but now the ads are his main source of income. " my goal now is to get a big company to tattoo my forehead , but it would have to be a good contract , " he says . he walks around bare-chested in the small town of tabani in the state of sao paulo , but says he 's not obliged to do so all the time. the brazilian charges between 50 and 400 reals ( $ 14- $ 110 ) a month for a tattoo , depending on its size and location on his body , and on the client. borim says when clients do n't pay or cancel an ad , he crosses them out . " skinvertising " caused a stir in the mid-2000s , when many dot.com companies experimented with it. the practice left behind a trail of ads for companies that do n't exist any more , buzzfeed reports . use # newsfromelsewhere to stay up-to-date with our reports via twitter .</code></pre>
+<pre><code class="language-text">a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead , it appears ... borim says when clients do n't pay or cancel an ad , he crosses them out . " skinvertising " caused a stir in the mid-2000s , when many dot.com companies experimented with it...</code></pre>
 </div>
 </section>
 <section class="level2" id="text-corpus">
 <h2>Text Corpus</h2>
 <p>Normally we call a collection of documents a <em>text corpus</em>, which contains a large and structured set of texts. For example, for the English language there are the <a href="https://www.english-corpora.org/coca/">Corpus of Contemporary American English</a>, <a href="https://corpling.uis.georgetown.edu/gum">Georgetown University Multilayer Corpus</a>, etc. Our news collection is also one such example. To perform NLP tasks such as topic modelling, the first and perhaps the most important thing is to represent a text corpus as format that the models can process, instead of directly using natural language.</p>
 <p>TODO: A survey of annotation methods.</p>
-<p>For the task of topic modelling, we perform the tokenisation on the input English text. The target is to represent each word as an integer index so that we can further process the numbers instead of words. This is called the <em>tokenisation</em> of the text. Of course we also need to have a mapping from index to word.</p>
+<p>For the task of topic modelling, we perform the tokenisation on the input English text. The target is to represent each word as an integer index so that we can further process the numbers instead of words. This is called the <em>tokenisation</em> of the text. Of course we also need to have a mapping function that from index to word.</p>
 <section class="level3" id="step-by-step-operation">
 <h3>Step-by-step Operation</h3>
 <p>The NLP module in Owl supports building a proper text corpus from given text dataset. In this section we will show how we can build a corpus from a collection of documents, in a step step way.</p>
@@ -135,7 +135,7 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
 <h2>Vector Space Models</h2>
 <p>Based on the tokenised text corpus, the next thing we need is a mathematical model to express abstract ideas such as “this sentence makes sense and that one does not”, “these two documents are similar”, or “the key word in that paragraph is such and such”. To perform NLP tasks such as text retrieval and topic modelling, we use the <em>Vector Space Model</em> (VSM) to do that.</p>
 <p>According to the wikipedia, a VSM is “an algebraic model for representing text documents (and any objects, in general) as vectors of identifiers”. It may sounds tricky but the basic idea is actually very simple. For example, let’s assume we only care about three topics in any news: covid19, economics, and election. Then we can represent any news article with a three-element vector, each representing the weight of this topic in it. For the BBC news <a href="https://www.bbc.co.uk/news/uk-52462928">“Coronavirus: Millions more to be eligible for testing”</a>, we can represent it with vector <code>(100, 2.5, 0)</code>. The specific value does not actually matter here. The point is that now instead of a large chunks of text corpus, we only need to deal with this vector for further processing.</p>
-<p>The vector space model proposes a framework that maps a document to a vector <span class="math inline">\(d = (x_1, x_1, \ldots, x_N)\)</span>. This N-dimensional vector space is defined by <span class="math inline">\(N\)</span> basic terms. Under this framework, we mainly have to decide on three factors. The first is to choose the meaning of each dimension, or the <span class="math inline">\(N\)</span> basic concepts in the vector space. The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to <code>100</code> instead of <code>50</code>? There should be rules about it. Finally, after learning the vector representation, how should we measure their similarity? The similarity of document is a basic idea in text processing. For topic modelling, we can cluster the documents based on their similarity. (TODO: Extend this point)</p>
+<p>The vector space model proposes a framework that maps a document to a vector <span class="math inline">\(d = (x_1, x_1, \ldots, x_N)\)</span>. This N-dimensional vector space is defined by <span class="math inline">\(N\)</span> basic terms. Under this framework, we mainly have to decide on three factors. The first is to choose the meaning of each dimension, or the <span class="math inline">\(N\)</span> basic concepts in the vector space. The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to <code>100</code> instead of <code>50</code>? There should be rules about it. That means we need a proper mapping function <span class="math inline">\(f\)</span> defined. Finally, after learning the vector representation, how should we measure their similarity? The similarity of document is a basic idea in text processing. For topic modelling, we can cluster the documents based on their similarity. (TODO: Extend this point)</p>
 <p>In this chapter we focusing on mapping a document to a vector space. However, VSM is not limited to only documents. We can also map a word into a vector that represents a point in a certain vector space. This vector is also called <em>word embedding</em>. In a proper representation, the similar words should be cluster together, and can even be used for calculation such as:</p>
 <p><span class="math display">\[V_\textrm{king} - V_\textrm{man} + V_\textrm{women} \approx V_\textrm{queen}.\]</span></p>
 <p>One of the most widely used method for word embedding is the <code>word2vec</code> proposed in <span data-cites="mikolov2013exploiting" class="citation">(Mikolov, Le, and Sutskever 2013)</span>. It includes different algorithms such as the skip-gram for computing the vector representation of words. For general purpose use, Google has already published a <a href="https://code.google.com/archive/p/word2vec/">pre-trained</a> word2vec-based word embedding vector set based on part of the GoogleNews dataset. This vector set contains 300-dimensional vectors for 3 million words and phrases.</p>
@@ -184,36 +184,50 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
   | Frequency
   | Log_norm</code></pre>
 </div>
-<p>The same goes for the IDF. To measure how common a word <span class="math inline">\(w\)</span> is across all the document, a common way to compute is to do: <span class="math inline">\(log(\frac{N_D}{n_w})\)</span>, where <span class="math inline">\(N_D\)</span> is the total number of documents and <span class="math inline">\(n_w\)</span> is the number of documents with term <span class="math inline">\(w\)</span> in it. An improved version is called <code>Idf_Smooth</code>. It is calculated as <span class="math inline">\(log(\frac{N_D}{n_w + 1})\)</span>. This method avoid the <span class="math inline">\(n_w\)</span> to be zero to cause divide error, and also avoid getting a <code>0</code> for a word just because it used across all the documents. In Owl they are included in the type <code>df_typ</code>:</p>
+<p>The same goes for the IDF. To measure how common a word <span class="math inline">\(w\)</span> is across all the document, a common way to compute is to do: <span class="math inline">\(log(\frac{N_D}{n_w})\)</span>, where <span class="math inline">\(N_D\)</span> is the total number of documents and <span class="math inline">\(n_w\)</span> is the number of documents with term <span class="math inline">\(w\)</span> in it. This metric is within the range of <span class="math inline">\([0, \infty]\)</span>. It increases with larger total document number or smaller number of documents that contain a specific word. An improved version is called <code>Idf_Smooth</code>. It is calculated as <span class="math inline">\(log(\frac{N_D}{n_w + 1})\)</span>. This method avoid the <span class="math inline">\(n_w\)</span> to be zero to cause divide error, and also avoid getting a <code>0</code> for a word just because it used across all the documents. In Owl they are included in the type <code>df_typ</code>. Here the <code>Unary</code> method implies not using IDF, only term frequency.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type df_typ =
   | Unary
   | Idf
   | Idf_Smooth</code></pre>
 </div>
-<p>The corpus we have built in the previous section is used as input to the following function. Give an example to illustrate.</p>
+<p>We provide the <code>Owl_nlp.Tfidf</code> module to perform the TF-IDF method. The corpus we have built in the previous section is used as input to it. Specifically, we use the <code>Nlp.Tfidf.build</code> function to build the TFIDF model:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_tfidf corpus =
-  (* configure and build the model *)
   let tf = Nlp.Tfidf.Count in
   let df = Nlp.Tfidf.Idf in
   let model = Nlp.Tfidf.build ~tf ~df corpus in
-
-  (* print and save model *)
-  Nlp.Tfidf.print model;
   Nlp.Tfidf.save model "news.tfidf";
-
   model</code></pre>
 </div>
-<p>After the model is build, illustrate how to find k similar documents. The following exmaple uses consine similarity, then convert a document into vector using previously trained TFIDF model. Note do NOT teach how to index and how the similarity is calculted here, teach in Indexing and Searching section.</p>
+<p>In this code, we configure to use the bag-of-words style word count method to calculate term frequency, and use the normal logarithm method to compute inverse document frequency. The model can be saved for later use. After the model is build, we can search similar documents according to a given string. As a random example, let’s just use the first sentence in our first piece of news in the dataset as search target: <code>"a brazilian man who earns a living by selling space for tattoo adverts on his body is now looking for a customer for his forehead"</code>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let query model doc k =
-  (* TODO: change api *)
   let typ = Owl_nlp_similarity.Cosine in
   let vec = Nlp.Tfidf.apply model doc in
   let knn = Nlp.Tfidf.nearest ~typ model vec k in
   knn</code></pre>
 </div>
+<p>Recall the three gradients in vector space model: choosing dimension topic words, mapping document to vector, and the measurement of similarity. Here we use the <em>consine similarity</em> as a way to measure how aligned two vectors <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are. It is defined as:</p>
+<p><span class="math display">\[cos(\theta) = \frac{A.B}{\|A\|~\|B\|}\]</span>.</p>
+<p>We will talk about the similarity measurement in detail later. Next, the <code>vec</code> returned by the <code>apply</code> functions return an array of <code>(int * float)</code> tuples. For each item, the integer is the tokenised index of a word in the input document <code>doc</code>, and the float number is the corresponding TF-IDF value, based on the <code>model</code> we get from previous step. Finally, the <code>nearest</code> function search all the documents and find the vectors that has the largest similarity with the target document. Let’s show the top-10 result by setting <code>k</code> to 10:</p>
+<div class="highlight">
+<pre><code class="language-text">val knn : (int * float) array =
+  [|(11473, -783.546068863270875); (87636, -669.76533603535529);
+    (121966, -633.92555577720907); (57239, -554.838541799660675);
+    (15810, -550.95468134048258); (15817, -550.775276912183131);
+    (15815, -550.775276912183131); (83282, -547.322385552312426);
+    (44647, -526.074567425088844); (0, -496.924176137374445)|]</code></pre>
+</div>
+<p>The returned result shows the id of the matched documents. We can retrieve each document by running e.g.&nbsp;<code>Owl_nlp.Corpus.get corpus 11473</code>. (TODO: what is the second number?) To save you some effort to do that, here we list link to some of the original news that are matched to be similar to the target document:</p>
+<ol type="1">
+<li><em>Every tatto tells a story</em>, doc id: 11473. [<a href="https://www.bbc.co.uk/news/magazine-27831231">Link</a>]</li>
+<li><em>The Complete Guide to Using Social Media for Customer Service</em>, doc id: 87636. [<a href="https://buffer.com/resources/social-media-for-customer-service-guide">Link</a>]</li>
+<li><em>Murder ink? Tattoos can be tricky as evidence</em>, doc id: 57239. [<a href="https://www.gazettenet.com/Archives/2014/06/tattoos-hg-060514">Link</a>]</li>
+<li><em>Scottish independence: Cinemas pull referendum adverts</em>, doc id: 15810. [<a href="https://www.bbc.co.uk/news/uk-scotland-scotland-politics-27602601">Link</a>]</li>
+<li><em>The profusion of temporarily Brazilian-themed products</em>, doc id:44647. [<a href="https://www.bbc.co.uk/news/magazine-27879430">Link</a>]</li>
+</ol>
+<p>If you are interested, the input document comes from <a href="https://www.bbc.co.uk/news/blogs-news-from-elsewhere-27051009">this</a> BBC news: <em>Brazil: Man ‘earns a living’ from tattoo ads</em>. Then you can see that, the searched result is actually quite related to the input document, especially the first one, which is exactly the same story written in another piece of news. The second result is somewhat distant. The word “customer” is heavily used in this document, and we can guess that it is also not frequently seen throughout the text corpus. The fourth news is not about the tattoo guy, but this news features the topic of “customer” and “adverts”. The fifth news is chosen apparently because of the non-frequent word “brazilian” carries a lot of weight in TF-IDF. The interesting thing is that the same document, the first document, is ranked only 10th closest. Note that we just simply take a random sentence without any preprocessing or keyword design, also we use the un-trimmed version of text corpus. Even so, we can still achieves a somewhat satisfactory matching result, and the result fits nicely with the working mechanisms of the TF-IDF method.</p>
 </section>
 <section class="level2" id="latent-dirichlet-allocation-lda">
 <h2>Latent Dirichlet Allocation (LDA)</h2>
