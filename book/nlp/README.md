@@ -243,12 +243,18 @@ Back to the theme of mapping documents to vector space. In the next chapter, we 
 
 ## Bag of Words (BOW)
 
-Explain what is BOW, simply counting the frequency. What are the pros and cons of this method?
+The Bag of Words is a simple way to map docs into a vector space.
+This space uses all the vocabulary as the dimensions.
+Suppose there are totally $N$ different words in the vocabulary, then the vector space is of $N$ dimension.
+The mapping function is simply counting how many times each word in the vocabulary appears in a document.
 
-Simple example
+For example, let's use the five words "news", "about", "coronavirus", "test", "cases" as the five dimensions in the vector space.
+Then if a document is "...we heard news a new coronavirus vaccine is being developed which is expected to be tested about September..." will be represented as `[1, 1, 1, 1, 0]` and the document "...number of positive coronavirus cases is 100 and cumulative cases are 1000..." will be projected to vector `[0, 0, 1, 0, 2]`.
 
-```ocaml
-(* count the term occurrence in a document *)
+This Bag of Words method is easy to implement based on the text corpus.
+We first define a function that count the term occurrence in a document and return a hash table:
+
+```ocaml env=nlp:bow01
 let term_count htbl doc =
   Array.iter
     (fun w ->
@@ -258,8 +264,12 @@ let term_count htbl doc =
         Hashtbl.replace htbl w (a +. 1.)
       | false -> Hashtbl.add htbl w 1.)
     doc
+```
 
-(* build bag-of-words for the corpus *)
+The hash table contains all the counts of words in this document. Of course, we can also represent the returned results as an array of integers, though the array would likely be sparse.
+Then we can apply this function to all the documents in the corpus using the map function:
+
+```ocaml env=nlp:bow01
 let build_bow corpus =
   Nlp.Corpus.mapi_tok
     (fun i doc ->
@@ -269,6 +279,18 @@ let build_bow corpus =
     corpus
 ```
 
+Based on this bag of words, the similarity between two vectors can be measured using different methods, e.g. with a simple dot product.
+
+This method is easy to implement and the computation is inexpensive.
+It maybe simple, but for some tasks, especially those that has no strict requirement for context or position of words, this method proves to work well.
+For example, to cluster spam email, we only need to specify proper keywords as dimensions, such as "income", "bonus", "extra", "cash", "free", "refund", "promise" etc.
+We can expect that the spam email texts will be clustered closely and easy to recognise in this vector space using the bag of words.
+
+On the other hand, this simple approach does have its own problems.
+Back to the previous example, if we want to get how close the a document is to "news about coronavirus test cases", then the doc "...number of positive coronavirus cases is 100 and cumulative cases are 1000..." is scored the same as "hey, I got some good news about your math test result...".
+This is not what we expected.
+Intuitively, words like "coronavirus" should matter more than the more normal words like "test" and "about".
+That's why we are going to introduce an improved method in the next section.
 
 ## Term Frequency–Inverse Document Frequency (TFIDF)
 
