@@ -249,7 +249,7 @@ Suppose there are totally $N$ different words in the vocabulary, then the vector
 The mapping function is simply counting how many times each word in the vocabulary appears in a document.
 
 For example, let's use the five words "news", "about", "coronavirus", "test", "cases" as the five dimensions in the vector space.
-Then if a document is "...we heard news a new coronavirus vaccine is being developed which is expected to be tested about September..." will be represented as `[1, 1, 1, 1, 0]` and the document "...number of positive coronavirus cases is 100 and cumulative cases are 1000..." will be projected to vector `[0, 0, 1, 0, 2]`.
+Then if a document is `"...we heard news a new coronavirus vaccine is being developed which is expected to be tested about September..."` will be represented as `[1, 1, 1, 1, 0]` and the document `"...number of positive coronavirus cases is 100 and cumulative cases are 1000..."` will be projected to vector `[0, 0, 1, 0, 2]`.
 
 This Bag of Words method is easy to implement based on the text corpus.
 We first define a function that count the term occurrence in a document and return a hash table:
@@ -286,17 +286,60 @@ It maybe simple, but for some tasks, especially those that has no strict require
 For example, to cluster spam email, we only need to specify proper keywords as dimensions, such as "income", "bonus", "extra", "cash", "free", "refund", "promise" etc.
 We can expect that the spam email texts will be clustered closely and easy to recognise in this vector space using the bag of words.
 
+Actually, one even simpler method is called Boolean model. Instead of term frequency (count of word), the table only contains 1 or 0 to indicate if a word is present in a document.
+This approach might also benefit from its simplicity and proved to be useful in certain tasks, but it loses the information about the importance of the word. One can easily construct a document that is close to everyone else, by putting all the vocabulary together.
+The bag of word method fixes this problem.
+
 On the other hand, this simple approach does have its own problems.
-Back to the previous example, if we want to get how close the a document is to "news about coronavirus test cases", then the doc "...number of positive coronavirus cases is 100 and cumulative cases are 1000..." is scored the same as "hey, I got some good news about your math test result...".
+Back to the previous example, if we want to get how close the a document is to `"news about coronavirus test cases"`, then the doc `"...number of positive coronavirus cases is 100 and cumulative cases are 1000..."` is scored the same as `"hey, I got some good news about your math test result..."`.
 This is not what we expected.
 Intuitively, words like "coronavirus" should matter more than the more normal words like "test" and "about".
 That's why we are going to introduce an improved method in the next section.
 
-## Term Frequency–Inverse Document Frequency (TFIDF)
+## Term Frequency–Inverse Document Frequency (TF-IDF)
 
-Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.
+In this previous section, we use the count of each term in representing document as vector.
+It is a way to represent the frequency the term in the document, and we can call it *term frequency*.
+In the previous section we have seen the intuition that the meaning of different word should be different.
+This cannot be fixed by simply using term count.
+In this section we introduce the idea of *Inverse Document Frequency* (IDF) to address this problem.
 
-Explain why TFIDF is better than BOW, what is the motivation. Give an example to illustrate.
+The basic idea is simple.
+The IDF is used to represent how common a word is across all the documents. You can imagine that if a word is used throughout all the documents, then it must be of less importance in determining a feature of a document.
+On the other hand, if a word exists in only 1-2 documents, and where it exists, this word must be of crucial importance to determine its topic.
+Therefore, the IDF factor can be multiplied with the term frequency to present a more accurate metric for representing a document as vector.
+This approach is called TF-IDF.
+
+Actually, the two parts TF and IDF are just a framework for different computation methods.
+To compute the term frequency, we can use the count of words $c$, or the percentage of word in the current document $\frac{c}{N}$ where $N$ is the total number of words in the document.
+Another computation method is logarithm normalisation which use $\textrm{log}(c + 1)$.
+We can even use the boolean count that take the frequency of word that exists to be 1 that the ones that are not to be 0.
+These methods are all defined in the `Owl_nlp.Tfidf` module.
+
+```ocaml
+type tf_typ =
+  | Binary
+  | Count
+  | Frequency
+  | Log_norm
+```
+
+The same goes for the IDF. To measure how common a word $w$ is across all the document, a common way to compute is to do: $log(\frac{N_D}{n_w})$, where $N_D$ is the total number of documents and $n_w$ is the number of documents with term $w$ in it.
+An improved version is called `Idf_Smooth`. It is calculated as $log(\frac{N_D}{n_w + 1})$.
+This method avoid the $n_w$ to be zero to cause divide error, and also avoid getting a `0` for a word just because it used across all the documents.
+In Owl they are included in the type `df_typ`.
+Here the `Unary` method implies not using IDF, only term frequency.
+
+```ocaml
+type df_typ =
+  | Unary
+  | Idf
+  | Idf_Smooth
+```
+
+
+The corpus we have built in the previous section is used as input to the following function.
+Give an example to illustrate.
 
 ```ocaml
 let build_tfidf corpus =

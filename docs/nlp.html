@@ -144,7 +144,7 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
 <section class="level2" id="bag-of-words-bow">
 <h2>Bag of Words (BOW)</h2>
 <p>The Bag of Words is a simple way to map docs into a vector space. This space uses all the vocabulary as the dimensions. Suppose there are totally <span class="math inline">\(N\)</span> different words in the vocabulary, then the vector space is of <span class="math inline">\(N\)</span> dimension. The mapping function is simply counting how many times each word in the vocabulary appears in a document.</p>
-<p>For example, let’s use the five words “news”, “about”, “coronavirus”, “test”, “cases” as the five dimensions in the vector space. Then if a document is “…we heard news a new coronavirus vaccine is being developed which is expected to be tested about September…” will be represented as <code>[1, 1, 1, 1, 0]</code> and the document “…number of positive coronavirus cases is 100 and cumulative cases are 1000…” will be projected to vector <code>[0, 0, 1, 0, 2]</code>.</p>
+<p>For example, let’s use the five words “news”, “about”, “coronavirus”, “test”, “cases” as the five dimensions in the vector space. Then if a document is <code>"...we heard news a new coronavirus vaccine is being developed which is expected to be tested about September..."</code> will be represented as <code>[1, 1, 1, 1, 0]</code> and the document <code>"...number of positive coronavirus cases is 100 and cumulative cases are 1000..."</code> will be projected to vector <code>[0, 0, 1, 0, 2]</code>.</p>
 <p>This Bag of Words method is easy to implement based on the text corpus. We first define a function that count the term occurrence in a document and return a hash table:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let term_count htbl doc =
@@ -169,12 +169,29 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
 </div>
 <p>Based on this bag of words, the similarity between two vectors can be measured using different methods, e.g.&nbsp;with a simple dot product.</p>
 <p>This method is easy to implement and the computation is inexpensive. It maybe simple, but for some tasks, especially those that has no strict requirement for context or position of words, this method proves to work well. For example, to cluster spam email, we only need to specify proper keywords as dimensions, such as “income”, “bonus”, “extra”, “cash”, “free”, “refund”, “promise” etc. We can expect that the spam email texts will be clustered closely and easy to recognise in this vector space using the bag of words.</p>
-<p>On the other hand, this simple approach does have its own problems. Back to the previous example, if we want to get how close the a document is to “news about coronavirus test cases”, then the doc “…number of positive coronavirus cases is 100 and cumulative cases are 1000…” is scored the same as “hey, I got some good news about your math test result…”. This is not what we expected. Intuitively, words like “coronavirus” should matter more than the more normal words like “test” and “about”. That’s why we are going to introduce an improved method in the next section.</p>
+<p>Actually, one even simpler method is called Boolean model. Instead of term frequency (count of word), the table only contains 1 or 0 to indicate if a word is present in a document. This approach might also benefit from its simplicity and proved to be useful in certain tasks, but it loses the information about the importance of the word. One can easily construct a document that is close to everyone else, by putting all the vocabulary together. The bag of word method fixes this problem.</p>
+<p>On the other hand, this simple approach does have its own problems. Back to the previous example, if we want to get how close the a document is to <code>"news about coronavirus test cases"</code>, then the doc <code>"...number of positive coronavirus cases is 100 and cumulative cases are 1000..."</code> is scored the same as <code>"hey, I got some good news about your math test result..."</code>. This is not what we expected. Intuitively, words like “coronavirus” should matter more than the more normal words like “test” and “about”. That’s why we are going to introduce an improved method in the next section.</p>
 </section>
-<section class="level2" id="term-frequencyinverse-document-frequency-tfidf">
-<h2>Term Frequency–Inverse Document Frequency (TFIDF)</h2>
-<p>Explain what is TFIDF, mention Cambridge Wolfson fellow. The corpus we have built in the previous section is used as input to the following function.</p>
-<p>Explain why TFIDF is better than BOW, what is the motivation. Give an example to illustrate.</p>
+<section class="level2" id="term-frequencyinverse-document-frequency-tf-idf">
+<h2>Term Frequency–Inverse Document Frequency (TF-IDF)</h2>
+<p>In this previous section, we use the count of each term in representing document as vector. It is a way to represent the frequency the term in the document, and we can call it <em>term frequency</em>. In the previous section we have seen the intuition that the meaning of different word should be different. This cannot be fixed by simply using term count. In this section we introduce the idea of <em>Inverse Document Frequency</em> (IDF) to address this problem.</p>
+<p>The basic idea is simple. The IDF is used to represent how common a word is across all the documents. You can imagine that if a word is used throughout all the documents, then it must be of less importance in determining a feature of a document. On the other hand, if a word exists in only 1-2 documents, and where it exists, this word must be of crucial importance to determine its topic. Therefore, the IDF factor can be multiplied with the term frequency to present a more accurate metric for representing a document as vector. This approach is called TF-IDF.</p>
+<p>Actually, the two parts TF and IDF are just a framework for different computation methods. To compute the term frequency, we can use the count of words <span class="math inline">\(c\)</span>, or the percentage of word in the current document <span class="math inline">\(\frac{c}{N}\)</span> where <span class="math inline">\(N\)</span> is the total number of words in the document. Another computation method is logarithm normalisation which use <span class="math inline">\(\textrm{log}(c + 1)\)</span>. We can even use the boolean count that take the frequency of word that exists to be 1 that the ones that are not to be 0. These methods are all defined in the <code>Owl_nlp.Tfidf</code> module.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type tf_typ =
+  | Binary
+  | Count
+  | Frequency
+  | Log_norm</code></pre>
+</div>
+<p>The same goes for the IDF. To measure how common a word <span class="math inline">\(w\)</span> is across all the document, a common way to compute is to do: <span class="math inline">\(log(\frac{N_D}{n_w})\)</span>, where <span class="math inline">\(N_D\)</span> is the total number of documents and <span class="math inline">\(n_w\)</span> is the number of documents with term <span class="math inline">\(w\)</span> in it. An improved version is called <code>Idf_Smooth</code>. It is calculated as <span class="math inline">\(log(\frac{N_D}{n_w + 1})\)</span>. This method avoid the <span class="math inline">\(n_w\)</span> to be zero to cause divide error, and also avoid getting a <code>0</code> for a word just because it used across all the documents. In Owl they are included in the type <code>df_typ</code>:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type df_typ =
+  | Unary
+  | Idf
+  | Idf_Smooth</code></pre>
+</div>
+<p>The corpus we have built in the previous section is used as input to the following function. Give an example to illustrate.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_tfidf corpus =
   (* configure and build the model *)
