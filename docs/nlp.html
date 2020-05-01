@@ -243,7 +243,8 @@ However, the real world text, article or news, are rarely as simple as collectio
 <p>The input to LDA is still the text corpus we have built. We also need to specify how many topics we want the text corpus to be divided into. Let’s say we set the number of topics to 8. The process is simple, we first initialise the model using the <code>init</code> function and then we can train the model.</p>
 <p>The trained model contain two matrices. The first is called the “document-topic”, which contains the number of tokens assigned to each topic in each doc. It looks like this:</p>
 <div class="highlight">
-<pre><code class="language-text">    C0  C1  C2  C3  C4  C5  C6  C7
+<pre><code class="language-text">val dk : Arr.arr =
+    C0  C1  C2  C3  C4  C5  C6  C7
 R0  13  13   4   7  11  12  14  16
 R1  35 196  15  42  31  23 122   4
 R2   7   9   3   1   3 163   2   4
@@ -253,7 +254,8 @@ R3  10  22  23 140  18  11  17 143
 <p>This matrix shows the distribution of topics in each document, represented by a row. Each column represents a topic. For example, you can see that the fifth column of in the third document (R2) is obviously larger than the others. It means that dominantly talks about only the topic 6. Similarly, in the fourth document, the topic 4 and topic 8 are of equal coverage.</p>
 <p>However, what do these topics look like any way? This concerns the other trained matrix in the model: the “word-topic table”. It contains the number of tokens assigned to each topic for each word. Here is what it looks like:</p>
 <div class="highlight">
-<pre><code class="language-text">    C0  C1  C2  C3  C4  C5  C6  C7
+<pre><code class="language-text">val wk : Arr.arr =
+    C0  C1  C2  C3  C4  C5  C6  C7
 R0   1   0   0   0   0   0   0   0
 R1   0   0   0   1   0   0   0   0
 R2   0   0   0   0   3   0   0   0
@@ -280,12 +282,13 @@ Topic 6:  interview australia world cup china south accused pm hill work
 Topic 7:  police health govt hospital plan boost car minister school house
 Topic 8:  new water killed high attack public farmers funding police urged</code></pre>
 </div>
-<p>Each topic is a collection of ten words, but you can “feel” a common theme by connecting these dots together, even though some words may stride away a bit far away from this theme. The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight. Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.</p>
-<p>Next, we will briefly introduce how the training algorithm works to get the topics using LDA. The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words. We cannot directly observe the topic, only documents and words. Therefore the topics are latent. During the training, we perform sampling on each document one by one in the text corpus. In a document, we look at each word. We assume that all the other numbers in the two matrix are correct except for the current word we are looking at. Then we re-calculate the probability that the The current word is already assigned a topic <code>t</code>. We calculate the percentage of words that are also assigned the same topic in the whole document <span class="math inline">\(p(t|d)\)</span>. Then we compute the percentage that, across all the documents, the word is assigned to topic <code>t</code> <span class="math inline">\(p(w|t)\)</span>. Therefore, by multiplying these two probability, we can get the new probability that the topic <code>t</code> generates word <code>w</code>.</p>
-<p>(TODO: Deeper understanding of LDA implementation and intuition)</p>
-<p>Initialisation: Dirichlet distribution</p>
-<p>Gibbs sampling</p>
-<p>Owl supports the following types of LDA algorithms: <code>SimpleLDA</code>, <code>SparseLDA</code>, <code>FTreeLDA</code>, <code>LightLDA</code>. References of these methods.</p>
+<p>Here each topic is represented by ten of its highest ranked words in the vocabulary. but you can “feel” a common theme by connecting these dots together, even though some words may stride away a bit far away from this theme. We cannot directly observe the topic, only documents and words. Therefore the topics are latent. The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight. Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.</p>
+<p>Next, we will briefly introduce how the training algorithm works to get the topics using LDA. The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words. During the training, we perform sampling on each document one by one in the text corpus. In a document, we look at each word. We assume that all the other numbers in the two matrix are correct except for the current word we are looking at. Then we re-calculate the probability that the The current word is already assigned a topic <code>t</code>. We calculate the percentage of words that are also assigned the same topic in the whole document <span class="math inline">\(p(t|d)\)</span>. Then we compute the percentage that, across all the documents, the word is assigned to topic <code>t</code> <span class="math inline">\(p(w|t)\)</span>. Therefore, by multiplying these two probability, we can get the new probability that the topic <code>t</code> generates word <code>w</code>.</p>
+<p>Intuition</p>
+<p>General training process: document one by one, sampling for each document</p>
+<p>What is sampling; how does it fit into the training. Gibbs sampling. Owl supports the following types of LDA algorithms: <code>SimpleLDA</code>, <code>SparseLDA</code>, <code>FTreeLDA</code>, <code>LightLDA</code>. References of these methods.</p>
+<p>How LDA methods differs: the initialisation and sampling</p>
+<p>what is Dirichlet distribution; IMAGE: <code>Stats.dirichlet_rvs</code> It i used in the inferencing/generation of docs how does it fit into the training (used only once? every time?)</p>
 <p>Application of LDA is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles.</p>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">

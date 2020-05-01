@@ -432,6 +432,7 @@ The process is simple, we first initialise the model using the `init` function a
 The trained model contain two matrices. The first is called the "document-topic", which contains the number of tokens assigned to each topic in each doc. It looks like this:
 
 ```text
+val dk : Arr.arr =
     C0  C1  C2  C3  C4  C5  C6  C7
 R0  13  13   4   7  11  12  14  16
 R1  35 196  15  42  31  23 122   4
@@ -450,6 +451,7 @@ However, what do these topics look like any way? This concerns the other trained
 Here is what it looks like:
 
 ```text
+val wk : Arr.arr =
     C0  C1  C2  C3  C4  C5  C6  C7
 R0   1   0   0   0   0   0   0   0
 R1   0   0   0   1   0   0   0   0
@@ -484,13 +486,14 @@ Topic 7:  police health govt hospital plan boost car minister school house
 Topic 8:  new water killed high attack public farmers funding police urged
 ```
 
-Each topic is a collection of ten words, but you can "feel" a common theme by connecting these dots together, even though some words may stride away a bit far away from this theme.
+Here each topic is represented by ten of its highest ranked words in the vocabulary.
+but you can "feel" a common theme by connecting these dots together, even though some words may stride away a bit far away from this theme.
+We cannot directly observe the topic, only documents and words. Therefore the topics are latent.
 The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight.
 Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.
 
 Next, we will briefly introduce how the training algorithm works to get the topics using LDA.
 The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words.
-We cannot directly observe the topic, only documents and words. Therefore the topics are latent.
 During the training, we perform sampling on each document one by one  in the text corpus.
 In a document, we look at each word.
 We assume that all the other numbers in the two matrix are correct except for the current word we are looking at.
@@ -499,13 +502,21 @@ The current word is already assigned a topic `t`. We calculate the percentage of
 Then we compute the percentage that, across all the documents, the word is assigned to topic `t` $p(w|t)$.
 Therefore, by multiplying these two probability, we can get the new probability that the topic `t` generates word `w`.
 
-(TODO: Deeper understanding of LDA implementation and intuition)
+Intuition
 
-Initialisation: Dirichlet distribution
+General training process: document one by one, sampling for each document
 
-Gibbs sampling
-
+What is sampling; how does it fit into the training.
+Gibbs sampling.
 Owl supports the following types of LDA algorithms: `SimpleLDA`, `SparseLDA`, `FTreeLDA`, `LightLDA`. References of these methods.
+
+How LDA methods differs: the initialisation and sampling
+
+
+what is Dirichlet distribution;
+IMAGE: `Stats.dirichlet_rvs`
+It i used in the inferencing/generation of docs
+how does it fit into the training (used only once? every time?)
 
 Application of LDA is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles.
 
