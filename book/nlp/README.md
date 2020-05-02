@@ -415,6 +415,8 @@ More often than not, an article contains one or more *topics*. For example, it c
 Moreover, each of these topics can hardly be totally covered by just one single word.
 To this end we introduce the problem *topic modelling*: instead of proposing a search query to find similar content in text corpus, we hope to automatically cluster the documents according to several topics, and each topic is represented by several words.
 
+### Topic Modelling Example
+
 One of such method to do topic modelling is called *Latent Dirichlet Allocation* (LDA).
 We have implemented the `Owl_nlp.Lda` module to perform this method.
 Without diving into the theory behind this method, let's first use an example to demonstrate how LDA works.
@@ -492,34 +494,79 @@ We cannot directly observe the topic, only documents and words. Therefore the to
 The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight.
 Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.
 
+
+### Gibbs Sampling
+
 Next, we will briefly introduce how the training algorithm works to get the topics using LDA.
+The basic idea is that we go through the documents one by one. Each word is initially assigned a random topic -- just a wild guess, since currently there is not way we can know which topic this word belongs to at this stage.
+After that, we iterate over all the documents again and again.
+In each iterate, we look at each word, and try to find a hopefully a bit more proper topic for this word.
+In this process, we assume that all the other topic assignments in the whole text corpus are correct except for the current word we are looking at.
+Then we move forward to the next word in this document.
+In one iteration, we process all the words in all the documents in the same way.
+After enough number of iterations, we can get a quite accurate assignment for each word.
+And then of course the topics of each document would be clear.
+
+We need to further explain some details in this general description.
+The most important question is, in the sampling of a document, how exactly do we update the topic assignment of a word?
+We use the *Gibbs Sampling* algorithm.
+For this word, we expect to get a vector of length $k$ where $k$ is the number of topics. It represents a conditional probability distribution of a one word topic assignment conditioned on the rest of the model.
+In this distribution vector, the k-th element is:
+
+$$p(z_{d,n}=k | Z_{-d,n}, W, \alpha, \beta) = \frac{n_{d,k} + \alpha_k}{\sum_{i=1}^K~(n_{d,i} + \alpha_i)}~\frac{v_{k,w_{d.n}} + \beta_{w_{d,n}}}{\sum_iv_{k, i} + \beta_i}.$$
+
+Her $w_{d,n}$ is the current word we are looking at. $K$ is the total number of topics.
+To perform the sampling, we assume that only the current topic assignment to $w_{d,n}$ is wrong, so we remove the current assignment from the model before this round of iteration.
+$Z$ is the topic assignment of all words in all documents, and $W$ is the text corpus.
+
+This computations is multiplication of two parts.
+In the first part, $n_{d,k}$ show how many times the document $d$ uses topic $k$, and $\alpha_k$ is the prior weight of topic $k$ in document.
+Therefore, this item means the percentage of words that are also assigned the same topic in the whole document $p(t|d)$.
+To put it more simply, it shows how much this document likes topic $k$.
+The larger it is, the more likely we will assign the current word to topic $k$ again.
+In the second part, $v_{k,w}$ is the number of times topic $k$ uses word $w$. $\beta_w$ is the prior weight of word $w$ in a topic.
+This item is the percentage of words that are also assigned the same topic in the whole document.
+Therefore, this item indicate how a topic likes the word $w$.
+Larger number means $w$ will continue be assigned this topic $k$ again.
+
+Finally, we multiply these two items to get the final distribution of probability for the word $w_{d,n}$, in the form of a vector of length $K$.
+Then we can uniformly draw a topic from this vector.
+As we have said, we iterate this sampling process again and again until the model is good enough.
+
+
+### Dirichlet Distribution
+
+Now that we know how the model is trained, let's step back to know a bit more about how the LDA think about the world.
 The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words.
-During the training, we perform sampling on each document one by one  in the text corpus.
-In a document, we look at each word.
-We assume that all the other numbers in the two matrix are correct except for the current word we are looking at.
-Then we re-calculate the probability that the
-The current word is already assigned a topic `t`. We calculate the percentage of words that are also assigned the same topic in the whole document $p(t|d)$.
-Then we compute the percentage that, across all the documents, the word is assigned to topic `t` $p(w|t)$.
-Therefore, by multiplying these two probability, we can get the new probability that the topic `t` generates word `w`.
+This makes sense, since we don't need the text in order to find the topics in an article.
+In the LDA model, it can be used to generate a document in this way.
+Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3.
+Then using the LDA model, we can first picks one of these topics randomly, and then according to the words this topic contains, we can pick a word randomly.
+That generates one word. We can do the same for the next nine words.
+Voila! We now have a "fake" document. The LDA hopes to make this fake document to be close to a real document as much as possible.
+In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.
 
-Intuition
+In the previous chapter we say that at the beginning we just give some random guess about the probability distribution of words and topics etc., but that's not exactly true.
+Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic.
+But that's rarely the case. An article cannot talk about all the topics at the same time.
+What we really hope however, is that a single document belongs to a single topic, which is a more real-world scenario.  
+The same goes for the word-topic table.
 
-General training process: document one by one, sampling for each document
+To that end, LDA uses the [Dirichlet Distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution) to perform this task.
+It is a family of continuous multivariate probability distributions parameterised by a vector $\alpha$.
+For example, suppose we have only two topics in the whole world.
+The tuple `(0, 1)` means it's totally about one topic, and `(1,0)` means its totally about the other.
+We can run the `Stats.dirichlet_rvs` function to generate such a pair of float numbers.
+The results are shown in [@fig:nlp:dirichlet].
+Both figures have the same number of dots.
+It shows that with smaller $\alpha$ value, the distribution are pushed to the corners, where it is obviously about one topic or the other.
+A larger $\alpha$ value, however, makes the topic concentrate around the middle where it's a mixture of both topics.
 
-What is sampling; how does it fit into the training.
-Gibbs sampling.
-Owl supports the following types of LDA algorithms: `SimpleLDA`, `SparseLDA`, `FTreeLDA`, `LightLDA`. References of these methods.
+![Two dimensional dirichlet distribution with different alpha parameters](images/nlp/dirichlet.png "dirichlet"){width=100% #fig:nlp:dirichlet}
 
-How LDA methods differs: the initialisation and sampling
-
-
-what is Dirichlet distribution;
-IMAGE: `Stats.dirichlet_rvs`
-It i used in the inferencing/generation of docs
-how does it fit into the training (used only once? every time?)
-
-Application of LDA is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles.
-
+We have introduced the basic mechanism of LDA.
+There are many work that extend based on it, such as the SparseLDA in  [@yao2009efficient], and LightLDA in [@yuan2015lightlda].
+They may differ in details but share similar basic theory.
 
 ## Latent Semantic Analysis (LSA)
 
@@ -533,6 +580,7 @@ Read
   * https://en.wikipedia.org/wiki/Latent_semantic_analysis
   * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/
 
+Application of topic modelling is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles, etc.
 
 ## Indexing and Searching
 
