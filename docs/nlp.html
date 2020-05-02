@@ -309,10 +309,13 @@ The same goes for the word-topic table.</p>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
 <h2>Latent Semantic Analysis (LSA)</h2>
-<p>Explain what is LSA.</p>
-<p>Explain clearly the intuition of SVD</p>
-<p>How it differs from LDA w.r.t. derived topics.</p>
-<p>Read * https://en.wikipedia.org/wiki/Latent_semantic_analysis * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/</p>
+<p>construct document-word table explicit (count or TFIDF as weight). vectors (points) in the space: high-rank and sparse. Instead of using iterative approaches like LDA, it applies a singular value decomposition (SVD)</p>
+<p>perform SVD. Explain: why the first represent dk table and the third represent the tk table.</p>
+<p>Now the truncation, with only the <span class="math inline">\(k\)</span> largest singular values preserved.</p>
+<p>IMAGE: take only part of the topics</p>
+<p>Explain clearly the intuition of SVD: tilt the coordinate system until cover most of the existing points. Maybe illustrate this point with 2D example.</p>
+<p>Once we have the two tables, the model is trained, and using the model will be the same as in LDA example.</p>
+<p>Compare to LDA, this process is easy to understand and implement. Cons: SVD is computationally intensive and hard to iterate with new data. The result is decent, but as <a href="https://www.kaggle.com/rcushen/topic-modelling-with-lsa-and-lda">this blog</a> shows, it may not be as good as LDA in separating out the topic categories.</p>
 <p>Application of topic modelling is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles, etc.</p>
 </section>
 <section class="level2" id="indexing-and-searching">

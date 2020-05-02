@@ -570,15 +570,24 @@ They may differ in details but share similar basic theory.
 
 ## Latent Semantic Analysis (LSA)
 
-Explain what is LSA.
+construct document-word table explicit (count or TFIDF as weight). vectors (points) in the space: high-rank and sparse.
+Instead of using iterative approaches like LDA, it applies a singular value decomposition (SVD)
 
-Explain clearly the intuition of SVD
+perform SVD.
+Explain: why the first represent dk table and the third represent the tk table.
 
-How it differs from LDA w.r.t. derived topics.
+Now the truncation, with only the $k$ largest singular values preserved.
 
-Read
-  * https://en.wikipedia.org/wiki/Latent_semantic_analysis
-  * https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/
+IMAGE: take only part of the topics
+
+Explain clearly the intuition of SVD: tilt the coordinate system until cover most of the existing points.
+Maybe illustrate this point with 2D example.
+
+Once we have the two tables, the model is trained, and using the model will be the same as in LDA example.
+
+Compare to LDA, this process is easy to understand and implement.
+Cons: SVD is computationally intensive and hard to iterate with new data.
+The result is decent, but as [this blog](https://www.kaggle.com/rcushen/topic-modelling-with-lsa-and-lda) shows, it may not be as good as LDA in separating out the topic categories.
 
 Application of topic modelling is wide. It can be used for summarising the large corpus of text data, or automatic tagging of articles, etc.
 
