@@ -570,8 +570,14 @@ They may differ in details but share similar basic theory.
 
 ## Latent Semantic Analysis (LSA)
 
-construct document-word table explicit (count or TFIDF as weight). vectors (points) in the space: high-rank and sparse.
-Instead of using iterative approaches like LDA, it applies a singular value decomposition (SVD)
+Besides LDA, another common technique in performing topic modelling is the Latent Semantic Analysis (LSA).
+Its purpose is the same as LDA, which is to get two matrices: the document-topic table, and the word-topic table to show the probability distribution of topics in documents and words in topics.
+The difference is that, instead of using an iterative update approach, LSA explicitly builds the *document-word matrix* and then performs the singular value decomposition (SVD) on it to get the two aforementioned matrices.
+
+Assume the text corpus contains $n$ documents, and the vocabulary contains $m$ words, then the document-word matrix is of size $n\times~m$.
+We can use the simple word count as the element in this matrix. But as we have discussed in previous section, the count of words does not reflect the significance of a word, so a better way to fill in the document-word matrix is to use the TF-IDF approach for each word in a document.
+Apparently, this matrix would be quite sparse. Also its row vectors are in a very high dimension.
+The SVD is then used to reduce the dimension and redundancy in this matrix.
 
 perform SVD.
 Explain: why the first represent dk table and the third represent the tk table.

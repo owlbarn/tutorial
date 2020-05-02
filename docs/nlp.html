@@ -309,7 +309,8 @@ The same goes for the word-topic table.</p>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
 <h2>Latent Semantic Analysis (LSA)</h2>
-<p>construct document-word table explicit (count or TFIDF as weight). vectors (points) in the space: high-rank and sparse. Instead of using iterative approaches like LDA, it applies a singular value decomposition (SVD)</p>
+<p>Besides LDA, another common technique in performing topic modelling is the Latent Semantic Analysis (LSA). Its purpose is the same as LDA, which is to get two matrices: the document-topic table, and the word-topic table to show the probability distribution of topics in documents and words in topics. The difference is that, instead of using an iterative update approach, LSA explicitly builds the <em>document-word matrix</em> and then performs the singular value decomposition (SVD) on it to get the two aforementioned matrices.</p>
+<p>Assume the text corpus contains <span class="math inline">\(n\)</span> documents, and the vocabulary contains <span class="math inline">\(m\)</span> words, then the document-word matrix is of size <span class="math inline">\(n\times~m\)</span>. We can use the simple word count as the element in this matrix. But as we have discussed in previous section, the count of words does not reflect the significance of a word, so a better way to fill in the document-word matrix is to use the TF-IDF approach for each word in a document. Apparently, this matrix would be quite sparse. Also its row vectors are in a very high dimension. The SVD is then used to reduce the dimension and redundancy in this matrix.</p>
 <p>perform SVD. Explain: why the first represent dk table and the third represent the tk table.</p>
 <p>Now the truncation, with only the <span class="math inline">\(k\)</span> largest singular values preserved.</p>
 <p>IMAGE: take only part of the topics</p>
