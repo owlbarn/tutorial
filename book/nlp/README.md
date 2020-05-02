@@ -584,7 +584,7 @@ Explain: why the first represent dk table and the third represent the tk table.
 
 Now the truncation, with only the $k$ largest singular values preserved.
 
-IMAGE: take only part of the topics
+![Applying SVD and then truncation on document-word matrix to retrieve topic model](images/nlp/svd.png "svd"){width=100% #fig:nlp:svd}
 
 Explain clearly the intuition of SVD: tilt the coordinate system until cover most of the existing points.
 Maybe illustrate this point with 2D example.
