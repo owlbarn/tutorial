@@ -213,7 +213,7 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
   knn</code></pre>
 </div>
 <p>Recall the three gradients in vector space model: choosing dimension topic words, mapping document to vector, and the measurement of similarity. Here we use the <em>consine similarity</em> as a way to measure how aligned two vectors <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are. It is defined as:</p>
-<p><span class="math display">\[cos(\theta) = \frac{A.B}{\|A\|~\|B\|}\]</span>.</p>
+<p><span id="eq:nlp:cosine"><span class="math display">\[cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.\qquad(1)\]</span></span></p>
 <p>We will talk about the similarity measurement in detail later. Next, the <code>vec</code> returned by the <code>apply</code> functions return an array of <code>(int * float)</code> tuples. For each item, the integer is the tokenised index of a word in the input document <code>doc</code>, and the float number is the corresponding TF-IDF value, based on the <code>model</code> we get from previous step. Finally, the <code>nearest</code> function search all the documents and find the vectors that has the largest similarity with the target document. Let’s show the top-10 result by setting <code>k</code> to 10:</p>
 <div class="highlight">
 <pre><code class="language-text">val knn : (int * float) array =
@@ -397,11 +397,17 @@ Topic 8:  new water killed high attack public farmers funding police urged</code
 </section>
 <section class="level2" id="search-relevant-documents">
 <h2>Search Relevant Documents</h2>
-<p>Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modelling method.</p>
+<p>Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to query models built using the previous topic modelling method.</p>
 <section class="level3" id="euclidean-and-cosine-similarity">
 <h3>Euclidean and Cosine Similarity</h3>
 <p>Define what is euclidean and cosine similarity. Emphasise both are correlated on a high-dimensional ball model.</p>
-<p>TODO: use an image to illustrate.</p>
+<p>In the previous sections, we see that the topic modelling techniques maps documents to a vector space of topics. We can use different metrics to compare the similarity between two vectors. Two of the commonly used are the <em>Euclidean</em> and <em>Cosine</em> distances. Suppose we have two vectors <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, both of length of <span class="math inline">\(n\)</span>. Then the Euclidean distance between these two are:</p>
+<p><span id="eq:nlp:euclidean"><span class="math display">\[\sqrt{\sum_{i=1}^n~(a_i - b_i)^2}.\qquad(2)\]</span></span></p>
+<p>and the cosine distance between is shown in eq.&nbsp;1 in previous sections. It is the dot product of two vectors divided by the product of the length of both vectors.</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:nlp:similarity" title="similarity" src="images/nlp/similarity.png"><figcaption>Figure 4: Euclidean and cosine distances one a two dimensional space</figcaption>
+</figure>
+<p>We have implemented both methods in the <code>Nlp.Similarity</code> module as similarity metrics for use in NLP. The relationship between the Euclidean and Cosine distances can be expressed in fig.&nbsp;4. There are two points on this two dimensional space. The Euclidean measures the direct distance of these two points, while the cosine similarity is about the degree between these two vectors. Therefore, the cosine similarity is more suitable for cases where the magnitude of the vectors does not matter. For example, in topic modelling, we already have two vectors representing documents. If we multiply all the elements in one of them by a scalar 10, the Euclidean distance between these two would change greatly. However, since the probability distribution in the vector does not change, we don’t expect the similarity between these two vectors to change. That’s why in this case we would prefer to use the cosine similarity as a measurement,</p>
 </section>
 <section class="level3" id="linear-searching">
 <h3>Linear Searching</h3>

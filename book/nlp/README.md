@@ -369,7 +369,7 @@ Recall the three gradients in vector space model: choosing dimension topic words
 Here we use the *consine similarity* as a way to measure how aligned two vectors $A$ and $B$ are.
 It is defined as:
 
-$$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}$$.
+$$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.$$ {#eq:nlp:cosine}
 
 We will talk about the similarity measurement in detail later.
 Next, the `vec` returned by the `apply` functions return an array of `(int * float)` tuples. For each item, the integer is the tokenised index of a word in the input document `doc`, and the float number is the corresponding TF-IDF value, based on the `model` we get from previous step.
@@ -642,14 +642,34 @@ It can even be used to effectively discover useful structure in large collection
 
 ## Search Relevant Documents
 
-Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to index and query model built using the previous topic modelling method.
+Topic models are effective tools for clustering documents based on their similarity or relevance. We can further use this tool to query relevant document given an input one. In this section, we will go through some techniques on how to query models built using the previous topic modelling method.
 
 ### Euclidean and Cosine Similarity
 
 Define what is euclidean and cosine similarity. Emphasise both are correlated on a high-dimensional ball model.
 
-TODO: use an image to illustrate.
+In the previous sections, we see that the topic modelling techniques maps documents to a vector space of topics.
+We can use different metrics to compare the similarity between two vectors.
+Two of the commonly used are the *Euclidean* and *Cosine* distances.
+Suppose we have two vectors $A$ and $B$, both of length of $n$.
+Then the Euclidean distance between these two are:
 
+$$\sqrt{\sum_{i=1}^n~(a_i - b_i)^2}.$$ {#eq:nlp:euclidean}
+
+and the cosine distance between is shown in [@eq:nlp:cosine] in previous sections.
+It is the dot product of two vectors divided by the product of the length of both vectors.  
+
+![Euclidean and cosine distances one a two dimensional space](images/nlp/similarity.png "similarity"){width=60% #fig:nlp:similarity}
+
+We have implemented both methods in the `Nlp.Similarity` module as similarity metrics for use in NLP.
+The relationship between the Euclidean and Cosine distances can be expressed in [@fig:nlp:similarity].
+There are two points on this two dimensional space.
+The Euclidean measures the direct distance of these two points, while the cosine similarity is about the degree between these two vectors.
+Therefore, the cosine similarity is more suitable for cases where the magnitude of the vectors does not matter.
+For example, in topic modelling, we already have two vectors representing documents.
+If we multiply all the elements in one of them by a scalar 10, the Euclidean distance between these two would change greatly.
+However, since the probability distribution in the vector does not change, we don't expect the similarity between these two vectors to change.
+That's why in this case we would prefer to use the cosine similarity as a measurement,
 
 ### Linear Searching
 
