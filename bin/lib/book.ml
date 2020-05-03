@@ -27,6 +27,16 @@ let head_item ?chapter_title () : Html.item =
     script ~a:["src","https://use.typekit.net/gfj8wez.js"] [];
     script ~a:["src","https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"] [];
     script [`Data "try{Typekit.load();}catch(e){}"];
+    (* Google Analytics and AdSense *)
+    script ~a:[
+      "async src","https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+      "data-ad-client","ca-pub-1868946892712371"] [];
+    script ~a:["async src","https://www.googletagmanager.com/gtag/js?id=UA-123353217-1"] [];
+    script [`Data "
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123353217-1');"];
   ]
 
 let title_bar,title_bar_frontpage =
