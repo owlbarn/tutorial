@@ -17,8 +17,18 @@ let head_item ?chapter_title () : Html.item =
     meta ~a:["charset","utf-8"] [];
     meta ~a:[
       "name","viewport";
-      "content","width=device-width, initial-scale=1.0"
-    ] [];
+      "content","width=device-width, initial-scale=1.0"] [];
+    (* Meta data for SEO *)
+    meta ~a:[
+      "name","description";
+      "content","OCaml Scientific and Engineering Computing - Tutorial Book"] [];
+    meta ~a:[
+      "name","keywords";
+      "content","OCaml, Data Science, Data Analytics, Analytics, Functional Programming, Machine Learning, Deep Neural Network, Scientific Computing, Numerical Algorithm, Tutorial, Linear Algebra, Matrix"] [];
+    meta ~a:[
+      "name","author";
+      "content","Liang Wang"] [];
+    (* Basic Header Info *)
     title [`Data page_title];
     link ~a:["rel","stylesheet"; "href","css/app.css"] [];
     link ~a:["rel","stylesheet"; "href","css/prism.css"] [];
