@@ -457,9 +457,13 @@ In another word, when we are looking at real document, LDA tries to maximise the
 
 ### Dirichlet Distribution
 
-There are something we need to add to the generative process in the prevous section.
+There are something we need to add to the generative process in the previous section.
 We say that we pick topics randomly from the distribution $\Theta$ and $\phi$ to get topic and the word in topic.
-However, one problem is that: how $Theta$ and $phi$ are generated?
+One thing to make clear is that, the choice of topic or word is actually taken according to a [categorical distribution](https://en.wikipedia.org/wiki/Categorical_distribution), parameterised by $\Theta$ and $\phi$.
+That is to say: $Z_{d,w} \sim \textrm{Categorical}(\theta_d)$ and $W_{d,w} \sim \textrm{Categorical}(\phi_{Z_{d,w}})$.
+Here $d$ denotes a document and $w$ is a word.
+
+Another problem is that: how $Theta$ and $phi$ are generated?
 Randomly? No, that would not be a proper way.
 Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic.
 But that's rarely the case. An article cannot talk about all the topics at the same time.
@@ -467,7 +471,7 @@ What we really hope however, is that a single document belongs to a single topic
 The same goes for the word-topic table.
 
 To that end, LDA uses the [Dirichlet Distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution) to perform this task.
-It is a family of continuous multivariate probability distributions parameterised by a vector $\alpha$.
+It is a family of continuous multivariate probability distribution parameterised by a vector $\alpha$.
 For example, suppose we have only two topics in the whole world.
 The tuple `(0, 1)` means it's totally about one topic, and `(1,0)` means its totally about the other.
 We can run the `Stats.dirichlet_rvs` function to generate such a pair of float numbers.
@@ -478,18 +482,21 @@ A larger $\alpha$ value, however, makes the topic concentrate around the middle 
 
 ![Two dimensional dirichlet distribution with different alpha parameters](images/nlp/dirichlet.png "dirichlet"){width=100% #fig:nlp:dirichlet}
 
-Therefore, in the model in [@fig:nlp:lda], we have two parameters $alpha$ and $beta$ as prior weights to initialise $\Theta$ and $\phi$ respectively.
+Therefore, in the model in [@fig:nlp:lda], we have two parameters $\alpha$ and $\beta$ as prior weights to initialise $\Theta$ and $\phi$ respectively.
+We use a reasonably small parameters to have skewed probability distributions where only a small set of topics or words have high probability.
+They can be formally expressed as:
+$\Theta_d \sim \textrm{Dirichlet}(\alpha)$ and $\phi_k \sim \textrm{Dirichlet}(\beta)$.
 
 ### Gibbs Sampling
 
 Next, we will briefly introduce how the training algorithm works to get the topics using LDA.
-The basic idea is that we go through the documents one by one. Each word is initially assigned a random topic -- just a wild guess, since currently there is not way we can know which topic this word belongs to at this stage.
+The basic idea is that we go through the documents one by one. Each word is initially assigned a random topic from the Dirichlet distribution.
 After that, we iterate over all the documents again and again.
 In each iterate, we look at each word, and try to find a hopefully a bit more proper topic for this word.
 In this process, we assume that all the other topic assignments in the whole text corpus are correct except for the current word we are looking at.
 Then we move forward to the next word in this document.
 In one iteration, we process all the words in all the documents in the same way.
-After enough number of iterations, we can get a quite accurate assignment for each word.
+After enough iterations, we can get a quite accurate assignment for each word.
 And then of course the topics of each document would be clear.
 
 We need to further explain some details in this general description.
@@ -498,19 +505,18 @@ We use the *Gibbs Sampling* algorithm.
 For this word, we expect to get a vector of length $k$ where $k$ is the number of topics. It represents a conditional probability distribution of a one word topic assignment conditioned on the rest of the model.
 In this distribution vector, the k-th element is:
 
-$$p(z_{d,n}=k | Z_{-d,n}, W, \alpha, \beta) = \frac{n_{d,k} + \alpha_k}{\sum_{i=1}^K~(n_{d,i} + \alpha_i)}~\frac{v_{k,w_{d.n}} + \beta_{w_{d,n}}}{\sum_iv_{k, i} + \beta_i}.$$
+$$p(Z_{d,n}=k | Z_{-d,n}, W, \alpha, \beta) = \frac{n_{d,k} + \alpha_k}{\sum_{i=1}^K~(n_{d,i} + \alpha_i)}~\frac{m_{k,w_{d.n}} + \beta_{w_{d,n}}}{\sum_i~m_{k, i} + \beta_i}.$$
 
-Her $w_{d,n}$ is the current word we are looking at. $K$ is the total number of topics.
+Her $w_{d,n}$ is the current word we are looking at.
 To perform the sampling, we assume that only the current topic assignment to $w_{d,n}$ is wrong, so we remove the current assignment from the model before this round of iteration.
 $Z$ is the topic assignment of all words in all documents, and $W$ is the text corpus.
 
 This computations is multiplication of two parts.
-In the first part, $n_{d,k}$ show how many times the document $d$ uses topic $k$, and $\alpha_k$ is the prior weight of topic $k$ in document.
-Therefore, this item means the percentage of words that are also assigned the same topic in the whole document $p(t|d)$.
+As shown in [@tbl:nlp:lda], in the first part, $n_{d,k}$ show how many times the document $d$ uses topic $k$, and $\alpha_k$ is the prior weight of topic $k$ in document.
+Therefore, this item means the percentage of words that are also assigned the same topic in the whole document
 To put it more simply, it shows how much this document likes topic $k$.
 The larger it is, the more likely we will assign the current word to topic $k$ again.
-In the second part, $v_{k,w}$ is the number of times topic $k$ uses word $w$. $\beta_w$ is the prior weight of word $w$ in a topic.
-This item is the percentage of words that are also assigned the same topic in the whole document.
+Similarly, the second part is the percentage of words that are also assigned the same topic in the whole document.
 Therefore, this item indicate how a topic likes the word $w$.
 Larger number means $w$ will continue be assigned this topic $k$ again.
 
