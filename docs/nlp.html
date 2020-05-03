@@ -233,13 +233,86 @@ val mapi_tok : (int -&gt; 'a -&gt; 'b) -&gt; t -&gt; 'b array</code></pre>
 <h2>Latent Dirichlet Allocation (LDA)</h2>
 <p>In the previous section, we have seen that by specifying a document and using it as a query, we can find out the similar documents as the query. The query document itself is actually seen as a collection of words.<br>
 However, the real world text, article or news, are rarely as simple as collections of words. More often than not, an article contains one or more <em>topics</em>. For example, it can involves the responsibility of government, the protection of environment, and a recent protest in the city, etc. Moreover, each of these topics can hardly be totally covered by just one single word. To this end we introduce the problem <em>topic modelling</em>: instead of proposing a search query to find similar content in text corpus, we hope to automatically cluster the documents according to several topics, and each topic is represented by several words.</p>
+<p>One of such method to do topic modelling is called <em>Latent Dirichlet Allocation</em> (LDA). The trained model of LDA containS two matrices. The first is called the “document-topic”, which contains the number of tokens assigned to each topic in each doc. What do these topics look like then? This concerns the other trained matrix in the model: the “word-topic table”. It contains the number of tokens assigned to each topic for each word. We will see how they work in a latter example. But first, some theory background.</p>
 <section class="level3" id="models">
 <h3>Models</h3>
+<p>let’s take a look at the model of LDA that is proposed in <span data-cites="blei2003latent" class="citation">(Blei, Ng, and Jordan 2003)</span>. That is to say, how the LDA thinks about the way a document is composed. The model is expressed in fig.&nbsp;1.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:nlp:lda" title="lda" src="images/nlp/lda.png"><figcaption>Figure 1: Plate notation for LDA with Dirichlet-distributed topic-word distributions</figcaption>
 </figure>
-<p>TABLE</p>
-<p>Generative process</p>
+<p>And in tbl.&nbsp;1 we list the definition of the notation used here and latter in this section.</p>
+<div id="tbl:nlp:lda">
+<table>
+<caption>Table 1: Variable notations in the LDA model</caption>
+<colgroup>
+<col style="width: 21%">
+<col style="width: 78%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Variable</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(K\)</span></td>
+<td style="text-align: left;">number of topics</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(D\)</span></td>
+<td style="text-align: left;">number of documents in text corpus</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(V\)</span></td>
+<td style="text-align: left;">number of words in the vocabulary</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(\alpha\)</span></td>
+<td style="text-align: left;">vector of length <span class="math inline">\(K\)</span>, prior weight of the <span class="math inline">\(K\)</span> topics in a document</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\beta\)</span></td>
+<td style="text-align: left;">vector of length <span class="math inline">\(V\)</span>, prior weight of the <span class="math inline">\(V\)</span> words in a topic</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(\Theta\)</span></td>
+<td style="text-align: left;">vector of length <span class="math inline">\(K\)</span>, distribution of topics in a document</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\phi\)</span></td>
+<td style="text-align: left;">vector of length <span class="math inline">\(V\)</span>, distribution of words in a topic</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(Z\)</span></td>
+<td style="text-align: left;">matrix of shape <span class="math inline">\(D\times~V\)</span>, topic assignment of all words in all documents</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(W\)</span></td>
+<td style="text-align: left;">matrix of shape <span class="math inline">\(D\times~V\)</span>, token of words in all documents</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(n_{d,k}\)</span></td>
+<td style="text-align: left;">how many times the document <span class="math inline">\(d\)</span> uses topic <span class="math inline">\(k\)</span> in the document-topic table</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(m_{k,w}\)</span></td>
+<td style="text-align: left;">the number of times topic <span class="math inline">\(k\)</span> uses word <span class="math inline">\(w\)</span> in the topic-word table</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In this model, to infer the topics in a corpus, we imagine a <strong>generative process</strong> to create a document. The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words. This makes sense, since we don’t need the text in order to find the topics in an article. Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3 (distribution of topics <span class="math inline">\(\Theta\)</span>). Then using the LDA model, we can first picks one of these topics randomly (one of the elements in <span class="math inline">\(Z\)</span>), and then according to the words this topic contains, we can pick a word randomly according to <span class="math inline">\(\phi\)</span>. That generates one word in <span class="math inline">\(W\)</span>. We can do the same for the next nine words. Voila! We now have a “fake” document. The LDA hopes to make this fake document to be close to a real document as much as possible. In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.</p>
+</section>
+<section class="level3" id="dirichlet-distribution">
+<h3>Dirichlet Distribution</h3>
+<p>There are something we need to add to the generative process in the prevous section. We say that we pick topics randomly from the distribution <span class="math inline">\(\Theta\)</span> and <span class="math inline">\(\phi\)</span> to get topic and the word in topic. However, one problem is that: how <span class="math inline">\(Theta\)</span> and <span class="math inline">\(phi\)</span> are generated? Randomly? No, that would not be a proper way. Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic. But that’s rarely the case. An article cannot talk about all the topics at the same time. What we really hope however, is that a single document belongs to a single topic, which is a more real-world scenario.<br>
+The same goes for the word-topic table.</p>
+<p>To that end, LDA uses the <a href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet Distribution</a> to perform this task. It is a family of continuous multivariate probability distributions parameterised by a vector <span class="math inline">\(\alpha\)</span>. For example, suppose we have only two topics in the whole world. The tuple <code>(0, 1)</code> means it’s totally about one topic, and <code>(1,0)</code> means its totally about the other. We can run the <code>Stats.dirichlet_rvs</code> function to generate such a pair of float numbers. The results are shown in fig.&nbsp;2. Both figures have the same number of dots. It shows that with smaller <span class="math inline">\(\alpha\)</span> value, the distribution are pushed to the corners, where it is obviously about one topic or the other. A larger <span class="math inline">\(\alpha\)</span> value, however, makes the topic concentrate around the middle where it’s a mixture of both topics.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:nlp:dirichlet" title="dirichlet" src="images/nlp/dirichlet.png"><figcaption>Figure 2: Two dimensional dirichlet distribution with different alpha parameters</figcaption>
+</figure>
+<p>Therefore, in the model in fig.&nbsp;1, we have two parameters <span class="math inline">\(alpha\)</span> and <span class="math inline">\(beta\)</span> as prior weights to initialise <span class="math inline">\(\Theta\)</span> and <span class="math inline">\(\phi\)</span> respectively.</p>
 </section>
 <section class="level3" id="gibbs-sampling">
 <h3>Gibbs Sampling</h3>
@@ -250,28 +323,16 @@ However, the real world text, article or news, are rarely as simple as collectio
 <p>This computations is multiplication of two parts. In the first part, <span class="math inline">\(n_{d,k}\)</span> show how many times the document <span class="math inline">\(d\)</span> uses topic <span class="math inline">\(k\)</span>, and <span class="math inline">\(\alpha_k\)</span> is the prior weight of topic <span class="math inline">\(k\)</span> in document. Therefore, this item means the percentage of words that are also assigned the same topic in the whole document <span class="math inline">\(p(t|d)\)</span>. To put it more simply, it shows how much this document likes topic <span class="math inline">\(k\)</span>. The larger it is, the more likely we will assign the current word to topic <span class="math inline">\(k\)</span> again. In the second part, <span class="math inline">\(v_{k,w}\)</span> is the number of times topic <span class="math inline">\(k\)</span> uses word <span class="math inline">\(w\)</span>. <span class="math inline">\(\beta_w\)</span> is the prior weight of word <span class="math inline">\(w\)</span> in a topic. This item is the percentage of words that are also assigned the same topic in the whole document. Therefore, this item indicate how a topic likes the word <span class="math inline">\(w\)</span>. Larger number means <span class="math inline">\(w\)</span> will continue be assigned this topic <span class="math inline">\(k\)</span> again.</p>
 <p>Finally, we multiply these two items to get the final distribution of probability for the word <span class="math inline">\(w_{d,n}\)</span>, in the form of a vector of length <span class="math inline">\(K\)</span>. Then we can uniformly draw a topic from this vector. As we have said, we iterate this sampling process again and again until the model is good enough.</p>
 </section>
-<section class="level3" id="dirichlet-distribution">
-<h3>Dirichlet Distribution</h3>
-<p>Now that we know how the model is trained, let’s step back to know a bit more about how the LDA think about the world. The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words. This makes sense, since we don’t need the text in order to find the topics in an article. In the LDA model, it can be used to generate a document in this way. Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3. Then using the LDA model, we can first picks one of these topics randomly, and then according to the words this topic contains, we can pick a word randomly. That generates one word. We can do the same for the next nine words. Voila! We now have a “fake” document. The LDA hopes to make this fake document to be close to a real document as much as possible. In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.</p>
-<p>In the previous chapter we say that at the beginning we just give some random guess about the probability distribution of words and topics etc., but that’s not exactly true. Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic. But that’s rarely the case. An article cannot talk about all the topics at the same time. What we really hope however, is that a single document belongs to a single topic, which is a more real-world scenario.<br>
-The same goes for the word-topic table.</p>
-<p>To that end, LDA uses the <a href="https://en.wikipedia.org/wiki/Dirichlet_distribution">Dirichlet Distribution</a> to perform this task. It is a family of continuous multivariate probability distributions parameterised by a vector <span class="math inline">\(\alpha\)</span>. For example, suppose we have only two topics in the whole world. The tuple <code>(0, 1)</code> means it’s totally about one topic, and <code>(1,0)</code> means its totally about the other. We can run the <code>Stats.dirichlet_rvs</code> function to generate such a pair of float numbers. The results are shown in fig.&nbsp;2. Both figures have the same number of dots. It shows that with smaller <span class="math inline">\(\alpha\)</span> value, the distribution are pushed to the corners, where it is obviously about one topic or the other. A larger <span class="math inline">\(\alpha\)</span> value, however, makes the topic concentrate around the middle where it’s a mixture of both topics.</p>
-<figure>
-<img alt="" style="width:100.0%" id="fig:nlp:dirichlet" title="dirichlet" src="images/nlp/dirichlet.png"><figcaption>Figure 2: Two dimensional dirichlet distribution with different alpha parameters</figcaption>
-</figure>
-<p>We have introduced the basic mechanism of LDA. There are many work that extend based on it, such as the SparseLDA in <span data-cites="yao2009efficient" class="citation">(Yao, Mimno, and McCallum 2009)</span>, and LightLDA in <span data-cites="yuan2015lightlda" class="citation">(Yuan et al. 2015)</span>. They may differ in details but share similar basic theory.</p>
-</section>
 <section class="level3" id="topic-modelling-example">
 <h3>Topic Modelling Example</h3>
-<p>One of such method to do topic modelling is called <em>Latent Dirichlet Allocation</em> (LDA). We have implemented the <code>Owl_nlp.Lda</code> module to perform this method. Without diving into the theory behind this method, let’s first use an example to demonstrate how LDA works.</p>
+<p>We have implemented the <code>Owl_nlp.Lda</code> module to perform LDA method. Let’s first use an example to demonstrate how LDA works.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let build_lda corpus topics =
   let model = Nlp.Lda.init ~iter:1000 topics corpus in
   Nlp.Lda.(train SimpleLDA model);
   model</code></pre>
 </div>
-<p>The input to LDA is still the text corpus we have built. We also need to specify how many topics we want the text corpus to be divided into. Let’s say we set the number of topics to 8. The process is simple, we first initialise the model using the <code>init</code> function and then we can train the model.</p>
-<p>The trained model contain two matrices. The first is called the “document-topic”, which contains the number of tokens assigned to each topic in each doc. It looks like this:</p>
+<p>The input to LDA is still the text corpus we have built. We also need to specify how many topics we want the text corpus to be divided into. Let’s say we set the number of topics to 8. The process is simple, we first initialise the model using the <code>init</code> function and then we can train the model. Let’s take a look at the document-topic table in this model, as shown below.</p>
 <div class="highlight">
 <pre><code class="language-text">val dk : Arr.arr =
     C0  C1  C2  C3  C4  C5  C6  C7
@@ -282,7 +343,7 @@ R3  10  22  23 140  18  11  17 143
 ...</code></pre>
 </div>
 <p>This matrix shows the distribution of topics in each document, represented by a row. Each column represents a topic. For example, you can see that the fifth column of in the third document (R2) is obviously larger than the others. It means that dominantly talks about only the topic 6. Similarly, in the fourth document, the topic 4 and topic 8 are of equal coverage.</p>
-<p>However, what do these topics look like any way? This concerns the other trained matrix in the model: the “word-topic table”. It contains the number of tokens assigned to each topic for each word. Here is what it looks like:</p>
+<p>We can then check the topic-word table in this model:</p>
 <div class="highlight">
 <pre><code class="language-text">val wk : Arr.arr =
     C0  C1  C2  C3  C4  C5  C6  C7
@@ -313,6 +374,7 @@ Topic 7:  police health govt hospital plan boost car minister school house
 Topic 8:  new water killed high attack public farmers funding police urged</code></pre>
 </div>
 <p>Here each topic is represented by ten of its highest ranked words in the vocabulary. but you can “feel” a common theme by connecting these dots together, even though some words may stride away a bit far away from this theme. We cannot directly observe the topic, only documents and words. Therefore the topics are latent. The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight. Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.</p>
+<p>We have introduced the basic mechanism of LDA. There are many work that extend based on it, such as the SparseLDA in <span data-cites="yao2009efficient" class="citation">(Yao, Mimno, and McCallum 2009)</span>, and LightLDA in <span data-cites="yuan2015lightlda" class="citation">(Yuan et al. 2015)</span>. They may differ in details but share similar basic theory.</p>
 </section>
 </section>
 <section class="level2" id="latent-semantic-analysis-lsa">
@@ -372,6 +434,9 @@ let query corpus doc k =
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-blei2003latent">
+<p>Blei, David M, Andrew Y Ng, and Michael I Jordan. 2003. “Latent Dirichlet Allocation.” <em>Journal of Machine Learning Research</em> 3 (Jan): 993–1022.</p>
+</div>
 <div id="ref-mikolov2013exploiting">
 <p>Mikolov, Tomas, Quoc V Le, and Ilya Sutskever. 2013. “Exploiting Similarities Among Languages for Machine Translation.” <em>arXiv Preprint arXiv:1309.4168</em>.</p>
 </div>

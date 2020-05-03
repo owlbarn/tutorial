@@ -415,13 +415,70 @@ More often than not, an article contains one or more *topics*. For example, it c
 Moreover, each of these topics can hardly be totally covered by just one single word.
 To this end we introduce the problem *topic modelling*: instead of proposing a search query to find similar content in text corpus, we hope to automatically cluster the documents according to several topics, and each topic is represented by several words.
 
+One of such method to do topic modelling is called *Latent Dirichlet Allocation* (LDA).
+The trained model of LDA containS two matrices.
+The first is called the "document-topic", which contains the number of tokens assigned to each topic in each doc. What do these topics look like then? This concerns the other trained matrix in the model: the "word-topic table". It contains the number of tokens assigned to each topic for each word.
+We will see how they work in a latter example.
+But first, some theory background.
+
 ### Models
+
+let's take a look at the model of LDA that is proposed in [@blei2003latent]. That is to say, how the LDA thinks about the way a document is composed.
+The model is expressed in [@fig:nlp:lda].
 
 ![Plate notation for LDA with Dirichlet-distributed topic-word distributions](images/nlp/lda.png "lda"){width=60% #fig:nlp:lda}
 
-TABLE
+And in [@tbl:nlp:lda] we list the definition of the notation used here and latter in this section.
 
-Generative process
+| Variable |  Meaning |
+| :-----: | :------------------------- |
+| $K$ | number of topics |
+| $D$ | number of documents in text corpus |
+| $V$ | number of words in the vocabulary |
+| $\alpha$ | vector of length $K$, prior weight of the $K$ topics in a document |
+| $\beta$  | vector of length $V$, prior weight of the $V$ words in a topic |
+| $\Theta$ | vector of length $K$, distribution of topics in a document |  
+| $\phi$   | vector of length $V$, distribution of words in a topic |
+| $Z$ | matrix of shape $D\times~V$, topic assignment of all words in all documents |
+| $W$ | matrix of shape $D\times~V$, token of words in all documents |
+| $n_{d,k}$ | how many times the document $d$ uses topic $k$ in the document-topic table
+| $m_{k,w}$ | the number of times topic $k$ uses word $w$ in the topic-word table
+: Variable notations in the LDA model {#tbl:nlp:lda}
+
+In this model, to infer the topics in a corpus, we imagine a **generative process** to create a document.
+The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words.
+This makes sense, since we don't need the text in order to find the topics in an article.
+Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3 (distribution of topics $\Theta$).
+Then using the LDA model, we can first picks one of these topics randomly (one of the elements in $Z$), and then according to the words this topic contains, we can pick a word randomly according to $\phi$.
+That generates one word in $W$. We can do the same for the next nine words.
+Voila! We now have a "fake" document. The LDA hopes to make this fake document to be close to a real document as much as possible.
+In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.
+
+
+### Dirichlet Distribution
+
+There are something we need to add to the generative process in the prevous section.
+We say that we pick topics randomly from the distribution $\Theta$ and $\phi$ to get topic and the word in topic.
+However, one problem is that: how $Theta$ and $phi$ are generated?
+Randomly? No, that would not be a proper way.
+Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic.
+But that's rarely the case. An article cannot talk about all the topics at the same time.
+What we really hope however, is that a single document belongs to a single topic, which is a more real-world scenario.  
+The same goes for the word-topic table.
+
+To that end, LDA uses the [Dirichlet Distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution) to perform this task.
+It is a family of continuous multivariate probability distributions parameterised by a vector $\alpha$.
+For example, suppose we have only two topics in the whole world.
+The tuple `(0, 1)` means it's totally about one topic, and `(1,0)` means its totally about the other.
+We can run the `Stats.dirichlet_rvs` function to generate such a pair of float numbers.
+The results are shown in [@fig:nlp:dirichlet].
+Both figures have the same number of dots.
+It shows that with smaller $\alpha$ value, the distribution are pushed to the corners, where it is obviously about one topic or the other.
+A larger $\alpha$ value, however, makes the topic concentrate around the middle where it's a mixture of both topics.
+
+![Two dimensional dirichlet distribution with different alpha parameters](images/nlp/dirichlet.png "dirichlet"){width=100% #fig:nlp:dirichlet}
+
+Therefore, in the model in [@fig:nlp:lda], we have two parameters $alpha$ and $beta$ as prior weights to initialise $\Theta$ and $\phi$ respectively.
 
 ### Gibbs Sampling
 
@@ -462,46 +519,10 @@ Then we can uniformly draw a topic from this vector.
 As we have said, we iterate this sampling process again and again until the model is good enough.
 
 
-### Dirichlet Distribution
-
-Now that we know how the model is trained, let's step back to know a bit more about how the LDA think about the world.
-The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words.
-This makes sense, since we don't need the text in order to find the topics in an article.
-In the LDA model, it can be used to generate a document in this way.
-Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3.
-Then using the LDA model, we can first picks one of these topics randomly, and then according to the words this topic contains, we can pick a word randomly.
-That generates one word. We can do the same for the next nine words.
-Voila! We now have a "fake" document. The LDA hopes to make this fake document to be close to a real document as much as possible.
-In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.
-
-In the previous chapter we say that at the beginning we just give some random guess about the probability distribution of words and topics etc., but that's not exactly true.
-Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic.
-But that's rarely the case. An article cannot talk about all the topics at the same time.
-What we really hope however, is that a single document belongs to a single topic, which is a more real-world scenario.  
-The same goes for the word-topic table.
-
-To that end, LDA uses the [Dirichlet Distribution](https://en.wikipedia.org/wiki/Dirichlet_distribution) to perform this task.
-It is a family of continuous multivariate probability distributions parameterised by a vector $\alpha$.
-For example, suppose we have only two topics in the whole world.
-The tuple `(0, 1)` means it's totally about one topic, and `(1,0)` means its totally about the other.
-We can run the `Stats.dirichlet_rvs` function to generate such a pair of float numbers.
-The results are shown in [@fig:nlp:dirichlet].
-Both figures have the same number of dots.
-It shows that with smaller $\alpha$ value, the distribution are pushed to the corners, where it is obviously about one topic or the other.
-A larger $\alpha$ value, however, makes the topic concentrate around the middle where it's a mixture of both topics.
-
-![Two dimensional dirichlet distribution with different alpha parameters](images/nlp/dirichlet.png "dirichlet"){width=100% #fig:nlp:dirichlet}
-
-We have introduced the basic mechanism of LDA.
-There are many work that extend based on it, such as the SparseLDA in  [@yao2009efficient], and LightLDA in [@yuan2015lightlda].
-They may differ in details but share similar basic theory.
-
-
 ### Topic Modelling Example
 
-One of such method to do topic modelling is called *Latent Dirichlet Allocation* (LDA).
-We have implemented the `Owl_nlp.Lda` module to perform this method.
-Without diving into the theory behind this method, let's first use an example to demonstrate how LDA works.
+We have implemented the `Owl_nlp.Lda` module to perform LDA method.
+Let's first use an example to demonstrate how LDA works.
 
 ```ocaml
 let build_lda corpus topics =
@@ -512,8 +533,7 @@ let build_lda corpus topics =
 
 The input to LDA is still the text corpus we have built. We also need to specify how many topics we want the text corpus to be divided into. Let's say we set the number of topics to 8.
 The process is simple, we first initialise the model using the `init` function and then we can train the model.
-
-The trained model contain two matrices. The first is called the "document-topic", which contains the number of tokens assigned to each topic in each doc. It looks like this:
+Let's take a look at the document-topic table in this model, as shown below.
 
 ```text
 val dk : Arr.arr =
@@ -531,8 +551,7 @@ For example, you can see that the fifth column of in the third document (R2) is 
 It means that dominantly talks about only the topic 6.
 Similarly, in the fourth document, the topic 4 and topic 8 are of equal coverage.
 
-However, what do these topics look like any way? This concerns the other trained matrix in the model: the "word-topic table". It contains the number of tokens assigned to each topic for each word.
-Here is what it looks like:
+We can then check the topic-word table in this model:
 
 ```text
 val wk : Arr.arr =
@@ -575,6 +594,10 @@ but you can "feel" a common theme by connecting these dots together, even though
 We cannot directly observe the topic, only documents and words. Therefore the topics are latent.
 The word-topic matrix shows that. each word have different weight in the topic and the words in a topic is ranked according to the weight.
 Now that we know what each topic talks about, we can cluster the documents by their most prominent topic, or just discover what topics are covered in a document, with about how much percentage each.
+
+We have introduced the basic mechanism of LDA.
+There are many work that extend based on it, such as the SparseLDA in  [@yao2009efficient], and LightLDA in [@yuan2015lightlda].
+They may differ in details but share similar basic theory.
 
 
 ## Latent Semantic Analysis (LSA)
