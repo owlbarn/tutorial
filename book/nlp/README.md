@@ -661,16 +661,16 @@ Then the Euclidean distance between these two are:
 
 $$\sqrt{\sum_{i=1}^n~(a_i - b_i)^2}.$$ {#eq:nlp:euclidean}
 
-and the cosine distance between is defined as:
+and the cosine similarity between two vectors $A$ and $B$ is defined as:
 
 $$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.$$ {#eq:nlp:cosine}
 
 It is the dot product of two vectors divided by the product of the length of both vectors.  
 
-![Euclidean and cosine distances one a two dimensional space](images/nlp/similarity.png "similarity"){width=60% #fig:nlp:similarity}
+![Euclidean distance and cosine similarity ne a two dimensional space](images/nlp/similarity.png "similarity"){width=60% #fig:nlp:similarity}
 
 We have implemented both methods in the `Nlp.Similarity` module as similarity metrics for use in NLP.
-The relationship between the Euclidean and Cosine distances can be expressed in [@fig:nlp:similarity].
+The relationship between the Euclidean distance and Cosine similarity can be expressed in [@fig:nlp:similarity].
 There are two points on this two dimensional space.
 The Euclidean measures the direct distance of these two points, while the cosine similarity is about the degree between these two vectors.
 Therefore, the cosine similarity is more suitable for cases where the magnitude of the vectors does not matter.
@@ -681,27 +681,37 @@ That's why in this case we would prefer to use the cosine similarity as a measur
 
 ### Linear Searching
 
-First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).
+First implement linear search, in this case, we do not need index at all, but it is very slow.
 
-```ocaml
-(* calculate pairwise distance for the whole model, format (id,dist) *)
+Suppose we have $n$ document, each represented by a vector of length $m$. They are then denoted with variable `corpus`, an array of arrays, each of which is a document.
+We provide a vector `doc` as the query to search for the top-$k$ similar documents to it.
+First, we need a function to calculate pairwise distance for the whole model, and returns result in the form of array of `(id, dist)`.
+Here `id` is the original index of the document.
+`dist` is the distance between a document in corpus and the query document.
+
+```ocaml env=nlp:linear-search
 let all_pairwise_distance typ corpus x =
   let dist_fun = Owl_nlp_similarity.distance typ in
   let l = Array.mapi (fun i y -> i, dist_fun x y) corpus in
   Array.sort (fun a b -> Stdlib.compare (snd a) (snd b)) l;
   l
+```
 
-(* return the k most relevant documents *)
+The result are sorted according to the distance, whichever distance metric we use.
+Based on this routine we can find the $k$ most relevant document:
+
+```ocaml env=nlp:linear-search
 let query corpus doc k =
   let typ = Owl_nlp_similarity.Cosine in
   let l = all_pairwise_distance typ corpus doc in
   Array.sub l 0 k
 ```
 
-
-### Use Matrix Multiplication
-
-Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation. We assume the corpus has been converted into a dense matrix, wherein each row vector represents a document.
+Here we use the cosine similarity as measurement of distance between vectors.
+To improve the efficiency of computation, we can instead using matrix multiplication to implement the cosine similarity.
+Specifically, suppose we have the query document vector $A$, and the corpus of document vector as before, and this array of arrays has already been converted to a dense matrix $B$, where each row vector represents a document.
+Then we can compute the $AB^T$ to directly compute the cosine similarity.
+Of course, according to [@eq:nlp:cosine], we also need to make sure that $A$ and each row $r$ in $B$ is normalised by its own l2-norm before computations, so that for any vector $v$ we can have $\|v\| = 1$.   
 
 ```ocaml
 let query corpus doc k =
@@ -710,6 +720,8 @@ let query corpus doc k =
   Mat.bottom l k
 ```
 
+Compared to the previous direct element-by-element multiplication, the matrix dot multiplication is often implemented with highly optimised linear algebra library routines, such as in OpenBLAS.
+These methods utilise various techniques such as multi-processing and multi-threading so that the performance is much better than a direct pairwise computation according to definition.
 
 ## Summary
 

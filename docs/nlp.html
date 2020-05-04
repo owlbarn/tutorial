@@ -417,41 +417,40 @@ Topic 8:  new water killed high attack public farmers funding police urged</code
 <p>Define what is euclidean and cosine similarity. Emphasise both are correlated on a high-dimensional ball model.</p>
 <p>In the previous sections, we see that the topic modelling techniques maps documents to a vector space of topics. We can use different metrics to compare the similarity between two vectors. Two of the commonly used are the <em>Euclidean</em> and <em>Cosine</em> distances. Suppose we have two vectors <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>, both of length of <span class="math inline">\(n\)</span>. Then the Euclidean distance between these two are:</p>
 <p><span id="eq:nlp:euclidean"><span class="math display">\[\sqrt{\sum_{i=1}^n~(a_i - b_i)^2}.\qquad(2)\]</span></span></p>
-<p>and the cosine distance between is defined as:</p>
+<p>and the cosine similarity between two vectors <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> is defined as:</p>
 <p><span id="eq:nlp:cosine"><span class="math display">\[cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.\qquad(3)\]</span></span></p>
 <p>It is the dot product of two vectors divided by the product of the length of both vectors.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:nlp:similarity" title="similarity" src="images/nlp/similarity.png"><figcaption>Figure 4: Euclidean and cosine distances one a two dimensional space</figcaption>
+<img alt="" style="width:60.0%" id="fig:nlp:similarity" title="similarity" src="images/nlp/similarity.png"><figcaption>Figure 4: Euclidean distance and cosine similarity ne a two dimensional space</figcaption>
 </figure>
-<p>We have implemented both methods in the <code>Nlp.Similarity</code> module as similarity metrics for use in NLP. The relationship between the Euclidean and Cosine distances can be expressed in fig.&nbsp;4. There are two points on this two dimensional space. The Euclidean measures the direct distance of these two points, while the cosine similarity is about the degree between these two vectors. Therefore, the cosine similarity is more suitable for cases where the magnitude of the vectors does not matter. For example, in topic modelling, we already have two vectors representing documents. If we multiply all the elements in one of them by a scalar 10, the Euclidean distance between these two would change greatly. However, since the probability distribution in the vector does not change, we don’t expect the similarity between these two vectors to change. That’s why in this case we would prefer to use the cosine similarity as a measurement,</p>
+<p>We have implemented both methods in the <code>Nlp.Similarity</code> module as similarity metrics for use in NLP. The relationship between the Euclidean distance and Cosine similarity can be expressed in fig.&nbsp;4. There are two points on this two dimensional space. The Euclidean measures the direct distance of these two points, while the cosine similarity is about the degree between these two vectors. Therefore, the cosine similarity is more suitable for cases where the magnitude of the vectors does not matter. For example, in topic modelling, we already have two vectors representing documents. If we multiply all the elements in one of them by a scalar 10, the Euclidean distance between these two would change greatly. However, since the probability distribution in the vector does not change, we don’t expect the similarity between these two vectors to change. That’s why in this case we would prefer to use the cosine similarity as a measurement,</p>
 </section>
 <section class="level3" id="linear-searching">
 <h3>Linear Searching</h3>
-<p>First implement linear search, in this case, we do not need index at all, but it is very slow. In the following, the corpus is an array of arrays (each of which is an document).</p>
+<p>First implement linear search, in this case, we do not need index at all, but it is very slow.</p>
+<p>Suppose we have <span class="math inline">\(n\)</span> document, each represented by a vector of length <span class="math inline">\(m\)</span>. They are then denoted with variable <code>corpus</code>, an array of arrays, each of which is a document. We provide a vector <code>doc</code> as the query to search for the top-<span class="math inline">\(k\)</span> similar documents to it. First, we need a function to calculate pairwise distance for the whole model, and returns result in the form of array of <code>(id, dist)</code>. Here <code>id</code> is the original index of the document. <code>dist</code> is the distance between a document in corpus and the query document.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* calculate pairwise distance for the whole model, format (id,dist) *)
-let all_pairwise_distance typ corpus x =
+<pre><code class="language-ocaml">let all_pairwise_distance typ corpus x =
   let dist_fun = Owl_nlp_similarity.distance typ in
   let l = Array.mapi (fun i y -&gt; i, dist_fun x y) corpus in
   Array.sort (fun a b -&gt; Stdlib.compare (snd a) (snd b)) l;
-  l
-
-(* return the k most relevant documents *)
-let query corpus doc k =
+  l</code></pre>
+</div>
+<p>The result are sorted according to the distance, whichever distance metric we use. Based on this routine we can find the <span class="math inline">\(k\)</span> most relevant document:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let query corpus doc k =
   let typ = Owl_nlp_similarity.Cosine in
   let l = all_pairwise_distance typ corpus doc in
   Array.sub l 0 k</code></pre>
 </div>
-</section>
-<section class="level3" id="use-matrix-multiplication">
-<h3>Use Matrix Multiplication</h3>
-<p>Show that pairwise distance can be done in a matrix multiplication, which is often highly-optimised GEMM operation. We assume the corpus has been converted into a dense matrix, wherein each row vector represents a document.</p>
+<p>Here we use the cosine similarity as measurement of distance between vectors. To improve the efficiency of computation, we can instead using matrix multiplication to implement the cosine similarity. Specifically, suppose we have the query document vector <span class="math inline">\(A\)</span>, and the corpus of document vector as before, and this array of arrays has already been converted to a dense matrix <span class="math inline">\(B\)</span>, where each row vector represents a document. Then we can compute the <span class="math inline">\(AB^T\)</span> to directly compute the cosine similarity. Of course, according to eq.&nbsp;3, we also need to make sure that <span class="math inline">\(A\)</span> and each row <span class="math inline">\(r\)</span> in <span class="math inline">\(B\)</span> is normalised by its own l2-norm before computations, so that for any vector <span class="math inline">\(v\)</span> we can have <span class="math inline">\(\|v\| = 1\)</span>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let query corpus doc k =
   let vec = Mat.transpose doc in
   let l = Mat.(corpus *@ vec) in
   Mat.bottom l k</code></pre>
 </div>
+<p>Compared to the previous direct element-by-element multiplication, the matrix dot multiplication is often implemented with highly optimised linear algebra library routines, such as in OpenBLAS. These methods utilise various techniques such as multi-processing and multi-threading so that the performance is much better than a direct pairwise computation according to definition.</p>
 </section>
 </section>
 <section class="level2" id="summary">
