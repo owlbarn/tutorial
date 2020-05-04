@@ -367,11 +367,9 @@ let query model doc k =
 
 Recall the three gradients in vector space model: choosing dimension topic words, mapping document to vector, and the measurement of similarity.
 Here we use the *consine similarity* as a way to measure how aligned two vectors $A$ and $B$ are.
-It is defined as:
-
-$$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.$$ {#eq:nlp:cosine}
-
 We will talk about the similarity measurement in detail later.
+
+
 Next, the `vec` returned by the `apply` functions return an array of `(int * float)` tuples. For each item, the integer is the tokenised index of a word in the input document `doc`, and the float number is the corresponding TF-IDF value, based on the `model` we get from previous step.
 Finally, the `nearest` function search all the documents and find the vectors that has the largest similarity with the target document.
 Let's show the top-10 result by setting `k` to 10:
@@ -428,13 +426,15 @@ The model is expressed in [@fig:nlp:lda].
 
 ![Plate notation for LDA with Dirichlet-distributed topic-word distributions](images/nlp/lda.png "lda"){width=60% #fig:nlp:lda}
 
-And in [@tbl:nlp:lda] we list the definition of the notation used here and latter in this section.
+This model uses the [plate notation](https://en.wikipedia.org/wiki/Plate_notation), the notation for describing probabilistic graphical models, to capture the dependencies among variables.
+And in [@tbl:nlp:lda] we list the definition of the math notations used here and latter in this section.
 
 | Variable |  Meaning |
 | :-----: | :------------------------- |
 | $K$ | number of topics |
 | $D$ | number of documents in text corpus |
 | $V$ | number of words in the vocabulary |
+| $N$ | total number or words in all document |
 | $\alpha$ | vector of length $K$, prior weight of the $K$ topics in a document |
 | $\beta$  | vector of length $V$, prior weight of the $V$ words in a topic |
 | $\Theta$ | vector of length $K$, distribution of topics in a document |  
@@ -448,22 +448,28 @@ And in [@tbl:nlp:lda] we list the definition of the notation used here and latte
 In this model, to infer the topics in a corpus, we imagine a **generative process** to create a document.
 The core idea here is that each document can be described by the distribution of topics, and each topic can be described by distribution of words.
 This makes sense, since we don't need the text in order to find the topics in an article.
-Assume this document contains 10 words and three topics, and the weights of the topics are: 50% of topic one, 30% topic 2, and 20% topic 3 (distribution of topics $\Theta$).
-Then using the LDA model, we can first picks one of these topics randomly (one of the elements in $Z$), and then according to the words this topic contains, we can pick a word randomly according to $\phi$.
-That generates one word in $W$. We can do the same for the next nine words.
-Voila! We now have a "fake" document. The LDA hopes to make this fake document to be close to a real document as much as possible.
-In another word, when we are looking at real document, LDA tries to maximise the possibility that this document can be generated from a set of topics.
+The process is as follows:
 
+1. Initialise the distribution of topics $\theta_d \sim \textrm{Dirichlet}(\alpha)$ in document $d$. Here $\textrm{Dirichlet}(\alpha)$ is a Dirichlet distribution parameterised by $\alpha$. We will talk about it in detail later.
+1. Initialise the distribution of words $\phi_k \sim \textrm{Dirichlet}(\beta)$ for topic $k$.
+1. We iterate each document $d$, and each word position $w$, and then performs the steps below:
+    1. first, picks one of these topics randomly (one of the elements in $Z$). Specifically, the choice of topic is actually taken according to a [categorical distribution](https://en.wikipedia.org/wiki/Categorical_distribution), parameterised by $\theta$. Formally, this step is represented as $Z_{d,w} \sim \textrm{Categorical}(\theta_d)$;
+    1. second, according to the words this topic contains, we can pick a word randomly according to $\phi$. The picking process also follows categorical distribution: $W_{d,w} \sim \textrm{Categorical}(\phi_{Z_{d,w}})$.
+
+After finishing this generative process, We now have a "fake" document.
+The total probability of the model is:
+
+$$P(W, Z, \theta, \phi; \alpha, \beta) = \prod_{i=1}^K~P(\phi_i; \beta)~\prod_{j=1}^D~P(\theta_j; \alpha)~\prod_{t=1}^N~P(Z_{j,t}| \theta_j)~P(W_{j,t}| \phi_{Z_{j,t}}).$$ {#eq:nlp:lda0}
+
+[@eq:nlp:lda0] corresponds to the above process and model in [@fig:nlp:lda] step by step.
+It is multiplication of three parts: the probability of $\theta$ across all the documents, the probability of $\phi$ across all the topics, and that of the generated words across all documents.
+The LDA hopes to make this generated document to be close to a real document as much as possible.
+In another word, when we are looking at real document, LDA tries to maximise the possibility [@eq:nlp:lda0] that this document can be generated from a set of topics.
 
 ### Dirichlet Distribution
 
 There are something we need to add to the generative process in the previous section.
-We say that we pick topics randomly from the distribution $\Theta$ and $\phi$ to get topic and the word in topic.
-One thing to make clear is that, the choice of topic or word is actually taken according to a [categorical distribution](https://en.wikipedia.org/wiki/Categorical_distribution), parameterised by $\Theta$ and $\phi$.
-That is to say: $Z_{d,w} \sim \textrm{Categorical}(\theta_d)$ and $W_{d,w} \sim \textrm{Categorical}(\phi_{Z_{d,w}})$.
-Here $d$ denotes a document and $w$ is a word.
-
-Another problem is that: how $Theta$ and $phi$ are generated?
+How $theta$ and $phi$ are generated?
 Randomly? No, that would not be a proper way.
 Think about what would happen if we randomly initialise the document-topic table: each document will be equally likely to contain any topic.
 But that's rarely the case. An article cannot talk about all the topics at the same time.
@@ -484,8 +490,7 @@ A larger $\alpha$ value, however, makes the topic concentrate around the middle 
 
 Therefore, in the model in [@fig:nlp:lda], we have two parameters $\alpha$ and $\beta$ as prior weights to initialise $\Theta$ and $\phi$ respectively.
 We use a reasonably small parameters to have skewed probability distributions where only a small set of topics or words have high probability.
-They can be formally expressed as:
-$\Theta_d \sim \textrm{Dirichlet}(\alpha)$ and $\phi_k \sim \textrm{Dirichlet}(\beta)$.
+
 
 ### Gibbs Sampling
 
@@ -501,13 +506,13 @@ And then of course the topics of each document would be clear.
 
 We need to further explain some details in this general description.
 The most important question is, in the sampling of a document, how exactly do we update the topic assignment of a word?
-We use the *Gibbs Sampling* algorithm.
+We use the *Gibbs Sampling* algorithm to approximate the distribution of $P(Z | W; \alpha, \beta)$.
 For this word, we expect to get a vector of length $k$ where $k$ is the number of topics. It represents a conditional probability distribution of a one word topic assignment conditioned on the rest of the model.
-In this distribution vector, the k-th element is:
+Based on [@eq:nlp:lda0], it can be derived that, in this distribution vector, the k-th element is:
 
 $$p(Z_{d,n}=k | Z_{-d,n}, W, \alpha, \beta) = \frac{n_{d,k} + \alpha_k}{\sum_{i=1}^K~(n_{d,i} + \alpha_i)}~\frac{m_{k,w_{d.n}} + \beta_{w_{d,n}}}{\sum_i~m_{k, i} + \beta_i}.$$
 
-Her $w_{d,n}$ is the current word we are looking at.
+Here $w_{d,n}$ is the current word we are looking at.
 To perform the sampling, we assume that only the current topic assignment to $w_{d,n}$ is wrong, so we remove the current assignment from the model before this round of iteration.
 $Z$ is the topic assignment of all words in all documents, and $W$ is the text corpus.
 
@@ -656,7 +661,10 @@ Then the Euclidean distance between these two are:
 
 $$\sqrt{\sum_{i=1}^n~(a_i - b_i)^2}.$$ {#eq:nlp:euclidean}
 
-and the cosine distance between is shown in [@eq:nlp:cosine] in previous sections.
+and the cosine distance between is defined as:
+
+$$cos(\theta) = \frac{A.B}{\|A\|~\|B\|}.$$ {#eq:nlp:cosine}
+
 It is the dot product of two vectors divided by the product of the length of both vectors.  
 
 ![Euclidean and cosine distances one a two dimensional space](images/nlp/similarity.png "similarity"){width=60% #fig:nlp:similarity}
