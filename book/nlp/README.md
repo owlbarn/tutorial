@@ -725,6 +725,15 @@ These methods utilise various techniques such as multi-processing and multi-thre
 
 ## Summary
 
-TBD
+In this chapter, we focus on topic modelling, one important natural language processing task, and introduce the basic idea and how Owl support it.
+First, we introduce how to tokenise text corpus for further mathematical processing.
+Then we introduce the basic idea of the vector space, and two different ways: the Bag of words (BOW), and Term Frequency–Inverse Document Frequency (TF-IDF),  to project a document into a vector space as as single vector.
+The BOW is straightforward to understand and implement, and the TF-IDF consider the how special a word is across the whole text corpus, and therefore usually gives more accurate representation.
+
+Next, we present two different methods based on the vector representation to retrieve topics from the documents: the Latent Dirichlet Allocation (LDA), and Latent Semantic Analysis (LSA).
+The LSA relies on the singular value decomposition technique on a document-word matrix to do that, while LDA relies on a generative model to iteratively to get the topic model.
+Once we have the topic modelling, we can compare the similarity between documents, or search for similar documents in the text corpus using different measurement of vector distances.
+The cosine similarity is a common one in text analysis. The computation of search process can be optimised using matrix multiplication.
+
 
 ## References
