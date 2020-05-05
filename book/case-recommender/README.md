@@ -33,13 +33,20 @@ Henceforth we will assume you are familiar with this part.
 
 ## Architecture {#arch}
 
-At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as \textit{frontend} and \textit{backend}. Figure \ref{fig:general} illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser. The browser extension only sends the page URL back to the KServer whenever a new tab/window is created. The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database. The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him.
+At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as `frontend` and `backend`.
+Figure [@fig:case-recommender:architecture] illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser.
+The browser extension only sends the page URL back to the KServer whenever a new tab/window is created.
+The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database.
+The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him.
 
-To connect to the frontend, the backend exposes one simple \textit{RESTful API} as below, which gives great flexibility to all possible frontend implementations. By loosely coupling with the backend, it becomes easy to mash-up new services on top of Kvasir. Line 1 and 2 give an example request to Kvasir service. \texttt{type=0} indicates that \texttt{info} contains a URL, otherwise \texttt{info} contains a piece of text if \texttt{type=1}. Line 4-9 present an example response from the server, which contains the metainfo of a list of similar articles. Note that the frontend can refine or rearrange the results based on the metainfo (e.g., similarity or timestamp).
+![Kvasir architecture with components numbered based on their order in the workflow](images/case-recommender/architecture.png "architecture"){width=100% #fig:case-recommender:architecture}
+
+To connect to the frontend, the backend exposes one simple *RESTful API* as below, which gives great flexibility to all possible frontend implementations. By loosely coupling with the backend, it becomes easy to mash-up new services on top of Kvasir.
+In the code below, Line 1 and 2 give an example request to Kvasir service. `type=0` indicates that `info` contains a URL, otherwise `info` contains a piece of text if `type=1`.
+Line 4-9 present an example response from the server, which contains the meta-info of a list of similar articles. Note that the frontend can refine or rearrange the results based on the meta-info (e.g., similarity or timestamp).
 
 ```json
-POST
-https://api.kvasir/query?type=0&info=url
+POST https://api.kvasir/query?type=0&info=url
 
 {"results": [
   {"title": document title,
@@ -49,21 +56,38 @@ https://api.kvasir/query?type=0&info=url
 ]}
 ```
 
-The backend system implements indexing and searching functionality which consist of five components: Crawler, Cleaner, DLSA, PANNS and KServer. Three components (i.e., Cleaner, DLSA and PANNS) are wrapped into one library since all are implemented on top of Apache Spark. The library covers three phases as text cleaning, database building, and indexing. We briefly present the main tasks in each component as below.
+The backend system implements indexing and searching functionality which consist of five components: *Crawler*, *Cleaner*, *DLSA*, *PANNS* and *KServer*. Three components (i.e., Cleaner, DLSA and PANNS) are wrapped into one library since all are implemented on top of Apache Spark. The library covers three phases as text cleaning, database building, and indexing. We briefly present the main tasks in each component as below.
 
-\textbf{Crawler} collects raw documents from the Web then compiles them into two data sets. One is the English Wikipedia dump, and another is compiled from over 300 news feeds of the high-quality content providers such as BBC, Guardian, Times, Yahoo News, MSNBC, and etc. Table \ref{tab:dataset} summarizes the basic statistics of the data sets. Multiple instances of the Crawler run in parallel on different machines. Simple fault-tolerant mechanisms like periodical backup have been implemented to improve the robustness of crawling process. In addition to the text body, the Crawler also records the timestamp, URL and title of the retrieved news as metainfo, which can be further utilized to refine the search results.
-%%% The raw text corpus is copied to HDFS periodically to reduce the risk of data loss.
+**Crawler** collects raw documents from the web and then compiles them into two data sets.
+One is the English Wikipedia dump, and another is compiled from over 300 news feeds of the high-quality content providers such as BBC, Guardian, Times, Yahoo News, MSNBC, and etc.
+[@tbl:case-recommender:dataset] summarises the basic statistics of the data sets. Multiple instances of the Crawler run in parallel on different machines.
+Simple fault-tolerant mechanisms like periodical backup have been implemented to improve the robustness of crawling process.
+In addition to the text body, the Crawler also records the timestamp, URL and title of the retrieved news as meta information, which can be further utilised to refine the search results.
 
-\textbf{Cleaner} cleans the unstructured text corpus and converts the corpus into term frequency-inverse document frequency (TF-IDF) model. In the preprocessing phase, we clean the text by removing HTML tags and stopwords, deaccenting, tokenization, etc. The dictionary refers to the vocabulary of a language model, its quality directly impacts the model performance. To build the dictionary, we exclude both extremely rare and extremely common terms, and keep $10^5$ most popular ones as \textit{features}. More precisely, a term is considered as rare if it appears in less than 20 documents, while a term is considered as common if it appears in more than 40\% of documents.
+| Data set | # of entries | Raw text size | Article length |
+| :-----:  | :----------- | :------------ | :------------- |
+| Wikipedia | $3.9\times~10^6$ | 47.0 GB | Avg. 782 words  |
+| News      | $4.6\times~10^5$ | 1.62 GB | Avg. 648 words  |
+:  Two data sets are used in Kvasir evaluation {#tbl:case-recommender:dataset}
+
+**Cleaner** cleans the unstructured text corpus and converts the corpus into term frequency-inverse document frequency (TF-IDF) model. In the preprocessing phase, we clean the text by removing HTML tags and stop words, de-accenting, tokenisation, etc.
+The dictionary refers to the vocabulary of a language model, its quality directly impacts the model performance.
+To build the dictionary, we exclude both extremely rare and extremely common terms, and keep $10^5$ most popular ones as `features`. More precisely, a term is considered as rare if it appears in less than 20 documents, while a term is considered as common if it appears in more than 40\% of documents.
 
 
-\textbf{DLSA} builds up an LSA-based model from the previously constructed TF-IDF model. Technically, the TF-IDF itself is already a vector space language model. The reason we seldom use TF-IDF directly is because the model contains too much noise and the dimensionality is too high to process efficiently even on a modern computer. To convert a TF-IDF to an LSA model, DLSA's algebraic operations involve large matrix multiplications and time-consuming SVD. We initially tried to use MLib to implement DLSA. However, MLlib is unable to perform SVD on a data set of $10^5$ features with limited RAM, we have to implement our own stochastic SVD on Apache Spark using rank-revealing technique. Section \ref{sec:dlsa} discusses DLSA in details.
+**DLSA** builds up an LSA-based model from the previously constructed TF-IDF model. Technically, the TF-IDF itself is already a vector space language model. The reason we seldom use TF-IDF directly is because the model contains too much noise and the dimensionality is too high to process efficiently even on a modern computer. To convert a TF-IDF to an LSA model, DLSA's algebraic operations involve large matrix multiplications and time-consuming SVD. We initially tried to use MLib to implement DLSA.
+However, MLlib is unable to perform SVD on a data set of $10^5$ features with limited RAM, we have to implement our own stochastic SVD on Apache Spark using rank-revealing technique. The DLSA will be discussed in detail in later chapter.
 
-\textbf{PANNS}\footnote{PANNS is becoming a popular choice of Python-based approximate k-NN library for application developers. According to the PyPI's statistics, PANNS has achieved over 27,000 downloads since it was first published in October 2014. The source code is hosted on the Github at https://github.com/ryanrhymes/panns .} builds the search index to enable fast $k$-NN search in high dimensional LSA vector spaces. Though dimensionality has been significantly reduced from TF-IDF ($10^5$ features) to LSA ($10^3$ features), $k$-NN search in a $10^3$-dimension space is still a great challenge especially when we try to provide responsive services. Naive linear search using one CPU takes over 6 seconds to finish in a database of 4 million entries, which is unacceptably long for any realistic services. PANNS implements a parallel RP-tree algorithm which makes a reasonable tradeoff between accuracy and efficiency. PANNS is the core component in the backend system and Section \ref{sec:panns} presents its algorithm in details.
+**PANNS** builds the search index to enable fast $k$-NN search in high dimensional LSA vector spaces. Though dimensionality has been significantly reduced from TF-IDF ($10^5$ features) to LSA ($10^3$ features), $k$-NN search in a $10^3$-dimension space is still a great challenge especially when we try to provide responsive services.
+Naive linear search using one CPU takes over 6 seconds to finish in a database of 4 million entries, which is unacceptably long for any realistic services.
+[PANNS](https://github.com/ryanrhymes/panns) implements a parallel RP-tree algorithm which makes a reasonable tradeoff between accuracy and efficiency. PANNS is the core component in the backend system and we will present its algorithm in detail in later chapter.
+PANNS is becoming a popular choice of Python-based approximate k-NN library for application developers. According to the PyPI's statistics, PANNS has achieved over 27,000 downloads since it was first published in October 2014.
 
-\textbf{KServer} runs within a web server, processes the users requests and replies with a list of similar documents. KServer uses the index built by PANNS to perform fast search in the database. The ranking of the search results is based on the cosine similarity metric. A key performance metric for KServer is the service time. We wrapped KServer into a Docker\footnote{Docker is a virtualization technology which utilizes Linux container to provide system-level isolation. Docker is an open source project and its webiste is https://www.docker.com/} image and deployed multiple KServer instances on different machines to achieve better performance. We also implemented a simple round-robin mechanism to balance the request loads among the multiple KServers.
+**KServer** runs within a web server, processes the users requests and replies with a list of similar documents.
+KServer uses the index built by PANNS to perform fast search in the database. The ranking of the search results is based on the cosine similarity metric. A key performance metric for KServer is the service time. We wrapped KServer into a Docker image and deployed multiple KServer instances on different machines to achieve better performance. We also implemented a simple round-robin mechanism to balance the request loads among the multiple KServers.
 
-Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc.\footnote{We provide the live demo videos of the seamless integration of Kvasir into web browsing at the official website. The link is http://www.cs.helsinki.fi/u/lxwang/kvasir/\#demo}
+Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc. We provide the [live demo](http://www.cs.helsinki.fi/u/lxwang/kvasir/#demo) videos of the seamless integration of Kvasir into web browsing at the official website.
+Kvasir is also available as [browser extension](https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html) on Chrome and Firefox. 
 
 
 ## Preprocess Data
