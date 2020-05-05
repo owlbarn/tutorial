@@ -6,12 +6,9 @@ NLP is a large topic that covers many different advanced problems, such as speec
 We surely cannot cover all of them in this one single chapter, perhaps not even a whole book.
 To this end, in this chapter we mainly focus on the vector space models and topic modelling.
 
-TODO: Explain Topic modelling briefly
+## Introduction
 
 TODO: this chapter now mainly lacks general text introduction of NLP.
-
-
-## Introduction
 
 Survey the literature, give a high-level picture of NLP. Talk about classic NLP ... structured and unstructured text ...
 
@@ -225,10 +222,8 @@ Under this framework, we mainly have to decide on three factors.
 The first is to choose the meaning of each dimension, or the $N$ basic concepts in the vector space.
 The second is to specify the weight of each dimension for a document. In our simple example, why do we assign the first weight to `100` instead of `50`? There should be rules about it.
 That means we need a proper mapping function $f$ defined.
-Finally, after learning the vector representation, how should we measure their similarity?
-The similarity of document is a basic idea in text processing.
-For topic modelling, we can cluster the documents based on their similarity.
-(TODO: Extend this point)
+Finally, after learning the vector representation, we can we can cluster or search the documents based on their *similarity*.
+Some common metrics of similarity are Euclidean distance and cosine similarity. We will talk about it later.
 
 In this chapter we focusing on mapping a document to a vector space. However, VSM is not limited to only documents.
 We can also map a word into a vector that represents a point in a certain vector space. This vector is also called *word embedding*.
@@ -384,7 +379,6 @@ val knn : (int * float) array =
 ```
 
 The returned result shows the id of the matched documents. We can retrieve each document by running e.g. `Owl_nlp.Corpus.get corpus 11473`.
-(TODO: what is the second number?)
 To save you some effort to do that, here we list link to some of the original news that are matched to be similar to the target document:
 
 1. *Every tatto tells a story*, doc id: 11473. [[Link](https://www.bbc.co.uk/news/magazine-27831231)]

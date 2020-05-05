@@ -1,12 +1,39 @@
 # Case - Recommender System
 
-Refer to [@7462177] [@7840682]
 
-This chapter should be a popular version of the paper contents. Do not worry about OCaml code for now.
+## Introduction
+
+Our daily life heavily relies on recommendations, intelligent content provision aims to match a user’s profile of interests to the best candidates in a large repository of options.
+There are several parallel efforts in integrating intelligent content provision and recommendation in web browsing. They differentiate between each other by the main technique used to achieve the goal.
+
+The initial effort relies on the [semantic web stack](https://en.wikipedia.org/wiki/Semantic_Web_Stack), which requires adding explicit ontology information to all web pages so that ontology-based applications (e.g., Piggy bank) can utilise ontology reasoning to interconnect content semantically.
+Though semantic web has a well-defined architecture, it suffers from the fact that most web pages are unstructured or semi-structured HTML files, and content providers lack of motivation to adopt this technology to their websites.
+Therefore, even though the relevant research still remains active in academia, the actual progress of adopting ontology-based methods in real-life applications has stalled in these years.
+
+Collaborative Filtering (CF), which was first coined in 1992, is a thriving research area and also the second alternative solution. Recommenders built on top of CF exploit the similarities in users' rankings to predict one user's preference on a specific content.
+CF attracts more research interest these years due to the popularity of online shopping (e.g., Amazon, eBay, Taobao, etc.) and video services (e.g., YouTube, Vimeo, Dailymotion, etc.).
+However, recommender systems need user behaviour rather than content itself as explicit input to bootstrap the service, and is usually constrained within a single domain. Cross-domain recommenders have made progress lately, but the complexity and scalability need further investigation.
+
+Search engines can be considered as the third alternative though a user needs explicitly extract the keywords from the page then launch another search. The ranking of the search results is based on multiple ranking signals such as
+link analysis on the underlying graph structure of interconnected pages such as PageRank. Such graph-based link analysis is based on the assumption that those web pages of related topics tend to link to each other, and the importance of a page often positively correlates to its degree.
+The indexing process is modelled as a random walk atop of the graph derived from the linked pages and needs to be pre-compiled offline.
+
+The fourth alternative is to utilise information retrieval (IR) technique.
+In general, a text corpus is transformed to the suitable representation depending on the specific mathematical models (e.g., set-theoretic, algebraic, or probabilistic models), based on which a numeric score is calculated for ranking.
+Different from the previous CF and link analysis, the underlying assumption of IR is that the text (or information in a broader sense) contained in a document can very well indicate its (latent) topics. The relatedness of any two given documents can be calculated with a well-defined metric function atop
+of these topics.
+Since topics can have a direct connection to context, context awareness therefore becomes the most significant advantage in IR, which has been integrated into [Hummingbird](https://moz.com/learn/seo/google-hummingbird), Google’s new search algorithm.
+
+In the rest of this chapter, we will introduce **Kvasir**, a system built on
+top of latent semantic analysis.
+Kvasir automatically looks for the similar articles when a user is browsing a web page and injects the search results in an easily accessible panel within the browser view for seamless integration.
+Kvasir belongs to the content-based filtering and emphasises the semantics contained in the unstructured web text.
+This chapter is based on the papers in [@7462177] and [@7840682], and you will find that many basic theory are already covered previously in the NLP chapter in Part I.
+Henceforth we will assume you are familiar with this part.
 
 ## Architecture {#arch}
 
-At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as \textit{frontend} and \textit{backend}. Figure \ref{fig:general} illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser. The browser extension only sends the page URL back to the KServer whenever a new tab/window is created. The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database. The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him. 
+At the core, Kvasir implements an LSA-based index and search service, and its architecture can be divided into two subsystems as \textit{frontend} and \textit{backend}. Figure \ref{fig:general} illustrates the general workflow and internal design of the system. The frontend is currently implemented as a lightweight extension in Chrome browser. The browser extension only sends the page URL back to the KServer whenever a new tab/window is created. The KServer running at the backend retrieves the content of the given URL then responds with the most relevant documents in a database. The results are formatted into JSON strings. The extension presents the results in a friendly way on the page being browsed. From user perspective, a user only interacts with the frontend by checking the list of recommendations that may interest him.
 
 To connect to the frontend, the backend exposes one simple \textit{RESTful API} as below, which gives great flexibility to all possible frontend implementations. By loosely coupling with the backend, it becomes easy to mash-up new services on top of Kvasir. Line 1 and 2 give an example request to Kvasir service. \texttt{type=0} indicates that \texttt{info} contains a URL, otherwise \texttt{info} contains a piece of text if \texttt{type=1}. Line 4-9 present an example response from the server, which contains the metainfo of a list of similar articles. Note that the frontend can refine or rearrange the results based on the metainfo (e.g., similarity or timestamp).
 
@@ -71,7 +98,7 @@ With an LSA model at hand, finding the most relevant document is equivalent to f
 Nonetheless, we need not locate the exact nearest neighbours in practice. In most cases, slight numerical error (reflected in the language context) is not noticeable at all, i.e., the returned documents still look relevant from the user's perspective. By sacrificing some accuracy, we can obtain a significant gain in searching speed.
 
 The general idea of RP-tree algorithm used here is clustering the points by partitioning the space into smaller subspaces recursively.
- Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer 
+ Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer
  a nearest neighbour query $q$ in an efficient way, by moving $q$ down the tree to its appropriate leaf cell, and then return the
  nearest neighbour in that cell. However in several cases $q$'s nearest neighbour may well lie within a different cell.
 
@@ -80,9 +107,9 @@ Figure [@fig:case-recommender:projection] gives a naive example on a 2-dimension
 However, it has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by
 drawing more random vectors and performing corresponding splits.
 More precisely, in \cite{Dasgupta:2008:RPT:1374376.1374452} the authors show that under the assumption of some intrinsic
-dimensionality of a subcluster (i.e., nodes of a tree structure), its descendant clusters will have a much smaller diameter, hence can include the points that are expected to be more similar to each other. Herein the diameter is defined as the distance between the furthest pair of data points in a cell. Such an example is given in Figure [@fig:case-recommender:projection], where $y$ successfully separates $C$ from $A$ and $B$. 
+dimensionality of a subcluster (i.e., nodes of a tree structure), its descendant clusters will have a much smaller diameter, hence can include the points that are expected to be more similar to each other. Herein the diameter is defined as the distance between the furthest pair of data points in a cell. Such an example is given in Figure [@fig:case-recommender:projection], where $y$ successfully separates $C$ from $A$ and $B$.
 
-Another kind of misclassification is that two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of Figure [@fig:case-recommender:projection]. 
+Another kind of misclassification is that two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of Figure [@fig:case-recommender:projection].
 To get around this issue, the authors in \cite{Liu04aninvestigation} proposed a tree structure
 (i.e., spill tree) where each data point is stored in  multiple leaves, by following overlapping splits.
 Although the query time remains essentially the same, the required space is significantly increased.  
@@ -112,7 +139,7 @@ A RP-tree helps us to locate a cluster which is likely to contain some of the $k
 
 We expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane
 should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster. By reducing such misclassifications, the searching accuracy is supposed to be improved.
-  Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research \cite{okun2008}. 
+  Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research \cite{okun2008}.
  Similar to our case, ensemble clustering algorithms improve clustering solutions by	fusing information from several data partitions.
 	In our further study on this particular part of the proposed system we intend to extend the probabilistic schemes developed in \cite{DBLP:journals/corr/abs-1302-1948} in an attempt to discover the underlying theoretical properties suggested by our empirical findings. In particular, we intend to similarly provide theoretical bounds for failure probability and show that such failures can be reduced by using more RP-trees.
 
@@ -129,14 +156,14 @@ Note that $x$-axis represents the "size of search space" which is defined by the
 As we can see in Figure \ref{fig:test1}, for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
 As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours are found by performing a search over the $10\%$ of the data set.
 
-To further illustrate the benefits of using as many RP-trees as possible, we present in Figure \ref{fig:test2} the results where the size of search space remains approximately constant while the number of trees grows and 
-subsequently the cluster size shrinks accordingly. As shown, a larger number of trees leads to the better accuracy. E.g., the accuracy is improved about $62.5\%$ by increasing the number of trees from $2$ to $18$. 
+To further illustrate the benefits of using as many RP-trees as possible, we present in Figure \ref{fig:test2} the results where the size of search space remains approximately constant while the number of trees grows and
+subsequently the cluster size shrinks accordingly. As shown, a larger number of trees leads to the better accuracy. E.g., the accuracy is improved about $62.5\%$ by increasing the number of trees from $2$ to $18$.
 
 %%% figure
- 
- 
- 	Finally in Figure \ref{fig:test3} similar outcome is observed when the average size of the leaf clusters remains approximately constant and the number of trees increases. In these experiments, we choose two specific cluster sizes for comparisons, i.e., cluster size $77$ and $787$. Both are just average leaf cluster sizes resulted from the termination criterion in the tree construction procedure which pre-sets a maximum allowed size of a leaf cluster (here $100$ and $1000$ respectively, selected for illustration purposes as any other relative set up gives similar results). 
- 	In addition, we also draw a random subset for any given size from the whole data set to serve as a baseline. As we see, the accuracy of the random subset has a linear improvement rate which is simply due to the linear growth of its search space. As expected, the RP-tree solutions are significantly better than the random subset, and cluster size $77$ consistently outperforms cluster size $787$ especially when the search space is small. 
+
+
+ 	Finally in Figure \ref{fig:test3} similar outcome is observed when the average size of the leaf clusters remains approximately constant and the number of trees increases. In these experiments, we choose two specific cluster sizes for comparisons, i.e., cluster size $77$ and $787$. Both are just average leaf cluster sizes resulted from the termination criterion in the tree construction procedure which pre-sets a maximum allowed size of a leaf cluster (here $100$ and $1000$ respectively, selected for illustration purposes as any other relative set up gives similar results).
+ 	In addition, we also draw a random subset for any given size from the whole data set to serve as a baseline. As we see, the accuracy of the random subset has a linear improvement rate which is simply due to the linear growth of its search space. As expected, the RP-tree solutions are significantly better than the random subset, and cluster size $77$ consistently outperforms cluster size $787$ especially when the search space is small.
 
 
 %%% figure
@@ -172,7 +199,7 @@ onto i.i.d. random vectors ....
 
 ## Code Implementation
 
-Naive implementation .... @jianxin, let's decide how to use them. 
+Naive implementation .... @jianxin, let's decide how to use them.
 
 **The following is about how to do the random projection, for sparse projection**
 
