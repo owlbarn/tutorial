@@ -87,120 +87,108 @@ PANNS is becoming a popular choice of Python-based approximate k-NN library for 
 KServer uses the index built by PANNS to perform fast search in the database. The ranking of the search results is based on the cosine similarity metric. A key performance metric for KServer is the service time. We wrapped KServer into a Docker image and deployed multiple KServer instances on different machines to achieve better performance. We also implemented a simple round-robin mechanism to balance the request loads among the multiple KServers.
 
 Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc. We provide the [live demo](http://www.cs.helsinki.fi/u/lxwang/kvasir/#demo) videos of the seamless integration of Kvasir into web browsing at the official website.
-Kvasir is also available as [browser extension](https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html) on Chrome and Firefox. 
-
-
-## Preprocess Data
-
-```ocaml
-(* TODO *)
-```
+Kvasir is also available as [browser extension](https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html) on Chrome and Firefox.
 
 
 ## Build Topic Models
 
-The vector space model belongs to algebraic language models, where each document is represented with a row vector. Each element in the vector represents the weight of a term in the dictionary calculated in a specific way. E.g., it can be simply calculated as the frequency of a term in a document, or slightly more complicated TF-IDF. The length of the vector is determined by the size of the dictionary (i.e., number of features). A text corpus containing $m$ documents and a dictionary of $n$ terms will be converted to an $A = m \times n$ row-based matrix. Informally, we say that $A$ grows taller if the number of documents (i.e., $m$) increases, and grows fatter if we add more terms (i.e., $n$) in the dictionary. LSA utilizes SVD to reduce $n$ by only keeping a small number of linear combinations of the original features. To perform SVD, we need to calculate the covariance matrix $C = A^T \times A$, which is a $n \times n$ matrix and is usually much smaller than $A$.
+As has been explained in the previous section, the crawler and cleaner performs data collection and processing to build vocabulary and TF-IDF model.
+We have already talked about this part in detail in the NLP chapter.
+DLSA and PANNS are the two core components responsible for building language models and indexing the high dimensional data sets in Kvasir.
+In this section, we first sketch out the key ideas in DLSA.
+
+The vector space model belongs to algebraic language models, where each document is represented with a row vector. Each element in the vector represents the weight of a term in the dictionary calculated in a specific way. E.g., it can be simply calculated as the frequency of a term in a document, or slightly more complicated TF-IDF. The length of the vector is determined by the size of the dictionary (i.e., number of features). A text corpus containing $m$ documents and a dictionary of $n$ terms will be converted to an $A = m \times n$ row-based matrix. Informally, we say that $A$ grows taller if the number of documents (i.e., $m$) increases, and grows fatter if we add more terms (i.e., $n$) in the dictionary. LSA utilises SVD to reduce $n$ by only keeping a small number of linear combinations of the original features. To perform SVD, we need to calculate the covariance matrix $C = A^T \times A$, which is a $n \times n$ matrix and is usually much smaller than $A$.
 
 ![Rank-revealing reduces dimensionality to perform in-memory SVD](images/case-recommender/plot_06.png "plot_06"){ width=90%, #fig:case-recommender:revealing }
 
-We can easily parallelize the calculation of $C$ by dividing $A$ into $k$ smaller chunks of size $[\frac{m}{k}] \times n$, so that the final result can be obtained by aggregating the partial results as $C = A^T \times A = \sum_{i=1}^{k} A^T_i \times A_i \label{eq:1}$. However, a more serious problem is posed by the large number of columns, i.e., $n$. The SVD function in MLlib is only able to handle tall and thin matrices up to some hundreds of features. For most of the language models, there are often hundreds of thousands features (e.g., $10^5$ in our case). The covariance matrix $C$ becomes too big to fit into the physical memory, hence the native SVD operation in MLlib of Spark fails as the first subfigure of Figure [@fig:case-recommender:revealing] shows.
+We can easily parallelise the calculation of $C$ by dividing $A$ into $k$ smaller chunks of size $[\frac{m}{k}] \times n$, so that the final result can be obtained by aggregating the partial results as $C = A^T \times A = \sum_{i=1}^{k} A^T_i \times A_i \label{eq:1}$. However, a more serious problem is posed by the large number of columns, i.e., $n$. The SVD function in MLlib is only able to handle tall and thin matrices up to some hundreds of features. For most of the language models, there are often hundreds of thousands features (e.g., $10^5$ in our case). The covariance matrix $C$ becomes too big to fit into the physical memory, hence the native SVD operation in MLlib of Spark fails as the first subfigure of Figure [@fig:case-recommender:revealing] shows.
 
-In linear algebra, a matrix can be approximated by another matrix of lower rank while still retaining approximately properties of the matrix that are important for the problem at hand. In other words, we can use another thinner matrix $B$ to approximate the original fat $A$. The corresponding technique is referred to as rank-revealing QR estimation \cite{Halko:2011:FSR}. A TF-IDF model having $10^5$ features often contains a lot of redundant information. Therefore, we can effectively thin the matrix $A$ then fit $C$ into the memory. Figure [@fig:case-recommender:revealing] illustrates the algorithmic logic in DLSA, which is essentially a distributed stochastic SVD implementation.
+In linear algebra, a matrix can be approximated by another matrix of lower rank while still retaining approximately properties of the matrix that are important for the problem at hand. In other words, we can use another thinner matrix $B$ to approximate the original fat $A$. The corresponding technique is referred to as rank-revealing QR estimation. A TF-IDF model having $10^5$ features often contains a lot of redundant information. Therefore, we can effectively thin the matrix $A$ then fit $C$ into the memory. Figure [@fig:case-recommender:revealing] illustrates the algorithmic logic in DLSA, which is essentially a distributed stochastic SVD implementation.
+
+TODO: this section requires to be de-academic.
 
 
 ## Index Text Corpus
 
-![Projection on different random lines](images/case-recommender/plot_01.png "plot_01"){ width=90%, #fig:case-recommender:projection }
-
-![Construct a binary search tree from the reandom projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
-
-Figure [@fig:case-recommender:search] illustrates how binary search can be built.
-
-
-With an LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors. However, neither naive linear search nor conventional \textit{k-d} tree is capable of performing efficient search in such high dimensional space even though the dimensionality has been significantly reduced from $10^5$ to $10^3$ by LSA.
+With an LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors.
+However, neither naive linear search nor conventional `k-d` tree is capable of performing efficient search in such high dimensional space even though the dimensionality has been significantly reduced from $10^5$ to $10^3$ by LSA.
 
 Nonetheless, we need not locate the exact nearest neighbours in practice. In most cases, slight numerical error (reflected in the language context) is not noticeable at all, i.e., the returned documents still look relevant from the user's perspective. By sacrificing some accuracy, we can obtain a significant gain in searching speed.
 
+### Random Projection
+
 The general idea of RP-tree algorithm used here is clustering the points by partitioning the space into smaller subspaces recursively.
- Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer
- a nearest neighbour query $q$ in an efficient way, by moving $q$ down the tree to its appropriate leaf cell, and then return the
- nearest neighbour in that cell. However in several cases $q$'s nearest neighbour may well lie within a different cell.
+Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer a nearest neighbour query $q$ in an efficient way, by moving $q$ down the tree to its appropriate leaf cell, and then return the nearest neighbour in that cell.
+However in several cases $q$'s nearest neighbour may well lie within a different cell.
 
-Figure [@fig:case-recommender:projection] gives a naive example on a 2-dimension vector space. First, a random vector $x$ is drawn and all the points are projected onto $x$. Then we divide the whole space into half at the mean value of all projections (i.e., the blue circle on $x$) to reduce the problem size. For each new subspace, we draw another random vector for projection, and this process continues recursively until the number of points in the space reaches the predefined threshold on cluster size. We can construct a binary tree to facilitate the search. As we can see in the first subfigure of Figure [@fig:case-recommender:projection], though the projections of $A$, $B$, and $C$ seem close to each other on $x$, $C$ is actually quite distant from $A$ and $B$.
+![Projection on different random lines](images/case-recommender/plot_01.png "plot_01"){ width=90%, #fig:case-recommender:projection }
 
-However, it has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by
-drawing more random vectors and performing corresponding splits.
-More precisely, in \cite{Dasgupta:2008:RPT:1374376.1374452} the authors show that under the assumption of some intrinsic
-dimensionality of a subcluster (i.e., nodes of a tree structure), its descendant clusters will have a much smaller diameter, hence can include the points that are expected to be more similar to each other. Herein the diameter is defined as the distance between the furthest pair of data points in a cell. Such an example is given in Figure [@fig:case-recommender:projection], where $y$ successfully separates $C$ from $A$ and $B$.
+Figure [@fig:case-recommender:projection] gives a naive example on a 2-dimension vector space. First, a random vector $x$ is drawn and all the points are projected onto $x$.
+Then we divide the whole space into half at the mean value of all projections (i.e., the blue circle on $x$) to reduce the problem size.
+For each new subspace, we draw another random vector for projection, and this process continues recursively until the number of points in the space reaches the predefined threshold on cluster size. We can construct a binary tree to facilitate the search.
 
-Another kind of misclassification is that two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of Figure [@fig:case-recommender:projection].
-To get around this issue, the authors in \cite{Liu04aninvestigation} proposed a tree structure
-(i.e., spill tree) where each data point is stored in  multiple leaves, by following overlapping splits.
-Although the query time remains essentially the same, the required space is significantly increased.  
-In this work we choose to improve the accuracy by building multiple RP-trees. We expect that the randomness in tree construction will introduce extra variability in the neighbours that are returned by several RP-trees for a given query point. This can be taken as an advantage in order to mitigate the second kind of misclassification while searching for the nearest neighbours of a query point in the combined search set.
-However, in this case one would  need to store a large number of random vectors at every node of the tree,
-introducing significant storage overhead as well.
+![Construct a binary search tree from the reandom projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
+
+TODO: Figure [@fig:case-recommender:search] illustrates how binary search can be built.
+
+As we can see in the first subfigure of [@fig:case-recommender:projection], though the projections of $A$, $B$, and $C$ seem close to each other on $x$, $C$ is actually quite distant from $A$ and $B$.
+However, it has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by drawing more random vectors and performing corresponding splits.
+
+More precisely, there are research work that shows that under the assumption of some intrinsic dimensionality of a sub-cluster (i.e., nodes of a tree structure), its descendant clusters will have a much smaller diameter, hence can include the points that are expected to be more similar to each other.
+Herein the diameter is defined as the distance between the furthest pair of data points in a cell. Such an example is given in [@fig:case-recommender:projection], where $y$ successfully separates $C$ from $A$ and $B$.
+(TODO: remove this paragraph perhaps)
+
+Another kind of misclassification is that two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of [@fig:case-recommender:projection].
+To get around this issue, we choose to improve the accuracy by building multiple RP-trees. We expect that the randomness in tree construction will introduce extra variability in the neighbours that are returned by several RP-trees for a given query point. This can be taken as an advantage in order to mitigate the second kind of misclassification while searching for the nearest neighbours of a query point in the combined search set.
+
+### Optimising Vector Storage
+
+However, in this case one would need to store a large number of random vectors at every node of the tree, introducing significant storage overhead as well.
 For a corpus of 4 million documents, if we use $10^5$ random vectors (i.e., a cluster size of 20), and each vector is a $10^3$-dimension real vector (32-bit float number), the induced storage overhead is about 381.5~MB for each RP-tree. Therefore, such a solution leads to a huge index of $47.7$~GB given $128$ RP-trees are included, or $95.4$~GB given $256$ RP-trees.
 
 The huge index size not only consumes a significant amount of storage resources, but also prevents the system from scaling up after more and more documents are collected.
-One possible solution to reduce the index size is reusing the random vectors. Namely, we can generate a pool of random vectors once, then randomly choose one from the pool each time when one is needed. However, the immediate challenge emerges when we try to parallelize the tree building on multiple nodes, because we need to broadcast the pool of vectors onto every node, which causes significant network traffic.
+One possible solution to reduce the index size is reusing the random vectors. Namely, we can generate a pool of random vectors once, then randomly choose one from the pool each time when one is needed. However, the immediate challenge emerges when we try to parallelise the tree building on multiple nodes, because we need to broadcast the pool of vectors onto every node, which causes significant network traffic.
 
-To address this challenge, we propose to use a pseudo random seed in building and storing search index. Instead of maintaining a pool of random vectors, we just need a random seed for each RP-tree. The computation node can build all the random vectors on the fly from the given seed. From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network, therefore we improve the computation efficiency. From the storage perspective, we only need to store one 4-byte random seed for each RP-tree. In such a way, we are able to successfully reduce the storage overhead from $47.7$~GB to $512$~B for a search index consisting of $128$ RP-trees (with cluster size 20), or from $95.4$~GB to only $1$~KB if $256$ RP-trees are used.
+![Use a random seed to generate on the fly](images/case-recommender/plot_04.png "plot_04"){ width=100% #fig:case-recommender:randomseed}
+
+TODO: explain this figure
+
+To address this challenge, we propose to use a pseudo random seed in building and storing search index. Instead of maintaining a pool of random vectors, we just need a random seed for each RP-tree. The computation node can build all the random vectors on the fly from the given seed. In a leaf cluster, only the indices of vectors in the original data set are stored, as shown in [@fig:case-recommender:randomseed].
+From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network, therefore we improve the computation efficiency. From the storage perspective, we only need to store one 4-byte random seed for each RP-tree. In such a way, we are able to successfully reduce the storage overhead from $47.7$~GB to $512$~B for a search index consisting of $128$ RP-trees (with cluster size 20), or from $95.4$~GB to only $1$~KB if $256$ RP-trees are used.
 
 
 ### Optimise Data Structure
 
 ![Increase either leaf size or number of trees, but which is better?](images/case-recommender/plot_03.png "plot_03"){ width=100% }
 
-A RP-tree helps us to locate a cluster which is likely to contain some of the $k$ nearest neighbours for a given query point. Within the cluster, a linear search is performed to identify the best candidates. Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can
-%: we can either use \textit{less trees with bigger cluster}, or use \textit{more trees with smaller cluster}.
+TODO: explain this figure
 
+A RP-tree helps us to locate a cluster which is likely to contain some of the $k$ nearest neighbours for a given query point. Within the cluster, a linear search is performed to identify the best candidates. Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can either use less trees with larger leaf clusters, or use more trees with smaller leaf clusters.
 
-* either use \textit{less trees with larger leaf clusters},
-* or use \textit{more trees with smaller leaf clusters}.
-
-
-
-We expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane
-should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster. By reducing such misclassifications, the searching accuracy is supposed to be improved.
-  Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research \cite{okun2008}.
- Similar to our case, ensemble clustering algorithms improve clustering solutions by	fusing information from several data partitions.
-	In our further study on this particular part of the proposed system we intend to extend the probabilistic schemes developed in \cite{DBLP:journals/corr/abs-1302-1948} in an attempt to discover the underlying theoretical properties suggested by our empirical findings. In particular, we intend to similarly provide theoretical bounds for failure probability and show that such failures can be reduced by using more RP-trees.
+We expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster.
+By reducing such misclassifications, the searching accuracy is supposed to be improved.
+Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research.
+Similar to our case, ensemble clustering algorithms improve clustering solutions by	fusing information from several data partitions.
+In our further study on this particular part of the proposed system we intend to extend the probabilistic schemes developed in \cite{DBLP:journals/corr/abs-1302-1948} in an attempt to discover the underlying theoretical properties suggested by our empirical findings. In particular, we intend to similarly provide theoretical bounds for failure probability and show that such failures can be reduced by using more RP-trees.
 
 To experimentally investigate this hypothesis we employ a subset of the Wikipedia database for further analysis.
 In what follows, the data set contains $500,000$ points and we always search for the $50$ nearest neighbours of a query point.
 Then we measure the searching accuracy by calculating the amount of actual nearest neighbours found.
 
+![The number of true nearest neighbours found for different number of trees](images/case-recommender/exp01.png "exp01"){width=60% #fig:case-recommender:exp01}
+
 We query $1,000$ points in each experiment.
-The results presented in Figure \ref{fig:test1} correspond to the mean values of the aggregated nearest neighbours of the $1,000$ query points discovered by PANNS out of $100$ experiment runs.
+The results presented in [@fig:case-recommender:exp01] correspond to the mean values of the aggregated nearest neighbours of the $1,000$ query points discovered by PANNS out of $100$ experiment runs.
 Note that $x$-axis represents the "size of search space" which is defined by the number of unique points within the union of all the leaf clusters that the query point fall in. Therefore, given the same search space size, using more tress indicates that the leaf clusters become smaller.
 
-%%% figure
-
-As we can see in Figure \ref{fig:test1}, for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
+As we can see in [@fig:case-recommender:exp01], for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
 As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours are found by performing a search over the $10\%$ of the data set.
 
-To further illustrate the benefits of using as many RP-trees as possible, we present in Figure \ref{fig:test2} the results where the size of search space remains approximately constant while the number of trees grows and
-subsequently the cluster size shrinks accordingly. As shown, a larger number of trees leads to the better accuracy. E.g., the accuracy is improved about $62.5\%$ by increasing the number of trees from $2$ to $18$.
+TODO: perhaps a bit more conclusion from Fig.5 and Fig.6.
 
-%%% figure
-
-
- 	Finally in Figure \ref{fig:test3} similar outcome is observed when the average size of the leaf clusters remains approximately constant and the number of trees increases. In these experiments, we choose two specific cluster sizes for comparisons, i.e., cluster size $77$ and $787$. Both are just average leaf cluster sizes resulted from the termination criterion in the tree construction procedure which pre-sets a maximum allowed size of a leaf cluster (here $100$ and $1000$ respectively, selected for illustration purposes as any other relative set up gives similar results).
- 	In addition, we also draw a random subset for any given size from the whole data set to serve as a baseline. As we see, the accuracy of the random subset has a linear improvement rate which is simply due to the linear growth of its search space. As expected, the RP-tree solutions are significantly better than the random subset, and cluster size $77$ consistently outperforms cluster size $787$ especially when the search space is small.
-
-
-%%% figure
-
-Our empirical results clearly show the benefits of using more trees instead of using larger clusters for improving search accuracy. Moreover, regarding the searching performance, since searching can be easily parallelized, using more trees will not impact the searching time.
-
-
-![We do not need to store the actual vector at each node. Instead, we can use a random seed to generate on the fly. In a leaf cluster, only the indices of vectors in the original data set are stored.](images/case-recommender/plot_04.png "plot_04"){ width=100% }
-
+Our empirical results clearly show the benefits of using more trees instead of using larger clusters for improving search accuracy. Moreover, regarding the searching performance, since searching can be easily parallelised, using more trees will not impact the searching time.
 
 ### Optimise Index Algorithm
-
-refer to II.C in [@7840682]
 
 A very interesting part. Make sure you understand the paper and express the core idea concisely here.
 
