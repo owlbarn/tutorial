@@ -122,36 +122,42 @@ To sum up, we propose to reduce the size of TF-IDF model matrix to fit it into t
 ## Index Text Corpus
 
 With an LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors.
-In the NLP chapter we have seen how to use linear search in the LSA model. 
+In the NLP chapter we have seen how to use linear search in the LSA model.
 However, neither naive linear search nor conventional `k-d` tree is capable of performing efficient search in such high dimensional space even though the dimensionality has been significantly reduced from $10^5$ to $10^3$ by LSA.
 
-Nonetheless, we need not locate the exact nearest neighbours in practice. In most cases, slight numerical error (reflected in the language context) is not noticeable at all, i.e., the returned documents still look relevant from the user's perspective. By sacrificing some accuracy, we can obtain a significant gain in searching speed.
+The key observation is that, we need not locate the exact nearest neighbours in practice. In most cases, slight numerical error (reflected in the language context) is not noticeable at all, i.e., the returned documents still look relevant from the user's perspective. By sacrificing some accuracy, we can obtain a significant gain in searching speed.
 
 ### Random Projection
 
-The general idea of RP-tree algorithm used here is clustering the points by partitioning the space into smaller subspaces recursively.
-Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer a nearest neighbour query $q$ in an efficient way, by moving $q$ down the tree to its appropriate leaf cell, and then return the nearest neighbour in that cell.
-However in several cases $q$'s nearest neighbour may well lie within a different cell.
+To optimise the search, the basic idea is that, instead of searching in all the existing vectors, we can pre-cluster the vectors according to their distances, each cluster with only a small number of vectors.
+For an incoming query, as long as we can put this vector into a suitable cluster, we can then search for close vectors only in that cluster.
 
 ![Projection on different random lines](images/case-recommender/plot_01.png "plot_01"){ width=90%, #fig:case-recommender:projection }
 
-Figure [@fig:case-recommender:projection] gives a naive example on a 2-dimension vector space. First, a random vector $x$ is drawn and all the points are projected onto $x$.
+[@fig:case-recommender:projection] gives a naive example on a 2-dimension vector space.
+First, a random vector $x$ is drawn and all the points are projected onto $x$.
 Then we divide the whole space into half at the mean value of all projections (i.e., the blue circle on $x$) to reduce the problem size.
-For each new subspace, we draw another random vector for projection, and this process continues recursively until the number of points in the space reaches the predefined threshold on cluster size. We can construct a binary tree to facilitate the search.
+For each new subspace, we draw another random vector for projection, and this process continues recursively until the number of points in the space reaches the predefined threshold on cluster size.
 
-![Construct a binary search tree from the reandom projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
+In the implementation, we can construct a binary tree to facilitate the search.
+Technically, this can be achieved by any tree-based algorithms. Given a tree built from a database, we answer a nearest neighbour query $q$ in an efficient way, by moving $q$ down the tree to its appropriate leaf cell, and then return the nearest neighbour in that cell.
+In Kvasir, we use the Randomised Partition tree (RP-tree) introduced in [@dasgupta2013randomized] to do it.
+The general idea of RP-tree algorithm used here is clustering the points by partitioning the space into smaller subspaces recursively.
 
-TODO: Figure [@fig:case-recommender:search] illustrates how binary search can be built.
+![Construct a binary search tree from the random projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
 
+[@fig:case-recommender:search] illustrates how binary search can be built according to the dividing steps shown above.
+You can see the five nodes in the vector space is put into five clusters/leaves step by step.
+The information of the random vectors such as `x`, `y`, and `z` are also saved.
+Once we have this tree, given another query vector, we can put it into one of the clusters along the tree to find the cluster of vectors that are close to it.
+
+Of course, we have already said that this efficiency is traded-off with search accuracy.
+One type of common misclassification is that it is possible that we can separate close vectors into different clusters.
 As we can see in the first subfigure of [@fig:case-recommender:projection], though the projections of $A$, $B$, and $C$ seem close to each other on $x$, $C$ is actually quite distant from $A$ and $B$.
-However, it has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by drawing more random vectors and performing corresponding splits.
+The reverse can also be true: two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of [@fig:case-recommender:projection].
 
-More precisely, there are research work that shows that under the assumption of some intrinsic dimensionality of a sub-cluster (i.e., nodes of a tree structure), its descendant clusters will have a much smaller diameter, hence can include the points that are expected to be more similar to each other.
-Herein the diameter is defined as the distance between the furthest pair of data points in a cell. Such an example is given in [@fig:case-recommender:projection], where $y$ successfully separates $C$ from $A$ and $B$.
-(TODO: remove this paragraph perhaps)
-
-Another kind of misclassification is that two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of [@fig:case-recommender:projection].
-To get around this issue, we choose to improve the accuracy by building multiple RP-trees. We expect that the randomness in tree construction will introduce extra variability in the neighbours that are returned by several RP-trees for a given query point. This can be taken as an advantage in order to mitigate the second kind of misclassification while searching for the nearest neighbours of a query point in the combined search set.
+It has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by drawing more random vectors and performing corresponding splits.
+In the implementation, we follow this path and build multiple RP-trees. We expect that the randomness in tree construction will introduce extra variability in the neighbours that are returned by several RP-trees for a given query point. This can be taken as an advantage in order to mitigate the second kind of misclassification while searching for the nearest neighbours of a query point in the combined search set.
 
 ### Optimising Vector Storage
 
