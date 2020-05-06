@@ -156,38 +156,42 @@ One type of common misclassification is that it is possible that we can separate
 As we can see in the first subfigure of [@fig:case-recommender:projection], though the projections of $A$, $B$, and $C$ seem close to each other on $x$, $C$ is actually quite distant from $A$ and $B$.
 The reverse can also be true: two nearby points are unluckily divided into different subspaces, e.g., points $B$ and $D$ in the left panel of [@fig:case-recommender:projection].
 
+![Aggregate clustering result from multipel RP-trees](images/case-recommender/plot_03.png "plot_03"){ width=100% #fig:case-recommender:union }
+
 It has been shown that such misclassifications become arbitrarily rare as the iterative procedure continues by drawing more random vectors and performing corresponding splits.
 In the implementation, we follow this path and build multiple RP-trees. We expect that the randomness in tree construction will introduce extra variability in the neighbours that are returned by several RP-trees for a given query point. This can be taken as an advantage in order to mitigate the second kind of misclassification while searching for the nearest neighbours of a query point in the combined search set.
+As shown in [@fig:case-recommender:union], given an input query vector `x`, we find its neighbour in three different RP-trees, and the final set of neighbour candidates comes from the union of these three different sets.
 
 ### Optimising Vector Storage
 
-However, in this case one would need to store a large number of random vectors at every node of the tree, introducing significant storage overhead as well.
-For a corpus of 4 million documents, if we use $10^5$ random vectors (i.e., a cluster size of 20), and each vector is a $10^3$-dimension real vector (32-bit float number), the induced storage overhead is about 381.5~MB for each RP-tree. Therefore, such a solution leads to a huge index of $47.7$~GB given $128$ RP-trees are included, or $95.4$~GB given $256$ RP-trees.
+You may have noticed that, in this method, we need to store all the random vectors that are generated in the non-leaf nodes of the tree.  
+That means storing a large number of random vectors at every node of the tree, each with a large number features.
+It introduces significant storage overhead.
+For a corpus of 4 million documents, if we use $10^5$ random vectors (i.e., a cluster size of $\frac{4\times~10^6}{2\times~10^5} = 20$ on average), and each vector is a $10^3$-dimension real vector (32-bit float number), the induced storage overhead is about 381.5~MB for each RP-tree.
+Therefore, such a solution leads to a huge index of $47.7$~GB given $128$ RP-trees are included, or $95.4$~GB given $256$ RP-trees.
 
 The huge index size not only consumes a significant amount of storage resources, but also prevents the system from scaling up after more and more documents are collected.
 One possible solution to reduce the index size is reusing the random vectors. Namely, we can generate a pool of random vectors once, then randomly choose one from the pool each time when one is needed. However, the immediate challenge emerges when we try to parallelise the tree building on multiple nodes, because we need to broadcast the pool of vectors onto every node, which causes significant network traffic.
 
-![Use a random seed to generate on the fly](images/case-recommender/plot_04.png "plot_04"){ width=100% #fig:case-recommender:randomseed}
+![Use a random seed to generate on the fly](images/case-recommender/plot_04.png "plot_04"){ width=100% #fig:case-recommender:randomseed }
 
-TODO: explain this figure
+To address this challenge, we propose to use a pseudo random seed in building and storing search index. Instead of maintaining a pool of random vectors, we just need a random seed for each RP-tree.
+As shown in [@fig:case-recommender:randomseed], in a leaf cluster, instead of storing all the vectors, only the indices of vectors in the original data set are stored. The computation node can build all the random vectors on the fly from the given seed according to the random seed.
 
-To address this challenge, we propose to use a pseudo random seed in building and storing search index. Instead of maintaining a pool of random vectors, we just need a random seed for each RP-tree. The computation node can build all the random vectors on the fly from the given seed. In a leaf cluster, only the indices of vectors in the original data set are stored, as shown in [@fig:case-recommender:randomseed].
-From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network, therefore we improve the computation efficiency. From the storage perspective, we only need to store one 4-byte random seed for each RP-tree. In such a way, we are able to successfully reduce the storage overhead from $47.7$~GB to $512$~B for a search index consisting of $128$ RP-trees (with cluster size 20), or from $95.4$~GB to only $1$~KB if $256$ RP-trees are used.
+From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network, therefore we improve the computation efficiency.
+From the storage perspective, we only need to store one 4-byte random seed for each RP-tree. In such a way, we are able to successfully reduce the storage overhead from $47.7$~GB to $512$~B for a search index consisting of $128$ RP-trees (with cluster size 20), or from $95.4$~GB to only $1$~KB if $256$ RP-trees are used.
 
 
 ### Optimise Data Structure
 
-![Increase either leaf size or number of trees, but which is better?](images/case-recommender/plot_03.png "plot_03"){ width=100% }
+Let's consider a bit more about using multiple RP-trees.
+Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can either use less trees with larger leaf clusters, or use more trees with smaller leaf clusters.
+Increasing cluster size is intuitive: if we increase it to so large that includes all the vectors, then it is totally accurate.
 
-TODO: explain this figure
-
-A RP-tree helps us to locate a cluster which is likely to contain some of the $k$ nearest neighbours for a given query point. Within the cluster, a linear search is performed to identify the best candidates. Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can either use less trees with larger leaf clusters, or use more trees with smaller leaf clusters.
-
-We expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster.
+On the other hand, we expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster.
 By reducing such misclassifications, the searching accuracy is supposed to be improved.
 Based on our knowledge, although there are no previous theoretical results that may justify such a hypothesis	in the field of nearest neighbour search algorithms, this concept could be considered as a combination strategy similar to those appeared in ensemble clustering, a very well established field of research.
-Similar to our case, ensemble clustering algorithms improve clustering solutions by	fusing information from several data partitions.
-In our further study on this particular part of the proposed system we intend to extend the probabilistic schemes developed in \cite{DBLP:journals/corr/abs-1302-1948} in an attempt to discover the underlying theoretical properties suggested by our empirical findings. In particular, we intend to similarly provide theoretical bounds for failure probability and show that such failures can be reduced by using more RP-trees.
+Similar to our case, ensemble clustering algorithms improve clustering solutions by fusing information from several data partitions.
 
 To experimentally investigate this hypothesis we employ a subset of the Wikipedia database for further analysis.
 In what follows, the data set contains $500,000$ points and we always search for the $50$ nearest neighbours of a query point.
@@ -198,13 +202,10 @@ Then we measure the searching accuracy by calculating the amount of actual neare
 We query $1,000$ points in each experiment.
 The results presented in [@fig:case-recommender:exp01] correspond to the mean values of the aggregated nearest neighbours of the $1,000$ query points discovered by PANNS out of $100$ experiment runs.
 Note that $x$-axis represents the "size of search space" which is defined by the number of unique points within the union of all the leaf clusters that the query point fall in. Therefore, given the same search space size, using more tress indicates that the leaf clusters become smaller.
-
 As we can see in [@fig:case-recommender:exp01], for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
 As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours are found by performing a search over the $10\%$ of the data set.
 
-TODO: perhaps a bit more conclusion from Fig.5 and Fig.6.
-
-Our empirical results clearly show the benefits of using more trees instead of using larger clusters for improving search accuracy. Moreover, regarding the searching performance, since searching can be easily parallelised, using more trees will not impact the searching time.
+Our empirical results clearly show *the benefits of using more trees instead of using larger clusters for improving search accuracy*. Moreover, regarding the searching performance, since searching can be easily parallelised, using more trees will not impact the searching time.
 
 ### Optimise Index Algorithm
 
