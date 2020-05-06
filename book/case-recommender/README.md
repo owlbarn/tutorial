@@ -97,20 +97,32 @@ We have already talked about this part in detail in the NLP chapter.
 DLSA and PANNS are the two core components responsible for building language models and indexing the high dimensional data sets in Kvasir.
 In this section, we first sketch out the key ideas in DLSA.
 
-The vector space model belongs to algebraic language models, where each document is represented with a row vector. Each element in the vector represents the weight of a term in the dictionary calculated in a specific way. E.g., it can be simply calculated as the frequency of a term in a document, or slightly more complicated TF-IDF. The length of the vector is determined by the size of the dictionary (i.e., number of features). A text corpus containing $m$ documents and a dictionary of $n$ terms will be converted to an $A = m \times n$ row-based matrix. Informally, we say that $A$ grows taller if the number of documents (i.e., $m$) increases, and grows fatter if we add more terms (i.e., $n$) in the dictionary. LSA utilises SVD to reduce $n$ by only keeping a small number of linear combinations of the original features. To perform SVD, we need to calculate the covariance matrix $C = A^T \times A$, which is a $n \times n$ matrix and is usually much smaller than $A$.
+First, a recap of LSA from the NLP chapter.
+The vector space model belongs to algebraic language models, where each document is represented with a row vector.
+Each element in the vector represents the weight of a term in the dictionary calculated in a specific way. E.g., it can be simply calculated as the frequency of a term in a document, or slightly more complicated TF-IDF.
+The length of the vector is determined by the size of the dictionary (i.e., number of features).
+A text corpus containing $m$ documents and a dictionary of $n$ terms will be converted to an $A = m \times n$ row-based matrix.
+Informally, we say that $A$ grows taller if the number of documents (i.e., $m$) increases, and grows fatter if we add more terms (i.e., $n$) in the dictionary.
+
+The core operation in LSA is to perform SVD. For that we need to calculate the covariance matrix $C = A^T \times A$, which is a $n \times n$ matrix and is usually much smaller than $A$.
+This operation poses as ad bottleneck in computing: the $m$ can be very large (a lot of documents) or the $n$ can be very large (a lot of features for each document).
+For the first, we can easily parallelise the calculation of $C$ by dividing $A$ into $k$ smaller chunks of size $[\frac{m}{k}] \times n$, so that the final result can be obtained by aggregating the partial results as $C = \sum_{i=1}^{k} A^T_i \times A_i \label{eq:1}$.
+
+However, a more serious problem is posed by the second issue. The SVD function in MLlib is only able to handle tall and thin matrices up to some hundreds of features. For most of the language models, there are often hundreds of thousands features (e.g., $10^5$ in our case). The covariance matrix $C$ becomes too big to fit into the physical memory, hence the native SVD operation in MLlib of Spark fails as the first subfigure of Figure [@fig:case-recommender:revealing] shows.
 
 ![Rank-revealing reduces dimensionality to perform in-memory SVD](images/case-recommender/plot_06.png "plot_06"){ width=90%, #fig:case-recommender:revealing }
 
-We can easily parallelise the calculation of $C$ by dividing $A$ into $k$ smaller chunks of size $[\frac{m}{k}] \times n$, so that the final result can be obtained by aggregating the partial results as $C = A^T \times A = \sum_{i=1}^{k} A^T_i \times A_i \label{eq:1}$. However, a more serious problem is posed by the large number of columns, i.e., $n$. The SVD function in MLlib is only able to handle tall and thin matrices up to some hundreds of features. For most of the language models, there are often hundreds of thousands features (e.g., $10^5$ in our case). The covariance matrix $C$ becomes too big to fit into the physical memory, hence the native SVD operation in MLlib of Spark fails as the first subfigure of Figure [@fig:case-recommender:revealing] shows.
+In linear algebra, a matrix can be approximated by another matrix of lower rank while still retaining approximately properties of the matrix that are important for the problem at hand. In other words, we can use another thinner matrix $B$ to approximate the original fat $A$. The corresponding technique is referred to as rank-revealing QR estimation.
+We won't talk about this method in detail, but the basic idea is that, the columns are sparse and quite likely linearly dependant. If we can find the rank $r$ of a matrix $A$ and find suitable $r$ columns to replace the original matrix, we can then approximate it.
+A TF-IDF model having $10^5$ features often contains a lot of redundant information. Therefore, we can effectively thin the matrix $A$ then fit $C$ into the memory.
+Figure [@fig:case-recommender:revealing] illustrates the algorithmic logic in DLSA, which is essentially a distributed stochastic SVD implementation.
 
-In linear algebra, a matrix can be approximated by another matrix of lower rank while still retaining approximately properties of the matrix that are important for the problem at hand. In other words, we can use another thinner matrix $B$ to approximate the original fat $A$. The corresponding technique is referred to as rank-revealing QR estimation. A TF-IDF model having $10^5$ features often contains a lot of redundant information. Therefore, we can effectively thin the matrix $A$ then fit $C$ into the memory. Figure [@fig:case-recommender:revealing] illustrates the algorithmic logic in DLSA, which is essentially a distributed stochastic SVD implementation.
-
-TODO: this section requires to be de-academic.
-
+To sum up, we propose to reduce the size of TF-IDF model matrix to fit it into the memory, so that we can get a LSA model, where we knows the document-topic and topic-word probability distribution.
 
 ## Index Text Corpus
 
 With an LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors.
+In the NLP chapter we have seen how to use linear search in the LSA model. 
 However, neither naive linear search nor conventional `k-d` tree is capable of performing efficient search in such high dimensional space even though the dimensionality has been significantly reduced from $10^5$ to $10^3$ by LSA.
 
 Nonetheless, we need not locate the exact nearest neighbours in practice. In most cases, slight numerical error (reflected in the language context) is not noticeable at all, i.e., the returned documents still look relevant from the user's perspective. By sacrificing some accuracy, we can obtain a significant gain in searching speed.
@@ -190,28 +202,31 @@ Our empirical results clearly show the benefits of using more trees instead of u
 
 ### Optimise Index Algorithm
 
-A very interesting part. Make sure you understand the paper and express the core idea concisely here.
+*NOTE: refer to II.C in [@7840682]: Compactness and speed with fewer vectors: a very interesting part. Make sure you understand the paper and express the core idea concisely here.*
 
-![Illustration of parallelising the computation.](images/case-recommender/plot_05.png "plot_05"){ width=90% }
+![Illustration of parallelising the computation.](images/case-recommender/plot_05.png "plot_05"){ width=90% #fig:case-recommender:parallel}
 
 Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.
+(TODO: Revised this paragraph)
 
-In classic RP trees, a different random vector is used at each
-inner node of a tree, whereas we use the same random vector
-for all the sibling nodes of a tree. This choice does not affect
-the accuracy at all because a query point is routed down each
-of the trees only once; hence, the query point is projected onto
-a random vector ri sampled from the same distribution at each
-level of a tree. This means that the query point is projected
-onto i.i.d. random vectors ....
+In classic RP trees, a different random vector is used at each inner node of a tree, whereas we use the same random vector for all the sibling nodes of a tree.
+This choice does not affect the accuracy at all because a query point is routed down each of the trees only once; hence, the query point is projected onto a random vector $r_i$ sampled from the same distribution at each level of a tree. This means that the query point is projected onto i.i.d. random vectors $r_1, \ldots, r_l$.
 
+An RP-tree has $2^l-1$ inner nodes. Therefore, if each node of a tree had a different random vector as in classic RP-trees, $2^l-1$ different random vectors would be required for one tree.
+However, when a single vector is used on each level, only $l$ vectors are required.
+This reduces the amount of memory required by the random vectors from exponential to linear with respect to the depth of the trees.
+
+Having only $l$ random vectors in one tree also speeds up the index construction significantly.
+While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling the computation of all the projections of the tree in one matrix multiplication:  the projected data set $P$ can be computed from the dataset $X$ and a random matrix $R$ as $P = XR$.
+Although the total amount of computation stays the same, in practice this speeds up the index construction significantly due to the cache effects and low-level parallelisation through vectorisation.
 
 ## Search Articles
 
+TODO: Rephrase section 4.4: "Getting Rid of Original Space"
 
 ## Code Implementation
 
-Naive implementation .... @jianxin, let's decide how to use them.
+Naive implementation .... let's decide how to use them.
 
 **The following is about how to do the random projection, for sparse projection**
 
