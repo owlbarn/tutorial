@@ -44,5 +44,4 @@
     case-obj-detect
     case-nst
     case-recommender
-    case-finance
     ))))

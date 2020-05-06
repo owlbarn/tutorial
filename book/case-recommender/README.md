@@ -209,23 +209,40 @@ Our empirical results clearly show *the benefits of using more trees instead of 
 
 ### Optimise Index Algorithm
 
-*NOTE: refer to II.C in [@7840682]: Compactness and speed with fewer vectors: a very interesting part. Make sure you understand the paper and express the core idea concisely here.*
-
 ![Illustration of parallelising the computation.](images/case-recommender/plot_05.png "plot_05"){ width=90% #fig:case-recommender:parallel}
 
-Blue dotted lines are critical boundaries. The computations in the child-branches cannot proceed without finishing the computation in the parent node. There is no critical boundary. All the projections can be done in just one matrix multiplication. Therefore, the parallelism can be maximised.
-(TODO: Revised this paragraph)
-
-In classic RP trees, a different random vector is used at each inner node of a tree, whereas we use the same random vector for all the sibling nodes of a tree.
-This choice does not affect the accuracy at all because a query point is routed down each of the trees only once; hence, the query point is projected onto a random vector $r_i$ sampled from the same distribution at each level of a tree. This means that the query point is projected onto i.i.d. random vectors $r_1, \ldots, r_l$.
-
+In classic RP trees we have introduced above, a different random vector is used at each inner node of a tree.
+In this approach, the computations in the child-branches cannot proceed without finishing the computation in the parent node, as show in the left figure of [@fig:case-recommender:parallel].
+Here the blue dotted lines are critical boundaries.
+Instead, we propose to use the same random vector for all the sibling nodes of a tree.
+This choice does not affect the accuracy at all because a query point is routed down each of the trees only once; hence, the query point is projected onto a random vector $r_i$ sampled from the same distribution at each level of a tree. This means that we don't need all the inner non-leaf node to be independent random vectors. Instead, the query point is projected onto only $l$ i.i.d. random vectors $r_1, \ldots, r_l$.
 An RP-tree has $2^l-1$ inner nodes. Therefore, if each node of a tree had a different random vector as in classic RP-trees, $2^l-1$ different random vectors would be required for one tree.
 However, when a single vector is used on each level, only $l$ vectors are required.
 This reduces the amount of memory required by the random vectors from exponential to linear with respect to the depth of the trees.
 
-Having only $l$ random vectors in one tree also speeds up the index construction significantly.
-While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling the computation of all the projections of the tree in one matrix multiplication:  the projected data set $P$ can be computed from the dataset $X$ and a random matrix $R$ as $P = XR$.
+Besides, another extra benefit of using one random vector for one layer is that it speeds up the index construction significantly, since we can vectorise the computation.
+Let's first look at the projection of vector $a$ on $b$.
+The projected length on $b$ can be expressed as:
+
+$$\|a\|\cos~\theta = a.\frac{b}{\|b\|}.$$ {#eq:case-recommender:project}
+
+Here $\|a\|$ means the length of vector $\mathbf{a}$.
+If we requires that all the random vectors $\mathbf{b}$. has to be normalised, then [@eq:case-recommender:project] becomes $a.b$, the vector dot.
+Now we can perform the projection at this layer by computing: $Xb_l$.
+Here $X$ is the dataset, each row is a document and each column is a feature. $b_l$ is a random vector that we use for this layer.
+In this way, we don't have to wait for the left tree to finish to start cutting the right tree.
+
+Now here is the tricky bit: we don't even have to wait for the upper layer to start cutting the lower layer!
+The reason is that, at each layer, we do random projection of *all the nodes* in the dataset on one single random vector $b$.
+We don't really care the random clustering result from the previous layer.
+Therefore, we can perform $Xb_1$, $Xb_2$, ..., $Xb_l$ at the same time.
+That means, the projected data set $P$ can be computed directly from the dataset $X$ and a random matrix $B$ as $P = XB$ with only one pass of matrix multiplication.
+Here each column of $B$ is just the random vector we use at a layer.
+
+In this approach there is not boundary, and all the projections can be done in just one matrix multiplication.
+While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling efficient computation of all the projections.
 Although the total amount of computation stays the same, in practice this speeds up the index construction significantly due to the cache effects and low-level parallelisation through vectorisation.
+The matrix multiplication is a basic linear algebra operation and many low level numerical libraries, such as OpenBLAS and MKL, provides extremely high-performance implementation of it. 
 
 ## Search Articles
 

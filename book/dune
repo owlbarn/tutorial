@@ -4,7 +4,6 @@
         algodiff.html
         architecture.html
         backend.html
-        case-finance.html
         case-image-inception.html
         case-nst.html
         case-obj-detect.html
@@ -40,7 +39,6 @@
         algodiff.tex
         architecture.tex
         backend.tex
-        case-finance.tex
         case-image-inception.tex
         case-nst.tex
         case-obj-detect.tex
@@ -108,16 +106,6 @@
 (rule
   (targets backend.tex)
   (deps    (:md_file backend/README.md))
-  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
-
-(rule
-  (targets case-finance.html)
-  (deps    (:md_file case-finance/README.md))
-  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
-
-(rule
-  (targets case-finance.tex)
-  (deps    (:md_file case-finance/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
