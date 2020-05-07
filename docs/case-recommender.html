@@ -63,7 +63,7 @@
 <p><strong>DLSA</strong> builds up an LSA-based model from the previously constructed TF-IDF model. Technically, the TF-IDF itself is already a vector space language model. The reason we seldom use TF-IDF directly is because the model contains too much noise and the dimensionality is too high to process efficiently even on a modern computer. To convert a TF-IDF to an LSA model, DLSA’s algebraic operations involve large matrix multiplications and time-consuming SVD. We initially tried to use MLib to implement DLSA. However, MLlib is unable to perform SVD on a data set of <span class="math inline">\(10^5\)</span> features with limited RAM, we have to implement our own stochastic SVD on Apache Spark using rank-revealing technique. The DLSA will be discussed in detail in later chapter.</p>
 <p><strong>PANNS</strong> builds the search index to enable fast <span class="math inline">\(k\)</span>-NN search in high dimensional LSA vector spaces. Though dimensionality has been significantly reduced from TF-IDF (<span class="math inline">\(10^5\)</span> features) to LSA (<span class="math inline">\(10^3\)</span> features), <span class="math inline">\(k\)</span>-NN search in a <span class="math inline">\(10^3\)</span>-dimension space is still a great challenge especially when we try to provide responsive services. Naive linear search using one CPU takes over 6 seconds to finish in a database of 4 million entries, which is unacceptably long for any realistic services. <a href="https://github.com/ryanrhymes/panns">PANNS</a> implements a parallel RP-tree algorithm which makes a reasonable tradeoff between accuracy and efficiency. PANNS is the core component in the backend system and we will present its algorithm in detail in later chapter. PANNS is becoming a popular choice of Python-based approximate k-NN library for application developers. According to the PyPI’s statistics, PANNS has achieved over 27,000 downloads since it was first published in October 2014.</p>
 <p><strong>KServer</strong> runs within a web server, processes the users requests and replies with a list of similar documents. KServer uses the index built by PANNS to perform fast search in the database. The ranking of the search results is based on the cosine similarity metric. A key performance metric for KServer is the service time. We wrapped KServer into a Docker image and deployed multiple KServer instances on different machines to achieve better performance. We also implemented a simple round-robin mechanism to balance the request loads among the multiple KServers.</p>
-<p>Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc. We provide the <a href="http://www.cs.helsinki.fi/u/lxwang/kvasir/#demo">live demo</a> videos of the seamless integration of Kvasir into web browsing at the official website. Kvasir is also available as <a href="https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html">browser extension</a> on Chrome and Firefox.</p>
+<p>Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc. We provide the <a href="https://kvasira.com/demo">live demo</a> videos of the seamless integration of Kvasir into web browsing at the official website. Kvasir is also available as <a href="https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html">browser extension</a> on Chrome and Firefox.</p>
 </section>
 <section class="level2" id="build-topic-models">
 <h2>Build Topic Models</h2>
@@ -172,7 +172,7 @@ let make_projected_matrix m n =
   let level = Maths.log2 (float_of_int num_doc /. cluster) |&gt; ceil |&gt; int_of_float in
 
   let projection = make_projection_matrix seed vocab_len level in
-  let projected = make_projected_matrix seed level num_doc in
+  let projected = make_projected_matrix level num_doc in
 
   Nlp.Tfidf.iteri (fun i s -&gt;
     for j = 0 to level - 1 do
@@ -182,7 +182,7 @@ let make_projected_matrix m n =
 
   vocab_len, level, projected</code></pre>
 </div>
-<p>The <code>ramdom</code> function performs a random projection of sparse data set, based a built TF-IDF model. Technically, a better way is to use LSA model as the vectorised representation of documents as we have introduced above, since a LSA model acquired based on TF-IDF represents more abstract idea of topics and has less features. However, here it suffices to use the TF-IDF model to show the random projection process. This function projects all the document vectors in the model to the <code>projected</code> matrix, level by level. Recall that the result only contains the projected value instead of the whole vector.</p>
+<p>The <code>random</code> function performs a random projection of sparse data set, based a built TF-IDF model. Technically, a better way is to use LSA model as the vectorised representation of documents as we have introduced above, since a LSA model acquired based on TF-IDF represents more abstract idea of topics and has less features. However, here it suffices to use the TF-IDF model to show the random projection process. This function projects all the document vectors in the model to the <code>projected</code> matrix, level by level. Recall that the result only contains the projected value instead of the whole vector.</p>
 <p>As we have explained in the “Search Articles” section, this process can be accelerated to use matrix multiplication. The code below show this implementation for the random projection function. It also returns the shape of projection and the projected result.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let make_projection_matrix seed m n =
@@ -199,19 +199,15 @@ let random seed cluster data =
 
   n, level, projected, projection</code></pre>
 </div>
-<p><strong>The following is about how to build the index - a binary saerch tree.</strong></p>
-<p>Split the space into subspaces …</p>
+<p>After getting the projection result, we need to build a RP-tree accodingly. The following is about how to build the index in the form of a binary search tree. The tree is defined as:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">type t =
   | Node of float * t * t  (* intermediate nodes: split, left, right *)
-  | Leaf of int array      (* leaves only contains doc_id *)
-
-
-(* divide the projected space into subspaces to assign left and rigt subtrees,
-  the criterion of division is the median value.
-  The passed in [space] is the projected values on a specific level.
- *)
-let split_space_median space =
+  | Leaf of int array      (* leaves only contains doc_id *)</code></pre>
+</div>
+<p>An intermediate node includes three parts: split, left, right, and the leaves only contain document index.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let split_space_median space =
   let space_size = Array.length space in
   let size_of_l = space_size / 2 in
   let size_of_r = space_size - size_of_l in
@@ -224,35 +220,25 @@ let split_space_median space =
   in
   let l_subspace = Array.sub space 0 size_of_l in
   let r_subspace = Array.sub space size_of_l size_of_r in
-  median, l_subspace, r_subspace
-
-
-(* based on the doc_id of the points in the subspace, filter the projected space,
-  both spaces and the reutrn are of the same format (doc_id, projected value).
-  The purpose of this function is to update the projected value using specified
-  level so the recursion can continue.
- *)
-let filter_projected_space level projected subspace =
+  median, l_subspace, r_subspace</code></pre>
+</div>
+<p>The <code>split_space_median</code> function divides the projected space into subspaces to assign left and right subtrees. The passed in <code>space</code> is the projected values on a specific level. The criterion of division is the median value. The <code>Array.sort</code> function sorts the space into increasing order for median value.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let filter_projected_space level projected subspace =
   let plevel = projected.(level) in
   Array.map (fun (doc_id, _) -&gt; doc_id, plevel.(doc_id)) subspace</code></pre>
 </div>
-<p>Build the binary tree …</p>
+<p>Based on the document id of the points in the subspace, <code>filter_projected_space</code> function filters the projected space. The purpose of this function is to update the projected value using specified level so the recursion can continue. Both the space and the returned result are of the same format: <code>(doc_id, projected value)</code>.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* recursively grow the subtree to make a whole tree.
-  [projected] is of shape [level x num_doc].
-  [subspace] is of shape [1 x num_doc].
- *)
-let rec make_subtree level projected subspace =
+<pre><code class="language-ocaml">let rec make_subtree level projected subspace =
   let num_levels = Array.length projected in
   match level = num_levels with
   | true  -&gt; (
-      (* only keep the doc_id in the leaf *)
       let leaf = Array.map fst subspace in
       Leaf leaf
     )
   | false -&gt; (
       let median, l_space, r_space = split_space_median subspace in
-      (* update the projected values for the next level *)
       let l_space = match level &lt; num_levels - 1 with
         | true  -&gt; filter_projected_space (level+1) projected l_space
         | false -&gt; l_space
@@ -261,45 +247,36 @@ let rec make_subtree level projected subspace =
         | true  -&gt; filter_projected_space (level+1) projected r_space
         | false -&gt; r_space
       in
-      (* NOTE: this is NOT tail recursion *)
       let l_subtree = make_subtree (level+1) projected l_space in
       let r_subtree = make_subtree (level+1) projected r_space in
       Node (median, l_subtree, r_subtree)
-    )
-
-(* build binary search tree, the passed in [projected] variable contains the
-  projected points of shape [level x num_doc]. Currently everything is done in
-  memory for efficiency consideration.
- *)
-let grow projected =
-  (* initialise the first subspace at level 0 *)
+    )</code></pre>
+</div>
+<p>Based on these functions, the <code>make_subtree</code> recursively grows the binary subtree to make a whole tree. The <code>projected</code> is the projected points we get from the first step. It is of shape <code>(level, document_number)</code>. The <code>subspace</code> is a vector of shape <code>(1, document_number)</code>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let grow projected =
   let subspace = Array.mapi (fun doc_id x -&gt; (doc_id, x)) projected.(0) in
-  (* start recursively making the subtrees from level 0 *)
   let tree_root = make_subtree 0 projected subspace in
   tree_root</code></pre>
 </div>
-<p>How search is done …</p>
+<p>The <code>grow</code> function calls <code>make_subtree</code> to build the binary search tree. It initialises the first subspace at level 0, and then start recursively making the subtrees from level 0. Currently everything is done in memory for efficiency consideration.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">(* traverse the whole tree to locate the cluster for a projected vector [x],
-  level: currrent level of the tree/recursion.
- *)
-let rec traverse node level x =
+<pre><code class="language-ocaml">let rec traverse node level x =
   match node with
   | Leaf n         -&gt; n
   | Node (s, l, r) -&gt; (
-      (* NOTE: be consistent with split_space_median *)
       match x.(level) &lt; s with
       | true  -&gt; traverse l (level+1) x
       | false -&gt; traverse r (level+1) x
-    )
-
-(* iterate all the leaves in a tree and apply function [f] *)
-let rec iter_leaves f node =
+    )</code></pre>
+</div>
+<p>Now that the tree is built, we can perform search on it. The recursive <code>traverse</code> function traverses the whole tree to locate the cluster for a projected vector <code>x</code> starting from a a given level.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let rec iter_leaves f node =
   match node with
   | Leaf n         -&gt; f n
   | Node (s, l, r) -&gt; iter_leaves f l; iter_leaves f r
 
-(* return the leaves which have [id] inside *)
 let search_leaves node id =
   let leaf = ref [||] in
   (
@@ -311,12 +288,10 @@ let search_leaves node id =
     ) node
     with exn -&gt; ()
   );
-  Array.copy !leaf
-
-(* wrapper of traverse function *)
-let query tree x = traverse tree 0 x</code></pre>
+  Array.copy !leaf</code></pre>
 </div>
-<p><strong>How to count votes?</strong></p>
+<p>Finally, <code>search_leaves</code> returns the leaves/clusters which have the given <code>id</code> inside it. It mainly depends on the <code>iter_iterate</code> function which iterates all the leaves in a tree and apply function, to perform this search.</p>
+<p>All these code above is executed on one tree. When we collect the k-NN candidates from all the trees, instead of calculating the vector similarity, we utilise the frequency/count of the vectors in the union of all the candidate sets from all the RP-trees.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let count_votes nn =
   let h = Hashtbl.create 128 in
@@ -337,20 +312,20 @@ let query tree x = traverse tree 0 x</code></pre>
   Array.sort (fun x y -&gt; Pervasives.compare (snd y) (snd x)) r;
   r</code></pre>
 </div>
+<p>The <code>count_votes</code> function takes in an array of array <code>nn</code> as input. Each inner array contains the indexes of candidate nodes from one RP-tree. These nodes are collected into a hash table, using index as key and the count as value. Then the results are sorted according to the count number.</p>
 </section>
 <section class="level2" id="make-it-live">
 <h2>Make It Live</h2>
-<p>LWT-web etc. OCaml code, split the following code into smaller snippets. … require http, so use text first</p>
+<p>We provide a <a href="https://kvasira.com/demo">live demo</a> of Kvasir. Here we briefly introduce the implementation of the demo with OCaml. This demo mainly relies on <a href="https://ocsigen.org/lwt/">Lwt</a>. The Lwt library implements cooperative threads. It is often used as web server in OCaml.</p>
+<p>This demo takes in document in the form of web query API and returns similar documents in the text corpus already included in our backend. First, we need to do some simple preprocessing using regular expression. This of course needs some fine tuning in the final product, but needs to be simple and fast.</p>
 <div class="highlight">
-<pre><code class="language-text">(* some simple preprocessing using regular expression. This needs some fine
-  tuning in the final product, but needs to be simple and fast.
- *)
-let simple_preprocess_query_string s =
+<pre><code class="language-text">let simple_preprocess_query_string s =
   let regex = Str.regexp "[=+%0-9]+" in
-  Str.global_replace regex " " s
-
-(* parse the query and extract the parameters *)
-let extract_query_params s =
+  Str.global_replace regex " " s</code></pre>
+</div>
+<p>The next function <code>extract_query_params</code> parse the web query, and retrieves parameters.</p>
+<div class="highlight">
+<pre><code class="language-text">let extract_query_params s =
   let regex = Str.regexp "num=\\([0-9]+\\)" in
   let _ = Str.search_forward regex s 0 in
   let num = Str.matched_group 1 s |&gt; int_of_string in
@@ -365,7 +340,11 @@ let extract_query_params s =
 
   (num, mode, doc)
 
-(* core query service that runs forever *)
+Finally, `start_service` function includes the core query service that keeps running.
+It preprocesses the input document and processed with similar document searching according to different search mode.
+We won't cover the details of web server implementation details using Lwt. Please refer to its [documentation](https://ocsigen.org/lwt) for more details.
+
+```text
 let start_service lda idx =
   let num_query = ref 0 in
   let callback _conn req body =
@@ -387,7 +366,6 @@ let start_service lda idx =
           with exn -&gt; "something bad happened :("
       )
       | false -&gt; (
-          (* ignore empty queries *)
           Log.warn "ignore an empty query";
           ""
         )
@@ -399,6 +377,7 @@ let start_service lda idx =
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
+<p>In this chapter, we presented Kvasir which provides seamless integration of LSA-based content provision into web browsing. To build Kvasir as a scalable Internet service, we addressed various technical challenges in the system implementation. Specifically, we proposed a parallel RP-tree algorithm and implemented stochastic SVD on Spark to tackle the scalability challenges in index building and searching. We have introduced the basic algorithm and how it can optimised step by step, from storage to computation. These optimisation includes aggregating results from multiple trees, replacing random variable with a single random seed, removing the projection computation boundary between different layers, using count to approximate vector distance, etc. Thanks to its novel design, Kvasir can easily achieve millisecond query speed for a 14 million document repository. Kvasir is an open-source project and is currently under active development. The key components of Kvasir are implemented as an Apache Spark library, and all the <a href="https://www.cl.cam.ac.uk/~lw525/kvasir/#code">source code</a> are publicly accessible on Github.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
