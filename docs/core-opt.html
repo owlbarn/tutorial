@@ -59,7 +59,7 @@ type ('a, 'b) owl_arr = ('a, 'b, c_layout) Genarray.t</code></pre>
 <div class="highlight">
 <pre><code class="language-ocaml">open Bigarray
 
-type ('a, 'b) kind = 
+type ('a, 'b) kind =
 |   Float32 : (float, float32_elt) kind
 |   Float64 : (float, float64_elt) kind
 |   Complex32 : (Complex.t, complex32_elt) kind
@@ -96,7 +96,7 @@ type ('a, 'b) kind =
 <p>Now, finally, we venture into the world of C. We first need to include the necessary header files provided by OCaml:</p>
 <div class="highlight">
 <pre><code class="language-c">#include &lt;caml/mlvalues.h&gt; // definition of the value type, and conversion macros
-#include &lt;caml/alloc.h&gt; //allocation functions to create structured ocaml objects 
+#include &lt;caml/alloc.h&gt; //allocation functions to create structured ocaml objects
 #include &lt;caml/memory.h&gt; // miscellaneous memory-related functions and macros
 #include &lt;caml/fail.h&gt; //functions for raising exceptions
 #include &lt;caml/callback.h&gt; // callback from C to ocaml
@@ -122,7 +122,7 @@ float *Y_data = (float *) Y-&gt;data;</code></pre>
 <p>The next step we convert the <code>value</code> type inputs into normal types. The <code>Long_val</code> macro convert the value into long int type. Similarly, there are also <code>Double_val</code>, <code>Int32_val</code> etc. We convert the Bigarray to a structure to the structure of type <code>caml_ba_array</code>. The function <code>Caml_ba_array_val</code> returns a pointer to this structure. Its member <code>data</code> is a pointer to the data part of the array. Besides, the information of ndarray dimension is also included. The member <code>num_dims</code> of <code>caml_ba_array</code> is the number of dimensions, and <code>dim[i]</code> is the i-th dimension.</p>
 <p>One more thing to do before the “real” coding. If the computation is complex, we don’t want all the OCaml threads to be stuck. Therefore, we need to call the <code>caml_release_runtime_system</code> function to release the master lock and other OCaml resources, so as to allow other threads to run.</p>
 <div class="highlight">
-<pre><code class="language-c">caml_release_runtime_system(); </code></pre>
+<pre><code class="language-c">caml_release_runtime_system();</code></pre>
 </div>
 <p>Finally, we can do the real computation, and now that we have finished converting the input data to the familiar types, the code itself is straight forward;</p>
 <div class="highlight">
@@ -214,7 +214,7 @@ CAMLprim value FUN_BYTE (spatial) (value * argv, int argn) {
 </div>
 <p>And therefore in the OCaml interfacing code we interface to C code with:</p>
 <div class="highlight">
-<pre><code class="language-clike">external owl_float32_ndarray_conv_spatial 
+<pre><code class="language-clike">external owl_float32_ndarray_conv_spatial
   :  ('a, 'b) owl_arr -&gt; ('a, 'b) owl_arr -&gt; ('a, 'b) owl_arr -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; int -&gt; unit
   = "stub_float32_ndarray_conv_spatial_bytecode" "stub_float32_ndarray_conv_spatial_native"</code></pre>
 </div>
@@ -239,7 +239,7 @@ CAMLprim value FUN_BYTE (spatial) (value * argv, int argn) {
 #pragma omp parallel
 {
   /* parallel region */
-  ... 
+  ...
 }</code></pre>
 </div>
 <p>The task in the region is assigned to the four threads and get executed in parallel. The most frequently used pattern in our core code is to move a for-loop into the parallel region. Each thread is assigned part of the whole input array, and apply the math computation on each element in parallel. Taking the implementation code from previous chapter, we only need to add a single line of OpenMP compiler directive:</p>
@@ -393,6 +393,9 @@ for (int ix = 0; ix &lt; N;) {
 </figure>
 <p>The evaluation results compared with NumPy and Julia are shown in fig.&nbsp;8. We also measure the peak memory usage infig.&nbsp;9. As can be seen, my repeat operation achieves about half of that in NumPy with regard to both execution speed and memory usage. The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient. The repeat operation in Julia is much slower. One reason is that <code>repeat</code> is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.</p>
 </section>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

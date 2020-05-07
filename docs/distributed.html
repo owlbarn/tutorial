@@ -369,7 +369,7 @@ let pull kv_pairs =
     Array.map (fun (k, v) -&gt;
       Actor_log.info "push: %s" k;
       (* simmulated communication delay *)
-      
+
       (* let t = delay.(v.wid) in *)
       let t = Owl_stats.gamma_rvs ~shape:1. ~scale:1. in
       Unix.sleepf t;
@@ -392,6 +392,9 @@ let pull kv_pairs =
 </figure>
 <p>In fig.&nbsp;7, we conduct the real-world experiments using 6 worker nodes with the Parameter Server framework we have implemented. We run the training process for a fixed amount of time, and observe the performance of barrier methods given the same number of updates. It shows that BSP achieves the highest model accuracy with the least of number of updates, while SSP and ASP achieve lower efficiency. With training progressing, both methods show a tendency to diverge. By applying sampling, pBSP and pSSP achieve smoother accuracy progress.</p>
 </section>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

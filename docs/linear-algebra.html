@@ -282,7 +282,7 @@ let a = Arr.of_array a [|3; 3|];;
 </div>
 <p>The first two returned matrix are the lower and upper triangular matrices. However, if we try to check the correctness of this factorisation with dot product, the result does not fit:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Mat.dot l u ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a' = Mat.dot l u;;
 &gt;val a' : Mat.mat =
 &gt;   C0 C1 C2
 &gt;R0  3  4  5
@@ -307,7 +307,7 @@ let a = Arr.of_array a [|3; 3|];;
 </code></pre>
 </div>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.dot p a = Mat.dot l u ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.dot p a = Mat.dot l u;;
 &gt;- : bool = true
 </code></pre>
 </div>
@@ -370,11 +370,11 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </div>
 <p>The next frequently used special matrix is the <em>Transpose Matrix</em>. Denoted by <span class="math inline">\(A^T\)</span>, its <span class="math inline">\(i\)</span>th row is taken from the <span class="math inline">\(i\)</span>-th column of the original matrix A. It has properties such as <span class="math inline">\((AB)^T=B^T~A^T\)</span>. We can check this property using the matrix function <code>Mat.transpose</code>. Note that this function is deemed basic ndarray operations and is not included in the <code>Linalg</code> module.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let flag = 
-  let a = Mat.uniform 4 4 in 
-  let b = Mat.uniform 4 4 in 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let flag =
+  let a = Mat.uniform 4 4 in
+  let b = Mat.uniform 4 4 in
   let m1 = Mat.(dot a b |&gt; transpose) in
-  let m2 = Mat.(dot (transpose b) (transpose a)) in 
+  let m2 = Mat.(dot (transpose b) (transpose a)) in
   Mat.(m1 =~ m2)
 ;;
 &gt;val flag : bool = true
@@ -445,7 +445,7 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </code></pre>
 </div>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.dot a x |&gt; Mat.l2norm' ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.dot a x |&gt; Mat.l2norm';;
 &gt;- : float = 2.87802701599908967e-15
 </code></pre>
 </div>
@@ -457,7 +457,7 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </div>
 <p><code>qr x</code> calculates QR decomposition for an <code>m</code> by <code>n</code> matrix <code>x</code>. The function returns a 3-tuple, the first two are <code>Q</code> and <code>R</code>, and the third is the permutation vector of columns. The default value of parameter <code>pivot</code> is <code>false</code>, setting pivot to true lets <code>qr</code> performs pivoted factorisation. Note that the returned indices are not adjusted to 0-based C layout. By default, <code>qr</code> performs a reduced QR factorisation, full factorisation can be enabled by setting <code>thin</code> parameter to <code>false</code>.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3 ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3;;
 &gt;val a : Mat.mat =
 &gt;
 &gt;   C0  C1  C2
@@ -666,7 +666,7 @@ Linalg.D.logdet x;;
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let basis =
   let ia = Mat.((eye 3) - (of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3)) in
-  Linalg.D.null ia 
+  Linalg.D.null ia
 ;;
 &gt;val basis : Owl_dense_matrix_d.mat =
 &gt;
@@ -679,8 +679,8 @@ Linalg.D.logdet x;;
 <p>We have a fundamental solution <span class="math inline">\(x_0 = [-0.05, 0.1, 1]^T\)</span>. Therefore all the <span class="math inline">\(k_0x_0\)</span> are the corresponding eigenvector of the eigenvalue <span class="math inline">\(1\)</span>. Similarly, we can calculate that eigenvectors for the eigenvalue <span class="math inline">\(2\)</span> are <span class="math inline">\(k_1[0, 0, 1]^T\)</span>.</p>
 <p>We can use <code>eig</code> to find the eigenvectors and eigenvalues of a matrix. <code>eig x -&gt; v, w</code> computes the right eigenvectors <code>v</code> and eigenvalues <code>w</code> of an arbitrary square matrix <code>x</code>. The eigenvectors are column vectors in <code>v</code>, their corresponding eigenvalues have the same order in <code>w</code> as that in <code>v</code>.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let eigvec, eigval = 
-  let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let eigvec, eigval =
+  let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in
   Linalg.D.eig a
 ;;
 &gt;val eigvec : Owl_dense_matrix_z.mat =
@@ -704,7 +704,7 @@ Linalg.D.logdet x;;
 <p>As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors. In this section we re-introduce some previous concepts in the complex space.</p>
 <p>We have seen the Symmetric Matrix. It can be extended to the complex numbers, called <em>Hermitian Matrix</em>, denoted by <span class="math inline">\(A^H\)</span>. Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose. A conjugate transpose means that during transposing, each element <span class="math inline">\(a+bi\)</span> changes to its conjugate <span class="math inline">\(a-bi\)</span>. Hermitian is thus a generalisation of the symmetric matrix. We can use the <code>is_hermitian</code> function to check if a matrix is hermitian, as can be shown in the next example.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2;;
 &gt;val a : Dense.Matrix.Z.mat =
 &gt;
 &gt;        C0       C1
@@ -745,7 +745,7 @@ Linalg.D.logdet x;;
 <p>In a three dimensional space, if we can change using three random vectors as the basis of linear transformation to using the standard basis <span class="math inline">\([1, 0, 0]\)</span>, <span class="math inline">\([0, 1, 0]\)</span>, <span class="math inline">\([0, 0, 1]\)</span>, the related problem can be greatly simplified. Finding the suitable similar matrix is thus important in simplifying the calculation in many scientific and engineering problems.</p>
 <p>One possible kind of simplification is to find a triangular matrix as similar. The <em>Schur’s Lemma</em> declares that A can be decomposed into <span class="math inline">\(UTU^{-1}\)</span> where <span class="math inline">\(U\)</span> is a unitary function, and T is an upper triangular matrix.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2 ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2;;
 &gt;val a : Dense.Matrix.Z.mat =
 &gt;
 &gt;         C0      C1
@@ -803,7 +803,7 @@ Linalg.D.logdet x;;
 </ol>
 <p>For the last condition, we can use the <em>Cholesky Decomposition</em> to find the matrix B. It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose <span class="math inline">\(LL^H\)</span>:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
 &gt;val a : Mat.mat =
 &gt;
 &gt;    C0  C1  C2
@@ -835,9 +835,9 @@ Linalg.D.logdet x;;
 <p>If in <span class="math inline">\(Ax=b\)</span> we know that <span class="math inline">\(A\)</span> is hermitian and positive definite, then we can instead solve <span class="math inline">\(L^Lx=b\)</span>. As we have seen previously, solving linear system that expressed with triangular matrices is easy. The Cholesky decomposition is more efficient than the LU decomposition.</p>
 <p>In the Linear Algebra module, we use <code>is_posdef</code> function to do this test. If you look at the code in Owl, it is implemented by checking if the Cholesky decomposition can be performed on the input matrix.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let is_pos = 
-  let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in 
-  Linalg.D.is_posdef a 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let is_pos =
+  let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in
+  Linalg.D.is_posdef a
 ;;
 &gt;val is_pos : bool = true
 </code></pre>
@@ -1041,6 +1041,9 @@ Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
 <p>What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the <em>sparse</em> structure might be more efficient. The sparse matrix is proivded in the <code>Sparse.Matrix</code> module, and also support the four types of number in the <code>S</code>, <code>D</code>, <code>C</code>, and <code>Z</code> submodules.</p>
 <p>(Perhaps these contents are better to discuss in Ndarray module.)</p>
 <p>Very brief. Focusing on introducing the data structure (CSC, CSR, etc), no the method. Mention the <a href="https://github.com/owlbarn/owl_suitesparse">owl_suitesparse</a> TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.</p>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

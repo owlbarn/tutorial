@@ -200,10 +200,10 @@ For example, you can use Zoo to perform DNN-based image classification in only 6
 
 ```
 
-## System Design 
+## System Design
 
 Based on these basic functionalities, we extend the Zoo system to address the composition and deployment challenges.
-First, we would like to briefly introduce the workflow of Zoo as shown in [@fig:zoo:workflow]. 
+First, we would like to briefly introduce the workflow of Zoo as shown in [@fig:zoo:workflow].
 
 ![Zoo System Architecture](images/zoo/workflow.png){width=70% #fig:zoo:workflow}
 
@@ -322,7 +322,7 @@ cases sufficient for our real-world service deployment. However, a more
 general operation is to support graph structure. This will be our
 next-step work.
 
-### Service Discovery 
+### Service Discovery
 
 The services require a service discovery mechanism. For simplicity's
 sake, each newly published service is added to a public record hosted on
@@ -368,7 +368,7 @@ let s_nst = $ "6f28d" # "run";;
 let s_trans = $ "7f32a" # "trans";;
 (* Alice's own style image generation service *)
 let s_style = $ alice_Gist_id # "image_gen";;
-	
+
 (* Compose services *)
 let s = [s_seg; s_style] $> s_nst
     $> n_img $> n_trans;;
@@ -385,12 +385,12 @@ classification results back in French.
 
 ## Summary
 
-In this work we identify two challenges of conducting data analytics on edge: service composition and deployment. We propose the Zoo system to address these two challenges. 
+In this work we identify two challenges of conducting data analytics on edge: service composition and deployment. We propose the Zoo system to address these two challenges.
 For the first one, it provides a simple DSL to enable easy and type-safe composition of different advanced services. We present a use case to show the expressiveness of the code.
-For the second, to accommodate the heterogeneous edge deployment environment, we utilise multiple backends, including Docker container, JavaScript, and MirageOS. 
+For the second, to accommodate the heterogeneous edge deployment environment, we utilise multiple backends, including Docker container, JavaScript, and MirageOS.
 We thoroughly evaluate the performance of different backends using three representative groups of numerical operations as workload. The results show that no single deployment backend is preferable to the others, so deploying data analytics services requires choosing suitable backend according to the deployment environment.
 We refer the readers to our paper [@zhao2018data] for more detail.
 
+## Summary
 
 ## References
-

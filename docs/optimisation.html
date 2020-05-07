@@ -37,7 +37,7 @@ let diff f x = (f (x +. _eps) -. f x) /. _eps</code></pre>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f = Maths.cos;;
 &gt;val f : float -&gt; float = &lt;fun&gt;
-let d = diff f 1. ;;
+let d = diff f 1.;;
 &gt;val d : float = -0.841473686319371583
 </code></pre>
 </div>
@@ -66,9 +66,9 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 <p><span class="math display">\[\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.\]</span></p>
 <p>This represent the truncation error in the approximation. For example, for function <span class="math inline">\(f(x) = sin(x)\)</span>, <span class="math inline">\(f''(x) = -sin(x)\)</span>. Suppose we want to calculate the derivative at <span class="math inline">\(x=1\)</span> numerically using a step size of 0.01, then the truncation error should be in the range <span class="math inline">\(\frac{0.01^2}{2}[sin(1), sin(1.01)]\)</span>. Here we can see the effect of this truncation error, by using a improper step size:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d =
   let _eps = 0.1 in
-  let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in
   diff f 1.
 ;;
 &gt;val d : float = -0.867061844425624506
@@ -76,9 +76,9 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 </div>
 <p>Another source of error is the round-off error. Looking back at eq.&nbsp;3, we need to calculate <span class="math inline">\(f(x+h) - f(x)\)</span>, the subtraction of two almost the same number. That leads to large round-off errors. For example, let’s choose a very small step size:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d =
   let _eps = 5E-16 in
-  let diff f x = (f (x +. _eps) -. f x) /. _eps in 
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in
   diff f 1.
 ;;
 &gt;val d : float = -0.888178419700125121
@@ -101,11 +101,11 @@ val jacobianT : (arr -&gt; arr) -&gt; arr -&gt; arr
 
 let f x = Maths.(x ** (F 2.) - (F 2.))
 
-let _ = 
+let _ =
     let x = ref 1. in
     for _ = 0 to 6 do
-        let g = diff f (F !x) |&gt; unpack_elt in 
-        let v = f (F !x) |&gt; unpack_elt in 
+        let g = diff f (F !x) |&gt; unpack_elt in
+        let v = f (F !x) |&gt; unpack_elt in
         x := !x -. v /. g;
         Printf.printf "%.15f\n" !x
     done</code></pre>
@@ -145,19 +145,19 @@ The resulting sequence is very short compared to the bisection method:
 <pre><code class="language-ocaml">open Algodiff.D
 
 let f x = Maths.(
-    (F 1.) / ((x - F 0.3) ** (F 2.) + F 0.01) + 
+    (F 1.) / ((x - F 0.3) ** (F 2.) + F 0.01) +
     (F 1.) / ((x - F 0.9) ** (F 2.) + F 0.04) - F 6.)
 
 let g = diff f
 
-let f' x = f (F x) |&gt; unpack_flt 
+let f' x = f (F x) |&gt; unpack_flt
 
-let g' x = g (F x) |&gt; unpack_flt </code></pre>
+let g' x = g (F x) |&gt; unpack_flt</code></pre>
 </div>
 <p>Visualise the image:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
-let _ = 
+let _ =
   let h = Plot.create ~m:1 ~n:2 "plot_hump.png" in
   Plot.set_pen_size h 1.5;
   Plot.subplot h 0 0;
@@ -228,13 +228,13 @@ Owl_maths_root.brent g' 0.7 1.0;;
 module N = Dense.Ndarray.D
 
 let rosenbrock a =
-    let x = Mat.get a 0 0 in 
+    let x = Mat.get a 0 0 in
     let y = Mat.get a 0 1 in
     Maths.( (F 100.) * (y - (x ** (F 2.))) ** (F 2.) + (F 1. - x) ** (F 2.) |&gt; sum')</code></pre>
 </div>
 <p>Now we hope to apply the gradient descent method and observe the optimisation trajectory.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let a = N.of_array [|2.; -0.5|] [|1; 2|] 
+<pre><code class="language-ocaml">let a = N.of_array [|2.; -0.5|] [|1; 2|]
 let traj = ref (N.copy a)
 let a = ref a
 let eta = 0.0001
@@ -244,7 +244,7 @@ let n = 200</code></pre>
 <div class="highlight">
 <pre><code class="language-ocaml">let _ =
   for i = 1 to n - 1 do
-    let u = grad rosenbrock (Arr !a) |&gt; unpack_arr in 
+    let u = grad rosenbrock (Arr !a) |&gt; unpack_arr in
     a := N.(sub !a (scalar_mul eta u));
     traj := N.concatenate [|!traj; (N.copy !a)|]
   done</code></pre>
@@ -348,6 +348,9 @@ let _ =
 <p>Their current status (how difficult to solve etc.), classic methods, and some existing tools.</p>
 <p>Their connection with the unconstrained method we have introduced.</p>
 <p>Refer to these book for more detail.</p>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2" id="references">
 <h2>References</h2>

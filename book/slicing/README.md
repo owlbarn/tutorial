@@ -1,12 +1,12 @@
 # Slicing and Broadcasting
 
-Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays. 
+Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays.
 They are so basic and are used in practically every application, therefore understanding the nuts and bolts is very important.
 In this chapter we will introduce how to use these functions in Owl.
 
 ## Slicing
 
-Indexing and slicing is arguably the most important function in any numerical library. A flexible design is able to significantly simplify the code and allow us to write concise algorithms. 
+Indexing and slicing is arguably the most important function in any numerical library. A flexible design is able to significantly simplify the code and allow us to write concise algorithms.
 
 Before we start, let's clarify some things.
 
@@ -109,7 +109,7 @@ The following conventions require our attentions in order to write correct slice
 
 OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.
 
-Here is some illustrated examples that can get you started with some of these rules. 
+Here is some illustrated examples that can get you started with some of these rules.
 These examples are based on a `8x8` matrix.
 
 ```ocaml env=slicing_example_00
@@ -184,7 +184,7 @@ R1 41 43 45 47
 
 ```
 
-Finally, the last example concerns taking a sub-matrix. We can do it in the similar way as to the example 1 and 2. 
+Finally, the last example concerns taking a sub-matrix. We can do it in the similar way as to the example 1 and 2.
 Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.
 
 ```ocaml env=slicing_example_00
@@ -248,7 +248,7 @@ Here are some examples to show how to use them.
 
 ### Advanced Usage
 
-We believe that nothing is better than concrete examples. 
+We believe that nothing is better than concrete examples.
 We will first use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray.
 
 Let's first define a sequential matrix as the input data for the following examples.
@@ -510,10 +510,10 @@ let y' = Arr.expand y 4;;
 - : int array = [|1; 1; 4; 5|]
 ```
 
-If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting. 
-The first example is vector multiplied by scalar. 
+If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting.
+The first example is vector multiplied by scalar.
 
-![Illustrated example of shape extension in broadcasting](images/slicing/example_broadcast_01.png "example broadcast 01"){width=90% #fig:slicing:broadcast_01} 
+![Illustrated example of shape extension in broadcasting](images/slicing/example_broadcast_01.png "example broadcast 01"){width=90% #fig:slicing:broadcast_01}
 
 ```ocaml env=broadcasting_example01
 let a = Arr.sequential [|1;3|]
@@ -529,7 +529,7 @@ R0  3  4  5
 
 The second example is matrix plus vector.
 
-![Illustrated example of shape extension in broadcasting (cont.)](images/slicing/example_broadcast_02.png "example broadcast 02"){width=90% #fig:slicing:broadcast_02} 
+![Illustrated example of shape extension in broadcasting (cont.)](images/slicing/example_broadcast_02.png "example broadcast 02"){width=90% #fig:slicing:broadcast_02}
 
 ```ocaml env=broadcasting_example01
 let b0 = Arr.sequential [|3;3|]
@@ -537,7 +537,7 @@ let b1 = Arr.sequential ~a:1. [|1;3|]
 ```
 
 ```ocaml env=broadcasting_example01
-# Arr.mul b0 b1 
+# Arr.mul b0 b1
 - : Arr.arr =
    C0 C1 C2
 R0  0  2  6
@@ -548,7 +548,7 @@ R2  6 14 24
 
 The third example is column vector plus row vector.
 
-![Illustrated example of shape extension in broadcasting (cont.)](images/slicing/example_broadcast_03.png "example broadcast 03"){width=90% #fig:slicing:broadcast_03} 
+![Illustrated example of shape extension in broadcasting (cont.)](images/slicing/example_broadcast_03.png "example broadcast 03"){width=90% #fig:slicing:broadcast_03}
 
 
 ```ocaml env=broadcasting_example01
@@ -600,7 +600,7 @@ array([[53, 54],
        [61, 62]])
 ```
 
-You can see that the basic indexing syntax are similar, only that Python is not strong-typed, so the users can mix single index, list of indices, or index range. 
+You can see that the basic indexing syntax are similar, only that Python is not strong-typed, so the users can mix single index, list of indices, or index range.
 Note that index range in NumPy is different than that in Owl.
 
 Also, in Julia it can be done with:
@@ -637,10 +637,10 @@ Also, in Julia it can be done with:
  61  62
 ```
 
-The Julia interface is similar to that of NumPy. However, there are some crucial differences as shown these examples. 
+The Julia interface is similar to that of NumPy. However, there are some crucial differences as shown these examples.
 First, the array in Julia uses column-major order, so we need to use the `transpose` function to achieve the same example.
-The other obvious difference is that, the indexing of Julia array starts from 1, not 0. 
-Besides, the negative indexing is not supported in Julia. 
+The other obvious difference is that, the indexing of Julia array starts from 1, not 0.
+Besides, the negative indexing is not supported in Julia.
 
 However, one important thing to notice in slicing is the difference between *copy* and *view*.
 For example, in Owl we can make a slice:
@@ -673,7 +673,7 @@ R0  0  1 200
 
 ```
 ```ocaml env=slicing_example_01
-# x 
+# x
 - : Arr.arr =
    C0 C1 C2
 R0  0  1  2
@@ -682,7 +682,7 @@ R2  6  7  8
 
 ```
 
-We can see that in Owl, changing the local content of the slice `y` does not change that of the original ndarray `x`. 
+We can see that in Owl, changing the local content of the slice `y` does not change that of the original ndarray `x`.
 That's because in Owl each slice makes a different copy.
 
 As a contrast, in NumPy the default indexing only makes a "view" of the original array, and any change on the view will also change the original array.
@@ -709,9 +709,9 @@ array([[  0,   1, 200],
 
 For performance, slicing is implemented in C.
 The basic algorithm of slicing is simple. We need to copy part of the source array `x` to the target array `y`.
-So you can imagine two cursors move one step at a time, only that for each dimension, the cursor start at different position and offset compared to the starting point, and at different increments. 
-At each step, we simply copy the content from `x` to `y`. 
-To do this, we define a structure `slice_pair` for slicing operations. 
+So you can imagine two cursors move one step at a time, only that for each dimension, the cursor start at different position and offset compared to the starting point, and at different increments.
+At each step, we simply copy the content from `x` to `y`.
+To do this, we define a structure `slice_pair` for slicing operations.
 
 ```c
 struct slice_pair {
@@ -747,6 +747,8 @@ Taking a 2-dimensional slicing as example, here is the core step:
     }
 ```
 
-So this algorithm basically says that for each row, we calculate its starting points in `x` and `y`, and then for each column, copy the element, and them move the cursors forward until the current row is finished. 
-And then move the rows forward. 
+So this algorithm basically says that for each row, we calculate its starting points in `x` and `y`, and then for each column, copy the element, and them move the cursors forward until the current row is finished.
+And then move the rows forward.
 If it becomes multiple dimension, we implement it with recursive algorithm.
+
+## Summary

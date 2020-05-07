@@ -1,27 +1,27 @@
 # Testing Framework
 
-Every proper software requires testing, and so is Owl. All too often we have found that testing can help use to find potential errors we had not anticipated during coding. 
+Every proper software requires testing, and so is Owl. All too often we have found that testing can help use to find potential errors we had not anticipated during coding.
 
-In this chapter, we introduce the philosophy of testing in Owl, the tool we use for conducting the unit test, and examples to demonstrate how to do that in Owl. 
+In this chapter, we introduce the philosophy of testing in Owl, the tool we use for conducting the unit test, and examples to demonstrate how to do that in Owl.
 Issues such as using functors in test, and other things to notice in writing test code for Owl etc. are also discussed in this chapter.
 
 ## Unit Test
 
 There are multiple ways to perform tests on your code. One common way is to use assertion or catching/raising errors in the code.
-These kinds of tests are useful, but embedded in the code itself, while we need separate test modules that check the implementation of functions against expected behaviours. 
+These kinds of tests are useful, but embedded in the code itself, while we need separate test modules that check the implementation of functions against expected behaviours.
 
 In Owl, we apply *unit test* to make sure the correctness of numerical routines as much as possible.
 Unit test is a software test method that check the behaviour of individual units in the code.
 In our case the "unit" often means a single numerical function.
 
-There is an approach of software development that is called Test Driven Development, where you write test code even before you implement the function to be tested itself. 
+There is an approach of software development that is called Test Driven Development, where you write test code even before you implement the function to be tested itself.
 Though we don't enforce such approach, there are certain testing philosophy we follow during the development of Owl.
-For example, we generally don't trust code that is not tested, so in a PR it is always a good practice to accompany your implementation with unit test in the `test/` directory in the source code. 
+For example, we generally don't trust code that is not tested, so in a PR it is always a good practice to accompany your implementation with unit test in the `test/` directory in the source code.
 Besides, try to keep the function short and simple, so that a test case can focus on a certain aspect.
 
 We use the `alcotest` framework for testing in Owl. `alcotest` is a lightweight test framework with simple interfaces. It exposes a simple `TESTABLE` module type, a `check` function to assert test predicates and a `run` function to perform a list of `unit -> unit` test callbacks.
 
-## Example 
+## Example
 
 Let's look at an example of using `alcotest` in Owl. Suppose you have implemented some functions in the linear algebra module, including the functions such as rank, determinant, inversion, etc., and try to test if before make a PR.
 The testing code should look something like this:
@@ -92,37 +92,37 @@ let test_set =
   ; "det", `Slow, det
   ; "vecnorm_01", `Slow, vecnorm_01
   ; "vecnorm_02", `Slow, vecnorm_02
-  ; "is_triu_1", `Slow, is_triu_1 
+  ; "is_triu_1", `Slow, is_triu_1
   ; "mpow", `Slow, mpow ]
 
 ```
 
-There are generally four sections in a test file. 
-In the first section, you specify the required precision and some predefined input data. 
+There are generally four sections in a test file.
+In the first section, you specify the required precision and some predefined input data.
 Here we use `1e-6` as precision threshold. Two ndarrays are deemed the same if the sum of their difference is less than `1e-6`, as shown in `mpow`.
 The predefined input data can also be defined in each test case, as in `is_triu_1`.
 
 In the second section, a test module need to be built, which contains a series of test functions.
 The most common test function used in Owl has the type `unit -> bool`.
-The idea is that each test function compare a certain aspect of a function with expected results. 
-If there are multiple test cases for the same function, such the case in `vecnorm`, we tend to build different test cases instead of using one large test function to include all the cases. 
+The idea is that each test function compare a certain aspect of a function with expected results.
+If there are multiple test cases for the same function, such the case in `vecnorm`, we tend to build different test cases instead of using one large test function to include all the cases.
 The common pattern of these function can be summarised as:
 
 ```
-let test_func () = 
-    let expected = expected_value in 
-    let result = func args in 
+let test_func () =
+    let expected = expected_value in
+    let result = func args in
     assert (expected = result)
 ```
 
-It is important to understand that the equal sign does not necessarily mean the two values have to be the same; in fact, for the float-point number is involved, which is quite often the case, we only need the two values to be approximately equal enough. 
+It is important to understand that the equal sign does not necessarily mean the two values have to be the same; in fact, for the float-point number is involved, which is quite often the case, we only need the two values to be approximately equal enough.
 If that's case, you need to pay attention to which precision you are using, double or float. The same threshold might be enough for float number, but could still be a large error for double precision computation.
 
 In the third section wraps these functions with `alcotest` by stating the expected output. Here we expect all the test functions to return `true`, though `alcotest` does support testing returning a lot of other types such as string, int, etc. Please refer to the [source file](https://github.com/mirage/alcotest/blob/master/src/alcotest/alcotest.mli) for more detail.
 
 In the final section, we take functions from section 3 and put them into a list of test set. The test set specify the name and mode of the test.
 The test mode is either `Quick` or `Slow`.
-Quick tests are ran on any invocations of the test suite. 
+Quick tests are ran on any invocations of the test suite.
 Slow tests are for stress tests that are ran only on occasion, typically before a release or after a major change.
 
 After this step, the whole file is named `unit_linalg.ml` and put under the `test/` directory, as with all other unit test files.
@@ -150,14 +150,14 @@ What if one of the test functions does not pass? Let's intentionally make a wron
 > Who's Watching the Watchers?
 
 Beware that the test code itself is still code, and thus can also be wrong. We need to be careful in implementing the testing code.
-There are certain cases that you may want to check. 
+There are certain cases that you may want to check.
 
 ### Corner Cases
 
-Corner cases involves situations that occur outside of normal operating parameters. 
+Corner cases involves situations that occur outside of normal operating parameters.
 That is obvious in the testing of convolution operations.
 
-As the core operation in deep neural networks, convolution is complex: it contains input, kernel, strides, padding, etc. as parameters. 
+As the core operation in deep neural networks, convolution is complex: it contains input, kernel, strides, padding, etc. as parameters.
 Therefore, special cases such as `1x1` kernel, strides of different height and width etc. are tested in various combinations, sometimes with different input data.
 
 ```
@@ -193,8 +193,8 @@ For example, in our implementation of the `repeat` operation, depending on wheth
 
 ## Use Functor
 
-Note that you can still benefit from all the powerful features OCaml such as functor. 
-For example, in testing the convolution operation, we hope to the implementation of both that in the core library (which implemented in C), and that in the base library (in pure OCaml). 
+Note that you can still benefit from all the powerful features OCaml such as functor.
+For example, in testing the convolution operation, we hope to the implementation of both that in the core library (which implemented in C), and that in the base library (in pure OCaml).
 Apparently there is no need to write the same unit test code twice for these two set of implementation.
 
 To solve that problem, we have a test file `unit_conv2d_genericl.ml` that has a large module that contains all the previous four sections:
@@ -203,7 +203,7 @@ To solve that problem, we have a test file `unit_conv2d_genericl.ml` that has a 
 module Make (N : Ndarray_Algodiff with type elt = float) = struct
     (* Section #1 - #4 *)
     ...
-end 
+end
 ```
 
 And in the specific testing file for core implementation `unit_conv2d.ml`, it simply contains one line of code:
@@ -217,3 +217,5 @@ Or in the test file for base library `unit_base_conv2d.ml`:
 ```
 include Unit_conv2d_generic.Make (Owl_base_algodiff_primal_ops.S)
 ```
+
+## Summary

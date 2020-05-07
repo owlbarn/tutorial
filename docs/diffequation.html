@@ -55,8 +55,8 @@ let target = 1.
 let step = 0.001
 let f x y = 2. *. x *. y +. x
 
-let _ = 
-  while !x &lt;= target do 
+let _ =
+  while !x &lt;= target do
     y := !y +. step *. (f !x !y);
     x := !x +. step
   done</code></pre>
@@ -76,35 +76,35 @@ let _ =
 <pre><code class="language-ocaml">let f x y = 2. *. x *. y +. x
 let f' x = 0.5 *. (Maths.exp (x *. x) -. 1.)
 
-let euler step target = 
+let euler step target =
     let x = ref 0. in
     let y = ref 0. in
-    while !x &lt;= target do 
+    while !x &lt;= target do
         y := !y +. step *. (f !x !y);
         x := !x +. step
     done;
     !y
 
-let midpoint step target = 
+let midpoint step target =
     let x = ref 0. in
     let y = ref 0. in
-    while !x &lt;= target do 
-        let s1 = f !x !y in 
-        let s2 = f (!x +. step /. 2.) (!y +. step /. 2. *. s1) in 
+    while !x &lt;= target do
+        let s1 = f !x !y in
+        let s2 = f (!x +. step /. 2.) (!y +. step /. 2. *. s1) in
         y := !y +. step *. (s1 +. s2) /. 2.;
         x := !x +. step
     done;
     !y
 
-let _ = 
-    let target = 2.6 in 
-    let h = Plot.create "plot_rk01.png" in 
+let _ =
+    let target = 2.6 in
+    let h = Plot.create "plot_rk01.png" in
     Plot.(plot_fun ~h ~spec:[ RGB (66,133,244); LineStyle 1; LineWidth 2.; Marker "*" ] f' 2. target);
     Plot.(plot_fun ~h ~spec:[ RGB (219,68,55); LineStyle 2; LineWidth 2.; Marker "+" ] (euler 0.01) 2. target);
     Plot.(plot_fun ~h ~spec:[ RGB (219,68,55); LineStyle 2; LineWidth 2.; Marker "." ] (euler 0.001) 2. target);
     Plot.(plot_fun ~h ~spec:[ RGB (244,180,0); LineStyle 3; LineWidth 2.; Marker "+" ] (midpoint 0.01) 2. target);
     Plot.(plot_fun ~h ~spec:[ RGB (244,180,0); LineStyle 3; LineWidth 2.; Marker "." ] (midpoint 0.001) 2. target);
-    Plot.(legend_on h ~position:NorthWest [|"Close-Form Solution"; "Euler (step = 0.01)"; 
+    Plot.(legend_on h ~position:NorthWest [|"Close-Form Solution"; "Euler (step = 0.01)";
         "Euler (step = 0.001)"; "Midpoint (step = 0.01)"; "Midpoint (step = 0.001)"|]);
     Plot.output h</code></pre>
 </div>
@@ -132,7 +132,7 @@ let _ =
 <p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(7)\]</span></span></p>
 <p>This equation represents an oscillator system. In this system, <span class="math inline">\(y\)</span> is the state of the system, and <span class="math inline">\(t\)</span> is time. The initial state at <span class="math inline">\(t=0\)</span> is <span class="math inline">\(y_0 = \left[ -1, 1\right]^T\)</span>. Now we want to know the system state at <span class="math inline">\(t=2\)</span>. The function can be expressed in Owl using the matrix module.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let f y t = 
+<pre><code class="language-ocaml">let f y t =
   let a = [|[|1.; -1.|];[|2.; -3.|]|]|&gt; Mat.of_arrays in
   Mat.(a *@ y)</code></pre>
 </div>
@@ -222,7 +222,7 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 <p><strong>Custom Solvers</strong></p>
 <p>We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
 <div class="highlight">
-<pre><code class="language-clike">let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4 
+<pre><code class="language-clike">let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4
 (* usage *)
 let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()</code></pre>
 </div>
@@ -311,12 +311,12 @@ let () =
 <p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:diffequation:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(9)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
 <p>Based on eq.&nbsp;9, we can build up our code as below:</p>
 <div class="highlight">
-<pre><code class="language-clike">let f y _t = 
-  let y = Mat.to_array y in 
-  let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in 
-  let y0' = y.(2) in 
+<pre><code class="language-clike">let f y _t =
+  let y = Mat.to_array y in
+  let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in
+  let y0' = y.(2) in
   let y1' = y.(3) in
-  let y2' = -.y.(0) /. (Maths.pow r 3.) in 
+  let y2' = -.y.(0) /. (Maths.pow r 3.) in
   let y3' = -.y.(1) /. (Maths.pow r 3.) in
   [| [|y0'; y1'; y2'; y3'|] |] |&gt; Mat.of_arrays
 
@@ -326,7 +326,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 </div>
 <p>Here the <code>y0</code> provides initial status of the system: first two numbers denote the initial location of object, and the next two numbers indicate the initial momentum to this object. (TODO: check if this is true or a better word should be used.) After building the function, initial status, timespan, and solver, we can then solve the system and visualise it.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ = 
+<pre><code class="language-clike">let _ =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create "two_body.png" in
   let open Plot in
@@ -350,8 +350,8 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 let beta = 8. /. 3.
 let rho = 28.
 
-let f y _t = 
-  let y = Mat.to_array y in 
+let f y _t =
+  let y = Mat.to_array y in
   let y0' = sigma *. (y.(1) -. y.(0)) in
   let y1' = y.(0) *. (rho -. y.(2)) -. y.(1) in
   let y2' = y.(0) *. y.(1) -. beta *. y.(2) in
@@ -365,7 +365,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 </div>
 <p>Now, we can solve the ODEs system and visualise the results. In the plots, we first show how the value of <span class="math inline">\(x\)</span>, <span class="math inline">\(y\)</span> and <span class="math inline">\(z\)</span> changes with time; next we show the phase plane plots between each two of them.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ = 
+<pre><code class="language-clike">let _ =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create ~m:2 ~n:2 "lorenz_01.png" in
   let open Plot in
@@ -411,7 +411,7 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
 </div>
 <p>Now, we can compare the euclidean distance between the status of these two systems at certain time. Also, we shows the value change of three components with time after changing initial values.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ = 
+<pre><code class="language-clike">let _ =
   (* plot the distance between two systems *)
   let h = Plot.create ~m:1 ~n:2 "lorenz_02.png" in
   let open Plot in
@@ -422,13 +422,13 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
   plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 1 ] ts (Mat.col ys1 1);
   plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] ts (Mat.col ys1 2);
   subplot h 0 1;
-  let diff = Mat.( 
+  let diff = Mat.(
     sqr ((col ys0 0) - (col ys1 0)) +
     sqr ((col ys0 1) - (col ys1 1)) +
-    sqr ((col ys0 2) - (col ys1 2)) 
+    sqr ((col ys0 2) - (col ys1 2))
     |&gt; sqrt
   )
-  in 
+  in
   plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1 ] ts diff;
   set_xlabel h "time";
   set_ylabel h "distance of two systems";
@@ -474,7 +474,7 @@ let y0 = Mat.of_array [| 0.02; 0.03 |] 1 2
 
 let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 
-let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec () </code></pre>
+let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()</code></pre>
 </div>
 <p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;5.</p>
 <div class="highlight">
@@ -527,12 +527,8 @@ let () =
 <p>Question: “why cannot I just use a ‘best’ solver for all the questions?”</p>
 <p>TODO: Introduce the basic principles of how to choose solvers</p>
 </section>
-<section class="level2" id="exercise">
-<h2>Exercise</h2>
-<ol type="1">
-<li><p>Implement <code>rk4</code> manually and apply to the same problem to compare it’s effect.</p></li>
-<li><p>Solve logistic equation, or compound interest, or both. [Ref: Differential Equations by Jeffrey R. Chasnov]</p></li>
-</ol>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

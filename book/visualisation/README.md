@@ -676,4 +676,6 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
 
 ![Advanced statistical plots with probplot](images/visualisation/plot_019.png "plot_019"){ width=90% #fig:visualisation:plot_019 }
 
+## Summary
+
 ## References

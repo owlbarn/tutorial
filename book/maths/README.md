@@ -4,7 +4,7 @@ TBD
 
 ## Basic Functions
 
-Note that functions in this chapter works on scalar values. 
+Note that functions in this chapter works on scalar values.
 The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.
 
 ### Basic Unary Math Functions
@@ -13,7 +13,7 @@ Many basic math functions takes one float number as input and returns one float 
 You can use these unary functions easily from the `Maths` module. For example:
 
 ```ocaml
-# Maths.sqrt 2. 
+# Maths.sqrt 2.
 - : float = 1.41421356237309515
 ```
 
@@ -42,7 +42,7 @@ Function      Explanation
 
 ### Basic Binary Functions
 
-Binary functions takes two floats as inputs and returns one float as return. 
+Binary functions takes two floats as inputs and returns one float as return.
 The most common arithmetic functions belong to this category.
 
 ------------  -------------------------------------------------------
@@ -62,21 +62,21 @@ Function      Explanation
 
 `hypot`       $\sqrt{x^2 + y^2}$
 
-`atan2`       returns $\arctan(y/x)$, accounting for the sign of the 
+`atan2`       returns $\arctan(y/x)$, accounting for the sign of the
               arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
 ------------  -------------------------------------------------------
 : Binary math functions {#tbl:maths:binary}
 
 ### Exponential and Logarithmic Functions
 
-The constant $e = \sum_{n=0}^{\infty}\frac{1}{n!}$ is what we called the "natural constant". 
+The constant $e = \sum_{n=0}^{\infty}\frac{1}{n!}$ is what we called the "natural constant".
 It is called this way because the exponential function and it inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.
 
 We also have this beautiful Euler's formula that connects the two most frequently used constants and the base of complex number and natural numbers:
 
 $$e^{i\pi}+ 1=0.$$
 
-As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function $n(t) = Ce^rt$ where $C$ is the initial population and $r$ is the daily increase rate. 
+As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function $n(t) = Ce^rt$ where $C$ is the initial population and $r$ is the daily increase rate.
 With this model, we can predict how the population of bacterial grows within certain time.
 
 The full list of exponential and logarithmic functions, together with some variants, are presented in [@tbl:maths:explog].
@@ -90,7 +90,7 @@ Function      Explanation
 
 `exp10`       $10^x$
 
-`expm1`       returns $\exp(x) - 1$ but more accurate for $x \sim 0$ 
+`expm1`       returns $\exp(x) - 1$ but more accurate for $x \sim 0$
 
 `log`         $log_e~x$
 
@@ -142,13 +142,13 @@ Function      Explanation      Derivatives                        Taylor Expansi
 
 `cot`         $1/\tan(x)$      $-(1 + \textrm{cot}^2(x))$         $\sum_{n=0}\frac{E_n~x^{2n}}{(2n)!}$
 
-`sec`         $1/\cos(x)$      $\textrm{sec}(x)\tan(x)$           $\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}$ 
+`sec`         $1/\cos(x)$      $\textrm{sec}(x)\tan(x)$           $\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}$
 
 `csc`         $1/\sin(x)$      $-\textrm{csc}(x)\textrm{cot}(x)$  $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}$  
 ------------  ---------------- -----------------                  ---------------------------------------------
 : Trigonometric math functions {#tbl:maths:triangular}
 
-Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $E_n$ is the $n$th [Euler number](https://en.wikipedia.org/wiki/Euler_number). 
+Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $E_n$ is the $n$th [Euler number](https://en.wikipedia.org/wiki/Euler_number).
 The [@fig:algodiff:trio] shows the relationship between these trigonometric functions ([figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0)).
 These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $\sin(a) = b$, then $\textrm{asin}(b) = a$.
 
@@ -193,7 +193,7 @@ The activation functions are crucial to the neural network regarding various asp
 
 ## Special Functions
 
-The definition of numerous special functions of mathematical physics. 
+The definition of numerous special functions of mathematical physics.
 Special functions are particular mathematical functions that have more or less established names and notations due to their importance in mathematical analysis, functional analysis, physics, or other applications.(COPY)
 It interfaces to the [Cephes Mathematical Functions Library](http://www.netlib.org/cephes/).
 
@@ -204,7 +204,7 @@ It is the solution of differential equation:
 
 $$y''(x) = xy(x).$$
 
-This differential equation has two linearly independent solutions `Ai` and `Bi`. 
+This differential equation has two linearly independent solutions `Ai` and `Bi`.
 Owl provides the `airy` to do that:
 
 ```
@@ -212,20 +212,20 @@ val airy : float -> float * float * float * float
 ```
 
 The four returned numbers are `Ai`, its derivative `Ai'`, `Bi`, and its derivative `Bi'`.
-Let's look at an example. 
+Let's look at an example.
 
 ```ocaml
 let x = Mat.linspace (-15.) 5. 200
 
-let y0 = Mat.map (fun x -> 
+let y0 = Mat.map (fun x ->
 	let ai, _, _, _ = Maths.airy x in ai
-) x 
+) x
 
-let y1 = Mat.map (fun x -> 
+let y1 = Mat.map (fun x ->
 	let _, _, bi, _ = Maths.airy x in bi
-) x 
+) x
 
-let _ = 
+let _ =
   let h = Plot.create "special_airy.png" in
   Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
   Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
@@ -238,7 +238,7 @@ let _ =
 
 APPLICATION description
 
-### Bessel Functions 
+### Bessel Functions
 
 Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation:
 
@@ -246,13 +246,13 @@ $$x^2y''+xy'+(x^2 - \alpha^2)y = 0.$$
 
 The complex number $\alpha$ is called the *order* of the bessel function.
 
-The Bessel functions can be divided into two "kinds". 
+The Bessel functions can be divided into two "kinds".
 Bessel functions of the first kind $J$ are solutions of Bessel's differential equation that are finite at $x=0$ integer or positive order and diverge as $x$ approaches zero for negative non-integer order.
 Bessel functions of the second kind are solutions of the Bessel differential equation that have a singularity at $x=0$ and are multivalued. (COPY ALERT)
 
-A special case is when $x$ is purely imaginary. In this case, the solutions to the Bessel equation are called the *modified Bessel functions*. These modified Bessel functions can also be categorised as first kind and second kind. 
+A special case is when $x$ is purely imaginary. In this case, the solutions to the Bessel equation are called the *modified Bessel functions*. These modified Bessel functions can also be categorised as first kind and second kind.
 
-Based on these category, Owl provides these functions. 
+Based on these category, Owl provides these functions.
 
 -------- ---------------------------------------------
 Function Explanation  
@@ -315,7 +315,7 @@ let _ =
 
 (More examples can be added if we want to expand)
 
-Bessel's equation arises when finding separable solutions to Laplace's equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. 
+Bessel's equation arises when finding separable solutions to Laplace's equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order.
 For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc.  (COPY ALERT)
 
 ### Elliptic Functions
@@ -353,7 +353,7 @@ We can use `ellipe` to compute the circumference of an ellipse. To compute that 
 Suppose an ellipse has semi-major axis $a=4$ and semi-minor axis $b=3$. We an compute its circumference using $4a\textrm{ellipe}(1 - \frac{b^2}{a^2})$.
 
 ```ocaml
-# let a = 4. 
+# let a = 4.
 val a : float = 4.
 # let b = 3.
 val b : float = 3.
@@ -363,15 +363,15 @@ val c : float = 22.1034921607095072
 
 ### Gamma Functions
 
-For a positive integer n, the Gamma function is the factorial function. 
+For a positive integer n, the Gamma function is the factorial function.
 
 $$\Gamma(n) = (n-1)!$$
 
-For a complex numbers $z$ with a positive real part, 
+For a complex numbers $z$ with a positive real part,
 
 $$\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.$$
 
-The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space. 
+The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space.
 The Gamma function and related function provided in Owl are list in [@tbl:maths:gamma].
 
 ------------------------- ------------------------------------------------------
@@ -395,7 +395,7 @@ Function                  Explanation
 ------------------------- ------------------------------------------------------
 : Gamma functions {#tbl:maths:gamma}
 
-The incomplete gamma functions are similarly to the gamma function but with different or "incomplete" integral limits. The gamma function is defined as an integral from zero to infinity. This contrasts with the lower incomplete gamma function, which is defined as an integral from zero to a variable upper limit. Similarly, the upper incomplete gamma function is defined as an integral from a variable lower limit to infinity. 
+The incomplete gamma functions are similarly to the gamma function but with different or "incomplete" integral limits. The gamma function is defined as an integral from zero to infinity. This contrasts with the lower incomplete gamma function, which is defined as an integral from zero to a variable upper limit. Similarly, the upper incomplete gamma function is defined as an integral from a variable lower limit to infinity.
 The digamma function is defined as the logarithmic derivative of the gamma function. (COPY)
 
 Here is an example of using `gamma`.
@@ -443,9 +443,9 @@ Function                  Explanation
 The Beta function has several properties:
 
 ```ocaml
-# let x = Maths.beta 3. 4. 
+# let x = Maths.beta 3. 4.
 val x : float = 0.0166666666666666664
-# let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.))) 
+# let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.)))
 val y : float = 0.0166666666666666664
 ```
 
@@ -453,9 +453,9 @@ This validate the relationship between beta funtion and gamma function.
 Another property of beta function is it is symmetric, which means $B(x,y) = B(y, x)$.
 
 ```ocaml
-# let x = Maths.beta 3. 4. 
+# let x = Maths.beta 3. 4.
 val x : float = 0.0166666666666666664
-# let y = Maths.beta 4. 3. 
+# let y = Maths.beta 4. 3.
 val y : float = 0.0166666666666666664
 ```
 
@@ -494,12 +494,12 @@ The Hurwitz zeta function `zeta x q` returns the Hurwitz zeta function:
 
 $$\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.$$
 
-When $q$ is set to 1, this function is reduced to Riemann zeta function. 
+When $q$ is set to 1, this function is reduced to Riemann zeta function.
 The function `zetac x` returns Riemann zeta function minus 1.
 We can evaluate the zeta function at certain points, for example:
 
 ```ocaml
-# Maths.zeta 4. 1. 
+# Maths.zeta 4. 1.
 - : float = 1.08232323371113837
 
 # (Maths.pow Owl_const.pi 4.) /. 90.
@@ -509,7 +509,7 @@ We can evaluate the zeta function at certain points, for example:
 The Riemann zeta function plays a pivotal role in analytic number theory and has applications in physics, probability theory, and applied statistics.
 Zeta function regularization is used as one possible means of regularization of divergent series and divergent integrals in quantum field theory. In one notable example, the Riemann zeta-function shows up explicitly in one method of calculating the Casimir effect. The zeta function is also useful for the analysis of dynamical systems. (COPY)
 
-### Error Functions 
+### Error Functions
 
 The error functions are not about error processing in programming.
 In mathematics, it is defined as:
@@ -545,7 +545,7 @@ The error function occurs often in probability, statistics, and partial differen
 
 ### Integral Functions
 
-Owl also provides several special integral functions. 
+Owl also provides several special integral functions.
 The Dawson function is defined as:
 $$D(x) = e^{-x^2}\int_0^x~e^{t^2}dt$$
 
@@ -619,13 +619,13 @@ Function          Explanation
 The factorial functions accepts integer as input, for example:
 
 ```ocaml
-# Maths.fact 5 
+# Maths.fact 5
 - : float = 120.
 ```
 
 The factorials are applied in many areas of mathematics, most notably the combinatorics.
-The permutation and combination are both defined in factorials. 
-The permutation returns the number $n!/(n-k)!$ of ordered subsets of length $k$, taken from a set of $n$ elements. 
+The permutation and combination are both defined in factorials.
+The permutation returns the number $n!/(n-k)!$ of ordered subsets of length $k$, taken from a set of $n$ elements.
 THe combination returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of $k$ elements of a set of $n$ elements.
 [@tbl:maths:perm] provides the combinatorics functions you can use in the math module.
 
@@ -633,7 +633,7 @@ THe combination returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of 
 ----------------------  -----------------------------------------------------------
 Function                Explanation  
 ----------------------  -----------------------------------------------------------
-`permutation n k`       Permutation number 
+`permutation n k`       Permutation number
 
 `permutation_float n k` Similar to `permutation` but deals with larger range and returns float
 
@@ -665,20 +665,20 @@ The `Owl_maths_interpolate` module provides an `polint` function for interpolati
 val polint : float array -> float array -> float -> float * float
 ```
 
-`polint xs ys x` performs polynomial interpolation of the given arrays `xs` and `ys`. Given arrays $xs[0 \ldots (n-1)]$ and $ys[0\ldots~(n-1)]$, and a value `x`. 
+`polint xs ys x` performs polynomial interpolation of the given arrays `xs` and `ys`. Given arrays $xs[0 \ldots (n-1)]$ and $ys[0\ldots~(n-1)]$, and a value `x`.
 The function returns a value `y`, and an error estimate `dy`.
 The paramter `xs` is an array of input `x` values of `P(x)`, and `ys` is an array of corresponding `y` values of `P(x)`.
 It returns `(y', dy)` wherein `y'` is the returned value `y' = P(x)`, and `dy` is the estimated error.
 
 As its name suggests, the `polint` approximate complicated curves with polynomial of lowest possible degree that passes the given points.
-We can show how this interplation method works for an example. 
-In the previous chapter we have introduced that the Gamma function is actually a interpolation solution to the integer function $y(x) = (n-1)!$. 
+We can show how this interplation method works for an example.
+In the previous chapter we have introduced that the Gamma function is actually a interpolation solution to the integer function $y(x) = (n-1)!$.
 So we can specify five nodes on a plane that are generated from this factorial functions.
 
 ```ocaml env=maths:interp
 # let x = [|2; 3; 4; 5; 6|]
 val x : int array = [|2; 3; 4; 5; 6|]
-# let y = Array.map (fun x -> Maths.fact (x - 1)) x 
+# let y = Array.map (fun x -> Maths.fact (x - 1)) x
 val y : float array = [|1.; 2.; 6.; 24.; 120.|]
 # let x = Array.map float_of_int x
 val x : float array = [|2.; 3.; 4.; 5.; 6.|]
@@ -688,16 +688,16 @@ Now we can define the interpolation function `f` that accept on float number and
 Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
 
 ```ocaml env=maths:interp
-let f a = 
+let f a =
   let v, _ = Owl_maths_interpolate.polint x y a in
-  v 
+  v
 
 let xm = Mat.of_array x 1 5
 let ym = Mat.of_array y 1 5
 ```
 
-Now we can plot the interpolation function. We compare it to the Gamma function. 
-As can be seen in [@fig:maths:interp], both lines cross the given nodes. We can see that the interpolated line fits well with the "true interpolation", i.e. the Gamma function. 
+Now we can plot the interpolation function. We compare it to the Gamma function.
+As can be seen in [@fig:maths:interp], both lines cross the given nodes. We can see that the interpolated line fits well with the "true interpolation", i.e. the Gamma function.
 However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.
 
 ```ocaml env=maths:interp
@@ -733,12 +733,12 @@ $$\int_1^4x^2 = (4^3 -1^3) / 3 = 21$$.
 
 So you might be thinking, what is this `trapz`? Why the result is not exactly `21`?
 
-Using numerical methods (or *quadrature*) to do integration dates back to the invention of calculus or even earlier. 
+Using numerical methods (or *quadrature*) to do integration dates back to the invention of calculus or even earlier.
 The basic idea is to use summation of small areas to approximate that of an integration, as shown in [@fig:maths:integration_basic] ([src](https://www.sciencedirect.com/topics/computer-science/numerical-integration)).
 
 ![Basic method of numerical integration](images/maths/integration_basic.png "integration"){width=80% #fig:maths:integration_basic}
 
-There exists a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them. 
+There exists a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them.
 This classical method divide a to b into $N$ equally spaced abscissas: $x_0, x_1, \ldots, x_N$. Each area between $x_i$ and $x_j$ is seen as an Trapezoid and the area formula is computed as:
 
 $$\int_{x_0}^{x_1}f(x)dx = h(\frac{f(x_0)}{2} + \frac{f(x_1)}{2}) + O(h^3f'').$$
@@ -752,7 +752,7 @@ val trapz : ?n:int -> ?eps:float -> (float -> float) -> float -> float -> float
 ```
 
 `trapz ~n ~eps f a b` computes the integral of `f` on the interval `[a,b]` using the trapezoidal rule.
-It works by iterating for several stages, each stage improving the accuracy by adding more interior points. 
+It works by iterating for several stages, each stage improving the accuracy by adding more interior points.
 The argument $n$ specifies the maximum step which defaults to 20, and `eps` is the desired fractional accuracy threshold, which defaults to `1e-6`.
 
 The other methods are similar to `trapz` in interface, only different in implementation.
@@ -778,9 +778,9 @@ We can see the numerical method `gaussian` works well to approximate this specia
 
 ## Utility Functions
 
-Besides what we have mentioned, there are also some utitlity functions that worth mentioning. 
+Besides what we have mentioned, there are also some utitlity functions that worth mentioning.
 
-A prime number is a natural number greater than `1` that cannot be formed by multiplying two smaller natural numbers. 
+A prime number is a natural number greater than `1` that cannot be formed by multiplying two smaller natural numbers.
 The `is_prime` checks if an integer is a prime number.
 This function is deterministic for all numbers representable by an int. It is implemented using the [Miller-Rabin primality test](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test) method.
 
@@ -803,7 +803,7 @@ The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.
 
 Next two functions concerns the precision of float numbers in computer.
 
-TODO: Explain the mechansim of float number in a computer. 
+TODO: Explain the mechansim of float number in a computer.
 
 `nextafter from to` returns the next representable double precision value of ``from`` in the direction of `to`. If `from` equals `to`, this value is returned.
 The other is `nextafterf`.
@@ -820,3 +820,5 @@ For example:
 # Maths.nextafter 1. 0.;;
 - : float = 0.999999999999999889
 ```
+
+## Summary

@@ -12,7 +12,7 @@
 <h3>Basic Unary Math Functions</h3>
 <p>Many basic math functions takes one float number as input and returns one float number. We call them <em>unary</em> functions. You can use these unary functions easily from the <code>Maths</code> module. For example:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sqrt 2. ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sqrt 2.;;
 &gt;- : float = 1.41421356237309515
 </code></pre>
 </div>
@@ -326,15 +326,15 @@
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Mat.linspace (-15.) 5. 200
 
-let y0 = Mat.map (fun x -&gt; 
+let y0 = Mat.map (fun x -&gt;
     let ai, _, _, _ = Maths.airy x in ai
-) x 
+) x
 
-let y1 = Mat.map (fun x -&gt; 
+let y1 = Mat.map (fun x -&gt;
     let _, _, bi, _ = Maths.airy x in bi
-) x 
+) x
 
-let _ = 
+let _ =
   let h = Plot.create "special_airy.png" in
   Plot.(plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2. ] x y0);
   Plot.(plot ~h ~spec:[ RGB (219, 68,  55); LineStyle 2; LineWidth 2. ] x y1);
@@ -508,7 +508,7 @@ let _ =
 <p>In general, integrals in this form cannot be expressed in terms of elementary functions. Exceptions to this general rule are when P has repeated roots, or when <span class="math inline">\(R(x,y)\)</span> contains no odd powers of y. However, with the appropriate reduction formula, every elliptic integral can be brought into a form that involves integrals over rational functions and the three Legendre canonical forms (i.e.&nbsp;the elliptic integrals of the first, second and third kind). (COPY)</p>
 <p>We can use <code>ellipe</code> to compute the circumference of an ellipse. To compute that requires calculus, and the elliptic functions provides a solution. Suppose an ellipse has semi-major axis <span class="math inline">\(a=4\)</span> and semi-minor axis <span class="math inline">\(b=3\)</span>. We an compute its circumference using <span class="math inline">\(4a\textrm{ellipe}(1 - \frac{b^2}{a^2})\)</span>.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = 4. ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = 4.;;
 &gt;val a : float = 4.
 let b = 3.;;
 &gt;val b : float = 3.
@@ -629,17 +629,17 @@ let _ =
 </div>
 <p>The Beta function has several properties:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4. ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4.;;
 &gt;val x : float = 0.0166666666666666664
-let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.))) ;;
+let y = Maths.((gamma 3.) *. (gamma 4.) /. (gamma (7.)));;
 &gt;val y : float = 0.0166666666666666664
 </code></pre>
 </div>
 <p>This validate the relationship between beta funtion and gamma function. Another property of beta function is it is symmetric, which means <span class="math inline">\(B(x,y) = B(y, x)\)</span>.</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4. ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Maths.beta 3. 4.;;
 &gt;val x : float = 0.0166666666666666664
-let y = Maths.beta 4. 3. ;;
+let y = Maths.beta 4. 3.;;
 &gt;val y : float = 0.0166666666666666664
 </code></pre>
 </div>
@@ -672,7 +672,7 @@ let y = Maths.beta 4. 3. ;;
 <p><span class="math display">\[\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.\]</span></p>
 <p>When <span class="math inline">\(q\)</span> is set to 1, this function is reduced to Riemann zeta function. The function <code>zetac x</code> returns Riemann zeta function minus 1. We can evaluate the zeta function at certain points, for example:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.zeta 4. 1. ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.zeta 4. 1.;;
 &gt;- : float = 1.08232323371113837
 (Maths.pow Owl_const.pi 4.) /. 90.;;
 &gt;- : float = 1.08232323371113792
@@ -842,7 +842,7 @@ let y = Maths.beta 4. 3. ;;
 </div>
 <p>The factorial functions accepts integer as input, for example:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.fact 5 ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.fact 5;;
 &gt;- : float = 120.
 </code></pre>
 </div>
@@ -905,7 +905,7 @@ let y = Maths.combination_float 10 2;;
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = [|2; 3; 4; 5; 6|];;
 &gt;val x : int array = [|2; 3; 4; 5; 6|]
-let y = Array.map (fun x -&gt; Maths.fact (x - 1)) x ;;
+let y = Array.map (fun x -&gt; Maths.fact (x - 1)) x;;
 &gt;val y : float array = [|1.; 2.; 6.; 24.; 120.|]
 let x = Array.map float_of_int x;;
 &gt;val x : float array = [|2.; 3.; 4.; 5.; 6.|]
@@ -913,9 +913,9 @@ let x = Array.map float_of_int x;;
 </div>
 <p>Now we can define the interpolation function <code>f</code> that accept on float number and returns another float number. Also we convert the given data <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> into matrix format for plotting purpose.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let f a = 
+<pre><code class="language-ocaml">let f a =
   let v, _ = Owl_maths_interpolate.polint x y a in
-  v 
+  v
 
 let xm = Mat.of_array x 1 5
 let ym = Mat.of_array y 1 5</code></pre>
@@ -1005,6 +1005,9 @@ Maths.nextafter 1. 0.;;;;
 &gt;- : float = 0.999999999999999889
 </code></pre>
 </div>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 </section>
 </article></div><a href="stats.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 05</small>Statistical Functions</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

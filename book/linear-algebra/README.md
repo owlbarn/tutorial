@@ -1,13 +1,13 @@
 # Linear Algebra
 
-Linear Algebra is a key mathematics field behind computer science and numerical computation. 
+Linear Algebra is a key mathematics field behind computer science and numerical computation.
 Full coverage of this topic is apparently beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
-In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts. 
+In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts.
 
 The high level APIs of Linear Algebra are provied in the `Linalg` module.
 It provides four types of number types: single precision, double precision, complex single precision, and complex double precision.
 They are included in `Linalg.S`, `Linalg.D`, `Linalg.C` and `Linalg.Z` modules respectively.
-Besides, the `Linalg.Generic` can do everything that `S/D/C/Z` can but needs some extra type information. 
+Besides, the `Linalg.Generic` can do everything that `S/D/C/Z` can but needs some extra type information.
 
 ## Vectors and Matrices
 
@@ -15,7 +15,7 @@ The fundamental problem of linear algebra: solving linear equations.
 This is more efficiently expressed with vectors and matrices.
 Therefore, we need to first get familiar with these basic structures in Owl.
 
-Similar to the `Linalg` module, all the matrix functions can be accessed from the `Dense.Matrix` module, and support four different type of modules. 
+Similar to the `Linalg` module, all the matrix functions can be accessed from the `Dense.Matrix` module, and support four different type of modules.
 The `Mat` module is an alias of `Dense.Matrix.D`.
 Except for some functions such as `re`, most functions are shared by these four submodules.
 Note that that matrix module is actually built on the Ndarray module, and thus the supported functions are quite similar, and matrices and ndarrays can interoperate with each other.
@@ -156,7 +156,7 @@ Iterating rows and columns are similar to iterating elements, by using `iteri_ro
 
 ```
 
-You can also fold elements, rows, and columns. 
+You can also fold elements, rows, and columns.
 We can calculate the summation of all column vectors by using `fold_cols` function.
 
 ```ocaml env=matrix_env1
@@ -174,7 +174,7 @@ It is also possible to change a specific row or column. E.g., we make a new matr
 
 ```
 
-The filter functions is also commonly used in manipulating matrix. 
+The filter functions is also commonly used in manipulating matrix.
 Here are some examples.
 The first one is to filter out the elements in `x` greater than `20`.
 
@@ -288,7 +288,7 @@ There are other functions such as concatenation:
 
 Solving linear equations systems is the core problem in Linear Algebra and is frequently used in scientific computation.
 *Gaussian Elimination* is a classic method to do that. With a bit of techniques, elimination works surprisingly well in modern numerical libraries as one way of implementation.
-Here is a simple example. 
+Here is a simple example.
 
 $$2x_1 + 2x_2 + 2x_3 = 4$$
 $$2x_1 + 2x_2 + 3x_3 = 5$$ {#eq:linear-algebra:gauss01}
@@ -300,7 +300,7 @@ $$x_1 + x_2 + x_3 = 2$$
 $$2x_1 + 2x_2 + 3x_3 = 5$$ {#eq:linear-algebra:gauss02}
 $$3w_1 + 4x_2 + 5x_3 = 7$$
 
-Multiply the first equation by `-2`, then add it to the second one. 
+Multiply the first equation by `-2`, then add it to the second one.
 Also, multiply the first equation by `-3`, then add it to the third one. We have:
 
 $$x_1 + x_2 + x_3 = 2$$
@@ -313,11 +313,11 @@ $$x_1 + x_2 + x_3 = 2$$
 $$x_2 + 2x_3 = 1$$  {#eq:linear-algebra:gauss04}
 $$x_3 = 1$$
 
-Here $x_3 = 1$, and we can put it back in the second equation and get $x_2 = -1$. 
+Here $x_3 = 1$, and we can put it back in the second equation and get $x_2 = -1$.
 Put both back to the first equation and we have $x_1 = 2$
 
 This process demonstrate the basic process of elimination: eliminate unknown variables until this group of linear equations is easy to solve, and then do the back-substitution.
-There are three kinds of basic operations we can use: multiplication, adding one line to another, and swap two lines. 
+There are three kinds of basic operations we can use: multiplication, adding one line to another, and swap two lines.
 
 The starting [@eq:linear-algebra:gauss01] can be more concisely expressed with vector:
 
@@ -332,7 +332,7 @@ $$
 $$
 
 Here A is a matrix, b is a column vector, and x is the unknown vector.
-The matrix notation is often used to describe the linear equation systems as a concise way. 
+The matrix notation is often used to describe the linear equation systems as a concise way.
 
 ### LU Factorisation
 
@@ -340,7 +340,7 @@ Let's check the gaussian elimination example again. The final form in [@eq:linea
 
 $$\left[\begin{matrix}1 & 1 & 1\\0 & 1 & 2\\0 & 0 & 1\end{matrix} \right]$$
 
-Here all the elements below the diagonal of this square matrix is zero. 
+Here all the elements below the diagonal of this square matrix is zero.
 Such matrix is called an *upper triangular matrix*, usually denoted by $U$.
 Similarly, a square matrix that all the elements below the diagonal of this square matrix is zero is called *lower triangular matrix*, denoted by $L$.
 We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
@@ -348,17 +348,17 @@ We can use the `is_triu` and `is_tril` to verify if a matrix is triangular.
 The diagonal elements of $U$ are called pivots. The i-th pivot is the coefficient of the i-th variable in the i-th equation at the i-th step during the elimination.
 
 In general, a square matrix can often be factorised into the dot product of a lower and a upper triangular matrices: $A = LU$.
-It is called the *LU factorisation*. 
+It is called the *LU factorisation*.
 It embodies the process of Gauss elimination.
 Back to the initial problem of solving the linear equation $Ax=b$.
-One reason the LU Factorisation is important is that if the matrix A in $Ax=b$ is triangular, then solving it would be straightforward, as we have seen in the previous example. 
+One reason the LU Factorisation is important is that if the matrix A in $Ax=b$ is triangular, then solving it would be straightforward, as we have seen in the previous example.
 Actually, we can use `triangular_solve` to efficiently solve the linear equations if we already know that the matrix is triangular.
 
 For a normal square matrix that can be factorised into $LU$, we can change $Ax=b$ to $LUx=b$.
 First we can find column vector $c$ so that $Lc=b$, then we can find $x$ so that $Ux=c$.
 Both triangular equations are easy to solve.
 
-We use the `lu` function to perform the LU factorisation. Let's use the previous example. 
+We use the `lu` function to perform the LU factorisation. Let's use the previous example.
 
 ```ocaml env=linear-algebra-lu
 # let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|]
@@ -398,7 +398,7 @@ The first two returned matrix are the lower and upper triangular matrices.
 However, if we try to check the correctness of this factorisation with dot product, the result does not fit:
 
 ```ocaml env=linear-algebra-lu
-# let a' = Mat.dot l u 
+# let a' = Mat.dot l u
 val a' : Mat.mat =
    C0 C1 C2
 R0  3  4  5
@@ -412,10 +412,10 @@ R2  2  2  2
 - : bool = false
 ```
 
-It turns out that we need to some extra row exchange to get the right answer. 
-That's because the row exchange is required in certain cases, such as when the number we want to use as the pivot could be zero. 
+It turns out that we need to some extra row exchange to get the right answer.
+That's because the row exchange is required in certain cases, such as when the number we want to use as the pivot could be zero.
 This process is called *pivoting*. It is closely related to the numerical computation stability. Choosing the improper pivots can lead to wrong linear system solution.
-It can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one "1" element. 
+It can be expressed with a permutation matrix that has the same rows as the identity matrix, each row and column has exactly one "1" element.
 The full LU factorisation can be expressed as:
 
 $$PA = LU.$$
@@ -431,13 +431,13 @@ R2  1  0  0
 ```
 
 ```ocaml env=linear-algebra-lu
-# Mat.dot p a = Mat.dot l u 
+# Mat.dot p a = Mat.dot l u
 - : bool = true
 ```
 
-How do we translate the third output, the permutation vector, to the required permutation matrix? 
-Each element $p_i$ in the vector represents a updated identity matrix. 
-On this identity matrix, we set (i, i) and ($p_i$, $p_i$) to zero, and then (i, $p_i$) and  ($p_i$, i) to one. 
+How do we translate the third output, the permutation vector, to the required permutation matrix?
+Each element $p_i$ in the vector represents a updated identity matrix.
+On this identity matrix, we set (i, i) and ($p_i$, $p_i$) to zero, and then (i, $p_i$) and  ($p_i$, i) to one.
 Multiply these $n$ matrices, we can get the permutation matrix $P$.
 Here is a brief implementation of this process in OCaml:
 
@@ -461,10 +461,10 @@ Note that there is more than one way to do the LU factorisation. For example, fo
 
 $$\left[\begin{matrix}1 & 0 & 0\\0 & 0 & 1\\0 & 1 & 0\end{matrix} \right] \left[\begin{matrix}2 & 2 & 2\\2 & 2 & 3\\3 & 4 & 5\end{matrix} \right] = \left[\begin{matrix}1 & 0 & 0\\1.5 & 1 & 0\\1 & 0 & 1\end{matrix} \right] \left[\begin{matrix}2 & 2 & 2\\0 & 1 & 2\\0 & 0 & 1\end{matrix} \right]$$
 
-### Inverse and Transpose 
+### Inverse and Transpose
 
 The concept of inverse matrix is related with the identity matrix, which can be built with $Mat.eye n$, where n is the size of the square matrix.
-The identity matrix is a special form of *Diagonal Matrix*, which is a square matrix that only contains non-zero element along its diagonal. 
+The identity matrix is a special form of *Diagonal Matrix*, which is a square matrix that only contains non-zero element along its diagonal.
 You can check if a matrix is diagonal with `is_diag` function.
 
 ```ocaml
@@ -510,15 +510,15 @@ R4 -9.34742  12.5403 -7.69399 -3.60533  15.9673
 ```
 
 The next frequently used special matrix is the *Transpose Matrix*. Denoted by $A^T$, its $i$th row is taken from the $i$-th column of the original matrix A.
-It has properties such as $(AB)^T=B^T~A^T$. 
+It has properties such as $(AB)^T=B^T~A^T$.
 We can check this property using the matrix function `Mat.transpose`. Note that this function is deemed basic ndarray operations and is not included in the `Linalg` module.
 
 ```ocaml
-# let flag = 
-    let a = Mat.uniform 4 4 in 
-    let b = Mat.uniform 4 4 in 
+# let flag =
+    let a = Mat.uniform 4 4 in
+    let b = Mat.uniform 4 4 in
     let m1 = Mat.(dot a b |> transpose) in
-    let m2 = Mat.(dot (transpose b) (transpose a)) in 
+    let m2 = Mat.(dot (transpose b) (transpose a)) in
     Mat.(m1 =~ m2)
 val flag : bool = true
 ```
@@ -527,9 +527,9 @@ A related special matrix is the *Symmetric Matrix*, which equals to its own tran
 
 ## Vector Spaces
 
-We have talked about solving the $Ax=b$ linear equations with elimination, and A is a square matrix. 
-Now we need to further discuss, how do we know if there exists one or maybe more than one solution. 
-To answer such question, we need to be familiar with the concepts of *vector space*. 
+We have talked about solving the $Ax=b$ linear equations with elimination, and A is a square matrix.
+Now we need to further discuss, how do we know if there exists one or maybe more than one solution.
+To answer such question, we need to be familiar with the concepts of *vector space*.
 
 A vector space, denoted by $R^n$, contains all the vectors that has $n$ elements.
 In this vector space we have the `add` and `multiplication` operation. Applying them to the vectors is called *linear combination*.
@@ -537,17 +537,17 @@ Then a *subspace* in a vector space is a non-empty set that linear combination o
 
 There are four fundamental subspaces concerning solving linear systems $Ax=b$, where $A$ is a $m$ by $n$ matrix.
 The *column space* consists of all the linear combinations of the columns of A. It is a subspace of $R^m$.
-Similarly, the *row space* consists of all the linear combinations of the rows of  A. 
+Similarly, the *row space* consists of all the linear combinations of the rows of  A.
 The *nullspace* contains all the vectors $x$ so that $Ax=0$, denoted by $N(A)$. It is a subspace of $R^n$.
 The *left nullspace* is similar. It is the nullspace of $A^T$.
 
 ### Rank and Basis
 
-In the Gaussian Elimination section, we assume an ideal situation: the matrix A is $n\times~n$ square, and we assume that there exists one solution. 
-But that does not happen every time. 
-In many cases $A$ is not an square matrix. 
+In the Gaussian Elimination section, we assume an ideal situation: the matrix A is $n\times~n$ square, and we assume that there exists one solution.
+But that does not happen every time.
+In many cases $A$ is not an square matrix.
 It is possible that these $m$ equations are not enough to solve a $n$-variable linear system when $m < n$. Or there might not exist a solution when $m > n$.
-Besides, even it is a square matrix, the information provided by two of the equations are actually repeated. For example, one equation is simply a multiplication of the other. 
+Besides, even it is a square matrix, the information provided by two of the equations are actually repeated. For example, one equation is simply a multiplication of the other.
 
 For example, if we try to apply LU factorisation to such a matrix:
 
@@ -570,7 +570,7 @@ As can be seen in this example, we cannot expect the linear algebra functions to
 
 To decide the general solutions to $Ax=b$, we need to understand the concept of *rank*.
 The rank of a matrix is the number of pivots in the elimination process.
-To get a more intuitive understanding of rank, we need to know the concept of *linear independent. 
+To get a more intuitive understanding of rank, we need to know the concept of *linear independent.
 In a linear combination $\sum_{i=1}^nc_iv_i$ where $v_i$ are vectors and $c_i$ are numbers, if $\sum_{i=1}^nc_iv_i = 0$ only happens when $c_i = 0$ for all the $i$'s, then the vectors $v_1, v_2, \ldots, v_n$ are linearly independent.
 Then the rank of a matrix is the number of independent rows in the matrix.
 We can understand rank as the number of "effective" rows in the matrix.
@@ -584,9 +584,9 @@ Linalg.D.rank x
 
 As can be example, the rank is 2, which means only two effective rows, and thus cannot be factorised to find the only solution.
 
-One application of rank is in a crucial linear algebra idea: basis. 
+One application of rank is in a crucial linear algebra idea: basis.
 A sequence of vectors is the *basis* of a space or subspace if:
-1) these vectors are linear independent and 
+1) these vectors are linear independent and
 2) all the the vectors in the space can be represented as the linear combination of vectors in the basis.
 
 A space can have infinitely different bases, but the number of vectors in these bases are the same. This number is called the *dimension* of this vector space.
@@ -596,16 +596,16 @@ Think about a full-rank matrix where $r=n$, then the dimension of column matrix 
 ### Orthogonality
 
 We can think of the basis of a vector space as the Cartesian coordinate system in a three-dimensional space, where every vector in the space can be represented with the three vectors ni the space: the x, y and z axis.
-Actually, we can use many three vectors system as the coordinate bases, but the x. y, z axis is used is because they are orthogonal to each other. 
+Actually, we can use many three vectors system as the coordinate bases, but the x. y, z axis is used is because they are orthogonal to each other.
 An orthogonal basis can greatly reduce the complexity of problems.
 The same can be applied in the basis of vector spaces.
 
 Orthogonality is not limited to vectors.
-Two vectors $a$ and $b$ are orthogonal are orthogonal if $a^Tb = 0$. 
+Two vectors $a$ and $b$ are orthogonal are orthogonal if $a^Tb = 0$.
 Two subspaces A and B are orthogonal if every vector in A is orthogonal to every vector in B.
 For example, the nullspace and row space of a matrix are perpendicular  to each other.
 
-Among the bases of a subspace, if every vector is perpendicular to each other, it is called an orthogonal matrix. 
+Among the bases of a subspace, if every vector is perpendicular to each other, it is called an orthogonal matrix.
 Moreover, if the length of each vector is normalised to one unit, it becomes the *orthonormal basis*.
 
 
@@ -634,13 +634,13 @@ R3  0.223607
 
 ```
 ```ocaml env=linear-algebra:ortho-null
-# Mat.dot a x |> Mat.l2norm' 
+# Mat.dot a x |> Mat.l2norm'
 - : float = 2.87802701599908967e-15
 ```
 
 (Question: but this example does not really show the orthogonal part.)
 
-Now that we know what is orthogonal basis, the next question is, how to build one? 
+Now that we know what is orthogonal basis, the next question is, how to build one?
 The method to construct orthogonal basis in a subspace is called the *Gram-Schmidt orthogonalisation*.
 
 TODO: Explain Gram-Schmidt and QR.
@@ -650,13 +650,13 @@ val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (i
 ```
 
 `qr x` calculates QR decomposition for an `m` by `n` matrix `x`.
-The function returns a 3-tuple, the first two are `Q` and `R`, and the third is the permutation vector of columns. 
+The function returns a 3-tuple, the first two are `Q` and `R`, and the third is the permutation vector of columns.
 The default value of parameter `pivot` is `false`, setting pivot  to true lets `qr` performs pivoted factorisation. Note that
 the returned indices are not adjusted to 0-based C layout.
 By default, `qr` performs a reduced QR factorisation, full factorisation can be enabled by setting `thin` parameter to `false`.
 
 ```ocaml env=linear-algebra:qr
-# let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3 
+# let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3
 val a : Mat.mat =
 
    C0  C1  C2
@@ -728,7 +728,7 @@ $$c_1\left[\begin{matrix}-0.85 \\ 0.27 \\ 0.07 \\0.44\end{matrix} \right] + c_2\
 Here $c_1$ and $c_2$ can be any constant numbers.
 
 For solving the general form $Ax=b$ where b is $m\times~1$ vector, there exist only one solution if and only if $\textrm{rank}(A) = \textrm{rank}([A, b]) = n$. Here $[A, b]$ means concatenating $A$ and $b$ along the column.
-If $\textrm{rank}(A) = \textrm{rank}([A, b]) < n$, $Ax=b$ has infinite number of solutions. 
+If $\textrm{rank}(A) = \textrm{rank}([A, b]) < n$, $Ax=b$ has infinite number of solutions.
 These solutions has a general form:
 
 
@@ -737,8 +737,8 @@ $$x_0 + c_1x_1 + c2x2 + \ldots +c_kx_k$$
 Here $x_0$ is a particular solution to $Ax=b$, and $x_1, x_2, \ldots, x_k$ are the fundamental solution system of $Ax=0$.
 
 We can use `linsolve` function to find one particular solution.
-In the Linear Algebra, the function `linsolve a b -> x` solves a linear system of equations `a * x = b`. 
-By default, the function uses LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise. 
+In the Linear Algebra, the function `linsolve a b -> x` solves a linear system of equations `a * x = b`.
+By default, the function uses LU factorisation with partial pivoting when `a` is square and QR factorisation with column pivoting otherwise.
 The number of rows of `a` must be equal to the number of rows of `b`.
 If `a` is a upper or lower triangular matrix, the function calls the `solve_triangular` function.
 
@@ -794,21 +794,21 @@ So the solutions to $Ax=b$ can be expressed as:
 
 $$\left[\begin{matrix}-1 \\ 2 \\ 0 \end{matrix} \right] + c_1\left[\begin{matrix}-0.8\\ 0.4 \\ 0.4 \end{matrix} \right]$$
 
-So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge. 
+So the takeaway from this chapter is that the using these linear algebra functions often requires solid background knowledge.
 Blindly using them could leads to wrong or misleading answers.
 
-### Matrix Sensitivity 
+### Matrix Sensitivity
 
 The *sensitivity* of a matrix is perhaps not the most important issue in the traditional linear algebra, but is crucial in the numerical computation related problems.
 It answers this question: in $Ax=b$, if we change the $A$ and $b$ slightly, how much will the $x$ be affected?
-The *Condition Number* is a measurement of the sensitivity of a square matrix. 
+The *Condition Number* is a measurement of the sensitivity of a square matrix.
 
 First, we need to understand the *Norm* of a matrix.
-The norm, or 2-norm of a matrix  $\|A\|$ is calculated as square root of the maximum eigenvalue of $A^HA$. 
+The norm, or 2-norm of a matrix  $\|A\|$ is calculated as square root of the maximum eigenvalue of $A^HA$.
 The norm of a matrix is a upper limit so that for any $x$ we can be certain that $\|Ax\| \leq \|A\|\|x\|$.
 Here $\|Ax\|$ and $\|x\|$ are the L2-Norm for vectors.
 The $\|A\|\$ bounds the how large the $A$ can amplify the input $x$.
-We can calculate the norm with `norm` in the linear algebra module. 
+We can calculate the norm with `norm` in the linear algebra module.
 
 The most frequently used condition number is that represent the sensitivity of inverse matrix.
 With the definition of norm, the *condition number for inversion* of a matrix can be expressed as $\|A\|\|A^{-1}\|$.
@@ -875,22 +875,22 @@ its determinants `det(A)` is defined as:
 
 $$\sum_{j_1~j_2~\ldots~j_n}(-1)^{\tau(j_1~j_2~\ldots~j_3)}a_{1{j_1}}a_{2j_2}\ldots~a_{nj_n}.$$
 
-Here $\tau(j_1~j_2~\ldots~j_n) = i_1 + i_2 + \ldots + i_{n-1}$, 
+Here $\tau(j_1~j_2~\ldots~j_n) = i_1 + i_2 + \ldots + i_{n-1}$,
 where $i_k$ is the number of $j_p$ that is smaller than $j_k$ for $p \in [k+1, n]$.
 
 Mathematically, there are many techniques that can be used to simplify this calculation.
-But as far as this book is concerned, it is sufficient for us to use the `det` function to calculate the determinants of a matrix. 
+But as far as this book is concerned, it is sufficient for us to use the `det` function to calculate the determinants of a matrix.
 
-Why is the concept of determinant important? 
+Why is the concept of determinant important?
 Its most important application is to using determinant to decide if a square matrix A is invertible or singular.
-The determinant $\textrm{det}(A) \neq 0$ if and only if $\textrm{A} = n$. 
-Also it can be expressed as $\textrm{det}(A) \neq 0$ if and only if matrix A is invertible. 
+The determinant $\textrm{det}(A) \neq 0$ if and only if $\textrm{A} = n$.
+Also it can be expressed as $\textrm{det}(A) \neq 0$ if and only if matrix A is invertible.
 
-We can also use it to understand the solution of $Ax=b$: if $\textrm{det}(A) \neq 0$, then $Ax=b$ has one and only one solution. 
+We can also use it to understand the solution of $Ax=b$: if $\textrm{det}(A) \neq 0$, then $Ax=b$ has one and only one solution.
 This theorem is part of the *Cramer's rule*.
 These properties are widely used in finding *eigenvalues*. As will be shown in the next section.
 
-Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function `logdet`. 
+Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function `logdet`.
 It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
 
 ```ocaml env=linalg_30
@@ -919,7 +919,7 @@ R4 11 18 25  2  9
 ### Solving $Ax=\lambda~x$
 
 Now we need to change the topic from $Ax=b$ to $Ax=\lambda~x$.
-For an $n\times~n$ square matrix, if there exist number $\lambda$ and non-zero column vector $x$ to satisfy: 
+For an $n\times~n$ square matrix, if there exist number $\lambda$ and non-zero column vector $x$ to satisfy:
 
 $$(\lambda~I - A)x = 0,$${#eq:linear-algebra:eigen}
 
@@ -927,7 +927,7 @@ then $\lambda$ is called *eigenvalue*, and $x$ is called the *eigenvector* of $A
 
 To find the eigenvalues of A, we need to find the roots of the determinant of $\lambda~I - A$.
 $\textrm{det}(\lambda~I - A) = 0$ is called the *characteristic equation*.
-For example, for 
+For example, for
 
 $$A = \left[\begin{matrix}3 & 1 & 0 \\ -4 & -1 & 0 \\ 4 & -8 & 2 \end{matrix} \right]$$
 
@@ -935,19 +935,19 @@ Its characteristic matrix $\lambda~I - A$ is:
 
 $$\left[\begin{matrix}\lambda-3 & 1 & 0 \\ -4 & \lambda+1 & 0 \\ 4 & -8 & \lambda-2 \end{matrix} \right]$$
 
-According to the definition of determinant, 
+According to the definition of determinant,
 
 $$\textrm{det}(\lambda~I - A) = (\lambda-1)^2(\lambda-2) = 0.$$
 
 According to the theory of polynomials, this characteristic polynomials has and only has $n$ roots in the complex space.
-Specifically, here we have three eigenvalues: $\lambda_1=1, \lambda_2 = 1, \lambda=2$. 
+Specifically, here we have three eigenvalues: $\lambda_1=1, \lambda_2 = 1, \lambda=2$.
 
 Put $\lambda_1$ back to characteristic equation, we have: $(I - A)x = 0$. Therefore, we can find the fundamental solution system of $I - A$ with:
 
 ```ocaml
 # let basis =
     let ia = Mat.((eye 3) - (of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3)) in
-    Linalg.D.null ia 
+    Linalg.D.null ia
 val basis : Owl_dense_matrix_d.mat =
 
            C0
@@ -961,11 +961,11 @@ We have a fundamental solution $x_0 = [-0.05, 0.1, 1]^T$. Therefore all the $k_0
 Similarly, we can calculate that eigenvectors for the eigenvalue $2$ are $k_1[0, 0, 1]^T$.
 
 We can use `eig` to find the eigenvectors and eigenvalues of a matrix.
-`eig x -> v, w` computes the right eigenvectors `v` and eigenvalues `w` of an arbitrary square matrix `x`. The eigenvectors are column vectors in `v`, their corresponding eigenvalues have the same order in `w` as that in `v`. 
+`eig x -> v, w` computes the right eigenvectors `v` and eigenvalues `w` of an arbitrary square matrix `x`. The eigenvectors are column vectors in `v`, their corresponding eigenvalues have the same order in `w` as that in `v`.
 
 ```ocaml
-# let eigvec, eigval = 
-    let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in 
+# let eigvec, eigval =
+    let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in
     Linalg.D.eig a
 val eigvec : Owl_dense_matrix_z.mat =
 
@@ -991,18 +991,18 @@ TODO: more detail and perhaps example.
 
 ### Complex Matrices
 
-As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors. 
-In this section we re-introduce some previous concepts in the complex space. 
+As can be seen in the previous example, complex matrices are frequently used in eigenvalues in eigenvectors.
+In this section we re-introduce some previous concepts in the complex space.
 
-We have seen the Symmetric Matrix. 
+We have seen the Symmetric Matrix.
 It can be extended to the complex numbers, called *Hermitian Matrix*, denoted by $A^H$.
-Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose. 
+Instead of requiring it to be the same as its transpose, a hermitian matrix equals to its conjugate transpose.
 A conjugate transpose means that during transposing, each element $a+bi$ changes to its conjugate $a-bi$.
 Hermitian is thus a generalisation of the symmetric matrix.
 We can use the `is_hermitian` function to check if a  matrix is hermitian, as can be shown in the next example.
 
 ```ocaml env=linalg_35
-# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2 
+# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2
 val a : Dense.Matrix.Z.mat =
 
         C0       C1
@@ -1044,13 +1044,13 @@ A matrix $U$ is unitary if $U^HU=I$. The inverse and conjugate transpose of $U$ 
 It can be compared to the orthogonal vectors in the real space.
 
 
-### Similarity Transformation and Diagonalisation 
+### Similarity Transformation and Diagonalisation
 
 For a $nxn$ matrix A, and any invertible $nxn$ matrix M, the matrix $B = M^{-1}AM$ is *similar* to A.
 One important property is that similar matrices share the same eigenvalues.
 Changing from A to B actually changes the linear transformation using one set of basis to another.
 
-TODO: more thorough explanation of the intuition of similar matrices. 
+TODO: more thorough explanation of the intuition of similar matrices.
 
 In a three dimensional space, if we can change using three random vectors as the basis of linear transformation to using the standard basis $[1, 0, 0]$, $[0, 1, 0]$,  $[0, 0, 1]$, the related problem can be greatly simplified.
 Finding the suitable similar matrix is thus important in simplifying the calculation in many scientific and engineering problems.
@@ -1059,7 +1059,7 @@ One possible kind of simplification is to find a triangular matrix as similar.
 The *Schur's Lemma* declares that A can be decomposed into $UTU^{-1}$ where $U$ is a unitary function, and T is an upper triangular matrix.
 
 ```ocaml env=linear-algebra:schur
-# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2 
+# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2
 val a : Dense.Matrix.Z.mat =
 
          C0      C1
@@ -1110,7 +1110,7 @@ TODO: Give an example
 
 Not every matrix can be diagonalised.
 If any two of the $n$ eigenvalues of A are not the same, then its $n$ eigenvectors are linear-independent ana thus A can be  diagonalised.
-Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix. 
+Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix.
 Or put into the complex space, every hermitian matrix can be diagonalised by a unitary matrix.
 
 
@@ -1118,14 +1118,14 @@ Or put into the complex space, every hermitian matrix can be diagonalised by a u
 
 ### Positive Definiteness
 
-In this section we introduce the concept of *Positive Definite Matrix*, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues. 
+In this section we introduce the concept of *Positive Definite Matrix*, which unifies the three most basic ideas in linear algebra: pivots, determinants, and eigenvalues.
 
 A matrix is called *Positive Definite* if it is symmetric and that $x^TAx > 0$ for all non-zero vectors $x$.
 There are several necessary and sufficient condition for testing if a symmetric matrix A is positive definite:
 
 1. $x^TAx>0$ for all non-zero real vectors x
 1. $\lambda_i >0$ for all eigenvalues $\lambda_i$ of A
-1. all the upper left matrices have positive determinants 
+1. all the upper left matrices have positive determinants
 1. all the pivots without row exchange satisfy $d > 0$
 1. there exists invertible matrix B so that A=B^TB
 
@@ -1133,7 +1133,7 @@ For the last condition, we can use the *Cholesky Decomposition* to find the matr
 It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose $LL^H$:
 
 ```ocaml env=linalg_40
-# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 
+# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3
 val a : Mat.mat =
 
     C0  C1  C2
@@ -1165,16 +1165,16 @@ R2 -16 -43  98
 
 ```
 
-If in $Ax=b$ we know that $A$ is hermitian and positive definite, then we can instead solve $L^Lx=b$. As we have seen previously, solving linear system that expressed with triangular  matrices is easy. 
+If in $Ax=b$ we know that $A$ is hermitian and positive definite, then we can instead solve $L^Lx=b$. As we have seen previously, solving linear system that expressed with triangular  matrices is easy.
 The Cholesky decomposition is more efficient than the LU decomposition.
 
-In the Linear Algebra module, we use `is_posdef` function to do this test. 
+In the Linear Algebra module, we use `is_posdef` function to do this test.
 If you look at the code in Owl, it is implemented by checking if the Cholesky decomposition can be performed on the input matrix.
 
 ```ocaml
-# let is_pos = 
-    let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in 
-    Linalg.D.is_posdef a 
+# let is_pos =
+    let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in
+    Linalg.D.is_posdef a
 val is_pos : bool = true
 ```
 
@@ -1186,12 +1186,12 @@ For example, a linear system $y'=Ax$ where $x = [x_1, x_2, \ldots, x_n]$ and $y'
 We will see such an example in the Ordinary Differential Equation chapter.
 In a linearised differential equations the matrix A is the Jacobian matrix.
 The eigenvalues decides if the system is stable or not.
-A theorem declares that this system is stable if and only if there exists positive and definite matrix $V$ so that $-(VA+A^TV)$ is semi-positive definite. 
+A theorem declares that this system is stable if and only if there exists positive and definite matrix $V$ so that $-(VA+A^TV)$ is semi-positive definite.
 
 ### Singular Value Decomposition
 
 The singular value decomposition (SVD) is among the most important matrix factorizations of the computational era.
-The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist. 
+The SVD provides a numerically stable matrix decomposition that can be used for a variety of purposes and is guaranteed to exist.
 
 Any m by n matrix can be factorised in the form:
 
@@ -1204,7 +1204,7 @@ The $r$ (rank of A) singular value on the diagonal of the $m\times~n$ diagonal m
 It's close related with eigenvector factorisation of a positive definite matrix.
 For a positive definite matrix, the SVD factorisation is the same as the $Q\Lambda~Q^T$.
 
-We can use the `svd` function to perform this factorisation. 
+We can use the `svd` function to perform this factorisation.
 Let's use the positive definite matrix as an example:
 
 ```ocaml env=linear-algebra:svd
@@ -1239,7 +1239,7 @@ R1 -0.212727 -0.848952 -0.483764
 R2  0.963419  -0.26483 0.0410998
 
 ```
-Note that the diagonal matrix `s` is represented as a vector. We can extend it with 
+Note that the diagonal matrix `s` is represented as a vector. We can extend it with
 
 ```ocaml env=linear-algebra:svd
 # let s = Mat.diagm s
@@ -1270,12 +1270,12 @@ R0 (15246.6, 0i) (0.000353627, 0i) (240.373, 0i)
 )
 ```
 
-In this example we ues the `thin` parameter. By default, the `svd` function performs a reduced SVD, where $\Sigma$ is a $m\times~m$ matrix and $V^T$ is a m by n matrix. 
+In this example we ues the `thin` parameter. By default, the `svd` function performs a reduced SVD, where $\Sigma$ is a $m\times~m$ matrix and $V^T$ is a m by n matrix.
 
 Besides, `svd`, we also provide `svdvals` that only returns the singular values, i.e. the vector of diagonal elements.
 The function `gsvd` performs a generalised SVD.
-`gsvd x y -> (u, v, q, d1, d2, r)` computes the generalised SVD of a pair of general rectangular matrices `x` and `y`. 
-`d1` and `d2` contain the generalised singular value pairs of `x` and `y`. 
+`gsvd x y -> (u, v, q, d1, d2, r)` computes the generalised SVD of a pair of general rectangular matrices `x` and `y`.
+`d1` and `d2` contain the generalised singular value pairs of `x` and `y`.
 The shape of `x` is `m x n` and the shape of `y` is `p x n`.
 Here is an example:
 
@@ -1367,14 +1367,14 @@ The SVD is not only important linear algebra concept, but also has a wide and gr
 For example, the [Moore-Penrose pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse) that works for non-invertible matrix can be implemented efficiently using SVD (we provide `pinv` function in the linear algebra module for the pseudo inverse).
 In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.
 
-## Linear Programming 
+## Linear Programming
 
-TODO: placeholder for future implementation. Or in the optimisation chapter. 
+TODO: placeholder for future implementation. Or in the optimisation chapter.
 Understand the method used such as interior  point, and then make the decision.
 
 ## Internal: CBLAS and LAPACKE
 
-This section is for those of you who are eager for more low level information. 
+This section is for those of you who are eager for more low level information.
 The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra opeartion.
 The LAPACKE contains more linear algebra routines, such as solving linear systems and matrix factorisations, etc.
 Efficient implementation of these function has been practices for a long time in many softwares.
@@ -1412,7 +1412,7 @@ TODO: Examples
 
 ```
 
-TODO: How these low level functions are used in Owl Code. 
+TODO: How these low level functions are used in Owl Code.
 
 
 ## Sparse Matrices
@@ -1422,10 +1422,11 @@ The sparse matrix is proivded in the `Sparse.Matrix` module, and also support th
 
 (Perhaps these contents are better to discuss in Ndarray module.)
 
-Very brief. 
+Very brief.
 Focusing on introducing the data structure (CSC, CSR, etc), no the method.
 Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
 TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
 
+## Summary
 
 ## References

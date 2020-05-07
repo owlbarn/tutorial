@@ -2,32 +2,32 @@
 
 Refer to [@wang2017owl] [@minsky2013real], example of references
 
-Owl is an emerging library developed in the OCaml language for scientific and engineering computing. It focuses on providing a comprehensive set of high-level numerical functions so that developers can quickly build up any data analytical applications. After over one-year intensive development and continuous optimisation, Owl has evolved into a powerful software system with competitive performance to mainstream numerical libraries. 
+Owl is an emerging library developed in the OCaml language for scientific and engineering computing. It focuses on providing a comprehensive set of high-level numerical functions so that developers can quickly build up any data analytical applications. After over one-year intensive development and continuous optimisation, Owl has evolved into a powerful software system with competitive performance to mainstream numerical libraries.
 Meanwhile, Owl’s overall architecture remains simple and elegant, its small code base can be easily managed by a small group of developers.
 
-In this chapter, we first present Owl’s design, core components, and its key functionality. We show that Owl benefits greatly from OCaml's module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
-OCaml's static type checking significantly reduces potential bugs and accelerates the development cycle. 
+In this chapter, we first present Owl's design, core components, and its key functionality. We show that Owl benefits greatly from OCaml's module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
+OCaml's static type checking significantly reduces potential bugs and accelerates the development cycle.
 We also share the knowledge and lessons learnt from building up a full-fledge system for scientific computing with the functional programming community.
 
 ## Introduction
 
 Thanks to the recent advances in machine learning and deep neural networks, there is a huge demand on
 various numerical tools and libraries in order to facilitate both academic researchers and industrial developers to fast prototype and test their new ideas, then develop and deploy analytical applications at large scale.
-Take deep neural network as an example, Google invests heavily in TensorFlow while Facebook promotes their PyTorch. 
+Take deep neural network as an example, Google invests heavily in TensorFlow while Facebook promotes their PyTorch.
 Beyond these libraries focusing on one specific numerical task, the interest on general purpose tools like Python and Julia also grows fast.
 Python has been one popular choice among developers for fast prototyping analytical applications, one important reason is because SciPy and NumPy two libraries, tightly integrated with other advanced functionality such as plotting, offer a powerful environment which lets developers write very concise code to finish complicated numerical tasks. As a result, even for the frameworks which were not originally developed in Python (such as Caffe and TensorFlow), they often provide Python bindings to take advantage of the existing numerical infrastructure in NumPy and SciPy.
 
-On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, and etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries. 
-Consequently, developers often have to write a significant amount of boilerplate code just to finish rather trivial numerical tasks. 
+On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, and etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries.
+Consequently, developers often have to write a significant amount of boilerplate code just to finish rather trivial numerical tasks.
 As we can see, there is a severe lack of a general purpose numerical library in OCaml ecosystem. We believe OCaml per se is a good candidate for developing such a general purpose numerical library for two important reasons: 1) we can write functional code as concise as that in Python with typesafety; 2) OCaml code often has much superior performance comparing to dynamic languages such as Python and Julia.
 
-However, designing and developing a full-fledged numerical library is a non-trivial task, despite that OCaml has been widely used in system programming such as MirageOS. 
+However, designing and developing a full-fledged numerical library is a non-trivial task, despite that OCaml has been widely used in system programming such as MirageOS.
 The key difference between the two is obvious and interesting: system libraries provide a lean set of APIs to abstract complex and heterogeneous physical hardware, whilst numerical library offer a fat set of functions over a small set of abstract number types.
 
-When Owl project started in 2016, we were immediately confronted by a series of fundamental questions like: "what should be the basic data types", "what should be the core data structures", "what modules should be designed", and etc. 
+When Owl project started in 2016, we were immediately confronted by a series of fundamental questions like: "what should be the basic data types", "what should be the core data structures", "what modules should be designed", and etc.
 In the following development and performance optimisation, we also tackled many research and engineering challenges on a wide range of different topics such as software engineering, language design, system and network programming, and etc.
 
-In this chapter, We show that Owl benefits greatly from OCaml’s module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing. 
+In this chapter, We show that Owl benefits greatly from OCaml’s module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing.
 OCaml's static type checking significantly reduces potential bugs and accelerate the development cycle. We would like to share the knowledge and lessons learnt from building up a full-fledge system for scientific computing with the functional programming community.
 
 ## Architecture Overview
@@ -36,29 +36,29 @@ Owl is a complex library consisting of numerous functions (over 6500 by the end 
 
 ![Owl system architecture](images/architecture/owl-architecture.png "owl-architecture"){width=95% #fig:architecture:architecture}
 
-[@fig:architecture:architecture] gives a bird view of Owl’s system architecture, i.e. the two subsystems and their modules. 
-The subsystem on the left part is Owl's Numerical Subsystem. The modules contained in this subsystem fall into three categories: 
-(1) core modules contains basic data structures and foreign function interfaces to other libraries (e.g., CBLAS and LAPACKE); 
-(2) classic analytics contains basic mathematical and statistical functions, linear algebra, regression, optimisation, plotting, and etc.; 
+[@fig:architecture:architecture] gives a bird view of Owl’s system architecture, i.e. the two subsystems and their modules.
+The subsystem on the left part is Owl's Numerical Subsystem. The modules contained in this subsystem fall into three categories:
+(1) core modules contains basic data structures and foreign function interfaces to other libraries (e.g., CBLAS and LAPACKE);
+(2) classic analytics contains basic mathematical and statistical functions, linear algebra, regression, optimisation, plotting, and etc.;
 (3) composable service includes more advanced numerical techniques such as deep neural network, natural language processing, data processing and service deployment tools.
 
 The numerical subsystem is further organised in a
 stack of smaller libraries, as follows.
 
-- **Base** is the basis of all other libraries in Owl. Base defines core data structures, exceptions, and part of numerical functions. 
+- **Base** is the basis of all other libraries in Owl. Base defines core data structures, exceptions, and part of numerical functions.
 Because it contains pure OCaml code so the applications built atop of Base can be safely compiled into native code,
-bytecode, JavaScript, even into unikernels. 
+bytecode, JavaScript, even into unikernels.
 Fortunately, majority of Owl’s advanced functions are implemented in pure OCaml.
 
-- **Owl** is the backbone of the numerical subsystem. It depends on Base but replaces some pure OCaml functions with C implementations (e.g. vectorised math functions in Ndarray module). 
+- **Owl** is the backbone of the numerical subsystem. It depends on Base but replaces some pure OCaml functions with C implementations (e.g. vectorised math functions in Ndarray module).
 Mixing C code into the library limits the choice of backends (e.g. browsers and MirageOS) but gives us significant performance improvement when running applications on CPU.
 
 - **Zoo** is designed for packaging and sharing code snippets among users. This module targets small scripts and light numerical functions which may not be suitable for publishing on the heavier OPAM system. The code is distributed via gists on Github, and Zoo is able to resolve the dependency and automatically pull in and cache the code.
 
 - **Top** is the Toplevel system of Owl. It automatically loads both Owl and Zoo, and installs multiple pretty printers for various data types.
 
-The subsystem on the right is called Actor Subsystem which extends Owl's capability to parallel and distributed computing. The addition of Actor subsystem makes Owl fundamentally different from mainstream numerical libraries such as SciPy and Julia. 
-The core idea is to transform a user application from sequential execution mode into parallel mode (using various computation engines) with minimal efforts. 
+The subsystem on the right is called Actor Subsystem which extends Owl's capability to parallel and distributed computing. The addition of Actor subsystem makes Owl fundamentally different from mainstream numerical libraries such as SciPy and Julia.
+The core idea is to transform a user application from sequential execution mode into parallel mode (using various computation engines) with minimal efforts.
 The method we used is to compose two subsystems together with functors to generate the parallel version of the module defined in the numerical subsystem.
 
 Besides, there are other utility modules such as plotting.
@@ -83,7 +83,7 @@ As a functional programmer, it is basic knowledge that a function takes an input
 
 Computation graph plays a critical role in our system.
 Its benefits are many-fold: provides simulate lazy evaluation in a language with eager evaluation, reduce computation complexity by optimising the structure of a graph, eeduce memory footprint, etc.
-It can be used for supporting multiple other high level modules e.g. algorithmic differentiation, and GPU computing modules all implicitly or explicitly use computation graph to perform calculations. 
+It can be used for supporting multiple other high level modules e.g. algorithmic differentiation, and GPU computing modules all implicitly or explicitly use computation graph to perform calculations.
 
 ### Algorithmic Differentiation
 
@@ -91,7 +91,7 @@ Atop of the core components, we have developed several modules to extend Owl’s
 Maths module includes many basic and advanced mathematical functions, whist `Stats` module provides various statistical functions such as random number generators, hypothesis tests, and so on. The most important extended module is Algodiff, which implements the algorithmic differentiation functionality.
 Owl's Algodiff module is based on the core nested ´ automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
 
-Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine. 
+Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine.
 The optimisation engine is light and highly configurable, and also serves as the foundation of Regression module and Neural Network module because both are essentially mathematical optimisation problems.
 The flexibility in optimisation engine leads to an extremely compact design and small code base. For a fullfledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
 and Caffee.
@@ -122,7 +122,7 @@ functions in Matrix module call the corresponding functions in Ndarray directly.
 For n-dimensional array and matrix, Owl supports
 both dense and sparse data structures. The dense data
 structure is built atop of OCaml’s native Bigarray module hence it can be easily interfaced with other libraries
-like BLAS and LAPACK. Owl also supports both single and double precisions for both real and complex number. Therefore, Owl essentially has covered all the necessary number types in most common scientific computations. 
+like BLAS and LAPACK. Owl also supports both single and double precisions for both real and complex number. Therefore, Owl essentially has covered all the necessary number types in most common scientific computations.
 
 - The first group contains the vectorised mathematical functions such as sin, cos, relu, and etc.
 
@@ -130,7 +130,7 @@ like BLAS and LAPACK. Owl also supports both single and double precisions for bo
 
 - The third group contains the linear algebra functions specifically for matrices. Almost all the linear algebra functions in Owl call directly the corresponding functions in CBLAS and LAPACKE.
 
-These functions together provide a strong support for developing high-level numerical functions. Especially the first two groups turn out to be extremely useful for writing machine learning and deep neural network applications. 
+These functions together provide a strong support for developing high-level numerical functions. Especially the first two groups turn out to be extremely useful for writing machine learning and deep neural network applications.
 Function polymorphism is achieved using GADT (Generalized algebraic data type), therefore most functions in Generic
 module accept the input of four basic number types.
 
@@ -162,7 +162,7 @@ further build higher-level APIs atop of the low-level
 Fortran functions. The high-level APIs hides many tedious tasks such as setting memory layout, allocating
 workspace, calculating strides, and etc.
 
-## Parallel Computing 
+## Parallel Computing
 
 ### Actor Engine
 
@@ -181,7 +181,7 @@ of distributed and parallel computing is often implemented as a third-party libr
 deal with low-level message passing interfaces. However, Owl achieves such capability through its Actor
 subsystem.
 
-### GPU Computing 
+### GPU Computing
 
 Scientific computing involves intensive computations,
 and GPU has become an important option to accelerate
@@ -208,12 +208,12 @@ After enabling OpenMP, many vectorised math operators are replaced with the corr
 implementation in the compiling phase. Parallelism offered by OpenMP is not a free lunch, the scheduling
 mechanism adds extra overhead to a computation task.
 If the task per se is not computation heavy or the ndarray is small, OpenMP often slows down the computation. We therefore set a threshold on ndarray size below which OpenMP code is not triggered. This simple mechanism turns out to be very effective in practice.
-To further utilise the power of OpenMP, we build an automatic tuning module to decide the proper threshold value for different operations. 
+To further utilise the power of OpenMP, we build an automatic tuning module to decide the proper threshold value for different operations.
 
 ## Community-Driven R&D
 
 After three years of intense development, Owl currently contains about 130k lines of OCaml code and 100k lines of C code.
-As of March 2020, it contains about 4,200 commits and contains 29 releases. 
+As of March 2020, it contains about 4,200 commits and contains 29 releases.
 Owl has a small and concise team. These code are mainly provided by three main developer, but so far more than 40 contributors have also participated in the project.
 
 Owl is a large open source project, to guarantee quality of the software and sustainable development, we enforce the following rules in day-to-day research, development, and project management.

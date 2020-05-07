@@ -98,7 +98,7 @@ Feature Pyramid Network creates a second pyramid of feature maps from top to bot
 <p>To try to locate the objects, about 250,000 overlapping rectangular regions (anchors) are generated.</p>
 <div class="highlight">
 <pre><code class="language-clike">let nb_ratios = Array.length C.rpn_anchor_ratios in
-let rpns = Array.init 5 (fun i -&gt; 
+let rpns = Array.init 5 (fun i -&gt;
   RPN.rpn_graph rpn_feature_maps.(i)
   nb_ratios C.rpn_anchor_stride
   ("_p" ^ string_of_int (i + 2))) in
@@ -130,13 +130,13 @@ let detections = MrcnnUtil.delay_lambda_array [|C.detection_max_instances; 6|]
                 [|rpn_rois; mrcnn_class; mrcnn_bbox; input_image_meta|] in
 let detection_boxes = lambda_array [|C.detection_max_instances; 4|]
                 (fun t -&gt; Maths.get_slice [[]; []; [0;3]] t.(0))
-                [|detections|] </code></pre>
+                [|detections|]</code></pre>
 </div>
 <p>A Feature Pyramid Network classifier associates a class to each proposal and refines the bounding box for that class even more.</p>
 <p>The only thing left to do is to generate a binary mask on each object. This is handled by a small convolutional neural network which outputs for each detected bounding box a small square of values between 0 and 1. This square is resized to the original size of the bounding box with bilinear interpolation, and pixels with a value over 0.5 are tagged as being part of the object.</p>
 <div class="highlight">
 <pre><code class="language-clike">let mrcnn_mask = FPN.build_fpn_mask_graph detection_boxes mrcnn_feature_maps
-    input_image_meta C.mask_pool_size C.num_classes </code></pre>
+    input_image_meta C.mask_pool_size C.num_classes</code></pre>
 </div>
 And finally, the output contains detection results and mask from previous steps.
 <div class="highlight">
@@ -150,7 +150,7 @@ And finally, the output contains detection results and mask from previous steps.
 <div class="highlight">
 <pre><code class="language-clike">open Mrcnn
 
-let src = "image.png" in 
+let src = "image.png" in
 let fun_detect = Model.detect () in
 let Model.({rois; class_ids; scores; masks}) = fun_detect src in
 let img_arr = Image.img_to_ndarray src in
@@ -166,6 +166,9 @@ Visualise.print_results class_ids rois scores</code></pre>
 <p>The most import step is to apply <code>Model.detect ()</code> on the input images, which returns the region of interests (rois), the classification result id of the object in that region, the classification certainty scores, and a mask that shows the outline of that object in the region. With this information, the <code>Visualise</code> module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the number close to the bounding box, and finally for printing out the resulting images from the previous two steps.</p>
 <p>Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.</p>
 <p>Processing one image with a size of 1024x1024 pixels takes between 10 and 15 seconds on a moderate laptop. You can try a <a href="http://demo.ocaml.xyz/mrcnn.html">demo</a> of the network without installing anything.</p>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 </section>
 </article></div><a href="case-nst.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 30</small>Case - Neural Style Transfer</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

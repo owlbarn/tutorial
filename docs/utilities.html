@@ -260,13 +260,13 @@ val topo_sort : 'a node array -&gt; 'a node array
   (** ``count s x`` returns the estimated frequency of element ``x`` in ``s``. *)
 
   val init_from : 'a sketch -&gt; 'a sketch
-  (** 
+  (**
   ``init_from s`` initializes a new empty sketch with the same parameters as ``s``, which
   can later be merged with ``s``.
   *)
 
   val merge : 'a sketch -&gt; 'a sketch -&gt; 'a sketch
-  (** 
+  (**
   ``merge s1 s2`` returns a new sketch whose counts are the sum of those in ``s1`` and ``s2``.
   Raises ``INVALID_ARGUMENT`` if the parameters of ``s1`` and ``s2`` do not match.
   *)
@@ -277,6 +277,9 @@ end</code></pre>
 <pre><code class="language-clike">CODE</code></pre>
 </div>
 <p>Count-Min Sketch is a useful data structure when we are interested in the approximate counting of important objects in a group of things. One such application is to find <em>heavy hitters</em>. For example, finding out the most popular web pages given a large website access log with a long history. (DETAIL)</p>
+</section>
+<section class="level2 unnumbered" id="summary">
+<h2 class="unnumbered">Summary</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-cormode2005improved">
 <p>Cormode, Graham, and Shan Muthukrishnan. 2005. “An Improved Data Stream Summary: The Count-Min Sketch and Its Applications.” <em>Journal of Algorithms</em> 55 (1): 58–75.</p>

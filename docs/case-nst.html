@@ -31,8 +31,8 @@
 </figure>
 <p>Suppose we choose the output of <code>idx</code> layer as the chosen feature map to represent the content. First, we need to compute the target feature map:</p>
 <div class="highlight">
-<pre><code class="language-clike">let fill_content_targets x net = 
-  let selected_topo = Array.sub nn.topo 0 (idx + 1) in 
+<pre><code class="language-clike">let fill_content_targets x net =
+  let selected_topo = Array.sub nn.topo 0 (idx + 1) in
   run' selected_topo x</code></pre>
 </div>
 <p>The function <code>fill_content_targets</code> takes the content image and the VGG network as input, and returns the target feature map as output. We only need to compute the feature map of the target content image once.</p>
@@ -41,7 +41,7 @@
 <pre><code class="language-clike">let run' topo x =
   let last_node_output = ref (F 0.) in
   Array.iteri (fun i n -&gt;
-    let input  = if i = 0 then x else !last_node_output in 
+    let input  = if i = 0 then x else !last_node_output in
     let output = run [|input|] n.neuron in
     last_node_output := output;
   ) topo;
@@ -54,15 +54,15 @@ Dense.Ndarray.S.(gaussian input_shape |&gt; scalar_mul 0.256)</code></pre>
 </div>
 <p>The feature map of the input image <code>x</code> is still calculated using the same process show in function <code>fill_content_targets</code>. We call the resulting feature map <code>response</code>, then the loss value can be calculated with the L2Norm of the difference between two feature maps, and then normalised with the feature map size.</p>
 <div class="highlight">
-<pre><code class="language-clike">let c_loss response target = 
-  let loss = Maths.((pow (response - target) (F 2.)) |&gt; sum') in 
-  let _, h, w, feature = get_shape target in 
+<pre><code class="language-clike">let c_loss response target =
+  let loss = Maths.((pow (response - target) (F 2.)) |&gt; sum') in
+  let _, h, w, feature = get_shape target in
   let c = float_of_int ( feature * h * w ) in
   Maths.(loss / (F c))</code></pre>
 </div>
 <p>Once the loss value is calculated, we can apply optimisers. Here we use the <code>minimise_fun</code> from <code>Optimise</code> module. The target function can be described as:</p>
 <div class="highlight">
-<pre><code class="language-clike">let f x = 
+<pre><code class="language-clike">let f x =
   fill_losses x;
   c_loss response target</code></pre>
 </div>
@@ -73,7 +73,7 @@ Dense.Ndarray.S.(gaussian input_shape |&gt; scalar_mul 0.256)</code></pre>
 let x' = ref img in
 while Checkpoint.(state.current_batch &lt; state.batches) do
   Checkpoint.(state.stop &lt;- false);
-  let a, img = Optimise.minimise_fun ~state params g !x' in 
+  let a, img = Optimise.minimise_fun ~state params g !x' in
   x' := img
 done;</code></pre>
 </div>
@@ -101,24 +101,24 @@ done;</code></pre>
 <p>The basic approach is the same as before: first compute the style representation of target image using the output from one or more layers, and then compute the style representation of the input image following the same method. The normalised distance between these two ndarrays are used as the optimisation target.</p>
 <p>However, the difference is that, unlike the content representation, we cannot directly take one filter map from certain layer as the style representation. Instead, we need to t computes the correlations between different filters from the output of a layer. This correlation can be represented by the Gram matrix, which intuitively captures the “distribution of features” of feature maps from a certain layer. The <span class="math inline">\((i,j)\)</span>-th element of an Gram matrix is computed by element-wisely multiplying the <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th channels in the feature maps and summing across both width and height. This process can be simplified as a matrix multiplication. The result is normalised with the size of the feature map. The code is shown below.</p>
 <div class="highlight">
-<pre><code class="language-clike">let gram x = 
-  let _, h, w, feature = get_shape x in 
-  let new_shape = [|h * w; feature|] in 
-  let ff = Maths.(reshape x new_shape) in 
+<pre><code class="language-clike">let gram x =
+  let _, h, w, feature = get_shape x in
+  let new_shape = [|h * w; feature|] in
+  let ff = Maths.(reshape x new_shape) in
   let size = F (float_of_int (feature * h * w)) in
   Maths.((transpose ff) *@ ff / size)</code></pre>
 </div>
 <p>Now that we have a method to represent the “style” of an image, we can proceed to calculate the loss value during optimisation. It is very similar to that of content recreation, and the only difference is that we use the distance between Gram matrices instead of the feature map from a certain layer as loss value.</p>
 <div class="highlight">
-<pre><code class="language-clike">let s_loss response_gram target_gram = 
-  let loss = Maths.((pow (response_gram - target_gram) (F 2.)) |&gt; sum') in 
+<pre><code class="language-clike">let s_loss response_gram target_gram =
+  let loss = Maths.((pow (response_gram - target_gram) (F 2.)) |&gt; sum') in
   let s = Algodiff.shape target_gram in
   let c = float_of_int (s.(0) * s.(1)) in
   Maths.(loss / (F c))</code></pre>
 </div>
 <p>However, note that for the optimisation, instead of using output from one layer, we usually utilises the loss value from multiple layers and the optimisation target for style reconstruction:</p>
 <div class="highlight">
-<pre><code class="language-clike">let h x = 
+<pre><code class="language-clike">let h x =
   fill_losses x;
   Array.fold_left Maths.(+) (F 0.) style_losses</code></pre>
 </div>
@@ -147,10 +147,10 @@ done;</code></pre>
 <div class="highlight">
 <pre><code class="language-clike">#zoo "6f28d54e69d1a19c1819f52c5b16c1a1"
 
-Neural_transfer.run 
-  ~ckpt:50 
-  ~src:"path/to/content_img.jpg" 
-  ~style:"path/to/style_img.jpg" 
+Neural_transfer.run
+  ~ckpt:50
+  ~src:"path/to/content_img.jpg"
+  ~style:"path/to/style_img.jpg"
   ~dst:"path/to/output_img.png" 250.;;</code></pre>
 </div>
 <p>Similar to the image detection application, the command can be simplified using the Zoo system in owl. The first line downloads gist files and imported this gist as an OCaml module, and the second line uses the <code>run</code> function to produce an output image to your designated path. Its syntax is quite straightforward, and you may only need to note the final parameter. It specifies how many iterations the optimisation algorithm runs. Normally 100 ~ 500 iterations is good enough.</p>
@@ -187,7 +187,7 @@ open Neural.S.Algodiff
 module N = Dense.Ndarray.S
 
 let conv2d_layer ?(relu=true) kernel stride nn  =
-  let result = 
+  let result =
     conv2d ~padding:SAME kernel stride nn
     |&gt; normalisation ~decay:0. ~training:true ~axis:3
   in
@@ -195,7 +195,7 @@ let conv2d_layer ?(relu=true) kernel stride nn  =
   | true -&gt; (result |&gt; activation Activation.Relu)
   | _    -&gt; result
 
-let conv2d_trans_layer kernel stride nn = 
+let conv2d_trans_layer kernel stride nn =
   transpose_conv2d ~padding:SAME kernel stride nn
   |&gt; normalisation ~decay:0. ~training:true ~axis:3
   |&gt; activation Activation.Relu</code></pre>
@@ -205,15 +205,15 @@ let conv2d_trans_layer kernel stride nn =
 This residual block can be implemented with the <code>conv2d_layer</code> unit we have built.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
-let residual_block wh nn = 
+let residual_block wh nn =
   let tmp = conv2d_layer [|wh; wh; 128; 128|] [|1;1|] nn
     |&gt; conv2d_layer ~relu:false [|wh; wh; 128; 128|] [|1;1|]
-  in 
+  in
   add [|nn; tmp|]</code></pre>
 </div>
 <p>Here in the code the <code>wh</code> normally takes a value of 3. The residual block, as with in the ResNet, is repeatedly stacked for several times. With these three different part rea Finally, we can piece them together. Note how the output channel of each convolution increase, stay the same, and then decrease symmetrically. Before the final output, we use the <code>tanh</code> activation layer to ensure all the values are between <code>[0, 255]</code> for the output image.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let make_network h w = 
+<pre><code class="language-ocaml">let make_network h w =
   input [|h;w;3|]
   |&gt; conv2d_layer [|9;9;3;32|] [|1;1|]
   |&gt; conv2d_layer [|3;3;32;64|] [|2;2|]
@@ -240,7 +240,7 @@ let residual_block wh nn =
 <pre><code class="language-clike">#zoo "f937ce439c8adcaea23d42753f487299"
 
 FST.list_styles ();; (* show all supported styles *)
-FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre>
+FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg"</code></pre>
 </div>
 <p>The <code>run</code> function mainly takes one content image and output to a new image file, the name of which is designated by the user. The image could be of any popular formats: jpeg, png, etc. This gist contains exemplar content images for you to use.</p>
 <p>Note that we did say “given suitable weights”. A set of trained weight for the FST DNN represents a unique artistic style. We have already include six different weight files for use, and the users just need to pick one of them and load them into the DNN, without worrying about how to train these weights.</p>
@@ -258,6 +258,9 @@ FST.run ~style:1 "path/to/content_img.png" "path/to/output_img.jpg" </code></pre
 <p>We then apply FST on this input image with the styles shown above. The rendered city view with different styles are shown in fig.&nbsp;10.</p>
 <p>Moreover, based these code, we have built a <a href="http://demo.ocaml.xyz/fst.html">demo</a> website for the FST application. You can choose a style, upload an image, get yourself a cup of coffee, and then checkout the rendered image. To push things even further, we apply FST to some videos frame-by-frame, and put them together to get some artistic videos, as shown in this <a href="https://www.youtube.com/watch?v=cFOM-JnyJv4&amp;list=PLGt9zVony2zVSiHZb8kwwXfcmCuOH2W-H">Youtube list</a>. You are welcome to try these services with images of your own.</p>
 </section>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

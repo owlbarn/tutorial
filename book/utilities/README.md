@@ -1,9 +1,9 @@
 # Internal Utility Modules
 
-During development of Owl, we find some utility modules are immensely handy. 
-In this chapter, we share some of them. 
-These are not the main feature of Owl, and perhaps you can implement your own version very quickly. 
-But we hope to present how these features are used in Owl. 
+During development of Owl, we find some utility modules are immensely handy.
+In this chapter, we share some of them.
+These are not the main feature of Owl, and perhaps you can implement your own version very quickly.
+But we hope to present how these features are used in Owl.
 
 ## Dataset Module
 
@@ -15,7 +15,7 @@ The data are downloaded in the home directory, for example,  `~/.owl/dataset` on
 
 The [MNIST database](http://yann.lecun.com/exdb/mnist/) of handwritten digits has a training set of 60,000 examples,
 and a test set of 10,000 examples. Each example is of size 28 x 28.
-It is a good starting point for deep neural network related tasks. 
+It is a good starting point for deep neural network related tasks.
 
 You can get MNIST data via these Owl functions:
 
@@ -150,8 +150,8 @@ type 'a node =
   }
 ```
 
-The attribution here is generic so that you can define your own graph where each node contains an integer, a string, or any data type you define. 
-This make the graph module extremely flexible. 
+The attribution here is generic so that you can define your own graph where each node contains an integer, a string, or any data type you define.
+This make the graph module extremely flexible.
 
 Graph module provides a rich set of APIs.
 First, you can build a Graph using these methods:
@@ -217,17 +217,17 @@ val set_attr : 'a node -> 'a -> unit
 (** ``set_attr x`` sets the ``attr`` field of node ``x``. *)
 ```
 
-Similarly, you can get other properties of a graph use the other functions: 
+Similarly, you can get other properties of a graph use the other functions:
 
-- `indegree x` returns the in-degree of node 
-- `outdegree x` returns the out-degree of node 
+- `indegree x` returns the in-degree of node
+- `outdegree x` returns the out-degree of node
 - `degree x` returns the total number of links of `x`
 - `num_ancestor x` returns the number of ancestors of `x`
 - `num_descendant x` returns the number of descendants of `x`
 - `length x` returns the total number of ancestors and descendants of `x`
 
-Finally, we provide functions for traversing the graph in either Breadth-First order or Depth-First order. 
-You can also choose to iterate the descendants or ancestors of a given node. 
+Finally, we provide functions for traversing the graph in either Breadth-First order or Depth-First order.
+You can also choose to iterate the descendants or ancestors of a given node.
 
 ```
 val iter_ancestors
@@ -258,7 +258,7 @@ val topo_sort : 'a node array -> 'a node array
 
 You can also use functions: `filter_ancestors`, `filter_descendants`, `fold_ancestors`, `fold_descendants`, `fold_in_edges`, and `fold_out_edges` to perform fold or filter operations when iterating the graph.
 
-Within Owl, the Graph module is heavily use to facilitate the Computation Graph module. 
+Within Owl, the Graph module is heavily use to facilitate the Computation Graph module.
 
 TODO: Explain how it is used in CGraph.
 
@@ -268,7 +268,7 @@ TODO: Use examples and text, not just code.
 
 Both *Stack* and *Heap* are two common abstract data types for collection of elements.
 They are also used in Owl code.
-Similar to graph, they use generic types so that any data type can be plugged in. 
+Similar to graph, they use generic types so that any data type can be plugged in.
 Here is the definition of a stack:
 
 ```ocaml
@@ -295,24 +295,24 @@ The heap structure is used in key functions such as `search_top_elements` in the
 
 ## Count-Min Sketch
 
-*Count-Min Sketch* is a probabilistic data structure for computing approximate counts. It is particularly ideal for use when the space is limited and exact results are not required. 
+*Count-Min Sketch* is a probabilistic data structure for computing approximate counts. It is particularly ideal for use when the space is limited and exact results are not required.
 Imagine that we want to count how frequent certain elements are in a realtime stream, what would you do?
 An intuitive answer is that you can create a hash table, with the element as key and its count as value.
-The problem with this solution is that the stream could have millions and billions of elements. Even if you somehow manage to cut the long tail (such as the unique elements), the storage requirement is still terribly large. 
+The problem with this solution is that the stream could have millions and billions of elements. Even if you somehow manage to cut the long tail (such as the unique elements), the storage requirement is still terribly large.
 
-Now that you think about it, you don't really care about the precise count of an element from the stream. What you really need is an estimation that is not very far away from the true. 
+Now that you think about it, you don't really care about the precise count of an element from the stream. What you really need is an estimation that is not very far away from the true.
 That leaves space for optimising the solution.
-First, apply a hashing function and use `h(e)` as the key, instead of the element `e` itself. 
-Besides, the total number of key-value pairs cab be limited. 
+First, apply a hashing function and use `h(e)` as the key, instead of the element `e` itself.
+Besides, the total number of key-value pairs cab be limited.
 Towards the end, this approach can be summarised as three steps:
 
 1. initialised an array of $n$ elements, each set to 0;
 2. when processing one element $e$, increase the count of the hashed index: `count[h(e)] += 1`;
 3. when querying the count for certain element, just return `count[h(e)]`.
 
-Obviously, this approach tends to give an overestimated answer because of the inevitable collision in hash table. 
-Here the *Count-Min Sketch* method comes to help. 
-It's basic idea is simple: follow the process stated above, but the only difference is that now instead of maintaining a vector of length $n$, we now need to maintain a matrix of shape $dxn$, i.e. $d$ rows and $n$ columns. 
+Obviously, this approach tends to give an overestimated answer because of the inevitable collision in hash table.
+Here the *Count-Min Sketch* method comes to help.
+It's basic idea is simple: follow the process stated above, but the only difference is that now instead of maintaining a vector of length $n$, we now need to maintain a matrix of shape $dxn$, i.e. $d$ rows and $n$ columns.
 Each row is assigned with a different hash function, and when processing one element $e$, apply $h_0, h_1, \ldots, h_d$ to it, and make $count[i][h_i(e)] += 1$, for each $i = 0, 1, 2, \ldots, d$.
 At any time if you want to know the count of an element $e$, you again apply the same set of hash functions, retrieve the $d$ counts of this element from all the rows, and choose the smallest count to return.
 This process is shown in [@fig:utilities:count-min] ([Src](https://blog.csdn.net/u012315428/article/details/79338773)).
@@ -323,11 +323,11 @@ In this way, the effect of collision is reduced in the counting.
 The reason is simple: if these different hashing functions are independent, then the probability that the same element leads to collision in multiple lines can be exponentially reduced with more hash function used.
 
 Even though this method looks like just a heuristic, it actually provides an theoretical guarantee of its counting error.
-Specifically, we have two error bounds parameter: failure probability $\sigma$, and the approximation ratio $\epsilon$, and let $s$ be the sum of all counts stored in the data structure. 
+Specifically, we have two error bounds parameter: failure probability $\sigma$, and the approximation ratio $\epsilon$, and let $s$ be the sum of all counts stored in the data structure.
 It can be proved that with a probability of $1-\sigma$, the error between the the estimated count and the true count is $\epsilon~s$ at most.
 The detailed proof can be see in the original paper [@cormode2005improved].
 
-Owl has provided this probabilistic data structure. 
+Owl has provided this probabilistic data structure.
 It is implemented by [Pratap Singh](https://pratap.dev/ocaml/owl/count-min-sketch/sublinear-algorithms/countmin-sketch/).
 Owl provides these interfaces for use:
 
@@ -351,13 +351,13 @@ module type Sig = sig
   (** ``count s x`` returns the estimated frequency of element ``x`` in ``s``. *)
 
   val init_from : 'a sketch -> 'a sketch
-  (** 
+  (**
   ``init_from s`` initializes a new empty sketch with the same parameters as ``s``, which
   can later be merged with ``s``.
   *)
 
   val merge : 'a sketch -> 'a sketch -> 'a sketch
-  (** 
+  (**
   ``merge s1 s2`` returns a new sketch whose counts are the sum of those in ``s1`` and ``s2``.
   Raises ``INVALID_ARGUMENT`` if the parameters of ``s1`` and ``s2`` do not match.
   *)
@@ -371,5 +371,7 @@ CODE
 ```
 
 
-Count-Min Sketch is a useful data structure when we are interested in the approximate counting of important objects in a group of things. 
+Count-Min Sketch is a useful data structure when we are interested in the approximate counting of important objects in a group of things.
 One such application is to find *heavy hitters*. For example, finding out the most popular web pages given a large website access log with a long history. (DETAIL)
+
+## Summary

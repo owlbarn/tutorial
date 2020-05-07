@@ -4,7 +4,7 @@ Background: decentralised computation
 
 In this chapter, we will cover two topics:
 
-1. Actor Engine 
+1. Actor Engine
 2. Barrier control, especially PSP
 
 Refer to [@wang2017probabilistic] for more detail.
@@ -17,10 +17,10 @@ Introduction: Distributed computing engines etc.
 
 (TODO: the design of actor's functor stack; how network/barrier etc. are implemented as separated as different module. Connection with Mirage etc.)
 
-### Actor Engines 
+### Actor Engines
 
 A key choice when designing systems for decentralised machine learning is the organisation of compute nodes. In the simplest case, models are trained in a centralised fashion on a single node leading to use of hardware accelerators such as GPUs and the TPU. For reasons indicated above, such as privacy and latency, decentralised machine learning is becoming more popular where data and model are spread across multiple compute nodes. Nodes compute over the data they hold, iteratively producing model updates for incorporation into the model, which is subsequently disseminated to all nodes.
-These compute nodes can be organised in various ways. 
+These compute nodes can be organised in various ways.
 
 The Actor system has implemented core APIs in both map-reduce engine and parameter sever engine. Both map-reduce and parameter server engines need a (logical) centralised entity to coordinate all the nodes' progress.  To demonstrate PSP's capability to transform an existing barrier control method into its fully distributed version, we also extended the parameter server engine to peer-to-peer (p2p) engine. The p2p engine can be used to implement both data and model parallel applications, both data and model parameters can be (although not necessarily) divided into multiple parts then distributed over different nodes.
 
@@ -30,16 +30,16 @@ Next we will introduce these three different kinds of engines of Actor.
 
 ### Map-Reduce Engine
 
-Following MapReduce [@dean2008mapreduce] programming model, nodes can be divided by tasks: either *map* or *reduce*. 
+Following MapReduce [@dean2008mapreduce] programming model, nodes can be divided by tasks: either *map* or *reduce*.
 A map function processes a key/value pair to generate a set of intermediate key/value pairs, and a reduce function aggregates all the intermediate key/value paris with the same key.
-Execution of this model can automatically be paralleled. Mappers compute in parallel while reducers receive the output from all mappers and combine to produce the accumulated result. 
-This parameter update is then broadcast to all nodes. 
+Execution of this model can automatically be paralleled. Mappers compute in parallel while reducers receive the output from all mappers and combine to produce the accumulated result.
+This parameter update is then broadcast to all nodes.
 Details such as distributed scheduling, data divide, and communication in the cluster  are mostly transparent to the programmers so that they can focus on the logic of mappers and reducers in solving a problem within a large distributed system.
 
 
 We can use a simple example to demonstrate this point. (with illustration, not code)
 
-This simple functional style can be applied to a surprisingly wide range of applications. 
+This simple functional style can be applied to a surprisingly wide range of applications.
 
 Interfaces in Actor:
 
@@ -91,7 +91,7 @@ let _ = wordcount ()
 ### Parameter Server Engine
 
 The Parameter Server topology proposed by [@li2014scaling] is similar: nodes are divided into servers holding the shared global view of the up-to-date model parameters, and workers, each holding its own view of the model and executing training. The workers and servers communicate in the format of key-value pairs.
-It is proposed to address of challenge of sharing large amount of parameters within a cluster. 
+It is proposed to address of challenge of sharing large amount of parameters within a cluster.
 The parameter server paradigm applies an asynchronous task model to educe the overall network bandwidth, and also allows for flexible consistency, resource management, and fault tolerance.
 
 Simple Example (distributed training) with illustration:
@@ -171,10 +171,10 @@ let _ = test_context ()
 
 ### Peer-to-Peer Engine
 
-In the above approaches the model parameter storage is managed by a set of centralised servers. In contrast, Peer-to-Peer (P2P) is a fully distributed structure, where each node contains its own copy of the model and nodes communicate directly with each other. 
-The benefit of this approach. 
+In the above approaches the model parameter storage is managed by a set of centralised servers. In contrast, Peer-to-Peer (P2P) is a fully distributed structure, where each node contains its own copy of the model and nodes communicate directly with each other.
+The benefit of this approach.
 
-Illustrate how distributed computing can be finished with P2P model, using a figure. 
+Illustrate how distributed computing can be finished with P2P model, using a figure.
 
 To obtain the aforementioned two pieces of information, we can organise the nodes into a structured overlay (e.g., chord or kademlia), the total number of nodes can be estimated by the density of each zone (i.e., a chunk of the name space with well-defined prefixes), given the node identifiers are uniformly distributed in the name space. Using a structured overlay in the design guarantees the following sampling process is correct, i.e., random sampling.
 
@@ -264,7 +264,7 @@ let start jid =
 EXPLAIN
 
 
-## Classic Synchronise Parallel 
+## Classic Synchronise Parallel
 
 To ensure the correctness of computation, normally we need to make sure a correct order of updates. For example, one worker can only proceed when the model has been updated with all the workers' updates from previous round.
 However, the iterative-convergent nature of ML programmes means that they are error-prone to a certain degree.
@@ -280,13 +280,13 @@ Existing distributed processing systems operate at various points in the space o
 
 ### Bulk Synchronous Parallel
 
-Bulk Synchronous Parallel (BSP) is a deterministic scheme where workers perform a computation phase followed by a synchronisation/communication phase where they exchange updates. 
+Bulk Synchronous Parallel (BSP) is a deterministic scheme where workers perform a computation phase followed by a synchronisation/communication phase where they exchange updates.
 The method ensures that all workers are on the same iteration of a computation by preventing any worker from proceeding to the next step until all can. Furthermore, the effects of the current computation are not made visible to other workers until the barrier has been passed. Provided the data and model of a distributed algorithm have been suitably scheduled, BSP programs are often serialisable -- that is, they are equivalent to sequential computations. This means that the correctness guarantees of the serial program are often realisable making BSP the strongest barrier control method. Unfortunately, BSP does have a disadvantage. As workers must wait for others to finish, the presence of *stragglers*, workers which require more time to complete a step due to random and unpredictable factors, limit the computation efficiency to that of the slowest machine. This leads to a dramatic reduction in performance. Overall, BSP tends to offer high computation accuracy but suffers from poor efficiency in unfavourable environments.
 
 BSP is the most strict lockstep synchronisation; all the nodes are coordinated by a central server.
 BSP is sensitive to stragglers so is very slow. But it is simple due to its deterministic nature, easy to write application on top of it.
 
-### Asynchronous Parallel 
+### Asynchronous Parallel
 
 Asynchronous Parallel (ASP)} takes the opposite approach to BSP, allowing computations to execute as fast as possible by running workers completely asynchronously. In homogeneous environments (e.g. data centers), wherein the workers have similar configurations, ASP enables fast convergence because it permits the highest iteration throughputs. Typically, $P$-fold speed-ups can be achieved by adding more computation/storage/bandwidth resources. However, such asynchrony causes delayed updates: updates calculated on an old model state which should have been applied earlier but were not. Applying them introduces noise and error into the computation. Consequently, ASP suffers from decreased iteration quality and may even diverge in unfavourable environments. Overall, ASP offers excellent speed-ups in convergence but has a greater risk of diverging especially in a heterogeneous context.
 
@@ -325,7 +325,7 @@ Two pieces of information is required to answer this question:
 In PSP, either a central oracle tracks the progress of each worker or the workers each hold their own local view.
 In a centralised system, without considering the difficulty of monitoring state of all the nodes as system grows bigger, these two pieces of information is apparently trivial to get at a central server.
 However, in a distributed system, where each node does not have global knowledge of other nodes, how can it get these information?
-In that case, a node randomly selects a subset of nodes in the system and query their individual current local step. By so doing, it obtains a sample of the current nodes' steps in the whole system. 
+In that case, a node randomly selects a subset of nodes in the system and query their individual current local step. By so doing, it obtains a sample of the current nodes' steps in the whole system.
 By investigating the distribution of these observed steps, it can derive an estimate of the percentage of nodes which have passed a given step.
 After deriving the estimate on the step distribution, a node can choose to either pass the barrier by advancing its local step if a given threshold has been reached (with certain probability) or simply holds until certain condition is satisfied.
 Each node only depends on several other nodes to decide its own barrier.
@@ -349,16 +349,16 @@ Formally, at the barrier control point, a worker samples $\beta$ out of $P$ work
 
 ![Extra trade-off exposed through PSP](images/distributed/psp_01.png){#fig:distributed:psp_01}
 
-This allows us to decouple the degree of synchronisation from the degree of distribution, introducing *completeness* as a second axis by having each node sample from the population. Within each sampled subgroup, traditional mechanisms can be applied allowing overall progress to be robust against the effect of stragglers while also ensuring a degree of consistency between iterations as the algorithm progresses. 
+This allows us to decouple the degree of synchronisation from the degree of distribution, introducing *completeness* as a second axis by having each node sample from the population. Within each sampled subgroup, traditional mechanisms can be applied allowing overall progress to be robust against the effect of stragglers while also ensuring a degree of consistency between iterations as the algorithm progresses.
 As [@fig:distributed:psp_01](a-b) depicts, the result is a larger design space for synchronisation methods when operating distributed data processing at scale.
 
 As [@fig:distributed:psp_01](c) summarises, probabilistic sampling allows us greater flexibility in designing synchronisation mechanisms in distributed processing systems at scale. When compared with BSP and SSP, we can obtain faster convergence through faster iterations and with no dependence on a single centralised server. When compared with ASP, we can obtain faster convergence with stronger guarantees by providing greater consistency between updates.
 
 Besides its compatibility with existing synchronisation methods, it is also worth emphasising that applying sampling leads to the biggest difference between the classic synchronisation control and probabilistic control: namely the original synchronisation control requires a centralised node to hold the global state whereas the derived probabilistic ones no longer require such information thus can be executed independently on each individual node, further leading to a fully distributed solution.
 
-### Convergence 
+### Convergence
 
-At the barrier control point, every worker samples $\beta$ out of $P$ workers without replacement. If a single one of these lags more than $s$ steps behind the current worker then it waits. 
+At the barrier control point, every worker samples $\beta$ out of $P$ workers without replacement. If a single one of these lags more than $s$ steps behind the current worker then it waits.
 The probabilities of a node lagging $r$ steps are drawn from a distribution with probability mass function $f(r)$ and cumulative distribution function (CDF) $F(r)$. Both $r$ and $\beta$ can be thought of as constant value.
 
 In a distributing machine learning process, these $P$ workers keep generating updates, and the model is updated with them continuously. In this sequence of updates, each one is indexed by $t$ (which does not mean clock time), and the total length of this sequence is $T$.
@@ -366,10 +366,10 @@ Ideally, in a fully deterministic barrier control system, such as BSP, the order
 However, in reality, what we get is often a *noisy sequence*, where updates are reordered due to sporadic and random network and system delays.
 The difference, or lag, between the order of these two sequence, is denoted by $\gamma_{t}$.
 
-Without talking too much about math in detail in this book, to prove the convergence of PSP requires to construct and idea sequence of updates, each generated by workers in the distributed learning, and compare it with the actual sequence after applying PSP. 
+Without talking too much about math in detail in this book, to prove the convergence of PSP requires to construct and idea sequence of updates, each generated by workers in the distributed learning, and compare it with the actual sequence after applying PSP.
 The target of proof is to show that, given sufficient time $t$, the difference between these two sequences $\gamma_t$ is limited.
 
-The complete proof of convergence is too long to fit into this chapter. Please refer to [@wang2017probabilistic] for more detail if you are interested in the math. 
+The complete proof of convergence is too long to fit into this chapter. Please refer to [@wang2017probabilistic] for more detail if you are interested in the math.
 One key step in the proof is to show that the mean and variance of $\gamma_t$ are bounded.
 The average of the mean is bounded by:
 
@@ -379,14 +379,14 @@ The average of the variance has a similar bound:
 
 $$\frac{1}{T}  \sum_{t=0}^{T} E(\gamma_{t}^{2}) < S \left(\frac{r(r+1)(2r+1)}{6} + \frac{a(r^{2} + 4)}{(1-a)^{3}} \right),$$ {#eq:distributed:bound_var}
 
-where 
+where
 $$S = \frac{1-a}{F(r)(1-a) + a - a^{T-r+1}}.$$ {#eq:distributed:bound_s}
 
 The intuition is that, when applying PSP, the update sequence we get will not be too different from the true sequence.
-To demonstrate the impact of the sampling primitive on bounds quantitatively, 
-[@fig:distributed:proof_exp] shows how increasing the sampling count, $\beta$, (from 1, 5, to 100, marked with different line colours on the right) yields tighter bounds. 
+To demonstrate the impact of the sampling primitive on bounds quantitatively,
+[@fig:distributed:proof_exp] shows how increasing the sampling count, $\beta$, (from 1, 5, to 100, marked with different line colours on the right) yields tighter bounds.
 The sampling count $\beta$ is varied between 1 and 100 and marked with different line colours on the right. The staleness, $r$, is set to 4 with $T$ equal to 10000.
-The bounds on $\gamma_t$ mean that what a true sequence achieves, in time, a noisy sequence can also achieve, regardless of the order of updates. 
+The bounds on $\gamma_t$ mean that what a true sequence achieves, in time, a noisy sequence can also achieve, regardless of the order of updates.
 Notably, only a small number of nodes need to be sampled to yield bounds close to the optimal. This result has an important implication to justify using sampling primitive in large distributed learning systems due to its effectiveness.
 
 ![Plot showing the bound on the average of the means and variances of the sampling distribution.](images/distributed/proof_exp.png){#fig:distributed:proof_exp}
@@ -395,8 +395,8 @@ Notably, only a small number of nodes need to be sampled to yield bounds close t
 
 In this section, we investigate performance of the proposed PSP in experiments.
 We focus on two common metrics in evaluating barrier strategies: the step progress and accuracy.
-We use the training of a DNN as an example, using a 9-layer structure used in the Neural Network chapter, and for the training we also use the MNIST handwritten digits dataset. 
-The learning rate has a decay factor of $1e4$. 
+We use the training of a DNN as an example, using a 9-layer structure used in the Neural Network chapter, and for the training we also use the MNIST handwritten digits dataset.
+The learning rate has a decay factor of $1e4$.
 The network strucuture is shown below:
 
 ```
@@ -411,10 +411,10 @@ let make_network () =
   |> get_network
 ```
 
-We use both real-world experiments and simulations to evaluate different barrier control methods. 
+We use both real-world experiments and simulations to evaluate different barrier control methods.
 The experiments run on 6 nodes using Actor.
 To extend the scale, we have also built a simulation platform.
-For both cases, we implement the Parameter Server framework. It consists of one server and many worker nodes. In each step, a worker takes a chunk of training data, calculates the weight value, and then aggregates these updates to the parameter server, thus updating the shared model iteratively. A worker pulls new model from server after it is updated. 
+For both cases, we implement the Parameter Server framework. It consists of one server and many worker nodes. In each step, a worker takes a chunk of training data, calculates the weight value, and then aggregates these updates to the parameter server, thus updating the shared model iteratively. A worker pulls new model from server after it is updated.
 
 ### Step Progress
 
@@ -438,7 +438,7 @@ To further investigate the impact of sample size, we focus on BSP, and choose di
 In [@fig:distributed:exp_step_02] we vary the sample size from 0 to 64. As we increase the sample size step by step, the curves start shifting from right to left with tighter and tighter spread, indicating less variance in nodes' progress.
 With sample size 0, the pBSP exhibits exactly the same behaviour as that of ASP; with increased sample size, pBSP starts becoming more similar to SSP and BSP with tighter requirements on synchronisation. pBSP of sample size 4 behaves very close to SSP.
 
-Another interesting thing we notice in the experiment is that, with a very small sample size of one or two (i.e., very small communication cost on each individual node), pBSP can already effectively synchronise most of the nodes comparing to ASP. The tail caused by stragglers can be further trimmed by using larger sample size. 
+Another interesting thing we notice in the experiment is that, with a very small sample size of one or two (i.e., very small communication cost on each individual node), pBSP can already effectively synchronise most of the nodes comparing to ASP. The tail caused by stragglers can be further trimmed by using larger sample size.
 This observation confirms our convergence analysis, which explicitly shows that a small sample size can effectively push the probabilistic convergence guarantee to its optimum even for a large system size, which further indicates the superior scalability of the proposed solution.
 
 ### Accuracy
@@ -489,7 +489,7 @@ let push kv_pairs =
     Array.map (fun (k, v) ->
       Actor_log.info "push: %s" k;
       (* simmulated communication delay *)
-      
+
       (* let t = delay.(v.wid) in *)
       let t = Owl_stats.gamma_rvs ~shape:1. ~scale:1. in
       Unix.sleepf t;
@@ -513,8 +513,10 @@ TODO:  Explain the code
 
 In [@fig:distributed:exp_accuracy_01], we conduct the real-world experiments  using 6 worker nodes with the Parameter Server framework we have implemented.
 We run the training process for a fixed amount of time, and observe the performance of barrier methods given the same number of updates.
-It shows that BSP achieves the highest model accuracy with the least of number of updates, while SSP and ASP achieve lower efficiency. With training progressing, both methods show a tendency to diverge. 
+It shows that BSP achieves the highest model accuracy with the least of number of updates, while SSP and ASP achieve lower efficiency. With training progressing, both methods show a tendency to diverge.
 By applying sampling, pBSP and pSSP achieve smoother accuracy progress.
 
+
+## Summary
 
 ## References

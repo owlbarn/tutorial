@@ -10,7 +10,7 @@ To better capture this assigning processes, we need the idea of *Random Variable
 
 A random variable is a function that associate sample output of events with some numbers of interests.
 Imagine the classic tossing coin game, we toss the coin four times, and the result is "head", "head", "tail", "head".
-We are interested in the number of "head" in this outcome. So we make a Random Variable "X" to denote this number, and `X(["head", "head", "tail", "head"]) = 3`. 
+We are interested in the number of "head" in this outcome. So we make a Random Variable "X" to denote this number, and `X(["head", "head", "tail", "head"]) = 3`.
 You can see that using random variables can greatly reduce the event sample space.
 
 Depending on the number of values it can be, a random variable can be broadly categorised into *Discrete* Random Variable (with finite number of possible output), and *Continuous* Random Variable (with infinite number of possible output).
@@ -19,8 +19,8 @@ Depending on the number of values it can be, a random variable can be broadly ca
 
 Back to the coin tossing example. Suppose that the coin is specially minted so that the probability of tossing head is $p$.
 In this scenario, we toss for three times.
-Use the number of heads as a random variable $X$, and it contains four possible outcomes: 0, 1, 2, or 3. 
- 
+Use the number of heads as a random variable $X$, and it contains four possible outcomes: 0, 1, 2, or 3.
+
 We can calculate the possibility of each output result. Since each toss is a individual trial, the possibility of three heads `P(X=2)` is $p^3$.
 Two heads includes three cases: HHT, HTH, THH, each has a probability of $p^2(1-p)$, and together $P(X=2) = 3p^2(1-p)$.
 Similarly $P(X=1)=3p(1-p)^2$, and $P(X=0)=(1-p)^3$.
@@ -29,18 +29,18 @@ Formally, consider a series of $n$ independent trails, each trail containing two
 
 $$P(X=k) = {N\choose k} p^k(1-p)^{n-k}.$$ {#eq:stats:binomial_pdf}
 
-This type of distribution is called the *Binomial Probability Distribution*. 
-We can stimulate this process of tossing coins with the `Stats.binomial_rvs` function. 
-Suppose the probability of tossing head is 0.4, and for 10 times. 
+This type of distribution is called the *Binomial Probability Distribution*.
+We can stimulate this process of tossing coins with the `Stats.binomial_rvs` function.
+Suppose the probability of tossing head is 0.4, and for 10 times.
 
 ```ocaml
-# let _ = 
+# let _ =
     let toss = Array.make 10 0 in
     Array.map (fun _ -> Stats.binomial_rvs 0.3 1) toss
 - : int array = [|0; 0; 0; 0; 0; 0; 0; 0; 1; 0|]
 ```
 
-The equation [@eq:stats:binomial_pdf] is called the *&probability density function* (PDF) of this binomial distribution. 
+The equation [@eq:stats:binomial_pdf] is called the *&probability density function* (PDF) of this binomial distribution.
 Formally the PDF of random variable X is denoted with $p_X(k)$ and is defined as:
 
 $$p_X(k)=P({s \in S | X(s) = k}),$$
@@ -59,7 +59,7 @@ val p : float array =
 - : float = 0.999999999999999778
 ```
 
-Aside from the PDF, another related and frequently used idea is to see the probability of random variable $X$ being within a certain range: $P(a \leq X \leq b)$. 
+Aside from the PDF, another related and frequently used idea is to see the probability of random variable $X$ being within a certain range: $P(a \leq X \leq b)$.
 It can be rewritten as $P(X \leq b) - P(X \leq a - 1)$.
 Here the term $P(X \leq t)$ is called the *Cumulative Distribution Function* of random variable $X$.
 For the binomial distribution, it CDF is:
@@ -77,8 +77,8 @@ val p : float array = [|0.342999999999999972; 0.784; 0.973; 1.|]
 
 ### Continuous Random Variables
 
-Unlike discrete random variable, a continuous random variable has infinite number of possible outcomes. 
-For example, in uniform distribution, we can pick a random real number between 0 and 1. Apparently there can be infinite number of outputs. 
+Unlike discrete random variable, a continuous random variable has infinite number of possible outcomes.
+For example, in uniform distribution, we can pick a random real number between 0 and 1. Apparently there can be infinite number of outputs.
 
 One of the most widely used continuous distribution is no doubt the *Gaussian distribution*.
 It's probability function is a continuous one:
@@ -145,7 +145,7 @@ Plot.output h
 
 Mean, Variance: Definition, and math derivation of Gaussian as examples.
 
-The definition of moments, and higher moments. 
+The definition of moments, and higher moments.
 
 Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
 
@@ -170,7 +170,7 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 - : float = 1.75165078829330856
 ```
 
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance. 
+The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.
 
 ```ocaml env=stats_00
 # Stats.central_moment 0 data
@@ -202,7 +202,7 @@ In addition to the aforementioned ones, there are many other ordered statistical
 
 IMAGE to show the difference of mean, median, mode, etc.
 
-## Special Distribution 
+## Special Distribution
 
 illustrate the naming convention.
 
@@ -216,7 +216,7 @@ illustrate the naming convention.
 * `gaussian_logcdf` : logarithmic cumulative distribution function.
 * `gaussian_logsf` : logarithmic survival function.
 
-Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. 
+Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 
 TODO: Add Poisson Distribution Implementation
 
@@ -240,7 +240,7 @@ Application
 
 Joint Density
 
-Independence of random variables 
+Independence of random variables
 
 Mean and Variance
 
@@ -321,7 +321,7 @@ Wilcoxon Tests
 
 ## Covariance and Correlations
 
-Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation. 
+Correlation studies how strongly two variables are related. There are different ways of calculating correlation. For the first example, let's look at Pearson correlation.
 
 `x` is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both `y` and `z` are response variables with a linear relation to `x`. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.
 
@@ -373,3 +373,5 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 ```
 
 ## Analysis of Variance
+
+## Summary

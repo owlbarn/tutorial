@@ -127,11 +127,11 @@ However, if you just want to append one or two rows, the previous method seems a
 
 ```ocaml env=env_dataframe_1
 # let new_row = Dataframe.([|
-    pack_string "Erin"; 
-    pack_int 22; 
-    pack_float 2300.; 
-    pack_string "Researcher"; 
-    pack_string "male"; 
+    pack_string "Erin";
+    pack_int 22;
+    pack_float 2300.;
+    pack_string "Researcher";
+    pack_string "male";
     pack_string "New York, US" |])
   in
   Dataframe.append_row frame new_row
@@ -445,6 +445,6 @@ Owl_pretty.pp_dataframe Format.std_formatter df
 You can use `Dataframe.types` function to retrieve the types of all columns in a dataframe.
 
 
-## Conclusion
+## Summary
 
 Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g. `Stats`) in Owl.

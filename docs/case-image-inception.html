@@ -269,8 +269,8 @@ done;
 <p>And then we can use the mechanism in the Neural Network model to load these values from the hashtable to networks:</p>
 <div class="highlight">
 <pre><code class="language-text">...
-let wb = Neuron.mkpar n.neuron in 
-Printf.printf "%s\n" n.name; 
+let wb = Neuron.mkpar n.neuron in
+Printf.printf "%s\n" n.name;
 wb.(0) &lt;- Neuron.Arr (Hashtbl.find layers n.name);
 Neuron.update n.neuron wb
 ...</code></pre>
@@ -284,7 +284,7 @@ Neuron.update n.neuron wb
 <p>To this end, we choose the non-compressed image format PPM. A PPM file is a 24-bit color image formatted using a text format. It stores each pixel with a number from 0 to 65536, which specifies the color of the pixel. Therefore, we can just use ndarray in Owl and convert that directly to PPM image without using any external libraries. We only need to take care of header information during this process.</p>
 <p>For example, here is the code for converting an 3-dimensional array in Owl <code>img</code> into a ppm file. We first need to get the content from each of the three color channels using slicing, such as the blue channel:</p>
 <div class="highlight">
-<pre><code class="language-clike">let b = N.get_slice [[];[];[0]] img in 
+<pre><code class="language-clike">let b = N.get_slice [[];[];[0]] img in
 let b = N.reshape b [|h; w|] in
 ...</code></pre>
 </div>
@@ -296,8 +296,8 @@ Dense.Matrix.S.set_slice [[];[0;-1;3]] img_mat r;
 </div>
 <p>Then, after rotate this matrix by 90 degree, we need to rewrite this matrix to a large byte variable. Note that that though the method is straightforward, you need to be careful about the index of each element during the conversion.</p>
 <div class="highlight">
-<pre><code class="language-clike">let img_str = Bytes.make (w * h * 3) ' ' in 
-let ww = 3 * w in 
+<pre><code class="language-clike">let img_str = Bytes.make (w * h * 3) ' ' in
+let ww = 3 * w in
 for i = 0 to ww - 1 do
   for j = 0 to h - 1 do
     let ch = img_arr.(i).(j) |&gt; int_of_float |&gt; char_of_int in
@@ -324,7 +324,7 @@ close_in fp;
 <p>Then we need to re-arrange the data in the bytes into a matrix.</p>
 <div class="highlight">
 <pre><code class="language-clike">let imf_o = Array.make_matrix (w * 3) h 0.0 in
-  
+
 let ww = 3 * w  in
 for i = 0 to ww - 1 do
   for j = 0 to h - 1 do
@@ -346,8 +346,8 @@ let b = N.get_slice [[];[2;-1;3]] m in
 <p>Of course, most of the time we have to deal with image of other more common format such as PNG and JPEG. For the conversion from these format to PPM or the other way around, we use the tool <a href="https://www.imagemagick.org/">ImageMagick</a>. ImageMagick is a free and open-source tool suite for image related tasks, such as converting, modifying, and editing images. It can read and write over 200 image file formats, including the PPM format. Therefore, we preprocess the images by converting its format to PPM with the command <code>convert</code>. Also, the computation time of is related with the input size, and we often hope to limit the size of images. That can also be done with the command <code>convert -resize</code>.</p>
 <p>Another important preprocessing is to normalise the input. Instead of processing the input ndarray whose elements ranges from 0 to 255, we need to simply preprocess it so that all the elements fall into the range <code>[-1, 1]</code>, as shown in the code below.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let normalise img = 
-  let img = Arr.div_scalar img 255. in 
+<pre><code class="language-ocaml">let normalise img =
+  let img = Arr.div_scalar img 255. in
   let img = Arr.sub_scalar img 0.5  in
   let img = Arr.mul_scalar img 2.   in
   img</code></pre>
@@ -364,16 +364,16 @@ open Owl
 (* Import InceptionV3 Library *)
 #zoo "9428a62a31dbea75511882ab8218076f"
 
-let _ = 
+let _ =
   let img = "panda.png" in
   let labels = InceptionV3.infer img in
-  let top = 5 in 
+  let top = 5 in
   let labels_json   = InceptionV3.to_json ~top labels in
   let labels_tuples = InceptionV3.to_tuples labels in
 
   Printf.printf "\nTop %d Predictions:\n" top;
-  Array.iteri (fun i x -&gt; 
-    let cls, prop = x in 
+  Array.iteri (fun i x -&gt;
+    let cls, prop = x in
     Printf.printf "Prediction #%d (%.2f%%) : %s\n" i (prop *. 100.) cls;
   ) labels_tuples</code></pre>
 </div>
@@ -408,8 +408,11 @@ Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus</code></
 <h2>Applications</h2>
 <p>TODO: rewrite these applications.</p>
 <p>Building an image classification application is not the end by itself. It can be used in a wide range of applications. We list some in this section to show how Owl can be deployed in these scenarios.</p>
-<p>One of the most popular applications of image recognition that we encounter daily is personal photo organization. Image recognition is empowering the user experience of photo organization apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organization capabilities provided by machine learning. The image recognition API integrated in the apps categorizes images on the basis of identified patterns and groups them thematically. (COPY ALERT)</p>
-<p>Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while. While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognize objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images. (<a href="https://imagga.com/blog/the-top-5-uses-of-image-recognition/">COPY ALERT</a>)</p>
+<p>One of the most popular applications of image recognition that we encounter daily is personal photo organisation. Image recognition is empowering the user experience of photo organisation apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organisation capabilities provided by machine learning. The image recognition API integrated in the apps categorises images on the basis of identified patterns and groups them thematically. (COPY ALERT)</p>
+<p>Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while. While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognise objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images. (<a href="https://imagga.com/blog/the-top-5-uses-of-image-recognition/">COPY ALERT</a>)</p>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

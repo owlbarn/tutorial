@@ -16,15 +16,15 @@ Here is the structure of the core functor stack in Owl:
 
 ![Core functor stack in owl](images/backend/base-structure.png "functor"){width=90% #fig:backend:functor}
 
-Ndarray is the core building block in Owl. 
+Ndarray is the core building block in Owl.
 As we have described in the previous chapters how we use C code to push forward the performance of Owl computation.
 The base library aims to implements all the necessary functions as the core library ndarray module.
 The stack is implemented in such way that the user can switch between these two different implementation without the modules of higher layer.
 In the Owl functor stack, ndarray is used to support the CGraph module to provide lazy evaluation functionalities.
 
 You might be wondering: where is the ndarray module then?
-Here we use `Owl_base_algodiff_primal_ops` module, which is simply a wrapper around the base ndarray module. 
-It also includes a small number of Matrix and Linear Algebra functions. 
+Here we use `Owl_base_algodiff_primal_ops` module, which is simply a wrapper around the base ndarray module.
+It also includes a small number of Matrix and Linear Algebra functions.
 By providing this wrapper instead of using the Ndarray module directly, we can avoid mixing all the function in the ndarray module and makes it a large Goliath.
 
 Next, the Algorithmic Differentiation can depend its computation module on normal Ndarray or its lazy version.
@@ -47,25 +47,25 @@ For example, the code below shows how we can build a neural graph module by laye
 ```ocaml
 module G = Owl_neural_graph.Make
             (Owl_neural_neuron.Make
-              (Owl_optimise_generic.Make 
-                (Owl_algodiff_generic.Make 
+              (Owl_optimise_generic.Make
+                (Owl_algodiff_generic.Make
                   (Owl_base_algodiff_primal_ops.S))))
 ```
 
-Normally the users does not have to care about how these modules are constructed layer by layer, but understanding the functor stack and typing is nevertheless beneficial, especially when you are creating new modules that relies on the base ndarray module. 
+Normally the users does not have to care about how these modules are constructed layer by layer, but understanding the functor stack and typing is nevertheless beneficial, especially when you are creating new modules that relies on the base ndarray module.
 
-These examples show that once we have built a application with the core Ndarray module, we can then seamlessly switch it to base ndarray module without changing anything else. 
+These examples show that once we have built a application with the core Ndarray module, we can then seamlessly switch it to base ndarray module without changing anything else.
 That means that all the code and examples we have seen so far can be used directly on different backends that requires pure implementation.
 
-The base library is still an on-going work and there is still a lot to do. 
-Though the Ndarray module is a large part in base library, there are other modules that also needs to be re-implemented in OCaml, such as Linear Algebra module. 
+The base library is still an on-going work and there is still a lot to do.
+Though the Ndarray module is a large part in base library, there are other modules that also needs to be re-implemented in OCaml, such as Linear Algebra module.
 We need to add more functions such as the SVD factorisation.
-Even for the Ndarray itself we still cannot totally cover the core ndarray yet. 
-Our strategy is that, we put most of the signature file in base library, and the core library signature file include its corresponding signature file from the base library, plus functions that are currently unique to core library. 
-The target is to total coverage so that the core and base library provide exactly the same functions. 
+Even for the Ndarray itself we still cannot totally cover the core ndarray yet.
+Our strategy is that, we put most of the signature file in base library, and the core library signature file include its corresponding signature file from the base library, plus functions that are currently unique to core library.
+The target is to total coverage so that the core and base library provide exactly the same functions.
 
 As can be expected, the pure OCaml implementation normally performs worse than the C code implemented version.
-For example, for the complex convolution, without the help of optimised routines from OpenBLAS ect., we can only provide the naive implementation that includes multiple for-loops. 
+For example, for the complex convolution, without the help of optimised routines from OpenBLAS ect., we can only provide the naive implementation that includes multiple for-loops.
 It's performance is orders of magnitude slower than the C version.
 Currently our priority is to implement the functions themselves instead of caring about function optimisation, nor do we intend to out-perform C code with pure OCaml implementation.
 
@@ -81,7 +81,7 @@ It additionally requires the use of `dune`. As you will see, this will make the 
 ### Use Native OCaml
 
 We rely the tool `js_of_ocaml` to convert native OCaml code into JavaScript.
-[Js_of_ocaml](http://ocsigen.org/js_of_ocaml) is a compiler from OCaml bytecode programs to JavaScript. 
+[Js_of_ocaml](http://ocsigen.org/js_of_ocaml) is a compiler from OCaml bytecode programs to JavaScript.
 The process can thus be divided into two phases: first, compile the OCaml source code into bytecode executables, and then apply the `js_of_ocaml` command to it.
 It support the core `Bigarray` module among most of the OCaml standard libraries.
 However, since the `Sys` module is not fully supported, we are careful to not use functions from this module in the base library.
@@ -109,7 +109,7 @@ The first step is writing down our application in OCaml as follows, then save it
 
 ```
 
-The code is very simple: the `desc` defines a gradient descent algorithm, then we use `desc` to calculate the minimum value of `Maths.sin` function. In the end, we print out the result using `Owl_log` module's `info` function. 
+The code is very simple: the `desc` defines a gradient descent algorithm, then we use `desc` to calculate the minimum value of `Maths.sin` function. In the end, we print out the result using `Owl_log` module's `info` function.
 Note that we pass in the base Ndarray module to the AD functor to create an corresponding AD module.
 
 In the second step, we need to create a `dune` file as follows. This file will instruct how the OCaml code will be first compiled into bytecode then converted into JavaScript by calling `js_of_ocaml`.
@@ -121,7 +121,7 @@ In the second step, we need to create a `dune` file as follows. This file will i
   (libraries owl-base))
 ```
 
-With these two files in the same folder, you can then simply run the following command in the terminal. 
+With these two files in the same folder, you can then simply run the following command in the terminal.
 
 ```shell
 dune build demo.bc && js_of_ocaml _build/default/demo.bc
@@ -155,7 +155,7 @@ It is gaining its momentum and becoming a popular choice of developing web appli
 It actually uses another tool, [BuckleScript](https://bucklescript.github.io/), to convert the Reason/OCaml code to JavaScript.
 Since Reason is basically a syntax on top of OCaml, it is very straightforward to use Owl in Reason to develop advanced numerical applications.
 
-In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl. 
+In this example, we use reason code to manipulate multi-dimensional arrays, the core data structure in Owl.
 First, we save the following code into a reason file called `demo.re`. Note the the suffix is *.re* now.
 It includes several basic math and Ndarray operations in Owl.
 
@@ -200,16 +200,16 @@ As you can see, except that the code is written in different languages, the rest
 
 ## Backend: MirageOS
 
-### MirageOS and Unikernel 
+### MirageOS and Unikernel
 
 Besides JavaScript, another choice of backend we aim to support is the MirageOS.
 It one approach to build *unikernel*.
 A unikernel is a specialised, single address space machine image constructed with library operating systems.
-Unlike normal virtual machine, it only contains a minimal set of libraries required for one application. 
+Unlike normal virtual machine, it only contains a minimal set of libraries required for one application.
 It can run directly on a hypervisor or hardware without relying gon operating systems such as Linux and Windows.
 The unikernls is thus concise and secure, and extremely efficient for distributed and executed on either cloud or edge devices.
 
-MirageOS is one solution to building unikernels. 
+MirageOS is one solution to building unikernels.
 It utilises the high-level languages OCaml and a runtime to provide API for operating system functionalities.
 In using MirageOS, the users can think of the [Xen hypervisor](https://xenproject.org/) as a stable hardware platform, without worrying about the hardware details such as devices.
 Furthermore, since the Xen hypervisor is widely used in platforms such as Amazon EC2 and Rackspace Cloud, MirageOS-built unikernel can readily deployed on these platforms.
@@ -248,10 +248,10 @@ end
 ```
 
 Here the `start` is an entry point to the unikernel.
-It performs the normal OCaml function `main`, and the return a `Lwt` thread that will be evaluated to `unit`. 
+It performs the normal OCaml function `main`, and the return a `Lwt` thread that will be evaluated to `unit`.
 
 
-Explain LWT briefly. 
+Explain LWT briefly.
 A concurrent programming library.
 Explain why using LWT in Mirage.
 
@@ -263,25 +263,25 @@ In the same directory, we create a file called `configure.ml`:
 open Mirage
 
 let main =
-  foreign 
+  foreign
     ~packages:[package "owl"]
     "Gd_owl.GD" job
 
-let () = 
+let () =
   register "gd_owl" [main]
 ```
 
-It's not complex. 
-First we need to open the `Mirage` module. 
+It's not complex.
+First we need to open the `Mirage` module.
 Then we declare a value `main` (or you can name it any other name).
 It calls the `foreign` function to specify the configuration.
 First, in the `package` parameter, we declare that this unikernel requires Owl library.
 The next string parameter "Gd_owl.GD" specifies the name of the implementation file, and in that file the module `GD` that contains the `start` entry point.
 The third paramter `job` declares the type of devices required by a unikernel, such as network interfaces, network stacks, file systems, etc.
 Since here we only do the calculation, there is no extra device required, so the third parameter is a `job`.
-Finally, we register the unikernel entry file `gd_owl` with the `main` configuration value. 
+Finally, we register the unikernel entry file `gd_owl` with the `main` configuration value.
 
-That's all it takes for coding. Now we can take a look at the compiling part. 
+That's all it takes for coding. Now we can take a look at the compiling part.
 MirageOS itself supports multiple backends. The crucial choice therefore is to decide which one to use at the beginning by using `mirage configure`.
 In the directory that holds the previous two files, you run `mirage configure -t unix`, and it configures to build the unikernel into a Unix ELF binary that can be directly executed.
 Or you can use `mirage configure -t xen`, then the resulting unikernel will use hypervisor backend like Xen or KVM.
@@ -305,8 +305,8 @@ Finally, we can build the unikernels by simply running:
 make
 ```
 
-and it calls the `mirage build` command. 
-As a result, now your current directory contains the `_build/gd_owl.native` executable, which is the unikernel we want. 
+and it calls the `mirage build` command.
+As a result, now your current directory contains the `_build/gd_owl.native` executable, which is the unikernel we want.
 Executing it yields a similar result as before:
 
 ```
@@ -321,7 +321,7 @@ As a more complex example we have also built a simple neural network to perform 
 module N  = Owl_base_algodiff_primal_ops.S
 module NN = Owl_neural_generic.Make (N)
 open NN
-open NN.Graph 
+open NN.Graph
 open NN.Algodiff
 
 let make_network input_shape =
@@ -343,18 +343,18 @@ module Main = struct
 end
 ```
 
-Here the `infer` function creates a neural network, loads the weight, and then performs inference on an input image. 
+Here the `infer` function creates a neural network, loads the weight, and then performs inference on an input image.
 We also need an configuration file. Again, it's mostly the same:
 
 ```
 open Mirage
 
 let main =
-  foreign 
+  foreign
     ~packages:[package "owl-base"]
    "Simple_mnist.Main" job
 
-let () = 
+let () =
   register "Simple_mnist" [main]
 ```
 
@@ -369,37 +369,37 @@ Of course, we cannot cover all the important topics about MirageOS, please refer
 
 ## Evaluation
 
-In the evaluation section we mainly compare the performance of different backends we use. 
-Specifically, we observe three representative groups of operations: 
-(1) `map` and `fold` operations on ndarray; 
-(2) using gradient descent, a common numerical computing subroutine, to get $argmin$ of a certain function; 
-(3) conducting inference on complex DNNs, including SqueezeNet and a VGG-like convolution network. 
+In the evaluation section we mainly compare the performance of different backends we use.
+Specifically, we observe three representative groups of operations:
+(1) `map` and `fold` operations on ndarray;
+(2) using gradient descent, a common numerical computing subroutine, to get $argmin$ of a certain function;
+(3) conducting inference on complex DNNs, including SqueezeNet and a VGG-like convolution network.
 The evaluations are conducted on a ThinkPad T460S laptop with Ubuntu 16.04 operating system. It has an Intel Core i5-6200U CPU and 12GB RAM.
 
-The OCaml compiler can produce two kinds of executables: bytecode and native. 
-Native executables are compiled specifically for an architecture and are generally faster, while bytecode executables have the advantage of being portable. 
+The OCaml compiler can produce two kinds of executables: bytecode and native.
+Native executables are compiled specifically for an architecture and are generally faster, while bytecode executables have the advantage of being portable.
 
 ![Performance of map and fold operations on ndarray on laptop and RaspberryPi](images/zoo/map_fold.png "map-fold"){width=100% #fig:backend:map_fold}
 
-For JavaScript, we use the `js_of_ocaml` approach as described in the previous sections. 
-Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as `base-lib` and `owl-lib` separately, but they are in fact all included in the Owl library. 
+For JavaScript, we use the `js_of_ocaml` approach as described in the previous sections.
+Note that for convenience we refer to the pure implementation of OCaml and the mix implementation of OCaml and C as `base-lib` and `owl-lib` separately, but they are in fact all included in the Owl library.
 For Mirage compilation, we use both libraries.
 
-[@fig:backend:map_fold](a-b) show the performance of map and fold operations on ndarray. 
-We use simple functions such as plus and multiplication on 1-d (size $< 1,000$) and 2-d arrays. 
-The `log-log` relationship between total size of ndarray and the time each operation takes keeps linear. 
+[@fig:backend:map_fold](a-b) show the performance of map and fold operations on ndarray.
+We use simple functions such as plus and multiplication on 1-d (size $< 1,000$) and 2-d arrays.
+The `log-log` relationship between total size of ndarray and the time each operation takes keeps linear.
 For both operations, `owl-lib` is faster than `base-lib`, and native executables outperform bytecode ones. The performance of Mirage executives is close to that of native code.
 Generally JavaScript runs the slowest, but note how the performance gap between JavaScript and the others converges when the ndarray size grows.
 For fold operation, JavaScript even runs faster than bytecode when size is sufficiently large.
 
 ![Performance of gradient descent on function $f$](images/zoo/gd_x86.png){width=75% #fig:backend:gd}
 
-In [@fig:backend:gd], we want to investigate if the above observations still hold in more complex numerical computation. 
-We choose to use a Gradient Descent algorithm to find the value that locally minimise a function. We choose the initial value randomly between $[0, 10]$. 
+In [@fig:backend:gd], we want to investigate if the above observations still hold in more complex numerical computation.
+We choose to use a Gradient Descent algorithm to find the value that locally minimise a function. We choose the initial value randomly between $[0, 10]$.
 For both $sin(x)$ and $x^3 -2x^2 + 2$, we can see that JavaScript runs the slowest, but this time the `base-lib` slightly outperforms `owl-lib`.
 
-We further compare the performance of DNN, which requires large amount of computation. 
-We compare SqueezeNet and a VGG-like convolution network. 
+We further compare the performance of DNN, which requires large amount of computation.
+We compare SqueezeNet and a VGG-like convolution network.
 They have different sizes of weight and networks structure complexities.
 
     Time (ms) VGG                     SqueezeNet
@@ -416,12 +416,12 @@ They have different sizes of weight and networks structure complexities.
 
 
 [@tbl:zoo:dnn] shows that, though the performance difference between `owl-lib` and `base-lib` is not obvious, the former is much better. So is the difference between native and bytecode for `base-lib`.
-JavaScript is still the slowest. The core computation required for DNN inference is the convolution operation. 
+JavaScript is still the slowest. The core computation required for DNN inference is the convolution operation.
 Its implementation efficiency is the key to these differences. Current we are working on improving its implementation in `base-lib`.
 
 We have also conducted the same evaluation experiments on RaspberryPi 3 Model B.
-[@fig:backend:map_fold](c) shows the performance of fold operation on ndarray. Besides the fact that all backends runs about one order of magnitude slower than that on the laptop, previous observations still hold. 
-This figure also implies that, on resource-limited devices such as RaspberryPi, the key difference is between native code and bytecode, instead of `owl-lib` and `base-lib` for this operation. 
+[@fig:backend:map_fold](c) shows the performance of fold operation on ndarray. Besides the fact that all backends runs about one order of magnitude slower than that on the laptop, previous observations still hold.
+This figure also implies that, on resource-limited devices such as RaspberryPi, the key difference is between native code and bytecode, instead of `owl-lib` and `base-lib` for this operation.
 
   Size (KB) native   bytecode   Mirage   JavaScript
 ----------- -------- ---------- -------- ------------
@@ -433,3 +433,5 @@ This figure also implies that, on resource-limited devices such as RaspberryPi, 
 Finally, we also briefly compare the size of executables generated by different backends. We take the SqueezeNet for example, and the results are shown in [@tbl:zoo:size].
 It can be seen that `owl-lib` executives have larger size compared to `base-lib` ones, and JavaScript code has the smallest file size.
 There does not exist a dominant method of deployment for all these backends. It is thus imperative to choose suitable backend according to deployment environment.
+
+## Summary
