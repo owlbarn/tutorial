@@ -242,7 +242,7 @@ Here each column of $B$ is just the random vector we use at a layer.
 In this approach there is not boundary, and all the projections can be done in just one matrix multiplication.
 While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling efficient computation of all the projections.
 Although the total amount of computation stays the same, in practice this speeds up the index construction significantly due to the cache effects and low-level parallelisation through vectorisation.
-The matrix multiplication is a basic linear algebra operation and many low level numerical libraries, such as OpenBLAS and MKL, provides extremely high-performance implementation of it. 
+The matrix multiplication is a basic linear algebra operation and many low level numerical libraries, such as OpenBLAS and MKL, provides extremely high-performance implementation of it.
 
 ## Search Articles
 
@@ -281,56 +281,44 @@ Experiment results confirm that by using this metric it is feasible to use only 
 
 ## Code Implementation
 
-Naive implementation .... let's decide how to use them.
+What we have introduced is the main theory behind the [Kvasir](https://kvasira.com/product), a smart content discovery tool to help you manage this rising information flood.
+In this chapter, we will show some naive code implementation in OCaml and Owl to help you better understand what we have introduced so far.
 
-**The following is about how to do the random projection, for sparse projection**
+First, we show the simple random projection along a RP-tree.
 
 ```ocaml env=case-recommender-00
-(* make projection matrix, return as row vectors *)
 let make_projection_matrix seed m n =
   Owl_stats_prng.init seed;
   Mat.gaussian m n |> Mat.to_arrays
 
-(* make transposed projection matrix of shape [n x m] *)
-let make_projection_transpose seed m n =
-  Owl_stats_prng.init seed;
-  Mat.gaussian m n |> Mat.transpose |> Mat.to_arrays
-
-(* make the matrix to save projected results *)
 let make_projected_matrix m n =
   Array.init m (fun _ -> Array.make n 0.)
+```
 
-(* the actual project function, for doc [i] on level [j] *)
+These two functions make projection matrix and the matrix to save projected results, both return as row vectors.
+
+```ocaml env=case-recommender-00
 let project i j s projection projected =
   let r = ref 0. in
   Array.iter (fun (w, a) ->
     r := !r +. a *. projection.(w).(j);
   ) s;
   projected.(j).(i) <- !r
+```
 
-(* project vector [s] to up to [level] *)
-let project_vec s level projection =
-  let projected = Array.make level 0. in
-  for j = 0 to level - 1 do
-    let r = ref 0. in
-    Array.iter (fun (w, a) ->
-      r := !r +. a *. projection.(w).(j);
-    ) s;
-    projected.(j) <- !r
-  done;
-  projected
+Based on these two matrices, the `project` function processes document `i` on the level `j` in the tree.
+The document vector is `s`.
+The projection is basically a dot multiplication between `s` and matrix `projection`.
 
-(* random projection of sparse data set *)
+
+```ocaml env=case-recommender-00
 let random seed cluster tfidf =
-  (* matrix to be projected: num_doc x vocab *)
   let num_doc = Nlp.Tfidf.length tfidf in
   let vocab_len = Nlp.Tfidf.vocab_len tfidf in
   let level = Maths.log2 (float_of_int num_doc /. cluster) |> ceil |> int_of_float in
 
-  (* random projection matrix: vocab x level *)
   let projection = make_projection_matrix seed vocab_len level in
-  (* projected result transpose: level x num_doc *)
-  let projected = make_projected_matrix level num_doc in
+  let projected = make_projected_matrix seed level num_doc in
 
   Nlp.Tfidf.iteri (fun i s ->
     for j = 0 to level - 1 do
@@ -338,33 +326,32 @@ let random seed cluster tfidf =
     done;
   ) tfidf;
 
-  (* return the shape of projection, the projected *)
   vocab_len, level, projected
 ```
 
-**The following is about how to do the random projection, for dense projection**
+The `random` function performs a random projection of sparse data set, based a built TF-IDF model. Technically, a better way is to use LSA model as the vectorised representation of documents as we have introduced above, since a LSA model acquired based on TF-IDF represents more abstract idea of topics and has less features.
+However, here it suffices to use the TF-IDF model to show the random projection process.
+This function projects all the document vectors in the model to the `projected` matrix, level by level.
+Recall that the result only contains the projected value instead of the whole vector.
+
+As we have explained in the "Search Articles" section, this process can be accelerated to use matrix multiplication.
+The code below show this implementation for the random projection function.
+It also returns the shape of projection and the projected result.
 
 
 ```ocaml env=case-recommender-00
-(* make projection matrix *)
 let make_projection_matrix seed m n =
   Owl_stats_prng.init seed;
   Mat.gaussian m n
 
-
-(* random projection of dense data set *)
 let random seed cluster data =
-  (* data to be projected: m x n *)
   let m = Mat.row_num data in
   let n = Mat.col_num data in
   let level = Maths.log2 (float_of_int m /. cluster) |> ceil |> int_of_float in
 
-  (* random projection matrix: n x level *)
   let projection = make_projection_matrix seed n level in
-  (* projected result transpose: level x m *)
   let projected = Mat.dot data projection |> Mat.transpose in
 
-  (* return the shape of projection, the projected *)
   n, level, projected, projection
 ```
 
@@ -577,5 +564,6 @@ let start_service lda idx =
   Server.create ~mode:(`TCP (`Port 8000)) (Server.make ~callback ())
 ```
 
+## Summary
 
 ## References
