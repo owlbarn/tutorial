@@ -539,6 +539,7 @@ let extract_query_params s =
   let doc = Str.matched_group 1 s in
 
   (num, mode, doc)
+```
 
 Finally, `start_service` function includes the core query service that keeps running.
 It preprocesses the input document and processed with similar document searching according to different search mode.

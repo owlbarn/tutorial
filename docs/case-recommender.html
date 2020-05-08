@@ -338,14 +338,11 @@ let search_leaves node id =
   let _ = Str.search_forward regex s 0 in
   let doc = Str.matched_group 1 s in
 
-  (num, mode, doc)
-
-Finally, `start_service` function includes the core query service that keeps running.
-It preprocesses the input document and processed with similar document searching according to different search mode.
-We won't cover the details of web server implementation details using Lwt. Please refer to its [documentation](https://ocsigen.org/lwt) for more details.
-
-```text
-let start_service lda idx =
+  (num, mode, doc)</code></pre>
+</div>
+<p>Finally, <code>start_service</code> function includes the core query service that keeps running. It preprocesses the input document and processed with similar document searching according to different search mode. We won’t cover the details of web server implementation details using Lwt. Please refer to its <a href="https://ocsigen.org/lwt">documentation</a> for more details.</p>
+<div class="highlight">
+<pre><code class="language-text">let start_service lda idx =
   let num_query = ref 0 in
   let callback _conn req body =
     body |&gt; Cohttp_lwt_body.to_string &gt;|= (fun body -&gt;
