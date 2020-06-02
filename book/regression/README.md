@@ -342,7 +342,7 @@ R0 -1.93878E-17
 
 Analyse the result.
 
-Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in [@fig:regression:normalisation] shows the point. ([src](https://stackoverflow.com/questions/46686924/why-scaling-data-is-very-important-in-neural-networklstm/46688787#46688787))
+Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in [@fig:regression:normalisation] shows the point.
 We have already seen that, in a "slim" slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.
 
 ![Compare gradient descent efficiency with and without data normalisation](images/regression/normalisation.png "normalisation"){width=90% #fig:regression:normalisation}
