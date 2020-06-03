@@ -1143,12 +1143,8 @@ If you want, you can play with other functions, such as $\frac{1-e^{-x}}{1+e^{-x
 
 As we have introduced in [@eq:algodiff:grad], gradient generalise derivatives to multivariate functions.
 Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the `grad` function to find it gradient at a point.
-For example, [@fig:algodiff:gradient_example] shows the gradients at different points on a 3D surface. At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis.
+Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis.
 This vector shows the direction and magnitude of maximum change of a multivariate function.
-
-![Gradient field on a 3D surface](images/algodiff/gradient_02.png "gradient_example"){ width=70% #fig:algodiff:gradient_example}
-
-TODO: replace this image with that of owl-plplot
 
 One important application of gradient is the *gradient descent*, a widely used technique to find minimum values on a function.
 The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved.
@@ -1160,6 +1156,7 @@ The potential from the two charges can be described by
 
 $$\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)$$
 
+TODO: finish this example?
 
 ### Jacobian
 

@@ -1003,14 +1003,11 @@ Plot.output h;;</code></pre>
 </section>
 <section class="level3" id="gradient">
 <h3>Gradient</h3>
-<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. For example, fig.&nbsp;5 shows the gradients at different points on a 3D surface. At each of these of points, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
-<figure>
-<img alt="" style="width:70.0%" id="fig:algodiff:gradient_example" title="gradient_example" src="images/algodiff/gradient_02.png"><figcaption>Figure 5: Gradient field on a 3D surface</figcaption>
-</figure>
-<p>TODO: replace this image with that of owl-plplot</p>
+<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
 <p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
 <p>As an example, we calculate the gradient of a physical function. The fourth chapter of <span data-cites="feynman1964feynman" class="citation">(Feynman 1964)</span> describes an electronic fields. It consists two point charges, <code>+q</code> and <code>-q</code>, separated by the distance <span class="math inline">\(d\)</span>. The z axis goes through the charges, and the origin is set to halfway between these two charges. The potential from the two charges can be described by</p>
 <p><span class="math display">\[\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)\]</span></p>
+<p>TODO: finish this example?</p>
 </section>
 <section class="level3" id="jacobian">
 <h3>Jacobian</h3>
@@ -1159,7 +1156,7 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <p>It turns out that, the simple implementation we have is not very far away from the industry-level implementation in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we will give an overview of some of the differences between the Owl implementation and the simple version.</p>
 <p>A FIGURE that covers five parts: basic type and helper functions (level 1), op, builder, reverse (level 2), and high-level API (level 3).</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:algodiff:architecture" title="architecture" src="images/algodiff/architecture.png"><figcaption>Figure 6: Architecture of the AD module</figcaption>
+<img alt="" style="width:90.0%" id="fig:algodiff:architecture" title="architecture" src="images/algodiff/architecture.png"><figcaption>Figure 5: Architecture of the AD module</figcaption>
 </figure>
 <p>This figure shows the structure of AD module in Owl. It consists of five parts. EXPLAIN.</p>
 <p>Let’s start with the type definition.</p>
