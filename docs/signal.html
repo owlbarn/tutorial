@@ -79,7 +79,7 @@ let b = Arr.of_array a [|6|] |&gt; Dense.Ndarray.Generic.cast_d2z;;
 </code></pre>
 </div>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let c = Owl_fft.D.fft b ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let c = Owl_fft.D.fft b;;
 &gt;val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 &gt;
 &gt;         C0                 C1                 C2                  C3                C4                C5
@@ -103,7 +103,7 @@ let n = 600. (* sample points *);;
 &gt;val n : float = 600.
 let t = 1. /. 800. (* sample spacing *);;
 &gt;val t : float = 0.00125
-let x = Arr.linspace 0. (n *. t) (int_of_float n) ;;
+let x = Arr.linspace 0. (n *. t) (int_of_float n);;
 &gt;val x : Arr.arr =
 &gt;
 &gt;  C0         C1         C2         C3         C4         C595     C596     C597     C598 C599
@@ -127,7 +127,7 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n) ;;
 </code></pre>
 </div>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.(y1 + y2) |&gt; G.cast_d2z ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.(y1 + y2) |&gt; G.cast_d2z;;
 &gt;val y : (Complex.t, complex64_elt) G.t =
 &gt;
 &gt;       C0             C1            C2            C3            C4               C595           C596           C597            C598               C599
@@ -152,10 +152,10 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n) ;;
 </div>
 Plot the result.
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let h = Plot.create "plot_001.png" in 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let h = Plot.create "plot_001.png" in
 let xa = Arr.linspace 1. 600. 600 in
 Plot.plot ~h xa z;
-Plot.output h 
+Plot.output h
 ;;
 &gt;- : unit = ()
 </code></pre>
@@ -255,7 +255,7 @@ let y = Mat.get_slice [[];[1]] data</code></pre>
 </div>
 <p>We can then visualise the data:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let plot_sunspot x y = 
+<pre><code class="language-ocaml">let plot_sunspot x y =
   let h = Plot.create "plot_sunspot.png" in
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
@@ -280,7 +280,7 @@ let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
 </div>
 <p>The frequency <code>cycle/year</code> seems a bit confusing. To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of <code>years/cycle</code> (periodogram). Both are plotted with:</p>
 <div class="highlight">
-<pre><code class="language-text">let plot_sunspot_freq f p = 
+<pre><code class="language-text">let plot_sunspot_freq f p =
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
   Plot.subplot h 0 0;
@@ -315,7 +315,7 @@ let data = Mat.div_scalar data 128.</code></pre>
 </div>
 <p>We have a segment of signal that shows the touch tone of dialling a phone number. We can visualise the signal:</p>
 <div class="highlight">
-<pre><code class="language-clike">let plot_tone x y filename = 
+<pre><code class="language-clike">let plot_tone x y filename =
   let h = Plot.create filename in
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
@@ -364,12 +364,12 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 </div>
 <p>Then we take the 2-D FFT, and centre the frequencies.</p>
 <div class="highlight">
-<pre><code class="language-clike">code: fft2 + fftshift; image output </code></pre>
+<pre><code class="language-clike">code: fft2 + fftshift; image output</code></pre>
 </div>
 <p>IMAGE</p>
 <p>The result is shown in a figure. It is clear that there are several small frequency bands that can be ignored. Let’s remove them using a Gaussian Filter.</p>
 <div class="highlight">
-<pre><code class="language-clike">code: using Mat.meshgrid to build a gaussian mask; matrix multiplication; image output </code></pre>
+<pre><code class="language-clike">code: using Mat.meshgrid to build a gaussian mask; matrix multiplication; image output</code></pre>
 </div>
 <p>IMAGE</p>
 <p>Now that we remove the insignificant frequencies, we can rebuild the image based on this filtered frequency with inverse 2-D FFT.</p>
@@ -389,9 +389,9 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 <p>Let’s start with a simple and common filter task: smoothing. Suppose you have a segment of noisy signal: the stock price. In many cases we hope to remove the extreme trends and see a long-term trend from the historical data. We take the stock price of Google in the past year, April 09, from 2019 to 2020. The data is taken from Yahoo Finance. We can load the data into a matrix:</p>
 <div class="highlight">
 <pre><code class="language-text">let data = Owl_io.read_csv ~sep:',' "goog.csv"
-let data = Array.map (fun x -&gt; 
+let data = Array.map (fun x -&gt;
     Array.map float_of_string (Array.sub x 1 6))
-    (Array.sub data 1 (Array.length data - 1)) 
+    (Array.sub data 1 (Array.length data - 1))
     |&gt; Mat.of_arrays</code></pre>
 </div>
 <p>The data <code>y</code> contains several columns, each representing opening price, volume, high price, etc. Here we use the daily closing price as example.</p>
@@ -405,15 +405,15 @@ let data = Array.map (fun x -&gt;
 <p>Now, we can sliding this filter window along input signal to smooth the data step by step.</p>
 <div class="highlight">
 <pre><code class="language-text">let y' = Mat.mapi (fun i _ -&gt;
-  let r = Mat.get_fancy [R [i; i+9]; R []] y in 
+  let r = Mat.get_fancy [R [i; i+9]; R []] y in
   Mat.dot filter r |&gt; Mat.sum'
 ) (Mat.get_slice [[0; (Arr.shape y).(0) - 10]; []] y)</code></pre>
 </div>
 <p>Finally, we can plot the resulting smoothed data with the original data.</p>
 <div class="highlight">
-<pre><code class="language-text">let plot_goog y y' = 
-  let n = (Arr.shape x).(0) in 
-  let x = Mat.sequential n 1 in 
+<pre><code class="language-text">let plot_goog y y' =
+  let n = (Arr.shape x).(0) in
+  let x = Mat.sequential n 1 in
   let h = Plot.create "plot_goog.png" in
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
@@ -436,12 +436,12 @@ let data = Array.map (fun x -&gt;
 <p>(numpy <a href="https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135">implementation</a> and <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html">doc</a>)</p>
 <p>The code below generate a simple 1-D gaussian filter based on the equation: <span class="math inline">\(\exp{-\frac{x^2}{2\sigma^2}}\)</span>. Similar to the previous simple example, the filter also needs to be normalised. The range of radius is set to truncate standard deviations.</p>
 <div class="highlight">
-<pre><code class="language-clike">let gaussian_kernel sigma = 
-  let truncate = 4. in 
+<pre><code class="language-clike">let gaussian_kernel sigma =
+  let truncate = 4. in
   let radius = truncate *. sigma +. 0.5 |&gt; int_of_float in
-  let r = float_of_int radius in 
-  let x = Mat.linspace (-.r) r (2 * radius + 1) in 
-  let f a = Maths.exp (-0.5 *. a ** 2. /. (sigma *. sigma)) in 
+  let r = float_of_int radius in
+  let x = Mat.linspace (-.r) r (2 * radius + 1) in
+  let f a = Maths.exp (-0.5 *. a ** 2. /. (sigma *. sigma)) in
   let x = Mat.map f x in
   Mat.(div_scalar x (sum' x))
 
@@ -468,14 +468,14 @@ let filter = gaussian_kernel 3.</code></pre>
 <p>The resulting data <code>yf</code> looks like this:</p>
 <div class="highlight">
 <pre><code class="language-text">val yf : (Complex.t, Bigarray.complex64_elt) Owl_dense_ndarray_generic.t =
-                        C0 
-  R0          (312445, 0i) 
-  R1  (-2664.07, 17064.3i) 
-  R2  (-5272.52, 3899.16i) 
-  R3 (-2085.98, -3101.46i) 
-                       ... 
-R124   (23.0005, -38.841i) 
-R125   (153.294, 68.7544i) </code></pre>
+                        C0
+  R0          (312445, 0i)
+  R1  (-2664.07, 17064.3i)
+  R2  (-5272.52, 3899.16i)
+  R3 (-2085.98, -3101.46i)
+                       ...
+R124   (23.0005, -38.841i)
+R125   (153.294, 68.7544i)</code></pre>
 </div>
 <p>We only keep the first most notable frequencies, and set the rest to zero.</p>
 <div class="highlight">
@@ -494,7 +494,7 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z</code></pre>
 </section>
 <section class="level3" id="fft-and-image-convolution">
 <h3>FFT and Image Convolution</h3>
-<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated with the fig.&nbsp;9 created by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
+<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated in fig.&nbsp;9 (inspired by the nice work by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
 <img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 9: Image convolution illustration</figcaption>
 </figure>
