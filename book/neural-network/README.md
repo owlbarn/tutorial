@@ -698,11 +698,9 @@ One of the most widely used is the *convolution neural network*.
 
 We have seen the 1D convolution from signal processing chapter.
 The 2D convolution is similar, and the only difference is that now the input and filter/kernel are both matrices instead of vectors.
-As shown in [@fig:neural-network:conv2d] ([src](https://github.com/PetarV-/TikZ/tree/master/2D%20Convolution)), the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel.
+As shown in [@fig:signal:conv] in the Signal chapter, the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel.
 This operation is especially good at capturing the features in images.
 It is the key to image process in neural network.
-
-![Convolution Operation on 2-dimension space](images/neural-network/conv2d.png "conv2d"){width=90% #fig:neural-network:conv2d}
 
 To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc.
 They are enough to support building state-of-the-art network structures.
