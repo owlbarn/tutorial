@@ -99,7 +99,7 @@ However, going deeper has its limit.
 The deeper you go, the more you will experience the "vanishing gradient" problem.
 This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected.
 
-The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual] (Src: original paper).
+The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual].
 
 ![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=60% #fig:case-image-inception:residual}
 
@@ -195,7 +195,7 @@ This layer rescales each mini-batch with the mean and variance of this mini-batc
 Imagine that we train a network to recognise horse, but most of the training data are actually black or blown horse. Then the network's performance on white horse might not be quite ideal.
 This again leads us back to the over-fitting problem.
 The batch normalisation layer adds noise to input by scaling.
-As a result, the content at deeper layer is less sensitive to content in lower layers.  
+As a result, the content at deeper layer is less sensitive to content in lower layers.
 Overall, the batch normalisation layer greatly improves the efficiency of training.
 
 ### Factorisation
@@ -374,7 +374,7 @@ let mix_typ8 nn =
 
 `mix_typ8` is the second grid size reduction module in the deeper part of the network.
 It uses three branches instead of two, and each convolution branch is more complex. The `1x1` convolutions are again used.
-But in general it still follows the principle of performing reduction in parallel and then concatenate them together, performing an efficient feature map reduction.  
+But in general it still follows the principle of performing reduction in parallel and then concatenate them together, performing an efficient feature map reduction.
 
 ### InceptionV3 Architecture
 
@@ -411,7 +411,7 @@ Besides, the global pooling layer is more robust to spatial translations in the 
 The full code is listed in [@zoo2019inceptionv3].
 Even if you are not quite familiar with Owl or OCaml, it must still be quite surprising to see the network that contains 313 neuron nodes can be constructed using only about 150 lines of code. And we are talking about one of the most complex neural networks for computer vision.
 
-Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.  
+Besides InceptionV3, you can also easily construct other popular image recognition networks, such as [ResNet50](https://gist.github.com/pvdhove/a05bf0dbe62361b9c2aff89d26d09ba1), [VGG16](https://gist.github.com/jzstark/f5409c44d6444921a8ceec00e33c42c4), [SqueezeNet](https://gist.github.com/jzstark/c424e1d1454d58cfb9b0284ba1925a48) etc. with elegant Owl code.
 We have already mentioned most of them in previous sections.
 
 ## Preparing Weights
