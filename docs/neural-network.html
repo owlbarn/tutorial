@@ -447,10 +447,7 @@ let loss = Maths.(loss + reg)</code></pre>
 <section class="level2" id="convolutional-neural-network">
 <h2>Convolutional Neural Network</h2>
 <p>So far we have seen how an example of fully connected feed forward neural network evolves step by step. However, there is so much more than just this kind of neural networks. One of the most widely used is the <em>convolution neural network</em>.</p>
-<p>We have seen the 1D convolution from signal processing chapter. The 2D convolution is similar, and the only difference is that now the input and filter/kernel are both matrices instead of vectors. As shown in fig.&nbsp;6 (<a href="https://github.com/PetarV-/TikZ/tree/master/2D%20Convolution">src</a>), the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel. This operation is especially good at capturing the features in images. It is the key to image process in neural network.</p>
-<figure>
-<img alt="" style="width:90.0%" id="fig:neural-network:conv2d" title="conv2d" src="images/neural-network/conv2d.png"><figcaption>Figure 6: Convolution Operation on 2-dimension space</figcaption>
-</figure>
+<p>We have seen the 1D convolution from signal processing chapter. The 2D convolution is similar, and the only difference is that now the input and filter/kernel are both matrices instead of vectors. As shown in fig.&nbsp;<strong>¿fig:signal:conv?</strong> in the Signal chapter, the kernel matrix moves along the input matrix in both directions, and the sub-matrix on the input matrix is element-wisely multiplied with the kernel. This operation is especially good at capturing the features in images. It is the key to image process in neural network.</p>
 <p>To perform computer vision we need more types of neurons, and so far we have implemented most of the common type of neurons such as convolution (both 2D and 3D), pooling, batch normalisation, etc. They are enough to support building state-of-the-art network structures. These neurons should be sufficient for creating from simple MLP to the most complicated convolution neural networks.</p>
 <p>Since the MNIST handwritten recognition task is also a computer vision task, let’s use the CNN to do it again. The code below creates a small convolutional neural network of six layers.</p>
 <div class="highlight">
@@ -475,23 +472,23 @@ let make_network input_shape =
 <p>In all the previous examples, even the computer vision tasks, the pattern is obvious to see: given one input, the trained network generates another output. However, that’s not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. For example, if we need to generate English based on French, or label each frame in a video, only focusing on the current word/frame is not enough.</p>
 <p>That’s where the Recurrent Neural Network (RNN) comes to help. It allows the input and output to be in sequence. The basic structure of RNN is quite simple: it is a neural network with loops, and the output of the previous loop is fed into the next loop as input, together with the current data in sequence. In this way, the information from previous data in the sequence is kept.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unrolled" title="rnn-unrolled" src="images/neural-network/rnn-unrolled.png"><figcaption>Figure 7: Unroll the recurrent neural network</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unrolled" title="rnn-unrolled" src="images/neural-network/rnn-unrolled.png"><figcaption>Figure 6: Unroll the recurrent neural network</figcaption>
 </figure>
-<p>As shown in fig.&nbsp;7, a RNN can actually be unrolled into a chain of multiple connected neural networks. Here the <span class="math inline">\(x_i\)</span>’s are sequential input, and the <span class="math inline">\(h_i\)</span>’s are the <em>hidden status</em>, or output of the RNN. The function of RNN therefore mainly relies on the processing logic in <span class="math inline">\(A\)</span>.</p>
+<p>As shown in fig.&nbsp;6, a RNN can actually be unrolled into a chain of multiple connected neural networks. Here the <span class="math inline">\(x_i\)</span>’s are sequential input, and the <span class="math inline">\(h_i\)</span>’s are the <em>hidden status</em>, or output of the RNN. The function of RNN therefore mainly relies on the processing logic in <span class="math inline">\(A\)</span>.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unit" title="rnn-unit" src="images/neural-network/rnn-unit.png"><figcaption>Figure 8: Basic processing unit in classic recurrent neural network</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:rnn-unit" title="rnn-unit" src="images/neural-network/rnn-unit.png"><figcaption>Figure 7: Basic processing unit in classic recurrent neural network</figcaption>
 </figure>
 <p>In a vanilla recurrent neural network, the function can be really simple and familiar:</p>
 <p><span id="eq:neural-network:update"><span class="math display">\[h_i = \textrm{activation}(w(h_{i-1}x_i) + b).\qquad(2)\]</span></span></p>
-<p>This is exactly what we have seen in the feed forward networks. Here <code>w</code> and <code>b</code> are the parameters to be trained in this RNN. This process is shown in fig.&nbsp;8. The activation function here is usually the <code>tanh</code> function to keep the value within range of <code>[-1, 1]</code>.</p>
+<p>This is exactly what we have seen in the feed forward networks. Here <code>w</code> and <code>b</code> are the parameters to be trained in this RNN. This process is shown in fig.&nbsp;7. The activation function here is usually the <code>tanh</code> function to keep the value within range of <code>[-1, 1]</code>.</p>
 <p>However, this unit has a problem. Think about it: it’s like you keep updating a diary based on input data; after a while, the information from the old days will certainly be flooded out with the new information. It’s exactly like what Sherlock Holmes describes how brain works: if you keep dumping information into your head, you will have to throw away existing stuff out, be it useful or not. As a result, in this RNN the old data in the sequence would have diminishing effect on the output, which means the output would be less sensitive to the context. That’s why currently when put into use, we often a special kind of RNN: the Long/Short Term Memory (LSTM).</p>
 <section class="level3" id="long-short-term-memory-lstm">
 <h3>Long Short Term Memory (LSTM)</h3>
 <p>LSTM is proposed by Hochreiter &amp; Schmidhuber (1997) and since widely used and refined by many work. Based on RNN, the basic idea of LSTM is simple. We still need to pass in the output from previous loop, but instead of take it as is, the processing unit make three choices: 1) what to forget, 2) what to remember, and 3) what to output. In this way, the useful information from previous data can be kept longer and the RNN would then have a “longer memory”.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:lstm" title="lstm" src="images/neural-network/lstm.png"><figcaption>Figure 9: Basic processing unit in LSTM</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:lstm" title="lstm" src="images/neural-network/lstm.png"><figcaption>Figure 8: Basic processing unit in LSTM</figcaption>
 </figure>
-<p>Let’s see how it achieves this effect. The process unit of LSTM is shown in fig.&nbsp;9. It consists of three parts that corresponds to the three choices listed above.</p>
+<p>Let’s see how it achieves this effect. The process unit of LSTM is shown in fig.&nbsp;8. It consists of three parts that corresponds to the three choices listed above.</p>
 <p>Unlike standard RNN, each unit also takes in and produces a state <span class="math inline">\(C\)</span> that flows along the whole loop process. This state is modified twice within the unit.</p>
 <p>The first part is called <em>forget gate layer</em>. It combines the output <span class="math inline">\(h_{t-1}\)</span> from previous loop and the data <span class="math inline">\(x_i\)</span>, and outputs a probability number between [0, 1] to decide how much of the existing information should be kept. This probability, as you may have guessed, is achieved using the <code>sigmoid</code> activation function, denoted by <span class="math inline">\(\sigma\)</span>.</p>
 <p>Next, we need to decide “what to remember” from the existing data. This is done with two branches. The first branch uses the <code>sigmoid</code> function to denote which part of the new data <span class="math inline">\(h_{t-1}+x_t\)</span> should be updated, and the second branch using the <code>tanh</code> function decides how much value to update for the vector. Both branches follow the procedure in eq.&nbsp;2, but with different <code>w</code> and <code>b</code> parameters.</p>
@@ -528,9 +525,9 @@ let make_network wndsz vocabsz =
 </div>
 <p>EXPLAIN how to generate the text based on model after NLP.</p>
 <p><strong>Gated Recurrent Unit (GRU)</strong></p>
-<p>The LSTM is kept refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;10.</p>
+<p>The LSTM is kept refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;9.</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 10: Basic processing unit in GRU</figcaption>
+<img alt="" style="width:80.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 9: Basic processing unit in GRU</figcaption>
 </figure>
 <p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decide how much information to forget from the past, and then then “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training. In the LSTM code above, we can just replace the <code>lstm</code> node to <code>gru</code>.</p>
 </section>

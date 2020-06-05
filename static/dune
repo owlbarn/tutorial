@@ -118,6 +118,7 @@
         images/optimisation/gradient.png
         images/optimisation/gradient2.png
         images/optimisation/gradients.png
+        images/optimisation/gradients2.png
         images/optimisation/plot_hump.png
         images/regression/boston.png
         images/regression/mnist.png
@@ -133,6 +134,7 @@
         images/regression/reg_svm.png
         images/regression/regdata.png
         images/signal/conv.png
+        images/signal/conv2.png
         images/signal/lena.png
         images/signal/plot_001.png
         images/signal/plot_goog.png
