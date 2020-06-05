@@ -27,6 +27,7 @@
         images/case-image-inception/inceptionv3.png
         images/case-image-inception/panda.png
         images/case-image-inception/residual-block.png
+        images/case-image-inception/residual-block2.png
         images/case-nst/chicago.png
         images/case-nst/contents-reconstruction.png
         images/case-nst/example_fst00.png
@@ -66,6 +67,7 @@
         images/core-opt/eigen_tp_conv2d.png
         images/core-opt/eigen_tp_conv2d_bi_mem.png
         images/core-opt/fork_join.png
+        images/core-opt/fork_join2.png
         images/core-opt/im2col.png
         images/core-opt/opeval_repeat.png
         images/core-opt/opeval_sin.png
