@@ -18,7 +18,7 @@ You can use these unary functions easily from the `Maths` module. For example:
 ```
 
 ------------  -------------------------------------------------------
-Function      Explanation  
+Function      Explanation
 ------------  -------------------------------------------------------
 `abs`         `|x|`
 
@@ -46,7 +46,7 @@ Binary functions takes two floats as inputs and returns one float as return.
 The most common arithmetic functions belong to this category.
 
 ------------  -------------------------------------------------------
-Function      Explanation  
+Function      Explanation
 ------------  -------------------------------------------------------
 `add`         `x + y`
 
@@ -82,7 +82,7 @@ With this model, we can predict how the population of bacterial grows within cer
 The full list of exponential and logarithmic functions, together with some variants, are presented in [@tbl:maths:explog].
 
 ------------  -------------------------------------------------------
-Function      Explanation  
+Function      Explanation
 ------------  -------------------------------------------------------
 `exp`         exponential $e^x$
 
@@ -138,13 +138,13 @@ Function      Explanation      Derivatives                        Taylor Expansi
 
 `cos`         $\cos(x)$        $-\sin(x)$                         $\sum_{n=1}(-1)^n\frac{x^{2n}}{(2n)!}$
 
-`tan`         $\tan(x)$        $1 + \tan^2(x)$                    $\sum_{n=1}\frac{4^n(4^n-1)B_n~x^{2n-1}}{(2n)!}$  
+`tan`         $\tan(x)$        $1 + \tan^2(x)$                    $\sum_{n=1}\frac{4^n(4^n-1)B_n~x^{2n-1}}{(2n)!}$
 
 `cot`         $1/\tan(x)$      $-(1 + \textrm{cot}^2(x))$         $\sum_{n=0}\frac{E_n~x^{2n}}{(2n)!}$
 
 `sec`         $1/\cos(x)$      $\textrm{sec}(x)\tan(x)$           $\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}$
 
-`csc`         $1/\sin(x)$      $-\textrm{csc}(x)\textrm{cot}(x)$  $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}$  
+`csc`         $1/\sin(x)$      $-\textrm{csc}(x)\textrm{cot}(x)$  $\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}$
 ------------  ---------------- -----------------                  ---------------------------------------------
 : Trigonometric math functions {#tbl:maths:triangular}
 
@@ -152,7 +152,7 @@ Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Ber
 The [@fig:algodiff:trio] shows the relationship between these trigonometric functions ([figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0)).
 These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $\sin(a) = b$, then $\textrm{asin}(b) = a$.
 
-![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=80% #fig:algodiff:trio}
+![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=60% #fig:algodiff:trio}
 
 Another related idea is the *Hyperbolic functions*.
 Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola.
@@ -172,7 +172,7 @@ These functions in Owl is shown below:
 Similarly, each of these functions has corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
 The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
-![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=80% #fig:algodiff:hyper_trio}
+![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=70% #fig:algodiff:hyper_trio}
 
 Besides these functions, there are also some related functions.
 `sinc` returns $\sin(x)/x$ and 1 for $x=0$.
@@ -255,7 +255,7 @@ A special case is when $x$ is purely imaginary. In this case, the solutions to t
 Based on these category, Owl provides these functions.
 
 -------- ---------------------------------------------
-Function Explanation  
+Function Explanation
 -------- ---------------------------------------------
 `j0 x`   Bessel function of the first kind of order 0
 
@@ -321,7 +321,7 @@ For example, electromagnetic waves in a cylindrical waveguide, pressure amplitud
 ### Elliptic Functions
 
 ---------------------- -----------------------------------------------------------------------------------
-Function               Explanation  
+Function               Explanation
 ---------------------- -----------------------------------------------------------------------------------
 `ellipj u m`           Jacobian elliptic functions of parameter `m` between 0 and 1, and real argument `u`
 
@@ -375,7 +375,7 @@ The Gamma function is widely used in a range of areas such as fluid dynamics, ge
 The Gamma function and related function provided in Owl are list in [@tbl:maths:gamma].
 
 ------------------------- ------------------------------------------------------
-Function                  Explanation  
+Function                  Explanation
 ------------------------- ------------------------------------------------------
 `gamma z`                 Returns the value of the Gamma function
 
@@ -430,9 +430,9 @@ $$B(x, a, b) = \int_0^xt^{a-1}(1-t)^{b-1}dt.$$
 They are both included in the special functions provided by Owl.
 
 ------------------------- ------------------------------------------------------
-Function                  Explanation  
+Function                  Explanation
 ------------------------- ------------------------------------------------------
-`beta x y`                Beta function     
+`beta x y`                Beta function
 
 `betainc a b x`           Incomplete Beta integral
 
@@ -516,7 +516,7 @@ In mathematics, it is defined as:
 $$\frac{2}{\sqrt{\pi}}\int_0^x e^{-t^2})dt.$$
 
 ------------------------- ------------------------------------------------------
-Function                  Explanation  
+Function                  Explanation
 ------------------------- ------------------------------------------------------
 `erf x`                   Error function
 
@@ -573,7 +573,7 @@ let _ =
 Besides these two, other type of special integral functions are also provided, as shown in [@tbl:maths:integral].
 
 ----------------- -----------------------------------------------------------
-Function          Explanation  
+Function          Explanation
 ----------------- -----------------------------------------------------------
 `expn n x`        Generalized exponential integral $E_n(x) = x^{n-1}\int_x^{\infty}\frac{e^{-t}}{t^n}dt$
 
@@ -604,7 +604,7 @@ $F(n) = n! = n \times (n - 1) \times (n-2) \ldots \times 1$
 The factorial function, together with several variants, are contained in the math module.
 
 ----------------- -----------------------------------------------------------
-Function          Explanation  
+Function          Explanation
 ----------------- -----------------------------------------------------------
 `fact n`          Factorial function $!n$
 
@@ -631,7 +631,7 @@ THe combination returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of 
 
 
 ----------------------  -----------------------------------------------------------
-Function                Explanation  
+Function                Explanation
 ----------------------  -----------------------------------------------------------
 `permutation n k`       Permutation number
 
