@@ -24,6 +24,7 @@
         images/asset/liang.jpg
         images/backend/base-structure.png
         images/case-image-inception/cnn_workflow.png
+        images/case-image-inception/cnn_workflow2.png
         images/case-image-inception/inceptionv3.png
         images/case-image-inception/panda.png
         images/case-image-inception/residual-block.png
@@ -69,6 +70,7 @@
         images/core-opt/fork_join.png
         images/core-opt/fork_join2.png
         images/core-opt/im2col.png
+        images/core-opt/im2col2.png
         images/core-opt/opeval_repeat.png
         images/core-opt/opeval_sin.png
         images/core-opt/opeval_tp_repeat_mem_00.png
@@ -97,18 +99,24 @@
         images/maths/example_integrals.png
         images/maths/example_struve.png
         images/maths/hyper_trio.png
+        images/maths/hyper_trio2.png
         images/maths/integration_basic.png
         images/maths/interp.png
         images/maths/trio.png
+        images/maths/trio2.png
         images/matrix/plot_00.png
         images/neural-network/activations.png
         images/neural-network/conv2d.png
         images/neural-network/gru.png
+        images/neural-network/gru2.png
         images/neural-network/lstm.png
+        images/neural-network/lstm2.png
         images/neural-network/neural_module.png
         images/neural-network/plot_01.png
         images/neural-network/rnn-unit.png
+        images/neural-network/rnn-unit2.png
         images/neural-network/rnn-unrolled.png
+        images/neural-network/rnn-unrolled2.png
         images/neural-network/simple_nn.png
         images/nlp/dirichlet.png
         images/nlp/lda.png
