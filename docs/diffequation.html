@@ -12,19 +12,34 @@
 <p><span id="eq:diffequation:ode-def"><span class="math display">\[ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.\qquad(1)\]</span></span></p>
 <p>The differential equations model dynamic systems, and the initial status of the system is often known. That is called <em>initial values</em>. They can be represented as:</p>
 <p><span id="eq:diffequation:init"><span class="math display">\[y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,\qquad(2)\]</span></span></p>
-<p>where the <span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>, etc. are known. The highest order of derivatives that are used in eq.&nbsp;1 is the <em>order</em> of this differential equation. A first-order differential equation can be generally expressed as: <span class="math inline">\(\frac{dy}{dx}=f(x,y)\)</span>, where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>.</p>
-<p>Solving eq.&nbsp;1 that fits given initial values as in eq.&nbsp;2 is called the <em>initial value problem</em>. Solving this kind of problems is the main target of many numerical ODE solvers.</p>
+<p>where the <span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>, etc. are known. The highest order of derivatives that are used in eq.&nbsp;1 is the <em>order</em> of this differential equation. A first-order differential equation can be generally expressed as: <span class="math inline">\(\frac{dy}{dx}=f(x,y)\)</span>, where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Solving eq.&nbsp;1 that fits given initial values as in eq.&nbsp;2 is called the <em>initial value problem</em>. Solving this kind of problems is the main target of many numerical ODE solvers.</p>
 <section class="level3" id="exact-solutions">
 <h3>Exact Solutions</h3>
-<p>Solving a differential equation is often complex, but we do not how to solve part of them. Before looking at the the solvers to a random ODEs, let’s turn to the math first and look at some ODE forms that we already have analytical close-form solution.</p>
-<p><strong>Separable equations</strong>:</p>
-<p><span class="math display">\[P(y)\frac{dy}{dx} + Q(x) = 0,\]</span></p>
-<p>and it’s close form solution is:</p>
-<p><span class="math display">\[\int^{y}P(y)dy + \int^{x}Q(x)dx = C\]</span>.</p>
-<p><strong>Linear first-order equations</strong>:</p>
-<p><span class="math display">\[\frac{dy}{dx} + P(x)y = Q(x)\]</span></p>
-<p>It’s solution is:</p>
-<p>EQUATION</p>
+<p>Solving a differential equation is often complex, but we do know how to solve part of them. Before looking at the the computer solvers to a random ODEs, let’s turn to the math first and look at some ODE forms that we already have analytical close-form solution to.</p>
+<table>
+<colgroup>
+<col style="width: 20%">
+<col style="width: 79%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">ODE</th>
+<th style="text-align: left;">Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(P(y)\frac{dy}{dx} + Q(x) = 0\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\int^{y}P(y)dy + \int^{x}Q(x)dx = C\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(\frac{dy}{dx} + P(x)y = Q(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(y=e^{-\sum_{x_0}^xP(x)dx}(y_0 + \sum_{x_0}^xQ(x)e^{\sum_{x_0}^xP(x)dx}dx)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Separable equations</p>
+<p>Linear first-order equations</p>
 <p>Solving ODE analytically is not the focus of solvers. REFER to classical math book (reference required) or full course for more detail.</p>
 <p>Explicit vs Implicit etc.: The three types of equations. This is important.</p>
 </section>

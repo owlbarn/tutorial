@@ -24,30 +24,22 @@ $$y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,$${#eq:diffequation:init}
 where the $y_0$, $y_1$, etc. are known.
 The highest order of derivatives that are used in [@eq:diffequation:ode-def] is the *order* of this differential equation.
 A first-order differential equation can be generally expressed as: $\frac{dy}{dx}=f(x,y)$, where $f$ is any function that contains $x$ and $y$.
-
 Solving [@eq:diffequation:ode-def] that fits given initial values as in [@eq:diffequation:init] is called the *initial value problem*.
 Solving this kind of problems is the main target of many numerical ODE solvers.
 
 ### Exact Solutions
 
-Solving a differential equation is often complex, but we do not how to solve part of them.
-Before looking at the the solvers to a random ODEs, let's turn to the math first and look at some ODE forms that we already have analytical close-form solution.
+Solving a differential equation is often complex, but we do know how to solve part of them.
+Before looking at the the computer solvers to a random ODEs, let's turn to the math first and look at some ODE forms that we already have analytical close-form solution to.
 
-**Separable equations**:
+| ODE | Solution |
+| :------------: |:---------------------------------- | 
+| $P(y)\frac{dy}{dx} + Q(x) = 0$ | $\int^{y}P(y)dy + \int^{x}Q(x)dx = C$ | 
+| $\frac{dy}{dx} + P(x)y = Q(x)$ | $y=e^{-\sum_{x_0}^xP(x)dx}(y_0 + \sum_{x_0}^xQ(x)e^{\sum_{x_0}^xP(x)dx}dx)$ |
 
-$$P(y)\frac{dy}{dx} + Q(x) = 0,$$
+Separable equations
 
-and it's close form solution is:
-
-$$\int^{y}P(y)dy + \int^{x}Q(x)dx = C$$.
-
-**Linear first-order equations**:
-
-$$\frac{dy}{dx} + P(x)y = Q(x)$$
-
-It's solution is:
-
-EQUATION
+Linear first-order equations
 
 Solving ODE analytically is not the focus of solvers.
 REFER to classical math book (reference required) or full course for more detail.
