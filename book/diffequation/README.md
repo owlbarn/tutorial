@@ -36,15 +36,19 @@ Before looking at the the computer solvers to a random ODEs, let's turn to the m
 | :------------: |:---------------------------------- | 
 | $P(y)\frac{dy}{dx} + Q(x) = 0$ | $\int^{y}P(y)dy + \int^{x}Q(x)dx = C$ | 
 | $\frac{dy}{dx} + P(x)y = Q(x)$ | $y=e^{-\sum_{x_0}^xP(x)dx}(y_0 + \sum_{x_0}^xQ(x)e^{\sum_{x_0}^xP(x)dx}dx)$ |
+: Examples of solutions to certain types of ODE {#tbl:diffequation:ode_solution}
 
-Separable equations
+The [@tbl:diffequation:ode_solution] shows two examples. 
+The first line is a type of ODEs that are called the "separable equations".
+The second line represents the ODEs that are called the "linear first-order equations". 
+The solution to both form of ODE are already well-known, as shown in the second column.
+Here $C$ is a constant decided by initial condition $x_0$ and $y_0$. 
+There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. 
+Please refer to classical calculus books or courses for more detail.
 
-Linear first-order equations
+Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit ODE*. 
 
-Solving ODE analytically is not the focus of solvers.
-REFER to classical math book (reference required) or full course for more detail.
-
-Explicit vs Implicit etc.: The three types of equations. This is important.
+(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)
 
 ### Reduce High-Order Equations
 

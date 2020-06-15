@@ -16,10 +16,12 @@
 <section class="level3" id="exact-solutions">
 <h3>Exact Solutions</h3>
 <p>Solving a differential equation is often complex, but we do know how to solve part of them. Before looking at the the computer solvers to a random ODEs, let’s turn to the math first and look at some ODE forms that we already have analytical close-form solution to.</p>
+<div id="tbl:diffequation:ode_solution">
 <table>
+<caption>Table 1: Examples of solutions to certain types of ODE</caption>
 <colgroup>
-<col style="width: 20%">
-<col style="width: 79%">
+<col style="width: 28%">
+<col style="width: 71%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -38,10 +40,10 @@
 </tr>
 </tbody>
 </table>
-<p>Separable equations</p>
-<p>Linear first-order equations</p>
-<p>Solving ODE analytically is not the focus of solvers. REFER to classical math book (reference required) or full course for more detail.</p>
-<p>Explicit vs Implicit etc.: The three types of equations. This is important.</p>
+</div>
+<p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>. There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. Please refer to classical calculus books or courses for more detail.</p>
+<p>Note that in both types the derivative <span class="math inline">\(dy/dx\)</span> can be expressed explicitly as a function of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and therefore is called <em>explicit ODE</em>.</p>
+<p>(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)</p>
 </section>
 <section class="level3" id="reduce-high-order-equations">
 <h3>Reduce High-Order Equations</h3>
@@ -204,10 +206,10 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 <li><p><code>sundials</code>: a SUite of Nonlinear and DIfferential/ALgebraic equation Solvers. It contains six solvers, and we interface to its <code>CVODE</code> solver for solving initial value problems for ordinary differential equation systems.</p></li>
 <li><p><code>odepack</code>: ODEPACK is a collection of Fortran solvers for the initial value problem for ordinary differential equation systems. We interface to its LSODA solver which is for solving the explicit form ODE.</p></li>
 </ul>
-<p>For all these solvers, <code>owl-ode</code> provides an easy-to-use unified interface, as you have seen in the examples. tbl.&nbsp;1 is a table that lists all the solvers that are currently supported by <code>owl-ode</code>.</p>
+<p>For all these solvers, <code>owl-ode</code> provides an easy-to-use unified interface, as you have seen in the examples. tbl.&nbsp;2 is a table that lists all the solvers that are currently supported by <code>owl-ode</code>.</p>
 <div id="tbl:diffequation:solvers">
 <table>
-<caption>Table 1: Solvers provided by owl-ode and their types.</caption>
+<caption>Table 2: Solvers provided by owl-ode and their types.</caption>
 <thead>
 <tr class="header">
 <th>Solvers</th>
