@@ -82,7 +82,7 @@ It uses a small step $\delta$ to approximate the limit in the definition:
 
 $$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$
 
-As long as you knows how to evaluate function $f$, this method can be applied. The functon $f$ per se can be treated a blackbox.
+As long as you knows how to evaluate function $f$, this method can be applied. The function $f$ per se can be treated a black box.
 The differentiation coding used in this method is also straightforward.
 However, the problem with this method is prone to truncation errors and round-off errors.
 The truncation errors is introduced by truncating an infinite sum and approximating it by a finite sum;

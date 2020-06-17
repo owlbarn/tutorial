@@ -68,20 +68,20 @@ Different from other data science book, this book can be a good learning materia
 
 The book is divided into three parts, and each part focusses on different areas.
 
-The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natrual language processing, probabilistic programming, and etc. The chapters are loosely organised on their dependency, e.g. you need to know optimisation before studying regression and deep neural networks.
+The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natural language processing, probabilistic programming, and etc. The chapters are loosely organised on their dependency, e.g. you need to know optimisation before studying regression and deep neural networks.
 
-The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core compoment and show how we build it and optimise it. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key compoenents needed in complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
+The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core component and show how we build it and optimise it. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key components needed in complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
 
-The Part III is a collection of case studies. This part might be the most interesting one for those who are practitioners. We will demonstrate how you can build a complete numerical application quicly from scracth using Owl. The cases include computer vision, recommendr systems, financial technology, and etc.
+The Part III is a collection of case studies. This part might be the most interesting one for those who are practitioners. We will demonstrate how you can build a complete numerical application quickly from scratch using Owl. The cases include computer vision, recommender systems, financial technology, and etc.
 
-The book does not enforce any strict order in reading, you can simply jump to the topic that interests you most. If you are compleletely new to the Owl system, we still strongly recommend you to start with the first two chapters of the book so that you know how to set up a working environment and start programming. All the code snippets included in this book can be compiled with the most recent master branch of Owl, our tooling guarantees the book material stay up-to-date with the software.
+The book does not enforce any strict order in reading, you can simply jump to the topic that interests you most. If you are completely new to the Owl system, we still strongly recommend you to start with the first two chapters of the book so that you know how to set up a working environment and start programming. All the code snippets included in this book can be compiled with the most recent master branch of Owl, our tooling guarantees the book material stay up-to-date with the software.
 
 
 ## Installation
 
 Owl requires OCaml version `>=4.06.0`. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to [Install OCaml](https://ocaml.org/docs/install.html).
 
-Owl's installation is rather trival. There are four possible ways as shown below, from the most straightforward one to the least one.
+Owl's installation is rather trivial. There are four possible ways as shown below, from the most straightforward one to the least one.
 
 
 ### Option 1: Install from OPAM
@@ -96,7 +96,7 @@ Thanks to the folks in [OCaml Labs](http://ocamllabs.io/), OPAM makes package ma
 
 There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` by hand, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this issue.
 
-This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. I usually make a new release whenever there are enough changes accumulated or a significnat feature implemented. If you want to try the newest development features, I recommend the other ways to install Owl, as below.
+This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. I usually make a new release whenever there are enough changes accumulated or a significant feature implemented. If you want to try the newest development features, I recommend the other ways to install Owl, as below.
 
 
 ### Option 2: Pull from Docker Hub
@@ -168,7 +168,7 @@ The most important dependency is [OpenBLAS](https://github.com/xianyi/OpenBLAS).
 
 ```
 
-However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdate binary distribution offerd by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code. 
+However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdated binary distribution offered by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code. 
 
 OpenBLAS already contains an implementation of LAPACKE, as long as you have a Fortran complier installed on your computer, the LAPACKE will be compiled and included in the installation automatically.
 
@@ -268,7 +268,7 @@ For example, you can simply copy & paste the whole [lazy_mnist.ml](https://githu
 val make_network : int array -> network = <fun>
 ```
 
-`make_network` defines the structure of a convolution neural network. By passing the shape of input data, Owl autmatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.
+`make_network` defines the structure of a convolution neural network. By passing the shape of input data, Owl automatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.
 
 ```ocaml env=intro_00
 # make_network [|28;28;1|]
