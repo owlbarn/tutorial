@@ -203,7 +203,7 @@ to provide parallel computation. It is requires both
 compiler support and linking to specific system libraries.
 OpenMP support is transparent to programmers, it can
 be enabled by turning on the corresponding compilation
-switch in jbuild file.
+switch in `dune` file.
 After enabling OpenMP, many vectorised math operators are replaced with the corresponding OpenMP
 implementation in the compiling phase. Parallelism offered by OpenMP is not a free lunch, the scheduling
 mechanism adds extra overhead to a computation task.

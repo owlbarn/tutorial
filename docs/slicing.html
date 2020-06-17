@@ -365,7 +365,7 @@ rotate90 x
 </section>
 <section class="level2" id="broadcasting">
 <h2>Broadcasting</h2>
-<p>Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This autmoatic behaviour on one hand is able to simplify the code, it can also potoentially introduce bugs and make the debugging really difficult.</p>
+<p>Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This automatic behaviour on one hand is able to simplify the code, it can also potentially introduce bugs and make the debugging really difficult.</p>
 <section class="level3" id="what-is-broadcasting">
 <h3>What Is Broadcasting?</h3>
 <p>There are many binary (mathematical) operators take two ndarrays as inputs, e.g.&nbsp;<code>add</code>, <code>sub</code>, and etc. In the trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match, then how to apply the smaller one to the bigger one is referred to as <code>broadcasting</code>.</p>
@@ -416,7 +416,7 @@ rotate90 x
   ...
 </code></pre>
 </div>
-<p>What if <code>y</code> has less dimensionality than <code>x</code>? E.g., <code>x</code> has the shape <code>[|2;3;4;5|]</code> wheras <code>y</code> has the shape <code>[|4;5|]</code>. In this case, Owl first calls <code>Ndarray.expand</code> function to increase <code>y</code>’s dimensionality to the same number as <code>x</code>’s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending <code>1</code> s to lower dimension of <code>y</code>, so the new shape of <code>y</code> becomes <code>[|1;1;4;5|]</code>.</p>
+<p>What if <code>y</code> has less dimensionality than <code>x</code>? E.g., <code>x</code> has the shape <code>[|2;3;4;5|]</code> whereas <code>y</code> has the shape <code>[|4;5|]</code>. In this case, Owl first calls <code>Ndarray.expand</code> function to increase <code>y</code>’s dimensionality to the same number as <code>x</code>’s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending <code>1</code> s to lower dimension of <code>y</code>, so the new shape of <code>y</code> becomes <code>[|1;1;4;5|]</code>.</p>
 <p>You can try <code>expand</code> by yourself, as below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let y = Arr.sequential [|4;5|];;

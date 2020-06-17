@@ -431,7 +431,7 @@ Slicing and indexing is an important topic in Owl, make sure you understand it w
 
 ## Broadcasting
 
-Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This autmoatic behaviour on one hand is able to simplify the code, it can also potoentially introduce bugs and make the debugging really difficult.
+Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This automatic behaviour on one hand is able to simplify the code, it can also potentially introduce bugs and make the debugging really difficult.
 
 
 ### What Is Broadcasting?
@@ -496,7 +496,7 @@ Here are some **invalid** shapes that violate the aforementioned constraints so 
 ```
 
 
-What if `y` has less dimensionality than `x`? E.g., `x` has the shape `[|2;3;4;5|]` wheras `y` has the shape `[|4;5|]`. In this case, Owl first calls `Ndarray.expand` function to increase `y`'s dimensionality to the same number as `x`'s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending `1` s to lower dimension of `y`, so the new shape of `y` becomes `[|1;1;4;5|]`.
+What if `y` has less dimensionality than `x`? E.g., `x` has the shape `[|2;3;4;5|]` whereas `y` has the shape `[|4;5|]`. In this case, Owl first calls `Ndarray.expand` function to increase `y`'s dimensionality to the same number as `x`'s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending `1` s to lower dimension of `y`, so the new shape of `y` becomes `[|1;1;4;5|]`.
 
 You can try `expand` by yourself, as below.
 
