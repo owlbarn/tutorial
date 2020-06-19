@@ -63,7 +63,7 @@ val set_slice : int list list -&gt; ('a, 'b) t -&gt; ('a, 'b) t -&gt; unit</code
 </section>
 <section class="level3" id="conventions-in-definition">
 <h3>Conventions in Definition</h3>
-<p>Essentially, Owl’s slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.</p>
+<p>Essentially, Owl’s slicing functions are very similar to those in NumPy. So if you already know how to slice n-dimensional arrays in NumPy, you should find this chapter very easy.</p>
 <p>The core building block is the slice definition. Slice definition is a <code>index list</code>. Each element within the <code>index list</code> corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors <code>I</code>, <code>L</code>, and <code>R</code> to let you specify single index, a list of indices, or a range of indices.</p>
 <ul>
 <li><p>Constructor <code>I</code> is trivial, it specifies a specific index. E.g., <code>[ I 2; I 5 ]</code> returns the element at position <code>(2, 5)</code> in a matrix.</p></li>
@@ -309,7 +309,7 @@ flip x
 &gt;R4  0  1  2  3  4
 </code></pre>
 </div>
-<p>The second <code>reverse</code> function treats a matrix as one-dimensional vector and rerverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.</p>
+<p>The second <code>reverse</code> function treats a matrix as one-dimensional vector and reverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
 reverse x
@@ -324,7 +324,7 @@ reverse x
 &gt;R4  4  3  2  1  0
 </code></pre>
 </div>
-<p>The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very consicise code.</p>
+<p>The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very concise code.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let rotate90 x = Mat.(transpose x |&gt; get_slice [ []; [-1;0] ]) in
 rotate90 x

@@ -74,7 +74,7 @@ let y_val = 2.
 let _ = N.assign_arr x x_val
 let _ = N.assign_elt y y_val</code></pre>
 </div>
-<p>The real values are the familiar dense Ndarray and float number. Note the two different assignment method for ndarray and scalar. Finally, we can evaluate the ndarray <code>g</code>:</p>
+<p>The real values are the familiar dense ndarray and float number. Note the two different assignment method for ndarray and scalar. Finally, we can evaluate the ndarray <code>g</code>:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">N.eval_arr [|g|];;
 &gt;- : unit = ()
@@ -89,7 +89,7 @@ N.unpack_arr g ;;
 </section>
 <section class="level3" id="example-02-cgraph-with-ad">
 <h3>Example 02: CGraph with AD</h3>
-<p>In the real application, we normally need to deal with CGraphs that are constructed in the Algorithmic Differentiation process. Here is an example of using dense Ndarray module to compute the gradient of a function:</p>
+<p>In the real application, we normally need to deal with CGraphs that are constructed in the Algorithmic Differentiation process. Here is an example of using dense ndarray module to compute the gradient of a function:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">include Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 

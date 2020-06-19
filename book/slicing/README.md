@@ -78,7 +78,7 @@ Note that both `get_basic` and `get_fancy` return a copy (rather than a view as 
 
 ### Conventions in Definition
 
-Essentially, Owl's slicing functions are very similar to those in Numpy. So if you already know how to slice n-dimensional arrays in Numpy, you should find this chapter very easy.
+Essentially, Owl's slicing functions are very similar to those in NumPy. So if you already know how to slice n-dimensional arrays in NumPy, you should find this chapter very easy.
 
 The core building block is the slice definition. Slice definition is a `index list`. Each element within the `index list` corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors `I`, `L`, and `R` to let you specify single index, a list of indices, or a range of indices.
 
@@ -369,7 +369,7 @@ R4  0  1  2  3  4
 
 ```
 
-The second `reverse` function treats a matrix as one-dimensional vector and rerverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.
+The second `reverse` function treats a matrix as one-dimensional vector and reverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.
 
 ```ocaml env=slicing_env2
 # let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
@@ -385,7 +385,7 @@ R4  4  3  2  1  0
 
 ```
 
-The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very consicise code.
+The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very concise code.
 
 ```ocaml env=slicing_env2
 # let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]) in
