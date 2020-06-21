@@ -43,16 +43,25 @@ The first line is a type of ODEs that are called the "separable equations".
 The second line represents the ODEs that are called the "linear first-order equations". 
 The solution to both form of ODE are already well-known, as shown in the second column.
 Here $C$ is a constant decided by initial condition $x_0$ and $y_0$. 
+
+Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit* ODE. 
+Otherwise it is called an *implicit* ODE.
+
+Reduce High-Order Equations
+High order ODEs can be reduced to the first order ones that contains only $y'$, $y$, and $x$.
+For example, an ODE in the form $y^{(n)} = f(x)$ can be reduced by multiple integrations one both sizes.
+If a two-order ODE is in the form $y^{''} = f(x, y')$, let $y' = g(x)$, then $y^{''} = p'(x)$. Put them into the original ODE, it can be transformed as: $p'=f(x,p)$.
+This is a first-order ODE that can be solved by normal solutions.
+
+
+Enough to support the examples in the rest of this chapters.
+
+
 There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. 
 Please refer to classical calculus books or courses for more detail.
 
-Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit ODE*. 
 
 (TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)
-
-### Reduce High-Order Equations
-
-Enough to support the examples in the rest of this chapters.
 
 ### Linear Systems
 

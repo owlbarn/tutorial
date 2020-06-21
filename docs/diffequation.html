@@ -41,13 +41,12 @@
 </tbody>
 </table>
 </div>
-<p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>. There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. Please refer to classical calculus books or courses for more detail.</p>
-<p>Note that in both types the derivative <span class="math inline">\(dy/dx\)</span> can be expressed explicitly as a function of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and therefore is called <em>explicit ODE</em>.</p>
-<p>(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)</p>
-</section>
-<section class="level3" id="reduce-high-order-equations">
-<h3>Reduce High-Order Equations</h3>
+<p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>.</p>
+<p>Note that in both types the derivative <span class="math inline">\(dy/dx\)</span> can be expressed explicitly as a function of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and therefore is called <em>explicit</em> ODE. Otherwise it is called an <em>implicit</em> ODE.</p>
+<p>Reduce High-Order Equations High order ODEs can be reduced to the first order ones that contains only <span class="math inline">\(y'\)</span>, <span class="math inline">\(y\)</span>, and <span class="math inline">\(x\)</span>. For example, an ODE in the form <span class="math inline">\(y^{(n)} = f(x)\)</span> can be reduced by multiple integrations one both sizes. If a two-order ODE is in the form <span class="math inline">\(y^{''} = f(x, y')\)</span>, let <span class="math inline">\(y' = g(x)\)</span>, then <span class="math inline">\(y^{''} = p'(x)\)</span>. Put them into the original ODE, it can be transformed as: <span class="math inline">\(p'=f(x,p)\)</span>. This is a first-order ODE that can be solved by normal solutions.</p>
 <p>Enough to support the examples in the rest of this chapters.</p>
+<p>There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. Please refer to classical calculus books or courses for more detail.</p>
+<p>(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)</p>
 </section>
 <section class="level3" id="linear-systems">
 <h3>Linear Systems</h3>
