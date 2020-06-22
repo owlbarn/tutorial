@@ -392,6 +392,11 @@ For both operations, `owl-lib` is faster than `base-lib`, and native executables
 Generally JavaScript runs the slowest, but note how the performance gap between JavaScript and the others converges when the ndarray size grows.
 For fold operation, JavaScript even runs faster than bytecode when size is sufficiently large.
 
+Note that for the fold operation, there is a obvious increase in time used at around input size of $10^3$ for fold operations, while there is not such change for the map operation.
+That is because I change the input from one dimensional ndarray to two dimensional starting that size.
+This change does not affect map operation, since it treats an input of any dimension as a one dimensional vector.
+On the other hand, the fold operation considers the factor of dimension, and thus its performance is affected by this change.
+
 ![Performance of gradient descent on function $f$](images/zoo/gd_x86.png){width=75% #fig:backend:gd}
 
 In [@fig:backend:gd], we want to investigate if the above observations still hold in more complex numerical computation.
