@@ -52,25 +52,25 @@ High order ODEs can be reduced to the first order ones that contains only $y'$, 
 For example, an ODE in the form $y^{(n)} = f(x)$ can be reduced by multiple integrations one both sizes.
 If a two-order ODE is in the form $y^{''} = f(x, y')$, let $y' = g(x)$, then $y^{''} = p'(x)$. Put them into the original ODE, it can be transformed as: $p'=f(x,p)$.
 This is a first-order ODE that can be solved by normal solutions.
+Suppose we get $y'=p=h(x, C_0)$, then this explicit form of ODE can be integrated to get: $y = \int~h(x, C_0)dx + C_1$.
 
-
-Enough to support the examples in the rest of this chapters.
-
-
-There are more such ODEs that have known solutions, but solving ODE analytically in this way is not the focus of this chapter. 
-Please refer to classical calculus books or courses for more detail.
-
+We have only scratch the surface of the ODE as traditional mathematics topic.
+This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs. 
+For those who interested, please refer to classical calculus books or courses.
 
 (TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)
 
 ### Linear Systems
 
-Many system involves not just one unknown functions $y$.
+Many systems involve not just one unknown functions $y$.
 
 System of equations
 Oscillator, two-body problem.
 
+How a high-order expression can be written as a system can thus can be solved in our system, which will be discussed later.
+
 ## Solving An ODE Numerically
+
 
 This section introduces the basic idea of solving the initial value problem numerically.
 Let's start with an example:
@@ -319,7 +319,7 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 
 All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
 
-We also support temporal integration of matrices. That is, cases in which the state $y$ is a matrix of dimensions of dimensions `NxM`. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function `Native.D.to_state_array` which can be used to unflatten $ys$ into an array of matrices.
+We also support temporal integration of matrices. That is, cases in which the state $y$ is a matrix of dimensions of dimensions `NxM`. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function `Native.D.to_state_array` which can be used to pack $ys$ into an array of matrices.
 
 **Custom Solvers**
 
