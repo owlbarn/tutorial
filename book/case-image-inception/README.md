@@ -101,7 +101,7 @@ This problems is that, in a very deep network, during the back-propagation phase
 
 The ResNet in [@he2016deep] proposes an "identity shortcut connection" that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in [@fig:case-image-inception:residual].
 
-![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=60% #fig:case-image-inception:residual}
+![Residual block in the ResNet](images/case-image-inception/residual-block.png "residual block"){width=40% #fig:case-image-inception:residual}
 
 We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago.
 It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths.
