@@ -42,7 +42,7 @@
 <p>We keep saying that building deeper network is the trend. However, going deeper has its limit. The deeper you go, the more you will experience the “vanishing gradient” problem. This problems is that, in a very deep network, during the back-propagation phase, the repeated multiplication operations will make the gradients very small, and thus the performance affected.</p>
 <p>The ResNet in <span data-cites="he2016deep" class="citation">(He et al. 2016)</span> proposes an “identity shortcut connection” that skips one or more layers and combines with predecessor layers. It is called a residual block, as shown in fig.&nbsp;2.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:case-image-inception:residual" title="residual block" src="images/case-image-inception/residual-block.png"><figcaption>Figure 2: Residual block in the ResNet</figcaption>
+<img alt="" style="width:40.0%" id="fig:case-image-inception:residual" title="residual block" src="images/case-image-inception/residual-block.png"><figcaption>Figure 2: Residual block in the ResNet</figcaption>
 </figure>
 <p>We can see that there is the element-wise addition that combines the information of the current output and its predecessors two layers ago. It solves the gradient problem in stacking layers, since now the the error can be backpropagated through multiple paths. The authors show that during training the deeper layers do not produce a error higher than its predecessor in lower layer.</p>
 <p>Also note that the residual block aggregate features from different level of layers, instead of purely stacking them. This patten proves to be useful and will also be used in the Inception architecture.</p>
