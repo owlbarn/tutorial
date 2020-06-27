@@ -55,12 +55,14 @@ The authors introduce better *non-linearity* in the network with the ReLU activa
 Operations such as convolution includes mainly linear operations such as matrix multiplication and `add`.
 But that's not how the real world data looks like. Recall that from the previous Regression chapter, even though linear regression can be effective, for most of the real world application we need more complex method such as polynomial regression.
 The same can be applied here. We need to increase the non-linearity to accommodate real world data such as image.
-[ liang: can you specify the ReLU calcuation? ]
 
 There are multiple activation choices, such as `tanh` and `sigmoid`.
-However, the `relu` operation, which set negative values of a feature map to zero, is frequently used.
-It makes training faster, and accuracy loss in gradient computation is small.
-[ liang: how much faster, specify the complexity ]
+Compared to the previous activation functions such as `tanh` ($f(x)=\textrm{tanh}(x)$), or `sigmoid` ($f(x) = (1 + e^{-x})^{-1}$), the computation of ReLU is simple: $f(x) = max(0, x)$.
+In terms of training time with gradient descent, ReLu is much faster than the aforementioned two computational expensive functions, and thus more frequently used. 
+The accuracy loss in gradient computation is small, and it also makes the training faster.
+For example, [@krizhevsky2012imagenet] shows that, a four-layer convolutional neural network with ReLUs reaches a 25% training error rate on CIFAR-10 six times faster
+than an equivalent network with the `tanh` neurons. 
+Besides, in practice, networks with ReLU tends to show better convergence performance than `sigmoid`. 
 
 Another thing that AlexNet proposes is to use the `dropout` layer.
 It is mainly used to solve the over-fitting problem.
