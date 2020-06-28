@@ -1,18 +1,16 @@
 # Introduction
 
-This chapter briefly introduces the outline of the whole book, targeted audience, how to use the book, then the installation of Owl. 
-There are different ways to interact with Owl, including `utop`, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us. 
+This chapter briefly introduces the outline of the whole book, targeted audience, how to use the book, then the installation of Owl.
+There are different ways to interact with Owl, including `utop`, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us.
 
 ## What Is Scientific Computing
 
-**GUIDE**: 2 pages. I'm yet to stress the importance of (applications) of scientific computing.
-
-Scientific Computing is a rapidly growing multidisciplinary field that uses advanced computing capabilities to understand and solve complex problems. 
+Scientific Computing is a rapidly evolving multidisciplinary field which uses advanced computing capabilities to understand and solve complex problems.
 The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation).
-The former uses numerical approximation to solve mathematical problems, while the latter requires an exact exact representation of computation and manipulates symbols that are not assigned specific values. 
+The former uses numerical approximation to solve mathematical problems, while the latter requires a exact close-form representation of computation and manipulates symbols that are not assigned specific values.
 
-Both approaches are widely used in various applications fields, such as engineering, physics, biology, finance, etc. 
-However advanced these applications seem, keep in mind that they are built with basic components in a scientific library, most of which Owl has already provided. 
+Both approaches are widely used in various applications fields, such as engineering, physics, biology, finance, etc.
+Even though these advanced applications are sophisticated, they are all built atop of basic numerical operations in a scientific library, most of which Owl has already provided.
 For example, you can write a deep neural network with Owl in a few lines of code:
 
 ```ocaml
@@ -32,14 +30,14 @@ let make_network input_shape =
   |> get_network
 ```
 
-It actually consists of basic operations such as `add`, `div`, `convolution`, `dot`, etc. 
-It's totally OK if you have no idea what this piece of code is doing. We'll cover that later in this book. 
-The point is that how to dissect a complex application into basic building blocks in a numerical library, and that's what we are trying to convey throughout this book. 
+It actually consists of basic operations such as `add`, `div`, `convolution`, `dot`, etc.
+It's totally OK if you have no idea what this piece of code is doing. We'll cover that later in this book.
+The point is that how to dissect a complex application into basic building blocks in a numerical library, and that's what we are trying to convey throughout this book.
 
-The book is divided into three parts, each contain several chapters.
+The book is divided into three parts, each contains multiple chapters.
 The first part covers the numerical techniques such as the math function, optimisation methods, neural networks, etc. This part aims to introduce how to *use* Owl as a tool.
 The second part introduces the system architecture of Owl. It introduces the design and implementation of Owl itself for those users who are interested in how things work. In this part we include things such as how we optimise the performance of operations and graphs in computation. 
-The third part contains interesting use cases of Owl. They are not toy examples, but real applications that is being used in certain fields. For example, we have computer vision applications such as image classification, segmentation, and neural style transfer, each covered by a whole chapter.
+The third part contains interesting use cases of Owl. They are not toy examples, but real applications used in particular fields. For example, we have computer vision applications such as image classification, segmentation, and neural style transfer, each is covered by a whole chapter.
 
 There is a long way to go from simple math calculation to those large use cases. Now let's start from the very first step: installing Owl.
 
