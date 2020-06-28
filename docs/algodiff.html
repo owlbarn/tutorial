@@ -360,8 +360,8 @@ let f x =
 <p>Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.</p>
 <p>In general, given a function that you want to differentiate, the rule of thumb is:</p>
 <ul>
-<li>if input variables &gt;&gt; output variables, then use reverse mode;</li>
-<li>if input variables &lt;&lt; output variables, then use forward mode.</li>
+<li>if the number of input variables is far larger than that of the output variables, then use reverse mode;</li>
+<li>if the number of output variables is far larger than that of the input variables, then use forward mode.</li>
 </ul>
 <p>Later we will show example of this point.</p>
 <p>For each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for <code>f</code>. One real-world example of <code>f</code> is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.</p>
@@ -386,11 +386,10 @@ let primal df = df.p
 let tangent df = df.t</code></pre>
 </div>
 <p>And now we can define operators that accept type <code>df</code> as input and outputs the same type:</p>
-<p><strong>liang: change your variable name from df to just x</strong></p>
 <div class="highlight">
-<pre><code class="language-ocaml">let sin_ad df =
-    let p = primal df in
-    let t = tangent df in
+<pre><code class="language-ocaml">let sin_ad x =
+    let p = primal x in
+    let t = tangent x in
     let p' = Owl_maths.sin p in
     let t' = (Owl_maths.cos p) *. t in
     {p=p'; t=t'}</code></pre>
@@ -398,40 +397,40 @@ let tangent df = df.t</code></pre>
 <p>EXPLAIN</p>
 <p>Now you can easily extend towards the <code>exp</code> operation:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let exp_ad df =
-    let p = primal df in
-    let t = tangent df in
+<pre><code class="language-ocaml">let exp_ad x =
+    let p = primal x in
+    let t = tangent x in
     let p' = Owl_maths.exp p in
     let t' = p' *. t in
     {p=p'; t=t'}</code></pre>
 </div>
 <p>But what about operators that accept multiple inputs? Let’s see multiplication.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let mul_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+<pre><code class="language-ocaml">let mul_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa *. pb in
     let t' = pa *. tb +. ta *. pb in
     {p=p'; t=t'}</code></pre>
 </div>
 <p>Similarly, you can extend that towards similar operations: the <code>add</code> and <code>div</code>.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let add_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+<pre><code class="language-ocaml">let add_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa +. pb in
     let t' = ta +. tb in
     {p=p'; t=t'}
 
-let div_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+let div_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa /. pb in
     let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in
     {p=p'; t=t'}</code></pre>
@@ -907,7 +906,7 @@ let f x =
 # let result = f input |&gt; unpack_flt
 val result : float = 0.13687741466075895</code></pre>
 </div>
-<p>Despite this slightly cumbersome number packing mechanism, we can now perform. <strong>liang: what?</strong> Next, we show how to perform the forward and reverse propagation on this computation in Owl.</p>
+<p>Despite this slightly cumbersome number packing mechanism, we can now perform the forward and reverse propagation on this computation in Owl, as will be shown next.</p>
 </section>
 <section class="level3" id="example-forward-mode">
 <h3>Example: Forward Mode</h3>

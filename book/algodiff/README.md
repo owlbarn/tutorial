@@ -340,15 +340,14 @@ R -0.181973 -0.118142
 
 Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understad the next section, namely how to decide which mode (forward or backward) to use in practice.
 
-
 ### Forward or Reverse?
 
 Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 
 In general, given a function that you want to differentiate, the rule of thumb is:
 
-* if input variables >> output variables, then use reverse mode;
-* if input variables << output variables, then use forward mode.
+* if the number of input variables is far larger than that of the output variables, then use reverse mode;
+* if the number of output variables is far larger than that of the input variables, then use forward mode.
 
 Later we will show example of this point.
 
@@ -387,12 +386,10 @@ let tangent df = df.t
 
 And now we can define operators that accept type `df` as input and outputs the same type:
 
-**liang: change your variable name from df to just x**
-
 ```ocaml env=algodiff_simple_impl_forward
-let sin_ad df =
-    let p = primal df in
-    let t = tangent df in
+let sin_ad x =
+    let p = primal x in
+    let t = tangent x in
     let p' = Owl_maths.sin p in
     let t' = (Owl_maths.cos p) *. t in
     {p=p'; t=t'}
@@ -404,9 +401,9 @@ Now you can easily extend towards the `exp` operation:
 
 
 ```ocaml env=algodiff_simple_impl_forward
-let exp_ad df =
-    let p = primal df in
-    let t = tangent df in
+let exp_ad x =
+    let p = primal x in
+    let t = tangent x in
     let p' = Owl_maths.exp p in
     let t' = p' *. t in
     {p=p'; t=t'}
@@ -415,11 +412,11 @@ let exp_ad df =
 But what about operators that accept multiple inputs? Let's see multiplication.
 
 ```ocaml env=algodiff_simple_impl_forward
-let mul_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+let mul_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa *. pb in
     let t' = pa *. tb +. ta *. pb in
     {p=p'; t=t'}
@@ -428,20 +425,20 @@ let mul_ad dfa dfb =
 Similarly, you can extend that towards similar operations: the `add` and `div`.
 
 ```ocaml env=algodiff_simple_impl_forward
-let add_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+let add_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa +. pb in
     let t' = ta +. tb in
     {p=p'; t=t'}
 
-let div_ad dfa dfb =
-    let pa = primal dfa in
-    let ta = tangent dfa in
-    let pb = primal dfb in
-    let tb = tangent dfb in
+let div_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
     let p' = pa /. pb in
     let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in
     {p=p'; t=t'}
@@ -1015,8 +1012,7 @@ open AD
 val result : float = 0.13687741466075895
 ```
 
-Despite this slightly cumbersome number packing mechanism, we can now perform. **liang: what?**
-Next, we show how to perform the forward and reverse propagation on this computation in Owl.
+Despite this slightly cumbersome number packing mechanism, we can now perform the forward and reverse propagation on this computation in Owl, as will be shown next.
 
 ### Example: Forward Mode
 
