@@ -44,7 +44,7 @@ There is a long way to go from simple math calculation to those large use cases.
 
 ## What is Functional Programming
 
-**GUIDE:** Two pages. Have to include at least: imperative (procedure, OO); different computational model, one follows Church, the other Turing (who is the student of Church); basic lambda calculus. 
+**[jianxin]** Two pages. Have to include at least: imperative (procedure, OO); different computational model, one follows Church, the other Turing (who is the student of Church); basic lambda calculus.
 
 TBD: Function programming is ... but do we want to use a functional programming language to do scientific computing?
 
@@ -55,29 +55,29 @@ Spend dome words on lambda calculus ...
 
 ## Who Is This Book For
 
-We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, therefore it is quite a challenge to write a book that satisfies most of people. If you are reading this book now, we assume you are interested in analytical tasks and enthusiatic about gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with the core concepts of functional programming.
+We really hope this book can cover as many audience as possible. Both scientific computing and functional programming are big areas, therefore it is quite a challenge to write a book that satisfies most of people. If you are reading this book now, we assume you are already interested in analytical tasks and enthusiatic about gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with the core concepts of functional programming.
 
-We want this book to be relatively general so we have covered many topics in scientific computing. However, this means we cannot dive very deep in each topic, and each of them per se is worth a book. When designing the chapters, we select those topics which are either classic (e.g. statistics, linear algebra) or populur and prove-to-be-effective in industry (e.g. deep neural network, probabilistic programming, and etc.). We strive to reach a good balance between breadth and depth of the book. For each topic, we will try out best to list sufficient references to lead our readers to study further.
+We want this book to be relatively general so we have covered many topics in scientific computing. However, this means we cannot dive very deep in each topic, and each of them per se is probably worth a book. When designing the chapters, we select those topics which are either classic (e.g. statistics, linear algebra) or populur and prove-to-be-effective in industry (e.g. deep neural network, probabilistic programming, and etc.). We strive to reach a good balance between breadth and depth of the book. For each topic, we will try our best to list sufficient references to guide our readers to study further.
 
-Different from other data science book, this book can be a good learning material for those hardcore software architects who want to build a modern and industry-level numerical software system. A big part of this book is dedicated to explaining the underlying details of Owl. We will not only give you a bird's-eye-view of the overall Owl system, but also teaches you how to build the system up and optimises each component step-by-step. If you use Owl frequently to build applications, this book can serve as a useful reference manual as well.
+Different from other data science book, this book can be a good learning material for those hardcore software architects who want to build a modern and industry-level numerical software system. A big part of this book is dedicated to explaining the underlying details of Owl. Not only we will give you a bird's-eye-view of the overall Owl system, but also teach you how to build the system up and optimises each component step-by-step. If you use Owl frequently to build applications, this book can serve as a useful reference manual as well.
 
 
 ## Structure of the Book
 
 The book is divided into three parts, and each part focusses on different areas.
 
-The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters focus on various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natural language processing, probabilistic programming, and etc. The chapters are loosely organised on their dependency, e.g. you need to know optimisation before studying regression and deep neural networks.
+The Part I first introduces the basics of Owl system and important conventions to help you in studying how to program with Owl. The rest chapters explore various topics in scientific computing, from the classic mathematics, statistics, linear algebra, algorithmic differentiation, optimisation, regression to the popular deep neural network, natural language processing, probabilistic programming, and etc. The chapters are loosely organised based on their dependency, e.g. you need to know optimisation before studying regression and deep neural networks.
 
-The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core component and show how we build it and optimise it. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key components needed in complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
+The Part II is dedicated to presenting the architecture of Owl system. We will dive into each core component and show how we build and optimise the software. By so doing, you will gain a thorough understanding on how a modern numerical system can be structured and developed, and what are the key components needed in such a complex system. Note that even though Owl is developed in OCaml, the knowledge you learnt in this part can be extropolated to another language.
 
-The Part III is a collection of case studies. This part might be the most interesting one for those who are practitioners. We will demonstrate how you can build a complete numerical application quickly from scratch using Owl. The cases include computer vision, recommender systems, financial technology, and etc.
+The Part III is a collection of case studies. This part might be the most interesting one for data scientists and practitioners. We will demonstrate how you can build a complete numerical application quickly from scratch using Owl. The cases include computer vision, recommender systems, financial technology, and etc.
 
 The book does not enforce any strict order in reading, you can simply jump to the topic that interests you most. If you are completely new to the Owl system, we still strongly recommend you to start with the first two chapters of the book so that you know how to set up a working environment and start programming. All the code snippets included in this book can be compiled with the most recent master branch of Owl, our tooling guarantees the book material stay up-to-date with the software.
 
 
 ## Installation
 
-Owl requires OCaml version `>=4.06.0`. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to [Install OCaml](https://ocaml.org/docs/install.html).
+Owl requires OCaml version `>=4.10.0`. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to [Install OCaml](https://ocaml.org/docs/install.html).
 
 Owl's installation is rather trivial. There are four possible ways as shown below, from the most straightforward one to the least one.
 
@@ -92,9 +92,9 @@ Thanks to the folks in [OCaml Labs](http://ocamllabs.io/), OPAM makes package ma
 
 ```
 
-There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` by hand, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this issue.
+There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` manually, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this issue.
 
-This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. I usually make a new release whenever there are enough changes accumulated or a significant feature implemented. If you want to try the newest development features, I recommend the other ways to install Owl, as below.
+This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. We usually make a new release whenever there are enough changes accumulated or a significant feature implemented. If you want to try the newest development features, we recommend the other ways to install Owl, as below.
 
 
 ### Option 2: Pull from Docker Hub
@@ -153,7 +153,7 @@ Last, this is perhaps the most classic step.
 
 ```
 
-If your OPAM is older than `V2 beta4`, you need one extra steps. This is due to a bug in OPAM which copies the compiled library into `/.opam/4.06.0/lib/stubslibs` rather than `/.opam/4.06.0/lib/stublibs`. If you don't want to upgrade OPAM, then you need to manually move `dllowl_stubs.so` file from `stubslib` to `stublib` folder, then everything should work. However, if you have the most recent OPAM installed, this will not be your concern.
+If your OPAM is older than `V2 beta4`, you need one extra step. This is due to a bug in OPAM which copies the compiled library into `/.opam/4.06.0/lib/stubslibs` rather than `/.opam/4.06.0/lib/stublibs`. If you don't want to upgrade OPAM, then you need to manually move `dllowl_stubs.so` file from `stubslib` to `stublib` folder, then everything should work. However, if you have the most recent OPAM installed, this will not be your concern.
 
 
 ### CBLAS/LAPACKE Dependency
@@ -166,7 +166,7 @@ The most important dependency is [OpenBLAS](https://github.com/xianyi/OpenBLAS).
 
 ```
 
-However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdated binary distribution offered by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code. 
+However, installing from OpenBLAS source code give us extra benefits. First, it implements the most recent interfaces comparing to the outdated binary distribution offered by the native package management tool. Second, it leads to way better performance because OpenBLAS tunes many parameters based on your system configuration and architecture to generate the most optimised binary code.
 
 OpenBLAS already contains an implementation of LAPACKE, as long as you have a Fortran complier installed on your computer, the LAPACKE will be compiled and included in the installation automatically.
 
@@ -334,7 +334,7 @@ val make_network : int array -> network = <fun>
 
 ```
 
-The Second example demonstrates how to plot figures in notebook. Because Owl's Plot module does not support in-memory plotting, the figure needs to be written into a file first then passed to `Jupyter_notebook.display_file` to render.
+The Second example demonstrates how to plot figures in notebook. Because Owl's Plot module does not support in-memory plotting, the figure needs to be written into a file first before passing to `Jupyter_notebook.display_file` to render.
 
 
 ```ocaml env=intro_01
@@ -387,6 +387,7 @@ For the time being, if you want to save that extra line to display a image in Ju
   Plot.plot_fun ~h f 1. 15.;
   Plot.output h
 - : unit = ()
+
 ```
 
 ![Plot example using Owl-Jupyter](images/introduction/plot_01.png "plot_01"){ width=90% #fig:introduction:plot01 }
@@ -396,4 +397,4 @@ From the example above, you can see Owl users' experience can be significantly i
 
 ## Start The Adventure
 
-At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. Often, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its tooling. Anyway, it is time to move foward, so roll up your sleeves and let's march into the wonderful scientific computing world
+At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. Often, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its compilation and intallation. Anyway, it is time to move foward, so roll up your sleeves and let's march into the wonderful scientific computing world
