@@ -1,7 +1,7 @@
 # N-Dimensional Arrays
 
 
-N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like Numpy to Scipy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, `Algodiff`, `Optimise`, `Neural`, and `Lazy` all these functors take Ndarray module as their module input.
+N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like NumPy to SciPy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, `Algodiff`, `Optimise`, `Neural`, and `Lazy` all these functors take Ndarray module as their module input.
 
 Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli). Many of these functions (especially the critical ones) in Owl's core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray's `mli` file, you probably can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.
 
@@ -46,7 +46,7 @@ val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
 
 These four functions return an ndarray of the specified shape, number type, and precision. `empty` function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling `empty` function is very fast.
 
-The other three functions are self-explained, `zeros` and `ones` fill the allocated memory with zeors and one respectively, whereas `create` function fills the memory with the specified value.
+The other three functions are self-explained, `zeros` and `ones` fill the allocated memory with zeros and one respectively, whereas `create` function fills the memory with the specified value.
 
 If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.
 
@@ -430,7 +430,7 @@ Note that you need to pass in the original ndarray because the shape information
 
 ## Manipulation Functions
 
-Ndarray module contains many useful functions to manipulate ndarrays. For exmaple, you can tile and repeat an ndarray along a specified axis. 
+Ndarray module contains many useful functions to manipulate ndarrays. For example, you can tile and repeat an ndarray along a specified axis. 
 
 Let's first create a sequential ndarray.
 
@@ -446,7 +446,7 @@ R2  8  9 10 11
 
 ```
 
-The code below tiles `x` once on both dimentions.
+The code below tiles `x` once on both dimensions.
 
 ```ocaml
 # let y = Arr.tile x [|2;2|]
@@ -527,7 +527,7 @@ Again, for matrix this special case, there are `to_arrays` and `of_arrays` two f
 
 ## Serialisation
 
-Serialisation and deserialisation are simply done with `save` and `load` two functions.
+Serialisation and de-serialisation are simply done with `save` and `load` two functions.
 
 ```text
 

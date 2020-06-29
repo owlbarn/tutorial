@@ -4,7 +4,7 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="n-dimensional-arrays">
 <h1>N-Dimensional Arrays</h1>
-<p>N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like Numpy to Scipy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, <code>Algodiff</code>, <code>Optimise</code>, <code>Neural</code>, and <code>Lazy</code> all these functors take Ndarray module as their module input.</p>
+<p>N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like NumPy to SciPy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, <code>Algodiff</code>, <code>Optimise</code>, <code>Neural</code>, and <code>Lazy</code> all these functors take Ndarray module as their module input.</p>
 <p>Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">owl_dense_ndarray_generic.mli</a>. Many of these functions (especially the critical ones) in Owl’s core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray’s <code>mli</code> file, you probably can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.</p>
 <section class="level2" id="ndarray-types">
 <h2>Ndarray Types</h2>
@@ -36,7 +36,7 @@ val zeros : ('a, 'b) kind -&gt; int array -&gt; ('a, 'b) t
 val ones : ('a, 'b) kind -&gt; int array -&gt; ('a, 'b) t</code></pre>
 </div>
 <p>These four functions return an ndarray of the specified shape, number type, and precision. <code>empty</code> function is different from the other three – it does not really allocate any memory until you access it. Therefore, calling <code>empty</code> function is very fast.</p>
-<p>The other three functions are self-explained, <code>zeros</code> and <code>ones</code> fill the allocated memory with zeors and one respectively, whereas <code>create</code> function fills the memory with the specified value.</p>
+<p>The other three functions are self-explained, <code>zeros</code> and <code>ones</code> fill the allocated memory with zeros and one respectively, whereas <code>create</code> function fills the memory with the specified value.</p>
 <p>If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl.Dense.Ndarray.Generic
@@ -346,7 +346,7 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
 </section>
 <section class="level2" id="manipulation-functions">
 <h2>Manipulation Functions</h2>
-<p>Ndarray module contains many useful functions to manipulate ndarrays. For exmaple, you can tile and repeat an ndarray along a specified axis.</p>
+<p>Ndarray module contains many useful functions to manipulate ndarrays. For example, you can tile and repeat an ndarray along a specified axis.</p>
 <p>Let’s first create a sequential ndarray.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Arr.sequential [|3;4|];;
@@ -358,7 +358,7 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
 &gt;R2  8  9 10 11
 </code></pre>
 </div>
-<p>The code below tiles <code>x</code> once on both dimentions.</p>
+<p>The code below tiles <code>x</code> once on both dimensions.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.tile x [|2;2|];;
 &gt;val y : Arr.arr =
@@ -423,7 +423,7 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
 </section>
 <section class="level2" id="serialisation">
 <h2>Serialisation</h2>
-<p>Serialisation and deserialisation are simply done with <code>save</code> and <code>load</code> two functions.</p>
+<p>Serialisation and de-serialisation are simply done with <code>save</code> and <code>load</code> two functions.</p>
 <div class="highlight">
 <pre><code class="language-text">
   val save : out:string -&gt; ('a, 'b) t -&gt; unit

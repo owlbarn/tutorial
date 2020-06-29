@@ -33,7 +33,7 @@
 let diff f x = (f (x +. _eps) -. f x) /. _eps</code></pre>
 </div>
 <p><strong>liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.</strong></p>
-<p>We can apply it to a simple case. Let’s say, we want to find the derivative fo <span class="math inline">\(f(x) = sin(x)\)</span> at point <span class="math inline">\(x=1\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(cos(1) = 0.5403\)</span>. Here is the code:</p>
+<p>We can apply it to a simple case. Let’s say, we want to find the derivative of <span class="math inline">\(f(x) = sin(x)\)</span> at point <span class="math inline">\(x=1\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(cos(1) = 0.5403\)</span>. Here is the code:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f = Maths.cos;;
 &gt;val f : float -&gt; float = &lt;fun&gt;

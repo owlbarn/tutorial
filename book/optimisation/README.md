@@ -70,7 +70,7 @@ let diff f x = (f (x +. _eps) -. f x) /. _eps
 
 **liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.**
 
-We can apply it to a simple case. Let's say, we want to find the derivative fo $f(x) = sin(x)$ at point $x=1$.
+We can apply it to a simple case. Let's say, we want to find the derivative of $f(x) = sin(x)$ at point $x=1$.
 Basic calculus tells us that it should be equals to $cos(1) = 0.5403$.
 Here is the code:
 

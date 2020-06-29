@@ -96,7 +96,7 @@ $$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i)
 
 In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
 
-**TIPS**: Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line -- by "distance" we mean the the euclidean distace. between a data point and the point on the line with the same x-axis. 
+**TIPS**: Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line -- by "distance" we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. 
 A reasonable solution can thus be achieved by minimising this average distance.
 On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data.
 TODO: explain the relationship between maximum likelihood estimation and least square.
@@ -137,7 +137,7 @@ It is thus natural to recall the gradient descent we have introduced in the prev
 
 ![Visualise the cost function in linear regression problem](images/regression/reg_cost.png "cost"){width=100% #fig:regression:cost}
 
-Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest desent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
+Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest descent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
 Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be obtained by using partial derivative on the surface. 
 Therefore, what we need to do is to apply this update process iteratively for both $\theta$ parameters:
 $$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
@@ -585,7 +585,7 @@ We can thus choose one of these functions to perform regression with regularisat
 ## Logistic Regression
 
 So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. 
-What if we don't care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
+What if we care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
 
 **liang: logistic regression is for categorical data analysis ... meaning your output var is categorical ... the point is to figure out the decision boundary, restructure your language**
 
@@ -859,7 +859,7 @@ This process is called "Forward stepwise selection", and similarly there is also
 You might notice that we mention using "certain methods" in selecting the best one from these $n$ models. What are these methods?
 An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. 
 Instead, we need to estimate the test error. We can directly do that using a validation dataset. 
-Otherwise we can make adjustment to the training error such as RSS to include the bias caused by overfitting.
+Otherwise we can make adjustment to the training error such as RSS to include the bias caused by over-fitting.
 Such methods includes: $\textrm{C}_p$, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted $\textrm{R}^2$, etc. 
 To further dig into these statistical methods is beyond the scope of this book. 
 We recommend specific textbooks such as [@james2013introduction].
