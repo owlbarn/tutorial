@@ -407,7 +407,7 @@ The only difference is that, where we train for an image before, now we train th
 Note that this process means that we can only train one set of weight for only one style.
 Considering that the artistic styles are relatively fixed compared to the unlimited number fo content image, and the orders of magnitude of computation speed improved, fixing the styles is an acceptable tradeoff.
 
-Even better, this training phase is one-off. We can train the network for once and the reuse it inthe inference phase again and again.
+Even better, this training phase is one-off. We can train the network for once and the reuse it in the inference phase again and again.
 We refer you to the original paper if you want to know more detail about the training phase.
 In our implementation, we directly convert and import weights from a [TensorFlow implementation](https://github.com/lengstrom/fast-style-transfer).
 Next we will show how to use it to perform fast style transfer.

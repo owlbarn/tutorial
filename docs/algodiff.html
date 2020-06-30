@@ -11,7 +11,7 @@
 <p><span id="eq:algodiff:def"><span class="math display">\[v = \lim_{\Delta~t}\frac{\Delta~s}{\Delta~t} = \frac{ds}{dt}.\qquad(1)\]</span></span></p>
 <p>This relationship <span class="math inline">\(\frac{ds}{dt}\)</span> can be called “<em>derivative</em> of <span class="math inline">\(s\)</span> with respect to <span class="math inline">\(t\)</span>”. This process can be extended to higher dimensional space. For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature <span class="math inline">\(T\)</span> at different position of this block: <span class="math inline">\(T(x, y, z)\)</span>. In this field, we can describe this change with partial derivatives along each axis:</p>
 <p><span id="eq:algodiff:grad"><span class="math display">\[\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).\qquad(2)\]</span></span></p>
-<p>Here, we call the vector <span class="math inline">\(\nabla~T\)</span> <em>gradient</em> of <span class="math inline">\(T\)</span>. The procedure to calculating derivatives and gradients is refferred to as <em>differentiating</em>.</p>
+<p>Here, we call the vector <span class="math inline">\(\nabla~T\)</span> <em>gradient</em> of <span class="math inline">\(T\)</span>. The procedure to calculating derivatives and gradients is referred to as <em>differentiating</em>.</p>
 <p>Differentiation is crucial in many scientific related fields: find maximum or minimum values using gradient descent (see later chapter); ODE (see later chapter); Non-linear optimisation such as KKT optimality conditions is still a prime application. One new crucial application is in machine learning.</p>
 <p>TODO: detail description of application.</p>
 <section class="level3" id="chain-rule">
@@ -80,7 +80,7 @@
 <p><span class="math display">\[\nabla~f = (\frac{\partial~f}{\partial~x_0}, \frac{\partial~f}{\partial~x_1}, \frac{\partial~f}{\partial~x_2}) = (x_1 * x_2, x_0 * x_2, x_1 * x_2).\]</span></p>
 <p>It is nice and accurate, leaving limited space for numerical errors. However, you can try to extend the number of variables from 3 to a large number <span class="math inline">\(n\)</span>, which means <span class="math inline">\(f(x) = \prod_{i=0}^{n-1}x_i\)</span>, and then try to perform the symbolic differentiation again.</p>
 <p>The point is that, symbolic computations tends to give a very large result for even not very complex functions. It’s easy to have duplicated common sub computations, and produce exponentially large symbolic expressions. Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and is slow.</p>
-<p>The explosion of computation complexity is not the only limitation of symbolic differentiaton. In contrast to the numerical differentiation, we have to treat the fuction in symbolic differentiation as a whitebox, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.</p>
+<p>The explosion of computation complexity is not the only limitation of symbolic differentiation. In contrast to the numerical differentiation, we have to treat the function in symbolic differentiation as a white box, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.</p>
 <p><strong>Algorithmic Differentiation</strong></p>
 <p>Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme. It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can lead to inefficient code.</p>
 <p>AD can generate exact results with superior speed and memory usage, therefore highly applicable in various real world applications. Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results.<br>
@@ -353,7 +353,7 @@ let f x =
 &gt;R -0.181973 -0.118142
 </code></pre>
 </div>
-<p>Before we move on, did you notice that we get <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span> for “free” while calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. Noticing this will help you to understad the next section, namely how to decide which mode (forward or backward) to use in practice.</p>
+<p>Before we move on, did you notice that we get <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span> for “free” while calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. Noticing this will help you to understand the next section, namely how to decide which mode (forward or backward) to use in practice.</p>
 </section>
 <section class="level3" id="forward-or-reverse">
 <h3>Forward or Reverse?</h3>

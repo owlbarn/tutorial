@@ -17,7 +17,7 @@ In this field, we can describe this change with partial derivatives along each a
 $$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$ {#eq:algodiff:grad}
 
 Here, we call the vector $\nabla~T$ *gradient* of $T$.
-The procedure to calculating derivatives and gradients is refferred to as *differentiating*.
+The procedure to calculating derivatives and gradients is referred to as *differentiating*.
 
 Differentiation is crucial in many scientific related fields:
 find maximum or minimum values using gradient descent (see later chapter);
@@ -107,7 +107,7 @@ The point is that, symbolic computations tends to give a very large result for e
 It's easy to have duplicated common sub computations, and produce exponentially large symbolic expressions.
 Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and is slow.
 
-The explosion of computation complexity is not the only limitation of symbolic differentiaton. In contrast to the numerical differentiation, we have to treat the fuction in symbolic differentiation as a whitebox, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.
+The explosion of computation complexity is not the only limitation of symbolic differentiation. In contrast to the numerical differentiation, we have to treat the function in symbolic differentiation as a white box, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.
 
 
 **Algorithmic Differentiation**
@@ -338,7 +338,7 @@ R -0.181973 -0.118142
 
 ```
 
-Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understad the next section, namely how to decide which mode (forward or backward) to use in practice.
+Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understand the next section, namely how to decide which mode (forward or backward) to use in practice.
 
 ### Forward or Reverse?
 

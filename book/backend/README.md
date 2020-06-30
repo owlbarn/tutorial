@@ -277,7 +277,7 @@ Then we declare a value `main` (or you can name it any other name).
 It calls the `foreign` function to specify the configuration.
 First, in the `package` parameter, we declare that this unikernel requires Owl library.
 The next string parameter "Gd_owl.GD" specifies the name of the implementation file, and in that file the module `GD` that contains the `start` entry point.
-The third paramter `job` declares the type of devices required by a unikernel, such as network interfaces, network stacks, file systems, etc.
+The third parameter `job` declares the type of devices required by a unikernel, such as network interfaces, network stacks, file systems, etc.
 Since here we only do the calculation, there is no extra device required, so the third parameter is a `job`.
 Finally, we register the unikernel entry file `gd_owl` with the `main` configuration value.
 

@@ -159,7 +159,7 @@ Next, we will come to the main topic of this chapter: how InceptionV3 is designe
 Proppsed by Christian Szegedy et. al., [InceptionV3](https://arxiv.org/abs/1512.00567) is one of Google's latest effort to perform image recognition. It is trained for the [ImageNet Large Visual Recognition Challenge](http://www.image-net.org/challenges/LSVRC/). This is a standard task in computer vision, where models try to classify entire images into 1000 classes, like "Zebra", "Dalmatian", and "Dishwasher", etc. Compared with previous DNN models, InceptionV3 is one of the most complex neural network architectures in computer vision.
 
 The design of image recognition networks is about the tradeoff between computation cost, memory usage, and accuracy.
-Just increasing model size and computation cost tend to increase the accuracy, but the benefit will dimnish soon.
+Just increasing model size and computation cost tend to increase the accuracy, but the benefit will diminish soon.
 To solve this problem, compared to previous similar networks, the Inception architecture aims to perform well with strict constraints on memory and computational budget.
 This design follows several principles, such as balancing the width and depth of the network, and performing spatial aggregation over lower dimensional embeddings which may lead to small loss in representational power of networks.
 The resulting Inception network architectures has high performance and a relatively modest computation cost compared to simpler, more monolithic architectures.
@@ -487,7 +487,7 @@ Also, some times the dimensions has to be swapped in a ndarray during this weigh
 
 
 Note that this is one-off work.
-Once you successfully update the network with weights, the weights can be saved using `Graph.save_weights`, without haveing to repeat all these steps again.
+Once you successfully update the network with weights, the weights can be saved using `Graph.save_weights`, without having to repeat all these steps again.
 We have already prepared the weights for the InceptionV3 model and other similar models, and the users don't have to worry about all these trivial model exchanging detail.
 
 ## Processing Image

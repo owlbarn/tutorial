@@ -19,7 +19,7 @@ Python has been one popular choice among developers for fast prototyping analyti
 
 On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, and etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries.
 Consequently, developers often have to write a significant amount of boilerplate code just to finish rather trivial numerical tasks.
-As we can see, there is a severe lack of a general purpose numerical library in OCaml ecosystem. We believe OCaml per se is a good candidate for developing such a general purpose numerical library for two important reasons: 1) we can write functional code as concise as that in Python with typesafety; 2) OCaml code often has much superior performance comparing to dynamic languages such as Python and Julia.
+As we can see, there is a severe lack of a general purpose numerical library in OCaml ecosystem. We believe OCaml per se is a good candidate for developing such a general purpose numerical library for two important reasons: 1) we can write functional code as concise as that in Python with type-safety; 2) OCaml code often has much superior performance comparing to dynamic languages such as Python and Julia.
 
 However, designing and developing a full-fledged numerical library is a non-trivial task, despite that OCaml has been widely used in system programming such as MirageOS.
 The key difference between the two is obvious and interesting: system libraries provide a lean set of APIs to abstract complex and heterogeneous physical hardware, whilst numerical library offer a fat set of functions over a small set of abstract number types.
@@ -63,15 +63,11 @@ The method we used is to compose two subsystems together with functors to genera
 
 Besides, there are other utility modules such as plotting.
 Plotting is an indispensable function in modern numerical libraries. We build Plot module on top of PLplot which is a powerful cross-platform plotting library.
-However PLPlot only provides very low-level functions
-to interact with its multiple plotting engines, eveb making a simple plot involves very lengthy and tedious control sequence. Using these low-level functions directly
-requires developers to understand the mechanisms in
-depth, which not only significantly reduces the productivity but also is prone to errors.
-Inspired by Matlab, we implement Plot module to
-provide developers a set of high-level APIs. The core
-plotting engine is very lightweight and only contains
-about 200 LOC. Its core design is to cache all the plotting operations as a sequence of function closures and
-execute them all when we output the figure.
+However PLPlot only provides very low-level functions to interact with its multiple plotting engines, even making a simple plot involves very lengthy and tedious control sequence. 
+Using these low-level functions directly requires developers to understand the mechanisms in depth, which not only significantly reduces the productivity but also is prone to errors.
+Inspired by Matlab, we implement Plot module to provide developers a set of high-level APIs. The core plotting engine is very lightweight and only contains
+about 200 LOC. 
+Its core design is to cache all the plotting operations as a sequence of function closures and execute them all when we output the figure.
 
 ## Advanced Functionality
 
@@ -82,18 +78,18 @@ We introduce the advanced functionalities in Owl. We have introduced many of the
 As a functional programmer, it is basic knowledge that a function takes an input then produces an output. The input of a function can be the output of another function which then creates dependency. If we view a function as one node in a graph, and its input and output as incoming and outgoing links respectively, as the computation continues, these functions are chained together to form a directed acyclic graph (DAG). Such a DAG is often referred to as a computation graph.
 
 Computation graph plays a critical role in our system.
-Its benefits are many-fold: provides simulate lazy evaluation in a language with eager evaluation, reduce computation complexity by optimising the structure of a graph, eeduce memory footprint, etc.
+Its benefits are many-fold: provides simulate lazy evaluation in a language with eager evaluation, reduce computation complexity by optimising the structure of a graph, reduce memory footprint, etc.
 It can be used for supporting multiple other high level modules e.g. algorithmic differentiation, and GPU computing modules all implicitly or explicitly use computation graph to perform calculations.
 
 ### Algorithmic Differentiation
 
 Atop of the core components, we have developed several modules to extend Owl’s numerical capability. E.g.,
 Maths module includes many basic and advanced mathematical functions, whist `Stats` module provides various statistical functions such as random number generators, hypothesis tests, and so on. The most important extended module is Algodiff, which implements the algorithmic differentiation functionality.
-Owl's Algodiff module is based on the core nested ´ automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
+Owl's Algodiff module is based on the core nested automatic differentiation algorithm and differentiation API of DiffSharp, which provides support for both forward and reverse differentiation and arbitrary higher order derivatives.
 
 Algodiff module is able to provide the derivative, Jacobian, and Hessian of a large range of functions, we exploits this power to further build the optimisation engine.
 The optimisation engine is light and highly configurable, and also serves as the foundation of Regression module and Neural Network module because both are essentially mathematical optimisation problems.
-The flexibility in optimisation engine leads to an extremely compact design and small code base. For a fullfledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
+The flexibility in optimisation engine leads to an extremely compact design and small code base. For a full-fledge deep neural network module, we only use about 2500 LOC and its inference performance on CPU is superior to specialised frameworks such as TenserFlow
 and Caffee.
 
 ### Regression
