@@ -662,13 +662,13 @@ A `qqplot` displays a quantile-quantile plot of the quantiles of the sample data
   Plot.subplot h 0 0;
   Plot.set_title h "Random Weibull Sample vs. Std Normal Dist";
   Plot.set_xlabel h "Sample Data";
-  Plot.set_ylabel h "Theoratical Normal Dist";
+  Plot.set_ylabel h "Theoretical Normal Dist";
   Plot.normplot ~h x;
 
   Plot.subplot h 0 1;
   Plot.set_title h "Random Weibull Sample vs. Weibull Dist";
   Plot.set_xlabel h "Sample Data";
-  Plot.set_ylabel h "Theoratical Weibull Dist";
+  Plot.set_ylabel h "Theoretical Weibull Dist";
   Plot.wblplot ~h ~lambda:1.2 ~k:1.5 x;
   Plot.output h
 - : unit = ()

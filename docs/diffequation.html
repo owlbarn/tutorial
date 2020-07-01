@@ -63,7 +63,7 @@
 <p>Now, pretending we don’t know the solution in eq.&nbsp;4, and we want to answer the question: what is <span class="math inline">\(y\)</span>’s value when <span class="math inline">\(x = 1\)</span> (or any other value)? How can we solve it numerically?</p>
 <p>Meet the <em>Euler Method</em>, a first-order numerical procedure to solve initial value problems. This method proposes to approximate the function <span class="math inline">\(y\)</span> using a sequence of iterative steps:</p>
 <p><span class="math display">\[ y_{n+1} = y_n + \Delta~f(x_n, y_n),\]</span></p>
-<p>where <span class="math inline">\(\Delta\)</span> is a certain step size. This method is really easy to be implemented in OCamla, as shown below.</p>
+<p>where <span class="math inline">\(\Delta\)</span> is a certain step size. This method is really easy to be implemented in OCaml, as shown below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = ref 0.
 let y = ref 0.

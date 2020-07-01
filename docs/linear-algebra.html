@@ -5,11 +5,11 @@
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="linear-algebra">
 <h1>Linear Algebra</h1>
 <p>Linear Algebra is a key mathematics field behind computer science and numerical computation. Full coverage of this topic is apparently beyond the scope of this book. Please refer to <span data-cites="strang2006linear" class="citation">(Strang 2006)</span> for this subject. In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts.</p>
-<p>The high level APIs of Linear Algebra are provied in the <code>Linalg</code> module. It provides four types of number types: single precision, double precision, complex single precision, and complex double precision. They are included in <code>Linalg.S</code>, <code>Linalg.D</code>, <code>Linalg.C</code> and <code>Linalg.Z</code> modules respectively. Besides, the <code>Linalg.Generic</code> can do everything that <code>S/D/C/Z</code> can but needs some extra type information.</p>
+<p>The high level APIs of Linear Algebra are provided in the <code>Linalg</code> module. It provides four types of number types: single precision, double precision, complex single precision, and complex double precision. They are included in <code>Linalg.S</code>, <code>Linalg.D</code>, <code>Linalg.C</code> and <code>Linalg.Z</code> modules respectively. Besides, the <code>Linalg.Generic</code> can do everything that <code>S/D/C/Z</code> can but needs some extra type information.</p>
 <section class="level2" id="vectors-and-matrices">
 <h2>Vectors and Matrices</h2>
 <p>The fundamental problem of linear algebra: solving linear equations. This is more efficiently expressed with vectors and matrices. Therefore, we need to first get familiar with these basic structures in Owl.</p>
-<p>Similar to the <code>Linalg</code> module, all the matrix functions can be accessed from the <code>Dense.Matrix</code> module, and support four different type of modules. The <code>Mat</code> module is an alias of <code>Dense.Matrix.D</code>. Except for some functions such as <code>re</code>, most functions are shared by these four submodules. Note that that matrix module is actually built on the Ndarray module, and thus the supported functions are quite similar, and matrices and ndarrays can interoperate with each other. The vectors are expressed using Matrix in Owl.</p>
+<p>Similar to the <code>Linalg</code> module, all the matrix functions can be accessed from the <code>Dense.Matrix</code> module, and support four different type of modules. The <code>Mat</code> module is an alias of <code>Dense.Matrix.D</code>. Except for some functions such as <code>re</code>, most functions are shared by these four submodules. Note that that matrix module is actually built on the <code>Ndarray</code> module, and thus the supported functions are quite similar, and matrices and ndarrays can interoperate with each other. The vectors are expressed using Matrix in Owl.</p>
 <section class="level3" id="creating-matrices">
 <h3>Creating Matrices</h3>
 <p>There are multiple functions to help you in creating an initial matrix to start with.</p>
@@ -179,7 +179,7 @@ let y = Mat.uniform 2 2;;</code></pre>
 </code></pre>
 </div>
 <p>All aforementioned infix have their corresponding functions in the module, e.g., <code>=@</code> has <code>Mat.is_equal</code>.</p>
-<p><strong>Matrix Arithmetics</strong></p>
+<p><strong>Matrix Arithmetic</strong></p>
 <p>The arithmetic operation also heavily uses infix. Similar to matrix comparison, each infix has its corresponding function in the module.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -486,7 +486,7 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </section>
 <section class="level3" id="solving-ax-b">
 <h3>Solving Ax = b</h3>
-<p>We can now discuss the general solution structure to <span class="math inline">\(Ax=0\)</span> and <span class="math inline">\(Ax=b\)</span>. Again, here <span class="math inline">\(A\)</span> is a <span class="math inline">\(m\times~n\)</span> matrix. The theorems declare that, there exists non-zeor solution(s) to <span class="math inline">\(Ax=0\)</span> if and only if <span class="math inline">\(\textrm{rank}(a) &lt;= n\)</span>. If <span class="math inline">\(r(A) &lt; n\)</span>, then the nullspace of <span class="math inline">\(A\)</span> is of dimension <span class="math inline">\(n - r\)</span> and the <span class="math inline">\(n-r\)</span> orthogonal basis can be found with <code>null</code> function. Here is an example.</p>
+<p>We can now discuss the general solution structure to <span class="math inline">\(Ax=0\)</span> and <span class="math inline">\(Ax=b\)</span>. Again, here <span class="math inline">\(A\)</span> is a <span class="math inline">\(m\times~n\)</span> matrix. The theorems declare that, there exists non-zero solution(s) to <span class="math inline">\(Ax=0\)</span> if and only if <span class="math inline">\(\textrm{rank}(a) &lt;= n\)</span>. If <span class="math inline">\(r(A) &lt; n\)</span>, then the nullspace of <span class="math inline">\(A\)</span> is of dimension <span class="math inline">\(n - r\)</span> and the <span class="math inline">\(n-r\)</span> orthogonal basis can be found with <code>null</code> function. Here is an example.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4;;
 &gt;val a : Mat.mat =
@@ -1004,7 +1004,7 @@ Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
 </section>
 <section class="level2" id="internal-cblas-and-lapacke">
 <h2>Internal: CBLAS and LAPACKE</h2>
-<p>This section is for those of you who are eager for more low level information. The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra opeartion. The LAPACKE contains more linear algebra routines, such as solving linear systems and matrix factorisations, etc. Efficient implementation of these function has been practices for a long time in many softwares. Interfacing to them can provide easy access to high performance routines.</p>
+<p>This section is for those of you who are eager for more low level information. The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra operation. The LAPACKE contains more linear algebra routines, such as solving linear systems and matrix factorisations, etc. Efficient implementation of these function has been practices for a long time in many softwares. Interfacing to them can provide easy access to high performance routines.</p>
 <section class="level3" id="low-level-interface-to-cblas-lapacke">
 <h3>Low-level Interface to CBLAS &amp; LAPACKE</h3>
 <p>Owl has implemented the full interface to CBLAS and LAPACKE. Comparing to Julia which chooses to interface to BLAS/LAPACK, you might notice the extra <code>C</code> in <code>CBLAS</code> and <code>E</code> in <code>LAPACKE</code> because they are the corresponding C-interface of Fortran implementations. It is often believed that C-interface may introduce some extra overhead. However, it turns out that we cannot really notice any difference at all in practice when dealing with medium or large problems.</p>

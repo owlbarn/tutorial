@@ -30,7 +30,7 @@ Linear optimisation is important because non-negativity is a usual constraint on
 Though still limited by actual problem size, the solution of most linear optimisation problems are already known and provided by off-the-shelf software tools.
 The text book [@boyd2004convex] focus exclusively on the topic of convex optimisation.
 
-Compare to linear optimisation, sovling *non-linear optimisation* problems can still be very challenging.
+Compare to linear optimisation, solving *non-linear optimisation* problems can still be very challenging.
 Finding a *global* solution that maximises or minimises the non-linear objective function is often quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary.
 For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough.
 Otherwise, a *local* maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough.
@@ -165,7 +165,7 @@ Newton method utilises the derivative of objective function $f$. It starts with 
 
 $$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
-We can use the Algorithm Differention module in Owl to do that.
+We can use the Algorithm Differentiation module in Owl to do that.
 In the next example we find the root of $x^2 - 2 = 0$, i.e., find an approximate value of $\sqrt{2}$.
 The Owl code is just a plain translation of [@eq:optimisation:newton].
 

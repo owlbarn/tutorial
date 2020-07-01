@@ -4,7 +4,7 @@ Linear Algebra is a key mathematics field behind computer science and numerical 
 Full coverage of this topic is apparently beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
 In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts.
 
-The high level APIs of Linear Algebra are provied in the `Linalg` module.
+The high level APIs of Linear Algebra are provided in the `Linalg` module.
 It provides four types of number types: single precision, double precision, complex single precision, and complex double precision.
 They are included in `Linalg.S`, `Linalg.D`, `Linalg.C` and `Linalg.Z` modules respectively.
 Besides, the `Linalg.Generic` can do everything that `S/D/C/Z` can but needs some extra type information.
@@ -18,7 +18,7 @@ Therefore, we need to first get familiar with these basic structures in Owl.
 Similar to the `Linalg` module, all the matrix functions can be accessed from the `Dense.Matrix` module, and support four different type of modules.
 The `Mat` module is an alias of `Dense.Matrix.D`.
 Except for some functions such as `re`, most functions are shared by these four submodules.
-Note that that matrix module is actually built on the Ndarray module, and thus the supported functions are quite similar, and matrices and ndarrays can interoperate with each other.
+Note that that matrix module is actually built on the `Ndarray` module, and thus the supported functions are quite similar, and matrices and ndarrays can interoperate with each other.
 The vectors are expressed using Matrix in Owl.
 
 ### Creating Matrices
@@ -236,7 +236,7 @@ We can compare the relationship of `x` and `y` element-wisely as below.
 All aforementioned infix have their corresponding functions in the module, e.g., `=@` has `Mat.is_equal`.
 
 
-**Matrix Arithmetics**
+**Matrix Arithmetic**
 
 The arithmetic operation also heavily uses infix. Similar to matrix comparison, each infix has its corresponding function in the module.
 
@@ -687,7 +687,7 @@ R2   0    0 -35
 
 We can now discuss the general solution structure to $Ax=0$ and $Ax=b$.
 Again, here $A$ is a $m\times~n$ matrix.
-The theorems declare that, there exists non-zeor solution(s) to $Ax=0$ if and only if $\textrm{rank}(a) <= n$.
+The theorems declare that, there exists non-zero solution(s) to $Ax=0$ if and only if $\textrm{rank}(a) <= n$.
 If $r(A) < n$, then the nullspace of $A$ is of dimension $n - r$ and the $n-r$ orthogonal basis can be found with `null` function.
 Here is an example.
 
@@ -1375,7 +1375,7 @@ Understand the method used such as interior  point, and then make the decision.
 ## Internal: CBLAS and LAPACKE
 
 This section is for those of you who are eager for more low level information.
-The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra opeartion.
+The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra operation.
 The LAPACKE contains more linear algebra routines, such as solving linear systems and matrix factorisations, etc.
 Efficient implementation of these function has been practices for a long time in many softwares.
 Interfacing to them can provide easy access to high performance routines.

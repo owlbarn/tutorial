@@ -170,7 +170,7 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 - : float = 1.75165078829330856
 ```
 
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.
+The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.
 
 ```ocaml env=stats_00
 # Stats.central_moment 0 data
@@ -280,7 +280,7 @@ let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
 let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
 ```
 
-Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we genereated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
+Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we generated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
 
 ```ocaml env=stats_03
 # Stats.z_test ~mu:0. ~sigma:1. data_0

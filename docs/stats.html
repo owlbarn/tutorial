@@ -126,7 +126,7 @@ Stats.kurtosis data;;
 &gt;- : float = 1.75165078829330856
 </code></pre>
 </div>
-<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zeroth central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
+<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
 &gt;- : float = 1.
@@ -230,7 +230,7 @@ Stats.percentile;; (* percentile of the samples *)</code></pre>
 <pre><code class="language-ocaml">let data_0 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
 let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</code></pre>
 </div>
-<p>Our hypothesis is that the data set is drawn from Gaussian distribution <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. From the way we genereated the synthetic data, it is obvious that <code>data_0</code> will pass the test, but let’s see what Owl will test us using its <code>Stats.z_test</code> function.</p>
+<p>Our hypothesis is that the data set is drawn from Gaussian distribution <span class="math inline">\(\mathcal{N}(0, 1)\)</span>. From the way we generated the synthetic data, it is obvious that <code>data_0</code> will pass the test, but let’s see what Owl will test us using its <code>Stats.z_test</code> function.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.z_test ~mu:0. ~sigma:1. data_0;;
 &gt;- : Owl_stats.hypothesis =

@@ -90,7 +90,7 @@ Meet the *Euler Method*, a first-order numerical procedure to solve initial valu
 $$ y_{n+1} = y_n + \Delta~f(x_n, y_n),$$
 
 where $\Delta$ is a certain step size.
-This method is really easy to be implemented in OCamla, as shown below.
+This method is really easy to be implemented in OCaml, as shown below.
 
 ```ocaml
 let x = ref 0.

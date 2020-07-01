@@ -397,7 +397,7 @@ In this section, we investigate performance of the proposed PSP in experiments.
 We focus on two common metrics in evaluating barrier strategies: the step progress and accuracy.
 We use the training of a DNN as an example, using a 9-layer structure used in the Neural Network chapter, and for the training we also use the MNIST handwritten digits dataset.
 The learning rate has a decay factor of $1e4$.
-The network strucuture is shown below:
+The network structure is shown below:
 
 ```
 let make_network () =
@@ -488,7 +488,7 @@ let push kv_pairs =
     Gc.compact ();
     Array.map (fun (k, v) ->
       Actor_log.info "push: %s" k;
-      (* simmulated communication delay *)
+      (* simulated communication delay *)
 
       (* let t = delay.(v.wid) in *)
       let t = Owl_stats.gamma_rvs ~shape:1. ~scale:1. in

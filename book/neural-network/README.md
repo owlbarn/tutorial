@@ -406,7 +406,7 @@ In the module system, they are built based on the Optimisation module, which are
 
 `Algodiff` is the most powerful part of Owl and offers great benefits to the modules built atop of it.
 In neural network case, we only need to describe the logic of the forward pass without worrying about the backward propagation at all, because the `Algodiff` figures it out automatically for us thus reduces the potential errors. This explains why a full-featured neural network module only requires less than 3.5k lines of code. Actually, if you are really interested, you can have a look at Owl's [Feedforward Network](https://github.com/owlbarn/owl/blob/master/examples/feedforward.ml) which only uses a couple of hundreds lines of code to implement a complete Feedforward network.
-We have already introduced the Alogdiff module in Owl in previous chapter.
+We have already introduced the Algodiff module in Owl in previous chapter.
 
 ### Neurons
 

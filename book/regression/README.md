@@ -550,7 +550,7 @@ let poly_ridge ~alpha x y n =
 ```
 
 The implementation is based on the optimisation module and the general `_linear_reg` function.
-The key point is to use the L2norml function as regularisation method.
+The key point is to use the L2-norm function as regularisation method.
 By using this regularised version of polynomial regression, we can have an updated model:
 
 ![Revised polynomial model by applying regularisation in regression](images/regression/reg_poly4s_reg.png "poly reg"){width=60% #fig:regression:poly4s_reg}
