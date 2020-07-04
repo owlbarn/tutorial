@@ -1,6 +1,12 @@
 # Core Optimisation
 
-In this chapter, we introduce how the core operations are implemented in C language for performance, and use some examples to show the techniques we use to optimise the C code.
+The study of the numerical methods is both new and old. 
+There are always study that keeps extending numerical methods to more applications.
+On the other hand, we keep returning to the classical algorithms and libraries.  
+For a high-level numerical library to achieve good performance, it is often necessay to interface its core code to classical C or Fortran code and libraries.
+That is true for NumPy, Julia, Matlab, and basically every other library of industrial level, and Owl is not an option.
+We interface part of the core operation to C code and highly optimised C libraries (such as the Lapacke from OpenBLAS).
+To better equip you with knowledge about how the low level is designed in Owl, in this chapter, we introduce how the core operations are implemented in C language for performance, and use some examples to show the techniques we use to optimise the C code.
 
 TODO: update evaluations
 
