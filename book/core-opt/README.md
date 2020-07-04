@@ -583,43 +583,12 @@ A naive implementation of multi-axes `sum` operation is to repeat sum operation 
 However, it creates extra temporary intermediate results. In applications such as DNN, the inefficiency of reduction operation becomes a memory and performance bottleneck.
 The implementation is shown below.
 
+**TODO**: Explain the basic idea of algorithm 
 
-**TODO**: Explain the code instead of just showing some code.
-
-```c
-int iy = 0;
-int cnt = 0;
-
-for (int ix = 0; ix < N;) {
-  for (int k = 0; k < innersize; k++) {
-    ACCFN(y[iy+k], x[ix+k]);
-  }
-
-  ix += innersize;
-  cnt++;
-
-  if (cnt == loopsize) {
-    cnt = 0;
-    int residual;
-    int iterindex = ix;
-    int pre_iteridx = ix;
-
-    for (int i = ndim - 1; i >= 0; i--) {
-      iterindex /= x_shape[i];
-      residual = pre_iteridx - iterindex * x_shape[i];
-      iy += residual * strides[i];
-      pre_iteridx = iterindex;
-    }
-  }
-}
-```
-
-The `ACCFN(y, x)` function in this template is the accumulation function that is unique to each operation.
-For `sum`, it adds `y` and `x` and accumulate the value to `y`.
 In this algorithm, the elements in original ndarray `x` and the target reduced ndarray `y` are iterated one-by-one, but at different steps, indicating by `iy` and `ix`.
 
 One optimisation step before this algorithm is to combine adjacent axes.
-For example, if an ndarray of shape $[2,3,4,5]$ is to be reduced along the second and third axis, then it can be simplified to reducing an ndarray of shape $[2,12,5]$.
+For example, if an ndarray of shape `[2,3,4,5]` is to be reduced along the second and third axis, then it can be simplified to reducing an ndarray of shape `[2,12,5]`.
 
 ![Sum reduction operation on laptop](images/core-opt/opeval_tp_sum_reduce_mem_00.png){width=60% #fig:core-opt:opeval_sumreduce}
 
