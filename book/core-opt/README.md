@@ -495,24 +495,29 @@ $$CONV_{b,h,w,k} = \sum_{ic=1}^{IC}\sum_{r=1}^{R}\sum_{c=1}^{C}I_{b,h+r,w+c,ic}F
 
 A naive convolution algorithm is to implement [@eq:core-opt:conv] with nested for-loops. It is easy to see that this approach does not benefit from any parallelisation, and thus not suitable for production code.
 
-The next version of implementation uses the `im2col` method. A `im2col`-based convolution transforms the input ndarray into a matrix with redundancy.
-This process can be explained clearly with [@fig:core-opt:im2col] ([src](https://leonardoaraujosantos.gitbooks.io/artificial-inteligence/content/making_faster.html)).
-
 ![Basic implementation algorithm of convolution: im2col](images/core-opt/im2col.png "im2col"){width=95% #fig:core-opt:im2col}
 
-You can see that originally at each channel the filter moves along the input and apply element-wise multiplication.
-Instead, the chosen input elements can be flatten into one single column, and so is the kernel.
-One single dot multiplication is the same as previous steps.
-Moving filter to a new position means creating a new column and a new column.
-Therefore, the convolution can be implemented as the dot product of two matrices, which are that flattened kernel matrix and the new input matrices that we have created column by column.
-The advantage of this approach is that it is easy to understand and benefit from the general matrix multiply operation provided by highly optimised linear algebra packages such as OpenBLAS.
+The next version of implementation uses the `im2col` method. A `im2col`-based convolution transforms the input ndarray into a matrix with redundancy.
+This process can be explained clearly with [@fig:core-opt:im2col].
+In this example, we start with an input image of shape 4x4, and has 3 output channels. Each channel is denoted by a different colour. Besides, the index of each element is also show in the figure.
+The kernel is of shape 2x2, has 3 input channels as the input image. Each channel has the same colour as the corresponding channel of input image.
+The 2 output channels are differentiated by various level of transparency in the figure.
+According to the definition of convolution operation, we use the kernel to slide over the input image step by step, and at each position, an element-wise multiplication is applied.
+Here in this example, we use a stride of 1, and a valid padding.
+In the first step, the kernel starts with the position where the element indices are `[1,2,5,6]` in the first input channel, `[17,18,21,22]` in the second input channel, and `[33,34,37,38]` in the third input channel.
+The element-wise multiplication result is filled into corresponding position in the output ndarray.
+Moving on to the second position, the input indices become `[2,3,6,7,18,19,22,23,34,35,38,39]`.
+So on and so forth.
+It turns out that this process can be simplified as one matrix multiplication.
+The first matrix is just the flattened kernel.
+The second matrix is based on the input ndarray. Each column is a flattened sub-block of the same size as one channel of the kernel.
+This approach is the basic idea of the `im2col` algorithm.
+Since the matrix multiplication is a highly optimised operation in linear algebra packages such as OpenBLAS, this algorithm can be executed efficiently, and is easy to understand.
 
-However, this algorithm requires generating a large temporary
-intermediate matrix.
+However, this algorithm requires generating a large temporary intermediate matrix.
 It's row number is `kernel_col * kernel_rowl * input_channel`, and its column number is `output_col * output_row * batches`.
 Even for a mediocre size convolution layer, the size of this intermediate input matrices is not small, not to mention for larger input/kernel sizes and with tens and hundreds of convolution layers together in a neural network.
 The memory usage can easily reach Gigabytes in DNN applications.
-
 
 There are several methods proposed to mitigate this problem.
 If you look closely at the intermediate matrix, you will find that it contains a lot of redundant information: the columns overlap too much.

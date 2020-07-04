@@ -1,15 +1,18 @@
 # Automatic Empirical Tuning
 
+The behaviours of a software system are controlled by many of its parameters. These parameters can significantly impact the performance of the software. Assigning optimal values to the parameters to achieve the best performance is one core task for software optimisation. This chapter reveals the technical details of the parameter tunning in Owl.
+
 
 ## What is Parameter Tuning
 
 Recent research work on parameter tuning mostly focus on hyper-parameter tuning, such as optimising the parameters of stochastic gradient in machine learning applications.
-However, tuning code and parameters in low-level numerical libraries is of the same importance.
-For example, Automatically Tuned Linear Algebra Software ([ATLAS](http://math-atlas.sourceforge.net/)) and the recent Intel Math Kernel Library ([MKL](https://software.intel.com/en-us/mkl)) are both software libraries of optimised math routines for science and engineering computation.
+Similarly, tuning code and parameters in low-level numerical libraries is equally important.
+For example, Automatically Tuned Linear Algebra Software ([ATLAS](http://math-atlas.sourceforge.net/)) and the recent Intel Math Kernel Library ([MKL](https://software.intel.com/en-us/mkl)) are both software libraries of optimised math routines for scientific and engineering computation.
 They are widely used in many popular high-level platforms such as Matlab and TensorFlow.
-One of the reasons these libraries can provide optimal performance is that they have adopted the paradigm of Automated Empirical Optimisation of Software, or AEOS. That is, a library chooses the best method and parameter to use on a given platform to do a required operation.
+One of the reasons these libraries can provide optimal performance is that they have adopted the paradigm of Automated Empirical Optimisation of Software, aka AEOS. That is, a technique chooses the best method and parameter to use on a given platform to do a required operation.
 One highly optimised routine may run much faster than a naively coded one. Optimised code is usually platform- and hardware-specific, but an optimised routine on one machine could perform badly on the other.
 Though Owl currently does not plan to improve the low-level libraries it depends on, as an initial endeavour to apply the AEOS paradigm in Owl, one ideal tuning point is the parameters of OpenMP used in Owl.
+
 
 ## Why Parameter Tuning in Owl
 
@@ -30,7 +33,8 @@ The result above shows that, with growing input size, for sine operation, the Op
 This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes.
 Thus one fixed threshold for several operations is not an ideal solution. Considering these factors, I need a fine-grained method to decide a suitable OpenMP threshold for each operation.
 
-## How to tune OpenMP parameters
+
+## How to Tune OpenMP Parameters
 
 
 Towards this end, I implement the `AEOS` module in Owl. The idea is to add a tuning phase before compiling and installing Owl, so that each operation learns a suitable threshold parameter to decide if OpenMP should be used or not, depending on input size.
