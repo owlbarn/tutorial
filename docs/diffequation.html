@@ -43,24 +43,31 @@
 </div>
 <p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>.</p>
 <p>Note that in both types the derivative <span class="math inline">\(dy/dx\)</span> can be expressed explicitly as a function of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and therefore is called <em>explicit</em> ODE. Otherwise it is called an <em>implicit</em> ODE.</p>
-<p>Reduce High-Order Equations High order ODEs can be reduced to the first order ones that contains only <span class="math inline">\(y'\)</span>, <span class="math inline">\(y\)</span>, and <span class="math inline">\(x\)</span>. For example, an ODE in the form <span class="math inline">\(y^{(n)} = f(x)\)</span> can be reduced by multiple integrations one both sizes. If a two-order ODE is in the form <span class="math inline">\(y^{''} = f(x, y')\)</span>, let <span class="math inline">\(y' = g(x)\)</span>, then <span class="math inline">\(y^{''} = p'(x)\)</span>. Put them into the original ODE, it can be transformed as: <span class="math inline">\(p'=f(x,p)\)</span>. This is a first-order ODE that can be solved by normal solutions. Suppose we get <span class="math inline">\(y'=p=h(x, C_0)\)</span>, then this explicit form of ODE can be integrated to get: <span class="math inline">\(y = \int~h(x, C_0)dx + C_1\)</span>.</p>
+<p>High order ODEs can be reduced to the first order ones that contains only <span class="math inline">\(y'\)</span>, <span class="math inline">\(y\)</span>, and <span class="math inline">\(x\)</span>. For example, an ODE in the form <span class="math inline">\(y^{(n)} = f(x)\)</span> can be reduced by multiple integrations one both sizes. If a two-order ODE is in the form <span class="math inline">\(y^{''} = f(x, y')\)</span>, let <span class="math inline">\(y' = g(x)\)</span>, then <span class="math inline">\(y^{''} = p'(x)\)</span>. Put them into the original ODE, it can be transformed as: <span class="math inline">\(p'=f(x,p)\)</span>. This is a first-order ODE that can be solved by normal solutions. Suppose we get <span class="math inline">\(y'=p=h(x, C_0)\)</span>, then this explicit form of ODE can be integrated to get: <span class="math inline">\(y = \int~h(x, C_0)dx + C_1\)</span>.</p>
 <p>We have only scratch the surface of the ODE as traditional mathematics topic. This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs. For those who interested, please refer to classical calculus books or courses.</p>
 <p>(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)</p>
 </section>
 <section class="level3" id="linear-systems">
 <h3>Linear Systems</h3>
-<p>Many systems involve not just one unknown functions <span class="math inline">\(y\)</span>.</p>
-<p>System of equations Oscillator, two-body problem.</p>
-<p>How a high-order expression can be written as a system can thus can be solved in our system, which will be discussed later.</p>
+<p>ODEs are often used to describe various dynamic systems. In the previous examples there is only one function <code>y</code> that changes over time. However, a real world system often contains multiple interdependent components, each can be described by a unique function that evolves over time. In the next of this chapter, we will talk about several ODE examples in detail, such as the two-body problem and the Lorenz attractor. For now, it suffices for us to look at eq.&nbsp;10 and eq.&nbsp;11 in the sections below and see how they are different from the single-variant ODE so far. For example, the Lorenz attractor system has three components that changes with time: the rate of convection in the atmospheric flow, the horizontal and vertical temperature variation.</p>
+<p>These two systems are examples of what is called the <em>first-order linear system of ODE</em> or just the <em>linear system of ODE</em>. Generally, if we have:</p>
+<p><span class="math display">\[\boldsymbol{y}(t) = \left[\begin{matrix}y_1(t) \\ \vdots \\ y_n(t) \end{matrix} \right],
+\boldsymbol{A}(t) = \left[\begin{matrix}a_{11}(t) &amp; \ldots &amp; a_{1n}(t) \\ \vdots &amp; \ldots &amp; \vdots \\ a_{n1}(t) &amp; \ldots &amp; a_{nn}(t) \end{matrix} \right],
+\textrm{and}
+\boldsymbol{g}(t) = \left[\begin{matrix}g_1(t) \\ \vdots \\ g_n(t) \end{matrix} \right],
+\]</span></p>
+<p>then a linear system can be expressed as:</p>
+<p><span id="eq:diffequation:linear-system"><span class="math display">\[\boldsymbol{y'}(t) = \boldsymbol{A}(t)\boldsymbol{y}(t) + \boldsymbol{g}(t).\qquad(3)\]</span></span></p>
+<p>This linear system contains <span class="math inline">\(n\)</span> time-dependent components: <span class="math inline">\(y_1(t), y_2(t), \ldots, y_n(t)\)</span>. As we will be shown soon, the first-order linear system is especially suitable for the numerical ODE solver to solve. Therefore, transforming a high-order single-component ODE into a linear system is sometimes necessary, as we will show in the two body problem example. But before we stride too far away, let’s get back to the ground and start with the basics of solving an ODE numerically.</p>
 </section>
 </section>
 <section class="level2" id="solving-an-ode-numerically">
 <h2>Solving An ODE Numerically</h2>
 <p>This section introduces the basic idea of solving the initial value problem numerically. Let’s start with an example:</p>
-<p><span id="eq:diffequation:example01"><span class="math display">\[y' = 2xy + x,\qquad(3)\]</span></span></p>
+<p><span id="eq:diffequation:example01"><span class="math display">\[y' = 2xy + x,\qquad(4)\]</span></span></p>
 <p>where the initial value is <span class="math inline">\(y(0) = 0\)</span>. Without going deep into the whole math calculation process (hint: it’s a separable first-order ODE), we give its analytical close-form solution:</p>
-<p><span id="eq:diffequation:example01_solution"><span class="math display">\[y = 0.5(\exp{x^2} - 1).\qquad(4)\]</span></span></p>
-<p>Now, pretending we don’t know the solution in eq.&nbsp;4, and we want to answer the question: what is <span class="math inline">\(y\)</span>’s value when <span class="math inline">\(x = 1\)</span> (or any other value)? How can we solve it numerically?</p>
+<p><span id="eq:diffequation:example01_solution"><span class="math display">\[y = 0.5(\exp{x^2} - 1).\qquad(5)\]</span></span></p>
+<p>Now, pretending we don’t know the solution in eq.&nbsp;5, and we want to answer the question: what is <span class="math inline">\(y\)</span>’s value when <span class="math inline">\(x = 1\)</span> (or any other value)? How can we solve it numerically?</p>
 <p>Meet the <em>Euler Method</em>, a first-order numerical procedure to solve initial value problems. This method proposes to approximate the function <span class="math inline">\(y\)</span> using a sequence of iterative steps:</p>
 <p><span class="math display">\[ y_{n+1} = y_n + \Delta~f(x_n, y_n),\]</span></p>
 <p>where <span class="math inline">\(\Delta\)</span> is a certain step size. This method is really easy to be implemented in OCaml, as shown below.</p>
@@ -86,8 +93,8 @@ let _ =
 <p>and the solution given by the previous numerical code is about <code>0.8591862</code>, which is pretty close to the true answer.</p>
 <p>However, this method is as easy as it is unsuitable to be used in practical applications. One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon. Also, it is not very stable, nor does it provide error estimate.</p>
 <p>Therefore, we can modify the Euler’s method to use a “midpoint” in stepping, hoping to curb the error in the update process:</p>
-<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span id="eq:diffequation:rk2"><span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\qquad(5)\]</span></span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.\]</span></p>
-<p>This method is called the <em>Midpoint Method</em>, and we can also implement it in OCaml similarly. Let’s compare the performance of Euler and Midpoint in approximating the true result in eq.&nbsp;4:</p>
+<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span id="eq:diffequation:rk2"><span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\qquad(6)\]</span></span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.\]</span></p>
+<p>This method is called the <em>Midpoint Method</em>, and we can also implement it in OCaml similarly. Let’s compare the performance of Euler and Midpoint in approximating the true result in eq.&nbsp;5:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f x y = 2. *. x *. y +. x
 let f' x = 0.5 *. (Maths.exp (x *. x) -. 1.)
@@ -130,10 +137,10 @@ let _ =
 </figure>
 <p>We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method.</p>
 <p>Should we stop now? Do we find a perfect solution in midpoint method? Surely no! We can follow the existing trend and add more intermediate stages in the update sequence. For example, we can do this:</p>
-<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\]</span> <span id="eq:diffequation:rk4"><span class="math display">\[ s_3 = f(x_n + \Delta~/2, y_n + s_2~\Delta~/2),\qquad(6)\]</span></span> <span class="math display">\[ s_4 = f(x_n + \Delta, y_n + s_3~\Delta),\]</span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.\]</span></p>
+<p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\]</span> <span id="eq:diffequation:rk4"><span class="math display">\[ s_3 = f(x_n + \Delta~/2, y_n + s_2~\Delta~/2),\qquad(7)\]</span></span> <span class="math display">\[ s_4 = f(x_n + \Delta, y_n + s_3~\Delta),\]</span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.\]</span></p>
 <p>Here in each iteration four intermediate steps are computed, once at the initial point, once at the end, and twice at the midpoints. This method often more accurate than the midpoint method.</p>
 <p>We won’t keep going on but you have seen the pattern. These seemingly mystical parameters are related to the term in Taylor series expansions. In the previous methods, e.g.&nbsp;Euler method, every time you update <span class="math inline">\(y_n\)</span> to <span class="math inline">\(y_{n+1}\)</span>, an error is introduced into the approximation. The <em>order</em> of a method is the exponent of the smallest power of <span class="math inline">\(\Delta\)</span> that cannot be matched. All these methods are called <em>Runge-Kutta Method</em>. It’s basic idea is to remove the errors order by order, using the correct set of coefficients. A higher order of error indicates smaller error.</p>
-<p>The Euler is the most basic form of Runge-Kutta method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2). What eq.&nbsp;6 shows is a fourth-order Runge-Kutta method (rk4). It is the most often used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
+<p>The Euler is the most basic form of Runge-Kutta method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2). What eq.&nbsp;7 shows is a fourth-order Runge-Kutta method (rk4). It is the most often used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
 <p>However, as powerful as it may be, the classical <code>rk4</code> is still a native implementation, and a modern ODE solvers, though largely follows the same idea, adds more “ingredients”. For example, the step size should be adaptively updated instead of being const in our example. Also, you may have seen solvers with names such as <code>ode45</code> in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.</p>
 <p>Besides, other methods also exists. For example, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise. (TODO: Brief introduction of Adam and BDF.) Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to <span data-cites="press2007numerical" class="citation">(Press et al. 2007)</span> for more information.</p>
 </section>
@@ -145,7 +152,7 @@ let _ =
 <h3>Example: Linear Oscillator System</h3>
 <p>EXPLAIN: how the equation of Oscillator becomes this linear representation.</p>
 <p>Let’s see how to solve a time independent linear dynamic system that contains two states:</p>
-<p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(7)\]</span></span></p>
+<p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(8)\]</span></span></p>
 <p>This equation represents an oscillator system. In this system, <span class="math inline">\(y\)</span> is the state of the system, and <span class="math inline">\(t\)</span> is time. The initial state at <span class="math inline">\(t=0\)</span> is <span class="math inline">\(y_0 = \left[ -1, 1\right]^T\)</span>. Now we want to know the system state at <span class="math inline">\(t=2\)</span>. The function can be expressed in Owl using the matrix module.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f y t =
@@ -254,7 +261,7 @@ let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()</code></pre>
 <p>As with many good things in the world, Mastering solving ODE requires practice. After getting to know <code>owl-ode</code> in the previous section, in this section we will demonstrate more examples of using this tool.</p>
 <section class="level3" id="explicit-ode">
 <h3>Explicit ODE</h3>
-<p>Now that we have this powerful tool, we can use the solver in <code>owl-ode</code> to solve the motivative problem in eq.&nbsp;3 with simple code.</p>
+<p>Now that we have this powerful tool, we can use the solver in <code>owl-ode</code> to solve the motivative problem in eq.&nbsp;4 with simple code.</p>
 <div class="highlight">
 <pre><code class="language-clike">let f y t = Mat.(2. $* y *$ t +$ t)
 
@@ -274,7 +281,7 @@ let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()</code></pre>
    C0    C1          C2          C3          C4        C996    C997    C998    C999   C1000
 R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71285 1.71828</code></pre>
 </div>
-<p>(TODO: the result is not as expected from eq.&nbsp;4 and previous manual solution. Find the reason)</p>
+<p>(TODO: the result is not as expected from eq.&nbsp;5 and previous manual solution. Find the reason)</p>
 </section>
 <section class="level3" id="damped-oscillation">
 <h3>Damped Oscillation</h3>
@@ -322,10 +329,10 @@ let () =
 <p>In classical mechanics, the <em>two-body problem</em> is to predict the motion of two massive objects. It is assumed that the only force that are considered comes from each other, and both objects are not affected by any other object. This problem can be seen in the astrodynamics where the objects of interests are planets, satellites, etc. under the influence of only gravitation. Another case is the trajectory of electron around Atomic nucleus in a atom.</p>
 <p>This classic problem is one of the earliest investigated mechanics problems, and was long solved from the age of Newton. It is also a typical integrable problem in classical mechanics. In this example, let’s consider a simplified version of this problem. We assume that the two objects interact on a 2-dimensional plane, and one of them is so much more massive than the other one that it can be thought of as being static (think about electron and nucleus) and sits at the zero point of a Cartesian coordinate system (0, 0) in the plane. In this system, let’s consider the trajectory of the lighter object. This “one-body” problem is basis of the two body problem. For many forces, including gravitational ones, a two-body problem can be divided into a pair of one-body problems.</p>
 <p>Given the previous assumption and newton’s equation, it can be <a href="https://people.sc.fsu.edu/~jburkardt/m_src/two_body_simulation/two_body_simulation.html">proved</a> that the location of the lighter object [<span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>] with regard to time <span class="math inline">\(t\)</span> can be described by:</p>
-<p><span class="math display">\[y_0^{''}(t) = -\frac{y_0}{r^3},\]</span> <span id="eq:diffequation:twobody"><span class="math display">\[y_1^{''}(t) = -\frac{y_1}{r^3},\qquad(8)\]</span></span></p>
+<p><span class="math display">\[y_0^{''}(t) = -\frac{y_0}{r^3},\]</span> <span id="eq:diffequation:twobody"><span class="math display">\[y_1^{''}(t) = -\frac{y_1}{r^3},\qquad(9)\]</span></span></p>
 <p>where <span class="math inline">\(r=\sqrt{y_0^2 + y_1^2}\)</span>. These are a second-order ODEs, and to make it solvable using our tool, we need to make them into a first-order explicit ordinary differential equation system:</p>
-<p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:diffequation:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(9)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
-<p>Based on eq.&nbsp;9, we can build up our code as below:</p>
+<p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:diffequation:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(10)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
+<p>Based on eq.&nbsp;10, we can build up our code as below:</p>
 <div class="highlight">
 <pre><code class="language-clike">let f y _t =
   let y = Mat.to_array y in
@@ -359,7 +366,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 <section class="level3" id="lorenz-attractor">
 <h3>Lorenz Attractor</h3>
 <p>Lorenz equations are one of the most thoroughly studied ODEs. This system of ODEs is proposed by Edward Lorenz in 1963 to model flow of fluid (the air in particular) from hot area to cold area. Lorenz simplified the numerous atmosphere factors into the simple equations below.</p>
-<p><span class="math display">\[x'(t) = \sigma~(y(t)- x(t))\]</span> <span id="eq:diffequation:lorenz"><span class="math display">\[y'(t) = x(t)(\rho - z(t)) - y(t)\qquad(10)\]</span></span> <span class="math display">\[z'(t) = x(t)y(t) - \beta~z(t)\]</span></p>
+<p><span class="math display">\[x'(t) = \sigma~(y(t)- x(t))\]</span> <span id="eq:diffequation:lorenz"><span class="math display">\[y'(t) = x(t)(\rho - z(t)) - y(t)\qquad(11)\]</span></span> <span class="math display">\[z'(t) = x(t)y(t) - \beta~z(t)\]</span></p>
 <p>Here <span class="math inline">\(x\)</span> is proportional to the rate of convection in the atmospheric flow, <span class="math inline">\(y\)</span> and <span class="math inline">\(z\)</span> are proportional to the horizontal and vertical temperature variation. Parameter <span class="math inline">\(\sigma\)</span> is the Prandtl number, and <span class="math inline">\(\rho\)</span> is the normalised Rayleigh number. <span class="math inline">\(\beta\)</span> is related to the geometry of the domain. The most commonly used parameter values are: <span class="math inline">\(\sigma = 10, \rho=20\)</span>, and <span class="math inline">\(\beta = \frac{8}{3}\)</span>. Based on these information, we can use <code>owl-ode</code> to express the Lorenz equations with code.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let sigma = 10.
@@ -462,9 +469,9 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
 <p><em>Stiffness</em> is an important concept in the numerical solution of ODE. Think about a function that has a “cliff” where at a point its nearby value changes rapidly. Therefore, to find the solution with normal method as we have used, it may requires such a extremely small stepping size that traversing the whole timespan may takes a very long time and lot of computation.</p>
 <p>TODO: the very basic idea of stiff algorithms.</p>
 <p>The <strong>Van der Pol equation</strong> is a good example to show both non-stiff and stiff cases. In dynamics, the Van der Pol oscillator is a non-conservative oscillator with non-linear damping. Its behaviour with time can be described with a high order ODE:</p>
-<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(11)\]</span></span></p>
+<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(12)\]</span></span></p>
 <p>where <span class="math inline">\(\mu\)</span> is a scalar parameter indicating the non-linearity and the strength of the damping. To make it solvable using our tool, we can change it into a pair of explicit one-order ODEs in a linear system:</p>
-<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(12)\]</span></span></p>
+<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(13)\]</span></span></p>
 <p>As we will show shortly, by varying the damping parameter, this group of equations can be either non-still or stiff.</p>
 <p>We provide both stiff (<code>Owl_Cvode_Stiff</code>) and non-still (<code>Owl_Cvode</code>) solver by interfacing to Sundials, and the <code>LSODA</code> solver of ODEPACK can automatically switch between stiff and non-stiff algorithms. We will try both in the example.</p>
 <p>Here we start with the basic function code that are shared by both cases.</p>
