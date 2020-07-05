@@ -33,21 +33,20 @@ Solving a differential equation is often complex, but we do know how to solve pa
 Before looking at the the computer solvers to a random ODEs, let's turn to the math first and look at some ODE forms that we already have analytical close-form solution to.
 
 | ODE | Solution |
-| :------------: |:---------------------------------- | 
-| $P(y)\frac{dy}{dx} + Q(x) = 0$ | $\int^{y}P(y)dy + \int^{x}Q(x)dx = C$ | 
+| :------------: |:---------------------------------- |
+| $P(y)\frac{dy}{dx} + Q(x) = 0$ | $\int^{y}P(y)dy + \int^{x}Q(x)dx = C$ |
 | $\frac{dy}{dx} + P(x)y = Q(x)$ | $y=e^{-\sum_{x_0}^xP(x)dx}(y_0 + \sum_{x_0}^xQ(x)e^{\sum_{x_0}^xP(x)dx}dx)$ |
 : Examples of solutions to certain types of ODE {#tbl:diffequation:ode_solution}
 
-The [@tbl:diffequation:ode_solution] shows two examples. 
+The [@tbl:diffequation:ode_solution] shows two examples.
 The first line is a type of ODEs that are called the "separable equations".
-The second line represents the ODEs that are called the "linear first-order equations". 
+The second line represents the ODEs that are called the "linear first-order equations".
 The solution to both form of ODE are already well-known, as shown in the second column.
-Here $C$ is a constant decided by initial condition $x_0$ and $y_0$. 
+Here $C$ is a constant decided by initial condition $x_0$ and $y_0$.
 
-Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit* ODE. 
+Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit* ODE.
 Otherwise it is called an *implicit* ODE.
 
-Reduce High-Order Equations
 High order ODEs can be reduced to the first order ones that contains only $y'$, $y$, and $x$.
 For example, an ODE in the form $y^{(n)} = f(x)$ can be reduced by multiple integrations one both sizes.
 If a two-order ODE is in the form $y^{''} = f(x, y')$, let $y' = g(x)$, then $y^{''} = p'(x)$. Put them into the original ODE, it can be transformed as: $p'=f(x,p)$.
@@ -55,19 +54,36 @@ This is a first-order ODE that can be solved by normal solutions.
 Suppose we get $y'=p=h(x, C_0)$, then this explicit form of ODE can be integrated to get: $y = \int~h(x, C_0)dx + C_1$.
 
 We have only scratch the surface of the ODE as traditional mathematics topic.
-This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs. 
+This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs.
 For those who interested, please refer to classical calculus books or courses.
 
 (TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)
 
 ### Linear Systems
 
-Many systems involve not just one unknown functions $y$.
+ODEs are often used to describe various dynamic systems. In the previous examples there is only one function `y` that changes over time.
+However, a real world system often contains multiple interdependent components, each can be described by a unique function that evolves over time.
+In the next of this chapter, we will talk about several ODE examples in detail, such as the two-body problem and the Lorenz attractor.
+For now, it suffices for us to look at [@eq:diffequation:twobody_system] and [@eq:diffequation:lorenz] in the sections below and see how they are different from the single-variant ODE so far.
+For example, the Lorenz attractor system has three components that changes with time: the rate of convection in the atmospheric flow, the horizontal and vertical temperature variation.
 
-System of equations
-Oscillator, two-body problem.
+These two systems are examples of what is called the *first-order linear system of ODE* or just the *linear system of ODE*. Generally, if we have:
 
-How a high-order expression can be written as a system can thus can be solved in our system, which will be discussed later.
+$$\boldsymbol{y}(t) = \left[\begin{matrix}y_1(t) \\ \vdots \\ y_n(t) \end{matrix} \right],
+\boldsymbol{A}(t) = \left[\begin{matrix}a_{11}(t) & \ldots & a_{1n}(t) \\ \vdots & \ldots & \vdots \\ a_{n1}(t) & \ldots & a_{nn}(t) \end{matrix} \right],
+\textrm{and}
+\boldsymbol{g}(t) = \left[\begin{matrix}g_1(t) \\ \vdots \\ g_n(t) \end{matrix} \right],
+$$
+
+then a linear system can be expressed as:
+
+$$\boldsymbol{y'}(t) = \boldsymbol{A}(t)\boldsymbol{y}(t) + \boldsymbol{g}(t).$$
+ {#eq:diffequation:linear-system}
+
+This linear system contains $n$ time-dependent components: $y_1(t), y_2(t), \ldots, y_n(t)$.
+As we will be shown soon, the first-order linear system is especially suitable for the numerical ODE solver to solve.
+Therefore, transforming a high-order single-component ODE into a linear system is sometimes necessary, as we will show in the two body problem example.
+But before we stride too far away, let's get back to the ground and start with the basics of solving an ODE numerically.
 
 ## Solving An ODE Numerically
 
