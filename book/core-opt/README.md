@@ -1,8 +1,8 @@
 # Core Optimisation
 
-The study of the numerical methods is both new and old. 
+The study of the numerical methods is both new and old.
 There are always study that keeps extending numerical methods to more applications.
-On the other hand, we keep returning to the classical algorithms and libraries.  
+On the other hand, we keep returning to the classical algorithms and libraries.
 For a high-level numerical library to achieve good performance, it is often necessay to interface its core code to classical C or Fortran code and libraries.
 That is true for NumPy, Julia, Matlab, and basically every other library of industrial level, and Owl is not an option.
 We interface part of the core operation to C code and highly optimised C libraries (such as the Lapacke from OpenBLAS).
@@ -585,18 +585,27 @@ In [@fig:core-opt:op_eval_eigen_conv_mem] it is shown that our proposed implemen
 
 ### Reduction Operations
 
-We have also improved the algorithm of certain operations.
-For the reduction operation and the repeat operations, we update the algorithms to reduce the memory usage caused by intermediate results.
+As in the parallel programming model, the map operations are accompanied by another group: the reduction operations, or the fold operations as they are sometimes called.
+Reduction operations such as `sum` and `max` accumulate values in an ndarray along certain axes by certain functions.
+For example, a 1-dimension ndarray (vector) can be reduced to one single number along the row dimension. The result can be the sum of all the elements if the `sum` operation is used, or the max of these elements if it is the `max` operation.
+The reduction operations are among the key operation that are key to high level applications.
+For example, sum is used for implementing the BatchNormalisation neuron, which is a frequently used neuron in DNN.
 
-Reduction operations such as `sum` and `max` accumulate values in a ndarray along certain axes by certain functions. For example, `sum` is used for implementing BatchNormalisation neuron, which is a frequently used neuron in DNN.
+Apparently, the fold operations follow similar pattern, and that leads to the similar design choice as the map operations using templates.
+The implementation of the reduction operations are summarised into several patterns, which are  contained in the `owl_ndarray_maths_fold.h` file as templates.
+In most cases these templates we only need to define the accumulation function `ACCFN`.
+Same with the map functions, these macros are defined in the stub file `owl_ndarray_maths_stub.c`. For example, for the sum function of float precision, I define the accumulation function as `#define ACCFN(A,X) A += X}`.
 
-A naive implementation of multi-axes `sum` operation is to repeat sum operation along one axis for each axis specified.
-However, it creates extra temporary intermediate results. In applications such as DNN, the inefficiency of reduction operation becomes a memory and performance bottleneck.
-The implementation is shown below.
+The reduction operation often needs a specified axis.
+One challenge we were faced with is the multi-axis reduction.
+A naive implementation is to repeat the operation along one axis for each axis specified, and then repeat this procedure on the next axis.
+However, each single-axis reduction needs extra temporary memory for storing the intermediate result.
+In applications that heavily utilises the reduction operation such as a DNN, the inefficiency of reduction operations becomes a memory and performance bottleneck.
 
-**TODO**: Explain the basic idea of algorithm 
-
-In this algorithm, the elements in original ndarray `x` and the target reduced ndarray `y` are iterated one-by-one, but at different steps, indicating by `iy` and `ix`.
+In a single-axis reduction algorithm, it needs to reduce source ndarray  ndarray `x` into a smaller destination ndarray `y`.
+Suppose the dimension to be reduced is of size $a$, and total number of elements in `x` is $n$.
+Then the basic idea in iterate their elements one by one, but the index in `y` keeps returning to 0 when it reaches $a/n - 1$.
+We revise this process so that the index in `y` can keep the re-iterating according to given axes, all using one single piece of intermediate memory.
 
 One optimisation step before this algorithm is to combine adjacent axes.
 For example, if an ndarray of shape `[2,3,4,5]` is to be reduced along the second and third axis, then it can be simplified to reducing an ndarray of shape `[2,12,5]`.
