@@ -134,7 +134,7 @@ type ('a, 'b) kind =
 |	Complex64 : (Complex.t, complex64_elt) kind
 ```
 
-Suppose we want to implement the sine math function, which maps the `sin` function on every elements in the . We we need to implement four different versions, each for one of these four number types.
+Suppose we want to implement the sine math function, which maps the `sin` function on every elements in the ndarray. We need to implement four different versions, each for one of these four number types.
 The basic code looks like this:
 
 ```text
@@ -602,7 +602,7 @@ A naive implementation is to repeat the operation along one axis for each axis s
 However, each single-axis reduction needs extra temporary memory for storing the intermediate result.
 In applications that heavily utilises the reduction operation such as a DNN, the inefficiency of reduction operations becomes a memory and performance bottleneck.
 
-In a single-axis reduction algorithm, it needs to reduce source ndarray  ndarray `x` into a smaller destination ndarray `y`.
+In a single-axis reduction algorithm, it needs to reduce source ndarray `x` into a smaller destination ndarray `y`.
 Suppose the dimension to be reduced is of size $a$, and total number of elements in `x` is $n$.
 Then the basic idea in iterate their elements one by one, but the index in `y` keeps returning to 0 when it reaches $a/n - 1$.
 We revise this process so that the index in `y` can keep the re-iterating according to given axes, all using one single piece of intermediate memory.
@@ -619,49 +619,30 @@ The evaluation result compared with NumPy and Julia is shown in [@fig:core-opt:o
 
 ### Repeat Operations
 
-`Repeat` is another operation that is frequently used in DNN. It is used for implementing the Upsampling and BatchNormalisation
-neurons.
-The `repeat` operation repeats elements of an ndarray along each axis for specified times. It consists of inner repeat and outer
-repeat (or `tile`).
+The `repeat` operation repeats elements of an ndarray along each axis for specified times.
+For example, a vector of shape `[2,3]` can be expanded to shape `[4,3]` if repeated along the first axis, or `[2,6]` along the second axis.
+It consists of inner repeat and outer repeat (or `tile`).
 The former repeats elements of an input ndarray, while the later constructs an ndarray by repeating the whole input ndarray by specified number of times along each axis.
 
-Similar to the reduction functions, a multi-axes repeat function can hardly achieve ideal performance by simply using existing operation for multiple times. We implement multi-axes repeat in Owl and it outperforms NumPy and Julia.
+`Repeat` is another operation that is frequently used in DNN, especially for implementing the `Upsampling` and `BatchNormalisation` neurons.
+While a reduction operation ``shrinks'' the input ndarray, a repeat operations expands it.
+Both operation require memory management instead of complex computation.
+Each repeat along one axis require creating extra memory space for intermediate result.
+Therefore, similar to the reduction functions, to perform multi-axis repeat. simply using existing operations multiple times leads to memory bottleneck for the whole application.
 
-The optimisation we use in the algorithm follows two patterns.
+To this end, I implement the multi-axis repeat operation in Owl.
+The optimisation I use in the algorithm follows two patterns.
 The first is to provide multiple implementations for different inputs.
-For example, if only one axis is used, then a specific implementation for that case would be much faster than a general solution.
-The second is to reduce intermediate results. Similar to the reduction operations, a multiple-axes `repeat` could be implemented by multiple single axis operation, but it would lead to extra memory usage and much slower execution speed.
+For example, if only one axis is used or only the highest dimension is repeated, a specific implementation for that case would be much faster than a general solution.
+The second is to reduce creating intermediate memory.
+A repeat algorithm is like a reverse of reduction: it needs expand the source ndarray `x` into a larger destination ndarray `y`.
+Using the elements to be repeated as a block, the repeat operation copies elements from `x` to `y` block by block. The index in both ndarrays move by a step of block size, though at different cycles.
+In the revised implementation, the intermediate memory is only created once and the all the iteration cycles along different axes are finished within the same piece of memory.
 
-The core code of my proposed repeat algorithm is shown below.
-Here we define `HD` to be the highest non-one-repeat dimension, copy the HD dimension from source ndarray to target ndarray, and then copy the lower dimensions within target ndarray.
-
-
-**TODO**: Explain the code instead of just showing some code.
-
-```c
-for (int i = 0; i < num_hd; ++i) {
-  int ofsy_sub = ofsy;
-  if (block_sz == 1) {
-    COPYFUN(slice_x[HD], x, ofsx, 1, y, ofsy, 1);
-  } else {
-    for (int j = 0; j < slice_x[HD]; ++j) {
-      COPYFUN(block_sz, x, ofsx + j, 0, y, ofsy_sub, 1);
-      ofsy_sub += block_sz;
-    }
-  }
-
-  /* Increase index */
-  ofsx += slice_x[HD];
-  ofsy += stride_y[HD - 1] * reps[HD - 1];
-  for (int j = HD - 1; j > 0; --j) {
-    int c = counter[j];
-    if (c + 1 == block_num[j]) {
-      ofsy += stride_y[j - 1] * (reps[j - 1] - 1);
-    }
-    counter[j] = (c + 1 == block_num[j] ? 0 : c + 1);
-  }
-}
-```
+Compared to this implementation, the multi-axis repeat operation in NumPy is achieved by running multiple single-axis repeat, and thus is less efficient in both memory usage and execution time.
+The repeat operation in Julia is much slower.
+One reason is that this operation is implemented in pure Julia rather than the efficient C code.
+Another reason is that `repeat` is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.
 
 The evaluation of `repeat` is similar to that of reduction operations. We use a four-dimensional ndarray of float numbers as input. All four dimensions are of the same length. We measure the speed for increasing length, the repetition times is set to 2 on all dimensions.
 
