@@ -83,12 +83,12 @@ Even in [Julia](https://github.com/JuliaLang/julia), about 26% of its code is in
 
 Besides interfacing to existing libraries, we focus on implementing the core operations in the Ndarray modules with C code.
 As we have seen in the N-Dimensional Arrays chapter, the n-dimensional array module lies in the heart of Owl, and many other libraries.
-NumPy library itself focus solely on providing a powerful ndarray module to the Python world.
+NumPy library itself focuses solely on providing a powerful ndarray module to the Python world.
 
 A ndarray is a container of items of the same type.
 It consists of a contiguous block of memory, combined with an indexing scheme that maps N integers into the location of an item in the block.
 A stride indexing scheme can then be applied on this block of memory to access elements.
-Once converted properly to the C world, a ndarray can be effectively manipulated with normal C code.
+Once converted properly to the C world, an ndarray can be effectively manipulated with normal C code.
 
 Here we list the categories of operations that are optimised with C in Owl.
 Many operations are first implemented in OCaml but then updated to C driven by our practical experience and applications.
@@ -148,8 +148,8 @@ let _owl_sin : type a b. (a, b) kind -> int -> ('a, 'b) owl_arr -> ('a, 'b) owl_
   | _         -> failwith "_owl_sin: unsupported operation"
 ```
 
-The `_owl_sin` implementation takes four input parameter, the first is the number type `kind`, the second is the total number of elements `l` to apply the `sin` function, the third one `x` is the source ndarray, and the final one `y` is the target ndarray.
-This function apply the `sin` function on the first `l` elements from `x` and then put the results in `y`.
+The `_owl_sin` implementation takes four input parameters. The first is the number type `kind`, the second is the total number of elements `l` to apply the `sin` function, the third one `x` is the source ndarray, and the final one `y` is the target ndarray.
+This function applies the `sin` function on the first `l` elements from `x` and then put the results in `y`.
 Therefore we can simply add a simple layer of wrapper around this function in the `Dense` module:
 
 ```text
