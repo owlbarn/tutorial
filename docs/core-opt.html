@@ -65,7 +65,7 @@ type ('a, 'b) kind =
 |   Complex32 : (Complex.t, complex32_elt) kind
 |   Complex64 : (Complex.t, complex64_elt) kind</code></pre>
 </div>
-<p>Suppose we want to implement the sine math function, which maps the <code>sin</code> function on every elements in the . We we need to implement four different versions, each for one of these four number types. The basic code looks like this:</p>
+<p>Suppose we want to implement the sine math function, which maps the <code>sin</code> function on every elements in the ndarray. We need to implement four different versions, each for one of these four number types. The basic code looks like this:</p>
 <div class="highlight">
 <pre><code class="language-text">let _owl_sin : type a b. (a, b) kind -&gt; int -&gt; ('a, 'b) owl_arr -&gt; ('a, 'b) owl_arr -&gt; unit =
   fun k l x y -&gt;
@@ -317,7 +317,7 @@ for (int i = 0; i &lt; N; i++) {
 <p>As in the parallel programming model, the map operations are accompanied by another group: the reduction operations, or the fold operations as they are sometimes called. Reduction operations such as <code>sum</code> and <code>max</code> accumulate values in an ndarray along certain axes by certain functions. For example, a 1-dimension ndarray (vector) can be reduced to one single number along the row dimension. The result can be the sum of all the elements if the <code>sum</code> operation is used, or the max of these elements if it is the <code>max</code> operation. The reduction operations are among the key operation that are key to high level applications. For example, sum is used for implementing the BatchNormalisation neuron, which is a frequently used neuron in DNN.</p>
 <p>Apparently, the fold operations follow similar pattern, and that leads to the similar design choice as the map operations using templates. The implementation of the reduction operations are summarised into several patterns, which are contained in the <code>owl_ndarray_maths_fold.h</code> file as templates. In most cases these templates we only need to define the accumulation function <code>ACCFN</code>. Same with the map functions, these macros are defined in the stub file <code>owl_ndarray_maths_stub.c</code>. For example, for the sum function of float precision, I define the accumulation function as <code>#define ACCFN(A,X) A += X}</code>.</p>
 <p>The reduction operation often needs a specified axis. One challenge we were faced with is the multi-axis reduction. A naive implementation is to repeat the operation along one axis for each axis specified, and then repeat this procedure on the next axis. However, each single-axis reduction needs extra temporary memory for storing the intermediate result. In applications that heavily utilises the reduction operation such as a DNN, the inefficiency of reduction operations becomes a memory and performance bottleneck.</p>
-<p>In a single-axis reduction algorithm, it needs to reduce source ndarray ndarray <code>x</code> into a smaller destination ndarray <code>y</code>. Suppose the dimension to be reduced is of size <span class="math inline">\(a\)</span>, and total number of elements in <code>x</code> is <span class="math inline">\(n\)</span>. Then the basic idea in iterate their elements one by one, but the index in <code>y</code> keeps returning to 0 when it reaches <span class="math inline">\(a/n - 1\)</span>. We revise this process so that the index in <code>y</code> can keep the re-iterating according to given axes, all using one single piece of intermediate memory.</p>
+<p>In a single-axis reduction algorithm, it needs to reduce source ndarray <code>x</code> into a smaller destination ndarray <code>y</code>. Suppose the dimension to be reduced is of size <span class="math inline">\(a\)</span>, and total number of elements in <code>x</code> is <span class="math inline">\(n\)</span>. Then the basic idea in iterate their elements one by one, but the index in <code>y</code> keeps returning to 0 when it reaches <span class="math inline">\(a/n - 1\)</span>. We revise this process so that the index in <code>y</code> can keep the re-iterating according to given axes, all using one single piece of intermediate memory.</p>
 <p>One optimisation step before this algorithm is to combine adjacent axes. For example, if an ndarray of shape <code>[2,3,4,5]</code> is to be reduced along the second and third axis, then it can be simplified to reducing an ndarray of shape <code>[2,12,5]</code>.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:core-opt:opeval_sumreduce" src="images/core-opt/opeval_tp_sum_reduce_mem_00.png"><figcaption>Figure 7: Sum reduction operation on laptop</figcaption>
@@ -326,35 +326,10 @@ for (int i = 0; i &lt; N; i++) {
 </section>
 <section class="level3" id="repeat-operations">
 <h3>Repeat Operations</h3>
-<p><code>Repeat</code> is another operation that is frequently used in DNN. It is used for implementing the Upsampling and BatchNormalisation neurons. The <code>repeat</code> operation repeats elements of an ndarray along each axis for specified times. It consists of inner repeat and outer repeat (or <code>tile</code>). The former repeats elements of an input ndarray, while the later constructs an ndarray by repeating the whole input ndarray by specified number of times along each axis.</p>
-<p>Similar to the reduction functions, a multi-axes repeat function can hardly achieve ideal performance by simply using existing operation for multiple times. We implement multi-axes repeat in Owl and it outperforms NumPy and Julia.</p>
-<p>The optimisation we use in the algorithm follows two patterns. The first is to provide multiple implementations for different inputs. For example, if only one axis is used, then a specific implementation for that case would be much faster than a general solution. The second is to reduce intermediate results. Similar to the reduction operations, a multiple-axes <code>repeat</code> could be implemented by multiple single axis operation, but it would lead to extra memory usage and much slower execution speed.</p>
-<p>The core code of my proposed repeat algorithm is shown below. Here we define <code>HD</code> to be the highest non-one-repeat dimension, copy the HD dimension from source ndarray to target ndarray, and then copy the lower dimensions within target ndarray.</p>
-<p><strong>TODO</strong>: Explain the code instead of just showing some code.</p>
-<div class="highlight">
-<pre><code class="language-c">for (int i = 0; i &lt; num_hd; ++i) {
-  int ofsy_sub = ofsy;
-  if (block_sz == 1) {
-    COPYFUN(slice_x[HD], x, ofsx, 1, y, ofsy, 1);
-  } else {
-    for (int j = 0; j &lt; slice_x[HD]; ++j) {
-      COPYFUN(block_sz, x, ofsx + j, 0, y, ofsy_sub, 1);
-      ofsy_sub += block_sz;
-    }
-  }
-
-  /* Increase index */
-  ofsx += slice_x[HD];
-  ofsy += stride_y[HD - 1] * reps[HD - 1];
-  for (int j = HD - 1; j &gt; 0; --j) {
-    int c = counter[j];
-    if (c + 1 == block_num[j]) {
-      ofsy += stride_y[j - 1] * (reps[j - 1] - 1);
-    }
-    counter[j] = (c + 1 == block_num[j] ? 0 : c + 1);
-  }
-}</code></pre>
-</div>
+<p>The <code>repeat</code> operation repeats elements of an ndarray along each axis for specified times. For example, a vector of shape <code>[2,3]</code> can be expanded to shape <code>[4,3]</code> if repeated along the first axis, or <code>[2,6]</code> along the second axis. It consists of inner repeat and outer repeat (or <code>tile</code>). The former repeats elements of an input ndarray, while the later constructs an ndarray by repeating the whole input ndarray by specified number of times along each axis.</p>
+<p><code>Repeat</code> is another operation that is frequently used in DNN, especially for implementing the <code>Upsampling</code> and <code>BatchNormalisation</code> neurons. While a reduction operation ``shrinks’’ the input ndarray, a repeat operations expands it. Both operation require memory management instead of complex computation. Each repeat along one axis require creating extra memory space for intermediate result. Therefore, similar to the reduction functions, to perform multi-axis repeat. simply using existing operations multiple times leads to memory bottleneck for the whole application.</p>
+<p>To this end, I implement the multi-axis repeat operation in Owl. The optimisation I use in the algorithm follows two patterns. The first is to provide multiple implementations for different inputs. For example, if only one axis is used or only the highest dimension is repeated, a specific implementation for that case would be much faster than a general solution. The second is to reduce creating intermediate memory. A repeat algorithm is like a reverse of reduction: it needs expand the source ndarray <code>x</code> into a larger destination ndarray <code>y</code>. Using the elements to be repeated as a block, the repeat operation copies elements from <code>x</code> to <code>y</code> block by block. The index in both ndarrays move by a step of block size, though at different cycles. In the revised implementation, the intermediate memory is only created once and the all the iteration cycles along different axes are finished within the same piece of memory.</p>
+<p>Compared to this implementation, the multi-axis repeat operation in NumPy is achieved by running multiple single-axis repeat, and thus is less efficient in both memory usage and execution time. The repeat operation in Julia is much slower. One reason is that this operation is implemented in pure Julia rather than the efficient C code. Another reason is that <code>repeat</code> is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.</p>
 <p>The evaluation of <code>repeat</code> is similar to that of reduction operations. We use a four-dimensional ndarray of float numbers as input. All four dimensions are of the same length. We measure the speed for increasing length, the repetition times is set to 2 on all dimensions.</p>
 <figure>
 <img alt="" style="width:95.0%" id="fig:core-opt:opeval_repeat" src="images/core-opt/opeval_repeat.png"><figcaption>Figure 8: Repeat operation speed</figcaption>
