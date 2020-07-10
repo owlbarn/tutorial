@@ -223,13 +223,16 @@ Discussion of these advanced numerical methods and techniques are beyond this bo
 ## Owl-ODE
 
 Obviously, we cannot just relies on these manual solutions every time in practical use. It's time we use some tools.
-Based on the computation functionalities and ndarray data structures in Owl, we provide the package *[owl_ode](https://github.com/owlbarn/owl_ode)" to perform the tasks of solving initial value problems.
-
-Without further due, let's see it how `owl-ode` package can be used to solve ODE problem.
+Based on the computation functionalities and ndarray data structures in Owl, we provide the package "[owl_ode](https://github.com/owlbarn/owl_ode)" to perform the tasks of solving the initial value problems.
+Without further due, let's see it how the `owl-ode` package can be used to solve ODE problem.
 
 ### Example: Linear Oscillator System
 
 EXPLAIN: how the equation of Oscillator becomes this linear representation.
+
+This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc.
+These phenomena all follow the similar pattern of ODEs.
+One example is the mass on a spring. 
 
 Let's see how to solve a time independent linear dynamic system that contains two states:
 
