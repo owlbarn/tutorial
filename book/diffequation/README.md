@@ -259,7 +259,7 @@ let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 2.; dt=1E-3})
 One last thing to solve the problem is of course the initial values:
 
 ```ocaml env=diffequation_example01
-let y0 = Mat.of_array [|-1.; 1.|] 2 1
+let x0 = Mat.of_array [|-1.; 1.|] 2 1
 ```
 
 And finally we can provide all these information to the `rk4` solver in `Owl_ode` and get the answer:
@@ -283,7 +283,7 @@ The `rk4` solver is short for "forth-order Runge-Kutta Method" that we have intr
 The results shows both the steps $ts$ and the system values at each step $ys$.
 We can visualise the oscillation according to the result:
 
-IMAGE
+![Visualise the solution of a simple linear system](images/diffequation/plot_rk00.png "plot_rk00"){ width=60% #fig:diffequation:plot_rk00 }
 
 ### Solver Structure
 
@@ -329,14 +329,22 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 | Solvers | Type | State | Function | Step | Note |
 | ------- | ---- | ----- | -------- | ---- | ---- |
 | `rk4`   | Native | `M.arr` | `M.arr -> float -> M.arr` | `M.arr * float` | |
+| `rk23`  | Native | ||||
+| `rk45`  | Native | ||||
+| Euler   | Native | ||||
+| Midpoint| Native | ||||
+| Cvode   | Sundials |||||
+| Cvode_stiff | Sundials |||||
+| LSODA | ODEPACK |||||
 
 : Solvers provided by owl-ode and their types. {#tbl:diffequation:solvers}
 
+TODO: add more solvers
 **Automatic inference of state dimensionality**
 
 (COPY ALERT)
 
-All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
+All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of $f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
 
 We also support temporal integration of matrices. That is, cases in which the state $y$ is a matrix of dimensions of dimensions `NxM`. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function `Native.D.to_state_array` which can be used to pack $ys$ into an array of matrices.
 

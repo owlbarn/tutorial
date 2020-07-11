@@ -165,7 +165,7 @@ let _ =
 </div>
 <p>One last thing to solve the problem is of course the initial values:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let y0 = Mat.of_array [|-1.; 1.|] 2 1</code></pre>
+<pre><code class="language-ocaml">let x0 = Mat.of_array [|-1.; 1.|] 2 1</code></pre>
 </div>
 <p>And finally we can provide all these information to the <code>rk4</code> solver in <code>Owl_ode</code> and get the answer:</p>
 <div class="highlight">
@@ -183,7 +183,9 @@ R0 -1   -1.002 -1.00399 -1.00599 -1.00798 ... -3.56302 -3.56451   -3.566 -3.5674
 R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.07707 -2.07798</code></pre>
 </div>
 <p>The <code>rk4</code> solver is short for “forth-order Runge-Kutta Method” that we have introduced before. The results shows both the steps <span class="math inline">\(ts\)</span> and the system values at each step <span class="math inline">\(ys\)</span>. We can visualise the oscillation according to the result:</p>
-<p>IMAGE</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:diffequation:plot_rk00" title="plot_rk00" src="images/diffequation/plot_rk00.png"><figcaption>Figure 2: Visualise the solution of a simple linear system</figcaption>
+</figure>
 </section>
 <section class="level3" id="solver-structure">
 <h3>Solver Structure</h3>
@@ -235,12 +237,68 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 <td><code>M.arr * float</code></td>
 <td></td>
 </tr>
+<tr class="even">
+<td><code>rk23</code></td>
+<td>Native</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>rk45</code></td>
+<td>Native</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Euler</td>
+<td>Native</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Midpoint</td>
+<td>Native</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Cvode</td>
+<td>Sundials</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Cvode_stiff</td>
+<td>Sundials</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>LSODA</td>
+<td>ODEPACK</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 </div>
-<p><strong>Automatic inference of state dimensionality</strong></p>
+<p>TODO: add more solvers <strong>Automatic inference of state dimensionality</strong></p>
 <p>(COPY ALERT)</p>
-<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
+<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of <span class="math inline">\(f\)</span>. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
 <p>We also support temporal integration of matrices. That is, cases in which the state <span class="math inline">\(y\)</span> is a matrix of dimensions of dimensions <code>NxM</code>. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function <code>Native.D.to_state_array</code> which can be used to pack <span class="math inline">\(ys\)</span> into an array of matrices.</p>
 <p><strong>Custom Solvers</strong></p>
 <p>We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
@@ -359,7 +417,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:80.0%" id="fig:diffequation:two-body" title="two-body" src="images/diffequation/two-body.png"><figcaption>Figure 2: The trajectory of lighter object orbiting the massive object in a simplified two-body problem</figcaption>
+<img alt="" style="width:80.0%" id="fig:diffequation:two-body" title="two-body" src="images/diffequation/two-body.png"><figcaption>Figure 3: The trajectory of lighter object orbiting the massive object in a simplified two-body problem</figcaption>
 </figure>
 <p>One example of this simplified two-body problem is the “planet-sun” system where a planet orbits the sun. Kepler’s law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse. The orbiting trajectory in the result visually follows this theory.</p>
 </section>
@@ -413,9 +471,9 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_01" title="lorenz_01" src="images/diffequation/lorenz_01.png"><figcaption>Figure 3: Three components and phase plane plots of Lorenz attractor</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_01" title="lorenz_01" src="images/diffequation/lorenz_01.png"><figcaption>Figure 4: Three components and phase plane plots of Lorenz attractor</figcaption>
 </figure>
-<p>From fig.&nbsp;3, we can image that the status of system keep going towards two “voids” in a three dimensional space, jumping from one to the other. These two voids are a certain type of <em>attractors</em> in this dynamic system, where a system tends to evolve towards.</p>
+<p>From fig.&nbsp;4, we can image that the status of system keep going towards two “voids” in a three dimensional space, jumping from one to the other. These two voids are a certain type of <em>attractors</em> in this dynamic system, where a system tends to evolve towards.</p>
 <p>Now, about Lorenz equation, there is an interesting question: “what would happen if I change the initial value slightly?” For some systems, such as a pendulum, that wouldn’t make much a difference, but not here. We can see that clearly in Owl. Keep function and timespan the same, let’s change only 0.1% of initial value and then solve the system.</p>
 <div class="highlight">
 <pre><code class="language-clike">let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
@@ -458,9 +516,9 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_02" title="lorenz_02" src="images/diffequation/lorenz_02.png"><figcaption>Figure 4: Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_02" title="lorenz_02" src="images/diffequation/lorenz_02.png"><figcaption>Figure 5: Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.</figcaption>
 </figure>
-<p>According to fig.&nbsp;4, the first figure shows that, initially the systems looks quite like that in fig.&nbsp;3, but after about 15 seconds, the system state begins to change. This change is then quantified using the euclidean distance between these two systems. Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. You can try to extend the timespan longer, and the conclusion will still be similar.</p>
+<p>According to fig.&nbsp;5, the first figure shows that, initially the systems looks quite like that in fig.&nbsp;4, but after about 15 seconds, the system state begins to change. This change is then quantified using the euclidean distance between these two systems. Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. You can try to extend the timespan longer, and the conclusion will still be similar.</p>
 <p>This result shows that, in the Lorenz system, even a tiny bit of change in the initial state can lead to a large and chaotic change of future state after a while. It partly explains why weather prediction is difficult to do: you can only accurately predict the weather for a certain period of time, any day longer and the weather will be extremely sensitive to a tiny bit of perturbations at the beginning, such as …, well, such as the flapping of the wings of a distant butterfly several weeks earlier. You are right, the Lorenz equation is closely related to the idea we now call “butterfly effect” in the pop culture.</p>
 </section>
 </section>
@@ -499,7 +557,7 @@ let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 
 let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()</code></pre>
 </div>
-<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;5.</p>
+<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;6.</p>
 <div class="highlight">
 <pre><code class="language-clike">let () =
   let fname = "vdp_sundials_nonstiff.png" in
@@ -516,12 +574,12 @@ let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()<
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 5: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 6: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
 </figure>
 </section>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
-<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;6 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
+<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;7 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
 <div class="highlight">
 <pre><code class="language-clike">let f_stiff = van_der_pol 1000.
 let y0 = Mat.of_array [| 2.; 0. |] 1 2
@@ -541,7 +599,7 @@ let () =
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 6: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
+<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 7: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
 </figure>
 </section>
 </section>

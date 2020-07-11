@@ -78,6 +78,7 @@
         images/core-opt/opeval_tp_sum_reduce_mem_00.png
         images/diffequation/lorenz_01.png
         images/diffequation/lorenz_02.png
+        images/diffequation/plot_rk00.png
         images/diffequation/plot_rk01.png
         images/diffequation/two-body.png
         images/diffequation/vdp_odepack_stiff.png
