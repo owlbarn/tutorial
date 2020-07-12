@@ -5,14 +5,13 @@
 
 A *differential equation* is an equation that contains a function and one or more of its derivatives.
 It is studied ever since the invention of calculus, driven by the applications in mechanics, astronomy, and geometry.
-Currently it has become a important branch of mathematics study and its application is widely extended to biology, engineering, economics, and much more fields.
-
+Currently it has become an important branch of mathematics study and its application is widely extended to biology, engineering, economics, and much more fields.
 In a differential equation, if the function and its derivatives are about only one variable, we call it an *Ordinary Differential Equation*(ODE).
 It is often used to model one-dimensional dynamical systems.
 Otherwise it is an *Partial Differential Equation*(PDE).
 In this chapter we focus on the former one.
 
-Generally, a ODE can be expressed as:
+Generally, an ODE can be expressed as:
 
 $$ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.$$ {#eq:diffequation:ode-def}
 
@@ -24,8 +23,8 @@ $$y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,$${#eq:diffequation:init}
 where the $y_0$, $y_1$, etc. are known.
 The highest order of derivatives that are used in [@eq:diffequation:ode-def] is the *order* of this differential equation.
 A first-order differential equation can be generally expressed as: $\frac{dy}{dx}=f(x,y)$, where $f$ is any function that contains $x$ and $y$.
-Solving [@eq:diffequation:ode-def] that fits given initial values as in [@eq:diffequation:init] is called the *initial value problem*.
-Solving this kind of problems is the main target of many numerical ODE solvers.
+Solving [@eq:diffequation:ode-def] that fits the given initial values as in [@eq:diffequation:init] is called the *initial value problem*.
+Solving problems of this kind is the main target of many numerical ODE solvers.
 
 ### Exact Solutions
 
@@ -42,7 +41,7 @@ The [@tbl:diffequation:ode_solution] shows two examples.
 The first line is a type of ODEs that are called the "separable equations".
 The second line represents the ODEs that are called the "linear first-order equations".
 The solution to both form of ODE are already well-known, as shown in the second column.
-Here $C$ is a constant decided by initial condition $x_0$ and $y_0$.
+Here $C$ is a constant decided by initial condition $x_0$ and $y_0$. $P(x)$ and $Q(x)$ are functions that contain only variable $x$.
 
 Note that in both types the derivative $dy/dx$ can be expressed explicitly as a function of $x$ and $y$, and therefore is called *explicit* ODE.
 Otherwise it is called an *implicit* ODE.
@@ -55,14 +54,12 @@ Suppose we get $y'=p=h(x, C_0)$, then this explicit form of ODE can be integrate
 
 We have only scratch the surface of the ODE as traditional mathematics topic.
 This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs.
-For those who interested, please refer to classical calculus books or courses.
-
-(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)
+Please refer to classical calculus books or courses for more detail.
 
 ### Linear Systems
 
 ODEs are often used to describe various dynamic systems. In the previous examples there is only one function `y` that changes over time.
-However, a real world system often contains multiple interdependent components, each can be described by a unique function that evolves over time.
+However, a real world system often contains multiple interdependent components, and each can be described by a unique function that evolves over time.
 In the next of this chapter, we will talk about several ODE examples in detail, such as the two-body problem and the Lorenz attractor.
 For now, it suffices for us to look at [@eq:diffequation:twobody_system] and [@eq:diffequation:lorenz] in the sections below and see how they are different from the single-variant ODE so far.
 For example, the Lorenz attractor system has three components that changes with time: the rate of convection in the atmospheric flow, the horizontal and vertical temperature variation.
@@ -71,7 +68,7 @@ These two systems are examples of what is called the *first-order linear system 
 
 $$\boldsymbol{y}(t) = \left[\begin{matrix}y_1(t) \\ \vdots \\ y_n(t) \end{matrix} \right],
 \boldsymbol{A}(t) = \left[\begin{matrix}a_{11}(t) & \ldots & a_{1n}(t) \\ \vdots & \ldots & \vdots \\ a_{n1}(t) & \ldots & a_{nn}(t) \end{matrix} \right],
-\textrm{and}
+\textrm{and }
 \boldsymbol{g}(t) = \left[\begin{matrix}g_1(t) \\ \vdots \\ g_n(t) \end{matrix} \right],
 $$
 
@@ -101,7 +98,11 @@ $$y = 0.5(\exp{x^2} - 1).$$ {#eq:diffequation:example01_solution}
 Now, pretending we don't know the solution in [@eq:diffequation:example01_solution], and we want to answer the question: what is $y$'s value when $x = 1$ (or any other value)?
 How can we solve it numerically?
 
-Meet the *Euler Method*, a first-order numerical procedure to solve initial value problems. This method proposes to approximate the function $y$ using a sequence of iterative steps:
+Meet the *Euler Method*, a first-order numerical procedure to solve initial value problems. 
+The basic idea is simple: according to [@eq:diffequation:example01], we know the derivative, i.e., the "slope" at any given point on the function curve. 
+Besides, we also know the initial value $x_0$ and $y_0$ of this function.
+We can then simply move from the initial point to the target $x$ value in small steps, and at every new point we adjust the direction according to derivative.
+Formally, the Euler method proposes to approximate the function $y$ using a sequence of iterative steps:
 
 $$ y_{n+1} = y_n + \Delta~f(x_n, y_n),$$
 
@@ -122,7 +123,7 @@ let _ =
   done
 ```
 
-In this case, we know that the analytical solution at $x=1$ is $0.5(\exp{1^2} - 1$:
+In this case, we know that the analytical solution at $x=1$ is $0.5(\exp{1^2} - 1)$:
 
 ```ocaml
 # (Owl_const.e -. 1.)/. 2.
@@ -133,8 +134,7 @@ and the solution given by the previous numerical code is about `0.8591862`, whic
 
 However, this method is as easy as it is unsuitable to be used in practical applications.
 One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon.
-Also, it is not very stable, nor does it provide error estimate.
-
+Also, it is not very stable, nor does it provides error estimate.
 Therefore, we can modify the Euler's method to use a "midpoint" in stepping, hoping to curb the error in the update process:
 
 $$ s_1 = f(x_n, y_n),$$
@@ -197,32 +197,33 @@ $$ s_3 = f(x_n + \Delta~/2, y_n + s_2~\Delta~/2),$$ {#eq:diffequation:rk4}
 $$ s_4 = f(x_n + \Delta, y_n + s_3~\Delta),$$
 $$ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.$$
 
-Here in each iteration four intermediate steps are computed, once at the initial point, once at the end, and twice at the midpoints.
-This method often more accurate than the midpoint method.
+Here in each iteration four intermediate steps are computed: once at the initial point, once at the end, and twice at the midpoints.
+This method is often more accurate than the midpoint method.
 
-We won't keep going on but you have seen the pattern.
+We can keep going on like this, but hopefully you have seen the pattern so far.
 These seemingly mystical parameters are related to the term in Taylor series expansions.
 In the previous methods, e.g. Euler method, every time you update $y_n$ to $y_{n+1}$, an error is introduced into the approximation.
 The *order* of a method is the exponent of the smallest power of $\Delta$ that cannot be matched.
-All these methods are called *Runge-Kutta Method*.
-It's basic idea is to remove the errors order by order, using the correct set of coefficients.
+All these methods are called *Runge-Kutta Methods*.
+Its basic idea is to remove the errors order by order, using the correct set of coefficients.
 A higher order of error indicates smaller error.
 
-The Euler is the most basic form of Runge-Kutta method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2).
+The Euler is the most basic form of Runge-Kutta (RK) method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2).
 What [@eq:diffequation:rk4] shows is a fourth-order Runge-Kutta method (rk4).
-It is the most often used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing $f$ is not expensive.
+It is the most frequently used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing $f$ is not expensive.
 
 However, as powerful as it may be, the classical `rk4` is still a native implementation, and a modern ODE solvers, though largely follows the same idea, adds more "ingredients".
-For example, the step size should be adaptively updated instead of being const in our example.
+For example, the step size should be adaptively updated instead of being constant as in our example.
 Also, you may have seen solvers with names such as `ode45` in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.
 
-Besides, other methods also exists. For example, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise.
-(TODO: Brief introduction of Adam and BDF.)
-Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to [@press2007numerical] for more information.
+Besides, other methods also exists. 
+For example, the Adams-Bashforth Method and Backward Differentiation Formula (BDF) are both multi-step methods that utilise not just the information such as derivative of the current step, but also of previous time steps to compute the solution at next step.
+In recent years, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise.
+Discussion of these advanced numerical methods and techniques are beyond the scope of this book. Please refer to [@press2007numerical] for more information.
 
 ## Owl-ODE
 
-Obviously, we cannot just relies on these manual solutions every time in practical use. It's time we use some tools.
+Obviously, we cannot just rely on these manual solutions every time in practical use. It's time to use some tools.
 Based on the computation functionalities and ndarray data structures in Owl, we provide the package "[owl_ode](https://github.com/owlbarn/owl_ode)" to perform the tasks of solving the initial value problems.
 Without further due, let's see it how the `owl-ode` package can be used to solve ODE problem.
 
@@ -328,18 +329,18 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 
 | Solvers | Type | State | Function | Step | Note |
 | ------- | ---- | ----- | -------- | ---- | ---- |
-| `rk4`   | Native | `M.arr` | `M.arr -> float -> M.arr` | `M.arr * float` | |
-| `rk23`  | Native | ||||
-| `rk45`  | Native | ||||
-| Euler   | Native | ||||
-| Midpoint| Native | ||||
-| Cvode   | Sundials |||||
-| Cvode_stiff | Sundials |||||
-| LSODA | ODEPACK |||||
+| `rk4`   | Native | `mat` | `mat -> float -> mat` | `mat * float` | |
+| `rk23`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`| |
+| `rk45`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`| |
+| Euler   | Native | `mat` | `mat -> float -> mat` | `mat * float` | |
+| Midpoint| Native | `mat` | `mat -> float -> mat` | `mat * float` | |
+| Cvode   | Sundials | `arr`| `arr -> float -> arr`| `arr * float` | |
+| Cvode_stiff | Sundials | `arr`| `arr -> float -> arr`| `arr * float` | |
+| LSODA | ODEPACK | `mat` | `mat -> float -> mat` | `mat * float` | |
 
 : Solvers provided by owl-ode and their types. {#tbl:diffequation:solvers}
 
-TODO: add more solvers
+TODO: Explain this table
 **Automatic inference of state dimensionality**
 
 (COPY ALERT)
