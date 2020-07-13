@@ -30,6 +30,7 @@ In a small experiment, I compare the performance of two operations, `abs` (calcu
 ![Observe the cross-points of OpenMP and non-OpenMP operation](images/aeos/cross.png){#fig:aeos:cross}
 
 The result above shows that, with growing input size, for sine operation, the OpenMP version outperforms the non-OpenMP version at a size of less than 1000, but for `abs` operation, that cross point is at about 1,000,000. The complexity of math operations varies greatly, and the difference is even starker when compare their performance on different machines.
+Note that both axes use log-scale, and that is why a small deviation when the input array size is small looks large in the figure.
 This issue becomes more complex when considered in real applications such as deep neural networks, where one needs to deal with operations of vastly different complexity and input sizes.
 Thus one fixed threshold for several operations is not an ideal solution. Considering these factors, I need a fine-grained method to decide a suitable OpenMP threshold for each operation.
 

@@ -6,13 +6,12 @@
 <h1>Ordinary Differential Equations</h1>
 <section class="level2" id="what-is-an-ode">
 <h2>What Is An ODE</h2>
-<p>A <em>differential equation</em> is an equation that contains a function and one or more of its derivatives. It is studied ever since the invention of calculus, driven by the applications in mechanics, astronomy, and geometry. Currently it has become a important branch of mathematics study and its application is widely extended to biology, engineering, economics, and much more fields.</p>
-<p>In a differential equation, if the function and its derivatives are about only one variable, we call it an <em>Ordinary Differential Equation</em>(ODE). It is often used to model one-dimensional dynamical systems. Otherwise it is an <em>Partial Differential Equation</em>(PDE). In this chapter we focus on the former one.</p>
-<p>Generally, a ODE can be expressed as:</p>
+<p>A <em>differential equation</em> is an equation that contains a function and one or more of its derivatives. It is studied ever since the invention of calculus, driven by the applications in mechanics, astronomy, and geometry. Currently it has become an important branch of mathematics study and its application is widely extended to biology, engineering, economics, and much more fields. In a differential equation, if the function and its derivatives are about only one variable, we call it an <em>Ordinary Differential Equation</em>(ODE). It is often used to model one-dimensional dynamical systems. Otherwise it is an <em>Partial Differential Equation</em>(PDE). In this chapter we focus on the former one.</p>
+<p>Generally, an ODE can be expressed as:</p>
 <p><span id="eq:diffequation:ode-def"><span class="math display">\[ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.\qquad(1)\]</span></span></p>
 <p>The differential equations model dynamic systems, and the initial status of the system is often known. That is called <em>initial values</em>. They can be represented as:</p>
 <p><span id="eq:diffequation:init"><span class="math display">\[y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,\qquad(2)\]</span></span></p>
-<p>where the <span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>, etc. are known. The highest order of derivatives that are used in eq.&nbsp;1 is the <em>order</em> of this differential equation. A first-order differential equation can be generally expressed as: <span class="math inline">\(\frac{dy}{dx}=f(x,y)\)</span>, where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Solving eq.&nbsp;1 that fits given initial values as in eq.&nbsp;2 is called the <em>initial value problem</em>. Solving this kind of problems is the main target of many numerical ODE solvers.</p>
+<p>where the <span class="math inline">\(y_0\)</span>, <span class="math inline">\(y_1\)</span>, etc. are known. The highest order of derivatives that are used in eq.&nbsp;1 is the <em>order</em> of this differential equation. A first-order differential equation can be generally expressed as: <span class="math inline">\(\frac{dy}{dx}=f(x,y)\)</span>, where <span class="math inline">\(f\)</span> is any function that contains <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Solving eq.&nbsp;1 that fits the given initial values as in eq.&nbsp;2 is called the <em>initial value problem</em>. Solving problems of this kind is the main target of many numerical ODE solvers.</p>
 <section class="level3" id="exact-solutions">
 <h3>Exact Solutions</h3>
 <p>Solving a differential equation is often complex, but we do know how to solve part of them. Before looking at the the computer solvers to a random ODEs, let’s turn to the math first and look at some ODE forms that we already have analytical close-form solution to.</p>
@@ -41,19 +40,18 @@
 </tbody>
 </table>
 </div>
-<p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>.</p>
+<p>The tbl.&nbsp;1 shows two examples. The first line is a type of ODEs that are called the “separable equations”. The second line represents the ODEs that are called the “linear first-order equations”. The solution to both form of ODE are already well-known, as shown in the second column. Here <span class="math inline">\(C\)</span> is a constant decided by initial condition <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span>. <span class="math inline">\(P(x)\)</span> and <span class="math inline">\(Q(x)\)</span> are functions that contain only variable <span class="math inline">\(x\)</span>.</p>
 <p>Note that in both types the derivative <span class="math inline">\(dy/dx\)</span> can be expressed explicitly as a function of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, and therefore is called <em>explicit</em> ODE. Otherwise it is called an <em>implicit</em> ODE.</p>
 <p>High order ODEs can be reduced to the first order ones that contains only <span class="math inline">\(y'\)</span>, <span class="math inline">\(y\)</span>, and <span class="math inline">\(x\)</span>. For example, an ODE in the form <span class="math inline">\(y^{(n)} = f(x)\)</span> can be reduced by multiple integrations one both sizes. If a two-order ODE is in the form <span class="math inline">\(y^{''} = f(x, y')\)</span>, let <span class="math inline">\(y' = g(x)\)</span>, then <span class="math inline">\(y^{''} = p'(x)\)</span>. Put them into the original ODE, it can be transformed as: <span class="math inline">\(p'=f(x,p)\)</span>. This is a first-order ODE that can be solved by normal solutions. Suppose we get <span class="math inline">\(y'=p=h(x, C_0)\)</span>, then this explicit form of ODE can be integrated to get: <span class="math inline">\(y = \int~h(x, C_0)dx + C_1\)</span>.</p>
-<p>We have only scratch the surface of the ODE as traditional mathematics topic. This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs. For those who interested, please refer to classical calculus books or courses.</p>
-<p>(TODO: Explicit vs Implicit etc.: The three types of equations. This is important.)</p>
+<p>We have only scratch the surface of the ODE as traditional mathematics topic. This chapter does not aim to fully introduce how to solve ODEs analytically or simplify high-order ODEs. Please refer to classical calculus books or courses for more detail.</p>
 </section>
 <section class="level3" id="linear-systems">
 <h3>Linear Systems</h3>
-<p>ODEs are often used to describe various dynamic systems. In the previous examples there is only one function <code>y</code> that changes over time. However, a real world system often contains multiple interdependent components, each can be described by a unique function that evolves over time. In the next of this chapter, we will talk about several ODE examples in detail, such as the two-body problem and the Lorenz attractor. For now, it suffices for us to look at eq.&nbsp;10 and eq.&nbsp;11 in the sections below and see how they are different from the single-variant ODE so far. For example, the Lorenz attractor system has three components that changes with time: the rate of convection in the atmospheric flow, the horizontal and vertical temperature variation.</p>
+<p>ODEs are often used to describe various dynamic systems. In the previous examples there is only one function <code>y</code> that changes over time. However, a real world system often contains multiple interdependent components, and each can be described by a unique function that evolves over time. In the next of this chapter, we will talk about several ODE examples in detail, such as the two-body problem and the Lorenz attractor. For now, it suffices for us to look at eq.&nbsp;10 and eq.&nbsp;11 in the sections below and see how they are different from the single-variant ODE so far. For example, the Lorenz attractor system has three components that changes with time: the rate of convection in the atmospheric flow, the horizontal and vertical temperature variation.</p>
 <p>These two systems are examples of what is called the <em>first-order linear system of ODE</em> or just the <em>linear system of ODE</em>. Generally, if we have:</p>
 <p><span class="math display">\[\boldsymbol{y}(t) = \left[\begin{matrix}y_1(t) \\ \vdots \\ y_n(t) \end{matrix} \right],
 \boldsymbol{A}(t) = \left[\begin{matrix}a_{11}(t) &amp; \ldots &amp; a_{1n}(t) \\ \vdots &amp; \ldots &amp; \vdots \\ a_{n1}(t) &amp; \ldots &amp; a_{nn}(t) \end{matrix} \right],
-\textrm{and}
+\textrm{and }
 \boldsymbol{g}(t) = \left[\begin{matrix}g_1(t) \\ \vdots \\ g_n(t) \end{matrix} \right],
 \]</span></p>
 <p>then a linear system can be expressed as:</p>
@@ -68,7 +66,7 @@
 <p>where the initial value is <span class="math inline">\(y(0) = 0\)</span>. Without going deep into the whole math calculation process (hint: it’s a separable first-order ODE), we give its analytical close-form solution:</p>
 <p><span id="eq:diffequation:example01_solution"><span class="math display">\[y = 0.5(\exp{x^2} - 1).\qquad(5)\]</span></span></p>
 <p>Now, pretending we don’t know the solution in eq.&nbsp;5, and we want to answer the question: what is <span class="math inline">\(y\)</span>’s value when <span class="math inline">\(x = 1\)</span> (or any other value)? How can we solve it numerically?</p>
-<p>Meet the <em>Euler Method</em>, a first-order numerical procedure to solve initial value problems. This method proposes to approximate the function <span class="math inline">\(y\)</span> using a sequence of iterative steps:</p>
+<p>Meet the <em>Euler Method</em>, a first-order numerical procedure to solve initial value problems. The basic idea is simple: according to eq.&nbsp;4, we know the derivative, i.e., the “slope” at any given point on the function curve. Besides, we also know the initial value <span class="math inline">\(x_0\)</span> and <span class="math inline">\(y_0\)</span> of this function. We can then simply move from the initial point to the target <span class="math inline">\(x\)</span> value in small steps, and at every new point we adjust the direction according to derivative. Formally, the Euler method proposes to approximate the function <span class="math inline">\(y\)</span> using a sequence of iterative steps:</p>
 <p><span class="math display">\[ y_{n+1} = y_n + \Delta~f(x_n, y_n),\]</span></p>
 <p>where <span class="math inline">\(\Delta\)</span> is a certain step size. This method is really easy to be implemented in OCaml, as shown below.</p>
 <div class="highlight">
@@ -84,15 +82,14 @@ let _ =
     x := !x +. step
   done</code></pre>
 </div>
-<p>In this case, we know that the analytical solution at <span class="math inline">\(x=1\)</span> is <span class="math inline">\(0.5(\exp{1^2} - 1\)</span>:</p>
+<p>In this case, we know that the analytical solution at <span class="math inline">\(x=1\)</span> is <span class="math inline">\(0.5(\exp{1^2} - 1)\)</span>:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">(Owl_const.e -. 1.)/. 2.;;
 &gt;- : float = 0.859140914229522545
 </code></pre>
 </div>
 <p>and the solution given by the previous numerical code is about <code>0.8591862</code>, which is pretty close to the true answer.</p>
-<p>However, this method is as easy as it is unsuitable to be used in practical applications. One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon. Also, it is not very stable, nor does it provide error estimate.</p>
-<p>Therefore, we can modify the Euler’s method to use a “midpoint” in stepping, hoping to curb the error in the update process:</p>
+<p>However, this method is as easy as it is unsuitable to be used in practical applications. One reason is that this method is not very accurate, despite that it works well in our example here. We will show this point soon. Also, it is not very stable, nor does it provides error estimate. Therefore, we can modify the Euler’s method to use a “midpoint” in stepping, hoping to curb the error in the update process:</p>
 <p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span id="eq:diffequation:rk2"><span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\qquad(6)\]</span></span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + s_2}{2}.\]</span></p>
 <p>This method is called the <em>Midpoint Method</em>, and we can also implement it in OCaml similarly. Let’s compare the performance of Euler and Midpoint in approximating the true result in eq.&nbsp;5:</p>
 <div class="highlight">
@@ -138,19 +135,19 @@ let _ =
 <p>We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method.</p>
 <p>Should we stop now? Do we find a perfect solution in midpoint method? Surely no! We can follow the existing trend and add more intermediate stages in the update sequence. For example, we can do this:</p>
 <p><span class="math display">\[ s_1 = f(x_n, y_n),\]</span> <span class="math display">\[ s_2 = f(x_n + \Delta~/2, y_n + s_1~\Delta~/2),\]</span> <span id="eq:diffequation:rk4"><span class="math display">\[ s_3 = f(x_n + \Delta~/2, y_n + s_2~\Delta~/2),\qquad(7)\]</span></span> <span class="math display">\[ s_4 = f(x_n + \Delta, y_n + s_3~\Delta),\]</span> <span class="math display">\[ y_{n+1} = y_n + \Delta~\frac{s_1 + 2s_2+2s_3+s_4}{6}.\]</span></p>
-<p>Here in each iteration four intermediate steps are computed, once at the initial point, once at the end, and twice at the midpoints. This method often more accurate than the midpoint method.</p>
-<p>We won’t keep going on but you have seen the pattern. These seemingly mystical parameters are related to the term in Taylor series expansions. In the previous methods, e.g.&nbsp;Euler method, every time you update <span class="math inline">\(y_n\)</span> to <span class="math inline">\(y_{n+1}\)</span>, an error is introduced into the approximation. The <em>order</em> of a method is the exponent of the smallest power of <span class="math inline">\(\Delta\)</span> that cannot be matched. All these methods are called <em>Runge-Kutta Method</em>. It’s basic idea is to remove the errors order by order, using the correct set of coefficients. A higher order of error indicates smaller error.</p>
-<p>The Euler is the most basic form of Runge-Kutta method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2). What eq.&nbsp;7 shows is a fourth-order Runge-Kutta method (rk4). It is the most often used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
-<p>However, as powerful as it may be, the classical <code>rk4</code> is still a native implementation, and a modern ODE solvers, though largely follows the same idea, adds more “ingredients”. For example, the step size should be adaptively updated instead of being const in our example. Also, you may have seen solvers with names such as <code>ode45</code> in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.</p>
-<p>Besides, other methods also exists. For example, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise. (TODO: Brief introduction of Adam and BDF.) Discussion of these advanced numerical methods and techniques are beyond this book. Please refer to <span data-cites="press2007numerical" class="citation">(Press et al. 2007)</span> for more information.</p>
+<p>Here in each iteration four intermediate steps are computed: once at the initial point, once at the end, and twice at the midpoints. This method is often more accurate than the midpoint method.</p>
+<p>We can keep going on like this, but hopefully you have seen the pattern so far. These seemingly mystical parameters are related to the term in Taylor series expansions. In the previous methods, e.g.&nbsp;Euler method, every time you update <span class="math inline">\(y_n\)</span> to <span class="math inline">\(y_{n+1}\)</span>, an error is introduced into the approximation. The <em>order</em> of a method is the exponent of the smallest power of <span class="math inline">\(\Delta\)</span> that cannot be matched. All these methods are called <em>Runge-Kutta Methods</em>. Its basic idea is to remove the errors order by order, using the correct set of coefficients. A higher order of error indicates smaller error.</p>
+<p>The Euler is the most basic form of Runge-Kutta (RK) method, and the Midpoint is also called the second-order Runge-Kutta Method (rk2). What eq.&nbsp;7 shows is a fourth-order Runge-Kutta method (rk4). It is the most frequently used RK method and works surprisingly well in many cases, and it is often a good choice especially when computing <span class="math inline">\(f\)</span> is not expensive.</p>
+<p>However, as powerful as it may be, the classical <code>rk4</code> is still a native implementation, and a modern ODE solvers, though largely follows the same idea, adds more “ingredients”. For example, the step size should be adaptively updated instead of being constant as in our example. Also, you may have seen solvers with names such as <code>ode45</code> in MATLAB, and in their implementation, it means that this solver gets its error estimate at each step by comparing the 4th order solution and 5th order solution and then decide the direction.</p>
+<p>Besides, other methods also exists. For example, the Adams-Bashforth Method and Backward Differentiation Formula (BDF) are both multi-step methods that utilise not just the information such as derivative of the current step, but also of previous time steps to compute the solution at next step. In recent years, the Bulirsch-Stoer method is known to be both accurate and and efficient computation-wise. Discussion of these advanced numerical methods and techniques are beyond the scope of this book. Please refer to <span data-cites="press2007numerical" class="citation">(Press et al. 2007)</span> for more information.</p>
 </section>
 <section class="level2" id="owl-ode">
 <h2>Owl-ODE</h2>
-<p>Obviously, we cannot just relies on these manual solutions every time in practical use. It’s time we use some tools. Based on the computation functionalities and ndarray data structures in Owl, we provide the package *<a href="https://github.com/owlbarn/owl_ode">owl_ode</a>" to perform the tasks of solving initial value problems.</p>
-<p>Without further due, let’s see it how <code>owl-ode</code> package can be used to solve ODE problem.</p>
+<p>Obviously, we cannot just rely on these manual solutions every time in practical use. It’s time to use some tools. Based on the computation functionalities and ndarray data structures in Owl, we provide the package “<a href="https://github.com/owlbarn/owl_ode">owl_ode</a>” to perform the tasks of solving the initial value problems. Without further due, let’s see it how the <code>owl-ode</code> package can be used to solve ODE problem.</p>
 <section class="level3" id="example-linear-oscillator-system">
 <h3>Example: Linear Oscillator System</h3>
 <p>EXPLAIN: how the equation of Oscillator becomes this linear representation.</p>
+<p>This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc. These phenomena all follow the similar pattern of ODEs. One example is the mass on a spring.</p>
 <p>Let’s see how to solve a time independent linear dynamic system that contains two states:</p>
 <p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(8)\]</span></span></p>
 <p>This equation represents an oscillator system. In this system, <span class="math inline">\(y\)</span> is the state of the system, and <span class="math inline">\(t\)</span> is time. The initial state at <span class="math inline">\(t=0\)</span> is <span class="math inline">\(y_0 = \left[ -1, 1\right]^T\)</span>. Now we want to know the system state at <span class="math inline">\(t=2\)</span>. The function can be expressed in Owl using the matrix module.</p>
@@ -165,7 +162,7 @@ let _ =
 </div>
 <p>One last thing to solve the problem is of course the initial values:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let y0 = Mat.of_array [|-1.; 1.|] 2 1</code></pre>
+<pre><code class="language-ocaml">let x0 = Mat.of_array [|-1.; 1.|] 2 1</code></pre>
 </div>
 <p>And finally we can provide all these information to the <code>rk4</code> solver in <code>Owl_ode</code> and get the answer:</p>
 <div class="highlight">
@@ -183,7 +180,9 @@ R0 -1   -1.002 -1.00399 -1.00599 -1.00798 ... -3.56302 -3.56451   -3.566 -3.5674
 R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.07707 -2.07798</code></pre>
 </div>
 <p>The <code>rk4</code> solver is short for “forth-order Runge-Kutta Method” that we have introduced before. The results shows both the steps <span class="math inline">\(ts\)</span> and the system values at each step <span class="math inline">\(ys\)</span>. We can visualise the oscillation according to the result:</p>
-<p>IMAGE</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:diffequation:plot_rk00" title="plot_rk00" src="images/diffequation/plot_rk00.png"><figcaption>Figure 2: Visualise the solution of a simple linear system</figcaption>
+</figure>
 </section>
 <section class="level3" id="solver-structure">
 <h3>Solver Structure</h3>
@@ -230,17 +229,73 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 <tr class="odd">
 <td><code>rk4</code></td>
 <td>Native</td>
-<td><code>M.arr</code></td>
-<td><code>M.arr -&gt; float -&gt; M.arr</code></td>
-<td><code>M.arr * float</code></td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>rk23</code></td>
+<td>Native</td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float * float * bool</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>rk45</code></td>
+<td>Native</td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float * float * bool</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Euler</td>
+<td>Native</td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Midpoint</td>
+<td>Native</td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Cvode</td>
+<td>Sundials</td>
+<td><code>arr</code></td>
+<td><code>arr -&gt; float -&gt; arr</code></td>
+<td><code>arr * float</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Cvode_stiff</td>
+<td>Sundials</td>
+<td><code>arr</code></td>
+<td><code>arr -&gt; float -&gt; arr</code></td>
+<td><code>arr * float</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>LSODA</td>
+<td>ODEPACK</td>
+<td><code>mat</code></td>
+<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>mat * float</code></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>Automatic inference of state dimensionality</strong></p>
+<p>TODO: Explain this table <strong>Automatic inference of state dimensionality</strong></p>
 <p>(COPY ALERT)</p>
-<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of %f$. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
+<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of <span class="math inline">\(f\)</span>. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
 <p>We also support temporal integration of matrices. That is, cases in which the state <span class="math inline">\(y\)</span> is a matrix of dimensions of dimensions <code>NxM</code>. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function <code>Native.D.to_state_array</code> which can be used to pack <span class="math inline">\(ys\)</span> into an array of matrices.</p>
 <p><strong>Custom Solvers</strong></p>
 <p>We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
@@ -359,7 +414,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:80.0%" id="fig:diffequation:two-body" title="two-body" src="images/diffequation/two-body.png"><figcaption>Figure 2: The trajectory of lighter object orbiting the massive object in a simplified two-body problem</figcaption>
+<img alt="" style="width:80.0%" id="fig:diffequation:two-body" title="two-body" src="images/diffequation/two-body.png"><figcaption>Figure 3: The trajectory of lighter object orbiting the massive object in a simplified two-body problem</figcaption>
 </figure>
 <p>One example of this simplified two-body problem is the “planet-sun” system where a planet orbits the sun. Kepler’s law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse. The orbiting trajectory in the result visually follows this theory.</p>
 </section>
@@ -413,9 +468,9 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_01" title="lorenz_01" src="images/diffequation/lorenz_01.png"><figcaption>Figure 3: Three components and phase plane plots of Lorenz attractor</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_01" title="lorenz_01" src="images/diffequation/lorenz_01.png"><figcaption>Figure 4: Three components and phase plane plots of Lorenz attractor</figcaption>
 </figure>
-<p>From fig.&nbsp;3, we can image that the status of system keep going towards two “voids” in a three dimensional space, jumping from one to the other. These two voids are a certain type of <em>attractors</em> in this dynamic system, where a system tends to evolve towards.</p>
+<p>From fig.&nbsp;4, we can image that the status of system keep going towards two “voids” in a three dimensional space, jumping from one to the other. These two voids are a certain type of <em>attractors</em> in this dynamic system, where a system tends to evolve towards.</p>
 <p>Now, about Lorenz equation, there is an interesting question: “what would happen if I change the initial value slightly?” For some systems, such as a pendulum, that wouldn’t make much a difference, but not here. We can see that clearly in Owl. Keep function and timespan the same, let’s change only 0.1% of initial value and then solve the system.</p>
 <div class="highlight">
 <pre><code class="language-clike">let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
@@ -458,9 +513,9 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
   output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_02" title="lorenz_02" src="images/diffequation/lorenz_02.png"><figcaption>Figure 4: Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:lorenz_02" title="lorenz_02" src="images/diffequation/lorenz_02.png"><figcaption>Figure 5: Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.</figcaption>
 </figure>
-<p>According to fig.&nbsp;4, the first figure shows that, initially the systems looks quite like that in fig.&nbsp;3, but after about 15 seconds, the system state begins to change. This change is then quantified using the euclidean distance between these two systems. Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. You can try to extend the timespan longer, and the conclusion will still be similar.</p>
+<p>According to fig.&nbsp;5, the first figure shows that, initially the systems looks quite like that in fig.&nbsp;4, but after about 15 seconds, the system state begins to change. This change is then quantified using the euclidean distance between these two systems. Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. You can try to extend the timespan longer, and the conclusion will still be similar.</p>
 <p>This result shows that, in the Lorenz system, even a tiny bit of change in the initial state can lead to a large and chaotic change of future state after a while. It partly explains why weather prediction is difficult to do: you can only accurately predict the weather for a certain period of time, any day longer and the weather will be extremely sensitive to a tiny bit of perturbations at the beginning, such as …, well, such as the flapping of the wings of a distant butterfly several weeks earlier. You are right, the Lorenz equation is closely related to the idea we now call “butterfly effect” in the pop culture.</p>
 </section>
 </section>
@@ -499,7 +554,7 @@ let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 
 let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()</code></pre>
 </div>
-<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;5.</p>
+<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;6.</p>
 <div class="highlight">
 <pre><code class="language-clike">let () =
   let fname = "vdp_sundials_nonstiff.png" in
@@ -516,12 +571,12 @@ let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()<
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 5: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 6: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
 </figure>
 </section>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
-<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;6 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
+<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;7 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
 <div class="highlight">
 <pre><code class="language-clike">let f_stiff = van_der_pol 1000.
 let y0 = Mat.of_array [| 2.; 0. |] 1 2
@@ -541,7 +596,7 @@ let () =
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 6: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
+<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 7: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
 </figure>
 </section>
 </section>
