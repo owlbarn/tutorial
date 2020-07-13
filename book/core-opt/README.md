@@ -571,15 +571,11 @@ At the OCaml level, mutable convolution operations are also provided, so as to f
 
 To measure the performance of my convolution implementation, we compare the three convolution operations in Owl with that in the Eigen.
 We use two settings: fixed input size with varying kernel size; and fixed kernel size with varying input size.
-The Owl code is interfaced to existing implementation and Eigen library. The results shown in [@fig:core-opt:op_eval_eigen_conv_tp] and [@fig:core-opt:op_eval_eigen_conv_rpi] are performed on the single board computer Raspberry Pi 4.
+The Owl code is interfaced to existing implementation and Eigen library. The results shown below are performed on the single board computer Raspberry Pi 4.
 The results show the effectiveness of our implementation of convolution operations compared with that of the Eigen library.
 This good performance comes from the combination of multiple optimisation techniques as well as choosing suitable implementation according to the input.
 
-![Compare the execution time of Conv2D operation of Owl and Eigen](images/core-opt/eigen_tp_conv2d.png){width=90% #fig:core-opt:op_eval_eigen_conv_tp}
-
-![Compare the execution time of Conv2D Backward Kernel operation of Owl and Eigen](images/core-opt/eigen_rpi_conv2d_bk.png){width=90% #fig:core-opt:op_eval_eigen_conv_rpi}
-
-![Compare the execution time of Conv2D Backward Input operation of Owl and Eigen](images/core-opt/eigen_rpi_conv2d_bi.png){width=90% #fig:core-opt:op_eval_eigen_conv_mem}
+![Compare the execution time of Conv2D operation of Owl and Eigen](images/core-opt/rpi4_conv2d.png){width=95% #fig:core-opt:rpi4_conv2d}
 
 ### Reduction Operations
 
@@ -637,14 +633,14 @@ A repeat algorithm is like a reverse of reduction: it needs expand the source nd
 Using the elements to be repeated as a block, the repeat operation copies elements from `x` to `y` block by block. The index in both ndarrays move by a step of block size, though at different cycles.
 In the revised implementation, the intermediate memory is only created once and the all the iteration cycles along different axes are finished within the same piece of memory.
 
+![Repeat operation speed](images/core-opt/opeval_repeat.png){width=95% #fig:core-opt:opeval_repeat}
+
 Compared to this implementation, the multi-axis repeat operation in NumPy is achieved by running multiple single-axis repeat, and thus is less efficient in both memory usage and execution time.
 The repeat operation in Julia is much slower.
 One reason is that this operation is implemented in pure Julia rather than the efficient C code.
 Another reason is that `repeat` is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.
 
 The evaluation of `repeat` is similar to that of reduction operations. We use a four-dimensional ndarray of float numbers as input. All four dimensions are of the same length. We measure the speed for increasing length, the repetition times is set to 2 on all dimensions.
-
-![Repeat operation speed](images/core-opt/opeval_repeat.png){width=95% #fig:core-opt:opeval_repeat}
 
 ![Repeat operation memory usage comparison](images/core-opt/opeval_tp_repeat_mem_00.png){width=80% #fig:core-opt:opeval_tp_repeat_mem_00}
 

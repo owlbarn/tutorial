@@ -327,16 +327,16 @@ Both methods are well implemented and widely used in practical use. (TODO: more 
 For all these solvers, `owl-ode` provides an easy-to-use unified interface, as you have seen in the examples.
 [@tbl:diffequation:solvers] is a table that lists all the solvers that are currently supported by `owl-ode`.
 
-| Solvers | Type | State | Function | Step | Note |
-| ------- | ---- | ----- | -------- | ---- | ---- |
-| `rk4`   | Native | `mat` | `mat -> float -> mat` | `mat * float` | |
-| `rk23`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`| |
-| `rk45`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`| |
-| Euler   | Native | `mat` | `mat -> float -> mat` | `mat * float` | |
-| Midpoint| Native | `mat` | `mat -> float -> mat` | `mat * float` | |
-| Cvode   | Sundials | `arr`| `arr -> float -> arr`| `arr * float` | |
-| Cvode_stiff | Sundials | `arr`| `arr -> float -> arr`| `arr * float` | |
-| LSODA | ODEPACK | `mat` | `mat -> float -> mat` | `mat * float` | |
+| Solvers | Type | State | Function | Step |
+| ------- | ---- | ----- | -------- | ---- |
+| `rk4`   | Native | `mat` | `mat -> float -> mat` | `mat * float` |
+| `rk23`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`|
+| `rk45`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`|
+| Euler   | Native | `mat` | `mat -> float -> mat` | `mat * float` |
+| Midpoint| Native | `mat` | `mat -> float -> mat` | `mat * float` |
+| Cvode   | Sundials | `arr`| `arr -> float -> arr`| `arr * float` |
+| Cvode_stiff | Sundials | `arr`| `arr -> float -> arr`| `arr * float` |
+| LSODA | ODEPACK | `mat` | `mat -> float -> mat` | `mat * float` |
 
 : Solvers provided by owl-ode and their types. {#tbl:diffequation:solvers}
 
