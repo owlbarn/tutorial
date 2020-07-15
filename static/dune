@@ -79,6 +79,7 @@
         images/core-opt/rpi4_conv2d.png
         images/diffequation/lorenz_01.png
         images/diffequation/lorenz_02.png
+        images/diffequation/plot_circle.png
         images/diffequation/plot_rk00.png
         images/diffequation/plot_rk01.png
         images/diffequation/two-body.png

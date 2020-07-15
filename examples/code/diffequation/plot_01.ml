@@ -23,5 +23,5 @@ let _ =
 let _ =
   let h = Plot.create "plot_02.png" in
   let open Plot in
-  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.; ] (Mat.row ys 0) (Mat.row ys 1);
+  plot ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 1.5; ] (Mat.row ys 0) (Mat.row ys 1);
   output h
