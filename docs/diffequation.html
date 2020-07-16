@@ -254,62 +254,97 @@ let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.euler f x0 tspec ()</code></pre
 <td><code>rk4</code></td>
 <td>Native</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float</code></td>
 </tr>
 <tr class="even">
 <td><code>rk23</code></td>
 <td>Native</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float * float * bool</code></td>
 </tr>
 <tr class="odd">
 <td><code>rk45</code></td>
 <td>Native</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float * float * bool</code></td>
 </tr>
 <tr class="even">
 <td>Euler</td>
 <td>Native</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float</code></td>
 </tr>
 <tr class="odd">
 <td>Midpoint</td>
 <td>Native</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float</code></td>
 </tr>
 <tr class="even">
+<td>Sym_Euler</td>
+<td>Symp</td>
+<td><code>mat * mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
+<td><code>mat * mat * mat</code></td>
+</tr>
+<tr class="odd">
+<td>PseudoLeapFrog</td>
+<td>Symp</td>
+<td><code>mat * mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
+<td><code>mat * mat * mat</code></td>
+</tr>
+<tr class="even">
+<td>LeapFrog</td>
+<td>Symp</td>
+<td><code>mat * mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
+<td><code>mat * mat * mat</code></td>
+</tr>
+<tr class="odd">
+<td>Ruth3</td>
+<td>Symp</td>
+<td><code>mat * mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
+<td><code>mat * mat * mat</code></td>
+</tr>
+<tr class="even">
+<td>Ruth4</td>
+<td>Symp</td>
+<td><code>mat * mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
+<td><code>mat * mat * mat</code></td>
+</tr>
+<tr class="odd">
 <td>Cvode</td>
 <td>Sundials</td>
 <td><code>arr</code></td>
-<td><code>arr -&gt; float -&gt; arr</code></td>
-<td><code>arr * float</code></td>
-</tr>
-<tr class="odd">
-<td>Cvode_stiff</td>
-<td>Sundials</td>
-<td><code>arr</code></td>
-<td><code>arr -&gt; float -&gt; arr</code></td>
+<td><code>state -&gt; float -&gt; arr</code></td>
 <td><code>arr * float</code></td>
 </tr>
 <tr class="even">
+<td>Cvode_stiff</td>
+<td>Sundials</td>
+<td><code>arr</code></td>
+<td><code>state -&gt; float -&gt; arr</code></td>
+<td><code>arr * float</code></td>
+</tr>
+<tr class="odd">
 <td>LSODA</td>
 <td>ODEPACK</td>
 <td><code>mat</code></td>
-<td><code>mat -&gt; float -&gt; mat</code></td>
+<td><code>state -&gt; float -&gt; mat</code></td>
 <td><code>mat * float</code></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>TODO: Add symplectic solvers TODO: Explain this table</p>
+<p>TODO: Explain this table</p>
 <p><strong>Automatic inference of state dimensionality</strong></p>
 <p>(COPY ALERT)</p>
 <p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of <span class="math inline">\(f\)</span>. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>

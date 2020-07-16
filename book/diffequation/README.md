@@ -376,18 +376,22 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 
 | Solvers | Type | State | Function | Step |
 | ------- | ---- | ----- | -------- | ---- |
-| `rk4`   | Native | `mat` | `mat -> float -> mat` | `mat * float` |
-| `rk23`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`|
-| `rk45`  | Native | `mat` | `mat -> float -> mat` | `mat * float * float * bool`|
-| Euler   | Native | `mat` | `mat -> float -> mat` | `mat * float` |
-| Midpoint| Native | `mat` | `mat -> float -> mat` | `mat * float` |
-| Cvode   | Sundials | `arr`| `arr -> float -> arr`| `arr * float` |
-| Cvode_stiff | Sundials | `arr`| `arr -> float -> arr`| `arr * float` |
-| LSODA | ODEPACK | `mat` | `mat -> float -> mat` | `mat * float` |
+| `rk4`   | Native | `mat` | `state -> float -> mat` | `mat * float` |
+| `rk23`  | Native | `mat` | `state -> float -> mat` | `mat * float * float * bool`|
+| `rk45`  | Native | `mat` | `state -> float -> mat` | `mat * float * float * bool`|
+| Euler   | Native | `mat` | `state -> float -> mat` | `mat * float` |
+| Midpoint| Native | `mat` | `state -> float -> mat` | `mat * float` |
+| Sym_Euler | Symp | `mat * mat` | `state -> float -> mat` | `mat * mat * mat` |
+| PseudoLeapFrog | Symp | `mat * mat` | `state -> float -> mat` | `mat * mat * mat` |
+| LeapFrog | Symp | `mat * mat` | `state -> float -> mat` | `mat * mat * mat` |
+| Ruth3 | Symp | `mat * mat` | `state -> float -> mat` | `mat * mat * mat` |
+| Ruth4 | Symp | `mat * mat` | `state -> float -> mat` | `mat * mat * mat` |
+| Cvode   | Sundials | `arr`| `state -> float -> arr`| `arr * float` |
+| Cvode_stiff | Sundials | `arr`| `state -> float -> arr`| `arr * float` |
+| LSODA | ODEPACK | `mat` | `state -> float -> mat` | `mat * float` |
 
 : Solvers provided by owl-ode and their types. {#tbl:diffequation:solvers}
 
-TODO: Add symplectic solvers
 TODO: Explain this table
 
 **Automatic inference of state dimensionality**
