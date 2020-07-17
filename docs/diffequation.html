@@ -345,22 +345,16 @@ let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.euler f x0 tspec ()</code></pre
 </table>
 </div>
 <p>TODO: Explain this table</p>
-<p><strong>Automatic inference of state dimensionality</strong></p>
-<p>(COPY ALERT)</p>
-<p>All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of <span class="math inline">\(f\)</span>. If the initial state <span class="math inline">\(y_0\)</span> is a row vector with dimensions 1xN and we integrate the system for <span class="math inline">\(T\)</span> time steps, the time and states will be stacked vertically in the output (i.e.&nbsp;<code>ts</code> will have dimensions <code>Tx1</code> and and <code>ys</code> will have dimensions <code>TxN</code>). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e.&nbsp;<span class="math inline">\(ts\)</span> will have dimensions <code>1xT</code> and <span class="math inline">\(ys\)</span> will have dimensions <code>NxT</code>).</p>
-<p>We also support temporal integration of matrices. That is, cases in which the state <span class="math inline">\(y\)</span> is a matrix of dimensions of dimensions <code>NxM</code>. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function <code>Native.D.to_state_array</code> which can be used to pack <span class="math inline">\(ys\)</span> into an array of matrices.</p>
-<p><strong>Custom Solvers</strong></p>
-<p>We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
+<p>One feature of <code>owl-ode</code> is the automatic inference of state dimensionality from initial state. For example, the native solvers has matrix as state. Suppose the initial state of the system of a row vector of dimension <span class="math inline">\(1\times~N\)</span>. After <span class="math inline">\(T\)</span> time steps, the states are stacked vertically, and thus have dimensions <span class="math inline">\(T\times~N\)</span>. If the initial state is a column vector of shape <span class="math inline">\(N\times~1\)</span>, then the stacked state after <span class="math inline">\(T\)</span> time steps will be inferred as <span class="math inline">\(N\times~T\)</span>.</p>
+<p>The temporal integration of matrices, i.e.&nbsp;cases where the initial state is matrix instead of vector, is also supported. If the initial state is of shape <span class="math inline">\(N\times~M\)</span>, then the accumulated state stacks the flattened state vertically by time steps, which is of shape <span class="math inline">\(N\times(NM)\)</span> The <code>owl-ode</code> provides a helper function <code>Native.S.to_state_array</code> to unpack the output state into an array of matrices.</p>
+<p>Another feature of <code>owl-ode</code> is that the users can easily define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use <code>custom_cvode</code> as follows:</p>
 <div class="highlight">
 <pre><code class="language-clike">let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4
-(* usage *)
-let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()</code></pre>
+let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec () (* usage *)</code></pre>
 </div>
 <p>Here, we use the <code>cvode</code> function construct a solver module <code>Custom_Owl_Cvode</code>. Similar helper functions like cvode have been also defined for native and symplectic solvers.</p>
-<p><strong>Multiple Backends</strong></p>
-<p>The owl-ode-base contains implementations that are purely written in OCaml. As such, they are compatible for use in Mirage OS or in conjunction with js_of_ocaml, where C library linking is not supported.</p>
-<p><strong>Limit</strong></p>
-<p>Note that currently the <code>owl-ode</code> is still at development phase. Due to lack of vector-valued root finding functions, it is limited to solving initial value problems for the explicit ODE of form <span class="math inline">\(y' = f(y, x)\)</span>.</p>
+<p>We aim to make the <code>owl-ode</code> to run across different backends such as JavaScript. One way to do this is to use tools like <code>js_of_ocaml</code> to convert OCaml bytecode into javascript. However, this approach only support pure OCaml implementation. The sundial and ODEPACK solvers are therefore excluded. Part of the library, the <code>owl-ode-base</code> contains implementations of solvers that are purely written in OCaml. These parts are therefore suitable to be used for in JavaScript and executed on web browsers. Another backend option is the Unikernl virtual machine such as MirageOS. We will talk about these backends in the “Compiler Backends” chapter in the Part II of this book.</p>
+<p>One limit of this library is thtat it is still in a development phase and thus a lot of features is still not in place yet. For example, due to lack of vector-valued root finding functions, we are currently limited to solving initial value problems of explicit ODEs.</p>
 </section>
 </section>
 <section class="level2" id="examples-of-using-owl-ode">

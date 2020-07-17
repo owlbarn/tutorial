@@ -394,34 +394,37 @@ For all these solvers, `owl-ode` provides an easy-to-use unified interface, as y
 
 TODO: Explain this table
 
-**Automatic inference of state dimensionality**
 
-(COPY ALERT)
+One feature of `owl-ode` is the automatic inference of state dimensionality from initial state.
+For example, the native solvers has matrix as state. 
+Suppose the initial state of the system of a row vector of dimension $1\times~N$.
+After $T$ time steps, the states are stacked vertically, and thus have dimensions $T\times~N$.
+If the initial state is a column vector of shape $N\times~1$, then the stacked state after $T$ time steps will be inferred as $N\times~T$.
 
-All the provided solvers automatically infer the dimensionality of the state from the initial state. Consider the Native solvers, for which the state of the system is a matrix. The initial state can be a row vector, a column vector, or a matrix, so long as it is consistent with that of $f$. If the initial state $y_0$ is a row vector with dimensions 1xN and we integrate the system for $T$ time steps, the time and states will be stacked vertically in the output (i.e. `ts` will have dimensions `Tx1` and and `ys` will have dimensions `TxN`). On the contrary, if the initial state %y_0$ is a column vector with dimensions, the results will be stacked horizontally (i.e. $ts$ will have dimensions `1xT` and $ys$ will have dimensions `NxT`).
+The temporal integration of matrices, i.e. cases where the initial state is matrix instead of vector, is also supported.
+If the initial state is of shape $N\times~M$, then the accumulated state stacks the flattened state vertically by time steps, which is of shape $N\times(NM)$
+The `owl-ode` provides a helper function `Native.S.to_state_array` to unpack the output state into an array of matrices.
 
-We also support temporal integration of matrices. That is, cases in which the state $y$ is a matrix of dimensions of dimensions `NxM`. By default, in the output, we flatten and stack the states vertically (i.e., ts has dimensions Tx1 and xs has dimensions TxNM. We have a helper function `Native.D.to_state_array` which can be used to pack $ys$ into an array of matrices.
-
-**Custom Solvers**
-
-We can define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use `custom_cvode` as follows:
+Another feature of `owl-ode` is that the users can easily define new solver module by creating a module of type Solver. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use `custom_cvode` as follows:
 
 ```
 let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4
-(* usage *)
-let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()
+let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec () (* usage *)
 ```
 
 Here, we use the `cvode` function construct a solver module `Custom_Owl_Cvode`.
 Similar helper functions like cvode have been also defined for native and symplectic solvers.
 
-**Multiple Backends**
+We aim to make the `owl-ode` to run across different backends such as JavaScript.
+One way to do this is to use tools like `js_of_ocaml` to convert OCaml bytecode into javascript.
+However, this approach only support pure OCaml implementation. The sundial and ODEPACK solvers are therefore excluded.
+Part of the library, the `owl-ode-base` contains implementations of solvers that are purely written in OCaml. 
+These parts are therefore suitable to be used for in JavaScript and executed on web browsers.
+Another backend option is the Unikernl virtual machine such as MirageOS.
+We will talk about these backends in the "Compiler Backends" chapter in the Part II of this book. 
 
-The owl-ode-base contains implementations that are purely written in OCaml. As such, they are compatible for use in Mirage OS or in conjunction with js_of_ocaml, where C library linking is not supported.
-
-**Limit**
-
-Note that currently the `owl-ode` is still at development phase. Due to lack of vector-valued root finding functions, it is limited to solving initial value problems for the explicit ODE of form $y' = f(y, x)$.
+One limit of this library is thtat it is still in a development phase and thus a lot of features is still not in place yet. 
+For example, due to lack of vector-valued root finding functions, we are currently limited to solving initial value problems of explicit ODEs.
 
 ## Examples of using Owl-ODE
 
