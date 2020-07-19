@@ -436,7 +436,7 @@ After getting to know `owl-ode` in the previous section, in this section we will
 Now that we have this powerful tool, we can use the solver in `owl-ode` to solve the motivative problem in [@eq:diffequation:example01] with simple code.
 
 ```
-let f y t = Mat.(2. $* y *$ t +$ t)
+let f y t = Mat.((2. $* y *$ t) +$ t)
 
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 1.; dt=1E-3})
 
@@ -450,23 +450,20 @@ let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()
 The code is mostly similar to previous example, the only difference is that we can now try another solver provided: the `rk45` solver, with certain parameters specified.
 You don't have to worry about what the `tol` or `dtmax` means for now.
 Note that this solver (and the previous one) requires input to be of type `mat` in Owl, and the function $f$ be of type `mat -> float -> mat`.
-The result is as expected:
+The result is shown below.
+You can verify the result with [@eq:diffequation:example01_solution], by setting the $x$ to 1 in this equation, and the numerical value of $y$ will be close to 0.859079. 
 
 ```
 # Mat.transpose ys
 - : Mat.mat =
 
-   C0    C1          C2          C3          C4        C996    C997    C998    C999   C1000
-R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71285 1.71828
+   C0          C1          C2          C3         C4         C124     C125     C126    C127     C128
+R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079
 ```
-
-(TODO: the result is not as expected from [@eq:diffequation:example01_solution] and previous manual solution. Find the reason)
 
 ### Damped Oscillation
 
-(TODO: check if the section title is suitable)
-
-TODO: explain the problem; explain why the symplectic solver is used.
+TODO: explain the problem; explain why the symplectic solver is used (why its hermitian).
 
 ```
 let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =

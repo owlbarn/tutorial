@@ -364,7 +364,7 @@ let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec () (* usage *)</code></p
 <h3>Explicit ODE</h3>
 <p>Now that we have this powerful tool, we can use the solver in <code>owl-ode</code> to solve the motivative problem in eq.&nbsp;4 with simple code.</p>
 <div class="highlight">
-<pre><code class="language-clike">let f y t = Mat.(2. $* y *$ t +$ t)
+<pre><code class="language-clike">let f y t = Mat.((2. $* y *$ t) +$ t)
 
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 1.; dt=1E-3})
 
@@ -374,20 +374,18 @@ let solver = Owl_ode.Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
 
 let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()</code></pre>
 </div>
-<p>The code is mostly similar to previous example, the only difference is that we can now try another solver provided: the <code>rk45</code> solver, with certain parameters specified. You don’t have to worry about what the <code>tol</code> or <code>dtmax</code> means for now. Note that this solver (and the previous one) requires input to be of type <code>mat</code> in Owl, and the function <span class="math inline">\(f\)</span> be of type <code>mat -&gt; float -&gt; mat</code>. The result is as expected:</p>
+<p>The code is mostly similar to previous example, the only difference is that we can now try another solver provided: the <code>rk45</code> solver, with certain parameters specified. You don’t have to worry about what the <code>tol</code> or <code>dtmax</code> means for now. Note that this solver (and the previous one) requires input to be of type <code>mat</code> in Owl, and the function <span class="math inline">\(f\)</span> be of type <code>mat -&gt; float -&gt; mat</code>. The result is shown below. You can verify the result with eq.&nbsp;5, by setting the <span class="math inline">\(x\)</span> to 1 in this equation, and the numerical value of <span class="math inline">\(y\)</span> will be close to 0.859079.</p>
 <div class="highlight">
 <pre><code class="language-clike"># Mat.transpose ys
 - : Mat.mat =
 
-   C0    C1          C2          C3          C4        C996    C997    C998    C999   C1000
-R0  0 1E-06 4.00001E-06 9.00004E-06 1.60001E-05 ... 1.69667 1.70205 1.70744 1.71285 1.71828</code></pre>
+   C0          C1          C2          C3         C4         C124     C125     C126    C127     C128
+R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079</code></pre>
 </div>
-<p>(TODO: the result is not as expected from eq.&nbsp;5 and previous manual solution. Find the reason)</p>
 </section>
 <section class="level3" id="damped-oscillation">
 <h3>Damped Oscillation</h3>
-<p>(TODO: check if the section title is suitable)</p>
-<p>TODO: explain the problem; explain why the symplectic solver is used.</p>
+<p>TODO: explain the problem; explain why the symplectic solver is used (why its hermitian).</p>
 <div class="highlight">
 <pre><code class="language-clike">let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
   Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
