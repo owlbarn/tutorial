@@ -383,46 +383,6 @@ let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()</code></pre>
 R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079</code></pre>
 </div>
 </section>
-<section class="level3" id="damped-oscillation">
-<h3>Damped Oscillation</h3>
-<p>TODO: explain the problem; explain why the symplectic solver is used (why its hermitian).</p>
-<div class="highlight">
-<pre><code class="language-clike">let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
-  Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
-
-
-let a = 1.0
-let dt = 0.1
-
-let plot_sol fname t sol1 sol2 sol3 =
-  let open Owl in
-  let h = Plot.create fname in
-  let open Plot in
-  set_foreground_color h 0 0 0;
-  set_background_color h 255 255 255;
-  set_title h fname;
-  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
-  plot ~h ~spec:[ RGB (0, 255, 0); LineStyle 1 ] t (Mat.col sol2 0);
-  plot ~h ~spec:[ RGB (255, 0, 0); LineStyle 1 ] t (Mat.col sol3 0);
-  legend_on h ~position:NorthEast [| "Leapfrog"; "Ruth3"; "Symplectic Euler" |];
-  output h
-
-
-let () =
-  let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
-  let p0 = Owl.Mat.of_array [| 0.75 |] 1 1 in
-  let t0, duration = 0.0, 15.0 in
-  let f = damped_noforcing a in
-  let tspec = T1 { t0; duration; dt } in
-  let t, sol1, _ = Ode.odeint (module Symplectic.D.Leapfrog) f (x0, p0) tspec () in
-  let _, sol2, _ = Ode.odeint Symplectic.D.ruth3 f (x0, p0) tspec () in
-  let _, sol3, _ =
-    Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
-  in
-  plot_sol "damped.png" t sol1 sol2 sol3</code></pre>
-</div>
-<p>IMAGE</p>
-</section>
 <section class="level3" id="two-body-problem">
 <h3>Two Body Problem</h3>
 <p>In classical mechanics, the <em>two-body problem</em> is to predict the motion of two massive objects. It is assumed that the only force that are considered comes from each other, and both objects are not affected by any other object. This problem can be seen in the astrodynamics where the objects of interests are planets, satellites, etc. under the influence of only gravitation. Another case is the trajectory of electron around Atomic nucleus in a atom.</p>
@@ -562,6 +522,49 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
 <p>According to fig.&nbsp;6, the first figure shows that, initially the systems looks quite like that in fig.&nbsp;5, but after about 15 seconds, the system state begins to change. This change is then quantified using the euclidean distance between these two systems. Clearly the difference two system changes sharply after a certain period of time, with no sign fo converge. You can try to extend the timespan longer, and the conclusion will still be similar.</p>
 <p>This result shows that, in the Lorenz system, even a tiny bit of change in the initial state can lead to a large and chaotic change of future state after a while. It partly explains why weather prediction is difficult to do: you can only accurately predict the weather for a certain period of time, any day longer and the weather will be extremely sensitive to a tiny bit of perturbations at the beginning, such as …, well, such as the flapping of the wings of a distant butterfly several weeks earlier. You are right, the Lorenz equation is closely related to the idea we now call “butterfly effect” in the pop culture.</p>
 </section>
+<section class="level3" id="damped-oscillation">
+<h3>Damped Oscillation</h3>
+<p>TODO: Why the equation is symplectic.</p>
+<p>The oscillation. The damped oscillation. Equation. To simplify, we set the parameters to 1.</p>
+<p>Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system. Therefore, we can express the oscillation equation with a function from this system.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let a = 1.0
+let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
+  Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))</code></pre>
+</div>
+<p>Let’s then solve with the symplectic solver; we can use the <code>LeapFrog</code>, <code>ruth3</code>, and <code>Symplectic_Euler</code> to compare how their solutions differ.</p>
+<div class="highlight">
+<pre><code class="language-clike">let main () =
+  let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
+  let p0 = Owl.Mat.of_array [| 0;.75 |] 1 1 in
+  let t0, duration = 0.0, 15.0 in
+  let f = damped_noforcing a in
+  let tspec = T1 { t0; duration; dt=0.1 } in
+  let t, sol1, _ = Ode.odeint (module Symplectic.D.Leapfrog) f (x0, p0) tspec () in
+  let _, sol2, _ = Ode.odeint Symplectic.D.ruth3 f (x0, p0) tspec () in
+  let _, sol3, _ =
+    Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
+  in
+  plot_sol "damped.png" t sol1 sol2 sol3</code></pre>
+</div>
+<p>You should be familiar with this code by now. It defines the initial values, the time duration, time step, and then provides these information to the solvers. Unlike native solvers, these symplectic solvers return three values instead of two: the first is the time sequence, and the next two sequences indicate how the <span class="math inline">\(x\)</span> and <span class="math inline">\(p\)</span> values evolve at each time point.</p>
+<p>TODO: explain the initial p0</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let plot_sol fname t sol1 sol2 sol3 =
+  let open Owl in
+  let h = Plot.create fname in
+  let open Plot in
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
+  plot ~h ~spec:[ RGB (0, 255, 0); LineStyle 1 ] t (Mat.col sol2 0);
+  plot ~h ~spec:[ RGB (255, 0, 0); LineStyle 1 ] t (Mat.col sol3 0);
+  legend_on h ~position:NorthEast [| "Leapfrog"; "Ruth3"; "Symplectic Euler" |];
+  output h</code></pre>
+</div>
+<p>Here we only plot the change of position <span class="math inline">\(x\)</span> over time in the oscillation, and plot the solution provided by the three different solvers, as shown in the plotting code above. You can also try to visualise the change to the momentum <span class="math inline">\(p\)</span> in a similar way. The result is shown in fig.&nbsp;7. You can clearly see that the velocity decreases in this damped harmonic oscillation. The curves provided by three solvers are a bit different, especially at the peak of the curve, but keep close enough for most of the time.</p>
+<figure>
+<img alt="" style="width:68.0%" id="fig:diffequation:damped" title="damped" src="images/diffequation/damped.png"><figcaption>Figure 7: Step response of a damped harmonic oscillator</figcaption>
+</figure>
+</section>
 </section>
 <section class="level2" id="stiffness">
 <h2>Stiffness</h2>
@@ -598,7 +601,7 @@ let tspec = T1 { t0 = 0.0; dt = 0.01; duration = 30.0 }
 
 let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()</code></pre>
 </div>
-<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;7.</p>
+<p>Everything seems normal. To see the “non-stiffness” clearly, we can plot how the two system states change over time, and a phase plane plot of their trajectory on the plane, using the two states as x- and y-axis values. The result is shown in fig.&nbsp;8.</p>
 <div class="highlight">
 <pre><code class="language-clike">let () =
   let fname = "vdp_sundials_nonstiff.png" in
@@ -615,12 +618,12 @@ let ts, ys = Ode.odeint (module Owl_ode_sundials.Owl_Cvode) f_stiff y0 tspec ()<
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 7: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
+<img alt="" style="width:100.0%" id="fig:diffequation:nonstiff" title="vdp_sundials_nonstiff" src="images/diffequation/vdp_sundials_nonstiff.png"><figcaption>Figure 8: Solving Non-Stiff Van der Pol equations with Sundial CVode solver</figcaption>
 </figure>
 </section>
 <section class="level3" id="solve-stiff-odes">
 <h3>Solve Stiff ODEs</h3>
-<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;8 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
+<p>Change the parameters to 1000, and now this function becomes <em>stiff</em>. We follow the same procedure as before, but now we use the <code>Lsoda</code> solver from odepack, and the timespan is extended to 3000. From fig.&nbsp;9 we can see clearly what “stiff” means. Both lines in this figure contain very sharp “cliffs”.</p>
 <div class="highlight">
 <pre><code class="language-clike">let f_stiff = van_der_pol 1000.
 let y0 = Mat.of_array [| 2.; 0. |] 1 2
@@ -640,7 +643,7 @@ let () =
 </code></pre>
 </div>
 <figure>
-<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 8: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
+<img alt="" style="width:70.0%" id="fig:diffequation:stiff" title="vdp_odepack_stiff" src="images/diffequation/vdp_odepack_stiff.png"><figcaption>Figure 9: Solving Stiff Van der Pol equations with ODEPACK LSODA solver.</figcaption>
 </figure>
 </section>
 </section>

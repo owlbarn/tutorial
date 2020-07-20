@@ -77,6 +77,7 @@
         images/core-opt/opeval_tp_repeat_mem_00.png
         images/core-opt/opeval_tp_sum_reduce_mem_00.png
         images/core-opt/rpi4_conv2d.png
+        images/diffequation/damped.png
         images/diffequation/lorenz_01.png
         images/diffequation/lorenz_02.png
         images/diffequation/plot_circle.png

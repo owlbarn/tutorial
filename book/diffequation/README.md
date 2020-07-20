@@ -461,48 +461,6 @@ You can verify the result with [@eq:diffequation:example01_solution], by setting
 R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079
 ```
 
-### Damped Oscillation
-
-TODO: explain the problem; explain why the symplectic solver is used (why its hermitian).
-
-```
-let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
-  Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
-
-
-let a = 1.0
-let dt = 0.1
-
-let plot_sol fname t sol1 sol2 sol3 =
-  let open Owl in
-  let h = Plot.create fname in
-  let open Plot in
-  set_foreground_color h 0 0 0;
-  set_background_color h 255 255 255;
-  set_title h fname;
-  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
-  plot ~h ~spec:[ RGB (0, 255, 0); LineStyle 1 ] t (Mat.col sol2 0);
-  plot ~h ~spec:[ RGB (255, 0, 0); LineStyle 1 ] t (Mat.col sol3 0);
-  legend_on h ~position:NorthEast [| "Leapfrog"; "Ruth3"; "Symplectic Euler" |];
-  output h
-
-
-let () =
-  let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
-  let p0 = Owl.Mat.of_array [| 0.75 |] 1 1 in
-  let t0, duration = 0.0, 15.0 in
-  let f = damped_noforcing a in
-  let tspec = T1 { t0; duration; dt } in
-  let t, sol1, _ = Ode.odeint (module Symplectic.D.Leapfrog) f (x0, p0) tspec () in
-  let _, sol2, _ = Ode.odeint Symplectic.D.ruth3 f (x0, p0) tspec () in
-  let _, sol3, _ =
-    Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
-  in
-  plot_sol "damped.png" t sol1 sol2 sol3
-```
-
-IMAGE
-
 ### Two Body Problem
 
 In classical mechanics, the *two-body problem* is to predict the motion of two massive objects. It is assumed that the only force that are considered comes from each other, and both objects are not affected by any other object.
@@ -697,6 +655,65 @@ You can try to extend the timespan longer, and the conclusion will still be simi
 This result shows that, in the Lorenz system, even a tiny bit of change in the initial state can lead to a large and chaotic change of future state after a while.
 It partly explains why weather prediction is difficult to do: you can only accurately predict the weather for a certain period of time, any day longer and the weather will be extremely sensitive to a tiny bit of perturbations at the beginning, such as ..., well, such as the flapping of the wings of a distant butterfly several weeks earlier.
 You are right, the Lorenz equation is closely related to the idea we now call "butterfly effect" in the pop culture.
+
+### Damped Oscillation
+
+TODO: Why the equation is symplectic.
+
+The oscillation.
+The damped oscillation. 
+Equation. To simplify, we set the parameters to 1. 
+
+Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system. 
+Therefore, we can express the oscillation equation with a function from this system.
+
+```ocaml
+let a = 1.0
+let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
+  Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
+```
+
+Let's then solve with the symplectic solver; we can use the `LeapFrog`, `ruth3`, and `Symplectic_Euler` to compare how their solutions differ.
+
+```
+let main () =
+  let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
+  let p0 = Owl.Mat.of_array [| 0;.75 |] 1 1 in
+  let t0, duration = 0.0, 15.0 in
+  let f = damped_noforcing a in
+  let tspec = T1 { t0; duration; dt=0.1 } in
+  let t, sol1, _ = Ode.odeint (module Symplectic.D.Leapfrog) f (x0, p0) tspec () in
+  let _, sol2, _ = Ode.odeint Symplectic.D.ruth3 f (x0, p0) tspec () in
+  let _, sol3, _ =
+    Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
+  in
+  plot_sol "damped.png" t sol1 sol2 sol3
+```
+
+You should be familiar with this code by now. It defines the initial values, the time duration, time step, and then provides these information to the solvers.
+Unlike native solvers, these symplectic solvers return three values instead of two: the first is the time sequence, and the next two sequences indicate how the $x$ and $p$ values evolve at each time point.
+
+TODO: explain the initial p0
+
+```ocaml
+let plot_sol fname t sol1 sol2 sol3 =
+  let open Owl in
+  let h = Plot.create fname in
+  let open Plot in
+  plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
+  plot ~h ~spec:[ RGB (0, 255, 0); LineStyle 1 ] t (Mat.col sol2 0);
+  plot ~h ~spec:[ RGB (255, 0, 0); LineStyle 1 ] t (Mat.col sol3 0);
+  legend_on h ~position:NorthEast [| "Leapfrog"; "Ruth3"; "Symplectic Euler" |];
+  output h
+```
+
+Here we only plot the change of position $x$ over time in the oscillation, and plot the solution provided by the three different solvers, as shown in the plotting code above. 
+You can also try to visualise the change to the momentum $p$ in a similar way.
+The result is shown in [@fig:diffequation:damped].
+You can clearly see that the velocity decreases in this damped harmonic oscillation.
+The curves provided by three solvers are a bit different, especially at the peak of the curve, but keep close enough for most of the time.
+
+![Step response of a damped harmonic oscillator](images/diffequation/damped.png "damped"){ width=68% #fig:diffequation:damped}
 
 ## Stiffness
 
