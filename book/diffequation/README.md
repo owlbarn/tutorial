@@ -229,15 +229,13 @@ Without further due, let's see it how the `owl-ode` package can be used to solve
 
 ### Example: Linear Oscillator System
 
-EXPLAIN: how the equation of Oscillator becomes this linear representation.
 
-This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc.
-These phenomena all follow the similar pattern of ODEs.
-One example is the mass on a spring. 
 
 Let's see how to solve a time independent linear dynamic system that contains two states:
 
 $$\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 & -1 \\ 2 & -3 \end{matrix} \right].$$ {#eq:diffequation:example_01}
+
+TODO: explain how the equation of Oscillator becomes this linear representation, here or later.
 
 This equation represents an oscillator system.
 In this system, $y$ is the state of the system, and $t$ is time.
@@ -658,14 +656,28 @@ You are right, the Lorenz equation is closely related to the idea we now call "b
 
 ### Damped Oscillation
 
-TODO: Why the equation is symplectic.
 
-The oscillation.
-The damped oscillation. 
-Equation. To simplify, we set the parameters to 1. 
+This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc.
+These phenomena all follow the similar pattern of ODEs. 
+One example is the mass attached on a spring. 
+The system is placed vertically. First the spring stretches to balance the gravity; once the system reaches equilibrium, we can then study the upward displacement of the mass from its original position, denoted with $x$.
+One the mass is in motion, at any place $x$, the pulling force on the mass is proportional to displacement $x$: $F=-kx$. Here $k$ is a positive parameter.
 
+This system is called *simple harmonic oscillator*, which represents an ideal case where $F$ is the only force acting on the mass.
+However, in a real harmonic oscillation system, there is also the frictional force.
+Such system is called *damped oscillation*.
+The frictional force is proportional to the velocity of the mass.
+Therefore the total force can be expressed as $F = -kx-cv$. Here $c$ is the damping coefficient factor. 
+Since both the force and velocity can be expressed as derivatives of $x$ on time, we have:
+
+$$m\frac{dx}{dt^2} = -kx - c\frac{dx}{dt}$$ {#eq:diffequation:damped_osc}
+
+Here $m$ represents the mass of the object.
 Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system. 
+(TODO: why the momentum means the order 2 derivative.)
 Therefore, we can express the oscillation equation with a function from this system.
+
+TODO: Why the equation is symplectic.
 
 ```ocaml
 let a = 1.0
@@ -673,6 +685,7 @@ let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
   Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
 ```
 
+For simplicity, we assume the coefficients are all the same and can be set to one. 
 Let's then solve with the symplectic solver; we can use the `LeapFrog`, `ruth3`, and `Symplectic_Euler` to compare how their solutions differ.
 
 ```

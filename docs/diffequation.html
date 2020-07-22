@@ -146,10 +146,9 @@ let _ =
 <p>Obviously, we cannot just rely on these manual solutions every time in practical use. It’s time to use some tools. Based on the computation functionalities and ndarray data structures in Owl, we provide the package “<a href="https://github.com/owlbarn/owl_ode">owl_ode</a>” to perform the tasks of solving the initial value problems. Without further due, let’s see it how the <code>owl-ode</code> package can be used to solve ODE problem.</p>
 <section class="level3" id="example-linear-oscillator-system">
 <h3>Example: Linear Oscillator System</h3>
-<p>EXPLAIN: how the equation of Oscillator becomes this linear representation.</p>
-<p>This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc. These phenomena all follow the similar pattern of ODEs. One example is the mass on a spring.</p>
 <p>Let’s see how to solve a time independent linear dynamic system that contains two states:</p>
 <p><span id="eq:diffequation:example_01"><span class="math display">\[\frac{dy}{dt} = Ay, \textrm{where } A = \left[ \begin{matrix} 1 &amp; -1 \\ 2 &amp; -3 \end{matrix} \right].\qquad(8)\]</span></span></p>
+<p>TODO: explain how the equation of Oscillator becomes this linear representation, here or later.</p>
 <p>This equation represents an oscillator system. In this system, <span class="math inline">\(y\)</span> is the state of the system, and <span class="math inline">\(t\)</span> is time. The initial state at <span class="math inline">\(t=0\)</span> is <span class="math inline">\(y_0 = \left[ -1, 1\right]^T\)</span>. Now we want to know the system state at <span class="math inline">\(t=2\)</span>. The function can be expressed in Owl using the matrix module.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let f y t =
@@ -524,15 +523,17 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
 </section>
 <section class="level3" id="damped-oscillation">
 <h3>Damped Oscillation</h3>
+<p>This oscillation system appears frequently in Physics and several other fields: charge flow in electric circuit, sound wave, light wave, etc. These phenomena all follow the similar pattern of ODEs. One example is the mass attached on a spring. The system is placed vertically. First the spring stretches to balance the gravity; once the system reaches equilibrium, we can then study the upward displacement of the mass from its original position, denoted with <span class="math inline">\(x\)</span>. One the mass is in motion, at any place <span class="math inline">\(x\)</span>, the pulling force on the mass is proportional to displacement <span class="math inline">\(x\)</span>: <span class="math inline">\(F=-kx\)</span>. Here <span class="math inline">\(k\)</span> is a positive parameter.</p>
+<p>This system is called <em>simple harmonic oscillator</em>, which represents an ideal case where <span class="math inline">\(F\)</span> is the only force acting on the mass. However, in a real harmonic oscillation system, there is also the frictional force. Such system is called <em>damped oscillation</em>. The frictional force is proportional to the velocity of the mass. Therefore the total force can be expressed as <span class="math inline">\(F = -kx-cv\)</span>. Here <span class="math inline">\(c\)</span> is the damping coefficient factor. Since both the force and velocity can be expressed as derivatives of <span class="math inline">\(x\)</span> on time, we have:</p>
+<p><span id="eq:diffequation:damped_osc"><span class="math display">\[m\frac{dx}{dt^2} = -kx - c\frac{dx}{dt}\qquad(13)\]</span></span></p>
+<p>Here <span class="math inline">\(m\)</span> represents the mass of the object. Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system. (TODO: why the momentum means the order 2 derivative.) Therefore, we can express the oscillation equation with a function from this system.</p>
 <p>TODO: Why the equation is symplectic.</p>
-<p>The oscillation. The damped oscillation. Equation. To simplify, we set the parameters to 1.</p>
-<p>Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system. Therefore, we can express the oscillation equation with a function from this system.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let a = 1.0
 let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
   Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))</code></pre>
 </div>
-<p>Let’s then solve with the symplectic solver; we can use the <code>LeapFrog</code>, <code>ruth3</code>, and <code>Symplectic_Euler</code> to compare how their solutions differ.</p>
+<p>For simplicity, we assume the coefficients are all the same and can be set to one. Let’s then solve with the symplectic solver; we can use the <code>LeapFrog</code>, <code>ruth3</code>, and <code>Symplectic_Euler</code> to compare how their solutions differ.</p>
 <div class="highlight">
 <pre><code class="language-clike">let main () =
   let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
@@ -571,9 +572,9 @@ let damped_noforcing a (xs, ps) _ : Owl.Mat.mat =
 <p><em>Stiffness</em> is an important concept in the numerical solution of ODE. Think about a function that has a “cliff” where at a point its nearby value changes rapidly. Therefore, to find the solution with normal method as we have used, it may requires such a extremely small stepping size that traversing the whole timespan may takes a very long time and lot of computation.</p>
 <p>TODO: the very basic idea of stiff algorithms.</p>
 <p>The <strong>Van der Pol equation</strong> is a good example to show both non-stiff and stiff cases. In dynamics, the Van der Pol oscillator is a non-conservative oscillator with non-linear damping. Its behaviour with time can be described with a high order ODE:</p>
-<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(13)\]</span></span></p>
+<p><span id="eq:diffequation:vanderpol_0"><span class="math display">\[y^{''} - \mu~(1-y^2)y' + y = 0,\qquad(14)\]</span></span></p>
 <p>where <span class="math inline">\(\mu\)</span> is a scalar parameter indicating the non-linearity and the strength of the damping. To make it solvable using our tool, we can change it into a pair of explicit one-order ODEs in a linear system:</p>
-<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(14)\]</span></span></p>
+<p><span class="math display">\[y_0^{'} = y_1,\]</span> <span id="eq:diffequation:vanderpol_1"><span class="math display">\[y_1^{'} = \mu~(1-y_0^2)y_1 - y_0.\qquad(15)\]</span></span></p>
 <p>As we will show shortly, by varying the damping parameter, this group of equations can be either non-still or stiff.</p>
 <p>We provide both stiff (<code>Owl_Cvode_Stiff</code>) and non-still (<code>Owl_Cvode</code>) solver by interfacing to Sundials, and the <code>LSODA</code> solver of ODEPACK can automatically switch between stiff and non-stiff algorithms. We will try both in the example.</p>
 <p>Here we start with the basic function code that are shared by both cases.</p>
