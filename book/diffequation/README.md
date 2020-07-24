@@ -321,7 +321,7 @@ For example, the SciPy provides a Python wrap of the sundials, and the NASA also
 For all these solvers, `owl-ode` provides an easy-to-use unified interface, as you have seen in the examples.
 [@tbl:diffequation:solvers] is a table that lists all the solvers that are currently supported by `owl-ode`.
 
-| Solvers | Type | State | Function | Output |
+| Solvers | Type | Function | Output |
 | ------- | ---- | ----- | -------- | ---- |
 | Euler/Midpoint | Native | `mat -> float -> mat` | `mat * mat` |
 | `rk4`/`rk23`/`rk45` | Native | `mat -> float -> mat` | `mat * mat`|
