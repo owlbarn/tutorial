@@ -83,8 +83,6 @@ The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically t
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in [@fig:regression:reg_options].
 Our target is to choose suitable parameters so that the line is *close* to data we observed. 
 
-TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.
-
 ![Find possible regression line for given data](images/regression/reg_options.png "reg_options"){width=100% #fig:regression:reg_options}
 
 How do we define the line being "close" to the observed data then?
@@ -131,9 +129,9 @@ let plot_02 () =
   Plot.output h
 ```
 
-In [@fig:regression:cost] we can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface. 
+In [@fig:regression:cost] we can see that cost function varies with parameters $\theta_0$ and $\theta_1$ with a bowl-like shape curve surface.
+The minimum point lies at somewhere at the bottom of the "valley".
 It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.
-(TODO: the figure shows that this dataset is not a very good one for regression problem.)
 
 ![Visualise the cost function in linear regression problem](images/regression/reg_cost.png "cost"){width=100% #fig:regression:cost}
 
@@ -358,10 +356,9 @@ It turns out that there is actually one close form solution to linear regression
 
 $$\Theta = (X^T~X)^{-1}X^Ty$$ {#eq:regression:eq075}
 
+(Chapter 3 of *The elements of statistical learning* [@friedman2001element] covers how this solution is derived if you are interested.)
 Suppose the linear model contains $m$ features, and the input data contains $n$ rows, then here $X$ is a $n\times~(m+1)$ matrix representing the features data, and the output data $y$ is a $n\times~1$ matrix.
 The reason there is m+1 columns in $X$ is that we need an extra constant feature for each data, and it equals to one for each data point. 
-
-TODO: where does this equation come from?
 
 With this method, we don't need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. 
 This calculation can be efficiently performed in Owl using its Linear Algebra module.

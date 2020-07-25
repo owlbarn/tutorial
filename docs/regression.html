@@ -83,7 +83,6 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
 <p><span id="eq:regression:eq00"><span class="math display">\[ y = \theta_0~ + \theta_1~x_1 + \epsilon,\qquad(1)\]</span></span></p>
 <p>where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Since modelling can hardly make a perfect match with the real data, we use <span class="math inline">\(\epsilon\)</span> to denote the error between our prediction and the data. Specifically, we represent the prediction part as <span class="math inline">\(h(\theta_0, \theta_1)\)</span>: <span id="eq:regression:eq01"><span class="math display">\[h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1\qquad(2)\]</span></span></p>
 <p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plane. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in fig.&nbsp;2. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
-<p>TODO: Figures with data, and also some random lines. Maybe three figures, and two of them are bad fit.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:reg_options" title="reg_options" src="images/regression/reg_options.png"><figcaption>Figure 2: Find possible regression line for given data</figcaption>
 </figure>
@@ -117,7 +116,7 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
   Plot.set_ylabel h "theta1";
   Plot.output h</code></pre>
 </div>
-<p>In fig.&nbsp;3 we can see that cost function varies with parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> with a bowl-like shape curve surface. It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface. (TODO: the figure shows that this dataset is not a very good one for regression problem.)</p>
+<p>In fig.&nbsp;3 we can see that cost function varies with parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> with a bowl-like shape curve surface. The minimum point lies at somewhere at the bottom of the “valley”. It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:cost" title="cost" src="images/regression/reg_cost.png"><figcaption>Figure 3: Visualise the cost function in linear regression problem</figcaption>
 </figure>
@@ -315,8 +314,7 @@ R0 -1.93878E-17
 <h3><a href="#analytical-solution">Analytical Solution</a></h3>
 <p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
 <p><span id="eq:regression:eq075"><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\qquad(10)\]</span></span></p>
-<p>Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
-<p>TODO: where does this equation come from?</p>
+<p>(Chapter 3 of <em>The elements of statistical learning</em> <span data-cites="friedman2001element" class="citation">(<span data-reference-id="friedman2001element" class="citeproc-not-found"><strong>???</strong></span>)</span> covers how this solution is derived if you are interested.) Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
 <p>With this method, we don’t need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. This calculation can be efficiently performed in Owl using its Linear Algebra module. Let’s use the dataset from multi-variable regression again and perform the computation.</p>
 <div class="highlight">
 <pre><code class="language-clike">let o = Arr.ones [|(Arr.shape x).(0); 1|]
