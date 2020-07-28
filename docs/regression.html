@@ -4,10 +4,9 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="regression">
 <h1>Regression</h1>
-<p>TODO: update the format of images: label too small; change color of line to blue or red.</p>
 <p>Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors.</p>
-<p>Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve problems.</p>
-<p>Part of the material used in this chapter is attributed to the the Coursera course <a href="https://www.coursera.org/learn/machine-learning">“Machine Learning”</a> by Andrew Ng.</p>
+<p>Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems.</p>
+<p>Part of the material used in this chapter is attributed to the the Coursera course ML004: <a href="https://www.coursera.org/learn/machine-learning">“Machine Learning”</a> by Andrew Ng. This is a great introductory course if you are interested to learn machine learning.</p>
 <section class="level2" id="linear-regression">
 <h2>Linear Regression</h2>
 <p>Linear regression models the relationship of the features and output variable with a linear model. It is the most widely used regression model in research and business and is the easiest to understand, so it makes an ideal starting point for us to build understanding or regression. Let’s start with a simple problem where only one feature needs to be considered.</p>
@@ -15,7 +14,7 @@
 <h3>Problem: Where to locate a new McDonald’s restaurant?</h3>
 <p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading. One question then is: where to locate a new McDonald’s restaurant?</p>
 <p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch). Now linear regression would be a good friend when you are deciding where to locate your next branch.</p>
-<p>tbl.&nbsp;1 list a part of the data (TODO: link to csv file). (To be honest, this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.)</p>
+<p>Part of the data are listed in tbl.&nbsp;1. (TODO: link to csv file). However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.</p>
 <div id="tbl:regression:data01">
 <table>
 <caption>Table 1: Sample of input data: single feature</caption>
@@ -47,18 +46,14 @@
 <td style="text-align: center;">22.63</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">12.82</td>
-<td style="text-align: center;">13.50</td>
-</tr>
-<tr class="odd">
 <td style="text-align: center;">…</td>
 <td style="text-align: center;">…</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Visualising these data can present a clear view. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
-<p>TOOD: fix the code syntax w.r.t file loading</p>
+<p>Visualising these data can present a clear view about the relationship between profit and population. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
+<p>TODO: fix the code syntax w.r.t file loading</p>
 <div class="highlight">
 <pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "data_01.csv"
 let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
@@ -67,9 +62,11 @@ let x = Mat.get_slice [[];[1]] data
 let y = Mat.get_slice [[];[0]] data</code></pre>
 </div>
 <div class="highlight">
-<pre><code class="language-clike">let plot_01 () =
+<pre><code class="language-ocaml">let plot_data x y =
   let h = Plot.create "regdata.png" in
-  Plot.scatter ~h x y;
+  Plot.scatter ~h ~spec:[ MarkerSize 6.] x y;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
   Plot.output h</code></pre>
 </div>
 <figure>
@@ -95,13 +92,13 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
 <h3>Solving Problem with Gradient Descent</h3>
 <p>To give a clearer view, we can visualise the cost function with a contour graph. According to eq.&nbsp;3, the cost function <code>j</code> is implemented as below:</p>
 <div class="highlight">
-<pre><code class="language-clike">let j theta0 theta1 = 
+<pre><code class="language-ocaml">let j theta0 theta1 = 
   let f x = x *. theta1 +. theta0 in
   Mat.(pow_scalar (map f x - y) 2. |&gt; mean') *. 0.5</code></pre>
 </div>
 <p>We can then visualise this cost function within a certain range using surf and contour graphs:</p>
 <div class="highlight">
-<pre><code class="language-clike">let plot_02 () = 
+<pre><code class="language-ocaml">let plot_surface () = 
   let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
   let z = Mat.(map2 j x y) in
   let h = Plot.create ~m:1 ~n:2 "reg_cost.png" in
@@ -172,18 +169,17 @@ let t1_sol () =
   let a, b = Linalg.D.linreg x y in
   let y' = Mat.(x *$ b +$ a) in
   Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
+  Plot.plot ~h ~spec:[ RGB (0,0,255); LineWidth 2. ] x y';
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/linear-algebra/plot_00.png"><figcaption>Figure 5: An example of using linear regression to fit data</figcaption>
+<img alt="" style="width:60.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/regression/plot_00.png"><figcaption>Figure 5: An example of using linear regression to fit data</figcaption>
 </figure>
 <p>Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function eq.&nbsp;3. As a matter of fact, the regression functions in Owl are mostly implemented using the <code>minimise_weight</code> function from the optimisation module.</p>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
 <h2>Multiple Regression</h2>
-<p>TODO: <a href="https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data">possible real dataset</a></p>
 <p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of it’s surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affects the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
 <p>The answer is very straight forward. We just use more parameters, so the model becomes:</p>
 <p><span id="eq:regression:eq06"><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \qquad(7)\]</span></span></p>
@@ -314,7 +310,7 @@ R0 -1.93878E-17
 <h3><a href="#analytical-solution">Analytical Solution</a></h3>
 <p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
 <p><span id="eq:regression:eq075"><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\qquad(10)\]</span></span></p>
-<p>(Chapter 3 of <em>The elements of statistical learning</em> <span data-cites="friedman2001element" class="citation">(<span data-reference-id="friedman2001element" class="citeproc-not-found"><strong>???</strong></span>)</span> covers how this solution is derived if you are interested.) Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
+<p>(Chapter 3 of <em>The elements of statistical learning</em> <span data-cites="friedman2001elements" class="citation">(Friedman, Hastie, and Tibshirani 2001)</span> covers how this solution is derived if you are interested.) Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
 <p>With this method, we don’t need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. This calculation can be efficiently performed in Owl using its Linear Algebra module. Let’s use the dataset from multi-variable regression again and perform the computation.</p>
 <div class="highlight">
 <pre><code class="language-clike">let o = Arr.ones [|(Arr.shape x).(0); 1|]
@@ -351,7 +347,7 @@ let medv = Mat.get_slice [[];[13]] data</code></pre>
 </div>
 <p>We can then visualise the data with the function below:</p>
 <div class="highlight">
-<pre><code class="language-clike">let plot_boston () =
+<pre><code class="language-ocaml">let plot_boston lstat medv =
   let h = Plot.create "boston.png" in
   Plot.scatter ~h lstat medv;
   Plot.output h</code></pre>
@@ -373,7 +369,7 @@ val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 </div>
 <p>Let’s look at how to use them in the code. The dataset is the same as in previous figure, contained in the file <a href="link">boston.csv</a>.</p>
 <div class="highlight">
-<pre><code class="language-clike">let poly () = 
+<pre><code class="language-ocaml">let poly lstat medv = 
   let a = Regression.D.poly lstat medv 2 in 
   let a0 = Mat.get a 0 0 in 
   let a1 = Mat.get a 1 0 in 
@@ -564,7 +560,7 @@ let plot_logistic data =
       (Mat.get_slice [[];[0]] pos_data) 
       (Mat.get_slice [[];[1]] pos_data));
   (* plot line *)
-  Plot.plot_fun ~h f (-5.) 5.;
+  Plot.plot_fun ~h ~spec:[ RGB (0,0,255); LineWidth 2. ] f (-5.) 5.;
   Plot.output h</code></pre>
 </div>
 <p>The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model. The result is shown in fig.&nbsp;11.</p>
@@ -642,6 +638,9 @@ R0 5.7011
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-friedman2001elements">
+<p>Friedman, Jerome, Trevor Hastie, and Robert Tibshirani. 2001. <em>The Elements of Statistical Learning</em>. Vol. 1. 10. Springer series in statistics New York.</p>
+</div>
 <div id="ref-james2013introduction">
 <p>James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2013. <em>An Introduction to Statistical Learning</em>. Vol. 112. Springer.</p>
 </div>

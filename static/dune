@@ -138,6 +138,7 @@
         images/regression/boston.png
         images/regression/mnist.png
         images/regression/normalisation.png
+        images/regression/plot_00.png
         images/regression/reg_cost.png
         images/regression/reg_gd.png
         images/regression/reg_logistic.png

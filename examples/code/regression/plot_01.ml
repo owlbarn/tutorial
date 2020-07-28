@@ -7,7 +7,9 @@ let y = Mat.get_slice [[];[0]] data
 
 let plot_01 () =
   let h = Plot.create "regdata.png" in
-  Plot.scatter ~h x y;
+  Plot.scatter ~h ~spec:[ MarkerSize 6.] x y;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
   Plot.output h
 
 
@@ -15,20 +17,28 @@ let plot_02 () =
   let h = Plot.create ~m:1 ~n:3 "reg_options.png" in
   Plot.subplot h 0 0;
   Plot.scatter ~h x y;
-  Plot.plot_fun ~h ~spec:[ RGB (0,255,0) ] (fun a -> a +. 2.) 3. 20.;
+  Plot.plot_fun ~h ~spec:[ RGB (0,0,255) ] (fun a -> a +. 2.) 3. 20.;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
   Plot.subplot h 0 1;
   Plot.scatter ~h x y;
-  Plot.plot_fun ~h ~spec:[ RGB (0,255,0) ] (fun a -> a *. (-1.) +. 15.) 0. 12.;
+  Plot.plot_fun ~h ~spec:[ RGB (0,0,255) ] (fun a -> a *. (-1.) +. 15.) 0. 12.;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
   Plot.subplot h 0 2;
   Plot.scatter ~h x y;
-  Plot.plot_fun ~h ~spec:[ RGB (0,255,0) ] (fun a -> a *. (0.5) +. 10.) 0. 20.;
+  Plot.plot_fun ~h ~spec:[ RGB (0,0,255) ] (fun a -> a *. (0.5) +. 10.) 0. 20.;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
   Plot.output h 
 
 
 let plot_03 () =
   let h = Plot.create "reg_gd.png" in
-  Plot.scatter ~h x y;
-  Plot.plot_fun ~h ~spec:[ RGB (0,255,0) ] (fun a -> a *. 0.55 +. 5.14) 0. 22.;
+  Plot.scatter ~h ~spec:[ MarkerSize 6.] x y;
+  Plot.set_xlabel h "population";
+  Plot.set_ylabel h "profit";
+  Plot.plot_fun ~h ~spec:[ RGB (0,0,255) ] (fun a -> a *. 0.55 +. 5.14) 0. 22.;
   Plot.output h 
 
 let j theta0 theta1 = 

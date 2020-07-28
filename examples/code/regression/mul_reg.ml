@@ -1,3 +1,5 @@
+(* [possible real dataset](https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings/data) *)
+
 let data = Owl_io.read_csv ~sep:',' "data_02.csv"
 let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 
