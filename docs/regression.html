@@ -4,17 +4,16 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="regression">
 <h1>Regression</h1>
-<p>Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors.</p>
-<p>Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems.</p>
+<p>Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors. Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems.</p>
 <p>Part of the material used in this chapter is attributed to the the Coursera course ML004: <a href="https://www.coursera.org/learn/machine-learning">“Machine Learning”</a> by Andrew Ng. This is a great introductory course if you are interested to learn machine learning.</p>
 <section class="level2" id="linear-regression">
 <h2>Linear Regression</h2>
 <p>Linear regression models the relationship of the features and output variable with a linear model. It is the most widely used regression model in research and business and is the easiest to understand, so it makes an ideal starting point for us to build understanding or regression. Let’s start with a simple problem where only one feature needs to be considered.</p>
 <section class="level3" id="problem-where-to-locate-a-new-mcdonalds-restaurant">
 <h3>Problem: Where to locate a new McDonald’s restaurant?</h3>
-<p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading. One question then is: where to locate a new McDonald’s restaurant?</p>
-<p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch). Now linear regression would be a good friend when you are deciding where to locate your next branch.</p>
-<p>Part of the data are listed in tbl.&nbsp;1. (TODO: link to csv file). However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.</p>
+<p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading this book. One question you might be interested in then is: where to locate a new McDonald’s branch?</p>
+<p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch), what would be your decision about where to locate your next branch? Linear regression would be a good friend when you are deciding.</p>
+<p>Part of the data are listed in tbl.&nbsp;1. However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.</p>
 <div id="tbl:regression:data01">
 <table>
 <caption>Table 1: Sample of input data: single feature</caption>
@@ -53,13 +52,14 @@
 </table>
 </div>
 <p>Visualising these data can present a clear view about the relationship between profit and population. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
-<p>TODO: fix the code syntax w.r.t file loading</p>
 <div class="highlight">
-<pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "data_01.csv"
-let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
-
-let x = Mat.get_slice [[];[1]] data
-let y = Mat.get_slice [[];[0]] data</code></pre>
+<pre><code class="language-ocaml">let extract_data csv_file =
+  let data = Owl_io.read_csv ~sep:',' csv_file in 
+  let data = Array.map (fun x -&gt; Array.map float_of_string x) data 
+    |&gt; Mat.of_arrays in 
+  let x = Mat.get_slice [[];[1]] data in
+  let y = Mat.get_slice [[];[0]] data in
+  x, y</code></pre>
 </div>
 <div class="highlight">
 <pre><code class="language-ocaml">let plot_data x y =
@@ -72,7 +72,7 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
 <figure>
 <img alt="" style="width:50.0%" id="fig:regression:regdata" title="regdata" src="images/regression/regdata.png"><figcaption>Figure 1: Visualise data for regression problem</figcaption>
 </figure>
-<p>The visualisation is shown in fig.&nbsp;1. As can be expected, there is a clear trend that larger population and larger profit are co-related together. But precisely how?</p>
+<p>The visualisation is shown in fig.&nbsp;1. As can be expected, there is a clear trend that larger population and larger profit are co-related with each other. But precisely how?</p>
 </section>
 <section class="level3" id="cost-function">
 <h3>Cost Function</h3>
@@ -85,8 +85,8 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
 </figure>
 <p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimizes the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
 <p><span id="eq:regression:eq02"><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2\qquad(3)\]</span></span></p>
-<p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to ideal cases, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
-<p><strong>TIPS</strong>: Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line – by “distance” we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance. On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data. TODO: explain the relationship between maximum likelihood estimation and least square.</p>
+<p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to an ideal one, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
+<p>Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line – by “distance” we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance.</p>
 </section>
 <section class="level3" id="solving-problem-with-gradient-descent">
 <h3>Solving Problem with Gradient Descent</h3>
@@ -96,7 +96,7 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
   let f x = x *. theta1 +. theta0 in
   Mat.(pow_scalar (map f x - y) 2. |&gt; mean') *. 0.5</code></pre>
 </div>
-<p>We can then visualise this cost function within a certain range using surf and contour graphs:</p>
+<p>We can then visualise this cost function within a certain range using surface and contour graphs:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let plot_surface () = 
   let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
@@ -118,30 +118,32 @@ let y = Mat.get_slice [[];[0]] data</code></pre>
 <img alt="" style="width:100.0%" id="fig:regression:cost" title="cost" src="images/regression/reg_cost.png"><figcaption>Figure 3: Visualise the cost function in linear regression problem</figcaption>
 </figure>
 <p>Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the <em>direction</em> of steepest descent at some <em>step size</em>, then gradually approach to a local minimum, hopefully as fast as possible. Let’s use a fixed step size <span class="math inline">\(\alpha\)</span>, and the direction at certain point on the surface can be obtained by using partial derivative on the surface. Therefore, what we need to do is to apply this update process iteratively for both <span class="math inline">\(\theta\)</span> parameters: <span id="eq:regression:eq03"><span class="math display">\[ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), \qquad(4)\]</span></span> where <span class="math inline">\(i\)</span> is 1 or 2.</p>
-<p>This process may seem terrible at first sight, but we can calculate it as:</p>
-<p><span id="eq:regression:eq04"><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, \qquad(5)\]</span></span> and <span id="eq:regression:eq05"><span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.\qquad(6)\]</span></span></p>
-<p>Here the <span class="math inline">\(x_{i0}\)</span> and <span class="math inline">\(x_{i1}\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i0 = 1\)</span> and <span class="math inline">\(x_i1 = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges.</p>
+<p>This process may seem terrible at first sight, but by solving the partial derivative we can calculate it as two parts:</p>
+<p><span id="eq:regression:eq04"><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(0)}, \qquad(5)\]</span></span> and <span id="eq:regression:eq05"><span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(1)}.\qquad(6)\]</span></span></p>
+<p>Here the <span class="math inline">\(x_{i}^{(0)}\)</span> and <span class="math inline">\(x_{i}^{(1)}\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i^{(0)} = 1\)</span> and <span class="math inline">\(x_i^{(1)} = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges.</p>
 <div class="highlight">
-<pre><code class="language-clike">let alpha = 0.01
-let theta0 = ref 10.
-let theta1 = ref 10.
+<pre><code class="language-ocaml">let gradient_desc x y = 
+  let alpha = 0.01 in 
+  let theta0 = ref 10. in
+  let theta1 = ref 10. in
 
-for i = 0 to 500 do
+  for i = 0 to 500 do
     let f x = x *. !theta1 +. !theta0 in
     theta0 := !theta0 -. Mat.(map f x - y |&gt; mean') *. alpha;
     theta1 := !theta1 -. Mat.((map f x - y) * x |&gt; mean') *. alpha 
-done</code></pre>
+  done;
+  theta0, theta1</code></pre>
 </div>
-<p>In the code above, we step the step size <span class="math inline">\(\alpha = 0.01\)</span>, and start from a set of initial parameters: <span class="math inline">\(\theta_0 = 10\)</span> and <span class="math inline">\(\theta_1 = 10\)</span>. We then iteratively update the parameters using 500 iterations. Note that instead of manual summation, we ues the vectorised operations with ndarray.</p>
-<p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = 5.14\)</span> and <span class="math inline">\(\theta_1 = 0.55\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure fig.&nbsp;4 shows a line that aligns with input data.</p>
+<p>In the code above, we set the step size <span class="math inline">\(\alpha = 0.01\)</span>, and start from a set of initial parameters: <span class="math inline">\(\theta_0 = 10\)</span> and <span class="math inline">\(\theta_1 = 10\)</span>, and aim to improve them gradually. We then iteratively update the parameters using 500 iterations. Note that instead of manual summation, we ues the vectorised operations with ndarray.</p>
+<p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = 5.14\)</span> and <span class="math inline">\(\theta_1 = 0.55\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure fig.&nbsp;4 shows a line that aligns with input data quite nicely.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:reg_gd" title="reg_gd.png" src="images/regression/reg_gd.png"><figcaption>Figure 4: Validate regression result with original dataset</figcaption>
 </figure>
-<p>Of course, there is no need to use to manually solve a linear regression problem with Owl. It has already provides high-level regression functions for use. For example, <code>ols</code> function in the <code>Regression</code> module uses the ordinary least square method we have introduced to perform linear regression.</p>
+<p>Of course, there is no need to use to manually solve a linear regression problem in Owl. It has already provides high-level regression functions for use. For example, the <code>ols</code> function in the <code>Regression</code> module uses the ordinary least square method we have introduced to perform linear regression.</p>
 <div class="highlight">
 <pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>Here the parameter <code>i</code> shows if the constant parameter <span class="math inline">\(\theta_0\)</span> is used or not. By default it is set to <code>false</code>. We can use this function to directly solve the problem:</p>
+<p>Here the parameter <code>i</code> denotes if the constant parameter <span class="math inline">\(\theta_0\)</span> is used or not. By default it is set to <code>false</code>. We can use this function to directly solve the problem:</p>
 <div class="highlight">
 <pre><code class="language-clike"># let theta = Regression.D.ols ~i:true x y
 
@@ -175,7 +177,7 @@ let t1_sol () =
 <figure>
 <img alt="" style="width:60.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/regression/plot_00.png"><figcaption>Figure 5: An example of using linear regression to fit data</figcaption>
 </figure>
-<p>Another approach is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation method in Owl and apply it directly on the cost function eq.&nbsp;3. As a matter of fact, the regression functions in Owl are mostly implemented using the <code>minimise_weight</code> function from the optimisation module.</p>
+<p>Of course, since the process of finding suitable parameters can be performed using gradient descent methods, another approach to the regression problem is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation methods introduced in the Optimisation chapter, and apply them directly on the cost function eq.&nbsp;3. As a matter of fact, the regression functions in Owl are mostly implemented using the <code>minimise_weight</code> function from the optimisation module.</p>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
@@ -232,16 +234,6 @@ let t1_sol () =
 <td style="text-align: center;">464500</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">2526</td>
-<td style="text-align: center;">3</td>
-<td style="text-align: center;">469000</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">2200</td>
-<td style="text-align: center;">3</td>
-<td style="text-align: center;">475000</td>
-</tr>
-<tr class="odd">
 <td style="text-align: center;">…</td>
 <td style="text-align: center;">…</td>
 <td style="text-align: center;">…</td>
@@ -249,17 +241,17 @@ let t1_sol () =
 </tbody>
 </table>
 </div>
-<p>The problem has two different features. Again, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model. The data loading method is exactly the same as before.</p>
+<p>The problem has two different features. Similar to the single-variable regression problem in the previous section, by using the <code>ols</code> regression function in Owl, we can easily get the multi-variable linear model. The data loading method is exactly the same as before.</p>
 <div class="highlight">
-<pre><code class="language-text">let data = Owl_io.read_csv ~sep:',' "data_02.csv"
-let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
-
-let x = Mat.get_slice [[];[0; 1]] data
-let y = Mat.get_slice [[];[2]] data
-
-let theta = Regression.D.ols ~i:true x y</code></pre>
+<pre><code class="language-ocaml">let multi_regression csv_file =
+  let data = Owl_io.read_csv ~sep:',' csv_file in
+  let data = Array.map (fun x -&gt; Array.map float_of_string x) data 
+    |&gt; Mat.of_arrays in 
+  let x = Mat.get_slice [[];[0; 1]] data in 
+  let y = Mat.get_slice [[];[2]] data in
+  Regression.D.ols ~i:true x y</code></pre>
 </div>
-<p>The resulting parameter is that:</p>
+<p>The resulting parameters are shown below:</p>
 <div class="highlight">
 <pre><code class="language-text">val theta : Owl_algodiff_primal_ops.D.arr array =
   [|
@@ -271,23 +263,25 @@ R1 57.6741
 R0 57.6766 
 |]</code></pre>
 </div>
-<p>So it basically says that the linear model we get is about:</p>
+<p>The result means that the linear model we get is about:</p>
 <p><span class="math display">\[y = 57 + 57x_0 + 57x_1\]</span></p>
-<p>Hmm, it might be right, but something about this model feel wrong. (VALIDATE the result) To address this problem, we move on to an important issue: normalisation.</p>
+<p>Hmm, it might be right, but something about this model feels wrong. If you apply any line of data in tbl.&nbsp;2 to this model, the prediction result deviates too much from the true <code>y</code> value. So what have gone wrong? To address this problem, we move on to an important issue: normalisation.</p>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
 <p>Getting a result doesn’t mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.</p>
-<p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. That’s why the model we get in the previous section is wrong.</p>
-<p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. This step is also called feature scaling. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:</p>
+<p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitudes larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. That’s why the model we get in the previous section is wrong.</p>
+<p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about <code>[-1, 1]</code>. This step is also called <em>feature scaling</em>. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code below:</p>
 <div class="highlight">
-<pre><code class="language-text">let m = Arr.mean ~axis:0 data
-let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data))
-let data' = Arr.((data - m) / r)
-let x' = Mat.get_slice [[];[0; 1]] data'
-let y' = Mat.get_slice [[];[2]] data'
-let theta' = Regression.D.ols ~i:true x' y'</code></pre>
+<pre><code class="language-ocaml">let norm_ols data = 
+  let m = Arr.mean ~axis:0 data
+  let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data)) in
+  let data' = Arr.((data - m) / r) in
+  let x' = Mat.get_slice [[];[0; 1]] data' in
+  let y' = Mat.get_slice [[];[2]] data' in
+  let theta' = Regression.D.ols ~i:true x' y' in
+  theta'</code></pre>
 </div>
-<p>This time we get a new set of parameters for the normalised data:</p>
+<p>Here the <code>data</code> is the matrix we get from loading the csv file from the previous section. This time we get a new set of parameters for the normalised data:</p>
 <div class="highlight">
 <pre><code class="language-text">val theta' : Owl_algodiff_primal_ops.D.arr array =
   [|
@@ -299,7 +293,15 @@ R1 -0.0659473
 R0 -1.93878E-17 
 |]</code></pre>
 </div>
-<p>Analyse the result.</p>
+<p>These parameters set the model as: <span class="math inline">\(\bar{y}=0.95\bar{x}_0-0.06\bar{x}_1\)</span>. This result can be cross-validated with the analytical solution shown in the next section. You can also manually check this result with the normalised data:</p>
+<div class="highlight">
+<pre><code class="language-text">val data' : (float, Bigarray.float64_elt) Owl_dense_ndarray_generic.t =
+
+            C0         C1         C2
+ R0    0.68321   0.457447   0.678278
+ R1  -0.202063 -0.0425532  -0.151911
+ ...</code></pre>
+</div>
 <p>Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in fig.&nbsp;6 shows the point. We have already seen that, in a “slim” slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.</p>
 <figure>
 <img alt="" style="width:90.0%" id="fig:regression:normalisation" title="normalisation" src="images/regression/normalisation.png"><figcaption>Figure 6: Compare gradient descent efficiency with and without data normalisation</figcaption>
@@ -319,7 +321,7 @@ let z = Arr.concatenate ~axis:1 [|o; x'|];;
 let solution = Mat.dot (Mat.dot
     (Linalg.D.inv Mat.(dot (transpose z) z)) (Mat.transpose z)) y'</code></pre>
 </div>
-<p>The result is close to what we have gotten using the regression:</p>
+<p>Here the <code>x'</code>, <code>y'</code> are the normalised data from the previous section. The result is close to what we have gotten using the regression method:</p>
 <div class="highlight">
 <pre><code class="language-text">val solution : Mat.mat =
   

@@ -2,7 +2,6 @@
 
 Regression is an important topic in statistical modelling and machine learning. 
 It's about modelling problems which include one or more variables (also called "features" or "predictors") and making predictions of another variable ("output variable") based on previous data of predictors. 
-
 Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields.
 Explaining all these models are beyond the scope of this book.
 In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems. 
@@ -18,16 +17,15 @@ Let's start with a simple problem where only one feature needs to be considered.
 
 ### Problem: Where to locate a new McDonald's restaurant?
 
-McDonald's is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading.
-One question then is: where to locate a new McDonald's restaurant? 
+McDonald's is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading this book.
+One question you might be interested in then is: where to locate a new McDonald's branch? 
 
 According to its [website](https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#), a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. 
 Now let's simplified this problem by asserting that the potential profit is only related to area population. 
-Suppose you are the decision maker in McDonald's, and also have access to data of each branch store (profit, population around this branch). 
-Now linear regression would be a good friend when you are deciding where to locate your next branch.
+Suppose you are the decision maker in McDonald's, and also have access to data of each branch store (profit, population around this branch), what would be your decision about where to locate your next branch?
+Linear regression would be a good friend when you are deciding.
 
 Part of the data are listed in [@tbl:regression:data01].
-(TODO: link to csv file).
 However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. 
 So perhaps you will be disappointed if you are looking for real data from running McDonald's.
 
@@ -45,14 +43,14 @@ Visualising these data can present a clear view about the relationship between p
 We can use the code below to do that. 
 It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.
 
-TODO: fix the code syntax w.r.t file loading
-
-```
-let data = Owl_io.read_csv ~sep:',' "data_01.csv"
-let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
-
-let x = Mat.get_slice [[];[1]] data
-let y = Mat.get_slice [[];[0]] data
+```ocaml
+let extract_data csv_file =
+  let data = Owl_io.read_csv ~sep:',' csv_file in 
+  let data = Array.map (fun x -> Array.map float_of_string x) data 
+    |> Mat.of_arrays in 
+  let x = Mat.get_slice [[];[1]] data in
+  let y = Mat.get_slice [[];[0]] data in
+  x, y
 ```
 
 ```ocaml
@@ -67,7 +65,7 @@ let plot_data x y =
 ![Visualise data for regression problem](images/regression/regdata.png "regdata"){width=50% #fig:regression:regdata}
 
 The visualisation is shown in [@fig:regression:regdata].
-As can be expected, there is a clear trend that larger population and larger profit are co-related together. But precisely how?
+As can be expected, there is a clear trend that larger population and larger profit are co-related with each other. But precisely how?
 
 ### Cost Function
 
@@ -93,12 +91,10 @@ With these notations, we can represent a metric to represent the *closeness* as:
 
 $$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2$$ {#eq:regression:eq02}
 
-In regression, we call this function the *cost function*. It measures how close the models are to ideal cases, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
+In regression, we call this function the *cost function*. It measures how close the models are to an ideal one, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function. 
 
-**TIPS**: Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line -- by "distance" we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. 
+Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line -- by "distance" we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. 
 A reasonable solution can thus be achieved by minimising this average distance.
-On the other hand, from the statistical point of view, minimizing the sum of squared errors leads to maximizing the likelihood of the data.
-TODO: explain the relationship between maximum likelihood estimation and least square.
 
 ### Solving Problem with Gradient Descent
 
@@ -111,7 +107,7 @@ let j theta0 theta1 =
   Mat.(pow_scalar (map f x - y) 2. |> mean') *. 0.5
 ```
 
-We can then visualise this cost function within a certain range using surf and contour graphs:
+We can then visualise this cost function within a certain range using surface and contour graphs:
 
 ```ocaml
 let plot_surface () = 
@@ -142,46 +138,48 @@ Therefore, what we need to do is to apply this update process iteratively for bo
 $$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
 where $i$ is 1 or 2.
 
-This process may seem terrible at first sight, but we can calculate it as:
+This process may seem terrible at first sight, but by solving the partial derivative we can calculate it as two parts:
 
-$$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i0}, $$ {#eq:regression:eq04}
+$$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(0)}, $$ {#eq:regression:eq04}
 and 
-$$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i1}.$$ {#eq:regression:eq05}
+$$ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(1)}.$$ {#eq:regression:eq05}
 
-Here the $x_{i0}$ and $x_{i1}$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i0 = 1$ and $x_i1 = x_i$.
+Here the $x_{i}^{(0)}$ and $x_{i}^{(1)}$ are just different input features of the $i$-th row in data. Since currently we only focus on one feature in our problem, $x_i^{(0)} = 1$ and $x_i^{(1)} = x_i$.
 Following these equations, you can manually perform the gradient descent process until it converges.
 
-```
-let alpha = 0.01
-let theta0 = ref 10.
-let theta1 = ref 10.
+```ocaml
+let gradient_desc x y = 
+  let alpha = 0.01 in 
+  let theta0 = ref 10. in
+  let theta1 = ref 10. in
 
-for i = 0 to 500 do
-	let f x = x *. !theta1 +. !theta0 in
-	theta0 := !theta0 -. Mat.(map f x - y |> mean') *. alpha;
-	theta1 := !theta1 -. Mat.((map f x - y) * x |> mean') *. alpha 
-done
+  for i = 0 to 500 do
+  	let f x = x *. !theta1 +. !theta0 in
+  	theta0 := !theta0 -. Mat.(map f x - y |> mean') *. alpha;
+  	theta1 := !theta1 -. Mat.((map f x - y) * x |> mean') *. alpha 
+  done;
+  theta0, theta1
 ```
 
-In the code above, we step the step size $\alpha = 0.01$, and start from a set of initial parameters: $\theta_0 = 10$ and $\theta_1 = 10$.
+In the code above, we set the step size $\alpha = 0.01$, and start from a set of initial parameters: $\theta_0 = 10$ and $\theta_1 = 10$, and aim to improve them gradually.
 We then iteratively update the parameters using 500 iterations. 
 Note that instead of manual summation, we ues the vectorised operations with ndarray.
 
 By executing the code, we can get a pair of parameters: $\theta_0 = 5.14$ and $\theta_1 = 0.55$.
 To check if they indeed are suitable parameters, we can visualise them against the input data.
-The resulting figure [@fig:regression:reg_gd] shows a line that aligns with input data.
+The resulting figure [@fig:regression:reg_gd] shows a line that aligns with input data quite nicely.
 
 ![Validate regression result with original dataset](images/regression/reg_gd.png "reg_gd.png"){width=60% #fig:regression:reg_gd}
 
-Of course, there is no need to use to manually solve a linear regression problem with Owl. 
+Of course, there is no need to use to manually solve a linear regression problem in Owl.
 It has already provides high-level regression functions for use. 
-For example, `ols` function in the `Regression` module uses the ordinary least square method we have introduced to perform linear regression.
+For example, the `ols` function in the `Regression` module uses the ordinary least square method we have introduced to perform linear regression.
 
 ```
 val ols : ?i:bool -> arr -> arr -> arr array
 ```
 
-Here the parameter `i` shows if the constant parameter $\theta_0$ is used or not. By default it is set to `false`.
+Here the parameter `i` denotes if the constant parameter $\theta_0$ is used or not. By default it is set to `false`.
 We can use this function to directly solve the problem:
 
 ```
@@ -222,8 +220,8 @@ let t1_sol () =
 ![An example of using linear regression to fit data](images/regression/plot_00.png "linalg plot 00"){ width=60% #fig:linear-algebra:plot_00}
 
 
-Another approach is from the perspective of function optimisation instead of regression. 
-We can use the gradient descent optimisation method in Owl and apply it directly on the cost function [@eq:regression:eq02].
+Of course, since the process of finding suitable parameters can be performed using gradient descent methods, another approach to the regression problem is from the perspective of function optimisation instead of regression. 
+We can use the gradient descent optimisation methods introduced in the Optimisation chapter, and apply them directly on the cost function [@eq:regression:eq02].
 As a matter of fact, the regression functions in Owl are mostly implemented using the `minimise_weight` function from the optimisation module. 
 
 ## Multiple Regression
@@ -262,25 +260,24 @@ Part of the data are listed below:
 | 3890 | 3 | 573900  |
 | 1100 | 3 | 249900  |
 | 1458 | 3 | 464500  |
-| 2526 | 3 | 469000  |
-| 2200 | 3 | 475000  |
 | ...  | ... | ...   |
 : Sample of input data: multiple features {#tbl:regression:data02}
 
-The problem has two different features. Again, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
+The problem has two different features. 
+Similar to the single-variable regression problem in the previous section, by using the `ols` regression function in Owl, we can easily get the multi-variable linear model.
 The data loading method is exactly the same as before.
 
-```text
-let data = Owl_io.read_csv ~sep:',' "data_02.csv"
-let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
-
-let x = Mat.get_slice [[];[0; 1]] data
-let y = Mat.get_slice [[];[2]] data
-
-let theta = Regression.D.ols ~i:true x y
+```ocaml
+let multi_regression csv_file =
+  let data = Owl_io.read_csv ~sep:',' csv_file in
+  let data = Array.map (fun x -> Array.map float_of_string x) data 
+    |> Mat.of_arrays in 
+  let x = Mat.get_slice [[];[0; 1]] data in 
+  let y = Mat.get_slice [[];[2]] data in
+  Regression.D.ols ~i:true x y
 ```
 
-The resulting parameter is that:
+The resulting parameters are shown below:
 
 ```text
 val theta : Owl_algodiff_primal_ops.D.arr array =
@@ -294,35 +291,38 @@ R0 57.6766
 |]
 ```
 
-So it basically says that the linear model we get is about: 
+The result means that the linear model we get is about: 
 
 $$y = 57 + 57x_0 + 57x_1$$
 
-Hmm, it might be right, but something about this model feel wrong. 
-(VALIDATE the result)
+Hmm, it might be right, but something about this model feels wrong. If you apply any line of data in [@tbl:regression:data02] to this model, the prediction result deviates too much from the true `y` value.
+So what have gone wrong?
 To address this problem, we move on to an important issue: normalisation.
 
 ### Feature Normalisation
 
 Getting a result doesn't mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.
 
-Let's look at the multi-variable data again. Apparently, the first feature is magnitude larger than the second feature.
+Let's look at the multi-variable data again. Apparently, the first feature is magnitudes larger than the second feature.
 That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. 
 That's why the model we get in the previous section is wrong.
 
-To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about [-1, 1]. 
-This step is also called feature scaling. 
-There are many ways to do this, and one of them is the *mean normalisation*: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code:
+To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about `[-1, 1]`. 
+This step is also called *feature scaling*. 
+There are many ways to do this, and one of them is the *mean normalisation*: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code below:
 
-```text
-let m = Arr.mean ~axis:0 data
-let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data))
-let data' = Arr.((data - m) / r)
-let x' = Mat.get_slice [[];[0; 1]] data'
-let y' = Mat.get_slice [[];[2]] data'
-let theta' = Regression.D.ols ~i:true x' y'
+```ocaml
+let norm_ols data = 
+  let m = Arr.mean ~axis:0 data
+  let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data)) in
+  let data' = Arr.((data - m) / r) in
+  let x' = Mat.get_slice [[];[0; 1]] data' in
+  let y' = Mat.get_slice [[];[2]] data' in
+  let theta' = Regression.D.ols ~i:true x' y' in
+  theta'
 ```
 
+Here the `data` is the matrix we get from loading the csv file from the previous section.
 This time we get a new set of parameters for the normalised data:
 
 ```text
@@ -337,7 +337,18 @@ R0 -1.93878E-17
 |]
 ```
 
-Analyse the result.
+These parameters set the model as: $\bar{y}=0.95\bar{x}_0-0.06\bar{x}_1$. 
+This result can be cross-validated with the analytical solution shown in the next section. 
+You can also manually check this result with the normalised data:
+
+```text
+val data' : (float, Bigarray.float64_elt) Owl_dense_ndarray_generic.t =
+
+            C0         C1         C2
+ R0    0.68321   0.457447   0.678278
+ R1  -0.202063 -0.0425532  -0.151911
+ ...
+```
 
 Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in [@fig:regression:normalisation] shows the point.
 We have already seen that, in a "slim" slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.
@@ -371,7 +382,8 @@ let solution = Mat.dot (Mat.dot
     (Linalg.D.inv Mat.(dot (transpose z) z)) (Mat.transpose z)) y'
 ```
 
-The result is close to what we have gotten using the regression:
+Here the `x'`, `y'` are the normalised data from the previous section. 
+The result is close to what we have gotten using the regression method:
 
 ```text
 val solution : Mat.mat =
