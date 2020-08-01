@@ -30,13 +30,15 @@ let lstat = Mat.get_slice [[];[12]] data
 let medv = Mat.get_slice [[];[13]] data
 
 
-let plot_01 () =
+let plot_boston () =
   let h = Plot.create "boston.png" in
-  Plot.scatter ~h lstat medv;
+  Plot.scatter ~h ~spec:[ MarkerSize 5.] lstat medv;
+  Plot.set_xlabel h "lstat";
+  Plot.set_ylabel h "medv";
   Plot.output h
 
 
-let poly lstat medv = 
+let poly () = 
   let a = Regression.D.poly lstat medv 2 in 
   let a0 = Mat.get a 0 0 in 
   let a1 = Mat.get a 1 0 in 
@@ -72,8 +74,10 @@ let poly6 lstat medv =
 
 let plot_poly () = 
   let h = Plot.create "reg_poly.png" in
-  Plot.scatter ~h lstat medv;
-  Plot.plot_fun ~h (poly ()) 2. 36.;
+  Plot.scatter ~h ~spec:[ MarkerSize 5.] lstat medv;
+  Plot.set_xlabel h "lstat";
+  Plot.set_ylabel h "medv";
+  Plot.plot_fun ~h ~spec:[ LineWidth 3.] (poly ()) 2. 38.;
   Plot.output h
 
 
@@ -160,3 +164,20 @@ let plot_poly4s_reg () =
   Plot.plot_fun ~h (poly4_reg slstat smedv) 2. 36.;
   Plot.output h
 
+let plot_exp ()  =
+  let a, b, e = Regression.D.exponential lstat medv in 
+  let f1 x = a *. Maths.exp ((-1.) *. b *. x) +. e in  
+  let f2 x = a *. Maths.exp ((-1.) *. e *. x) +. b in  
+  let f3 x = b *. Maths.exp ((-1.) *. a *. x) +. e in  
+  let f4 x = b *. Maths.exp ((-1.) *. e *. x) +. a in  
+  let f5 x = e *. Maths.exp ((-1.) *. a *. x) +. b in  
+  let f6 x = e *. Maths.exp ((-1.) *. b *. x) +. a in  
+  let h = Plot.create "fit_exp.png" in
+  Plot.scatter ~h lstat medv;
+  Plot.plot_fun ~h f1 2. 36.;
+  Plot.plot_fun ~h f2 2. 36.;
+  Plot.plot_fun ~h f3 2. 36.;
+  Plot.plot_fun ~h f4 2. 36.;
+  Plot.plot_fun ~h f5 2. 36.;
+  Plot.plot_fun ~h f6 2. 36.;
+  Plot.output h

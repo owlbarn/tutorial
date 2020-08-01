@@ -101,15 +101,16 @@ A reasonable solution can thus be achieved by minimising this average distance.
 To give a clearer view, we can visualise the cost function with a contour graph. 
 According to [@eq:regression:eq02], the cost function  `j` is implemented as below:
 
-```ocaml
+```
 let j theta0 theta1 = 
   let f x = x *. theta1 +. theta0 in
   Mat.(pow_scalar (map f x - y) 2. |> mean') *. 0.5
 ```
 
+Here `x` and `y` are the two columns of data from [@tbl:regression:data01].
 We can then visualise this cost function within a certain range using surface and contour graphs:
 
-```ocaml
+```text
 let plot_surface () = 
   let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
   let z = Mat.(map2 j x y) in
@@ -213,7 +214,7 @@ let t1_sol () =
   let a, b = Linalg.D.linreg x y in
   let y' = Mat.(x *$ b +$ a) in
   Plot.scatter ~h x y;
-  Plot.plot ~h ~spec:[ RGB (0,0,255); LineWidth 2. ] x y';
+  Plot.plot ~h ~spec:[ RGB (0,255,0) ] x y';
   Plot.output h
 ```
 
@@ -313,7 +314,7 @@ There are many ways to do this, and one of them is the *mean normalisation*: for
 
 ```ocaml
 let norm_ols data = 
-  let m = Arr.mean ~axis:0 data
+  let m = Arr.mean ~axis:0 data in
   let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data)) in
   let data' = Arr.((data - m) / r) in
   let x' = Mat.get_slice [[];[0; 1]] data' in
@@ -409,42 +410,34 @@ Most importantly, there is not always a close-form solution for you to use in ot
 
 ## Non-linear regressions 
 
-If only the world is as simple as linear regression. But that's not to be. 
+As powerful as it is, not all the regression problems can be solved with the linear model above.
 A lot of data can follow other patterns than a linear one. 
-
 We can show this point with data from the [Boston Housing Dataset](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html).
 This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Mass.
 It contains 506 cases.
 Each case contain 14 properties, such as crime rate, nitric oxides concentration, average number of rooms per dwelling, etc.
 For this example, we observe the relationship between percentage of lower status of the population ("LSTAT") and  the median value of owner-occupied homes in $1000's ("MDEV").
 
-```
-let data = Owl_io.read_csv ~sep:' ' "boston.csv"
-let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
-
-let lstat = Mat.get_slice [[];[12]] data
-let medv = Mat.get_slice [[];[13]] data
-```
-
-We can then visualise the data with the function below:
-
 ```ocaml
-let plot_boston lstat medv =
-  let h = Plot.create "boston.png" in
-  Plot.scatter ~h lstat medv;
-  Plot.output h
+let f ?(csv_file="boston.csv") () = 
+  let data = Owl_io.read_csv ~sep:' ' csv_file in 
+  let data = Array.map (fun x -> Array.map float_of_string x) data 
+    |> Mat.of_arrays in
+  let lstat = Mat.get_slice [[];[12]] data in 
+  let medv = Mat.get_slice [[];[13]] data in
+  lstat, medv
 ```
 
 ![Visualise part of the boston housing dataset](images/regression/boston.png "boston"){width=60% #fig:regression:boston}
 
+We can then visualise the data to see the trend clearly.
 As [@fig:regression:boston] shows, the relationship basically follows a convex curve. 
 You can try to fit a line into these data, but it's quite likely that the result would not be very fitting. 
 And that requires us to use non-linear models. 
+In this section, we present two common non-linear regressions: the **polynomial regression**, and **exponential regression**. 
+We shows how to use them with examples, without going into details of the math.
 
-In this section, we present two common non-linear regressions: the polynomial regression, and exponential regression. 
-We shows how to use them with examples, and won't go into details of the math. Refer to [reference] for more details. 
-
-In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an nth degree polynomial in the feature $x$:
+In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an $n$-th degree polynomial in the feature $x$:
 
 $$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$ {#eq:regression:eq08}
 
@@ -452,7 +445,7 @@ The model for exponential regression takes two parameters:
 
 $$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x.$$ {#eq:regression:eq09}
 
-Owl provides functions to do both form of regressions:
+Owl provides functions to do both forms of regressions:
 
 ```
 val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
@@ -460,7 +453,8 @@ val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
 val poly : arr -> arr -> int -> arr
 ```
 
-Let's look at how to use them in the code. The dataset is the same as in previous figure, contained in the file [boston.csv](link).
+Let's look at how to use them in the code. 
+We use the `poly` function in the `Regression` module to get the model parameter. We limit the model to be 2nd order. 
 
 ```ocaml
 let poly lstat medv = 
@@ -471,8 +465,7 @@ let poly lstat medv =
   fun x -> a0 +. a1 *. x +. a2 *. x *. x 
 ```
 
-We use the `Regression.D.poly` function to get the model parameter. We limit that to 2nd order. 
-The results are:
+By executing the `poly` function, the parameters we can get are:
 
 ```
 - : Owl_algodiff_primal_ops.D.arr =
@@ -487,14 +480,13 @@ That gives us the polynomial model:
 
 $$f(x) = 42.8 - 2.3x + 0.04x^2 + \epsilon$$
 
-We can visualise this model to see how well it fit the data:
+We can visualise this model to see how well it fits the data:
 
 ![Polynomial regression based on Boston housing dataset](images/regression/reg_poly.png "reg_poly"){width=60% #fig:regression:reg_poly.png}
 
+The code for exponential regression is similar. By applying the `exponential` function in the `Regression` module, we can get the parameters tuple `(a, b, e)`, and the model is then of the form $y = ae^{-bx} + \epsilon$.
 
-The code for exponential regression is similar.
-That leads to a model: $y = ab^x + \epsilon$.
-EXPLAIN the meaning of exponential fitting.
+TODO: verify if it is *really* exponential regression we are talking about here; also if it is the problem of data or implementation itself that leads to the result. 
 
 ## [Regularisation](#regularisation)
 
@@ -503,20 +495,22 @@ The motivation of using regularisation comes from the problem of *over-fitting* 
 In statistics, over-fitting means a model is tuned too closely to a particular set of data and it may fail to predict future observations reliably.
 
 Let' use the polynomial regression as an example.
-Instead of using an order of 2, now we use an order of 4, we can get the new model:
+Instead of using an order of 2, now we use an order of 4.
+Note that we take only a subset of 50 of the full data set to better visualise the over-fitting problem:
+
+
+```
+let subdata, _ = Mat.draw_rows ~replacement:false data 50
+```
+
+we can get the new model:
 
 $$f(x) = 63 - 10.4x + 0.9x^2 -0.03x^3 + 0.0004x^4.$$
 
 ![Polynomial regression with high order](images/regression/reg_poly4s.png "reg_poly4s"){width=60% #fig:regression:poly4s}
 
 This model could be visualised as in [@fig:regression:poly4s]. 
-Note that we take only a sub set of 50 of the full data set to better visualise the over-fitting problem:
-
-```
-let subdata, _ = Mat.draw_rows ~replacement:false data 50
-```
-
-Apparently, this  model fit too closely with the given data, and you can see that it won't make a good prediction of future output values.
+Apparently, this model fits too closely with the given data, even the outliers. This model does not make a good prediction of future output values.
 
 To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. 
 Actually we don't need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:
@@ -524,7 +518,6 @@ Actually we don't need to change the cost functions dramatically. All we need is
 $$J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$ {#eq:regression:eq10}
 
 Here the sum of squared parameter values is the penalty we add to the original cost function, and $lambda$ is a regularisation control parameter. 
-
 That leads to a bit of change in the derivative of $J(\Theta)$ in using gradient descent:
 
 $$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].$$ {#eq:regression:eq11}
@@ -532,7 +525,7 @@ $$\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\The
 We can now apply the new update procedure in gradient descent code, with a polynomial model with 4th order.
 
 Currently not all the regression methods support regularisation. But we can implement one easily.
-For the polynomial regression, we can implement this way:
+For the polynomial regression, we can implement it this way:
 
 ```ocaml
 open Optimise.D
@@ -557,15 +550,15 @@ let poly_ridge ~alpha x y n =
   (Regression.D._linear_reg false params x y).(0)
 ```
 
-The implementation is based on the optimisation module and the general `_linear_reg` function.
-The key point is to use the L2-norm function as regularisation method.
-By using this regularised version of polynomial regression, we can have an updated model:
+The implementation is based on the optimisation module and the general low level `_linear_reg` function.
+In this code, the key point is to use the L2-norm function as regularisation method.
+By using this regularised version of polynomial regression, we can have an updated model as shown in [@fig:regression:poly4s_reg].
 
 ![Revised polynomial model by applying regularisation in regression](images/regression/reg_poly4s_reg.png "poly reg"){width=60% #fig:regression:poly4s_reg}
 
 Here we choose the alpha parameter to be 20.
-We can see that by using regularisation the model is less prone to the over-fitting problem.
-Note that we use linear regression in the equation, but regularisation is widely use in all kinds of regressions.
+We can see that by using regularisation the model is less prone to the over-fitting problem, compared to [@fig:regression:poly4s].
+Note that we use linear regression as example in the equation, but regularisation is widely use in all kinds of regressions.
 
 ### Ols, Ridge, Lasso, and Elastic_net 
 
@@ -581,13 +574,12 @@ val elastic_net : ?i:bool -> ?alpha:float -> ?l1_ratio:float -> arr -> arr -> ar
 
 What are these functions? The short answer is that: they are for regularisation in regression using different methods.
 The `ridge` cost function adds the L2 norm of $\theta$ as the penalty term: $\lambda\sum\theta^2$, which is what we have introduced. 
-The `lasso` cost function is similar. It add the L1 norm, or absolute value of the parameter as penalty: $\lambda\sum|\theta|$.
+The `lasso` cost function is similar. It adds the *L1 norm*, or absolute value of the parameter as penalty: $\lambda\sum|\theta|$.
 This difference makes `lasso` to be able to allow for some coefficients to be zero, which is very useful for feature selection.
-The `elastic_net` is proposed (by whom?) to combine the penalties of the previous two. What it adds is this:
+The `elastic_net` is proposed by Hui Zou and Trevor Hastie of the Stanford University to combine the penalties of the previous two. What it adds is this:
 $$\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),$$ {#eq:regression:eq115}
 where $a$ is a control parameter between `ridge` and `lasso`.
 The elastic net method aims to make the feature selection less dependent on input data. 
-
 We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.
 
 ## Logistic Regression
