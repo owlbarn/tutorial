@@ -149,6 +149,7 @@
         images/regression/reg_poly4s_reg.png
         images/regression/reg_svm.png
         images/regression/regdata.png
+        images/regression/sigmoid.png
         images/signal/conv.png
         images/signal/conv2.png
         images/signal/lena.png

@@ -1,3 +1,10 @@
+
+let plot_sigmoid () = 
+  let h = Plot.create "sigmoid.png" in 
+  Plot.plot_fun ~h ~spec:[ LineWidth 2.; RGB (0,0,255) ] Maths.sigmoid (-6.) 6.;
+  Plot.output h
+
+
 let data = Owl_io.read_csv ~sep:',' "ex2data1.csv"
 let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 

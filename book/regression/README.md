@@ -586,17 +586,21 @@ We can thus choose one of these functions to perform regression with regularisat
 
 So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. 
 What if we care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.  
-
-**liang: logistic regression is for categorical data analysis ... meaning your output var is categorical ... the point is to figure out the decision boundary, restructure your language**
-
-We can try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
-But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
+This kind of variables are called *categorical variables*. They represent data that can be divided into groups. 
+Such variables include "race", "age group", "religion", etc.
+To predicting if a given data belongs to which group for a categorical variable, the previous regression methods do not apply. Instead, we need to use the *Logistic Regression*. 
+Its point is to figure out certain "boundaries" among the data space so that different data can be divided into corresponding variable group.
+Let's start with introducing how it works. 
 
 ### Sigmoid Function 
 
+As a naive solution, we can still try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
+But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
 The solution is to use the sigmoid function (or logistic function): $f(x) = \frac{1}{1 + e^{-x}}$.
 
-As shown in the figure, this function project value within the range of [0, 1].
+![The logistic function curve](images/regression/sigmoid.png "sigmoid"){width=60% #fig:regression:sigmoid}
+
+As shown in [@fig:regression:sigmoid], this function project value within the range of [0, 1].
 Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
 
 $$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.$$ {#eq:regression:eq12}
@@ -606,16 +610,28 @@ Remember that in logistic regression we only care about the classification. So f
 
 ### Cost Function 
 
-With the new model comes new cost function. 
-Previously in linear regression we measure the cost with least square, or euclidean distance. 
-Now in the logistic regression, we define its cost function as:
+With the new model comes new cost function.
+Recalls that we can find suitable parameters by minimising the cost function with training data.
+The cost function of linear regression in [@eq:regression:eq02] indicates the sum of squared distances between the data and the model line. 
+We can continue to use it here, with the new $h(x)$ function defined as sigmoid function. 
+But the problem is that, in this case it will end up being a non-convex function, and the gradient descent can only give us one of many local minimums.
 
-$$J_{\Theta}(h(x), y) = -log(h(x)), \textrm{if}~y = 1, $$ {#eq:regression:eq13} or 
-$$J_{\Theta}(h(x), y) = -log(1 - h(x)), \textrm{if}~y = 0.$$ {#eq:regression:eq14}
+Therefore, in the logistic regression, we define its cost function as:
 
-TODO: explain how to come up with this equation. About maximise the log likelihood. Refer to book scratch.
+$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}\textrm{g}(h(x^{(i)})-y^{(i)}),$$ {#eq:regression:logistic_cost}
 
-Again the question is how to solve this terrible equation? 
+where the function $g$ is defined as:
+
+$$g(h_{\Theta}(x), y) = -log(h_{\Theta}(x)), \textrm{if }~y = 1, $$ {#eq:regression:eq13} or 
+$$g(h_{\Theta}(x), y) = -log(1 - h_{\Theta}(x)), \textrm{if }~y = 0.$$ {#eq:regression:eq14}
+
+Both forms of function $g()$ capture the same idea.
+Since the $h$ function is in the range [0, 1], the range of $g$ is [0, $\infty$].
+When the value of $h(x)$ and $y$ are close, then the item within the summation in [@eq:regression:logistic_cost] $g(h(x)) - y$ will be close to 0;
+on the other hand, if the prediction result $h(x)$ and $y$ are different, then $g(h(x)) - y$ will incur a large value to the cost function as penalty.
+(TODO: rephrase)
+
+Next, the question is how to solve this terrible equation.
 Luckily, The sigmoid function has a nice property: its derivative is simple. 
 
 $$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$ {#eq:regression:eq15}
