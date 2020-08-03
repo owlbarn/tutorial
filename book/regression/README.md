@@ -139,7 +139,7 @@ Therefore, what we need to do is to apply this update process iteratively for bo
 $$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
 where $i$ is 1 or 2.
 
-This process may seem terrible at first sight, but by solving the partial derivative we can calculate it as two parts:
+This process may seem terribly complex at first sight, but by solving the partial derivative we can calculate it as two parts:
 
 $$ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(0)}, $$ {#eq:regression:eq04}
 and 
@@ -596,14 +596,14 @@ Let's start with introducing how it works.
 
 As a naive solution, we can still try to continue using linear regression, and the model can be interpreted as the possibility of one of these result.
 But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
-The solution is to use the sigmoid function (or logistic function): $f(x) = \frac{1}{1 + e^{-x}}$.
+The solution is to use the sigmoid function (or logistic function): $\sigma~(x) = \frac{1}{1 + e^{-x}}$.
 
 ![The logistic function curve](images/regression/sigmoid.png "sigmoid"){width=60% #fig:regression:sigmoid}
 
 As shown in [@fig:regression:sigmoid], this function project value within the range of [0, 1].
 Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
 
-$$h(\Theta) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.$$ {#eq:regression:eq12}
+$$h_{\Theta}(X) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.$$ {#eq:regression:eq12}
 
 Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1.
 Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.
@@ -618,7 +618,7 @@ But the problem is that, in this case it will end up being a non-convex function
 
 Therefore, in the logistic regression, we define its cost function as:
 
-$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}\textrm{g}(h(x^{(i)})-y^{(i)}),$$ {#eq:regression:logistic_cost}
+$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}g(h(x^{(i)})-y^{(i)}),$$ {#eq:regression:logistic_cost}
 
 where the function $g$ is defined as:
 
@@ -631,23 +631,25 @@ When the value of $h(x)$ and $y$ are close, then the item within the summation i
 on the other hand, if the prediction result $h(x)$ and $y$ are different, then $g(h(x)) - y$ will incur a large value to the cost function as penalty.
 (TODO: rephrase)
 
-Next, the question is how to solve this terrible equation.
-Luckily, The sigmoid function has a nice property: its derivative is simple. 
+The previous three equations can be combined as one:
 
-$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2$$ {#eq:regression:eq15}
+$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}\log(h(x^{(i)})) + (1-y^{(i)})\log(1-h(x^{(i)})))$$ {#eq:regression:logistic_cost_large}
 
-This gradient looks the same to that in linear regression, but it's actually different, since the definition of $h$ is actually different. 
-Therefore, similar to linear regression, we only need to repeat this gradient descent step until converges.
-The process is similar to that in linear regression so we will not dig into details again. 
-Instead, we will use the function that Owl provides:
+The next step is to follow [@eq:regression:eq03] to find the partial derivative of this cost function and then iteratively minimise it to find suitable parameters $\Theta$.
+It turns out that the partial derivative of this cost function is similar as that in linear regression:
 
-```
-val logistic : ?i:bool -> arr -> arr -> arr array
-```
+$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{m}\sum_{i=1}^{m}(\sigma_{\Theta}(x^{(i)}) - y^{(i)})^2~x_j^{(i)}$$ {#eq:regression:eq15}
+
+Here $\sigma()$ denotes the sigmoid function.
+This simple solution benefits from the fact that the sigmoid function has a simple derivative: $\sigma^{'}~(x) = \sigma(x)~(1 - \sigma(x))$.
+
+With this derivative form at hand, the rest is similar to what we have done with linear regression: follow [@eq:regression:eq03] and repeat this gradient descent step until it converges.
+Besides, Owl also provides a `logistic` function in the `Regression` module.
+In the next section, we will show a example of binary categorisation with logistic regression.
 
 ### Example
 
-To perform the logistic regression, let's first prepare some data. We can generate this way:
+To perform the logistic regression, let's first prepare some data. We can generate the data with the code below:
 
 ```ocaml env=regression:logistic
 let generate_data () =
@@ -670,14 +672,18 @@ let generate_data () =
 let x, y = generate_data () 
 ```
 
-Basically this code creates two groups of random data with `gaussian`. 
+Basically this code creates two groups of random data with `gaussian` function. 
 Data `x` is of shape `[|1000; 2|]`, and is equally divided into to groups.
 The first group is at a higher position, and the corresponding `y` label is positive. The lower group of nodes are labelled as negative.
-Therefore, here we train a model: 
+Our task is to try to divide a given data point into one of these two categories.
 
-$$h(x_0, x_1) = \theta_0~x_0 + \theta_1~x_1 + \theta_2.$$
+With the `logistic` function, we train a model:
 
-We can get the parameters with:
+$$h_{\Theta}(x_0, x_1) = \sigma(\theta_0~x_0 + \theta_1~x_1 + \theta_2).$$
+
+In the linear model within the sigmoid function, we have two parameters $\theta_0$ and $\theta_1$ for the two variables that represent the two coordinates of a data point.
+The `logistic` functions takes an `i` argument. If set to `true`, the linear model contains an extra parameter $\theta_2$.
+Based on the data, we can get the parameters by simply executing:
 
 ```ocaml env=regression:logistic
 # let theta = 
@@ -695,10 +701,10 @@ R0 20.7909
 
 Therefore, the model we get is: 
 
-$$h(x_0, x_1) = 16~x_0 + 12~x_1 + 20.$$ {#eq:regression:logistic_result}
+$$h(x_0, x_1) = \sigma~(16~x_0 + 12~x_1 + 20).$$ {#eq:regression:logistic_result}
 
 We can validate this model by comparing the inference result with the true label `y`. 
-Of course, a more suitable approach is to use a new set of test data set. 
+Here any prediction value larger than 0.5 produced by the model is deemed as positive, otherwise it's negative. 
 
 ```ocaml env=regression:logistic
 let test_log x y =
@@ -716,12 +722,15 @@ accuracy: 0.9910
 - : unit = ()
 ```
 
+The result shows that, the trained model has more than 99% prediction accuracy when applied on the original dataset. Of course, a more suitable approach is to use a new set of test data set. 
+
 **Decision Boundary**
 
-The physical meaning of classification is to draw a decision boundary in a hyperplane. 
-For example, if we are using a linear model $h$ within the logistic function, the linear model itself divide the points into two halves in the plane.
+As we have said, the physical meaning of classification is to draw a *decision boundary* in a hyperplane to divide different groups of data points. 
+For example, if we are using a linear model $h$ within the sigmoid function, the linear model itself divide the points into two halves in the plane.
 Use [@eq:regression:logistic_result] as an example, any $x_0$, $x_1$ that makes the $h(x_0, x_1) > 0$ is taken as positive, otherwise it's negative.
 Therefore, the boundary line we need to draw is: $16~x_0 + 12~x_1 + 20 = 0$, or  $x_1 = -(4x_0 + 5)/3$.
+We can visualise this decision boundary on a 2D-plane and how it divides the two groups of data.
 
 ```ocaml env=regression:logistic
 open Owl
@@ -749,12 +758,15 @@ let plot_logistic data =
 
 The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model.
 The result is shown in [@fig:regression:logistic].
+There are some wrong categorisation, but you can see that this model works well for most the data points.
 
 ![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
 
+Of course, we can use more than linear model within the sigmoid function.
+for example, we can use to set the model as $h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)$.
 If we use a non-linear polynomial model, then the plane is divided by curve lines. 
-Suppose $h(x) = \theta_0 + \theta_1~x + \theta_2~x^2$.
-According to the property of sigmoid function, "y=1 if g(h(x)) > 0.5" equals to "y=1 if h(x)>0", and thus the classification is divided by a circle.
+
+TODO: or explain kernel here.
 
 Logistic regression uses the linear model as kernel.
 If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
