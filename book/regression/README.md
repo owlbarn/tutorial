@@ -1,5 +1,7 @@
 # Regression
 
+TODO: unify notation
+
 Regression is an important topic in statistical modelling and machine learning. 
 It's about modelling problems which include one or more variables (also called "features" or "predictors") and making predictions of another variable ("output variable") based on previous data of predictors. 
 Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields.
@@ -787,18 +789,60 @@ We can also use the generalised version of GD as before, or directly apply GD me
 
 ## Support Vector Machine
 
-Support Vector Machine (SVM) is a similar model to logistic regression, but uses non-linear kernel functions. 
-(TODO: explain kernel).
-
 SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. 
 Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. 
 An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)
 
-Explain the history and basic idea about SVM. 
-SVM is an important topic; explain it well.
+SVM: what it does. Powerful. Widely used in industry and academia. Learn non-linear model.
+
+The intuition: find the widest possible gap.
+
+IMAGE: two group of points with three lines. Explain.
+
+Similar to Logistic Regression: Optimisation Object:
+
+cost($\theta$x)
+
+The cost is simplification of log in logistic regression.
+
+IMAGE
+
+By minimising this object function, we find theta so that... (physical meaning)
+
+The hypothesis is that if $\theta$x > 0 then y=1.
+
+The intuition behind is that the projection of all the samples on $\theta$ vector to be large.
+Keeps a large margin.
 
 
-Owl provides support for linear kernel SVM. 
+What if there is non-linear boundary?
+We can have ..., but that's not good enough.
+
+One possible way is to choose $k$ new points, and use the distance $d$ to these points as feature:
+
+Equation.
+
+One common way is to use the gaussian function as measurement of distance: equation.
+Here the feature is 1 if .... is 0 if ....
+
+By finding the suitable parameters, we are able to locate the region. 
+For example, we choose three locations, and if we set parameter to xxx, then we have:
+
+IMAGE
+
+Here the high places and low places are in different group.
+
+In practice, there are often more than one location. Actually during training it is common to choose all the input points as locations.
+
+Here the similarity function is the *Kernel Function*. 
+With kernel, now the object function looks like:
+
+$\theta~f$
+
+There could be other kernel of course: ...  If we use the previous linear model, it is called no kernel/linear kernel.
+
+Libsvm; the support in Matlab/Python. 
+Owl provides support for linear kernel SVM (initial).
 Let's look at an example.
 Here we apply SVM to another randomly generated dataset in the similar way.
 The only difference is that previous we have label `0` and `1`, but now we have label `1` and `-1`.
@@ -821,16 +865,16 @@ That means a boundary line is given by:
 
 $$y = -(-0.43x + 5.7) / (-0.92).$$
 
-Explain how this model comes about.
+Explain how this model comes about from the previous cost function.
 
 Similar to the logistic example, the data and boundary line can be visualised as [@fig:regression:svm].
 
 ![Visualise the SVM dataset](images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
 
-**TODO:** 
-1) validate the implementation of current linear SVM; 
-2) implement gaussian kernel SVM; refer to ML004;
-3) apply gaussian svm on existing circle dataset.
+The difference between SVM and linear regression.
+
+TODO:
+validate the implementation of current linear SVM
 
 ## Model error and selection
 
