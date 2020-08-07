@@ -799,13 +799,17 @@ The intuition: find the widest possible gap.
 
 IMAGE: two group of points with three lines. Explain.
 
-Similar to Logistic Regression: Optimisation Object:
 
-cost($\theta$x)
+Again, let's start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in [@eq:regression:logistic_cost_large], with some simplification:
 
-The cost is simplification of log in logistic regression.
+$$J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)}))$$ {#eq:regression:svm_cost}
 
-IMAGE
+Here function $g_0()$ and $g_1()$ are simplification of the logarithm function:
+
+![Simplifying the cost function of logistic regression](images/regression/svm_cost.png "svm_cost"){width=100% #fig:regression:svm_cost}
+
+Here $f_0(x) = -\log(\sigma(x))$ is what used in the cost function of regression, and the complex logarithm computing is replaced with $g_0(x)$, a simple segmented function. 
+Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$. 
 
 By minimising this object function, we find theta so that... (physical meaning)
 

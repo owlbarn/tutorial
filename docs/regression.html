@@ -587,10 +587,13 @@ let plot_logistic data =
 <p>SVM: what it does. Powerful. Widely used in industry and academia. Learn non-linear model.</p>
 <p>The intuition: find the widest possible gap.</p>
 <p>IMAGE: two group of points with three lines. Explain.</p>
-<p>Similar to Logistic Regression: Optimisation Object:</p>
-<p>cost(<span class="math inline">\(\theta\)</span>x)</p>
-<p>The cost is simplification of log in logistic regression.</p>
-<p>IMAGE</p>
+<p>Again, let’s start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in eq.&nbsp;20, with some simplification:</p>
+<p><span id="eq:regression:svm_cost"><span class="math display">\[J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)}))\qquad(23)\]</span></span></p>
+<p>Here function <span class="math inline">\(g_0()\)</span> and <span class="math inline">\(g_1()\)</span> are simplification of the logarithm function:</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:regression:svm_cost" title="svm_cost" src="images/regression/svm_cost.png"><figcaption>Figure 13: Simplifying the cost function of logistic regression</figcaption>
+</figure>
+<p>Here <span class="math inline">\(f_0(x) = -\log(\sigma(x))\)</span> is what used in the cost function of regression, and the complex logarithm computing is replaced with <span class="math inline">\(g_0(x)\)</span>, a simple segmented function. Similarly, <span class="math inline">\(f_1(x) = -\log(1-\sigma(x))\)</span> is replaced by <span class="math inline">\(g_1(x)\)</span>.</p>
 <p>By minimising this object function, we find theta so that… (physical meaning)</p>
 <p>The hypothesis is that if <span class="math inline">\(\theta\)</span>x &gt; 0 then y=1.</p>
 <p>The intuition behind is that the projection of all the samples on <span class="math inline">\(\theta\)</span> vector to be large. Keeps a large margin.</p>
@@ -621,9 +624,9 @@ R0 5.7011
 <p>That means a boundary line is given by:</p>
 <p><span class="math display">\[y = -(-0.43x + 5.7) / (-0.92).\]</span></p>
 <p>Explain how this model comes about from the previous cost function.</p>
-<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;13.</p>
+<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;14.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 13: Visualise the SVM dataset</figcaption>
+<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 14: Visualise the SVM dataset</figcaption>
 </figure>
 <p>The difference between SVM and linear regression.</p>
 <p>TODO: validate the implementation of current linear SVM</p>
