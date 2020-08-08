@@ -587,16 +587,16 @@ let plot_logistic data =
 <p>SVM: what it does. Powerful. Widely used in industry and academia. Learn non-linear model.</p>
 <p>The intuition: find the widest possible gap.</p>
 <p>IMAGE: two group of points with three lines. Explain.</p>
-<p>Again, let’s start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in eq.&nbsp;20, with some simplification:</p>
-<p><span id="eq:regression:svm_cost"><span class="math display">\[J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)}))\qquad(23)\]</span></span></p>
+<p>Again, let’s start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in eq.&nbsp;20, with some modifications:</p>
+<p><span id="eq:regression:svm_cost"><span class="math display">\[J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2\qquad(23)\]</span></span></p>
 <p>Here function <span class="math inline">\(g_0()\)</span> and <span class="math inline">\(g_1()\)</span> are simplification of the logarithm function:</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:svm_cost" title="svm_cost" src="images/regression/svm_cost.png"><figcaption>Figure 13: Simplifying the cost function of logistic regression</figcaption>
 </figure>
 <p>Here <span class="math inline">\(f_0(x) = -\log(\sigma(x))\)</span> is what used in the cost function of regression, and the complex logarithm computing is replaced with <span class="math inline">\(g_0(x)\)</span>, a simple segmented function. Similarly, <span class="math inline">\(f_1(x) = -\log(1-\sigma(x))\)</span> is replaced by <span class="math inline">\(g_1(x)\)</span>.</p>
-<p>By minimising this object function, we find theta so that… (physical meaning)</p>
-<p>The hypothesis is that if <span class="math inline">\(\theta\)</span>x &gt; 0 then y=1.</p>
-<p>The intuition behind is that the projection of all the samples on <span class="math inline">\(\theta\)</span> vector to be large. Keeps a large margin.</p>
+<p>Also, the other difference is that a regularisation item is added to the cost function in eq.&nbsp;23. Therefore, considering the properties of <span class="math inline">\(g_0(x)\)</span> and <span class="math inline">\(g_1(x)\)</span>, by minimising this function, we are actually seeking parameters set <span class="math inline">\(\theta\)</span> to minimise <span class="math inline">\(\sum_{j=1}^{m}\theta_j^2\)</span>, with the limitation that <span class="math inline">\(\theta^Tx &gt; 1\)</span> when <span class="math inline">\(y=1\)</span>, or <span class="math inline">\(\theta^Tx &lt; -1\)</span> when <span class="math inline">\(y=0\)</span>.</p>
+<p>It turns out that, by solving this optimisation problem, we get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in Fig. XXX. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
+<p>IMAGE</p>
 <p>What if there is non-linear boundary? We can have …, but that’s not good enough.</p>
 <p>One possible way is to choose <span class="math inline">\(k\)</span> new points, and use the distance <span class="math inline">\(d\)</span> to these points as feature:</p>
 <p>Equation.</p>

@@ -800,9 +800,9 @@ The intuition: find the widest possible gap.
 IMAGE: two group of points with three lines. Explain.
 
 
-Again, let's start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in [@eq:regression:logistic_cost_large], with some simplification:
+Again, let's start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in [@eq:regression:logistic_cost_large], with some modifications:
 
-$$J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)}))$$ {#eq:regression:svm_cost}
+$$J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2$$ {#eq:regression:svm_cost}
 
 Here function $g_0()$ and $g_1()$ are simplification of the logarithm function:
 
@@ -811,13 +811,18 @@ Here function $g_0()$ and $g_1()$ are simplification of the logarithm function:
 Here $f_0(x) = -\log(\sigma(x))$ is what used in the cost function of regression, and the complex logarithm computing is replaced with $g_0(x)$, a simple segmented function. 
 Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$. 
 
-By minimising this object function, we find theta so that... (physical meaning)
+Also, the other difference is that a regularisation item is added to the cost function in [@eq:regression:svm_cost].
+Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising this function, we are actually seeking parameters set $\theta$ to minimise $\sum_{j=1}^{m}\theta_j^2$, with the limitation that $\theta^Tx > 1$ when $y=1$, or $\theta^Tx < -1$ when $y=0$.
 
-The hypothesis is that if $\theta$x > 0 then y=1.
+It turns out that, by solving this optimisation problem, we get a *large margin* between different categories of data points.
+(TODO: Explain the math?)
+One example is shown in Fig. XXX.
+It shows two possible decision boundaries, both can effectively divide the two groups of training data.
+But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the *margin* of the SVM.
+As to the inference phase, any data $x$ that makes $\theta^T~x > 0$ is deeded positive, i.e. $y=1$, or negative if $\theta^T~x < 0$.
+It is intuitive to see that a model with larger margin tends to predict the test data better. 
 
-The intuition behind is that the projection of all the samples on $\theta$ vector to be large.
-Keeps a large margin.
-
+IMAGE
 
 What if there is non-linear boundary?
 We can have ..., but that's not good enough.
