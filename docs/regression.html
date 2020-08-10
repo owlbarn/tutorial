@@ -595,8 +595,10 @@ let plot_logistic data =
 </figure>
 <p>Here <span class="math inline">\(f_0(x) = -\log(\sigma(x))\)</span> is what used in the cost function of regression, and the complex logarithm computing is replaced with <span class="math inline">\(g_0(x)\)</span>, a simple segmented function. Similarly, <span class="math inline">\(f_1(x) = -\log(1-\sigma(x))\)</span> is replaced by <span class="math inline">\(g_1(x)\)</span>.</p>
 <p>Also, the other difference is that a regularisation item is added to the cost function in eq.&nbsp;23. Therefore, considering the properties of <span class="math inline">\(g_0(x)\)</span> and <span class="math inline">\(g_1(x)\)</span>, by minimising this function, we are actually seeking parameters set <span class="math inline">\(\theta\)</span> to minimise <span class="math inline">\(\sum_{j=1}^{m}\theta_j^2\)</span>, with the limitation that <span class="math inline">\(\theta^Tx &gt; 1\)</span> when <span class="math inline">\(y=1\)</span>, or <span class="math inline">\(\theta^Tx &lt; -1\)</span> when <span class="math inline">\(y=0\)</span>.</p>
-<p>It turns out that, by solving this optimisation problem, we get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in Fig. XXX. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
-<p>IMAGE</p>
+<figure>
+<img alt="" style="width:60.0%" id="fig:regression:svm_margin" title="svm_margin" src="images/regression/svm_margin.png"><figcaption>Figure 14: Margins in the Supported Vector Machines</figcaption>
+</figure>
+<p>It turns out that, by solving this optimisation problem, we get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in fig.&nbsp;14. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
 <p>What if there is non-linear boundary? We can have …, but that’s not good enough.</p>
 <p>One possible way is to choose <span class="math inline">\(k\)</span> new points, and use the distance <span class="math inline">\(d\)</span> to these points as feature:</p>
 <p>Equation.</p>
@@ -624,9 +626,9 @@ R0 5.7011
 <p>That means a boundary line is given by:</p>
 <p><span class="math display">\[y = -(-0.43x + 5.7) / (-0.92).\]</span></p>
 <p>Explain how this model comes about from the previous cost function.</p>
-<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;14.</p>
+<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;15.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 14: Visualise the SVM dataset</figcaption>
+<img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 15: Visualise the SVM dataset</figcaption>
 </figure>
 <p>The difference between SVM and linear regression.</p>
 <p>TODO: validate the implementation of current linear SVM</p>

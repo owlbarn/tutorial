@@ -814,15 +814,16 @@ Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$.
 Also, the other difference is that a regularisation item is added to the cost function in [@eq:regression:svm_cost].
 Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising this function, we are actually seeking parameters set $\theta$ to minimise $\sum_{j=1}^{m}\theta_j^2$, with the limitation that $\theta^Tx > 1$ when $y=1$, or $\theta^Tx < -1$ when $y=0$.
 
+![Margins in the Supported Vector Machines](images/regression/svm_margin.png "svm_margin"){width=50% #fig:regression:svm_margin}
+
 It turns out that, by solving this optimisation problem, we get a *large margin* between different categories of data points.
 (TODO: Explain the math?)
-One example is shown in Fig. XXX.
+One example is shown in [@fig:regression:svm_margin].
 It shows two possible decision boundaries, both can effectively divide the two groups of training data.
 But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the *margin* of the SVM.
 As to the inference phase, any data $x$ that makes $\theta^T~x > 0$ is deeded positive, i.e. $y=1$, or negative if $\theta^T~x < 0$.
 It is intuitive to see that a model with larger margin tends to predict the test data better. 
 
-IMAGE
 
 What if there is non-linear boundary?
 We can have ..., but that's not good enough.
