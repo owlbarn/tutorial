@@ -824,21 +824,38 @@ But the blue boundary has a larger distance towards the positive and negative tr
 As to the inference phase, any data $x$ that makes $\theta^T~x > 0$ is deeded positive, i.e. $y=1$, or negative if $\theta^T~x < 0$.
 It is intuitive to see that a model with larger margin tends to predict the test data better. 
 
+### Kernel and Nonlinear Boundary
 
-What if there is non-linear boundary?
-We can have ..., but that's not good enough.
+So far we have talked about the linear boundary, but that's surely not the limit of SVM. 
+In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space. 
+To do that, we can simply update the linear part $\theta^Tx$ in the cost function to make it a non-linear function, e.g.:
 
-One possible way is to choose $k$ new points, and use the distance $d$ to these points as feature:
+$$f_{\theta}(\boldsymbol{x}) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \theta_3x_1x_2 + \theta_4x_1^2 + \theta_5x_2^2 + \ldots$$ {#eq:regression:svm_kernel_1}
 
-Equation.
+This function and the linear function  $\theta^Tx$ are both examples of a *Kernel Function*, which are to be used within $g()$ in the cost function.
+With the trained parameters $\theta$, if [@eq:regression:svm_kernel_1] is larger than zero, then the inference result is positive, otherwise it's negative. 
+However, this model is apparently not scalable with regard to the number of features of the input. 
 
-One common way is to use the gaussian function as measurement of distance: equation.
-Here the feature is 1 if .... is 0 if ....
+Currently, one common way to model this function is to choose $k$ reference points in the space, and use the *distances* to these points as feature. 
+In other words, for data $\boldsymbol{x}$ that contains any number of features, the kernel function is reduced to use a fixed $k$ features:
+
+$$\theta_0 + \sum_{i=1}^k\theta_i~d_i,$$ {#eq:regression:svm_kernel_2}
+
+where $d_i$ is the "distance" of the current point to the reference point $p_k$.
+In inference phase, if this kernel function is larger than zero, then the point is predicted to be positive, otherwise it is negative.
+
+So how exactly is this "distance"? There are many ways to do that, and one of the most used is the gaussian distance:
+
+$$d_i = \exp(-\frac{\sum_{j=1}^n(x_j - p_k^{(j)})}{2\sigma^2}).$$ {#eq:regression:svm_kernel_3}
+
+Here the total number of feature is $n$. $x_j$ is the $j$-th feature of $x$ and $p_k^{(j)}$ is the $j$-th feature of reference point $p_k$.
+
+The intuition.
 
 By finding the suitable parameters, we are able to locate the region. 
 For example, we choose three locations, and if we set parameter to xxx, then we have:
 
-IMAGE
+![Using the gaussian kernel to locate non-linear boundary in categorisation](images/regression/kernel.png "svm_kernel.png"){width=100% #fig:regression:svm_kernel}
 
 Here the high places and low places are in different group.
 
@@ -850,6 +867,8 @@ With kernel, now the object function looks like:
 $\theta~f$
 
 There could be other kernel of course: ...  If we use the previous linear model, it is called no kernel/linear kernel.
+
+### Example
 
 Libsvm; the support in Matlab/Python. 
 Owl provides support for linear kernel SVM (initial).

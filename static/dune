@@ -136,6 +136,7 @@
         images/optimisation/gradients2.png
         images/optimisation/plot_hump.png
         images/regression/boston.png
+        images/regression/kernel.png
         images/regression/mnist.png
         images/regression/normalisation.png
         images/regression/plot_00.png
