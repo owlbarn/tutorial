@@ -768,10 +768,8 @@ Of course, we can use more than linear model within the sigmoid function.
 for example, we can use to set the model as $h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)$.
 If we use a non-linear polynomial model, then the plane is divided by curve lines. 
 
-TODO: or explain kernel here.
-
-Logistic regression uses the linear model as kernel.
-If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels. 
+Logistic regression uses the linear model.
+If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear models. 
 
 ### Multi-class classification 
 
@@ -837,45 +835,45 @@ With the trained parameters $\theta$, if [@eq:regression:svm_kernel_1] is larger
 However, this model is apparently not scalable with regard to the number of features of the input. 
 
 Currently, one common way to model this function is to choose $k$ reference points in the space, and use the *distances* to these points as feature. 
-In other words, for data $\boldsymbol{x}$ that contains any number of features, the kernel function is reduced to use a fixed $k$ features:
+In other words, for data $\boldsymbol{x}$ that contains any number of features, the objective function is reduced to use a fixed $k$ features:
 
 $$\theta_0 + \sum_{i=1}^k\theta_i~d_i,$$ {#eq:regression:svm_kernel_2}
 
 where $d_i$ is the "distance" of the current point to the reference point $p_k$.
-In inference phase, if this kernel function is larger than zero, then the point is predicted to be positive, otherwise it is negative.
+In inference phase, if this function is larger than zero, then the point is predicted to be positive, otherwise it is negative.
 
-So how exactly is this "distance"? There are many ways to do that, and one of the most used is the gaussian distance:
+So how exactly is this "distance"? There are many ways to do that, and one of the most used is the gaussian distance, as shown in [@eq:regression:svm_kernel_3].
+Here the total number of feature is $n$. $x_j$ is the $j$-th feature of $x$ and $p_k^{(j)}$ is the $j$-th feature of reference point $p_k$.
 
 $$d_i = \exp(-\frac{\sum_{j=1}^n(x_j - p_k^{(j)})}{2\sigma^2}).$$ {#eq:regression:svm_kernel_3}
 
-Here the total number of feature is $n$. $x_j$ is the $j$-th feature of $x$ and $p_k^{(j)}$ is the $j$-th feature of reference point $p_k$.
-
-The intuition.
-
-By finding the suitable parameters, we are able to locate the region. 
-For example, we choose three locations, and if we set parameter to xxx, then we have:
+The intuition is that, with suitable trained parameters $\theta$, this approach can represent different regions in the classification. 
+For example, in [@fig:regression:svm_kernel] we choose only three reference points: $p_0$, $p_1$, and $p_2$.
+In this example, we set the parameters for $p_1$ and $p_3$ to be larger than that of $p_2$.
+The figure left shows the summation of distances of a point to all three of them.
+The contour graph on the right then shows clearly how this model lead to a prediction that's obviously large around a region that's close to the point $p_1$ and $p_3$.
+That's the boundary we use to decide if a point is positive (close to $p_1$ or $p_3$) or negative.
+You can imagine how this non-linear boundary can be changed with new parameters.
 
 ![Using the gaussian kernel to locate non-linear boundary in categorisation](images/regression/kernel.png "svm_kernel.png"){width=100% #fig:regression:svm_kernel}
 
-Here the high places and low places are in different group.
+In practice, only three reference points is normally not enough to support a complex non-linear boundary. 
+In fact, one common practice is to use all the training data, each as one point, as the reference points.
 
-In practice, there are often more than one location. Actually during training it is common to choose all the input points as locations.
-
-Here the similarity function is the *Kernel Function*. 
-With kernel, now the object function looks like:
-
-$\theta~f$
-
-There could be other kernel of course: ...  If we use the previous linear model, it is called no kernel/linear kernel.
+In this example, the distance function $d_i$ is called the *Kernel Function*.
+The Gaussian kernel we have just used is a commonly used one, but other kernel functions can also be used in [@eq:regression:svm_kernel_2], such as the polynomial kernel, the Laplacian kernel, etc.
+The previous linear model $\theta^T~x$ is called the linear kernel, or "no kernel" as is sometimes called. 
 
 ### Example
 
-Libsvm; the support in Matlab/Python. 
-Owl provides support for linear kernel SVM (initial).
+The SVM is a very important and widely used machine learning method, and that is accompanied by highly efficient implementation in libraries.
+For example, the [Libsvm](https://www.csie.ntu.edu.tw/~cjlin/libsvm/) is a open source library that devotes solely to SVMs.
+It is widely interfaced to many languages such as Matlab and Python.
+
+Using its optimisation engine, Owl provides initial support for SVM using linear kernel.
 Let's look at an example.
 Here we apply SVM to another randomly generated dataset in the similar way.
 The only difference is that previous we have label `0` and `1`, but now we have label `1` and `-1`.
-
 After applying `Regression.D.svm ~i:true x y`, for a certain data we get, the result we get is:
 
 ```
@@ -890,20 +888,13 @@ R0 5.7011
 |]
 ```
 
-That means a boundary line is given by:
-
-$$y = -(-0.43x + 5.7) / (-0.92).$$
-
-Explain how this model comes about from the previous cost function.
-
-Similar to the logistic example, the data and boundary line can be visualised as [@fig:regression:svm].
+That means the hypothesis function $\theta^Tx$ we have is: $f(x)=5.7-0.43x_1-0.92x_2$.
+If $f(x)>0$, the categorisation result is positive, otherwise it's negative.
+We can visualise this boundary line by setting $f(x)=0$, as shown in [@fig:regression:svm]. Here the `y` axis is $x_2$, and `x` axis is $x_1$.  
 
 ![Visualise the SVM dataset](images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
 
 The difference between SVM and linear regression.
-
-TODO:
-validate the implementation of current linear SVM
 
 ## Model error and selection
 

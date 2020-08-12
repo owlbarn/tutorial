@@ -570,8 +570,7 @@ let plot_logistic data =
 <img alt="" style="width:60.0%" id="fig:regression:logistic" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 12: Visualise the logistic regression dataset</figcaption>
 </figure>
 <p>Of course, we can use more than linear model within the sigmoid function. for example, we can use to set the model as <span class="math inline">\(h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)\)</span>. If we use a non-linear polynomial model, then the plane is divided by curve lines.</p>
-<p>TODO: or explain kernel here.</p>
-<p>Logistic regression uses the linear model as kernel. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear kernels.</p>
+<p>Logistic regression uses the linear model. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear models.</p>
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
@@ -604,27 +603,22 @@ let plot_logistic data =
 <p>So far we have talked about the linear boundary, but that’s surely not the limit of SVM. In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space. To do that, we can simply update the linear part <span class="math inline">\(\theta^Tx\)</span> in the cost function to make it a non-linear function, e.g.:</p>
 <p><span id="eq:regression:svm_kernel_1"><span class="math display">\[f_{\theta}(\boldsymbol{x}) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \theta_3x_1x_2 + \theta_4x_1^2 + \theta_5x_2^2 + \ldots\qquad(24)\]</span></span></p>
 <p>This function and the linear function <span class="math inline">\(\theta^Tx\)</span> are both examples of a <em>Kernel Function</em>, which are to be used within <span class="math inline">\(g()\)</span> in the cost function. With the trained parameters <span class="math inline">\(\theta\)</span>, if eq.&nbsp;24 is larger than zero, then the inference result is positive, otherwise it’s negative. However, this model is apparently not scalable with regard to the number of features of the input.</p>
-<p>Currently, one common way to model this function is to choose <span class="math inline">\(k\)</span> reference points in the space, and use the <em>distances</em> to these points as feature. In other words, for data <span class="math inline">\(\boldsymbol{x}\)</span> that contains any number of features, the kernel function is reduced to use a fixed <span class="math inline">\(k\)</span> features:</p>
+<p>Currently, one common way to model this function is to choose <span class="math inline">\(k\)</span> reference points in the space, and use the <em>distances</em> to these points as feature. In other words, for data <span class="math inline">\(\boldsymbol{x}\)</span> that contains any number of features, the objective function is reduced to use a fixed <span class="math inline">\(k\)</span> features:</p>
 <p><span id="eq:regression:svm_kernel_2"><span class="math display">\[\theta_0 + \sum_{i=1}^k\theta_i~d_i,\qquad(25)\]</span></span></p>
-<p>where <span class="math inline">\(d_i\)</span> is the “distance” of the current point to the reference point <span class="math inline">\(p_k\)</span>. In inference phase, if this kernel function is larger than zero, then the point is predicted to be positive, otherwise it is negative.</p>
-<p>So how exactly is this “distance”? There are many ways to do that, and one of the most used is the gaussian distance:</p>
+<p>where <span class="math inline">\(d_i\)</span> is the “distance” of the current point to the reference point <span class="math inline">\(p_k\)</span>. In inference phase, if this function is larger than zero, then the point is predicted to be positive, otherwise it is negative.</p>
+<p>So how exactly is this “distance”? There are many ways to do that, and one of the most used is the gaussian distance, as shown in eq.&nbsp;26. Here the total number of feature is <span class="math inline">\(n\)</span>. <span class="math inline">\(x_j\)</span> is the <span class="math inline">\(j\)</span>-th feature of <span class="math inline">\(x\)</span> and <span class="math inline">\(p_k^{(j)}\)</span> is the <span class="math inline">\(j\)</span>-th feature of reference point <span class="math inline">\(p_k\)</span>.</p>
 <p><span id="eq:regression:svm_kernel_3"><span class="math display">\[d_i = \exp(-\frac{\sum_{j=1}^n(x_j - p_k^{(j)})}{2\sigma^2}).\qquad(26)\]</span></span></p>
-<p>Here the total number of feature is <span class="math inline">\(n\)</span>. <span class="math inline">\(x_j\)</span> is the <span class="math inline">\(j\)</span>-th feature of <span class="math inline">\(x\)</span> and <span class="math inline">\(p_k^{(j)}\)</span> is the <span class="math inline">\(j\)</span>-th feature of reference point <span class="math inline">\(p_k\)</span>.</p>
-<p>The intuition.</p>
-<p>By finding the suitable parameters, we are able to locate the region. For example, we choose three locations, and if we set parameter to xxx, then we have:</p>
+<p>The intuition is that, with suitable trained parameters <span class="math inline">\(\theta\)</span>, this approach can represent different regions in the classification. For example, in fig.&nbsp;15 we choose only three reference points: <span class="math inline">\(p_0\)</span>, <span class="math inline">\(p_1\)</span>, and <span class="math inline">\(p_2\)</span>. In this example, we set the parameters for <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_3\)</span> to be larger than that of <span class="math inline">\(p_2\)</span>. The figure left shows the summation of distances of a point to all three of them. The contour graph on the right then shows clearly how this model lead to a prediction that’s obviously large around a region that’s close to the point <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_3\)</span>. That’s the boundary we use to decide if a point is positive (close to <span class="math inline">\(p_1\)</span> or <span class="math inline">\(p_3\)</span>) or negative. You can imagine how this non-linear boundary can be changed with new parameters.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:svm_kernel" title="svm_kernel.png" src="images/regression/kernel.png"><figcaption>Figure 15: Using the gaussian kernel to locate non-linear boundary in categorisation</figcaption>
 </figure>
-<p>Here the high places and low places are in different group.</p>
-<p>In practice, there are often more than one location. Actually during training it is common to choose all the input points as locations.</p>
-<p>Here the similarity function is the <em>Kernel Function</em>. With kernel, now the object function looks like:</p>
-<p><span class="math inline">\(\theta~f\)</span></p>
-<p>There could be other kernel of course: … If we use the previous linear model, it is called no kernel/linear kernel.</p>
+<p>In practice, only three reference points is normally not enough to support a complex non-linear boundary. In fact, one common practice is to use all the training data, each as one point, as the reference points.</p>
+<p>In this example, the distance function <span class="math inline">\(d_i\)</span> is called the <em>Kernel Function</em>. The Gaussian kernel we have just used is a commonly used one, but other kernel functions can also be used in eq.&nbsp;25, such as the polynomial kernel, the Laplacian kernel, etc. The previous linear model <span class="math inline">\(\theta^T~x\)</span> is called the linear kernel, or “no kernel” as is sometimes called.</p>
 </section>
 <section class="level3" id="example-1">
 <h3>Example</h3>
-<p>Libsvm; the support in Matlab/Python. Owl provides support for linear kernel SVM (initial). Let’s look at an example. Here we apply SVM to another randomly generated dataset in the similar way. The only difference is that previous we have label <code>0</code> and <code>1</code>, but now we have label <code>1</code> and <code>-1</code>.</p>
-<p>After applying <code>Regression.D.svm ~i:true x y</code>, for a certain data we get, the result we get is:</p>
+<p>The SVM is a very important and widely used machine learning method, and that is accompanied by highly efficient implementation in libraries. For example, the <a href="https://www.csie.ntu.edu.tw/~cjlin/libsvm/">Libsvm</a> is a open source library that devotes solely to SVMs. It is widely interfaced to many languages such as Matlab and Python.</p>
+<p>Using its optimisation engine, Owl provides initial support for SVM using linear kernel. Let’s look at an example. Here we apply SVM to another randomly generated dataset in the similar way. The only difference is that previous we have label <code>0</code> and <code>1</code>, but now we have label <code>1</code> and <code>-1</code>. After applying <code>Regression.D.svm ~i:true x y</code>, for a certain data we get, the result we get is:</p>
 <div class="highlight">
 <pre><code class="language-clike">val theta : Owl_algodiff_primal_ops.D.arr array =
 [|
@@ -636,15 +630,11 @@ R1 -0.922763
 R0 5.7011
 |]</code></pre>
 </div>
-<p>That means a boundary line is given by:</p>
-<p><span class="math display">\[y = -(-0.43x + 5.7) / (-0.92).\]</span></p>
-<p>Explain how this model comes about from the previous cost function.</p>
-<p>Similar to the logistic example, the data and boundary line can be visualised as fig.&nbsp;16.</p>
+<p>That means the hypothesis function <span class="math inline">\(\theta^Tx\)</span> we have is: <span class="math inline">\(f(x)=5.7-0.43x_1-0.92x_2\)</span>. If <span class="math inline">\(f(x)&gt;0\)</span>, the categorisation result is positive, otherwise it’s negative. We can visualise this boundary line by setting <span class="math inline">\(f(x)=0\)</span>, as shown in fig.&nbsp;16. Here the <code>y</code> axis is <span class="math inline">\(x_2\)</span>, and <code>x</code> axis is <span class="math inline">\(x_1\)</span>.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 16: Visualise the SVM dataset</figcaption>
 </figure>
 <p>The difference between SVM and linear regression.</p>
-<p>TODO: validate the implementation of current linear SVM</p>
 </section>
 </section>
 <section class="level2" id="model-error-and-selection">
