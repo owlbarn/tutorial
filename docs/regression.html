@@ -582,10 +582,8 @@ let plot_logistic data =
 </section>
 <section class="level2" id="support-vector-machine">
 <h2>Support Vector Machine</h2>
-<p>SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)</p>
-<p>SVM: what it does. Powerful. Widely used in industry and academia. Learn non-linear model.</p>
-<p>The intuition: find the widest possible gap.</p>
-<p>IMAGE: two group of points with three lines. Explain.</p>
+<p>The <em>Support Vector Machines</em> (SVMs) are a group of supervised learning algorithms that can be used for classification and regression tasks. The SVM is one of the most powerful and widely used Machine Learning methods in both academia and industry. It is used in solve real-world problems in various fields, including the classification of text, image, satellite data, protein data, etc.</p>
+<p>Similar to logistic regression, the SVM creates a hyperplane (decision boundary) that separates data into classes. However, it tries to maximise the “margin” between the hyperplane and the boundary points of both classes in the data. By use the “kernels”, the SVM can also fit non-linear boundaries. Besides, the SVM works well with unstructured and semi-structured data such as text and images, with less risk of over-fitting. In this section, we will introduce the basic idea behind SVM and how it works in example.</p>
 <p>Again, let’s start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in eq.&nbsp;20, with some modifications:</p>
 <p><span id="eq:regression:svm_cost"><span class="math display">\[J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2\qquad(23)\]</span></span></p>
 <p>Here function <span class="math inline">\(g_0()\)</span> and <span class="math inline">\(g_1()\)</span> are simplification of the logarithm function:</p>
@@ -597,9 +595,9 @@ let plot_logistic data =
 <figure>
 <img alt="" style="width:50.0%" id="fig:regression:svm_margin" title="svm_margin" src="images/regression/svm_margin.png"><figcaption>Figure 14: Margins in the Supported Vector Machines</figcaption>
 </figure>
-<p>It turns out that, by solving this optimisation problem, we get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in fig.&nbsp;14. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
-<section class="level3" id="kernel-and-nonlinear-boundary">
-<h3>Kernel and Nonlinear Boundary</h3>
+<p>It turns out that, by solving this optimisation problem, SVM tends to get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in fig.&nbsp;14. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
+<section class="level3" id="kernel-and-non-linear-boundary">
+<h3>Kernel and Non-linear Boundary</h3>
 <p>So far we have talked about the linear boundary, but that’s surely not the limit of SVM. In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space. To do that, we can simply update the linear part <span class="math inline">\(\theta^Tx\)</span> in the cost function to make it a non-linear function, e.g.:</p>
 <p><span id="eq:regression:svm_kernel_1"><span class="math display">\[f_{\theta}(\boldsymbol{x}) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \theta_3x_1x_2 + \theta_4x_1^2 + \theta_5x_2^2 + \ldots\qquad(24)\]</span></span></p>
 <p>This function and the linear function <span class="math inline">\(\theta^Tx\)</span> are both examples of a <em>Kernel Function</em>, which are to be used within <span class="math inline">\(g()\)</span> in the cost function. With the trained parameters <span class="math inline">\(\theta\)</span>, if eq.&nbsp;24 is larger than zero, then the inference result is positive, otherwise it’s negative. However, this model is apparently not scalable with regard to the number of features of the input.</p>
@@ -634,7 +632,6 @@ R0 5.7011
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:svm" title="logistic" src="images/regression/reg_svm.png"><figcaption>Figure 16: Visualise the SVM dataset</figcaption>
 </figure>
-<p>The difference between SVM and linear regression.</p>
 </section>
 </section>
 <section class="level2" id="model-error-and-selection">
@@ -666,6 +663,7 @@ R0 5.7011
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
+<p>This chapter introduces different techniques of regression. It starts with the most basic linear regression with one variant, then extends it multiple variants. We introduced the basic idea of linear regression, its theoretical support, and shows how it is supported in Owl with examples. Furthermore, we extend it to more complex regressions with non-linear models, such as the polynomial regression. Unlike linear regression, the logistic regression model categorises data into different groups by finding out a decision boundary. With a bit of change in its cost function, we venture to introduce a type of advanced machine learning techniques, the Support Vector Machines. They can be used for both linear and non-linear decision boundary by using different kernel functions. We have also talked about related issues, such as the regularisation, model error and selection.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>

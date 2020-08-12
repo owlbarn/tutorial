@@ -787,16 +787,14 @@ We can also use the generalised version of GD as before, or directly apply GD me
 
 ## Support Vector Machine
 
-SVMs are supervised learning models with associated learning algorithms that analyse data used for classification and regression analysis. 
-Given a set of training examples, each marked as belonging to one or the other of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier. 
-An SVM model is a representation of the examples as points in space, mapped so that the examples of the separate categories are divided by a clear gap that is as wide as possible. New examples are then mapped into that same space and predicted to belong to a category based on the side of the gap on which they fall. (COPY alert)
+The *Support Vector Machines* (SVMs) are a group of supervised learning algorithms that can be used for classification and regression tasks. 
+The SVM is one of the most powerful and widely used Machine Learning methods in both academia and industry. It is used in solve real-world problems in various fields, including the classification of text, image, satellite data, protein data, etc. 
 
-SVM: what it does. Powerful. Widely used in industry and academia. Learn non-linear model.
-
-The intuition: find the widest possible gap.
-
-IMAGE: two group of points with three lines. Explain.
-
+Similar to logistic regression, the SVM creates a hyperplane (decision boundary) that separates data into classes. 
+However, it tries to maximise the "margin" between the hyperplane and the boundary points of both classes in the data.
+By use the "kernels", the SVM can also fit non-linear boundaries.
+Besides, the SVM works well with unstructured and semi-structured data such as text and images, with less risk of over-fitting.
+In this section, we will introduce the basic idea behind SVM and how it works in example. 
 
 Again, let's start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in [@eq:regression:logistic_cost_large], with some modifications:
 
@@ -814,7 +812,7 @@ Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising th
 
 ![Margins in the Supported Vector Machines](images/regression/svm_margin.png "svm_margin"){width=50% #fig:regression:svm_margin}
 
-It turns out that, by solving this optimisation problem, we get a *large margin* between different categories of data points.
+It turns out that, by solving this optimisation problem, SVM tends to get a *large margin* between different categories of data points.
 (TODO: Explain the math?)
 One example is shown in [@fig:regression:svm_margin].
 It shows two possible decision boundaries, both can effectively divide the two groups of training data.
@@ -822,7 +820,7 @@ But the blue boundary has a larger distance towards the positive and negative tr
 As to the inference phase, any data $x$ that makes $\theta^T~x > 0$ is deeded positive, i.e. $y=1$, or negative if $\theta^T~x < 0$.
 It is intuitive to see that a model with larger margin tends to predict the test data better. 
 
-### Kernel and Nonlinear Boundary
+### Kernel and Non-linear Boundary
 
 So far we have talked about the linear boundary, but that's surely not the limit of SVM. 
 In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space. 
@@ -894,8 +892,6 @@ We can visualise this boundary line by setting $f(x)=0$, as shown in [@fig:regre
 
 ![Visualise the SVM dataset](images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
 
-The difference between SVM and linear regression.
-
 ## Model error and selection
 
 ### Error Metrics
@@ -957,6 +953,15 @@ To further dig into these statistical methods is beyond the scope of this book.
 We recommend specific textbooks such as [@james2013introduction].
 
 ## Summary
+
+This chapter introduces different techniques of regression. 
+It starts with the most basic linear regression with one variant, then extends it multiple variants.
+We introduced the basic idea of linear regression, its theoretical support, and shows how it is supported in Owl with examples.
+Furthermore, we extend it to more complex regressions with non-linear models, such as the polynomial regression.
+Unlike linear regression, the logistic regression model categorises data into different groups by finding out a decision boundary.
+With a bit of change in its cost function, we venture to introduce a type of advanced machine learning techniques, the Support Vector Machines.
+They can be used for both linear and non-linear decision boundary by using different kernel functions.
+We have also talked about related issues, such as the regularisation, model error and selection.
 
 ## References
 
