@@ -233,7 +233,7 @@ R  1  2  1 -1 1.5  1
 
 ```
 
-And then we change the length of signal to odd.
+(And then we change the length of signal to odd.)
 
 ```ocaml env=fft_env04
 # let a = [|1.; 2.; 1.; -1.; 1.5;|]
@@ -253,8 +253,6 @@ val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 
 ```
-
-Notice that the rfft of odd and even length signals are of the same shape. (?)
 
 **N-D Discrete Fourier transforms**
 

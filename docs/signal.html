@@ -189,7 +189,7 @@ let b = Arr.of_array a [|6|];;
 &gt;R  1  2  1 -1 1.5  1
 </code></pre>
 </div>
-<p>And then we change the length of signal to odd.</p>
+<p>(And then we change the length of signal to odd.)</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = [|1.; 2.; 1.; -1.; 1.5;|];;
 &gt;val a : float array = [|1.; 2.; 1.; -1.; 1.5|]
@@ -207,7 +207,6 @@ let b = Arr.of_array a [|5|];;
 &gt;R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
 </code></pre>
 </div>
-<p>Notice that the rfft of odd and even length signals are of the same shape. (?)</p>
 <p><strong>N-D Discrete Fourier transforms</strong></p>
 <p>( TODO: This is not the real N-D FFT. Verify it with SciPy examples. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )</p>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
