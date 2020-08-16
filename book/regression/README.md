@@ -436,26 +436,20 @@ We can then visualise the data to see the trend clearly.
 As [@fig:regression:boston] shows, the relationship basically follows a convex curve. 
 You can try to fit a line into these data, but it's quite likely that the result would not be very fitting. 
 And that requires us to use non-linear models. 
-In this section, we present two common non-linear regressions: the **polynomial regression**, and **exponential regression**. 
+In this section, we present a common non-linear regressions, the **polynomial regression**. 
 We shows how to use them with examples, without going into details of the math.
 
 In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an $n$-th degree polynomial in the feature $x$:
 
 $$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$ {#eq:regression:eq08}
 
-The model for exponential regression takes two parameters:
-
-$$ h(\theta_0, \theta_1) = \theta_0~\theta_1^x.$$ {#eq:regression:eq09}
-
-Owl provides functions to do both forms of regressions:
+Owl provides a function to perform this forms of regression:
 
 ```
-val exponential : ?i:bool -> arr -> arr -> elt * elt * elt
-
 val poly : arr -> arr -> int -> arr
 ```
 
-Let's look at how to use them in the code. 
+Let's look at how to use it in the code. 
 We use the `poly` function in the `Regression` module to get the model parameter. We limit the model to be 2nd order. 
 
 ```ocaml
@@ -485,10 +479,6 @@ $$f(x) = 42.8 - 2.3x + 0.04x^2 + \epsilon$$
 We can visualise this model to see how well it fits the data:
 
 ![Polynomial regression based on Boston housing dataset](images/regression/reg_poly.png "reg_poly"){width=60% #fig:regression:reg_poly.png}
-
-The code for exponential regression is similar. By applying the `exponential` function in the `Regression` module, we can get the parameters tuple `(a, b, e)`, and the model is then of the form $y = ae^{-bx} + \epsilon$.
-
-TODO: verify if it is *really* exponential regression we are talking about here; also if it is the problem of data or implementation itself that leads to the result. 
 
 ## [Regularisation](#regularisation)
 
@@ -631,7 +621,6 @@ Both forms of function $g()$ capture the same idea.
 Since the $h$ function is in the range [0, 1], the range of $g$ is [0, $\infty$].
 When the value of $h(x)$ and $y$ are close, then the item within the summation in [@eq:regression:logistic_cost] $g(h(x)) - y$ will be close to 0;
 on the other hand, if the prediction result $h(x)$ and $y$ are different, then $g(h(x)) - y$ will incur a large value to the cost function as penalty.
-(TODO: rephrase)
 
 The previous three equations can be combined as one:
 
