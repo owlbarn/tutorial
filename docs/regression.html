@@ -574,10 +574,8 @@ let plot_logistic data =
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
-<p>Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?</p>
-<p>One popular classification problem is the hand-written recognition task based on the <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN. For now, we solve that from the logistic regression line of thought. Similarly, we extend the cost function towards multi-class:</p>
-<p><span class="math display">\[J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h(x^{(i)})) - (1-y^{(i)})log(1-h(x^{(i)}))).\]</span></p>
-<p>We can also use the generalised version of GD as before, or directly apply GD method in Owl.</p>
+<p>We have seen how to classify objects into one of two classes using logistic regression. What if our target consists of multiple classes? For this problem, one approach is called <em>one-vs-all</em>. It’s basic idea is simple. Suppose we need to classify one object into three different classes; we can still use the logistic regression, but instead of one classifier, we train three binary classifiers, each one is about one class against the other two. In the prediction phase, using an object as input, each classifier yields a probability as output. We then choose the largest probability as the classification result.</p>
+<p>The multi-class classification problem is prevalent in the image recognition tasks, which often includes classifying one object in the image into of ten, hundred, or more different classes. For example, one popular classification problem is the hand-written recognition task based on the <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. It is a widely used ABC task for Neural Networks. We will discuss this example in detail later in the beginning of the Neural Network chapter. You will see how this logistic regression line of thought is extended, and how the real-world multi-class classification problems are solved using neural networks.</p>
 </section>
 </section>
 <section class="level2" id="support-vector-machine">

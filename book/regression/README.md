@@ -771,19 +771,22 @@ If we use a non-linear polynomial model, then the plane is divided by curve line
 Logistic regression uses the linear model.
 If you believe your data won't be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear models. 
 
-### Multi-class classification 
+### Multi-class classification
 
-Similar to the LR problem, we can hardly stop at only two parameters. What if we need to classified an object into one fo multiple classes?
+We have seen how to classify objects into one of two classes using logistic regression.
+What if our target consists of multiple classes?
+For this problem, one approach is called *one-vs-all*.
+It's basic idea is simple. 
+Suppose we need to classify one object into three different classes; we can still use the logistic regression, but instead of one classifier, we train three binary classifiers, each one is about one class against the other two.
+In the prediction phase, using an object as input, each classifier yields a probability as output.
+We then choose the largest probability as the classification result.
 
-One popular classification problem is the hand-written recognition task based on the [MNIST](http://yann.lecun.com/exdb/mnist/) dataset.
+The multi-class classification problem is prevalent in the image recognition tasks, which often includes classifying one object in the image into of ten, hundred, or more different classes.
+For example, one popular classification problem is the hand-written recognition task based on the [MNIST](http://yann.lecun.com/exdb/mnist/) dataset.
 It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. 
-It is a widely used ABC task for Neural Networks, and we will also cover it later in Chapter DNN.
-For now, we solve that from the logistic regression line of thought. 
-Similarly, we extend the cost function towards multi-class:
-
-$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h(x^{(i)})) - (1-y^{(i)})log(1-h(x^{(i)}))).$$
-
-We can also use the generalised version of GD as before, or directly apply GD method in Owl.
+It is a widely used ABC task for Neural Networks.
+We will discuss this example in detail later in the beginning of the Neural Network chapter. 
+You will see how this logistic regression line of thought is extended, and how the real-world multi-class classification problems are solved using neural networks.
 
 ## Support Vector Machine
 
