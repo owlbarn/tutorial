@@ -1,10 +1,10 @@
 # Signal Processing
 
-Signal processing is an electrical engineering sub-field that focuses on analysing, modifying and synthesizing signals such as sound, images and biological measurements. (WIKI)
-It covers a wide range of techniques.
-
+We rely on signals such as sound and images to convey information.
+The signal processing is a field that's about analysing, generation, and transformation of signals. 
+Its applications can be seen in a wide range of fields: audio processing, speech recognition, image processing, communication system, data science, etc.
 In this chapter we mainly focus on Fourier Transform, the core idea in signal processing and modern numerical computing.
-We introduce its basic idea, and then demonstrate how Owl support FFT with examples and applications.
+We introduce its basic idea, and then demonstrate how Owl supports FFT with examples and applications.
 We also cover the relationship between FFT and Convolution, and filters.
 
 ## Discrete Fourier Transform
@@ -21,10 +21,10 @@ The thing is that, the real-world sound is not always so pure, they are quite li
 That's where Fourier Transform comes into play. It captures the idea of converting the two forms of representing a signal: in time domain and in frequency domain.
 We can represent a signal with the values of some quantity $h$ as a function of time: $h(t)$, or this signal can be represented by giving its amplitude $H$ as function of frequency: $H(f)$. We can think they are two representation of the same thing, and Fourier Transform change between them:
 
-$$ h(f) = \int H(f)\exp^{-2\pi~ift}df$$ {#eq:signal:ft01}
-$$ H(f) = \int h(t)\exp^{2\pi~ift}dt$$
+$$ h(f) = \int H(f)e^{-2\pi~ift}df$$ {#eq:signal:ft01}
+$$ H(f) = \int h(t)e^{2\pi~ift}dt$$
 
-To put it simply: suppose Alice mix a unknown number of colour together, and let Bob to guess what those colours are, then perhaps Bob need a Fourier Transform machine of sorts.
+To put it simply: suppose Alice mix an unknown number of colour together, and let Bob to guess what those colours are, then Bob can use a Fourier Transform machine to do that.
 
 In computer-based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous.
 In that case, the method is called *Discrete Fourier Transform* (DFT).
@@ -33,18 +33,15 @@ Suppose we have a complex vector $y$ as signal, which contains $n$ elements, the
 $$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$ {#eq:signal:dft01}
 $$ y_k = \frac{1}{n}\sum_{j=0}^{n-1}Y_k~\omega^{-jk},$$
 
-where $\omega = \exp{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that go from 0 to $n-1$ and $k = 0, 1, ..., n -1$.
+where $\omega = e^{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that go from 0 to $n-1$.
 
-We highly suggest you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown.
+We highly recommend you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown.
 It shows how this [@eq:signal:dft01] of Fourier Transform comes into being with beautiful and clear illustration.
 (TODO: follow the video, explain the idea of FT clearly, not just smashing an equation into readers' faces.)
 
-(maybe TODO: we can perhaps implement a naive DFT process, both to illustrate the theory with OCaml code, and lay the foundation for understanding FFT. Refer to: Matlab NC book, Chap 8.2)
-
-You might be wondering, it's cool that I can recognise how a sound is composed, but so what?
-Think of a classic example where you need to remove some high pitch noisy from some music. By using DFT, you can easily find out the frequency of this noisy, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
-
-Not just sound; you can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise.
+What can we do if we know how a sound is composed?
+Think of a classic example where you need to remove some high pitch noise from some music. By using DFT, you can easily find out the frequency of this noise, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
+You can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise.
 We will show such examples later.
 
 Actually, the application of FT is more than on sound or image signal processing.
@@ -54,8 +51,8 @@ One important reason of its popularity is that it has an efficient algorithm in 
 
 ## Fast Fourier Transform
 
-One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $\mathcal{O}(n^2)$, since it involves a dense $n$ by $n$ matrix multiplication.
-It means that DFT doesn't scale well with input size.
+One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $\mathcal{O}(n^2)$: computing each of the $n$ component of $Y$ in [@eq:signal:dft01] requires $n$ multiplications and $n$ additions.
+It means that DFT does not scale well with input size.
 The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $\mathcal{O}(n\log{}n)$.
 To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions:
 
@@ -63,10 +60,9 @@ $$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$ {#eq:signal:
 $$ = \sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j} + \omega^k\sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j+1}.$$
 
 The key to this step is the fact that $\omega_{2n}^2 = \omega_n$.
-According to [@eq:signal:fft01], you only need to compute FFT for half of the signal, the other half can be gotten by multiplied with $\omega^{k}$, and then concatenate these two sums.
-The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a $log$ level in a recursive process.
-
-(TODO: but what about the $y_{2j+1}$ part in the second sum? how come the second could be the same as the first sum? Need figure it out.)
+According to [@eq:signal:fft01], one FFT can be reduced into two FFTs, each on only half of the original length, and then the second half is multiplied by a factor $\omega^{k}$ and added to the first half.
+The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a logarithm level in a recursive process.
+At the end of this recursion is the fact that a FFT on input that contains only one number returns just the number itself.
 
 To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more.
@@ -75,7 +71,7 @@ The implementation of the FFT module in Owl interfaces to the [FFTPack](https://
 Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun]
 
 | Functions | Description
-| --------- |:----------|
+| --------- |:---------------------|
 | `fft ~axis x` | Compute the one-dimensional discrete Fourier Transform |
 | `ifft ~axis x` | Compute the one-dimensional inverse discrete Fourier Transform |
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
@@ -91,7 +87,7 @@ More complex and interesting will follow in the next section.
 **1-D Discrete Fourier transforms**
 
 Let start with the most basic `fft` and it reverse transform function `ifft`.
-
+First, we have a complex 1-D ndarray that contains 6 elements.
 
 ```ocaml env=fft_env01
 # let a = [|1.;2.;1.;-1.;1.5;1.0|]
@@ -113,6 +109,10 @@ R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.
 
 ```
 
+In the result returned by `fft`, the first half contain the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency.
+Typically, only the FFT corresponding to positive frequencies is plotted.
+(TODO: explain)
+
 ```ocaml env=fft_env01
 # let d = Owl_fft.D.ifft c
 val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
@@ -121,10 +121,9 @@ val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 R (1, 1.38778E-17i) (2, 1.15186E-15i) (1, -8.65641E-17i) (-1, -1.52188E-15i) (1.5, 1.69831E-16i) (1, 2.72882E-16i)
 
 ```
-In the result returned by `fft`, the first half contain the positive-frequency terms, and the second half contain the negative-frequency terms, in order of decreasingly negative frequency.
-Typically, only the FFT corresponding to positive frequencies is plotted.
+TODO: explain `ifft`.
 
-The next example plots the FFT of the sum of two sines, showing the power of FFT to separate signals of different frequency.
+The next example plots the FFT of the sum of two sine functions, showing the power of FFT to separate signals of different frequencies.
 
 ```ocaml env=fft_env02
 # module G = Dense.Ndarray.Generic
@@ -160,6 +159,8 @@ R  0 0.294317 0.475851 0.47504 0.292193 ... -0.292193 -0.47504 -0.475851 -0.2943
 
 ```
 
+Here we create two signals: $y_1(x)=\sin(100\pi~x)$, $y_2(x) = \frac{1}{2}\sin(160\pi~x)$. We then mix them together.
+
 ```ocaml env=fft_env02
 # let y = Arr.(y1 + y2) |> G.cast_d2z
 val y : (Complex.t, complex64_elt) G.t =
@@ -178,6 +179,8 @@ R (5.01874, 0i) (5.02225, 0.0182513i) (5.03281, 0.0366004i) (5.05051, 0.0551465i
 
 ```
 
+TODO: explain the meaning of result
+
 ```ocaml env=fft_env02
 # let z = Dense.Ndarray.Z.(abs yf |> re)
 val z : Dense.Ndarray.Z.cast_arr =
@@ -186,8 +189,8 @@ val z : Dense.Ndarray.Z.cast_arr =
 R 5.01874 5.02228 5.03294 5.05081 5.07604 ... 5.10886 5.07604 5.05081 5.03294 5.02228
 
 ```
+TODO: what we have plotted
 
-Plot the result.
 ```ocaml env=fft_env02
 # let h = Plot.create "plot_001.png" in
   let xa = Arr.linspace 1. 600. 600 in
@@ -198,6 +201,7 @@ Plot the result.
 
 ![Using FFT to separate two sine signals from their mixed signal](images/signal/plot_001.png "plot_001"){.align-center width=70%}
 
+TODO: explain why the other half.
 
 Next let's see `rfft` and `irfft`.
 Function `rfft` calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range.
@@ -233,26 +237,6 @@ R  1  2  1 -1 1.5  1
 
 ```
 
-(And then we change the length of signal to odd.)
-
-```ocaml env=fft_env04
-# let a = [|1.; 2.; 1.; -1.; 1.5;|]
-val a : float array = [|1.; 2.; 1.; -1.; 1.5|]
-# let b = Arr.of_array a [|5|]
-val b : Arr.arr =
-  C0 C1 C2 C3  C4
-R  1  2  1 -1 1.5
-
-```
-
-```ocaml env=fft_env04
-# let c = Owl_fft.D.rfft b
-val c : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
-
-         C0                  C1                   C2
-R (4.5, 0i) (2.08156, -1.6511i) (-1.83156, 1.60822i)
-
-```
 
 **N-D Discrete Fourier transforms**
 
@@ -300,11 +284,9 @@ Both applications are inspired by [@moler2008numerical].
 The third application is about image processing.
 These three applications together present a full picture about how the wide usage of FFT in various scenarios.
 
-(A backup application can always be to separate noises; Refer to Data-Driven Book, Code 2.3.)
-
 ### Find period of sunspots
 
-Build data from a [dataset](http://sidc.oma.be/silso/newdataset) from the Solar Influences Data Center.
+TODO: Build data from a [dataset](http://sidc.oma.be/silso/newdataset) from the Solar Influences Data Center.
 Explain the background of dataset, meaning of Wolfer index, and the dataset itself.
 
 The dataset provided are of different granularity. Here we use the yearly data, from 1700 to 2020.
