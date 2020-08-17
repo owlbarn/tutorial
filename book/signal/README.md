@@ -255,8 +255,9 @@ R  1  2  1 -1 1.5  1
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
 
-( TODO: This is not the real N-D FFT. IMPLEMENTATION required.
-TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )
+(TODO: This is not the real N-D FFT. IMPLEMENTATION required.
+TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. 
+Implementation is not difficult: (1) do 1D FFT on each row (real to complex); (2) do 1D FFT on each column resulting from (1) (complex to complex))
 
 ```ocaml env=fft_env05
 # let a = Dense.Matrix.Z.eye 5
@@ -297,10 +298,13 @@ These three applications together present a full picture about how the wide usag
 
 ### Find period of sunspots
 
-TODO: Build data from a [dataset](http://sidc.oma.be/silso/newdataset) from the Solar Influences Data Center.
-Explain the background of dataset, meaning of Wolfer index, and the dataset itself.
+On the Sun's photosphere, the *sunspots* are what appear as spots darker than the surrounding areas. Their number changes according to a certain cycle.
+The Sunspot Index and Long-term Solar Observations (SILS) is a world data center that preserves the data about the sunspot.
+In this example, we will use the data here to find out the sunspot cycle.
 
-The dataset provided are of different granularity. Here we use the yearly data, from 1700 to 2020.
+The [datasets](http://sidc.oma.be/silso/newdataset) are all avaliable on the website of SILS.
+Each contains the time and the sunspots number, measured by the "wolfer index".
+The dataset provided here are of different granularity. Here we use the yearly data, from 1700 to 2020.
 You can also try the monthly data to get more detailed knowledge.
 First, load the data:
 

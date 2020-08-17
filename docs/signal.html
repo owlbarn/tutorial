@@ -192,7 +192,7 @@ let b = Arr.of_array a [|6|];;
 </div>
 <p><strong>N-D Discrete Fourier transforms</strong></p>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
-<p>( TODO: This is not the real N-D FFT. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )</p>
+<p>(TODO: This is not the real N-D FFT. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. Implementation is not difficult: (1) do 1D FFT on each row (real to complex); (2) do 1D FFT on each column resulting from (1) (complex to complex))</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.eye 5;;
 &gt;val a : Dense.Matrix.Z.mat =
@@ -225,8 +225,8 @@ let b = Arr.of_array a [|6|];;
 <p>As we said, the applications of FFT are numerous. Here we pick three to demonstrate the power of FFT and how to use it in Owl. The first is to find the period rules in the historical data of sunspots, and the second is about analysing the content of dial number according to audio information. Both applications are inspired by <span data-cites="moler2008numerical" class="citation">(Moler 2008)</span>. The third application is about image processing. These three applications together present a full picture about how the wide usage of FFT in various scenarios.</p>
 <section class="level3" id="find-period-of-sunspots">
 <h3>Find period of sunspots</h3>
-<p>TODO: Build data from a <a href="http://sidc.oma.be/silso/newdataset">dataset</a> from the Solar Influences Data Center. Explain the background of dataset, meaning of Wolfer index, and the dataset itself.</p>
-<p>The dataset provided are of different granularity. Here we use the yearly data, from 1700 to 2020. You can also try the monthly data to get more detailed knowledge. First, load the data:</p>
+<p>On the Sun’s photosphere, the <em>sunspots</em> are what appear as spots darker than the surrounding areas. Their number changes according to a certain cycle. The Sunspot Index and Long-term Solar Observations (SILS) is a world data center that preserves the data about the sunspot. In this example, we will use the data here to find out the sunspot cycle.</p>
+<p>The <a href="http://sidc.oma.be/silso/newdataset">datasets</a> are all avaliable on the website of SILS. Each contains the time and the sunspots number, measured by the “wolfer index”. The dataset provided here are of different granularity. Here we use the yearly data, from 1700 to 2020. You can also try the monthly data to get more detailed knowledge. First, load the data:</p>
 <div class="highlight">
 <pre><code class="language-text">let data = Owl_io.read_csv ~sep:';' "sunspot_full.csv"
 let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
