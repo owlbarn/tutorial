@@ -25,12 +25,12 @@
 <p><span id="eq:signal:fft01"><span class="math display">\[ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j\qquad(3)\]</span></span> <span class="math display">\[ = \sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j} + \omega^k\sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j+1}.\]</span></p>
 <p>The key to this step is the fact that <span class="math inline">\(\omega_{2n}^2 = \omega_n\)</span>. According to eq.&nbsp;3, one FFT can be reduced into two FFTs, each on only half of the original length, and then the second half is multiplied by a factor <span class="math inline">\(\omega^{k}\)</span> and added to the first half. The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a logarithm level in a recursive process. At the end of this recursion is the fact that a FFT on input that contains only one number returns just the number itself.</p>
 <p>To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic <span data-cites="phillips2003signals" class="citation">(Phillips, Parr, and Riskin 2003)</span>. In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more.</p>
-<p>The implementation of the FFT module in Owl interfaces to the <a href="https://www.netlib.org/fftpack/">FFTPack</a> C implementation. Owl provides these basic FFT functions, listed in Tabel tbl.&nbsp;1</p>
+<p>The implementation of the FFT module in Owl interfaces to the <a href="https://www.netlib.org/fftpack/">FFTPack</a> C implementation. The core functions in a FFT module is the fft function and its reverse, corresponding to the two equations in eq.&nbsp;3. Owl provides these basic FFT functions, listed in Tabel tbl.&nbsp;1. The parameter <code>otyp</code> is used to specify the output type. It must be the consistent precision with input <code>x</code>. You can skip this parameter by using a sub-module with specific precision such as <code>Owl.Fft.S</code> or <code>Owl.Fft.D</code>. The <code>axis</code> parameter is the highest dimension if not specified. The parameter <code>n</code> specifies the size of output.</p>
 <div id="tbl:signal:fftfun">
 <table>
 <caption>Table 1: FFT functions in Owl</caption>
 <colgroup>
-<col style="width: 29%">
+<col style="width: 30%">
 <col style="width: 70%">
 </colgroup>
 <thead>
@@ -61,9 +61,9 @@
 </div>
 <section class="level3" id="examples">
 <h3>Examples</h3>
-<p>We then show how to use these functions with some simple example. More complex and interesting will follow in the next section.</p>
+<p>We then show how to use these functions with some simple examples. More complex and interesting ones will follow in the next section.</p>
 <p><strong>1-D Discrete Fourier transforms</strong></p>
-<p>Let start with the most basic <code>fft</code> and it reverse transform function <code>ifft</code>. First, we have a complex 1-D ndarray that contains 6 elements.</p>
+<p>Let start with the most basic <code>fft</code> and it reverse transform function <code>ifft</code>. First, we create a complex 1-D ndarray that contains 6 elements as input to the <code>fft</code> function.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = [|1.;2.;1.;-1.;1.5;1.0|];;
 &gt;val a : float array = [|1.; 2.; 1.; -1.; 1.5; 1.|]
@@ -82,7 +82,7 @@ let b = Arr.of_array a [|6|] |&gt; Dense.Ndarray.Generic.cast_d2z;;
 &gt;R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.29904i) (2.25, 0.433013i)
 </code></pre>
 </div>
-<p>In the result returned by <code>fft</code>, the first half contain the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency. Typically, only the FFT corresponding to positive frequencies is plotted. (TODO: explain)</p>
+<p>The function <code>fft</code> takes a complex ndarray as input, and also returns a complex ndarray. In the result returned, the first half contains the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency. Typically, only the FFT corresponding to positive frequencies is plotted, so as to remove redundant frequencies, such as the <code>2.25</code> and <code>-2.75</code> here. (TODO: explain what are pos/neg frequencies.)</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = Owl_fft.D.ifft c;;
 &gt;val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
@@ -91,8 +91,8 @@ let b = Arr.of_array a [|6|] |&gt; Dense.Ndarray.Generic.cast_d2z;;
 &gt;R (1, 1.38778E-17i) (2, 1.15186E-15i) (1, -8.65641E-17i) (-1, -1.52188E-15i) (1.5, 1.69831E-16i) (1, 2.72882E-16i)
 </code></pre>
 </div>
-<p>TODO: explain <code>ifft</code>.</p>
-<p>The next example plots the FFT of the sum of two sine functions, showing the power of FFT to separate signals of different frequencies.</p>
+<p>The function <code>ifft</code> takes the frequency domain result <code>c</code> produced by <code>fft</code> and reconstruct the original time domain signal. Since we do not change the frequencies, the inverse FFT should produce quite similar result as the original input, as shown in this example.</p>
+<p>Perhaps only manipulating arrays still does not make very impressive example. The next example plots the FFT of the sum of two sine functions, showing the power of FFT to separate signals of different frequencies.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">module G = Dense.Ndarray.Generic;;
 &gt;module G = Owl.Dense.Ndarray.Generic
@@ -123,7 +123,7 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n);;
 &gt;R  0 0.294317 0.475851 0.47504 0.292193 ... -0.292193 -0.47504 -0.475851 -0.294317 -2.15587E-14
 </code></pre>
 </div>
-<p>Here we create two signals: <span class="math inline">\(y_1(x)=\sin(100\pi~x)\)</span>, <span class="math inline">\(y_2(x) = \frac{1}{2}\sin(160\pi~x)\)</span>. We then mix them together.</p>
+<p>Here we create two sine signals of different frequencies: <span class="math inline">\(y_1(x)=\sin(100\pi~x)\)</span>, <span class="math inline">\(y_2(x) = \frac{1}{2}\sin(160\pi~x)\)</span>. We then mix them together.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Arr.(y1 + y2) |&gt; G.cast_d2z;;
 &gt;val y : (Complex.t, complex64_elt) G.t =
@@ -132,6 +132,7 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n);;
 &gt;R (0, 0i) (0.677606, 0i) (1.18388, 0i) (1.39967, 0i) (1.29219, 0i) ... (0.707804, 0i) (0.449591, 0i) (0.232182, 0i) (0.0889723, 0i) (-8.82117E-15, 0i)
 </code></pre>
 </div>
+<p>Next, we apply FFT on the mixed signal:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let yf = Owl_fft.D.fft y;;
 &gt;val yf : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
@@ -140,7 +141,7 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n);;
 &gt;R (5.01874, 0i) (5.02225, 0.0182513i) (5.03281, 0.0366004i) (5.05051, 0.0551465i) (5.0755, 0.073992i) ... (5.108, -0.0932438i) (5.0755, -0.073992i) (5.05051, -0.0551465i) (5.03281, -0.0366004i) (5.02225, -0.0182513i)
 </code></pre>
 </div>
-<p>TODO: explain the meaning of result</p>
+<p>In the results, each tuple can be seen as a frequency vector in the complex space. We can plot the length of these vectors. As we have said, we use only the first half, or the positive frequencies, of array <code>yf</code>.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let z = Dense.Ndarray.Z.(abs yf |&gt; re);;
 &gt;val z : Dense.Ndarray.Z.cast_arr =
@@ -149,12 +150,13 @@ let x = Arr.linspace 0. (n *. t) (int_of_float n);;
 &gt;R 5.01874 5.02228 5.03294 5.05081 5.07604 ... 5.10886 5.07604 5.05081 5.03294 5.02228
 </code></pre>
 </div>
-<p>TODO: what we have plotted</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let h = Plot.create "plot_001.png" in
 let xa = Arr.linspace 1. 600. 600 in
-Plot.plot ~h xa z;
-Plot.output h
+Plot.plot ~h ~spec:[ RGB (66,133,244); LineWidth 2.] xa z;
+Plot.set_xrange h 1. 300.;
+Plot.set_xlabel h "Frequency";
+Plot.output h;;
 ;;
 &gt;- : unit = ()
 </code></pre>
@@ -162,8 +164,7 @@ Plot.output h
 <figure>
 <img alt="" style="width:70.0%" class="align-center" title="plot_001" src="images/signal/plot_001.png"><figcaption>Using FFT to separate two sine signals from their mixed signal</figcaption>
 </figure>
-<p>TODO: explain why the other half.</p>
-<p>Next let’s see <code>rfft</code> and <code>irfft</code>. Function <code>rfft</code> calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range. The negative part is implied by the Hermitian symmetry of the FFT. Similarly, <code>irfft</code> performs the reverse step of <code>rfft</code>. First, let’s make the input even number.</p>
+<p>Next let’s see <code>rfft</code> and <code>irfft</code>. Function <code>rfft</code> calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range. The negative part is implied by the Hermitian symmetry of the FFT. Similarly, <code>irfft</code> performs the reverse step of <code>rfft</code>. They are different to <code>fft</code> and <code>ifft</code> only in the data type, and may make the code cleaner sometimes, as shown in the example below.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = [|1.; 2.; 1.; -1.; 1.5; 1.0|];;
 &gt;val a : float array = [|1.; 2.; 1.; -1.; 1.5; 1.|]
@@ -190,8 +191,8 @@ let b = Arr.of_array a [|6|];;
 </code></pre>
 </div>
 <p><strong>N-D Discrete Fourier transforms</strong></p>
-<p>( TODO: This is not the real N-D FFT. Verify it with SciPy examples. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )</p>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
+<p>( TODO: This is not the real N-D FFT. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.eye 5;;
 &gt;val a : Dense.Matrix.Z.mat =

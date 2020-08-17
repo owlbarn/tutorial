@@ -68,26 +68,31 @@ To introduce Fourier Transform in detailed math and analysis of its properties i
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more.
 
 The implementation of the FFT module in Owl interfaces to the [FFTPack](https://www.netlib.org/fftpack/) C implementation.
-Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun]
+The core functions in a FFT module is the fft function and its reverse, corresponding to the two equations in [@eq:signal:fft01].
+Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun].
+The parameter `otyp` is used to specify the output type. It must be the consistent
+precision with input `x`. You can skip this parameter by using a sub-module
+with specific precision such as ``Owl.Fft.S`` or ``Owl.Fft.D``.
+The `axis` parameter  is the highest dimension if not specified.
+The parameter `n` specifies the size of output.
 
 | Functions | Description
-| --------- |:---------------------|
+| --------- |:--------------------|
 | `fft ~axis x` | Compute the one-dimensional discrete Fourier Transform |
 | `ifft ~axis x` | Compute the one-dimensional inverse discrete Fourier Transform |
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
 : FFT functions in Owl {#tbl:signal:fftfun}
 
-
 ### Examples
 
-We then show how to use these functions with some simple example.
-More complex and interesting will follow in the next section.
+We then show how to use these functions with some simple examples.
+More complex and interesting ones will follow in the next section.
 
 **1-D Discrete Fourier transforms**
 
 Let start with the most basic `fft` and it reverse transform function `ifft`.
-First, we have a complex 1-D ndarray that contains 6 elements.
+First, we create a complex 1-D ndarray that contains 6 elements as input to the `fft` function.
 
 ```ocaml env=fft_env01
 # let a = [|1.;2.;1.;-1.;1.5;1.0|]
@@ -109,9 +114,10 @@ R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.
 
 ```
 
-In the result returned by `fft`, the first half contain the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency.
-Typically, only the FFT corresponding to positive frequencies is plotted.
-(TODO: explain)
+The function `fft` takes a complex ndarray as input, and also returns a complex ndarray.
+In the result returned, the first half contains the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency.
+Typically, only the FFT corresponding to positive frequencies is plotted, so as to remove redundant frequencies, such as the `2.25` and `-2.75` here.
+(TODO: explain what are pos/neg frequencies.)
 
 ```ocaml env=fft_env01
 # let d = Owl_fft.D.ifft c
@@ -121,8 +127,11 @@ val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
 R (1, 1.38778E-17i) (2, 1.15186E-15i) (1, -8.65641E-17i) (-1, -1.52188E-15i) (1.5, 1.69831E-16i) (1, 2.72882E-16i)
 
 ```
-TODO: explain `ifft`.
 
+The function `ifft` takes the frequency domain result `c` produced by `fft` and reconstruct the original time domain signal.
+Since we do not change the frequencies, the inverse FFT should produce quite similar result as the original input, as shown in this example.
+
+Perhaps only manipulating arrays still does not make very impressive example.
 The next example plots the FFT of the sum of two sine functions, showing the power of FFT to separate signals of different frequencies.
 
 ```ocaml env=fft_env02
@@ -159,7 +168,7 @@ R  0 0.294317 0.475851 0.47504 0.292193 ... -0.292193 -0.47504 -0.475851 -0.2943
 
 ```
 
-Here we create two signals: $y_1(x)=\sin(100\pi~x)$, $y_2(x) = \frac{1}{2}\sin(160\pi~x)$. We then mix them together.
+Here we create two sine signals of different frequencies: $y_1(x)=\sin(100\pi~x)$, $y_2(x) = \frac{1}{2}\sin(160\pi~x)$. We then mix them together.
 
 ```ocaml env=fft_env02
 # let y = Arr.(y1 + y2) |> G.cast_d2z
@@ -170,6 +179,8 @@ R (0, 0i) (0.677606, 0i) (1.18388, 0i) (1.39967, 0i) (1.29219, 0i) ... (0.707804
 
 ```
 
+Next, we apply FFT on the mixed signal:
+
 ```ocaml env=fft_env02
 # let yf = Owl_fft.D.fft y
 val yf : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
@@ -179,7 +190,9 @@ R (5.01874, 0i) (5.02225, 0.0182513i) (5.03281, 0.0366004i) (5.05051, 0.0551465i
 
 ```
 
-TODO: explain the meaning of result
+In the results, each tuple can be seen as a frequency vector in the complex space. 
+We can plot the length of these vectors. 
+As we have said, we use only the first half, or the positive frequencies, of array `yf`. 
 
 ```ocaml env=fft_env02
 # let z = Dense.Ndarray.Z.(abs yf |> re)
@@ -189,25 +202,24 @@ val z : Dense.Ndarray.Z.cast_arr =
 R 5.01874 5.02228 5.03294 5.05081 5.07604 ... 5.10886 5.07604 5.05081 5.03294 5.02228
 
 ```
-TODO: what we have plotted
 
 ```ocaml env=fft_env02
 # let h = Plot.create "plot_001.png" in
   let xa = Arr.linspace 1. 600. 600 in
-  Plot.plot ~h xa z;
-  Plot.output h
+  Plot.plot ~h ~spec:[ RGB (66,133,244); LineWidth 2.] xa z;
+  Plot.set_xrange h 1. 300.;
+  Plot.set_xlabel h "Frequency";
+  Plot.output h;;
 - : unit = ()
 ```
 
 ![Using FFT to separate two sine signals from their mixed signal](images/signal/plot_001.png "plot_001"){.align-center width=70%}
 
-TODO: explain why the other half.
-
-Next let's see `rfft` and `irfft`.
+Next let's see `rfft` and `irfft`. 
 Function `rfft` calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range.
 The negative part is implied by the Hermitian symmetry of the FFT.
 Similarly, `irfft` performs the reverse step of `rfft`.
-First, let's make the input even number.
+They are different to `fft` and `ifft` only in the data type, and may make the code cleaner sometimes, as shown in the example below.
 
 ```ocaml env=fft_env03
 # let a = [|1.; 2.; 1.; -1.; 1.5; 1.0|]
@@ -237,15 +249,14 @@ R  1  2  1 -1 1.5  1
 
 ```
 
-
 **N-D Discrete Fourier transforms**
 
-( TODO: This is not the real N-D FFT. Verify it with SciPy examples.
-IMPLEMENTATION required.
-TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )
 
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
+
+( TODO: This is not the real N-D FFT. IMPLEMENTATION required.
+TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. )
 
 ```ocaml env=fft_env05
 # let a = Dense.Matrix.Z.eye 5
