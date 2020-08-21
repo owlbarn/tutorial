@@ -248,20 +248,19 @@ let y = Mat.get_slice [[];[1]] data</code></pre>
 <figure>
 <img alt="" style="width:60.0%" id="fig:signal:sunspot" title="sunspot" src="images/signal/plot_sunspot.png"><figcaption>Figure 1: Yearly sunspot data</figcaption>
 </figure>
-<p>We can see there is a cycle. We want to know exactly how long it is.</p>
+<p>We can see there is a cycle of about 10 years, but exactly how long is it? Let’s start by applying the FFT on this signal. To process the data, we first remove the first element of the frequency vector <code>y'</code>, since it stores the sum of the data. The frequency is reduced to half, since we plot only half of the coefficients.</p>
 <div class="highlight">
-<pre><code class="language-clike">let y' = Owl_fft.D.rfft ~axis:0 y</code></pre>
+<pre><code class="language-ocaml">let get_frequency y = 
+  let y' = Owl_fft.D.rfft ~axis:0 y in 
+  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in 
+  Dense.Ndarray.Z.(abs y' |&gt; re)</code></pre>
 </div>
-<p>To process the data, we first remove the first element of <code>y</code>, since it stores the sum of the data. The frequency is reduced to half, since we plot only half of the coefficients.</p>
+<p>The frequency (<code>cycle/year</code>) as unit of measurement seems a bit confusing. To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of <code>years/cycle</code>. Both are plotted with code below.</p>
 <div class="highlight">
-<pre><code class="language-text">let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y'
-let p = Dense.Ndarray.Z.abs y' |&gt; Dense.Ndarray.Z.re
-let n = (Arr.shape p).(0)
-let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
-</div>
-<p>The frequency <code>cycle/year</code> seems a bit confusing. To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of <code>years/cycle</code> (periodogram). Both are plotted with:</p>
-<div class="highlight">
-<pre><code class="language-text">let plot_sunspot_freq f p =
+<pre><code class="language-ocaml">let plot_sunspot_freq p =
+  let n = (Arr.shape p).(0) in
+  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in 
+
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
   Plot.subplot h 0 0;
@@ -272,19 +271,19 @@ let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)</code></pre>
   Plot.subplot h 0 1;
   Plot.set_xlabel h "year/cycle";
   Plot.set_ylabel h "squared power";
-  let f' = Arr.(scalar_div 1. (get_slice [[1; Stdlib.(n'-1)]] f)) in
+  let f' = Arr.(scalar_div 1. (get_slice [[1; Stdlib.(n-1)]] f)) in
   Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] f' p;
   Plot.set_xrange h 0. 40.;
   Plot.output h</code></pre>
 </div>
-<p>The result is shown in fig.&nbsp;2. We can see the most prominent cycle is a little bit less than 11 years.</p>
+<p>The result is shown in fig.&nbsp;2. Now we can see clearly that the most prominent cycle is a little bit less than 11 years.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:signal:freq" title="sunspot_freq" src="images/signal/plot_sunspot_freq.png"><figcaption>Figure 2: Find sunspot cycle with FFT</figcaption>
 </figure>
 </section>
 <section class="level3" id="decipher-the-tone">
 <h3>Decipher the Tone</h3>
-<p>This examples uses the data of <span data-cites="moler2008numerical" class="citation">(Moler 2008)</span>.</p>
+<p>When we are dialling a phone number, the soundwave can be seen a signal. In this example, we show how to decipher which number is dialled according to the given soundwave. This examples uses the data from <span data-cites="moler2008numerical" class="citation">(Moler 2008)</span>. Let’s first load and visualise them.</p>
 <div class="highlight">
 <pre><code class="language-clike">let data = Owl_io.read_csv ~sep:',' "touchtone.csv"
 let data = Array.map (fun x -&gt; Array.map float_of_string x) data |&gt; Mat.of_arrays
@@ -292,36 +291,34 @@ let data = Mat.div_scalar data 128.</code></pre>
 </div>
 <p>The dataset specifies a sampling rate of 8192.</p>
 <div class="highlight">
-<pre><code class="language-clike">let fs = 8192.</code></pre>
+<pre><code class="language-ocaml">let fs = 8192.</code></pre>
 </div>
 <p>We have a segment of signal that shows the touch tone of dialling a phone number. We can visualise the signal:</p>
 <div class="highlight">
-<pre><code class="language-clike">let plot_tone x y filename =
+<pre><code class="language-ocaml">let plot_tone data filename =
+  let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs in
   let h = Plot.create filename in
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
   Plot.set_xlabel h "time(s)";
   Plot.set_ylabel h "signal magnitude";
-  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x y;
-  Plot.output h
-
-let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs
-let _ = plot_tone x y "plot_tone.png"</code></pre>
+  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x data;
+  Plot.output h</code></pre>
 </div>
-<p>The result is shown in fig.&nbsp;3(a). Apparently there are 11 digits in this phone number. The question we want to answer is: which numbers?</p>
+<p>The result is shown in fig.&nbsp;3(a). Apparently, according to the dense area in this signal, there are 11 digits in this phone number. The question is: which numbers?</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:signal:tone" title="tone" src="images/signal/tone.png"><figcaption>Figure 3: Recording of an 11-digit number and its FFT decomposition</figcaption>
 </figure>
-<p>This is a suitable question for FFT. We can apply the FFT to the original data.</p>
+<p>This is a suitable question for FFT. Let’s start by applying the FFT to the original data.</p>
 <div class="highlight">
 <pre><code class="language-clike">let yf = Owl_fft.D.rfft data
 let y' = Dense.Ndarray.Z.(abs yf |&gt; re)
 let n = (Arr.shape y').(1)
 let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 </div>
-<p>We plot <code>x'</code> with <code>y'</code> similarly using the previous plotting function, and the result is shown in fig.&nbsp;3(b). All the 11 digits are composed from 7 prominent frequencies.</p>
-<p>Actually… (Explain the theory: how they combine into 10 digits. With IMAGE or TABLE)</p>
-<p>We can use the first tone as an example. We get a subset:</p>
+<p>We plot <code>x'</code> with <code>y'</code> similarly using the previous plotting function, and the result is shown in fig.&nbsp;3(b). All the 11 digits are composed from 7 prominent frequencies, each digit combined from two frequencies, as shown in [].</p>
+<p>IMAGE</p>
+<p>We can use the first tone as an example to find out which two frequencies it is composed from. Let’s get a subset of the signal:</p>
 <div class="highlight">
 <pre><code class="language-clike">let data2 = Arr.get_slice [[];[0; 4999]] data</code></pre>
 </div>

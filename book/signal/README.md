@@ -331,28 +331,26 @@ let plot_sunspot x y =
 
 ![Yearly sunspot data](images/signal/plot_sunspot.png "sunspot"){width=60% #fig:signal:sunspot}
 
-We can see there is a cycle. We want to know exactly how long it is.
-
-```
-let y' = Owl_fft.D.rfft ~axis:0 y
-```
-
-To process the data, we first remove the first element of `y`, since it stores the sum of the data.
+We can see there is a cycle of about 10 years, but exactly how long is it? Let's start by applying the FFT on this signal.
+To process the data, we first remove the first element of the frequency vector `y'`, since it stores the sum of the data.
 The frequency is reduced to half, since we plot only half of the coefficients.
 
-```text
-let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y'
-let p = Dense.Ndarray.Z.abs y' |> Dense.Ndarray.Z.re
-let n = (Arr.shape p).(0)
-let f = Arr.(mul_scalar (linspace 0. 1. n') 0.5)
+```ocaml
+let get_frequency y = 
+  let y' = Owl_fft.D.rfft ~axis:0 y in 
+  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in 
+  Dense.Ndarray.Z.(abs y' |> re)
 ```
 
-The frequency `cycle/year` seems a bit confusing.
-To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of `years/cycle` (periodogram).
-Both are plotted with:
+The frequency (`cycle/year`) as unit of measurement seems a bit confusing.
+To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of `years/cycle`.
+Both are plotted with code below.
 
-```text
-let plot_sunspot_freq f p =
+```ocaml
+let plot_sunspot_freq p =
+  let n = (Arr.shape p).(0) in
+  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in 
+
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
   Plot.subplot h 0 0;
@@ -363,20 +361,23 @@ let plot_sunspot_freq f p =
   Plot.subplot h 0 1;
   Plot.set_xlabel h "year/cycle";
   Plot.set_ylabel h "squared power";
-  let f' = Arr.(scalar_div 1. (get_slice [[1; Stdlib.(n'-1)]] f)) in
+  let f' = Arr.(scalar_div 1. (get_slice [[1; Stdlib.(n-1)]] f)) in
   Plot.plot ~h ~spec:[ RGB (255,0,0); LineStyle 1] f' p;
   Plot.set_xrange h 0. 40.;
   Plot.output h
 ```
 
 The result is shown in [@fig:signal:freq].
-We can see the most prominent cycle is a little bit less than 11 years.
+Now we can see clearly that the most prominent cycle is a little bit less than 11 years.
 
 ![Find sunspot cycle with FFT](images/signal/plot_sunspot_freq.png "sunspot_freq"){width=100% #fig:signal:freq}
 
 ### Decipher the Tone
 
-This examples uses the data of [@moler2008numerical].
+When we are dialling a phone number, the soundwave can be seen a signal.
+In this example, we show how to decipher which number is dialled according to the given soundwave.
+This examples uses the data from [@moler2008numerical]. 
+Let's first load and visualise them.
 
 ```
 let data = Owl_io.read_csv ~sep:',' "touchtone.csv"
@@ -386,33 +387,32 @@ let data = Mat.div_scalar data 128.
 
 The dataset specifies a sampling rate of 8192.
 
-```
+```ocaml env=signal:tune01
 let fs = 8192.
 ```
 
 We have a segment of signal that shows the touch tone of dialling a phone number.
 We can visualise the signal:
 
-```
-let plot_tone x y filename =
+```ocaml env=signal:tune01
+let plot_tone data filename =
+  let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs in
   let h = Plot.create filename in
   Plot.set_font_size h 8.;
   Plot.set_pen_size h 3.;
   Plot.set_xlabel h "time(s)";
   Plot.set_ylabel h "signal magnitude";
-  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x y;
+  Plot.plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1] x data;
   Plot.output h
-
-let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs
-let _ = plot_tone x y "plot_tone.png"
 ```
 
 The result is shown in [@fig:signal:tone](a).
-Apparently there are 11 digits in this phone number. The question we want to answer is: which numbers?
+Apparently, according to the dense area in this signal, there are 11 digits in this phone number. The question is: which numbers?
 
 ![Recording of an 11-digit number and its FFT decomposition](images/signal/tone.png "tone"){width=100% #fig:signal:tone}
 
-This is a suitable question for FFT. We can apply the FFT to the original data.
+This is a suitable question for FFT. 
+Let's start by applying the FFT to the original data.
 
 ```
 let yf = Owl_fft.D.rfft data
@@ -422,13 +422,12 @@ let x' = Mat.linspace 0. (fs /. 2.) n
 ```
 
 We plot `x'` with `y'` similarly using the previous plotting function, and the result is shown in [@fig:signal:tone](b).
-All the 11 digits are composed from 7 prominent frequencies.
+All the 11 digits are composed from 7 prominent frequencies, each digit combined from two frequencies, as shown in [].
 
-Actually...
-(Explain the theory: how they combine into 10 digits. With IMAGE or TABLE)
+IMAGE
 
-We can use the first tone as an example.
-We get a subset:
+We can use the first tone as an example to find out which two frequencies it is composed from.
+Let's get a subset of the signal:
 
 ```
 let data2 = Arr.get_slice [[];[0; 4999]] data
