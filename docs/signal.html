@@ -316,17 +316,54 @@ let y' = Dense.Ndarray.Z.(abs yf |&gt; re)
 let n = (Arr.shape y').(1)
 let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 </div>
-<p>We plot <code>x'</code> with <code>y'</code> similarly using the previous plotting function, and the result is shown in fig.&nbsp;3(b). All the 11 digits are composed from 7 prominent frequencies, each digit combined from two frequencies, as shown in [].</p>
-<p>IMAGE</p>
+<p>We plot <code>x'</code> with <code>y'</code> similarly using the previous plotting function, and the result is shown in fig.&nbsp;3(b). The tune of phone is combination of two different frequencies. All the 11 digits are composed from 7 prominent frequencies, as shown in tbl.&nbsp;2. This frequency keypad is specified in the Dual-tone multi-frequency signalling (DTMF) standard.</p>
+<div id="tbl:signal:keypad">
+<table>
+<caption>Table 2: DTMF keypad frequencies</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;">1209 Hz</th>
+<th style="text-align: center;">1336 Hz</th>
+<th style="text-align: center;">1477 Hz</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>697Hz</strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>770Hz</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>852Hz</strong></td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>941Hz</strong></td>
+<td style="text-align: center;">*</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">#</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>We can use the first tone as an example to find out which two frequencies it is composed from. Let’s get a subset of the signal:</p>
 <div class="highlight">
 <pre><code class="language-clike">let data2 = Arr.get_slice [[];[0; 4999]] data</code></pre>
 </div>
-<p>And then perform the same process as before, the results are shown in fig.&nbsp;4. We can see that the first digit is mainly composed from two frequencies: 600 and 1200. Looking it up in out table, we can see that the first digit is <code>1</code>.</p>
+<p>And then perform the same process as before, the results are shown in fig.&nbsp;4. We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200. Looking it up in tbl.&nbsp;2, we can see that the first digit is <code>1</code>. You can investigate the whole phone number following the same procedure.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:signal:tone2" title="tone" src="images/signal/tone2.png"><figcaption>Figure 4: Recording of the first digit and its FFT decomposition</figcaption>
 </figure>
-<p>The tune of phone is combination of two different frequencies. You can investigate the whole phone number if you want.</p>
 </section>
 <section class="level3" id="image-processing">
 <h3>Image Processing</h3>
@@ -360,8 +397,7 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 </section>
 <section class="level2" id="filtering">
 <h2>Filtering</h2>
-<p>In the N-dimensional Array chapter, we have introduced the idea of <code>filter</code>, which allows to get target data from the input according to some function. <em>Filtering</em> in signal processing is similar. It is a generic name for any system that modifies input signal in certain ways, most likely removing some unwanted features from it.</p>
-<p>(Refer to “ThinkDSP” in writing.)</p>
+<p>In the N-dimensional Array chapter, we have introduced the idea of <code>filter</code>, which allows to get target data from the input according to some function. <em>Filtering</em> in signal processing is similar. It is a generic name for any system that modifies input signal in certain ways, most likely removing some unwanted features from it. In this section, we introduce how FFT can be applied to perform some filtering tasks with examples.</p>
 <section class="level3" id="example-smoothing">
 <h3>Example: Smoothing</h3>
 <p>Let’s start with a simple and common filter task: smoothing. Suppose you have a segment of noisy signal: the stock price. In many cases we hope to remove the extreme trends and see a long-term trend from the historical data. We take the stock price of Google in the past year, April 09, from 2019 to 2020. The data is taken from Yahoo Finance. We can load the data into a matrix:</p>
@@ -372,7 +408,7 @@ let data = Array.map (fun x -&gt;
     (Array.sub data 1 (Array.length data - 1))
     |&gt; Mat.of_arrays</code></pre>
 </div>
-<p>The data <code>y</code> contains several columns, each representing opening price, volume, high price, etc. Here we use the daily closing price as example.</p>
+<p>The data <code>y</code> contains several columns, each representing opening price, volume, high price, etc. Here we use the daily closing price as example, which are in the fourth column.</p>
 <div class="highlight">
 <pre><code class="language-text">let y = Mat.get_slice [[];[3]] data</code></pre>
 </div>
@@ -389,8 +425,8 @@ let data = Array.map (fun x -&gt;
 </div>
 <p>Finally, we can plot the resulting smoothed data with the original data.</p>
 <div class="highlight">
-<pre><code class="language-text">let plot_goog y y' =
-  let n = (Arr.shape x).(0) in
+<pre><code class="language-ocaml">let plot_goog data y y' =
+  let n = (Arr.shape data).(0) in
   let x = Mat.sequential n 1 in
   let h = Plot.create "plot_goog.png" in
   Plot.set_font_size h 8.;
@@ -405,14 +441,14 @@ let data = Array.map (fun x -&gt;
 <figure>
 <img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 6: Smoothed stock price of Google</figcaption>
 </figure>
-<p>The results are shown in fig.&nbsp;6. The sudden drop in the last month might be related with the COVID-19.</p>
+<p>The results are shown in fig.&nbsp;6. The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price. The sudden drop in the last month might be related with the COVID-19 pandemic.</p>
 </section>
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
-<p>The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result). We can change to another one: the gaussian filter.</p>
-<p>EXPLAIN</p>
+<p>However, the filter we have used is not an ideal one. A common pattern in this line drops first, but then bounces around. To get a smoother curve, we can change this simple filter to another one: the gaussian filter. Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: <span class="math inline">\(p(x) = e^{-\frac{x^2}{2\sigma^2}}\)</span>.</p>
+<p>IMAGE</p>
 <p>(numpy <a href="https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135">implementation</a> and <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html">doc</a>)</p>
-<p>The code below generate a simple 1-D gaussian filter based on the equation: <span class="math inline">\(\exp{-\frac{x^2}{2\sigma^2}}\)</span>. Similar to the previous simple example, the filter also needs to be normalised. The range of radius is set to truncate standard deviations.</p>
+<p>The code below generate a simple 1-D gaussian filter. Similar to the previous simple example, the filter also needs to be normalised. The range of radius is set to truncate standard deviations.</p>
 <div class="highlight">
 <pre><code class="language-clike">let gaussian_kernel sigma =
   let truncate = 4. in

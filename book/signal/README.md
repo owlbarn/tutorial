@@ -422,9 +422,17 @@ let x' = Mat.linspace 0. (fs /. 2.) n
 ```
 
 We plot `x'` with `y'` similarly using the previous plotting function, and the result is shown in [@fig:signal:tone](b).
-All the 11 digits are composed from 7 prominent frequencies, each digit combined from two frequencies, as shown in [].
+The tune of phone is combination of two different frequencies.
+All the 11 digits are composed from 7 prominent frequencies, as shown in [@tbl:signal:keypad].
+This frequency keypad is specified in the Dual-tone multi-frequency signalling (DTMF) standard.
 
-IMAGE
+|| 1209 Hz  | 1336 Hz | 1477 Hz |
+|:---------:|:-------:|:-------:|:-------:|
+| **697Hz** | 1 | 2 | 3 | 
+| **770Hz** | 4 | 5 | 6 | 
+| **852Hz** | 7 | 8 | 9 | 
+| **941Hz** | * | 2 | # | 
+: DTMF keypad frequencies {#tbl:signal:keypad}
 
 We can use the first tone as an example to find out which two frequencies it is composed from.
 Let's get a subset of the signal:
@@ -434,14 +442,11 @@ let data2 = Arr.get_slice [[];[0; 4999]] data
 ```
 
 And then perform the same process as before, the results are shown in [@fig:signal:tone2].
-We can see that the first digit is mainly composed from two frequencies: 600 and 1200.
-Looking it up in out table, we can see that the first digit is `1`.
+We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200.
+Looking it up in [@tbl:signal:keypad], we can see that the first digit is `1`.
+You can investigate the whole phone number following the same procedure.
 
 ![Recording of the first digit and its FFT decomposition](images/signal/tone2.png "tone"){width=100% #fig:signal:tone2}
-
-The tune of phone is combination of two different frequencies.
-You can investigate the whole phone number if you want.
-
 
 ### Image Processing
 
@@ -492,8 +497,7 @@ Of course, following similar method as previous applications on 1-D signals, FFT
 
 In the N-dimensional Array chapter, we have introduced the idea of `filter`, which allows to get target data from the input according to some function.
 *Filtering* in signal processing is similar. It is a generic name for any system that modifies input signal in certain ways, most likely removing some unwanted features from it.
-
-(Refer to "ThinkDSP" in writing.)
+In this section, we introduce how FFT can be applied to perform some filtering tasks with examples.
 
 ### Example: Smoothing
 
@@ -513,7 +517,7 @@ let data = Array.map (fun x ->
 ```
 
 The data `y` contains several columns, each representing opening price, volume, high price, etc.
-Here we use the daily closing price as example.
+Here we use the daily closing price as example, which are in the fourth column.
 
 ```text
 let y = Mat.get_slice [[];[3]] data
@@ -537,9 +541,9 @@ let y' = Mat.mapi (fun i _ ->
 
 Finally, we can plot the resulting smoothed data with the original data.
 
-```text
-let plot_goog y y' =
-  let n = (Arr.shape x).(0) in
+```ocaml
+let plot_goog data y y' =
+  let n = (Arr.shape data).(0) in
   let x = Mat.sequential n 1 in
   let h = Plot.create "plot_goog.png" in
   Plot.set_font_size h 8.;
@@ -555,18 +559,21 @@ let plot_goog y y' =
 ![Smoothed stock price of Google](images/signal/plot_goog.png "goog.png"){width=60% #fig:signal:goog}
 
 The results are shown in [@fig:signal:goog].
-The sudden drop in the last month might be related with the COVID-19.
+The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price.
+The sudden drop in the last month might be related with the COVID-19 pandemic.
 
 ### Gaussian Filter
 
-The filter we have used is a flat one: drops first, but then bouncing around (Check with experiment result).
-We can change to another one: the gaussian filter.
+However, the filter we have used is not an ideal one.
+A common pattern in this line drops first, but then bounces around.
+To get a smoother curve, we can change this simple filter to another one: the gaussian filter.
+Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: $p(x) = e^{-\frac{x^2}{2\sigma^2}}$.
 
-EXPLAIN
+IMAGE
 
 (numpy [implementation](https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135) and [doc](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html))
 
-The code below generate a simple 1-D gaussian filter based on the equation: $\exp{-\frac{x^2}{2\sigma^2}}$.
+The code below generate a simple 1-D gaussian filter.
 Similar to the previous simple example, the filter also needs to be normalised.
 The range of radius is set to truncate standard deviations.
 
