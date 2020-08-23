@@ -603,7 +603,8 @@ Please refer to some classical textbooks on signal processing such as [@smith199
 
 ### Signal Convolution
 
-What we have done is called *convolution*.
+So far we have not used FFT to perform filtering yet.
+What we have seen in the previous section is called *convolution*.
 Formally it is mathematical operation on two functions that produces a third function expressing how the shape of one is modified by the other:
 
 $$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$ {#eq:signal:01}
@@ -644,7 +645,7 @@ R124   (23.0005, -38.841i)
 R125   (153.294, 68.7544i)
 ```
 
-We only keep the first most notable frequencies, and set the rest to zero.
+We only keep the five most notable frequencies, and set the rest to zero.
 
 ```text
 let n = (Dense.Ndarray.Z.shape yf).(0)
@@ -652,15 +653,17 @@ let z = Dense.Ndarray.Z.zeros [|n-5; 1|]
 let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z
 ```
 
-Now, we can apply reverse FFT and get the smoothed data:
+Now, we can apply reverse FFT on this processed frequency vector and get the smoothed data:
 
 ```
 let y2 = Owl_fft.D.irfft ~axis:0 yf
 ```
 
+We can similarly check how the smoothing approach works in [@fig:signal:goog2].
+Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.
+
 ![Smoothed stock price of Google using FFT method](images/signal/plot_goog2.png "goog2.png"){width=60% #fig:signal:goog2}
 
-We can similarly check how the smoothing approach works in [@fig:signal:goog2].
 
 ### FFT and Image Convolution
 
@@ -671,9 +674,7 @@ This process can be best illustrated in [@fig:signal:conv] (inspired by the nice
 
 ![Image convolution illustration](images/signal/conv.png "conv"){width=90% #fig:signal:conv}
 
-Owl has provided thorough support of convolution operation:
-
-
+Owl has provided thorough support of convolution operations:
 
 ```
 val conv1d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
@@ -687,7 +688,7 @@ They corresponds to different dimension of inputs.
 Besides, Owl also support other derived convolution types, including dilated convolutions, transpose convolutions, and backward convolutions etc.
 
 It's OK if none of this makes sense to you now. We'll explain the convolution and its usage in later chapter in detail.
-The point is that, if you look closely, you can find that the image convolution is but only a special high dimensional case of the convolution equation: a given input signal (the image), another similar but smaller filter signal (the kernel), and the filter slides across the input signal and perform element-wise multiplication.
+The point is that, if you look closely, you can find that the image convolution is only a special high dimensional case of the convolution equation: a given input signal (the image), another similar but smaller filter signal (the kernel), and the filter slides across the input signal and perform element-wise multiplication.
 
 Therefore, we can implement the convolution with FFT and vice versa.
 For example, we can use `conv1d` function in Owl to solve the previous simple smoothing problem:
@@ -698,10 +699,19 @@ let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]
 ```
 
-The smoothed data is similar to that in [@fig:signal:goog] since the calculation is the same, only with more concise code.
+If you are interested to check the result, this vector `y3'` contains the data to plot a smoothed curve. 
+The smoothed data would be similar to that in [@fig:signal:goog] since the calculation is the same, only with more concise code.
 
 Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
 
 ## Summary
+
+This chapter centres around a fundamental idea behind signal processing: the Fourier Transform. 
+We started with its definition, and then introduce a crucial idea behind its efficient implementation: the Fast Fourier Transform (FFT).
+Owl provides support to FFT by linking to existing FFTPack library.
+We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications.
+Finally, we discussed filtering in signal process using different techniques, including simple averaging smoothing, gaussian filtering, and FFT-based filtering.
+Here we also explained the relationship between the two most crucial computations in numerical applications: FFT and convolution.
+More about convolution can be find in the Neural Network chapter.
 
 ## References
