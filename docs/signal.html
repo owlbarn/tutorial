@@ -446,11 +446,9 @@ let data = Array.map (fun x -&gt;
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
 <p>However, the filter we have used is not an ideal one. A common pattern in this line drops first, but then bounces around. To get a smoother curve, we can change this simple filter to another one: the gaussian filter. Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: <span class="math inline">\(p(x) = e^{-\frac{x^2}{2\sigma^2}}\)</span>.</p>
-<p>IMAGE</p>
-<p>(numpy <a href="https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135">implementation</a> and <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html">doc</a>)</p>
-<p>The code below generate a simple 1-D gaussian filter. Similar to the previous simple example, the filter also needs to be normalised. The range of radius is set to truncate standard deviations.</p>
+<p>The code below generates a simple 1-D gaussian filter. Similar to the previous simple example, the filter also needs to be normalised. For the filter window vector, its range of radius is set to truncate standard deviations. This implementation is similar to that in <a href="(https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135)">SciPy</a>.</p>
 <div class="highlight">
-<pre><code class="language-clike">let gaussian_kernel sigma =
+<pre><code class="language-ocaml">let gaussian_kernel sigma =
   let truncate = 4. in
   let radius = truncate *. sigma +. 0.5 |&gt; int_of_float in
   let r = float_of_int radius in
@@ -465,7 +463,7 @@ let filter = gaussian_kernel 3.</code></pre>
 <figure>
 <img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 7: Smoothed stock price of Google with Gaussian filtering</figcaption>
 </figure>
-<p>Filters can be generally by their usage into time domain filters and frequency domain filters. Time domain filters are used when the information is encoded in the shape of the signal’s waveform, and can be used for tasks such as smoothing, waveform shaping, etc. It includes filter methods such as moving average and single pole. Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. There are many filters, each with different shape (or <em>impulse response</em>) and application scenarios, and we cannot cover them fully here. Please refer to some classical textbooks on signal processing such as <span data-cites="smith1997scientist" class="citation">(Smith and others 1997)</span> for more information.</p>
+<p>Filters can be generally categorised by their usage into time domain filters and frequency domain filters. Time domain filters are used when the information is encoded in the shape of the signal’s waveform, and can be used for tasks such as smoothing, waveform shaping, etc. It includes filter methods such as moving average and single pole. Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. There are many filters, each with different shape (or <em>impulse response</em>) and application scenarios, and we cannot fully cover them here. Please refer to some classical textbooks on signal processing such as <span data-cites="smith1997scientist" class="citation">(Smith and others 1997)</span> for more information.</p>
 </section>
 <section class="level3" id="signal-convolution">
 <h3>Signal Convolution</h3>

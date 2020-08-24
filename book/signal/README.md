@@ -569,15 +569,12 @@ A common pattern in this line drops first, but then bounces around.
 To get a smoother curve, we can change this simple filter to another one: the gaussian filter.
 Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: $p(x) = e^{-\frac{x^2}{2\sigma^2}}$.
 
-IMAGE
-
-(numpy [implementation](https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135) and [doc](https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter1d.html))
-
-The code below generate a simple 1-D gaussian filter.
+The code below generates a simple 1-D gaussian filter.
 Similar to the previous simple example, the filter also needs to be normalised.
-The range of radius is set to truncate standard deviations.
+For the filter window vector, its range of radius is set to truncate standard deviations.
+This implementation is similar to that in [SciPy]((https://github.com/scipy/scipy/blob/master/scipy/ndimage/filters.py#L135)).
 
-```
+```ocaml
 let gaussian_kernel sigma =
   let truncate = 4. in
   let radius = truncate *. sigma +. 0.5 |> int_of_float in
@@ -594,11 +591,11 @@ Computing the correlation between filter and the input data as before, we get a 
 
 ![Smoothed stock price of Google with Gaussian filtering](images/signal/plot_goog_gauss.png "goog_gauss.png"){width=60% #fig:signal:goog_gauss}
 
-Filters can be generally by their usage into time domain filters and frequency domain filters.
+Filters can be generally categorised by their usage into time domain filters and frequency domain filters.
 Time domain filters are used when the information is encoded in the shape of the signal's waveform, and can be used for tasks such as smoothing, waveform shaping, etc.
 It includes filter methods such as moving average and single pole.
 Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev.
-There are many filters, each with different shape (or *impulse response*) and application scenarios, and we cannot cover them fully here.
+There are many filters, each with different shape (or *impulse response*) and application scenarios, and we cannot fully cover them here.
 Please refer to some classical textbooks on signal processing such as [@smith1997scientist] for more information.
 
 ### Signal Convolution
