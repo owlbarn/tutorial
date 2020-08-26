@@ -116,8 +116,8 @@ R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.
 
 The function `fft` takes a complex ndarray as input, and also returns a complex ndarray.
 In the result returned, the first half contains the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency.
-Typically, only the FFT corresponding to positive frequencies is plotted, so as to remove redundant frequencies, such as the `2.25` and `-2.75` here.
-(TODO: explain what are pos/neg frequencies.)
+The negative frequency components are the phasors rotating in opposite direction.
+Typically, only the FFT corresponding to positive frequencies is used, so as to remove redundant frequencies, such as the `2.25` and `-2.75` here.
 
 ```ocaml env=fft_env01
 # let d = Owl_fft.D.ifft c

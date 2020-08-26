@@ -82,7 +82,7 @@ let b = Arr.of_array a [|6|] |&gt; Dense.Ndarray.Generic.cast_d2z;;
 &gt;R (5.5, 0i) (2.25, -0.433013i) (-2.75, -1.29904i) (1.5, 1.94289E-16i) (-2.75, 1.29904i) (2.25, 0.433013i)
 </code></pre>
 </div>
-<p>The function <code>fft</code> takes a complex ndarray as input, and also returns a complex ndarray. In the result returned, the first half contains the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency. Typically, only the FFT corresponding to positive frequencies is plotted, so as to remove redundant frequencies, such as the <code>2.25</code> and <code>-2.75</code> here. (TODO: explain what are pos/neg frequencies.)</p>
+<p>The function <code>fft</code> takes a complex ndarray as input, and also returns a complex ndarray. In the result returned, the first half contains the positive-frequency terms, and the second half contains the negative-frequency terms, in order of decreasingly negative frequency. The negative frequency components are the phasors rotating in opposite direction. Typically, only the FFT corresponding to positive frequencies is used, so as to remove redundant frequencies, such as the <code>2.25</code> and <code>-2.75</code> here.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d = Owl_fft.D.ifft c;;
 &gt;val d : (Complex.t, complex64_elt) Owl_dense_ndarray_generic.t =
