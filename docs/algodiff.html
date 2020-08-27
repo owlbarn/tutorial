@@ -193,7 +193,6 @@ let _ = grad f x |&gt; unpack_arr;;
 &gt;R0 -0.181974 -0.118142
 </code></pre>
 </div>
-<p><strong>TODO:</strong> introduce dual number</p>
 </section>
 <section class="level3" id="reverse-mode">
 <h3>Reverse Mode</h3>
@@ -370,7 +369,6 @@ let f x =
 </section>
 <section class="level2" id="a-strawman-ad-engine">
 <h2>A Strawman AD Engine</h2>
-<p>TODO: revise code, especially naming such as <code>sin_ad</code>.</p>
 <p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using OCaml code. Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.</p>
 <p>We will again use the function in eq.&nbsp;4 as example, and we limit the computation in our small AD engine to only these operations: <code>add</code>, <code>div</code>, <code>mul</code>,</p>
 <section class="level3" id="simple-forward-implementation">
@@ -1002,8 +1000,8 @@ Plot.output h;;</code></pre>
 </section>
 <section class="level3" id="gradient">
 <h3>Gradient</h3>
-<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accept a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
-<p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression an Optimisation chapters in our book.</p>
+<p>As we have introduced in eq.&nbsp;2, gradient generalise derivatives to multivariate functions. Therefore, for a function that accepts a vector (where each element is a variable), and returns a scalar, we can use the <code>grad</code> function to find it gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
+<p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression and Optimisation chapters in our book.</p>
 <p>As an example, we calculate the gradient of a physical function. The fourth chapter of <span data-cites="feynman1964feynman" class="citation">(Feynman 1964)</span> describes an electronic fields. It consists two point charges, <code>+q</code> and <code>-q</code>, separated by the distance <span class="math inline">\(d\)</span>. The z axis goes through the charges, and the origin is set to halfway between these two charges. The potential from the two charges can be described by</p>
 <p><span class="math display">\[\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)\]</span></p>
 <p>TODO: finish this example?</p>
@@ -1068,8 +1066,7 @@ R0 (0.840896, 0i) (-0.840896, 0i) (0, 0.594604i) (0, -0.594604i)</code></pre>
 <h3>Hessian and Laplacian</h3>
 <p>Another way to extend the gradient is to find the second order derivative of a multivariate function which takes <span class="math inline">\(n\)</span> input variables and outputs a scalar. Its second order derivatives can be organised as a matrix:</p>
 <p><span class="math display">\[ \mathbf{H}(y) = \left[ \begin{matrix} \frac{\partial^2~y_1}{\partial~x_1^2} &amp; \frac{\partial^2~y_1}{\partial~x_1~x_2} &amp; \ldots &amp; \frac{\partial^2~y_1}{\partial~x_1~x_n} \\ \frac{\partial^2~y_2}{\partial~x_2~x_1} &amp; \frac{\partial^2~y_2}{\partial~x_2^2} &amp; \ldots &amp; \frac{\partial^2~y_2}{\partial~x_2~x_n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ \frac{\partial^2~y_m}{\partial^2~x_n~x_1} &amp; \frac{\partial^2~y_m}{\partial~x_n~x_2} &amp; \ldots &amp; \frac{\partial^2~y_m}{\partial~x_n^2} \end{matrix} \right]\]</span></p>
-<p>TODO: intuition of hessian.</p>
-<p>As an example of using Hessian matrix, consider the <em>newton’s method</em>. It is also used for solving the optimisation problem, i.e.&nbsp;to find the minimum value on a function. Instead of following the direction of the gradient, the newton method combines gradient and second order gradients: <span class="math inline">\(\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}\)</span>. Specifically, starting from a random position <span class="math inline">\(x_0\)</span>, and it can be iteratively updated by repeating this procedure until converge, as shown in eq.&nbsp;7.</p>
+<p>This matrix is called the <em>Hessian Matrix</em>. As an example of using it, consider the <em>newton’s method</em>. It is also used for solving the optimisation problem, i.e.&nbsp;to find the minimum value on a function. Instead of following the direction of the gradient, the newton method combines gradient and second order gradients: <span class="math inline">\(\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}\)</span>. Specifically, starting from a random position <span class="math inline">\(x_0\)</span>, and it can be iteratively updated by repeating this procedure until converge, as shown in eq.&nbsp;7.</p>
 <p><span id="eq:algodiff:newtons"><span class="math display">\[x_(n+1) = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)\qquad(7)\]</span></span></p>
 <p>This process can be easily represented using the <code>Algodiff.D.hessian</code> function.</p>
 <div class="highlight">
@@ -1275,9 +1272,7 @@ let _ = grad f x |&gt; unpack_arr;;
 </section>
 <section class="level3" id="lazy-evaluation">
 <h3>Lazy Evaluation</h3>
-<p>TODO: Check if current understanding of lazy evaluation is correct.</p>
-<p>Using the <code>Builder</code> enables users to build new operations conviniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency.</p>
-<p>Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, but in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times. With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not effiient. We need some mechanism of caching.</p>
+<p>Using the <code>Builder</code> enables users to build new operations conviniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency. Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, but in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times. With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not efficient. We need some mechanism of caching.</p>
 <p>This is where the <em>lazy evaluation</em> in OCaml comes to help.</p>
 <div class="highlight">
 <pre><code class="language-clike">val lazy: 'a -&gt; 'a lazy_t
@@ -1298,7 +1293,7 @@ module Lazy :
 # let _ = Lazy.force lazy_x
 # let _ = Lazy.force lazy_x</code></pre>
 </div>
-<p>In this example you can see that building <code>lazy_x</code> does not evalute the content, which is delayed to ther first <code>Lazy.force</code>. After that, ever time <code>force</code> is called, only the value is returned, but the <code>x</code> itself, including the <code>printf</code> function, will not be evaluted.</p>
+<p>In this example you can see that building <code>lazy_x</code> does not evaluate the content, which is delayed to the first <code>Lazy.force</code>. After that, ever time <code>force</code> is called, only the value is returned; the <code>x</code> itself, including the <code>printf</code> function, will not be evaluated.</p>
 <p>We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a <code>sin</code> operation that the AD module supposedly “does not provide”. We can still do:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
@@ -1317,9 +1312,9 @@ end</code></pre>
 
 let sin_ad = Lazy.force _sin_ad</code></pre>
 </div>
-<p>Int this way, reglardless how many times this <code>sin</code> function is called in a massive computation, the <code>Builder.build_siso</code> process is only invoked once.</p>
+<p>Int this way, regardless of how many times this <code>sin</code> function is called in a massive computation, the <code>Builder.build_siso</code> process is only invoked once.</p>
 <p>(TODO: maybe an example to show the performance before and after applying the lazy evaluation? The problem is that, the non-forced part is not visible to users.)</p>
-<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as compuation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
+<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as computation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
 </section>
 </section>
 <section class="level2" id="summary">

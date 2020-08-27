@@ -694,7 +694,7 @@ Actually, many tensor operations involve summation over particular indices.
 Therefore in using tensors in applications such as linear algebra and physics, the *Einstein notation* is used to simplified notations.
 It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term).
 For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$. 
-{@eq:ndarray:tensor} can also be greatly simplified in this way. 
+[@eq:ndarray:tensor] can also be greatly simplified in this way. 
 
 The tensor calculus is of important use in disciplines such as geometry and physics.
 More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as [@dullemond1991introduction] for deeper understanding about this topic.

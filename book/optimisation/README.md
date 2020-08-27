@@ -47,8 +47,6 @@ We will cover the other more advanced content briefly in the end of this chapter
 
 (NOTE: if we decide to add linear programming later, we can extend the constrained)
 
-(NOTE: We need a lot of illustrations to show the gradient process)
-
 ## Numerical Differentiation VS. Algorithmic Differentiation
 
 The derivative/gradient is used extensively in solving optimisation problems. Therefore, let's start this chapter with understanding the difference of the two ways to compute derivatives: *algorithmic differentiation* and *numerical differentiation*.
