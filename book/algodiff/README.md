@@ -80,14 +80,57 @@ There are three different ways widely used to automate differentiation: numerica
 The numerical differentiation comes from the definition of derivative in [@eq:algodiff:def].
 It uses a small step $\delta$ to approximate the limit in the definition:
 
-$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$
+$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ {#eq:algodiff:numdiff}
 
+This method is pretty easy to follow: evaluate the given $f$ at point $x$, and then choose a suitable small amount $\delta$, add it to the original $x$ and then re-evaluate the function. Then the derivative can be calculated using [@eq:algodiff:numdiff].
 As long as you knows how to evaluate function $f$, this method can be applied. The function $f$ per se can be treated a black box.
-The differentiation coding used in this method is also straightforward.
+The implementation is also straightforward.
 However, the problem with this method is prone to truncation errors and round-off errors.
-The truncation errors is introduced by truncating an infinite sum and approximating it by a finite sum;
-the round-off error is then caused by representing numbers approximately in numerical computation during this process.
-Besides, this method is also slow due to requiring multiple evaluation of function $f$.
+
+The *truncation error* comes from the fact that [@eq:algodiff:numdiff] is only an approximation of the true gradient value.
+We can see their difference with Taylor expansion:
+
+$$f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)$$
+
+Here $h$ is the step size and $\sigma_h$ is in the range of $[x, x+h]$.
+This can be transformed into:
+
+$$\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.$$
+
+This represent the truncation error in the approximation.
+For example, for function $f(x) = sin(x)$, $f''(x) = -sin(x)$.
+Suppose we want to calculate the derivative at $x=1$ numerically using a step size of 0.01, then the truncation error should be in the range $\frac{0.01^2}{2}[sin(1), sin(1.01)]$.
+
+
+Here we can see the effect of this truncation error in an example, by using an improperly large step size.
+Here we want to find the derivative of $f(x) = cos(x)$ at point $x=1$.
+Basic calculus tells us that it should be equals to $-sin(1) = 0.84147$, but the result is obviously a bit different. 
+
+```ocaml env=optimisation:numdiff
+# let d =
+    let _eps = 0.1 in
+    let diff f x = (f (x +. _eps) -. f x) /. _eps in
+    diff Maths.cos 1.
+val d : float = -0.867061844425624506
+```
+
+Another source of error is the round-off error.
+It is caused by representing numbers approximately in numerical computation during this process.
+Looking back at [@eq:algodiff:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost the same number. That leads to large round-off errors.
+For example, let's choose a very small step size this time:
+
+```ocaml env=optimisation:numdiff
+# let d =
+    let _eps = 5E-16 in
+    let diff f x = (f (x +. _eps) -. f x) /. _eps in
+    diff Maths.cos 1.
+val d : float = -0.888178419700125121
+```
+
+It is still significantly different from the expected result.
+Actually if we use a even smaller step size $1e-16$, the result becomes 0, which means the round-off error is large enough that $f(x)$ and $f(x+h)$ are deemed the same by the computer.
+
+Besides these sources of error, the numerical differentiation method is also slow due to requiring multiple evaluation of function $f$.
 We'll discuss it later in the optimisation chapter, since optimisation using gradient is a very important application of differentiation.
 Some discussion about numerically solving derivative related problems is also covered in the Ordinary Differentiation Equation chapter, where we focus on introducing solving these equations numerically, and how the impact of these errors can be reduced.
 

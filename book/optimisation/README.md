@@ -9,142 +9,49 @@ We will use Owl to implement some of these methods.
 
 Mathematical optimisation deals with the problem of finding minimums or maximums of a function. The solution can be numerical if closed-form expression does not exist. An optimisation problem has the form:
 
-$$\textrm{minimise} f_0(\mathbf{x}),$$
-$$\textrm{subject to} f_i(\mathbf{x}) \leq b_i, i = 1, 2, \ldots, m. $$ {#eq:optimisation:def}
+$$\textrm{minimise } f_0(\mathbf{x}),$$
+$$\textrm{subject to } f_i(\mathbf{x}) \leq b_i, i = 1, 2, \ldots, m. $$ {#eq:optimisation:def}
 
 Here $\mathbf{x}$ is a vector that contains all the *optimisation variable*: $\mathbf{x} = [x_0, x_1, ... x_n]$. Function $f_0 : \mathbf{R}^n \rightarrow \mathbf{R}$ is the optimisation target, and is called an *objective function*, or *cost function*.
-A optimisation problem could be bounded by zero or more *constraints*. $f_i : \mathbf{R}^n \rightarrow \mathbf{R}$ in a constraint is called a *constraint function*, which are bounded by the $b_i$'s.
+An optimisation problem could be bounded by zero or more *constraints*. $f_i : \mathbf{R}^n \rightarrow \mathbf{R}$ in a constraint is called a *constraint function*, which are bounded by the $b_i$'s.
 The target is to find the optimal variable values $\mathbf{x}^{*}$ so that $f_0$ can take on a maximum or minimum value.
 
-A optimisation problem formalises the idea "maximum benefit/minimise cost with given constraint", which is a widely applicable topic in many real world problems: scheduling computation/network resources, optimisation of investment portfolio, fitting math model based on observed data, logistics, aero engineering, competitive games ...
+An optimisation problem formalises the idea "maximum benefit/minimise cost with given constraint", which is a widely applicable topic in many real world problems: scheduling computation/network resources, optimisation of investment portfolio, fitting math model based on observed data, logistics, aero engineering, competitive games...
 Optimisation has already been applied in many areas.
 
-In [@eq:optimisation:def], if for all the objective function and constraint function, we have:
+An optimisation problem can be categorised into different types.
+In [@eq:optimisation:def], if for all the objective functions and constraint functions, we have:
 
 $$ f_i(\alpha~x+\beta~y) = \alpha~f_i(x) + \beta~f_i(y),$$ {#eq:optimisation:linear}
 
 the optimisation problem is then called *linear optimisation*. It is an important class of optimisation problems.
-If we change the "$=$" to "$\leq$" in [@eq:optimisation:linear] make all the functions to be *convex*, and the problem then becomes *convex optimisation*, which can be seen as a generalised linear optimisation. In opimisation world, convexity is considerd as the wathershed between easy and difficult problems, because for most convex problems, there are efficient algorithmic solutions.
+If we change the "$=$" to "$\leq$" in [@eq:optimisation:linear], it would make all the functions to be *convex*, and the problem then becomes *convex optimisation*, which can be seen as a generalised linear optimisation. 
+In the optimisation world, convexity is considered as the watershed between easy and difficult problems; because for most convex problems, there exist efficient algorithmic solutions.
 
 Linear optimisation is important because non-negativity is a usual constraint on real world quantities, and that people are often interested in additive bounds. Besides, many problems can be approximated by a linear model.
 Though still limited by actual problem size, the solution of most linear optimisation problems are already known and provided by off-the-shelf software tools.
-The text book [@boyd2004convex] focus exclusively on the topic of convex optimisation.
+The text book [@boyd2004convex] focuses exclusively on the topic of convex optimisation.
 
 Compare to linear optimisation, solving *non-linear optimisation* problems can still be very challenging.
-Finding a *global* solution that maximises or minimises the non-linear objective function is often quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when absolutely necessary.
+Finding a *global* solution that maximises or minimises the non-linear objective function is often quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when it is absolutely necessary.
 For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough.
 Otherwise, a *local* maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough.
 Even though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.
 
-Looking back at [@eq:optimisation:def], if we remove the constraints, then it becomes an *unconstrained optimisation* problem.
+Looking back at [@eq:optimisation:def], if we remove the constraints, it becomes an *unconstrained optimisation* problem.
 If $f$ is convex and differentiable, this problem can be seen as finding the root of the derivative of $f$ so that $f'(x^*) = 0$.
-As for the constrained version, we have introduced the linear programming where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc.
-One subset of constrained optimisation, the *equality constrained optimisation* where all the constraints are expressed in the form of equality $Ax=b$. This set of problem can be simplified into the corresponding unconstrained problems.
+As for the constrained version, one commonly used type is the *linear programming problem* where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc.
+One subset of constrained optimisation is the *equality constrained optimisation* where all the constraints are expressed in the form of equality $Ax=b$. This set of problem can be simplified into the corresponding unconstrained problems.
 
-You can see that the topic of optimisation covers a wide range of topics and we can only give a very brief introduction here.
-In this chapter, we mostly cover the unconstrained and local optimisation.
+Optimisation covers a wide range of topics and we can only give a very brief introduction here.
+In the rest of this chapter, we mostly cover the unconstrained and local optimisation.
 We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as [@boyd2004convex] and [@fletcher2013practical] for more information.
 
-(NOTE: if we decide to add linear programming later, we can extend the constrained)
-
-## Numerical Differentiation VS. Algorithmic Differentiation
-
-The derivative/gradient is used extensively in solving optimisation problems. Therefore, let's start this chapter with understanding the difference of the two ways to compute derivatives: *algorithmic differentiation* and *numerical differentiation*.
-
-We have talked about algorithmic differentiation* in detail in the previous chapter.
-What is this numerical differentiation then?
-It's actually simple according to the definition of derivative itself:
-
-$$f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.$$ {#eq:optimisation:numdiff}
-
-This method is pretty easy to follow: evaluate the given $f$ at point $x$, and then choose a suitable small amount $\delta$, add it to the original $x$ and then re-evaluate the function. Then the derivative can be calculated using [@eq:optimisation:numdiff].
-We can implement this method easily using OCaml:
-
-```ocaml env=optimisation:numdiff
-let _eps = 0.00001
-
-let diff f x = (f (x +. _eps) -. f x) /. _eps
-```
-
-**liang: x can in the middle, left, and right. Show that it is optimal to be in the middle.**
-
-We can apply it to a simple case. Let's say, we want to find the derivative of $f(x) = sin(x)$ at point $x=1$.
-Basic calculus tells us that it should be equals to $cos(1) = 0.5403$.
-Here is the code:
-
-```ocaml env=optimisation:numdiff
-# let f = Maths.cos
-val f : float -> float = <fun>
-# let d = diff f 1.
-val d : float = -0.841473686319371583
-```
-
-Looks good.
-
-Owl has provided numerical differentiation. It's close to the interface of that of Algodiff:
-
-```
-val diff : (elt -> elt) -> elt -> elt
-(** derivative of ``f : scalar -> scalar``. *)
-
-val diff2 : (elt -> elt) -> elt -> elt
-(** second order derivative of ``f : float -> float``. *)
-
-val grad : (arr -> elt) -> arr -> arr
-(** gradient of ``f : vector -> scalar``. *)
-
-val jacobian : (arr -> arr) -> arr -> arr
-(** jacobian of ``f : vector -> vector``. *)
-
-val jacobianT : (arr -> arr) -> arr -> arr
-(** transposed jacobian of ``f : vector -> vector``. *)
-```
-
-Looks nice, much easier than Algodiff's approach, right?
-No. Sadly, this naive numerical solution can lead to large errors in reality.
-There are two source of errors: truncating error and round-off error.
-
-The *truncating error* comes from the fact that [@eq:optimisation:numdiff] is only an approximation of the true gradient value.
-We can see their difference with Tayler expansion:
-
-$$f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)$$
-
-Here $h$ is the step size and $\sigma_h$ is in the range of $[x, x+h]$.
-This can be transformed into:
-
-$$\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.$$
-
-This represent the truncation error in the approximation.
-For example, for function $f(x) = sin(x)$, $f''(x) = -sin(x)$.
-Suppose we want to calculate the derivative at $x=1$ numerically using a step size of 0.01, then the truncation error should be in the range $\frac{0.01^2}{2}[sin(1), sin(1.01)]$.
-Here we can see the effect of this truncation error, by using a improper step size:
-
-```ocaml env=optimisation:numdiff
-# let d =
-    let _eps = 0.1 in
-    let diff f x = (f (x +. _eps) -. f x) /. _eps in
-    diff f 1.
-val d : float = -0.867061844425624506
-```
-
-Another source of error is the round-off error.
-Looking back at [@eq:optimisation:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost the same number. That leads to large round-off errors.
-For example, let's choose a very small step size:
-
-```ocaml env=optimisation:numdiff
-# let d =
-    let _eps = 5E-16 in
-    let diff f x = (f (x +. _eps) -. f x) /. _eps in
-    diff f 1.
-val d : float = -0.888178419700125121
-```
-
-Actually if we use a even smaller step size $1e-16$, the result becomes 0, which means the round-off error is large enough that $f(x)$ and $f(x+h)$ are deemed the same by the computer.
-
-Compared to numerical differentiation, Algodiff guarantees a true derivative value without loss of accuracy.
-If you compute the the derivative of `sin`, then the returned results would use the `cos` function.
+This chapter uses differentiation techniques we have introduced in the previous chapter. 
+Compared to numerical differentiation, the algorithmic differentiation guarantees a true derivative value without loss of accuracy.
 For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
 
+(NOTE: if we decide to add linear programming later, we can extend the constrained)
 
 ## Root Finding
 
