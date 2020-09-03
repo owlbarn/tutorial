@@ -55,24 +55,31 @@ For the rest of this chapter, we prefer to use the algorithmic differentiation t
 
 ## Root Finding
 
-We have seen some examples of root finding in the Math chapter.
+We have seen some examples of root finding in the Mathematical Functions` chapter.
 *Root finding* is the process which tries to find zeroes or *roots* of continuous functions.
 It is not an optimisation problem, but these two topics are closely related.
-I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g. how to the root by bracketing and how to find target in an iterative manner.
+It is beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithms work, e.g. how to find the root by bracketing and how to find target in an iterative manner.
 
 ### Bisect, Newton, Secant, and IQI
 
-First, the Bisection method. Use $\sqrt{2}$ as an example, just show the string of number here:$1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots$. (DETAIL)
-Owl provides `Owl_maths_root.bisec` method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let's keep thing concise for now.)
-This method converges slowly, but it is a solid and reliable method.
+The bisection method is a simple iterative method to find roots. 
+Let's use $f(x) = x^2 = 2$ as an example. We know that the root of this equation is $x = \sqrt{2} = 1.4142135623\ldots$.
+To find this solution, the bisection methods works like this: 
+we know the solution must be between `1` and `2`, so first we set `x` to the middle point $x=1.5$; 
+since $x^2 = 2.25$ is larger than `2`, it means this `x` is too large;
+so next we try $x = 1\frac{1}{4}$, which is too small; so next we try $1\frac{3}{8}$....
+Bisect is slow to converge. It takes about 50 iterations to reach a precision of 14 digits after the decimal point.
+However, it is a solid and reliable method to find roots, as long as the function is continuous in the given region.
+Owl provides the `Owl_maths_root.bisec` function that implements this method.
 
-Newton method utilises the derivative of objective function $f$. It starts with a initial value $x_0$, and follows this process:
+Next is the Newton method.
+It utilises the derivative of objective function $f$. It starts with a initial value $x_0$, and iterative update it following this process until converges:
 
 $$x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.$$ {#eq:optimisation:newton}
 
-We can use the Algorithm Differentiation module in Owl to do that.
-In the next example we find the root of $x^2 - 2 = 0$, i.e., find an approximate value of $\sqrt{2}$.
-The Owl code is just a plain translation of [@eq:optimisation:newton].
+We can use the Algorithm Differentiation module in Owl to perform the derivative calculation.
+Again, let's find the root of $x^2 - 2 = 0$ using this method.
+The Owl code here is just a plain translation of [@eq:optimisation:newton].
 
 ```ocaml
 open Algodiff.D
@@ -101,15 +108,17 @@ The resulting sequence is very short compared to the bisection method:
 ```
 
 The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration.
-It is the basis of many powerful numerical methods (such as?)
+It is the basis of many powerful numerical methods, such as optimisation, multiplicative inverses of numbers and power series, and solving transcendental equations, etc.
 
+The Newton method requires the function to be smooth.
 If $f$ is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a *Secant Method*:
 
 $$ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.$${#eq:optimisation:secant}
 
-In the Secant method, two points are used at each iteration, the *Inverse Quadratic Interpolation* (IQI) method then uses three points to do that.
-DETAIL.
-Benefit/Limit.
+This method does not need to compute derivatives, and has similar convergence property as the Newton method.
+In the Secant method, two points are used at each iteration in calculating derivatives.
+As an improvement, the *Inverse Quadratic Interpolation* (IQI) method uses three points to do the interpolation.
+The benefit of the method is that it's fast at the end of iterating, but unstable in during process.
 
 ### Brent's Method
 
