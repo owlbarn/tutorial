@@ -23,13 +23,13 @@
 </section>
 <section class="level2" id="root-finding">
 <h2>Root Finding</h2>
-<p>We have seen some examples of root finding in the Math chapter. <em>Root finding</em> is the process which tries to find zeroes or <em>roots</em> of continuous functions. It is not an optimisation problem, but these two topics are closely related. I would be beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithm work, e.g.&nbsp;how to the root by bracketing and how to find target in an iterative manner.</p>
+<p>We have seen some examples of root finding in the Mathematical Functions` chapter. <em>Root finding</em> is the process which tries to find zeroes or <em>roots</em> of continuous functions. It is not an optimisation problem, but these two topics are closely related. It is beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithms work, e.g.&nbsp;how to find the root by bracketing and how to find target in an iterative manner.</p>
 <section class="level3" id="bisect-newton-secant-and-iqi">
 <h3>Bisect, Newton, Secant, and IQI</h3>
-<p>First, the Bisection method. Use <span class="math inline">\(\sqrt{2}\)</span> as an example, just show the string of number here:<span class="math inline">\(1\frac{1}{2}, 1\frac{1}{4}, 1\frac{3}{8}, 1\frac{5}{16} \ldots\)</span>. (DETAIL) Owl provides <code>Owl_maths_root.bisec</code> method. (NOTE: we can have a example or even paste the Owl impl. here if we want to beef this section up, but let’s keep thing concise for now.) This method converges slowly, but it is a solid and reliable method.</p>
-<p>Newton method utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and follows this process:</p>
+<p>The bisection method is a simple iterative method to find roots. Let’s use <span class="math inline">\(f(x) = x^2 = 2\)</span> as an example. We know that the root of this equation is <span class="math inline">\(x = \sqrt{2} = 1.4142135623\ldots\)</span>. To find this solution, the bisection methods works like this: we know the solution must be between <code>1</code> and <code>2</code>, so first we set <code>x</code> to the middle point <span class="math inline">\(x=1.5\)</span>; since <span class="math inline">\(x^2 = 2.25\)</span> is larger than <code>2</code>, it means this <code>x</code> is too large; so next we try <span class="math inline">\(x = 1\frac{1}{4}\)</span>, which is too small; so next we try <span class="math inline">\(1\frac{3}{8}\)</span>…. Bisect is slow to converge. It takes about 50 iterations to reach a precision of 14 digits after the decimal point. However, it is a solid and reliable method to find roots, as long as the function is continuous in the given region. Owl provides the <code>Owl_maths_root.bisec</code> function that implements this method.</p>
+<p>Next is the Newton method. It utilises the derivative of objective function <span class="math inline">\(f\)</span>. It starts with a initial value <span class="math inline">\(x_0\)</span>, and iterative update it following this process until converges:</p>
 <p><span id="eq:optimisation:newton"><span class="math display">\[x_{n+1} = x_{n} - \frac{f(x_n)}{f'(x_n)}.\qquad(3)\]</span></span></p>
-<p>We can use the Algorithm Differentiation module in Owl to do that. In the next example we find the root of <span class="math inline">\(x^2 - 2 = 0\)</span>, i.e., find an approximate value of <span class="math inline">\(\sqrt{2}\)</span>. The Owl code is just a plain translation of eq.&nbsp;3.</p>
+<p>We can use the Algorithm Differentiation module in Owl to perform the derivative calculation. Again, let’s find the root of <span class="math inline">\(x^2 - 2 = 0\)</span> using this method. The Owl code here is just a plain translation of eq.&nbsp;3.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -54,10 +54,10 @@ The resulting sequence is very short compared to the bisection method:
 1.414213562373095
 1.414213562373095</code></pre>
 </div>
-<p>The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods (such as?)</p>
-<p>If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
+<p>The Newton method is very efficient: it has quadratic convergence which means the square of the error at one iteration is proportional to the error at the next iteration. It is the basis of many powerful numerical methods, such as optimisation, multiplicative inverses of numbers and power series, and solving transcendental equations, etc.</p>
+<p>The Newton method requires the function to be smooth. If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
 <p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(4)\]</span></span></p>
-<p>In the Secant method, two points are used at each iteration, the <em>Inverse Quadratic Interpolation</em> (IQI) method then uses three points to do that. DETAIL. Benefit/Limit.</p>
+<p>This method does not need to compute derivatives, and has similar convergence property as the Newton method. In the Secant method, two points are used at each iteration in calculating derivatives. As an improvement, the <em>Inverse Quadratic Interpolation</em> (IQI) method uses three points to do the interpolation. The benefit of the method is that it’s fast at the end of iterating, but unstable in during process.</p>
 </section>
 <section class="level3" id="brents-method">
 <h3>Brent’s Method</h3>
