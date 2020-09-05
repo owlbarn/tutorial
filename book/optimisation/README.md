@@ -126,7 +126,7 @@ The *Brent's Method* is generally considered the best of the root-finding routin
 It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods.
 The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt.
 
-A description of this method.
+TODO: A description of this method.
 
 This method is what we use in the examples in "Math" chapter.
 We have also implemented it in Owl. (Paste the code if necessary, but for now just keep the root-finding section short)
@@ -134,7 +134,7 @@ We have also implemented it in Owl. (Paste the code if necessary, but for now ju
 ## Univariate Function Optimisation
 
 Now that we have briefly introduced how root-finding works and some classic methods, let's move on to the main topic of this chapter: unconstrained optimisation problems.
-Let's start with the simple case that only one variable in the objective function.
+Let's start with the simple case that there is only one variable in the objective function.
 We will introduce the optimisation methods for multivariate functions in the next section, and they all apply to the univariate case, but the specific algorithms can work faster. Besides, understanding the optimisation of univariate functions can be a good step before getting to know the multivariate ones.
 
 ### Use Derivatives
@@ -164,7 +164,7 @@ let f' x = f (F x) |> unpack_flt
 let g' x = g (F x) |> unpack_flt
 ```
 
-Visualise the image:
+To better understand the optimisation along this function, we can visualise the image as below:
 
 ```ocaml env=optimisation_00
 
@@ -193,35 +193,36 @@ And then you can find the extreme values using the root finding algorithm, such 
 - : float = 0.892716303287079405
 ```
 
-The issue is that you cannot be certain which is maximum and which is minimum.
+It seems to work fine and find the extreme values correctly in the given range.
+However, the problem of this method is that you cannot be certain which is maximum and which is minimum.
 
 ### Golden Section Search
 
-Here we face the similar question again: what if computing derivative of the function is difficult or not available?
+Here we face the similar question again: what if computing derivatives of the function is difficult or not available?
 That leads us to some search-based approach.
-We have seen how we can keep reducing a pair of range to find the root of a function.
-A close analogue in optimisation is also a search method called *Gold Section Search*.
+We have seen how we can keep reducing a pair of ranges to find the root of a function.
+A close analogue in optimisation is also a search method called *Golden Section Search*.
 It's an optimisation method that does not require calculating derivatives.
 It is one choice to do optimisation if your function has a discontinuous first or second derivative.
 
-The basic idea is simple. It also relies on keep reducing a "range" until it is small enough.
+The basic idea is simple. It also relies on keeping reducing a "range" until it is small enough.
 The difference is that, instead of using only two numbers, this search method uses three numbers: `[a, b, c]`.
 It contains two ranges: `[a,b]` and `[b, c]`.
-For every iteration, we need to find a new number `d` within one of the the two ranges.
+For every iteration, we need to find a new number `d` within one of the two ranges.
 For example, if we choose the `d` within `[b, c]`, and if $f(b) > f(d)$, then the new triplet becomes `[b, d, c]`, otherwise the new triplet is chosen as `[a, b, d]`.
-With the approach, the range of this triplet keep reducing until it is small enough and the minimum value can thus be found.
+With this approach, the range of this triplet keeps reducing until it is small enough and the minimum value can thus be found.
 
 Then the only question is: how to choose the suitable `d` point at each step.
 This approach first chooses the larger the two ranges, either `[a, b]` or `[b, c]`. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet.
 The name comes from the ratio and length of range is closely related with the golden ratio.
-This method is slow but robust. It guarantees that each new iteration will bracket the minimum to an range just 0.61803 times the size of the previous one.
+This method is slow but robust. It guarantees that each new iteration will bracket the minimum to a range just 0.61803 times the size of the previous one.
 
 
 ## Multivariate Function Optimisation
 
 The methods for univariate scenarios can be extended to solving multivariate optimisation problems.
 The analogue of derivative here is a ndarray called *gradient*.
-Similarly, you have two options: to use gradient, or not.
+Similarly, you have two options: to use gradients, or not.
 
 ### Nelder-Mead Simplex Method
 
@@ -229,6 +230,8 @@ First, similar to the Golden Section Search or Brent's, you can always opt for a
 One such method we can use is the *Nelder-Mead Simplex Method*.
 As its name shows, it is probably the simplest way to minimize a fairly well-behaved function.
 It simply goes downhill in a straightforward way, without special assumptions about the objective function.
+
+TODO:
 
 EXPLAIN the algorithm in detail, perhaps with illustration.
 According to the Numerical Recipe, "the downhill simplex method now takes a series of steps, most steps just moving the point of the simplex where the function is largest (“highest point”) through the opposite face of the simplex to a lower point. These steps are called reflections, and they are constructed to conserve the volume of the simplex (and hence maintain its nondegeneracy). When it can do so, the method expands the simplex in one or another direction to take larger steps. When it reaches a “valley floor”, the method contracts itself in the transverse direction and tries to ooze down the valley."
@@ -238,7 +241,6 @@ If the function is kind of smooth, this method can find the direction in going d
 We will not talk about this method in detail.
 
 ### Gradient Descent Methods
-
 
 A *descent method* is an iterative optimisation process.
 The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum.
@@ -255,7 +257,7 @@ Therefore, we can describe the $n$-th iteration of descent method as:
 Repeat this process until a stopping condition is met, such as the update is smaller than a threshold.
 
 Among the descent methods, the *Gradient Descent* method is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks.
-we will talk about it in the Neural Network chapter.
+We will talk about it in the Neural Network chapter.
 
 Based on this process, Gradient Descent method uses the function gradient to decide its direction $d$.
 The precess can be described as:
@@ -264,12 +266,12 @@ The precess can be described as:
 2. choose a step size $\alpha$;
 3. update the location: $x_{n+1} = x_n + \alpha~\nabla~f(x_n)$.
 
-Here $\nabla$ denotes the gradient, and the distance $\alpha$ it moves along certain direction is also called *learning rate*.
+Here $\nabla$ denotes the gradient, and the distance $\alpha$ along a certain direction is also called *learning rate*.
 In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)
 
 We can easily implement this process with the algorithmic differentiation module in Owl.
 Let's look at an example.
-Here we use define the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) which is usually used as performance test for optimisation problems.
+Here we use the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) which is usually used as a performance test for optimisation problems.
 The function is defined as:
 
 $$f(x, y) = (a - x)^2 + b(y-x^2)^2.$$ {#eq:optimisation:rosenbrock}
@@ -329,9 +331,9 @@ let _ =
 	Plot.output h
 ```
 
-We first create a meshgrid based on the Rosenbrock function  to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting porint towards a local minimum point.
+We first create a meshgrid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point.
 The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
-On the right figure the black line shows the moving trajectory. You can image it moving downwards along the slope in the right side figure.
+On the right figure the black line shows the moving trajectory. You can imagine it moving downwards along the slope in the right side figure.
 
 ![Optimisation process of gradient descent on multivariate function](images/optimisation/gd_rosenbrock.png "gd_rosenbrock"){width=100% #fig:optimisation:gd_rosenbrock}
 
@@ -419,27 +421,29 @@ let _ =
   Mat.print y
 ```
 
-Once nice property about the newton's method is its rate of convergence: it converges quadratically.
+One nice property about the Newton's method is its rate of convergence: it converges quadratically.
 However, one big problem with the newton method is the problem size.
 In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.
 
 Towards this end, the *Quasi-newton* methods are proposed.
-The basic idea is to iteratively build up an approximation of the inverse of Hessian matrix.
-Their convergence is fast, but not as efficient as newton method. It takes about $n$ quasi-newton iterations to progress similarly as the newton method.
+The basic idea is to iteratively build up an approximation of the inverse of the Hessian matrix.
+Their convergence is fast, but not as efficient as the Newton's method. It takes about $n$ quasi-newton iterations to progress similarly as the Newton's method.
 The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors.
 
 EXPLAIN briefly.
 
-The Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
+As a practical enhancement to the algorithm, the Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
 Instead of propagating updates over all iterations, this method only keeps updates from the last $m$ iterations.
+
+EXPLAIN
 
 ## Global Optimisation and Constrained Optimisation
 
-This chapter mainly focuses on unconstrained optimisation, mostly to find local optimal.
-In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation
+This chapter mainly focuses on unconstrained optimisation, mostly to find local optima.
+In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation.
 
 The basic idea of global optimisation is to provide effective search methods and heuristics to traverse the search space effectively.
-One method is to start from sufficient number of initial points and find the local optimal, the choose the smallest/largest value from them.
+One method is to start from a sufficient number of initial points and find the local optima, then choose the smallest/largest value from them.
 Another heuristic is to try stepping away from a local optimal value by taking a finite amplitude step away from it, perform the optimisation method, and see if it leads to a better solution or still the same.
 
 One example of algorithm: Simulated Annealing Methods.
