@@ -25,7 +25,7 @@ In [@eq:optimisation:def], if for all the objective functions and constraint fun
 $$ f_i(\alpha~x+\beta~y) = \alpha~f_i(x) + \beta~f_i(y),$$ {#eq:optimisation:linear}
 
 the optimisation problem is then called *linear optimisation*. It is an important class of optimisation problems.
-If we change the "$=$" to "$\leq$" in [@eq:optimisation:linear], it would make all the functions to be *convex*, and the problem then becomes *convex optimisation*, which can be seen as a generalised linear optimisation. 
+If we change the "$=$" to "$\leq$" in [@eq:optimisation:linear], it would make all the functions to be *convex*, and the problem then becomes *convex optimisation*, which can be seen as a generalised linear optimisation.
 In the optimisation world, convexity is considered as the watershed between easy and difficult problems; because for most convex problems, there exist efficient algorithmic solutions.
 
 Linear optimisation is important because non-negativity is a usual constraint on real world quantities, and that people are often interested in additive bounds. Besides, many problems can be approximated by a linear model.
@@ -47,7 +47,7 @@ Optimisation covers a wide range of topics and we can only give a very brief int
 In the rest of this chapter, we mostly cover the unconstrained and local optimisation.
 We will cover the other more advanced content briefly in the end of this chapter, and refer readers to classic books such as [@boyd2004convex] and [@fletcher2013practical] for more information.
 
-This chapter uses differentiation techniques we have introduced in the previous chapter. 
+This chapter uses differentiation techniques we have introduced in the previous chapter.
 Compared to numerical differentiation, the algorithmic differentiation guarantees a true derivative value without loss of accuracy.
 For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
 
@@ -55,17 +55,15 @@ For the rest of this chapter, we prefer to use the algorithmic differentiation t
 
 ## Root Finding
 
-We have seen some examples of root finding in the Mathematical Functions` chapter.
+We have seen some examples of root finding in the Mathematical Functions chapter.
 *Root finding* is the process which tries to find zeroes or *roots* of continuous functions.
 It is not an optimisation problem, but these two topics are closely related.
 It is beneficial for users to learn about the methods used in optimisation if they understand how the root finding algorithms work, e.g. how to find the root by bracketing and how to find target in an iterative manner.
 
-### Bisect, Newton, Secant, and IQI
-
-The bisection method is a simple iterative method to find roots. 
+The bisection method is a simple iterative method to find roots.
 Let's use $f(x) = x^2 = 2$ as an example. We know that the root of this equation is $x = \sqrt{2} = 1.4142135623\ldots$.
-To find this solution, the bisection methods works like this: 
-we know the solution must be between `1` and `2`, so first we set `x` to the middle point $x=1.5$; 
+To find this solution, the bisection methods works like this:
+we know the solution must be between `1` and `2`, so first we set `x` to the middle point $x=1.5$;
 since $x^2 = 2.25$ is larger than `2`, it means this `x` is too large;
 so next we try $x = 1\frac{1}{4}$, which is too small; so next we try $1\frac{3}{8}$....
 Bisect is slow to converge. It takes about 50 iterations to reach a precision of 14 digits after the decimal point.
@@ -120,16 +118,18 @@ In the Secant method, two points are used at each iteration in calculating deriv
 As an improvement, the *Inverse Quadratic Interpolation* (IQI) method uses three points to do the interpolation.
 The benefit of the method is that it's fast at the end of iterating, but unstable in during process.
 
-### Brent's Method
-
-The *Brent's Method* is generally considered the best of the root-finding routines.
+These methods can be combined together as an even more powerful method: the *Brent's Method*.
+It is generally considered the best of the root-finding routines.
 It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods.
 The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt.
+This method is indeed what we implement in Owl for the `Owl_maths_root.brent` method. For example, for the above example, we can simply solve it with:
 
-TODO: A description of this method.
-
-This method is what we use in the examples in "Math" chapter.
-We have also implemented it in Owl. (Paste the code if necessary, but for now just keep the root-finding section short)
+```ocaml
+# let f x = x *. x -. 2.
+val f : float -> float = <fun>
+# Owl_maths_root.brent f 0. 2.
+- : float = 1.41421331999550248
+```
 
 ## Univariate Function Optimisation
 
