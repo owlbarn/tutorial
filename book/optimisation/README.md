@@ -95,6 +95,7 @@ let _ =
 ```
 
 The resulting sequence is very short compared to the bisection method:
+
 ```
 1.500000000000000
 1.416666666666667
@@ -122,7 +123,7 @@ These methods can be combined together as an even more powerful method: the *Bre
 It is generally considered the best of the root-finding routines.
 It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods.
 The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt.
-This method is indeed what we implement in Owl for the `Owl_maths_root.brent` method. For example, for the above example, we can simply solve it with:
+This method is indeed what we implement in Owl for the `Owl_maths_root.brent` method. For example, the above example, can be simply solved with a one-liner.
 
 ```ocaml
 # let f x = x *. x -. 2.
@@ -209,41 +210,51 @@ The basic idea is simple. It also relies on keeping reducing a "range" until it 
 The difference is that, instead of using only two numbers, this search method uses three numbers: `[a, b, c]`.
 It contains two ranges: `[a,b]` and `[b, c]`.
 For every iteration, we need to find a new number `d` within one of the two ranges.
-For example, if we choose the `d` within `[b, c]`, and if $f(b) > f(d)$, then the new triplet becomes `[b, d, c]`, otherwise the new triplet is chosen as `[a, b, d]`.
+For example, if we choose the `d` within `[b, c]`, and if $f(b) > f(d)$, then the new triplet becomes `[b, d, c]`, otherwise the new triplet is chosen as `[a, d, b]`.
 With this approach, the range of this triplet keeps reducing until it is small enough and the minimum value can thus be found.
 
-Then the only question is: how to choose the suitable `d` point at each step.
-This approach first chooses the larger the two ranges, either `[a, b]` or `[b, c]`. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet.
-The name comes from the ratio and length of range is closely related with the golden ratio.
+Then the only question is how to choose the suitable `d` point at each step.
+This approach first chooses the larger of the two ranges, either `[a, b]` or `[b, c]`. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet.
+The name comes from the Golden Ratio and length of range is also closely related with it.
 This method is slow but robust. It guarantees that each new iteration will bracket the minimum to a range just 0.61803 times the size of the previous one.
 
 
 ## Multivariate Function Optimisation
 
 The methods for univariate scenarios can be extended to solving multivariate optimisation problems.
-The analogue of derivative here is a ndarray called *gradient*.
-Similarly, you have two options: to use gradients, or not.
+The analogue of derivative in this multi-dimensional space is the *gradient*, which we have already seen in previous chapters.
+To find the extreme values of a function with multiple independent values, you also have the same two options: to use gradients, or not.
 
 ### Nelder-Mead Simplex Method
 
 First, similar to the Golden Section Search or Brent's, you can always opt for a non-gradient method, which is as slow as it is robust.
 One such method we can use is the *Nelder-Mead Simplex Method*.
-As its name shows, it is probably the simplest way to minimize a fairly well-behaved function.
+As its name suggests, it is probably the simplest way to minimise a fairly well-behaved multi-variate function.
 It simply goes downhill in a straightforward way, without special assumptions about the objective function.
 
-TODO:
+The basic idea of this method is to move a "simplex" gradually towards the lowest point on the function.
+In a $N$-dimensional space (where the function contains $N$ variables), this simplex consists of $N+1$ points.
+For example, for a function that has 2 variables, the simplex is a triangle; for 3 variables, a tetrahedron is used, etc.
 
-EXPLAIN the algorithm in detail, perhaps with illustration.
-According to the Numerical Recipe, "the downhill simplex method now takes a series of steps, most steps just moving the point of the simplex where the function is largest (“highest point”) through the opposite face of the simplex to a lower point. These steps are called reflections, and they are constructed to conserve the volume of the simplex (and hence maintain its nondegeneracy). When it can do so, the method expands the simplex in one or another direction to take larger steps. When it reaches a “valley floor”, the method contracts itself in the transverse direction and tries to ooze down the valley."
+From a starting point, the simplex move downwards step by step. At each step, the "highest" point $p$ that has the largest value on the function is found, then $p$ can be moved in three possible ways:
+
+1. through the opposite face of the simplex to a new point; if this *reflected* point is now not the "worst" point (point that leads to largest values on the function) among the $N+1$ simplex points, accept it;
+2. if the reflected point is the worst, then try to *contract* it towards the remaining points; if it is not the worst point, accept it;
+3. if the contracted point is still the worst, then you have to *shrink* the simplex.
+
+Repeat this process until it reaches a "valley", where the method "contracts itself in the transverse direction and tries to ooze down the valley".
+This three different methods are illustrated in [@fig:optimisation:simplex], where there are two variables and the simplex is a triangle.
+
+![Different movement of simplex in Nelder-Mead optimisation method](images/optimisation/simplex.png){width=100% #fig:optimisation:simplex}
 
 There are some other method that does not rely on computing gradients such as Powell's method.
 If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method.
-We will not talk about this method in detail.
+But this method is always a robust and cost-effective way to try solving an optimisation problem at the beginning.
 
 ### Gradient Descent Methods
 
 A *descent method* is an iterative optimisation process.
-The idea is to start from a initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum.
+The idea is to start from an initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum.
 This process can be illustrated in [@fig:optimisation:gradient]([source](https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf)).
 
 ![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){width=80% #fig:optimisation:gradient}
@@ -266,11 +277,12 @@ The precess can be described as:
 2. choose a step size $\alpha$;
 3. update the location: $x_{n+1} = x_n + \alpha~\nabla~f(x_n)$.
 
-Here $\nabla$ denotes the gradient, and the distance $\alpha$ along a certain direction is also called *learning rate*.
+Here $\nabla$ denotes the gradient.
+The distance $\alpha$ along a certain direction is also called *learning rate*.
 In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)
 
 We can easily implement this process with the algorithmic differentiation module in Owl.
-Let's look at an example.
+Let's look at a example.
 Here we use the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) which is usually used as a performance test for optimisation problems.
 The function is defined as:
 
@@ -331,7 +343,7 @@ let _ =
 	Plot.output h
 ```
 
-We first create a meshgrid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point.
+We first create a mesh grid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point.
 The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
 On the right figure the black line shows the moving trajectory. You can imagine it moving downwards along the slope in the right side figure.
 

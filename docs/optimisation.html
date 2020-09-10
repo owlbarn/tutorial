@@ -42,7 +42,7 @@ let _ =
         Printf.printf "%.15f\n" !x
     done</code></pre>
 </div>
-The resulting sequence is very short compared to the bisection method:
+<p>The resulting sequence is very short compared to the bisection method:</p>
 <div class="highlight">
 <pre><code class="language-clike">1.500000000000000
 1.416666666666667
@@ -56,7 +56,7 @@ The resulting sequence is very short compared to the bisection method:
 <p>The Newton method requires the function to be smooth. If <span class="math inline">\(f\)</span> is not smooth or computing derivative is not always available, we need to approximate the tangent at one point with a secant through two points. This is called a <em>Secant Method</em>:</p>
 <p><span id="eq:optimisation:secant"><span class="math display">\[ f'(x) \approx \frac{f(x_n) - f(x_{n-1})}{x_n - x_{n-1}}.\qquad(4)\]</span></span></p>
 <p>This method does not need to compute derivatives, and has similar convergence property as the Newton method. In the Secant method, two points are used at each iteration in calculating derivatives. As an improvement, the <em>Inverse Quadratic Interpolation</em> (IQI) method uses three points to do the interpolation. The benefit of the method is that it’s fast at the end of iterating, but unstable in during process.</p>
-<p>These methods can be combined together as an even more powerful method: the <em>Brent’s Method</em>. It is generally considered the best of the root-finding routines. It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods. The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt. This method is indeed what we implement in Owl for the <code>Owl_maths_root.brent</code> method. For example, for the above example, we can simply solve it with:</p>
+<p>These methods can be combined together as an even more powerful method: the <em>Brent’s Method</em>. It is generally considered the best of the root-finding routines. It combines the robustness of Bisection methods, and the iteration speed of Secant and IQI methods. The idea is to use the fast algorithm if possible, and turn to the slow but reliable method when in doubt. This method is indeed what we implement in Owl for the <code>Owl_maths_root.brent</code> method. For example, the above example, can be simply solved with a one-liner.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = x *. x -. 2.;;
 &gt;val f : float -&gt; float = &lt;fun&gt;
@@ -119,25 +119,34 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <section class="level3" id="golden-section-search">
 <h3>Golden Section Search</h3>
 <p>Here we face the similar question again: what if computing derivatives of the function is difficult or not available? That leads us to some search-based approach. We have seen how we can keep reducing a pair of ranges to find the root of a function. A close analogue in optimisation is also a search method called <em>Golden Section Search</em>. It’s an optimisation method that does not require calculating derivatives. It is one choice to do optimisation if your function has a discontinuous first or second derivative.</p>
-<p>The basic idea is simple. It also relies on keeping reducing a “range” until it is small enough. The difference is that, instead of using only two numbers, this search method uses three numbers: <code>[a, b, c]</code>. It contains two ranges: <code>[a,b]</code> and <code>[b, c]</code>. For every iteration, we need to find a new number <code>d</code> within one of the two ranges. For example, if we choose the <code>d</code> within <code>[b, c]</code>, and if <span class="math inline">\(f(b) &gt; f(d)\)</span>, then the new triplet becomes <code>[b, d, c]</code>, otherwise the new triplet is chosen as <code>[a, b, d]</code>. With this approach, the range of this triplet keeps reducing until it is small enough and the minimum value can thus be found.</p>
-<p>Then the only question is: how to choose the suitable <code>d</code> point at each step. This approach first chooses the larger the two ranges, either <code>[a, b]</code> or <code>[b, c]</code>. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet. The name comes from the ratio and length of range is closely related with the golden ratio. This method is slow but robust. It guarantees that each new iteration will bracket the minimum to a range just 0.61803 times the size of the previous one.</p>
+<p>The basic idea is simple. It also relies on keeping reducing a “range” until it is small enough. The difference is that, instead of using only two numbers, this search method uses three numbers: <code>[a, b, c]</code>. It contains two ranges: <code>[a,b]</code> and <code>[b, c]</code>. For every iteration, we need to find a new number <code>d</code> within one of the two ranges. For example, if we choose the <code>d</code> within <code>[b, c]</code>, and if <span class="math inline">\(f(b) &gt; f(d)\)</span>, then the new triplet becomes <code>[b, d, c]</code>, otherwise the new triplet is chosen as <code>[a, d, b]</code>. With this approach, the range of this triplet keeps reducing until it is small enough and the minimum value can thus be found.</p>
+<p>Then the only question is how to choose the suitable <code>d</code> point at each step. This approach first chooses the larger of the two ranges, either <code>[a, b]</code> or <code>[b, c]</code>. And then instead of choosing the middle point in that range, it uses the fractional distance 0.38197 from the central point of the triplet. The name comes from the Golden Ratio and length of range is also closely related with it. This method is slow but robust. It guarantees that each new iteration will bracket the minimum to a range just 0.61803 times the size of the previous one.</p>
 </section>
 </section>
 <section class="level2" id="multivariate-function-optimisation">
 <h2>Multivariate Function Optimisation</h2>
-<p>The methods for univariate scenarios can be extended to solving multivariate optimisation problems. The analogue of derivative here is a ndarray called <em>gradient</em>. Similarly, you have two options: to use gradients, or not.</p>
+<p>The methods for univariate scenarios can be extended to solving multivariate optimisation problems. The analogue of derivative in this multi-dimensional space is the <em>gradient</em>, which we have already seen in previous chapters. To find the extreme values of a function with multiple independent values, you also have the same two options: to use gradients, or not.</p>
 <section class="level3" id="nelder-mead-simplex-method">
 <h3>Nelder-Mead Simplex Method</h3>
-<p>First, similar to the Golden Section Search or Brent’s, you can always opt for a non-gradient method, which is as slow as it is robust. One such method we can use is the <em>Nelder-Mead Simplex Method</em>. As its name shows, it is probably the simplest way to minimize a fairly well-behaved function. It simply goes downhill in a straightforward way, without special assumptions about the objective function.</p>
-<p>TODO:</p>
-<p>EXPLAIN the algorithm in detail, perhaps with illustration. According to the Numerical Recipe, “the downhill simplex method now takes a series of steps, most steps just moving the point of the simplex where the function is largest (“highest point”) through the opposite face of the simplex to a lower point. These steps are called reflections, and they are constructed to conserve the volume of the simplex (and hence maintain its nondegeneracy). When it can do so, the method expands the simplex in one or another direction to take larger steps. When it reaches a “valley floor”, the method contracts itself in the transverse direction and tries to ooze down the valley."</p>
-<p>There are some other method that does not rely on computing gradients such as Powell’s method. If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method. We will not talk about this method in detail.</p>
+<p>First, similar to the Golden Section Search or Brent’s, you can always opt for a non-gradient method, which is as slow as it is robust. One such method we can use is the <em>Nelder-Mead Simplex Method</em>. As its name suggests, it is probably the simplest way to minimise a fairly well-behaved multi-variate function. It simply goes downhill in a straightforward way, without special assumptions about the objective function.</p>
+<p>The basic idea of this method is to move a “simplex” gradually towards the lowest point on the function. In a <span class="math inline">\(N\)</span>-dimensional space (where the function contains <span class="math inline">\(N\)</span> variables), this simplex consists of <span class="math inline">\(N+1\)</span> points. For example, for a function that has 2 variables, the simplex is a triangle; for 3 variables, a tetrahedron is used, etc.</p>
+<p>From a starting point, the simplex move downwards step by step. At each step, the “highest” point <span class="math inline">\(p\)</span> that has the largest value on the function is found, then <span class="math inline">\(p\)</span> can be moved in three possible ways:</p>
+<ol type="1">
+<li>through the opposite face of the simplex to a new point; if this <em>reflected</em> point is now not the “worst” point (point that leads to largest values on the function) among the <span class="math inline">\(N+1\)</span> simplex points, accept it;</li>
+<li>if the reflected point is the worst, then try to <em>contract</em> it towards the remaining points; if it is not the worst point, accept it;</li>
+<li>if the contracted point is still the worst, then you have to <em>shrink</em> the simplex.</li>
+</ol>
+<p>Repeat this process until it reaches a “valley”, where the method “contracts itself in the transverse direction and tries to ooze down the valley”. This three different methods are illustrated in fig.&nbsp;2, where there are two variables and the simplex is a triangle.</p>
+<figure>
+<img alt="" style="width:100.0%" id="fig:optimisation:simplex" src="images/optimisation/simplex.png"><figcaption>Figure 2: Different movement of simplex in Nelder-Mead optimisation method</figcaption>
+</figure>
+<p>There are some other method that does not rely on computing gradients such as Powell’s method. If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method. But this method is always a robust and cost-effective way to try solving an optimisation problem at the beginning.</p>
 </section>
 <section class="level3" id="gradient-descent-methods">
 <h3>Gradient Descent Methods</h3>
-<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from a initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;2(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
+<p>A <em>descent method</em> is an iterative optimisation process. The idea is to start from an initial value, and then find a certain <em>search direction</em> along a function to decrease the value by certain <em>step size</em> until it converges to a local minimum. This process can be illustrated in fig.&nbsp;3(<a href="https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf">source</a>).</p>
 <figure>
-<img alt="" style="width:80.0%" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 2: Reach the local minimum by iteratively moving downhill</figcaption>
+<img alt="" style="width:80.0%" id="fig:optimisation:gradient" src="images/optimisation/gradient.png"><figcaption>Figure 3: Reach the local minimum by iteratively moving downhill</figcaption>
 </figure>
 <p>Therefore, we can describe the <span class="math inline">\(n\)</span>-th iteration of descent method as:</p>
 <ol type="1">
@@ -153,8 +162,8 @@ Owl_maths_root.brent g' 0.7 1.0;;
 <li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
 <li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~\nabla~f(x_n)\)</span>.</li>
 </ol>
-<p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient, and the distance <span class="math inline">\(\alpha\)</span> along a certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)</p>
-<p>We can easily implement this process with the algorithmic differentiation module in Owl. Let’s look at an example. Here we use the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock function</a> which is usually used as a performance test for optimisation problems. The function is defined as:</p>
+<p>Here <span class="math inline">\(\nabla\)</span> denotes the gradient. The distance <span class="math inline">\(\alpha\)</span> along a certain direction is also called <em>learning rate</em>. In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)</p>
+<p>We can easily implement this process with the algorithmic differentiation module in Owl. Let’s look at a example. Here we use the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function">Rosenbrock function</a> which is usually used as a performance test for optimisation problems. The function is defined as:</p>
 <p><span id="eq:optimisation:rosenbrock"><span class="math display">\[f(x, y) = (a - x)^2 + b(y-x^2)^2.\qquad(5)\]</span></span></p>
 <p>The parameters are usually set as <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=100\)</span>.</p>
 <div class="highlight">
@@ -201,9 +210,9 @@ let n = 200</code></pre>
     Plot.plot ~h vx vy;
     Plot.output h</code></pre>
 </div>
-<p>We first create a meshgrid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point. The visualisation results are shown in fig.&nbsp;3. On the right figure the black line shows the moving trajectory. You can imagine it moving downwards along the slope in the right side figure.</p>
+<p>We first create a mesh grid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point. The visualisation results are shown in fig.&nbsp;4. On the right figure the black line shows the moving trajectory. You can imagine it moving downwards along the slope in the right side figure.</p>
 <figure>
-<img alt="" style="width:100.0%" id="fig:optimisation:gd_rosenbrock" title="gd_rosenbrock" src="images/optimisation/gd_rosenbrock.png"><figcaption>Figure 3: Optimisation process of gradient descent on multivariate function</figcaption>
+<img alt="" style="width:100.0%" id="fig:optimisation:gd_rosenbrock" title="gd_rosenbrock" src="images/optimisation/gd_rosenbrock.png"><figcaption>Figure 4: Optimisation process of gradient descent on multivariate function</figcaption>
 </figure>
 <p>In Owl we provide a <code>minimise_fun</code> function to do that.</p>
 <div class="highlight">
@@ -219,9 +228,9 @@ let n = 200</code></pre>
 <p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
 <p>EXPLAIN in detail.</p>
 <p>Instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, CG choose another way to calculate the descent direction: EQUATION of CG</p>
-<p>fig.&nbsp;4 compares the different descent efficiency of the conjugate gradient with gradient descent. (<a href="https://www.researchgate.net/publication/221533635_A_gradient-based_algorithm_competitive_with_variational_Bayesian_EM_for_mixture_of_Gaussians">src</a>)</p>
+<p>fig.&nbsp;5 compares the different descent efficiency of the conjugate gradient with gradient descent. (<a href="https://www.researchgate.net/publication/221533635_A_gradient-based_algorithm_competitive_with_variational_Bayesian_EM_for_mixture_of_Gaussians">src</a>)</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:optimisation:gradients" title="gradients" src="images/optimisation/gradients.png"><figcaption>Figure 4: Compare conjugate gradient and gradient descent</figcaption>
+<img alt="" style="width:60.0%" id="fig:optimisation:gradients" title="gradients" src="images/optimisation/gradients.png"><figcaption>Figure 5: Compare conjugate gradient and gradient descent</figcaption>
 </figure>
 <p>Both GD and CG are abstracted in a module in Owl Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
 <div class="highlight">
