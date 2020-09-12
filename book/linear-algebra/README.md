@@ -1,13 +1,14 @@
 # Linear Algebra
 
-Linear Algebra is a key mathematics field behind computer science and numerical computation.
-Full coverage of this topic is apparently beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
-In this chapter we follows the basic structure of this book to give you a overall picture, but focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts.
+Linear Algebra is a key mathematics field behind computer science and numerical computating.
+A thorough coverage of this topic is apparently beyond the scope of this book. Please refer to [@strang2006linear] for this subject.
+In this chapter we will follow the basic structure of this book, first giving you a overall picture, then focussing on how to use the functions provided in Owl to solve problems and better understand some basic linear algebra concepts.
 
 The high level APIs of Linear Algebra are provided in the `Linalg` module.
-It provides four types of number types: single precision, double precision, complex single precision, and complex double precision.
+The module provides four types of number types: single precision, double precision, complex single precision, and complex double precision.
 They are included in `Linalg.S`, `Linalg.D`, `Linalg.C` and `Linalg.Z` modules respectively.
 Besides, the `Linalg.Generic` can do everything that `S/D/C/Z` can but needs some extra type information.
+
 
 ## Vectors and Matrices
 
@@ -525,6 +526,7 @@ val flag : bool = true
 
 A related special matrix is the *Symmetric Matrix*, which equals to its own transpose. This simple test can be done with the `is_symmetric` function.
 
+
 ## Vector Spaces
 
 We have talked about solving the $Ax=b$ linear equations with elimination, and A is a square matrix.
@@ -862,6 +864,7 @@ R1 -761.417  322.835
 
 We can see that by changing the matrix by only a tiny bit, the inverse of $A$ changes dramatically, and so is the resulting solution vector $x$.
 
+
 ## Determinants
 
 TODO: extend this section, add sub-sections.
@@ -913,6 +916,7 @@ R4 11 18 25  2  9
 # Linalg.D.logdet x
 - : float = 15.4388513755673653
 ```
+
 
 ## Eigenvalues and Eigenvectors
 
@@ -1367,10 +1371,12 @@ The SVD is not only important linear algebra concept, but also has a wide and gr
 For example, the [Moore-Penrose pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse) that works for non-invertible matrix can be implemented efficiently using SVD (we provide `pinv` function in the linear algebra module for the pseudo inverse).
 In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.
 
+
 ## Linear Programming
 
 TODO: placeholder for future implementation. Or in the optimisation chapter.
 Understand the method used such as interior  point, and then make the decision.
+
 
 ## Internal: CBLAS and LAPACKE
 
@@ -1427,6 +1433,8 @@ Focusing on introducing the data structure (CSC, CSR, etc), no the method.
 Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
 TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
 
+
 ## Summary
+
 
 ## References
