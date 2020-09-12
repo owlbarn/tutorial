@@ -44,6 +44,7 @@ jobs:
       - name: Update the website
         working-directory: owlbarn.github.io
         run: |
+          pwd && ls
           git config user.name "owlbook_ci"
           git config user.email "ryanrhymes@gmail.com"
           touch book.pdf
