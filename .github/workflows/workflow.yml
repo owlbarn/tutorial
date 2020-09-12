@@ -44,6 +44,8 @@ jobs:
 
       - name: Update the website
         working-directory: owlbarn.github.io
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.OWLBOOK_CI_TOKEN }}
         run: |
           pwd && ls
           git config user.name "owlbook_ci"
