@@ -54,4 +54,4 @@ jobs:
           touch book.pdf
           cp book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           git commit -am "[owlbook_ci] automated book and website update"
-          git push https://ryanrhymes@${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
+          git push https://ryanrhymes:${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
