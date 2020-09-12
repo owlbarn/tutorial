@@ -39,6 +39,8 @@ jobs:
       - name: Update the website
         working-directory: ~
         run: |
+          git config user.name "owlbook_ci"
+          git config user.email "ryanrhymes@gmail.com"
           git clone https://github.com/owlbarn/owlbarn.github.io.git
           cd /home/runner/work/book/book/owlbarn.github.io
           touch book.pdf
