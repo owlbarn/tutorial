@@ -296,7 +296,7 @@ Therefore, ONNX engines serves as a good starting point for its coverage of oper
 
 Taking a symbolic graph as input, how would then the ONNX engine produce ONNX model? We use the [ocaml-protoc](https://github.com/mransan/ocaml-protoc), a protobuf compiler for OCaml, as the tool. The ONNX specification is defined in an [onnx.proto](https://github.com/onnx/onnx/blob/master/onnx/onnx.proto) file, and the `ocaml-protoc` can compile this protobuf files into OCaml types along with serialisation functions for a variety of encodings.
 
-For example, the toplevel message type in onnx.proto is `MessageProto`, defined as follows:
+For example, the toplevel message type in onnx.proto is `ModelProto`, defined as follows:
 
 ```proto
 message ModelProto {
