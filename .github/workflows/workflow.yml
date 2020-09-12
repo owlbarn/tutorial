@@ -20,21 +20,21 @@ jobs:
         with:
           path: book-workflow
 
-      #- name: Compile the book
-      #  working-directory: ./book-workflow
-      #  run: |
-      #    chown -R opam . &&
-      #    su - opam -c 'export PATH=/home/opam/.cabal/bin:${PATH} && cd /__w/book/book/book-workflow && make compile'
-      #    cd /__w/book/book/book-workflow
+      - name: Compile the book
+        working-directory: ./book-workflow
+        run: |
+          chown -R opam . &&
+          su - opam -c 'export PATH=/home/opam/.cabal/bin:${PATH} && cd /__w/book/book/book-workflow && make compile'
+          cd /__w/book/book/book-workflow
 
-      #- name: Save to the repository
-      #  working-directory: ./book-workflow
-      #  run: |
-      #    git config user.name "owlbook_ci"
-      #    git config user.email "ryanrhymes@gmail.com"
-      #    git add -f docs/book.pdf
-      #    git commit -am "[owlbook_ci] automated book compilation"
-      #    git push
+      - name: Save to the repository
+        working-directory: ./book-workflow
+        run: |
+          git config user.name "owlbook_ci"
+          git config user.email "ryanrhymes@gmail.com"
+          git add -f docs/book.pdf
+          git commit -am "[owlbook_ci] automated book compilation"
+          git push
 
       - name: Checkout the website
         uses: actions/checkout@v2
@@ -48,10 +48,6 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.OWLBOOK_CI_TOKEN }}
         run: |
-          pwd && ls
-          git config user.name "owlbook_ci"
-          git config user.email "ryanrhymes@gmail.com"
-          touch book.pdf
-          cp book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
+          cp /__w/book/book/book-workflow/docs/book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           git commit -am "[owlbook_ci] automated book and website update"
           git push https://ryanrhymes:${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
