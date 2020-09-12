@@ -39,10 +39,10 @@ jobs:
       - name: Update the website
         working-directory: ~
         run: |
-          git config user.name "owlbook_ci"
-          git config user.email "ryanrhymes@gmail.com"
           git clone https://github.com/owlbarn/owlbarn.github.io.git
           cd /home/runner/work/book/book/owlbarn.github.io
+          git config user.name "owlbook_ci"
+          git config user.email "ryanrhymes@gmail.com"
           touch book.pdf
           cp book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           git commit -am "[owlbook_ci] automated book and website update"
