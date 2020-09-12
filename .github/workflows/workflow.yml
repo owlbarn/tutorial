@@ -42,7 +42,7 @@ jobs:
           repository: owlbarn/owlbarn.github.io
 
       - name: Update the website
-        working-directory: owlbarn.github.io
+        working-directory: ./owlbarn.github.io
         run: |
           pwd && ls
           git config user.name "owlbook_ci"
