@@ -48,6 +48,8 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.OWLBOOK_CI_TOKEN }}
         run: |
+          git config user.name "owlbook_ci"
+          git config user.email "ryanrhymes@gmail.com"
           cp /__w/book/book/book-workflow/docs/book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           git commit -am "[owlbook_ci] automated book and website update"
           git push https://ryanrhymes:${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
