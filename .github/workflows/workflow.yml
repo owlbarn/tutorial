@@ -40,6 +40,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: owlbarn/owlbarn.github.io
+          path: owlbarn.github.io
 
       - name: Update the website
         working-directory: ~
