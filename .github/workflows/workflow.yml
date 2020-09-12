@@ -36,11 +36,14 @@ jobs:
       #    git commit -am "[owlbook_ci] automated book compilation"
       #    git push
 
+      - name: Checkout the website
+        uses: actions/checkout@v2
+        with:
+          repository: owlbarn/owlbarn.github.io
+
       - name: Update the website
-        working-directory: ~
+        working-directory: owlbarn.github.io
         run: |
-          git clone git@github.com:owlbarn/owlbarn.github.io.git
-          cd /home/runner/work/book/book/owlbarn.github.io
           git config user.name "owlbook_ci"
           git config user.email "ryanrhymes@gmail.com"
           touch book.pdf
