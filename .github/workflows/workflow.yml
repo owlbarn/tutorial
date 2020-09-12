@@ -1,0 +1,51 @@
+name: Owl Book CI Workflow
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      #image: ubuntu:latest
+      image: owlbarn/book:latest
+
+    steps:
+      - name: Checkout the book
+        uses: actions/checkout@v2
+        with:
+          path: book-workflow
+
+      - name: Compile the book
+        working-directory: ./book-workflow
+        run: |
+          chown -R opam . &&
+          su - opam -c 'export PATH=/home/opam/.cabal/bin:${PATH} && cd /__w/book/book/book-workflow && make compile'
+          cd /__w/book/book/book-workflow
+
+      - name: Save to the repository
+        working-directory: ./book-workflow
+        run: |
+          git config user.name "owlbook_ci"
+          git config user.email "ryanrhymes@gmail.com"
+          git add -f docs/book.pdf
+          git commit -am "[owlbook_ci] automated book compilation"
+          git push
+
+      - name: Update the website
+        working-directory: ./book-workflow
+        run: |
+          cd /
+          git clone git@github.com:owlbarn/owlbarn.github.io.git
+          cd owlbar
+          cp /__w/book/book/book-workflow/docs/book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
+          git commit -am "[owlbook_ci] automated book and website update"
+          git push
+
+#su - opam
+#make compile
+# export PATH=/home/opam/.cabal/bin:${PATH}
+#eval `opam env` && make compile
