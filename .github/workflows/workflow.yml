@@ -11,8 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    #container:
-    #  image: owlbarn/book:latest
+    container:
+      image: owlbarn/book:latest
 
     steps:
       - name: Checkout the book
