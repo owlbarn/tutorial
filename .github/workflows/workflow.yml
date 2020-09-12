@@ -39,7 +39,7 @@ jobs:
       - name: Update the website
         working-directory: ~
         run: |
-          git clone ~/owlbarn https://github.com/owlbarn/owlbarn.github.io.git && pwd && ls
+          git clone https://github.com/owlbarn/owlbarn.github.io.git && pwd && ls
           cp /__w/book/book/book-workflow/docs/book.pdf ~/owlbarn/_downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           cd ~/owlbarn/ && git commit -am "[owlbook_ci] automated book and website update"
           cd ~/owlbarn/ && git push
