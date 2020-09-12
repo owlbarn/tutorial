@@ -41,6 +41,7 @@ jobs:
         run: |
           git clone https://github.com/owlbarn/owlbarn.github.io.git
           cd /home/runner/work/book/book/owlbarn.github.io
+          mkdir -p /__w/book/book/book-workflow/docs/
           touch /__w/book/book/book-workflow/docs/book.pdf
           cp /__w/book/book/book-workflow/docs/book.pdf _downloads/fb4b6b2df3a933e0d679dbb8a3f72ff9/book.pdf
           git commit -am "[owlbook_ci] automated book and website update"
