@@ -201,7 +201,7 @@ val load : string -&gt; t</code></pre>
 <h2>ONNX Engine</h2>
 <p>The ONNX Engine is the current focus of development in <code>owl_symbolic</code>. <a href="https://onnx.ai">ONNX</a> is a widely adopted open neural network exchange format. A neural network model defined in ONNX can be, via suitable converters, can be run on different frameworks and thus hardware accelerators. The main target of ONNX is to promote the interchangeability of neural network and machine learning models, but it is worthy of noting that the standard covers a lot of basic operations in scientific computation, such as power, logarithms, trigonometric functions, etc. Therefore, ONNX engines serves as a good starting point for its coverage of operations.</p>
 <p>Taking a symbolic graph as input, how would then the ONNX engine produce ONNX model? We use the <a href="https://github.com/mransan/ocaml-protoc">ocaml-protoc</a>, a protobuf compiler for OCaml, as the tool. The ONNX specification is defined in an <a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">onnx.proto</a> file, and the <code>ocaml-protoc</code> can compile this protobuf files into OCaml types along with serialisation functions for a variety of encodings.</p>
-<p>For example, the toplevel message type in onnx.proto is <code>MessageProto</code>, defined as follows:</p>
+<p>For example, the toplevel message type in onnx.proto is <code>ModelProto</code>, defined as follows:</p>
 <div class="highlight">
 <pre><code class="language-proto">message ModelProto {
   optional int64 ir_version = 1;
