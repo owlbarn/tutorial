@@ -255,9 +255,9 @@ But this method is always a robust and cost-effective way to try solving an opti
 
 A *descent method* is an iterative optimisation process.
 The idea is to start from an initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum.
-This process can be illustrated in [@fig:optimisation:gradient]([source](https://cedar.buffalo.edu/~srihari/talks/NCC1.ML-Overview.pdf)).
+This process can be illustrated in [@fig:optimisation:gradient].
 
-![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){width=80% #fig:optimisation:gradient}
+![Reach the local minimum by iteratively moving downhill ](images/optimisation/gradient.png){width=60% #fig:optimisation:gradient}
 
 Therefore, we can describe the $n$-th iteration of descent method as:
 
@@ -267,10 +267,8 @@ Therefore, we can describe the $n$-th iteration of descent method as:
 
 Repeat this process until a stopping condition is met, such as the update is smaller than a threshold.
 
-Among the descent methods, the *Gradient Descent* method is one of the most widely used algorithms to perform optimisation and the most common way to optimize neural networks.
-We will talk about it in the Neural Network chapter.
-
-Based on this process, Gradient Descent method uses the function gradient to decide its direction $d$.
+Among the descent methods, the *Gradient Descent* method is one of the most widely used algorithms to perform optimisation and the most common way to optimise neural networks, which will be discussed in detail in the Neural Network chapter.
+Based on the descent process above, Gradient Descent method uses the function gradient to decide its direction $d$.
 The precess can be described as:
 
 1. calculate a descent direction $-\nabla~f(x_n)$;
@@ -279,10 +277,10 @@ The precess can be described as:
 
 Here $\nabla$ denotes the gradient.
 The distance $\alpha$ along a certain direction is also called *learning rate*.
-In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction (represented by the negative gradient)
+In a gradient descent process, when looking for the minimum, the point always follow the direction that is against the direction that is represented by the negative gradient.
 
 We can easily implement this process with the algorithmic differentiation module in Owl.
-Let's look at a example.
+Let's look at one example.
 Here we use the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) which is usually used as a performance test for optimisation problems.
 The function is defined as:
 
@@ -325,8 +323,8 @@ let _ =
 We apply the `grad` method on the Rosenbrock function iteratively, and the updated data `a` is stored in the `traj` array.
 Finally, let's visualise the trajectory of the optimisation process.
 
-```text
-let _ =
+```ocaml env=optimisation:gd
+let plot () =
 	let a, b = Dense.Matrix.D.meshgrid (-2.) 2. (-1.) 3. 50 50 in
 	let c = N.(scalar_mul 100. (pow_scalar (sub b (pow_scalar a 2.)) 2.) + (pow_scalar (scalar_sub 1. a) 2.)) in
 
@@ -345,22 +343,53 @@ let _ =
 
 We first create a mesh grid based on the Rosenbrock function to visualise the 3D image, and then on the 2D contour image of the same function we plot how the result of the optimisation is updated, from the initial starting point towards a local minimum point.
 The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
-On the right figure the black line shows the moving trajectory. You can imagine it moving downwards along the slope in the right side figure.
+On the right figure the black line shows the moving trajectory. You can see how it moves downwards along the slope in the right side figure.
 
 ![Optimisation process of gradient descent on multivariate function](images/optimisation/gd_rosenbrock.png "gd_rosenbrock"){width=100% #fig:optimisation:gd_rosenbrock}
 
-In Owl we provide a `minimise_fun` function to do that.
+Optimisation lays at the foundation of machine learning and neural network training.
+In the `Owl.Optimise` module, we provide a `minimise_fun` function to perform this task.
+This function is actually an internal function that aims mainly to serve the Neural Network module, but nevertheless we can still try to use this function to solve a optimisation problem with gradient descent method.
+val minimise_fun : Params.typ -> (t -> t) -> t  -> Checkpoint.state * t
 
+This function works based on the Algorithm Differentiation module.
+It minimises function in the form of `f : x -> y` with regard to `x`. `x` is an AD ndarray here, and `y` is an AD scalar value.
+This function is implemented following the iterative descent approach.
+Let's use the previous Rosenbrock function example to demonstrate how it works.
+
+```ocaml env=optimisation:gd
+let p = Owl_optimise.D.Params.default ()
+let _ = p.epochs <- 10.
+let _ = p.gradient <- Owl_optimise.D.Gradient.GD
 ```
-val minimise_fun :  ?state:Checkpoint.state -> Params.typ -> (t -> t) -> t  -> Checkpoint.state * t
+
+First, we set the optimisation parameters. The `Owl_optimise.D.Params` module contains several categories of parameters, including the gradient method, learning rate, loss functions, regularisation method, momentum method, epoch and batch etc.
+We will introduce these different parts in the Neural Network Chapter.
+Current, it suffices to just set the iteration number `epochs` to something like 10 or 20 iterations.
+Then we set the gradient method to be the gradient descent.
+Then we can just executing the code, starting from the same starting point:
+
+```ocaml env=optimisation:gd
+let init_value = N.of_array [|2.;-0.5|] [|1;2|] |> pack_arr
+let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value
 ```
 
-This function minimises `f : x -> y` w.r.t `x`; `x` is a ndarray, and ``y`` is a scalar value.
-This function is implemented using gradient descent.
+This function output enhanced log result which in part looks like below. It shows how the function value, starting at the initial point, is quickly reduced to the bottom within only 10 steps using gradient descent.
 
-EXPLAIN in detail, such as checkpoint etc.
-
-TODO: explain, perhaps with a bit theory or visual aid, to show why gradient descent is much more efficient that the previous non-gradient methods.
+```text
+...
+2020-09-13 10:46:49.805 INFO : T: 00s | E: 1.0/10 | B: 1/10 | L: 2026.000000
+2020-09-13 10:46:49.806 INFO : T: 00s | E: 2.0/10 | B: 2/10 | L: 476.101033
+2020-09-13 10:46:49.807 INFO : T: 00s | E: 3.0/10 | B: 3/10 | L: 63.836145
+2020-09-13 10:46:49.807 INFO : T: 00s | E: 4.0/10 | B: 4/10 | L: 37.776798
+2020-09-13 10:46:49.808 INFO : T: 00s | E: 5.0/10 | B: 5/10 | L: 21.396863
+2020-09-13 10:46:49.809 INFO : T: 00s | E: 6.0/10 | B: 6/10 | L: 11.742345
+2020-09-13 10:46:49.809 INFO : T: 00s | E: 7.0/10 | B: 7/10 | L: 6.567733
+2020-09-13 10:46:49.809 INFO : T: 00s | E: 8.0/10 | B: 8/10 | L: 4.085909
+2020-09-13 10:46:49.810 INFO : T: 00s | E: 9.0/10 | B: 9/10 | L: 3.016714
+2020-09-13 10:46:49.810 INFO : T: 00s | E: 10.0/10 | B: 10/10 | L: 2.594318
+...
+```
 
 ### Conjugate Gradient Method
 
@@ -384,6 +413,7 @@ EQUATION of CG
 Both GD and CG are abstracted in a module in Owl
 Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG....
 
+(TODO: remove)
 ```
 let run = function
     | GD -> fun _ _ _ _ g' -> Maths.neg g'
