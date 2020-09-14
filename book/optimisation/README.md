@@ -350,10 +350,9 @@ On the right figure the black line shows the moving trajectory. You can see how 
 Optimisation lays at the foundation of machine learning and neural network training.
 In the `Owl.Optimise` module, we provide a `minimise_fun` function to perform this task.
 This function is actually an internal function that aims mainly to serve the Neural Network module, but nevertheless we can still try to use this function to solve a optimisation problem with gradient descent method.
-val minimise_fun : Params.typ -> (t -> t) -> t  -> Checkpoint.state * t
 
 This function works based on the Algorithm Differentiation module.
-It minimises function in the form of `f : x -> y` with regard to `x`. `x` is an AD ndarray here, and `y` is an AD scalar value.
+It minimises function in the form of `f : x -> y` with regard to `x`. `x` is an AD ndarray, and `y` is an AD scalar value.
 This function is implemented following the iterative descent approach.
 Let's use the previous Rosenbrock function example to demonstrate how it works.
 
@@ -365,7 +364,7 @@ let _ = p.gradient <- Owl_optimise.D.Gradient.GD
 
 First, we set the optimisation parameters. The `Owl_optimise.D.Params` module contains several categories of parameters, including the gradient method, learning rate, loss functions, regularisation method, momentum method, epoch and batch etc.
 We will introduce these different parts in the Neural Network Chapter.
-Current, it suffices to just set the iteration number `epochs` to something like 10 or 20 iterations.
+Currently, it suffices to just set the iteration number `epochs` to something like 10 or 20 iterations.
 Then we set the gradient method to be the gradient descent.
 Then we can just executing the code, starting from the same starting point:
 
@@ -394,44 +393,35 @@ This function output enhanced log result which in part looks like below. It show
 ### Conjugate Gradient Method
 
 One problem with the Gradient Descent is that it does not perform well on all functions.
-For example, if the function forms a steep and narrow value, then using gradient descent will take many small steps to reach the minimum, even if the function is in a perfect quadratic form.
+For example, if the function forms a steep and narrow value, gradient descent takes many small steps to reach the minimum, bouncing back and forth, even if the function is in a perfect quadratic form.
 
 The *Conjugate Gradient* method can solve this problem.
-(HISTORY.)
-It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
-
-EXPLAIN in detail.
-
-Instead of $-\nabla~f(x_n)$, CG choose another way to calculate the descent direction:
-EQUATION of CG
-
-[@fig:optimisation:gradients] compares the different descent efficiency of the conjugate gradient with gradient descent.
-([src](https://www.researchgate.net/publication/221533635_A_gradient-based_algorithm_competitive_with_variational_Bayesian_EM_for_mixture_of_Gaussians))
+It was first proposed by Hestenes and Stiefel in their work "Methods of Conjugate Gradients for Solving Linear Systems" in 1952.
+It is similar to the gradient descent, but at each step, the new direction does not totally follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
 
 ![Compare conjugate gradient and gradient descent](images/optimisation/gradients.png "gradients"){width=60% #fig:optimisation:gradients}
 
-Both GD and CG are abstracted in a module in Owl
-Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG....
+For example, [@fig:optimisation:gradients] compares the different descent efficiency of the conjugate gradient with gradient descent.
+Both methods start from the same position and go for the same direction.
+At the next point, the gradient descent follows the direction of the descent, which is a blunt one since this function is steep.
+But the conjugate method thinks, "hmm, this seems like a steep turn of direction, and I would prefer following the previous momentum a little bit".
+As a result, the conjugate method follows a direction in between (the red dotted line), and it turns out that the new direction avoids all the bouncing and finds the minimum more efficiently than the gradient descent method.
 
-(TODO: remove)
-```
-let run = function
-    | GD -> fun _ _ _ _ g' -> Maths.neg g'
-    | CG ->
-        fun _ _ g p g' ->
-          let y = Maths.(g' - g) in
-          let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
-          Maths.(neg g' + (b * p))
-    | CD ->
-        fun _ _ g p g' ->
-          let b = Maths.(l2norm_sqr' g' / sum' (neg p * g)) in
-          Maths.(neg g' + (b * p))
-    ...
-```
+In computation, instead of $-\nabla~f(x_n)$, conjugate gradient method chooses another way to calculate the descent direction.
+It maintains two sequences of updates:
 
-Explain
+$$ x_{n+1} = x_{n} - \alpha_n~A~y_n $$
+$$ y_{n+1} = x_{n+1} + \beta_n~y_n $$ {#eq:optimisation:conjugate}
 
-We also Give them a brief introduction here, but refer to paper and book for more details.
+where
+
+$$\alpha_n = \frac{x_n^T~y_n}{y_n^T~A~y_n}$$
+$$\beta_n = \frac{x_{n+1}^T~x_{n+1}}{x_n^T~x_n}.$$
+
+Here $x_n$ is the function value to be minimised.
+$A$ is a symmetric and positive-definite real matrix that denotes the system (describe in detail).
+Similar to the gradient descent method, the conjugate gradient is supported in the Owl optimisation module as `Owl_optimise.D.Gradient.CG`.
+
 
 ### Newton and Quasi-Newton Methods
 

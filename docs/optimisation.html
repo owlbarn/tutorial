@@ -213,14 +213,14 @@ let n = 200</code></pre>
 <figure>
 <img alt="" style="width:100.0%" id="fig:optimisation:gd_rosenbrock" title="gd_rosenbrock" src="images/optimisation/gd_rosenbrock.png"><figcaption>Figure 4: Optimisation process of gradient descent on multivariate function</figcaption>
 </figure>
-<p>Optimisation lays at the foundation of machine learning and neural network training. In the <code>Owl.Optimise</code> module, we provide a <code>minimise_fun</code> function to perform this task. This function is actually an internal function that aims mainly to serve the Neural Network module, but nevertheless we can still try to use this function to solve a optimisation problem with gradient descent method. val minimise_fun : Params.typ -&gt; (t -&gt; t) -&gt; t -&gt; Checkpoint.state * t</p>
-<p>This function works based on the Algorithm Differentiation module. It minimises function in the form of <code>f : x -&gt; y</code> with regard to <code>x</code>. <code>x</code> is an AD ndarray here, and <code>y</code> is an AD scalar value. This function is implemented following the iterative descent approach. Let’s use the previous Rosenbrock function example to demonstrate how it works.</p>
+<p>Optimisation lays at the foundation of machine learning and neural network training. In the <code>Owl.Optimise</code> module, we provide a <code>minimise_fun</code> function to perform this task. This function is actually an internal function that aims mainly to serve the Neural Network module, but nevertheless we can still try to use this function to solve a optimisation problem with gradient descent method.</p>
+<p>This function works based on the Algorithm Differentiation module. It minimises function in the form of <code>f : x -&gt; y</code> with regard to <code>x</code>. <code>x</code> is an AD ndarray, and <code>y</code> is an AD scalar value. This function is implemented following the iterative descent approach. Let’s use the previous Rosenbrock function example to demonstrate how it works.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let p = Owl_optimise.D.Params.default ()
 let _ = p.epochs &lt;- 10.
 let _ = p.gradient &lt;- Owl_optimise.D.Gradient.GD</code></pre>
 </div>
-<p>First, we set the optimisation parameters. The <code>Owl_optimise.D.Params</code> module contains several categories of parameters, including the gradient method, learning rate, loss functions, regularisation method, momentum method, epoch and batch etc. We will introduce these different parts in the Neural Network Chapter. Current, it suffices to just set the iteration number <code>epochs</code> to something like 10 or 20 iterations. Then we set the gradient method to be the gradient descent. Then we can just executing the code, starting from the same starting point:</p>
+<p>First, we set the optimisation parameters. The <code>Owl_optimise.D.Params</code> module contains several categories of parameters, including the gradient method, learning rate, loss functions, regularisation method, momentum method, epoch and batch etc. We will introduce these different parts in the Neural Network Chapter. Currently, it suffices to just set the iteration number <code>epochs</code> to something like 10 or 20 iterations. Then we set the gradient method to be the gradient descent. Then we can just executing the code, starting from the same starting point:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let init_value = N.of_array [|2.;-0.5|] [|1;2|] |&gt; pack_arr
 let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value</code></pre>
@@ -243,32 +243,17 @@ let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value</code></pre>
 </section>
 <section class="level3" id="conjugate-gradient-method">
 <h3>Conjugate Gradient Method</h3>
-<p>One problem with the Gradient Descent is that it does not perform well on all functions. For example, if the function forms a steep and narrow value, then using gradient descent will take many small steps to reach the minimum, even if the function is in a perfect quadratic form.</p>
-<p>The <em>Conjugate Gradient</em> method can solve this problem. (HISTORY.) It is similar to Gradient Descent, but the new direction does not follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
-<p>EXPLAIN in detail.</p>
-<p>Instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, CG choose another way to calculate the descent direction: EQUATION of CG</p>
-<p>fig.&nbsp;5 compares the different descent efficiency of the conjugate gradient with gradient descent. (<a href="https://www.researchgate.net/publication/221533635_A_gradient-based_algorithm_competitive_with_variational_Bayesian_EM_for_mixture_of_Gaussians">src</a>)</p>
+<p>One problem with the Gradient Descent is that it does not perform well on all functions. For example, if the function forms a steep and narrow value, gradient descent takes many small steps to reach the minimum, bouncing back and forth, even if the function is in a perfect quadratic form.</p>
+<p>The <em>Conjugate Gradient</em> method can solve this problem. It was first proposed by Hestenes and Stiefel in their work “Methods of Conjugate Gradients for Solving Linear Systems” in 1952. It is similar to the gradient descent, but at each step, the new direction does not totally follow the new gradient, but somehow <em>conjugated</em> to the old gradients and to all previous directions traversed.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:optimisation:gradients" title="gradients" src="images/optimisation/gradients.png"><figcaption>Figure 5: Compare conjugate gradient and gradient descent</figcaption>
 </figure>
-<p>Both GD and CG are abstracted in a module in Owl Besides the classic gradient descent and conjugate gradient, there are more methods that can be use to specify the descent direction: CD by Fletcher, NonlinearCG….</p>
-(TODO: remove)
-<div class="highlight">
-<pre><code class="language-clike">let run = function
-    | GD -&gt; fun _ _ _ _ g' -&gt; Maths.neg g'
-    | CG -&gt;
-        fun _ _ g p g' -&gt;
-          let y = Maths.(g' - g) in
-          let b = Maths.(sum' (g' * y) / (sum' (p * y) + _f 1e-32)) in
-          Maths.(neg g' + (b * p))
-    | CD -&gt;
-        fun _ _ g p g' -&gt;
-          let b = Maths.(l2norm_sqr' g' / sum' (neg p * g)) in
-          Maths.(neg g' + (b * p))
-    ...</code></pre>
-</div>
-<p>Explain</p>
-<p>We also Give them a brief introduction here, but refer to paper and book for more details.</p>
+<p>For example, fig.&nbsp;5 compares the different descent efficiency of the conjugate gradient with gradient descent. Both methods start from the same position and go for the same direction. At the next point, the gradient descent follows the direction of the descent, which is a blunt one since this function is steep. But the conjugate method thinks, “hmm, this seems like a steep turn of direction, and I would prefer following the previous momentum a little bit”. As a result, the conjugate method follows a direction in between (the red dotted line), and it turns out that the new direction avoids all the bouncing and finds the minimum more efficiently than the gradient descent method.</p>
+<p>In computation, instead of <span class="math inline">\(-\nabla~f(x_n)\)</span>, conjugate gradient method chooses another way to calculate the descent direction. It maintains two sequences of updates:</p>
+<p><span class="math display">\[ x_{n+1} = x_{n} - \alpha_n~A~y_n \]</span> <span id="eq:optimisation:conjugate"><span class="math display">\[ y_{n+1} = x_{n+1} + \beta_n~y_n \qquad(6)\]</span></span></p>
+<p>where</p>
+<p><span class="math display">\[\alpha_n = \frac{x_n^T~y_n}{y_n^T~A~y_n}\]</span> <span class="math display">\[\beta_n = \frac{x_{n+1}^T~x_{n+1}}{x_n^T~x_n}.\]</span></p>
+<p>Here <span class="math inline">\(x_n\)</span> is the function value to be minimised. <span class="math inline">\(A\)</span> is a symmetric and positive-definite real matrix that denotes the system (describe in detail). Similar to the gradient descent method, the conjugate gradient is supported in the Owl optimisation module as <code>Owl_optimise.D.Gradient.CG</code>.</p>
 </section>
 <section class="level3" id="newton-and-quasi-newton-methods">
 <h3>Newton and Quasi-Newton Methods</h3>
