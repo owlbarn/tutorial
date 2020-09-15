@@ -263,7 +263,7 @@ let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value</code></pre>
 <li>choose a step size <span class="math inline">\(\alpha\)</span>;</li>
 <li>update the location: <span class="math inline">\(x_{n+1} = x_n + \alpha~d\)</span>.</li>
 </ol>
-<p>Here <span class="math inline">\(\nabla^{2}~f(x_n)\)</span> denotes the second-order derivatives of function <span class="math inline">\(f\)</span>. For a scalar-valued function, it can be represented by a square matrix called <em>Hessian matrix</em>, denoted by <span class="math inline">\(\mathbf{H}\)</span>. Therefore the update process of newton method can be expressed as:</p>
+<p>Here <span class="math inline">\(\nabla^{2}~f(x_n)\)</span> denotes the second-order derivatives of function <span class="math inline">\(f\)</span>. For a scalar-valued function, its 2nd order derivatives can be represented by its Hessian matrix, which is introduced in the Algorithmic Differentiation chapter. With the hessian matrix <span class="math inline">\(\mathbf{H}\)</span>, the update process of newton method can be expressed as:</p>
 <p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).\]</span></p>
 <p>This can also be implemented in Owl with algorithmic differentiation.</p>
 <div class="highlight">
@@ -281,17 +281,17 @@ let _ =
   Mat.print y</code></pre>
 </div>
 <p>One nice property about the Newton’s method is its rate of convergence: it converges quadratically. However, one big problem with the newton method is the problem size. In the real world applications, it is not rare to see optimisation problems with thousands, millions or more variants. In these cases, it is impractical to compute the Hessian matrix, not to mention its inverse.</p>
-<p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of the Hessian matrix. Their convergence is fast, but not as efficient as the Newton’s method. It takes about <span class="math inline">\(n\)</span> quasi-newton iterations to progress similarly as the Newton’s method. The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors.</p>
-<p>EXPLAIN briefly.</p>
-<p>As a practical enhancement to the algorithm, the Limited-BFGS (L-BFGS) address the memory usage issue in BFGS. Instead of propagating updates over all iterations, this method only keeps updates from the last <span class="math inline">\(m\)</span> iterations.</p>
-<p>EXPLAIN</p>
+<p>Towards this end, the <em>Quasi-newton</em> methods are proposed. The basic idea is to iteratively build up an approximation of the inverse of the Hessian matrix. Their convergence is fast, but not as efficient as the Newton’s method. It takes about <span class="math inline">\(n\)</span> quasi-newton iterations to progress similarly as the Newton’s method. The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors. In the BFGS algorithm, the search direction <span class="math inline">\(d_i\)</span> at each iteration <span class="math inline">\(i\)</span> is calculated by</p>
+<p><span class="math display">\[ A_ip_i = -\nabla~f(x_i).\]</span></p>
+<p>Here <span class="math inline">\(A_i\)</span> is the approximation of Hessian matrix which is of the same shape <span class="math inline">\(m\times~m\)</span>. It is iteratively updated at each step. As a practical enhancement to the algorithm, the Limited-BFGS (L-BFGS) address the memory usage issue in BFGS. Instead of the large approximate matrix <span class="math inline">\(A_i\)</span>, this method only stores a small number of vectors to represent this matrix, and also keeps updates from the last several iterations.</p>
 </section>
 </section>
 <section class="level2" id="global-optimisation-and-constrained-optimisation">
 <h2>Global Optimisation and Constrained Optimisation</h2>
 <p>This chapter mainly focuses on unconstrained optimisation, mostly to find local optima. In the rest of this chapter we will give a very very brief introduction to global optimisation and constrained optimisation.</p>
 <p>The basic idea of global optimisation is to provide effective search methods and heuristics to traverse the search space effectively. One method is to start from a sufficient number of initial points and find the local optima, then choose the smallest/largest value from them. Another heuristic is to try stepping away from a local optimal value by taking a finite amplitude step away from it, perform the optimisation method, and see if it leads to a better solution or still the same.</p>
-<p>One example of algorithm: Simulated Annealing Methods.</p>
+<p>One example of algorithm: <em>Simulated Annealing Methods</em>. A suitable systems to apply Simulated Annealing consists of several elements. First, it contains a finite set <span class="math inline">\(S\)</span>, and a cost function <span class="math inline">\(f\)</span> that is defined on this set. There is also a non-increasing function <span class="math inline">\(T\)</span> that projects the set of positive integers to real positive value. <span class="math inline">\(T(t)\)</span> is called the <em>temperature</em> at time <span class="math inline">\(t\)</span>. Suppose at time <span class="math inline">\(t\)</span>, the current state is <span class="math inline">\(i\)</span> in <span class="math inline">\(S\)</span>. It choose one of its neighbours <span class="math inline">\(j\)</span> randomly. Next, if <span class="math inline">\(f(i) &lt; f(j)\)</span> then <span class="math inline">\(j\)</span> is used as the next state. If not so, then <span class="math inline">\(j\)</span> is chosen as the next state with a probability of <span class="math inline">\(e^{-\frac{f(j)-f(i)}{T(t)}}\)</span>, otherwise the next state stays to be <span class="math inline">\(i\)</span>. Starting from an initial state <span class="math inline">\(x_0\)</span>, this process is repeated for a finite number of steps to find the optimum.</p>
+<p>This method is inspired by thermodynamics, where metals cool and anneal starting from a high temperature. During this process, the atoms can often find the minimum energy state of the system automatically, just like finding the global optimum. The simulated annealing has already been used to solve the famous NP-hard traveling salesman problem to find the shortest path.</p>
 <p>The constrained optimisation is another large topic we haven’t covered in this chapter.</p>
 <p>Application of linear programming and non-linear programming.</p>
 <p>Their current status (how difficult to solve etc.), classic methods, and some existing tools.</p>
@@ -301,9 +301,8 @@ let _ =
 <section class="level2" id="summary">
 <h2>Summary</h2>
 </section>
-<section class="level2" id="references">
-<h2>References</h2>
-<p>REFERENCE BOOK in writing: Numerical methods in engineering with Python 3, by Jaan Kiusalaas.</p>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-boyd2004convex">
 <p>Boyd, Stephen, and Lieven Vandenberghe. 2004. <em>Convex Optimization</em>. Cambridge university press.</p>

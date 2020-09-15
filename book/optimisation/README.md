@@ -432,7 +432,8 @@ There is also a Newton Method in optimisation (it is not to be confused with the
 3. update the location: $x_{n+1} = x_n + \alpha~d$.
 
 Here $\nabla^{2}~f(x_n)$ denotes the second-order derivatives of function $f$.
-For a scalar-valued function, it can be represented by a square matrix called *Hessian matrix*, denoted by $\mathbf{H}$. Therefore the update process of newton method can be expressed as:
+For a scalar-valued function, its 2nd order derivatives can be represented by its Hessian matrix, which is introduced in the Algorithmic Differentiation chapter.
+With the hessian matrix $\mathbf{H}$, the update process of newton method can be expressed as:
 
 $$x_{n+1} = x_n - \alpha~\mathbf{H_n}^{-1}\nabla~f(x_n).$$
 
@@ -461,13 +462,13 @@ Towards this end, the *Quasi-newton* methods are proposed.
 The basic idea is to iteratively build up an approximation of the inverse of the Hessian matrix.
 Their convergence is fast, but not as efficient as the Newton's method. It takes about $n$ quasi-newton iterations to progress similarly as the Newton's method.
 The most important method in this category is BFGS (Broyden-Fletcher-Goldfarb-Shanno), named after its four authors.
+In the BFGS algorithm, the search direction $d_i$ at each iteration $i$ is calculated by
 
-EXPLAIN briefly.
+$$ A_ip_i = -\nabla~f(x_i).$$
 
+Here $A_i$ is the approximation of Hessian matrix which is of the same shape $m\times~m$. It is iteratively updated at each step.
 As a practical enhancement to the algorithm, the Limited-BFGS (L-BFGS) address the memory usage issue in BFGS.
-Instead of propagating updates over all iterations, this method only keeps updates from the last $m$ iterations.
-
-EXPLAIN
+Instead of the large approximate matrix $A_i$, this method only stores a small number of vectors to represent this matrix, and also keeps updates from the last several iterations.
 
 ## Global Optimisation and Constrained Optimisation
 
@@ -478,7 +479,17 @@ The basic idea of global optimisation is to provide effective search methods and
 One method is to start from a sufficient number of initial points and find the local optima, then choose the smallest/largest value from them.
 Another heuristic is to try stepping away from a local optimal value by taking a finite amplitude step away from it, perform the optimisation method, and see if it leads to a better solution or still the same.
 
-One example of algorithm: Simulated Annealing Methods.
+One example of algorithm: *Simulated Annealing Methods*. A suitable systems to apply Simulated Annealing consists of several elements.
+First, it contains a finite set $S$, and a cost function $f$ that is defined on this set.
+There is also a non-increasing function $T$ that projects the set of positive integers to real positive value.
+$T(t)$ is called the *temperature* at time $t$.
+Suppose at time $t$, the current state is $i$ in $S$.
+It choose one of its neighbours $j$ randomly.
+Next, if $f(i) < f(j)$ then $j$ is used as the next state. If not so, then $j$ is chosen as the next state with a probability of $e^{-\frac{f(j)-f(i)}{T(t)}}$, otherwise the next state stays to be $i$.
+Starting from an initial state $x_0$, this process is repeated for a finite number of steps to find the optimum.
+
+This method is inspired by thermodynamics, where metals cool and anneal starting from a high temperature. During this process, the atoms can often find the minimum energy state of the system automatically, just like finding the global optimum.
+The simulated annealing has already been used to solve the famous NP-hard traveling salesman problem to find the shortest path. 
 
 The constrained optimisation is another large topic we haven't covered in this chapter.
 
@@ -493,5 +504,3 @@ Refer to these book for more detail.
 ## Summary
 
 ## References
-
-REFERENCE BOOK in writing: Numerical methods in engineering with Python 3, by Jaan Kiusalaas.
