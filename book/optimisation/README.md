@@ -1,8 +1,7 @@
 # Optimisation
 
-Optimisation is one of the  fundamental functionality in numerical computation.
-In this chapter, we will briefly introduce the optimisation methods.
-We will use Owl to implement some of these methods.
+Optimisation is one of the fundamental functionality in numerical computation.
+In this chapter, we will briefly introduce the optimisation methods, and how Owl can be used to supports some of them.
 
 
 ## Introduction
@@ -32,12 +31,6 @@ Linear optimisation is important because non-negativity is a usual constraint on
 Though still limited by actual problem size, the solution of most linear optimisation problems are already known and provided by off-the-shelf software tools.
 The text book [@boyd2004convex] focuses exclusively on the topic of convex optimisation.
 
-Compare to linear optimisation, solving *non-linear optimisation* problems can still be very challenging.
-Finding a *global* solution that maximises or minimises the non-linear objective function is often quite time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when it is absolutely necessary.
-For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough.
-Otherwise, a *local* maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough.
-Even though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.
-
 Looking back at [@eq:optimisation:def], if we remove the constraints, it becomes an *unconstrained optimisation* problem.
 If $f$ is convex and differentiable, this problem can be seen as finding the root of the derivative of $f$ so that $f'(x^*) = 0$.
 As for the constrained version, one commonly used type is the *linear programming problem* where all the functions are linear. There are also other types of optimisations such as quadratic programming, semi-definite programming, etc.
@@ -50,8 +43,6 @@ We will cover the other more advanced content briefly in the end of this chapter
 This chapter uses differentiation techniques we have introduced in the previous chapter.
 Compared to numerical differentiation, the algorithmic differentiation guarantees a true derivative value without loss of accuracy.
 For the rest of this chapter, we prefer to use the algorithmic differentiation to compute derivatives when required, but of course you can also use the numerical differentiation.
-
-(NOTE: if we decide to add linear programming later, we can extend the constrained)
 
 ## Root Finding
 
@@ -489,18 +480,37 @@ Next, if $f(i) < f(j)$ then $j$ is used as the next state. If not so, then $j$ i
 Starting from an initial state $x_0$, this process is repeated for a finite number of steps to find the optimum.
 
 This method is inspired by thermodynamics, where metals cool and anneal starting from a high temperature. During this process, the atoms can often find the minimum energy state of the system automatically, just like finding the global optimum.
-The simulated annealing has already been used to solve the famous NP-hard traveling salesman problem to find the shortest path. 
+The simulated annealing has already been used to solve the famous NP-hard traveling salesman problem to find the shortest path.
 
-The constrained optimisation is another large topic we haven't covered in this chapter.
+The *Constrained Optimisation* is another large topic we haven't covered in this chapter.
+Unlike all the optimisation problems we have seen so far, in a real-world problem it is hardly the case that you can free explore the optimum without any restriction, local or global.
+More often than not, there are certain constraints on the variables.
 
-Application of linear programming and non-linear programming.
+For example, we can have an objective function: $f(\mathbf{x}) = \mathbf{c}^Tx$, where $\mathbf{c}$ is a parameter vector.
+This function is subject to non-negativity condition: $x_i \geq 0$ and $A\mathbf{x} \leq b$, where $b$ and $A$ are known vector and matrix parameters.
+Under such constraints, this optimisation problem is called Linear Programming (LP).
+Sometimes the variables are only allowed to take integer values, then it is called Integer Linear Programming (ILP).
+The linear programming is widely used to solve problems in various fields, such as portfolio optimisation in investment, manufacturing and transportation, route and traffic planning.
+With the help of algorithms such as the simplex algorithm and interior point methods, LP problems can often be efficiently solved.
+The 10th chapter of [@press2007numerical] explains in detail how these two methods work.
 
-Their current status (how difficult to solve etc.), classic methods, and some existing tools.
+Compared to the linear optimisation, solving *non-linear optimisation* problems can still be very challenging, especially the non-convex and non-quadratic problems.
+If the both objective function and the constrains are continuous, then the Lagrangian optimisation, with or without Karush-Kuhn-Tucker (KKT) condition, can be used; otherwise we can only rely on heuristics, such as the simulated annealing methods we have just mentioned.
+The tools such as [LINDO](https://www.lindo.com) provide functionalities to solve various sorts of optimisation problems.
 
-Their connection with the unconstrained method we have introduced.
-
-Refer to these book for more detail.
+Finding a global solution that maximises or minimises the non-linear objective function is often time-consuming, even for only a small set of variables. Therefore, global optimisation of a non-linear problem is normally only used when it is absolutely necessary.
+For example, if a system pressure test is modelled as an optimisation problem, given a small number of variants in the system, and a global extreme value has to find to test if the system is robust enough.
+Otherwise, a local maximum or minimum is normally used instead as an approximation. In most engineering applications, a local extreme value is good enough.
+Even though optimisation cannot promise a true extremism, and is easily affected by algorithm parameters and initial guess in iterative algorithms, as a trade-off, local optimisation is much faster and thus still widely used.
 
 ## Summary
+
+In this chapter we give an overview of the mathematical optimisation field.
+At first we introduce the categorisation of optimisation problem. It can be viewed in two dimensions: local or global, unconstrained or constrained.
+This chapter mainly focuses on the local unconstrained problem.
+Before this however, we introduce the techniques to find roots of function, since the basic idea of root finding is similar to that of optimisation: it can be solved with or without calculating derivatives.
+The local unconstrained problem is further explained in two parts: the univariate and multivariate optimisation.
+Of all the methods introduced here, the gradient descent is especially important, and we will see it again in the Regression and Neural Network chapters.
+Finally, we give a brief peek at the topic of global and constrained  optimisation problems.
 
 ## References
