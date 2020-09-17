@@ -1,15 +1,11 @@
 # Algorithmic Differentiation
 
-TBD
-
-## Introduction
-
-In science and engineering it is often necessary to study the relationship between two or more quantities, where change of one quantity leads to change of others.
-For example, in describing the motion an object, we describe velocity $v$ of an object with the change of the distance regarding time:
+In science and engineering it is often necessary to study the relationship between two or more quantities, where changing of one quantity leads to changes of others.
+For example, in describing the motion an object, we denote velocity $v$ of an object with the change of the distance regarding time:
 
 $$v = \lim_{\Delta~t}\frac{\Delta~s}{\Delta~t} = \frac{ds}{dt}.$$ {#eq:algodiff:def}
 
-This relationship $\frac{ds}{dt}$ can be called "*derivative* of $s$ with respect to $t$".
+This relationship $\frac{ds}{dt}$ is called "*derivative* of $s$ with respect to $t$".
 This process can be extended to higher dimensional space.
 For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature $T$ at different position of this block: $T(x, y, z)$.
 In this field, we can describe this change with partial derivatives along each axis:
@@ -17,23 +13,26 @@ In this field, we can describe this change with partial derivatives along each a
 $$\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).$$ {#eq:algodiff:grad}
 
 Here, we call the vector $\nabla~T$ *gradient* of $T$.
-The procedure to calculating derivatives and gradients is referred to as *differentiating*.
+The procedure to calculating derivatives and gradients is referred to as *differentiation*.
 
-Differentiation is crucial in many scientific related fields:
-find maximum or minimum values using gradient descent (see later chapter);
-ODE (see later chapter);
+Differentiation is crucial to many scientific related fields:
+find maximum or minimum values using gradient descent;
+ODE;
 Non-linear optimisation such as KKT optimality conditions is still a prime application.
 One new crucial application is in machine learning.
+The training of a supervised machine learning model often requires the forward propagation and back propagation phases, where the back propagation can be seen as the derivative of the whole model as a large function.
+We will talk about these applications in the next chapters.
 
-TODO: detail description of application.
+Differentiation often requires complex computation, and in these applications we surely need to rely on some computing framework to support it.
+Differentiation module is built into the core of Owl.
+In this chapter, starting from the basic computation rule in performing differentiation, we will introduce how Owl supports this important feature step by step.
 
-### Chain Rule
+## Chain Rule
 
 Before diving into how to do differentiation on computers, let's recall how to do it with a pencil and paper from our Calculus 101.
-
 One of the most important rules in performing differentiation is the *chain rule*.
 In calculus, the chain rule is a formula to compute the derivative of a composite function.
-Suppose we have two functions $f$ and $g$, then the Chain rule states that:
+Suppose we have two functions $f$ and $g$, then the chain rule states that:
 
 $$F'(x)=f'(g(x))g'(x).$$ {#eq:algodiff:chainrule01}
 
@@ -46,8 +45,8 @@ $$y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.$$
 Besides the chain rule, it's helpful to remember some basic differentiation equations, as shown in [@tbl:algodiff:chainrule02].
 Here $x$ is variable and both $u$ and $v$ are functions with regard to $x$. $C$ is constant.
 These equations are the building blocks of differentiating more complicated ones.
-Of course, this very short list is incomplete. Please refer to calculus textbooks for more information.
-Armed with chain rule and these basic equations, wen can begin to solve more differentiation problems than you can imagine.
+Of course, this very short list is incomplete. Please refer to the calculus textbooks for more information.
+Armed with the chain rule and these basic equations, wen can begin to solve more differentiation problems than you can imagine.
 
 ----------------------  --------------------------------------
 Function                Derivatives
@@ -69,7 +68,7 @@ $log_a(x)$              $\frac{1}{x~\textrm{ln}~a}$
 : A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}
 
 
-### Differentiation Methods
+## Differentiation Methods
 
 As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation.
 Therefore, we turn to computer-based automated computation methods.
@@ -102,9 +101,9 @@ For example, for function $f(x) = sin(x)$, $f''(x) = -sin(x)$.
 Suppose we want to calculate the derivative at $x=1$ numerically using a step size of 0.01, then the truncation error should be in the range $\frac{0.01^2}{2}[sin(1), sin(1.01)]$.
 
 
-Here we can see the effect of this truncation error in an example, by using an improperly large step size.
-Here we want to find the derivative of $f(x) = cos(x)$ at point $x=1$.
-Basic calculus tells us that it should be equals to $-sin(1) = 0.84147$, but the result is obviously a bit different. 
+We can see the effect of this truncation error in an example, by using an improperly large step size.
+Let's say we want to find the derivative of $f(x) = cos(x)$ at point $x=1$.
+Basic calculus tells us that it should be equals to $-sin(1) = 0.84147$, but the result is obviously a bit different.
 
 ```ocaml env=optimisation:numdiff
 # let d =
@@ -114,9 +113,9 @@ Basic calculus tells us that it should be equals to $-sin(1) = 0.84147$, but the
 val d : float = -0.867061844425624506
 ```
 
-Another source of error is the round-off error.
+Another source of error is the *round-off error*.
 It is caused by representing numbers approximately in numerical computation during this process.
-Looking back at [@eq:algodiff:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost the same number. That leads to large round-off errors.
+Looking back at [@eq:algodiff:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost identical number. That could lead to a large round-off errors in a computer.
 For example, let's choose a very small step size this time:
 
 ```ocaml env=optimisation:numdiff
@@ -130,10 +129,8 @@ val d : float = -0.888178419700125121
 It is still significantly different from the expected result.
 Actually if we use a even smaller step size $1e-16$, the result becomes 0, which means the round-off error is large enough that $f(x)$ and $f(x+h)$ are deemed the same by the computer.
 
-Besides these sources of error, the numerical differentiation method is also slow due to requiring multiple evaluation of function $f$.
-We'll discuss it later in the optimisation chapter, since optimisation using gradient is a very important application of differentiation.
-Some discussion about numerically solving derivative related problems is also covered in the Ordinary Differentiation Equation chapter, where we focus on introducing solving these equations numerically, and how the impact of these errors can be reduced.
-
+Besides these sources of error, the numerical differentiation method is also slow due to requiring multiple evaluations of function $f$.
+Some discussion about numerically solving derivative-related problems is also covered in the Ordinary Differentiation Equation chapter, where we focus on introducing solving these equations numerically, and how the impact of these errors can be reduced.
 
 **Symbolic Differentiation**
 
@@ -146,21 +143,21 @@ $$\nabla~f = (\frac{\partial~f}{\partial~x_0}, \frac{\partial~f}{\partial~x_1}, 
 It is nice and accurate, leaving limited space for numerical errors.
 However, you can try to extend the number of variables from 3 to a large number $n$, which means $f(x) = \prod_{i=0}^{n-1}x_i$, and then try to perform the symbolic differentiation again.
 
-The point is that, symbolic computations tends to give a very large result for even not very complex functions.
+The point is that, symbolic computations tend to give a very large and complex result for even simple functions.
 It's easy to have duplicated common sub computations, and produce exponentially large symbolic expressions.
-Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and is slow.
+Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and it is slow.
 
-The explosion of computation complexity is not the only limitation of symbolic differentiation. In contrast to the numerical differentiation, we have to treat the function in symbolic differentiation as a white box, knowing exactly what is inside of the function. This further indicates that it cannot be used for arbitrary functions.
+The explosion of computation complexity is not the only limitation of symbolic differentiation. In contrast to the numerical differentiation, we have to treat the function in symbolic differentiation as a white box, knowing exactly what is inside of it. This further indicates that it cannot be used for arbitrary functions.
 
 
 **Algorithmic Differentiation**
 
 Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme.
-It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can lead to inefficient code.
+It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can sometimes lead to inefficient code.
 
 AD can generate exact results with superior speed and memory usage, therefore highly applicable in various real world applications.
-Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results.  
-It is now important to point out that AD is neither numerical nor symbolic differentiation, it actually takes the best parts of both worlds, as we will see in the next section.
+Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results. It is important to point out that AD is neither numerical nor symbolic differentiation.
+It takes the best parts of both worlds, as we will see in the next section.
 Actually, according to [@griewank1989automatic], the reverse mode of AD yields any gradient vector at no more than five times the cost of evaluating the function $f$ itself.
 AD has already been implemented in various popular languages, including the [`ad`](https://pythonhosted.org/ad/) in Python, [`JuliaDiff`](https://www.juliadiff.org/) in Julia, and [`ADMAT`](http://www.cayugaresearch.com/admat.html) in MATLAB, etc.
 In the rest of this chapter, we focus on introducing the AD module in Owl.
@@ -190,18 +187,18 @@ Next, we introduce these two methods.
 Our target is to calculate $\frac{\partial~y}{\partial~x_0}$ (partial derivative regarding $x_1$ should be similar).
 But hold your horse, let's start with some earlier intermediate results that might be helpful.
 For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 1, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 0$. It's just elementary.
-Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? Now it is a good time to use the chain rule:
+Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? It is a good time to use the chain rule:
 
 $$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.$$
 
 After calculating $\frac{\partial~v_3}{\partial~x_0}$, we can then processed with derivatives of $v_5$, $v_6$, all the way to that of $v_9$ which is also the output $y$ we are looking for.
 This process starts with the input variables, and ends with output variables. Therefore, it is called *forward differentiation*.
-We can do simplify the math notations in this process by letting $\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}$.
+We can simplify the math notations in this process by letting $\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}$.
 The $\dot{v_i}$ here is called *tangent* of function $v_i(x_0, x_1, \ldots, x_n)$ with regard to input variable $x_0$, and the original computation results at each intermediate point is called *primal* values.
 The forward differentiation mode is sometimes also called "tangent linear" mode.
 
 Now we can present the full forward differentiation calculation process, as shown in [@tbl:algodiff:forward].
-Two simultaneous computing processes take place, represented as two separated columns: on the left hand side is the computation procedure specified by [@eq:algodiff:example];
+Two simultaneous computing processes take place, shown as two separated columns: on the left side is the computation procedure specified by [@eq:algodiff:example];
 on the right side shows computation of derivative for each intermediate variable with regard to $x_0$.
 Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
 
@@ -234,8 +231,7 @@ This procedure shown in this table can be illustrated in [@fig:algodiff:example_
 
 ![Example of forward accumulation with computational graph](images/algodiff/example_01_forward.png "example_01_forward"){ width=100% #fig:algodiff:example_01_forward}
 
-Of course, all the numerical computation here are approximated with only two significant figures.  
-We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the details of this module in later sections.
+Of course, all the numerical computations here are approximated with only two significant figures. We can validate this result with algorithmic differentiation module in Owl. If you don't understand the code, don't worry. We will cover the details of this module in later sections.
 
 ```ocaml
 # open Algodiff.D
@@ -347,8 +343,6 @@ Step Adjoint computation
 
 Note that things a bit different for $x_0$. It is used in both intermediate variables $v_2$ and $v_3$.
 Therefore, we compute the adjoint of $v_0$ with regard to $v_2$ (step 19) and $v_3$ (step 20), and accumulate them together (step 20).
-(TODO: Explain why adding these two adjoints.)
-
 
 Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure [@fig:algodiff:example_01_reverse].
 
@@ -379,38 +373,36 @@ R -0.181973 -0.118142
 
 ```
 
-Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understand the next section, namely how to decide which mode (forward or backward) to use in practice.
+Before we move on, did you notice that we get $\frac{\partial~y}{\partial~x_1}$ for "free" while calculating $\frac{\partial~y}{\partial~x_0}$. Noticing this will help you to understand the next section, about how to decide which mode (forward or backward) to use in practice.
 
 ### Forward or Reverse?
 
-Since both can be used to differentiate a function then the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
-
+Since both modes can be used to differentiate a function, the natural question is which mode we should choose in practice. The short answer is: it depends on your function.
 In general, given a function that you want to differentiate, the rule of thumb is:
 
 * if the number of input variables is far larger than that of the output variables, then use reverse mode;
 * if the number of output variables is far larger than that of the input variables, then use forward mode.
 
-Later we will show example of this point.
-
 For each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for `f`. One real-world example of `f` is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.
 
 Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers.
+Later we will show example about choosing between these two methods.
 
 
 ## A Strawman AD Engine
 
 Surely you don't want to make these tables every time you are faced with a new computation.
 Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let's look at how to do it with computer programmes.
-In this section, we will introduce how to implement the differentiation modes using OCaml code.
-Of course, these will be elementary straw man implementation compared to the industry standard module provided by Owl, but nevertheless important to the understanding of the latter.
+In this section, we will introduce how to implement the differentiation modes using pure OCaml code.
+Of course, these will be elementary straw man implementations compared to the industry standard module provided by Owl, but nevertheless are important to the understanding of the latter.
 
-We will again use the function in [@eq:algodiff:example] as example, and we limit the computation in our small AD engine to only these operations: `add`, `div`, `mul`,
+We will again use the function in [@eq:algodiff:example] as example, and we limit the computation in our small AD engine to only these basic operations: `add`, `div`, `mul`.
 
 ### Simple Forward Implementation
 
-How can we represent [@tbl:algodiff:forward]? A intuitive answer is to build a table when traversing the computation graph.
+How can we represent [@tbl:algodiff:forward]? An intuitive answer is to build a table when traversing the computation graph.
 However, that's not a scalable: what if there are hundreds and thousands of computation steps?
-A closer look at the [@tbl:algodiff:forward] shows that a intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results.
+A closer look at the [@tbl:algodiff:forward] shows that an intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results.
 Based on this observation, we can define a data type that preserve these two values:
 
 ```ocaml env=algodiff_simple_impl_forward
@@ -434,9 +426,8 @@ let sin_ad x =
     {p=p'; t=t'}
 ```
 
-EXPLAIN
-
-Now you can easily extend towards the `exp` operation:
+The core part of this function is to define how to compute its function value `p'` and derivative value `t'` based on the input `df` data.
+Now you can easily extend it towards the `exp` operation:
 
 
 ```ocaml env=algodiff_simple_impl_forward
@@ -461,6 +452,7 @@ let mul_ad a b =
     {p=p'; t=t'}
 ```
 
+Though it require a bit more unpacking, its forward computation and derivative function are simple enough.
 Similarly, you can extend that towards similar operations: the `add` and `div`.
 
 ```ocaml env=algodiff_simple_impl_forward
@@ -502,7 +494,7 @@ let x1 = {p=1.; t=0.}
 ```
 
 These are inputs.
-We know the tangent of x1 with regard to x0 is zero, and so are the other constants used in the computation.
+We know the tangent of `x1` with regard to `x0` is zero, and so are the other constants used in the computation.
 
 ```ocaml env=algodiff_simple_impl_forward
 # let f x0 x1 =
@@ -522,18 +514,16 @@ val pri : float = 0.13687741466075895
 val tan : float = -0.181974376561731321
 ```
 
-Just as expected.
+The results are just as calculated in the previous section.
 
 ### Simple Reverse Implementation
-
-(TODO: revise the code e.g. naming; explain the code as clear as possible since the adjoint function is very tricky. Use graph if necessary.)
 
 The reverse mode is a bit more complex.
 As shown in the previous section, forward mode only needs one pass, but the reverse mode requires two passes, a forward pass followed by a backward pass.
 This further indicates that, besides computing primal values, we also need to "remember" the operations along the forward pass, and then utilise these information in the backward pass.
-There can be multiple ways to do that, e.g. a stack or graph structure.
+There are multiple ways to do that, e.g. a stack or graph structure.
 What we choose here is bit different though.
-Start with the data types we use.
+Let's start with the data types we use.
 
 
 ```ocaml env=algodiff_simple_impl_reverse
@@ -564,14 +554,13 @@ let sin_ad dr =
 ```
 
 It's an implementation of `sin` operation.
-The `adj_fun` here can be understood as a placeholder for the adjoint value we don't know yet in the forward pass.
+The `adj_fun` here can be understood as a *placeholder* for the adjoint value we don't know yet in the forward pass.
 The `t` is a stack of intermediate nodes to be processed in the backward process.
 It says that, if I have the adjoint value `ca`, I can then get the new adjoint value of my parents `r`.
 This result, together with the original data `dr`, is pushed to the stack `t`.
 This stack is implemented in OCaml list.  
 
-Let's look at the `mul` operation:
-
+Let's then look at the `mul` operation with two variables:
 
 ```ocaml env=algodiff_simple_impl_reverse
 let mul_ad dr1 dr2 =
@@ -587,8 +576,7 @@ let mul_ad dr1 dr2 =
     {p = p'; a = ref 0.; adj_fun = adjfun'}
 ```
 
-Both of its parents are added to the task stack.
-
+The difference is that, this time both of its parents are added to the task stack.
 For the input data, we need a helper function:
 
 ```ocaml env=algodiff_simple_impl_reverse
@@ -598,7 +586,7 @@ let make_reverse v =
     {p=v; a; adj_fun}
 ```
 
-With this function, we can do the forward pass like this:
+With this function, we can perform the forward pass like this:
 
 ```ocaml env=algodiff_simple_impl_reverse
 # let x = make_reverse 1.
@@ -625,9 +613,9 @@ let rec reverse_push xs =
         reverse_push stack
 ```
 
-The `reverse_push` does exactly that. Stating from a list, it get the top element `dr`, get the adjoint value we already calculated `aa`, update it with `v` (explain why), get the `adj_fun`. Now that we know the adjoint value, we can use that as input parameter to the `adj_fun` to execute the data of current task and recursively execute more nodes until the task stack is empty.
+The `reverse_push` does exactly that. Starting from a list, it gets the top element `dr`, gets the adjoint value we already calculated `aa`, updates it with `v`, and then gets the `adj_fun`. Now that we know the adjoint value, we can use that as input parameter to the `adj_fun` to execute the data of current task and recursively execute more nodes until the task stack is empty.
 
-Now, let's add some other required operations:
+Now, let's add some other required operations basically by copy and paste:
 
 
 ```ocaml env=algodiff_simple_impl_reverse
@@ -682,7 +670,7 @@ let diff f =
   f'
 ```
 
-Now we can do the calculation, which are the same as before, only difference is the way to build constant values.
+Now we can do the calculation, which are the same as before, and the only difference is the way to build constant values.
 
 ```ocaml env=algodiff_simple_impl_reverse
 # let x1 = make_reverse 1.
@@ -714,17 +702,17 @@ val pri_x1 : float = 1.
 val adj_x1 : float = -0.118141988016545588
 ```
 
-Their adjoint values are just as expected.
+Again, their adjoint values are just as expected.
 
 ### Unified Implementations
 
 We have shown how to implement forward and reverse AD from scratch separately. But in the real world applications, we often need a system that supports both differentiation modes. How can we build it then?
-We start with combining the previous two record data types `df` and `dr` into a new data type `t`:
+We start with combining the previous two record data types `df` and `dr` into a new data type `t` and its related operations:
 
 ```ocaml env=algodiff_simple_impl_unified_00
 type t =
-    | DF of float * float  
-    | DR of float * float ref * adjoint
+  | DF of float * float  
+  | DR of float * float ref * adjoint
 
 and adjoint = float ref -> (float * t) list -> (float * t) list
 
@@ -760,7 +748,7 @@ let rec reverse_push xs =
     | _ -> failwith "error: unsupported type")
 ```
 
-Now we operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a `match` clause.
+Now we can operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a `match` clause.
 
 ```ocaml env=algodiff_simple_impl_unified_00
 let sin_ad x =
@@ -811,7 +799,7 @@ Specifically, three type of computations are involved:
 `ff`, which computes the primal value; `df`, which computes the tangent value; and `dr`, which computes the adjoint value.
 The rest are mostly fixed.
 
-Based on this observation, we can utilise the first-class citizen in OCaml: module, to reduce a lot of copy and paste in code.
+Based on this observation, we can utilise the first-class citizen in OCaml, the "module", to reduce a lot of copy and paste in our code.
 We can start with two types of modules: unary and binary:
 
 ```ocaml env=algodiff_simple_impl_unified_00
@@ -832,7 +820,7 @@ module type Binary = sig
 end
 ```
 
-They express both points of difference: first, the two module differentiate between unary and binary ops; second, each module represents the three core operations: `ff`, `df`, and `dr`.
+They express both points of difference: first, the two modules differentiate between unary and binary ops; second, each module represents the three core operations: `ff`, `df`, and `dr`.
 We can focus on the computation logic of each computation in each module:
 
 
@@ -1395,10 +1383,7 @@ It turns out that, the simple implementation we have is not very far away from t
 There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it.
 Without digging too deep into the code details, in this section we will give an overview of some of the differences between the Owl implementation and the simple version.  
 
-
-A FIGURE that covers five parts: basic type and helper functions (level 1), op, builder, reverse (level 2), and high-level API (level 3).
-
-![Architecture of the AD module](images/algodiff/architecture.png "architecture"){width=90% #fig:algodiff:architecture}
+![Architecture of the AD module](images/algodiff/architecture.png "architecture"){width=60% #fig:algodiff:architecture}
 
 This figure shows the structure of AD module in Owl.
 It consists of five parts. EXPLAIN.
@@ -1469,8 +1454,6 @@ Therefore, when used within function `g`, `x` should actually be treated as `DF(
 
 The tagging technique is proposed to solve this nested derivative problem. The basic idea is to distinguish derivative calculations and their associated attached values by using a unique tag for each application of the derivative operator.
 More details of method is explained in [@siskind2005perturbation].
-
-TODO: should the other fields also be discussed in length?
 
 Now we move on to the higher level. It's structure should be familiar to you now.
 The `builder` module abstract out the general process of forward and reverse modes, while `ops` module contains all the specific calculation methods for each operations.
@@ -1638,8 +1621,6 @@ let sin_ad = Lazy.force _sin_ad
 ```
 
 Int this way, regardless of how many times this `sin` function is called in a massive computation, the `Builder.build_siso` process is only invoked once.
-
-(TODO: maybe an example to show the performance before and after applying the lazy evaluation? The problem is that, the non-forced part is not visible to users.)
 
 What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD.
 Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable.
