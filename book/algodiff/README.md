@@ -975,27 +975,26 @@ Once again, the results agree and are just as expected.
 
 ## Forward and Reverse Propagation API
 
-So far we have talked a lot about what is Algorithmic Differentiation and how it works, with theory, example illustration, and code.
-Now finally let's turn to how to use it in Owl.
-
+So far we have talked a lot about what is algorithmic differentiation and how it works, with theory, example illustration, and code.
+Now finally let's turn to using it in Owl.
 Owl provides both numerical differentiation (in [Numdiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml) module) and algorithmic differentiation (in [Algodiff.Generic](https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml) module).
-We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation.
+We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation examples.
 
-Algorithmic Differentiation is a core module built in Owl, which is one of Owl's special feature among other similar numerical libraries.
-`Algodiff.Generic` is a functor that accept a Ndarray modules.
-By plugging in `Dense.Ndarray.S` and `Dense.Ndarray.D` modules we can have AD modules that support `float32` and `float64` precision respectively.
+Algorithmic Differentiation is a core module built in Owl, which is one of Owl's special features among other similar numerical libraries.
+`Algodiff.Generic` is a functor that accepts a Ndarray modules.
+By plugging in `Dense.Ndarray.S` and `Dense.Ndarray.D` modules we can have AD modules that supports `float32` and `float64` precision respectively.
 
 ```ocaml
 module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
 module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 ```
 
-EXPLAIN what is this `Owl_algodiff_primal_ops` thing.
+This `Owl_algodiff_primal_ops` module here might seem unfamiliar to you, but in essence it is mostly an alias of the Ndarray module, with certain matrix and linear algebra functions added in.  
 We will mostly use the double precision `Algodiff.D` module, but of course using other choices is also perfectly fine.
 
 ### Expressing Computation
 
-Let's look at the the previous example of [@eq:algodiff:example], and express it in the AD module.
+Let's look at the the previous example of [@eq:algodiff:example], and express it with the AD module.
 Normally, the code below should do.
 
 ```ocaml
@@ -1007,7 +1006,7 @@ let f x =
 	Owl_maths.(1. /. (1. +. exp (sin x0 +. x0 *. x1)))
 ```
 
-This function accept a vector and returns a float value; exactly what we are looking for.
+This function accepts a vector and returns a float value, which is exactly what we are looking for.
 However, the problem is that we cannot directly differentiate this programme. Instead, we need to do some minor but important change:
 
 ```ocaml env=algodiff_example_02
@@ -1019,16 +1018,12 @@ let f x =
 	AD.Maths.((F 1.) / (F 1. + exp (sin x0 + x0 * x1)))
 ```
 
-This function looks very similar, but now we are using the operators provided in the AD module, including the `get` operation and math operations.
+This function looks very similar, but now we are using the operators provided by the AD module, including the `get` operation and math operations.
 In AD, all the input/output are of type `AD.t`. There is no difference between scalar, matrix, or ndarray for the type checking.
 
-The `F` is special packing mechanism in AD. It makes a type `t` float. Think about wrap a float number inside a container that can be recognised in this factory called "AD". And then this factory can produce what differentiation result you want.
+The `F` is special packing mechanism in AD. It makes a type `t` float. Think about wrapping a float number inside a container that can be recognised in this factory called "AD". And then this factory can produce the differentiation result you want.
 The `Arr` operator is similar. It wraps an ndarray (or matrix) inside this same container.
 And as you can guess, there are also unpacking mechanisms. When this AD factory produces some result, to see the result you need to first unwrap this container with the functions `unpack_flt` and `unpack_arr`.
-It can be illustrated in the figure below.
-
-IMAGE: a box with packing and unpacking channels
-
 For example, we can directly execute the AD functions, and the results need to be unpacked before being used.
 
 ```
@@ -1056,7 +1051,7 @@ The forward process is straightforward.
 ```
 open AD
 
-# let x = make_forward input (F 1.) (tag ());;  (* seed the input *)
+# let x = make_forward input (F 1.) (tag ());;   (* seed the input *)
 # let y = f x;;                                  (* forward pass *)
 # let y' = tangent y;;                           (* get all derivatives *)
 ```
@@ -1090,7 +1085,7 @@ open AD
 R0 -0.181974 -0.118142
 ```
 
-`make_reverse` function does two things for us: 1) wrap `x` into type `t` that Algodiff can process 2) generate a unique tag for the input so that input numbers can have nested structure.
+The `make_reverse` function does two things for us: 1) wrapping `x` into type `t` that `Algodiff` can process 2) generating a unique tag for the input so that input numbers can have nested structure.
 By calling `f x'`, we construct the computation graph of `f` and the graph structure is maintained in the returned result `y`. Finally, `reverse_prop` function propagates the error back to the inputs.
 In the end, the gradient of `f` is stored in the adjacent value of `x'`, and we can retrieve that with `adjval` function.
 The result agrees with what we have calculated manually.
@@ -1102,7 +1097,7 @@ There might be cases you do need to operate these low-level functions to write u
 However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task.
 In reality, you don't really need to worry about forward or reverse mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc.
 They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users.
-In this chapter we will introduce how to use these core high level APIs with examples.
+In this section we will introduce how to use these high level APIs.
 
 ### Derivative
 
@@ -1126,8 +1121,8 @@ let f0 x = Maths.(tanh x)
 let d = diff f0 (F 0.1)
 ```
 
-Moreover, the AD module is much more than that; we can easily chains multiple `diff` together to get a function's high order derivatives.
-For example, we can get the first to fourth order derivatives of `f0` by using the code below.
+Moreover, the AD module is much more than that; we can easily chain multiple `diff` together to get a function's high order derivatives.
+For example, we can get the first to fourth order derivatives of `f0` by using the concise code below.
 
 ```ocaml env=algodiff_00
 let f0 x = Maths.(tanh x);;
@@ -1164,8 +1159,8 @@ If you want, you can play with other functions, such as $\frac{1-e^{-x}}{1+e^{-x
 
 ### Gradient
 
-As we have introduced in [@eq:algodiff:grad], gradient generalise derivatives to multivariate functions.
-Therefore, for a function that accepts a vector (where each element is a variable), and returns a scalar, we can use the `grad` function to find it gradient at a point.
+As we have introduced in [@eq:algodiff:grad], gradient generalises derivatives to multivariate functions.
+Therefore, for a function that accepts a vector (where each element is a variable) and returns a scalar, we can use the `grad` function to find its gradient at a point.
 Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis.
 This vector shows the direction and magnitude of maximum change of a multivariate function.
 
@@ -1185,7 +1180,7 @@ TODO: finish this example?
 
 Just like gradient extends derivative, the gradient can also be extended to the *Jacobian matrix*.
 The `grad` can be applied on functions with vector as input and scalar as output.
-The `jacobian` function on the hand, deals with functions that has both input and output of vectors.
+The `jacobian` function on the other hand, deals with functions that has both input and output of vectors.
 Suppose the input vector is of length $n$, and contains $m$ output variables, the jacobian matrix is defined as:
 
 $$ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_1}{\partial~x_1} & \frac{\partial~y_1}{\partial~x_1} & \ldots & \frac{\partial~y_1}{\partial~x_n} \\ \frac{\partial~y_2}{\partial~x_0} & \frac{\partial~y_2}{\partial~x_1} & \ldots & \frac{\partial~y_2}{\partial~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial~y_m}{\partial~x_0} & \frac{\partial~y_m}{\partial~x_1} & \ldots & \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]$$
@@ -1195,8 +1190,8 @@ At a particular point in the domain of the target function, If you give it a sma
 One application field of Jacobian is in the analysis of dynamical systems.
 In a dynamic system $\vec{y}=f(\vec{x})$, suppose $f: \mathbf{R}^n \rightarrow \mathbf{R}^m$ is differentiable and its jacobian is $\mathbf{J}$.
 
-According to the [Hartman-Grobman](https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem) theorem, the behaviour of the system near a stationary point is related to the eigenvalues of $\mathbf{J}$.
-Specifically, if the eigenvalues all have real parts that are negative, then the system is stable near the stationary point, if any eigenvalue has a real part that is positive, then the point is unstable. If the largest real part of the eigenvalues is zero, the Jacobian matrix does not allow for an evaluation of the stability. (COPY ALERT)
+According to the [Hartman-Grobman](https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem) theorem, the stability of a dynamic system near a stationary point is decided by the eigenvalues of $\mathbf{J}$.
+It is stable if all the eigenvalues have negative real parts, otherwise its unstable, with the exception that when the largest real part of the eigenvalues is zero. In that case, the stability cannot be decided by eigenvalues.
 
 Let's revise the two-body problem from Ordinary Differential Equation Chapter. This dynamic system is described by a group of differential equations:
 
@@ -1257,15 +1252,11 @@ val eig : Owl_dense_matrix_z.mat =
 R0 (0.840896, 0i) (-0.840896, 0i) (0, 0.594604i) (0, -0.594604i)
 ```
 
-It turns out that one eigenvalue is real and positive, so the corresponding component of the solutions is growing.
-One eigenvalue is real and negative, indicating a decaying component.
-The other two eigenvalues are pure imaginary numbers. representing oscillatory components.
-(COPY ALERT)
-The analysis result shows that at current point the system is unstable.
+It turns out that one of the eigenvalue is real and positive, so at current point the system is unstable.
 
 ### Hessian and Laplacian
 
-Another way to extend the gradient is to find the second order derivative of a multivariate function which takes $n$ input variables and outputs a scalar.
+Another way to extend the gradient is to find the second order derivatives of a multivariate function which takes $n$ input variables and outputs a scalar.
 Its second order derivatives can be organised as a matrix:
 
 $$ \mathbf{H}(y) = \left[ \begin{matrix} \frac{\partial^2~y_1}{\partial~x_1^2} & \frac{\partial^2~y_1}{\partial~x_1~x_2} & \ldots & \frac{\partial^2~y_1}{\partial~x_1~x_n} \\ \frac{\partial^2~y_2}{\partial~x_2~x_1} & \frac{\partial^2~y_2}{\partial~x_2^2} & \ldots & \frac{\partial^2~y_2}{\partial~x_2~x_n} \\ \vdots & \vdots & \ldots & \vdots \\ \frac{\partial^2~y_m}{\partial^2~x_n~x_1} & \frac{\partial^2~y_m}{\partial~x_n~x_2} & \ldots & \frac{\partial^2~y_m}{\partial~x_n^2} \end{matrix} \right]$$
@@ -1292,6 +1283,7 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 
 We can then apply this method on a two dimensional triangular function to find one of the local minimum values, staring from a random initial point.
 Note that here the functions has to take a vector as input and output a scalar.
+We will come back to this method in the in Optimisation chapter with more details.
 
 ```ocaml env=algodiff_hessian_example
 let _ =
@@ -1299,73 +1291,38 @@ let _ =
   newton f (Mat.uniform 1 2)
 ```
 
-We will come back to this example in the in Optimisation chapter with more details.
-
 Another useful and related function is `laplacian`, it calculate the *Laplacian operator* $\nabla^2~f$, which is the the trace of the Hessian matrix:
 
 $$\nabla^2~f=trace(H_f)= \sum_{i=1}^{n}\frac{\partial^2f}{\partial~x_i^2}.$$
 
-The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics. The Laplacian represents the flux density of the gradient flow of a function. For instance, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena. (COPY ALERT)
-
+The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics, etc.
+The Laplacian represents the flux density of the gradient flow of a function. For example, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena.
+(TODO: COPY ALERT)
 
 ### Other APIs
 
 Besides, there are also many helper functions, such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
 They will come handy in certain cases for the programmers.
-Besides the functions we have already introduced, the complete list of APIs can be found below.
+Besides the functions we have already introduced, the complete list of APIs can be found in the tabl ebelow.
 
-```
-  val diff' : (t -> t) -> t -> t * t
-  (** similar to ``diff``, but return ``(f x, diff f x)``. *)
+| API name  | Explanation  |
+| :------------- |:-----------------------------------------|
+| `diff'` | similar to `diff`, but return `(f x, diff f x)` |
+| `grad'` | similar to `grad`, but return `(f x, grad f x)` |
+| `jacobian'` | similar to `jacobian`, but return `(f x, jacobian f x)` |
+| `jacobianv` | jacobian vector product of `f` : (vector -> vector) at `x` along `v`; it calcultes `(jacobian x) v` |
+| `jacobianv'` | similar to `jacobianv`, but return `(f x, jacobianv f x)` |
+| `jacobianTv` | it calculates `transpose ((jacobianv f x v))` |
+| `jacobianTv'` | similar to `jacobianTv`, but return `(f x, transpose (jacobianv f x v))` |
+| `hessian'` | hessian vector product of `f` : (scalar -> scalar) at `x` along `v`; it calculates `(hessian x) v` |
+| `hessianv'` | similar to `hessianv`, but return `(f x, hessianv f x v)` |
+| `laplacian'` | similar to `laplacian`, but return `(f x, laplacian f x)` |
+| `gradhessian` | return `(grad f x, hessian f x)`, `f : (scalar -> scalar)` |
+| `gradhessian'` | return `(f x, grad f x, hessian f x)` |
+| `gradhessianv` | return `(grad f x v, hessian f x v)` |
+| `gradhessianv'` | return `(f x, grad f x v, hessian f x v)` |
+: List of other APIs in the AD module of Owl {#tbl:algodiff:apis}
 
-  val grad' : (t -> t) -> t -> t * t
-  (** similar to ``grad``, but return ``(f x, grad f x)``. *)
-
-  val jacobian' : (t -> t) -> t -> t * t
-  (** similar to ``jacobian``, but return ``(f x, jacobian f x)`` *)
-
-  val jacobianv : (t -> t) -> t -> t -> t
-  (** jacobian vector product of ``f`` : (vector -> vector) at ``x`` along ``v``, forward
-      ad. Namely, it calcultes ``(jacobian x) v`` *)
-
-  val jacobianv' : (t -> t) -> t -> t -> t * t
-  (** similar to ``jacobianv'``, but return ``(f x, jacobianv f x v)`` *)
-
-  val jacobianTv : (t -> t) -> t -> t -> t
-  (** transposed jacobian vector product of ``f : (vector -> vector)`` at ``x`` along
-      ``v``, backward ad. Namely, it calculates ``transpose ((jacobianv f x v))``. *)
-
-  val jacobianTv' : (t -> t) -> t -> t -> t * t
-  (** similar to ``jacobianTv``, but return ``(f x, transpose (jacobianv f x v))`` *)
-
-  val hessian' : (t -> t) -> t -> t * t
-  (** simiarl to ``hessian``, but return ``(f x, hessian f x)`` *)
-
-  val hessianv : (t -> t) -> t -> t -> t
-  (** hessian vector product of ``f`` : (scalar -> scalar) at ``x`` along ``v``. Namely,
-      it calculates ``(hessian x) v``. *)
-
-  val hessianv' : (t -> t) -> t -> t -> t * t
-  (** similar to ``hessianv``, but return ``(f x, hessianv f x v)``. *)
-
-  val laplacian' : (t -> t) -> t -> t * t
-  (** simiar to ``laplacian``, but return ``(f x, laplacian f x)``. *)
-
-  val gradhessian : (t -> t) -> t -> t * t
-  (** return ``(grad f x, hessian f x)``, ``f : (scalar -> scalar)`` *)
-
-  val gradhessian' : (t -> t) -> t -> t * t * t
-  (** return ``(f x, grad f x, hessian f x)`` *)
-
-  val gradhessianv : (t -> t) -> t -> t -> t * t
-  (** return ``(grad f x v, hessian f x v)`` *)
-
-  val gradhessianv' : (t -> t) -> t -> t -> t * t * t
-  (** return ``(f x, grad f x v, hessian f x v)`` *)
-```
-
-
-**More Examples in Book**
 Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book.
 As we have already shown in previous examples, we use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter.
 It is also used in the Regression chapter to solve the linear regression problem with gradient descent.
