@@ -965,8 +965,8 @@ R0 -0.181974 -0.118142</code></pre>
 <section class="level2" id="high-level-apis">
 <h2>High-Level APIs</h2>
 <p>What we have seen is the basic of AD modules. There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus. However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task. In reality, you don’t really need to worry about forward or reverse mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, and etc. They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users. In this section we will introduce how to use these high level APIs.</p>
-<section class="level3" id="derivative">
-<h3>Derivative</h3>
+<section class="level3" id="derivative-and-gradient">
+<h3>Derivative and Gradient</h3>
 <p>The most basic and commonly used differentiation functions is used for calculating the <em>derivative</em> of a function. The AD module provides <code>diff</code> function for this task. Given a function <code>f</code> that takes a scalar as input and also returns a scalar value, we can calculate its derivative at a point <code>x</code> by <code>diff f x</code>, as shown in this function signature.</p>
 <div class="highlight">
 <pre><code class="language-clike">val diff : (t -&gt; t) -&gt; t -&gt; t</code></pre>
@@ -1010,14 +1010,8 @@ Plot.output h;;</code></pre>
 <img alt="" style="width:70.0%" id="fig:algodiff:plot00" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>Figure 4: Higher order derivatives</figcaption>
 </figure>
 <p>If you want, you can play with other functions, such as <span class="math inline">\(\frac{1-e^{-x}}{1+e^{-x}}\)</span> to see what its derivatives look like.</p>
-</section>
-<section class="level3" id="gradient">
-<h3>Gradient</h3>
-<p>As we have introduced in eq.&nbsp;2, gradient generalises derivatives to multivariate functions. Therefore, for a function that accepts a vector (where each element is a variable) and returns a scalar, we can use the <code>grad</code> function to find its gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
+<p>A close-related idea to derivative is the <em>gradient</em>. As we have introduced in eq.&nbsp;2, gradient generalises derivatives to multivariate functions. Therefore, for a function that accepts a vector (where each element is a variable) and returns a scalar, we can use the <code>grad</code> function to find its gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
 <p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression and Optimisation chapters in our book.</p>
-<p>As an example, we calculate the gradient of a physical function. The fourth chapter of <span data-cites="feynman1964feynman" class="citation">(Feynman 1964)</span> describes an electronic fields. It consists two point charges, <code>+q</code> and <code>-q</code>, separated by the distance <span class="math inline">\(d\)</span>. The z axis goes through the charges, and the origin is set to halfway between these two charges. The potential from the two charges can be described by</p>
-<p><span class="math display">\[\phi(x,y,z)=\frac{1}{4\pi~\epsilon_0}\left(\frac{q}{\sqrt{(z-d/2)^2 + x^2 + y^2}} + \frac{-q}{\sqrt{(z+d/2)^2 + x^2 + y^2}}\right)\]</span></p>
-<p>TODO: finish this example?</p>
 </section>
 <section class="level3" id="jacobian">
 <h3>Jacobian</h3>
@@ -1099,11 +1093,11 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 </div>
 <p>Another useful and related function is <code>laplacian</code>, it calculate the <em>Laplacian operator</em> <span class="math inline">\(\nabla^2~f\)</span>, which is the the trace of the Hessian matrix:</p>
 <p><span class="math display">\[\nabla^2~f=trace(H_f)= \sum_{i=1}^{n}\frac{\partial^2f}{\partial~x_i^2}.\]</span></p>
-<p>The Laplacian occurs in differential equations that describe many physical phenomena, such as electric and gravitational potentials, the diffusion equation for heat and fluid flow, wave propagation, and quantum mechanics, etc. The Laplacian represents the flux density of the gradient flow of a function. For example, the net rate at which a chemical dissolved in a fluid moves toward or away from some point is proportional to the Laplacian of the chemical concentration at that point; expressed symbolically, the resulting equation is the diffusion equation. For these reasons, it is extensively used in the sciences for modelling all kinds of physical phenomena. (TODO: COPY ALERT)</p>
+<p>In Physics, the Laplacian can represent the flux density of the gradient flow of a function, e.g.&nbsp;the moving rate of a chemical in a fluid. Therefore, differential equations that contains Laplacian are frequently used in many fields to describe physical systems, such as the gravitational potentials, the fluid flow, wave propagation, and electric field, etc.</p>
 </section>
 <section class="level3" id="other-apis">
 <h3>Other APIs</h3>
-<p>Besides, there are also many helper functions, such as <code>jacobianv</code> for calculating jacobian vector product; <code>diff'</code> for calculating both <code>f x</code> and <code>diff f x</code>, and etc. They will come handy in certain cases for the programmers. Besides the functions we have already introduced, the complete list of APIs can be found in the tabl ebelow.</p>
+<p>Besides, there are also many helper functions, such as <code>jacobianv</code> for calculating jacobian vector product; <code>diff'</code> for calculating both <code>f x</code> and <code>diff f x</code>, and etc. They will come handy in certain cases for the programmers. Besides the functions we have already introduced, the complete list of APIs can be found in the table below.</p>
 <div id="tbl:algodiff:apis">
 <table>
 <caption>Table 5: List of other APIs in the AD module of Owl</caption>
@@ -1184,13 +1178,12 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 <h2>Internal of Algorithmic Differentiation</h2>
 <section class="level3" id="go-beyond-simple-implementation">
 <h3>Go Beyond Simple Implementation</h3>
-<p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provided. You might be wondering, how are these APIs implemented in Owl?</p>
-<p>It turns out that, the simple implementation we have is not very far away from the industry-level implementation in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we will give an overview of some of the differences between the Owl implementation and the simple version.</p>
+<p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provides. You might be wondering, how are these APIs implemented in Owl?</p>
+<p>It turns out that, the simple implementations we have are not very far away from the industry-level implementations in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we give an overview of some of the key differences between the Owl implementation and the simple version we built in the previous sections.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:algodiff:architecture" title="architecture" src="images/algodiff/architecture.png"><figcaption>Figure 5: Architecture of the AD module</figcaption>
 </figure>
-<p>This figure shows the structure of AD module in Owl. It consists of five parts. EXPLAIN.</p>
-<p>Let’s start with the type definition.</p>
+<p>The fig.&nbsp;5 shows the structure of AD module in Owl, and they will be introduced one by one below. Let’s start with the <strong>type definition</strong>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  type t =
     | F   of A.elt
@@ -1208,11 +1201,10 @@ let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
 
   and op = adjoint * register * label</code></pre>
 </div>
-<p>You will notice some difference. First, besides DF and DR, it also contains two constructors: <code>F</code> and <code>Arr</code>. This points out one shortcoming of our simple implementation: we cannot process ndarray as input, only float. That’s why, if you look back how our computation is constructed, we have to explicitly say that the computation takes two variable as input. In a real-world application, we only need to pass in a <code>1x2</code> vector as input.</p>
-<p>You can also note that some extra information fields are included in the DF and DR data types. The most important one is <code>tag</code>, it is mainly used to solve the problem of high order derivative and nested forward and backward mode. This problem is called <em>perturbation confusion</em> and is important in any AD implementation. Here we only scratch the surface of this problem.</p>
-<p>Here is the example: what if I want to compute the derivative of:</p>
+<p>You will notice some differences. First, besides <code>DF</code> and <code>DR</code>, it also contains two constructors: <code>F</code> and <code>Arr</code>. This points out one shortcoming of our simple implementation: we cannot process ndarray as input, only float. That’s why, if you look back at how our computation is constructed, we have to explicitly say that the computation takes two variable as input. In a real-world application, we only need to pass in a <code>1x2</code> vector as input.</p>
+<p>You can also note that some extra information fields are included in the DF and DR data types. The most important one is <code>tag</code>, it is mainly used to solve the problem of high order derivative and nested forward and backward mode. This problem is called <em>perturbation confusion</em> and is important in any AD implementation. Here we only scratch the surface of this problem. Think about this: what if we want to compute the derivative of:</p>
 <p><span class="math display">\[f(x) = x\frac{d(x+y)}{dy},\]</span></p>
-<p>i.e.&nbsp;a function that contains another derivative function? It’s simple, since <span class="math inline">\(\frac{d(x+y)}{dy} = 1\)</span>, so <span class="math inline">\(f'(x) = x' = 1\)</span>. Elementary. There is no way we can do it wrong, right?</p>
+<p>i.e.&nbsp;a function that contains another derivative function? It’s simple, since <span class="math inline">\(\frac{d(x+y)}{dy} = 1\)</span>, so <span class="math inline">\(f'(x) = x' = 1\)</span>. Elementary. There is no way we can do it wrong, even with our strawman AD engine, right?</p>
 <p>Well, not exactly. Let’s follow our previous simple implementation:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let diff f x =
@@ -1235,25 +1227,25 @@ diff f (make_forward 2. 1.);;
 </code></pre>
 </div>
 <p>Hmm, the result is 3 at point <span class="math inline">\((x=2, y=2)\)</span> but the result should be 1 at any point as we have calculated, so what has gone wrong?</p>
-<p>Notice that <code>x=DF(2,1)</code>. The tangent value equals to 1, which means that <span class="math inline">\(frac{dx}{dx}=1\)</span>. Now if we continue to use this same <code>x</code> value in function <code>g</code>, whose variable is y, the same <code>x=DF(2,1)</code> can be translated by the AD engine as <span class="math inline">\(\frac{dx}{dy}=1\)</span>, which is apparently wrong. Therefore, when used within function <code>g</code>, <code>x</code> should actually be treated as <code>DF(2,0)</code>.</p>
+<p>Notice that <code>x=DF(2,1)</code>. The tangent value equals to 1, which means that <span class="math inline">\(\frac{dx}{dx}=1\)</span>. Now if we continue to use this same <code>x</code> value in function <code>g</code>, whose variable is y, the same <code>x=DF(2,1)</code> can be translated by the AD engine as <span class="math inline">\(\frac{dx}{dy}=1\)</span>, which is apparently wrong. Therefore, when used within function <code>g</code>, <code>x</code> should actually be treated as <code>DF(2,0)</code>.</p>
 <p>The tagging technique is proposed to solve this nested derivative problem. The basic idea is to distinguish derivative calculations and their associated attached values by using a unique tag for each application of the derivative operator. More details of method is explained in <span data-cites="siskind2005perturbation" class="citation">(Siskind and Pearlmutter 2005)</span>.</p>
-<p>Now we move on to the higher level. It’s structure should be familiar to you now. The <code>builder</code> module abstract out the general process of forward and reverse modes, while <code>ops</code> module contains all the specific calculation methods for each operations. Keep in mind that not all operation can follow exact math rules to perform differentiation. For example, what is the tangent and adjoint of the convolution or concatenation operations? These are all includes in the <code>ops.ml</code>.</p>
+<p>Now we move on to a higher level. Its structure should be familiar to you now. The <strong>builder</strong> module abstract out the general process of forward and reverse modes, while the <strong>ops</strong> module contains all the specific calculation methods for each operations. Keep in mind that not all operations can follow exact math rules to perform differentiation. For example, what is the tangent and adjoint of the convolution or concatenation operations? These are all included in the <code>ops.ml</code>.</p>
 <p>We have shown how the unary and binary operations can be built by providing two builder modules. But of course there are many operators that have other type of signatures. Owl abstracts more operation types according to their number of input variables and output variables. For example, the <code>qr</code> operations calculates QR decomposition of an input matrix. This operation uses the SIPO (single-input-pair-output) builder template.</p>
 <p>In <code>ops</code>, each operation specifies three kinds of functions for calculating the primal value (<code>ff</code>), the tangent value (<code>df</code>), and the adjoint value (<code>dr</code>). However, actually some variants are required. In our simple examples, all the constants are either <code>DF</code> or <code>DR</code>, and therefore we have to define two different functions <code>f_forward</code> and <code>f_reverse</code>, even though only the definition of constants are different. Now that the float number is included in the data type <code>t</code>, we can define only one computation function for both modes:</p>
 <div class="highlight">
-<pre><code class="language-clike">  let f_forward x =
-    let x0, x1 = x in
-    let v2 = sin_ad x0 in
-    let v3 = mul_ad x0 x1 in
-    let v4 = add_ad v2 v3 in
-    let v5 = F 1. in (* change *)
-    let v6 = exp_ad v4 in
-    let v7 = F 1. in (* change *)
-    let v8 = add_ad v5 v6 in
-    let v9 = div_ad v7 v8 in
-    v9</code></pre>
+<pre><code class="language-clike">let f_forward x =
+  let x0, x1 = x in
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = F 1. in (* change *)
+  let v6 = exp_ad v4 in
+  let v7 = F 1. in (* change *)
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9</code></pre>
 </div>
-<p>Now, we need to consider the question: how to compute <code>DR</code> and <code>F</code> data types together? To do that, we need to consider more cases in an operation. For example, in the previous implementation an multiplication use three functions:</p>
+<p>Now, we need to consider the question: how to compute <code>DR</code> and <code>F</code> data types together? To do that, we need to consider more cases in an operation. For example, in the previous implementation, one multiplication use three functions:</p>
 <div class="highlight">
 <pre><code class="language-clike">module Mul = struct
   let ff a b = Owl_maths.mul a b
@@ -1262,15 +1254,12 @@ diff f (make_forward 2. 1.);;
 end</code></pre>
 </div>
 <p>But now things get more complicated. For <code>ff a b</code>, we need to consider, e.g.&nbsp;what if <code>a</code> is float and <code>b</code> is an ndarray, or vice versa. For <code>df</code> and <code>dr</code>, we need to consider what happens if one of the input is constant (<code>F</code> or <code>Arr</code>). The builder module also has to take these factors into consideration accordingly.</p>
-<p>In <code>reverse.ml</code>, we have the <code>reverse_push</code> functions. Compared to the simple implementation, it performs an extra <code>shrink</code> step. This step checks adjoint <code>a</code> and its update <code>v</code>, ensuring rank of a must be larger than or equal with rank of <code>v</code>. Also, an extra <code>reverse_reset</code> functions is actually required before the reverse propagation begins to reset all adjoint values to the initial zero values.</p>
-<p>EXAMPLE: what happens if we don’t do that.</p>
-<p>For the high level APIs, one thing we need to notice is that although <code>diff</code> functions looks straightforward to be implemented using the forward and backward mode, the same cannot be said of other functions, especially <code>jacobian</code>.</p>
-<p>Another thing is that, in our simple implementation, we don’t support multiple precisions. It is solved by functors in Owl. In <code>Algodiff.Generic</code>, all the APIs are encapsulated in a module named <code>Make</code>. This module takes in an ndarray-like module and generate operations with corresponding precision. If it accepts a <code>Dense.Ndarray.S</code> module, it generate AD modules of single precision; if it is <code>Dense.Ndarray.D</code> passed in, the functor generates AD module that uses double precision. (This description is not correct actually; the required functions actually has to follow the signatures specified in <code>Owl_types_ndarray_algodiff.Sig</code>, which also contains operation about scalar, matrix, and linear algebra, besides ndarray operations.)</p>
+<p>Finally, in the <strong>reverse</strong> module (<code>Owl_algodiff_reverse</code>), we have the <code>reverse_push</code> functions. Compared to the simple implementation, it performs an extra <code>shrink</code> step. This step checks adjoint <code>a</code> and its update <code>v</code>, ensuring rank of <code>a</code> must be larger than or equal with rank of <code>v</code>. Also, the initialisation of the computation is required. An extra <code>reverse_reset</code> functions is actually required before the reverse propagation begins to reset all adjoint values to the initial zero values.</p>
+<p>Above these parts are the high level APIs. One thing we need to notice is that although <code>diff</code> functions looks straightforward to be implemented using the forward and backward mode, the same cannot be said of other functions, especially <code>jacobian</code>. Another thing is that, our simple implementation does not support multiple precisions. It is solved by functors in Owl. In <code>Algodiff.Generic</code>, all the APIs are encapsulated in a module named <code>Make</code>. This module takes in an ndarray-like module and generate AD modules with corresponding precision. If it accepts a <code>Dense.Ndarray.S</code> module, it generate AD modules of single precision; if it is <code>Dense.Ndarray.D</code> passed in, the functor generates AD module that uses double precision. (To be precise, this description is not quite correct; the required functions actually has to follow the signatures specified in <code>Owl_types_ndarray_algodiff.Sig</code>, which also contains operation about scalar, matrix, and linear algebra, besides ndarray operations. As we have seen previously, the input modules here are acutally <code>Owl_algodiff_primal_ops.S/D</code>, the wrapper modules for Ndarray.)</p>
 </section>
 <section class="level3" id="extend-ad-module">
 <h3>Extend AD module</h3>
-<p>The module design shown above brings one large benefit: it is very flexible in supporting adding new operations on the fly. Let’s look at an example: suppose the Owl does not provide the operation <code>sin</code> in AD module, and to finish our example in eq.&nbsp;5, what can we do?</p>
-<p>We can use the <code>Builder</code> module in AD.</p>
+<p>The module design shown above brings one large benefit: it is very flexible in supporting adding new operations on the fly. Let’s look at an example: suppose the Owl does not provide the operation <code>sin</code> in AD module, and to finish our example in eq.&nbsp;5, what can we do? We can use the <code>Builder</code> module in AD.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 
@@ -1286,7 +1275,7 @@ end</code></pre>
 <div class="highlight">
 <pre><code class="language-ocaml">let sin_ad = Builder.build_siso (module Sin : Builder.Siso)</code></pre>
 </div>
-<p>That’s all! Now we can use this function as if it is an native operation.</p>
+<p>The <code>siso</code> means “single input, single output”. That’s all! Now we can use this function as if it is a native operation. You will find that this new operator works seamlessly with existing ones.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x =
   let x1 = Mat.get x 0 0 in
@@ -1302,12 +1291,10 @@ let _ = grad f x |&gt; unpack_arr;;
 &gt;R0 -0.181974 -0.118142
 </code></pre>
 </div>
-<p>This new operator works seamlessly with existing ones.</p>
 </section>
 <section class="level3" id="lazy-evaluation">
 <h3>Lazy Evaluation</h3>
-<p>Using the <code>Builder</code> enables users to build new operations conviniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency. Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, but in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times. With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not efficient. We need some mechanism of caching.</p>
-<p>This is where the <em>lazy evaluation</em> in OCaml comes to help.</p>
+<p>Using the <code>Builder</code> enables users to build new operations conveniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency. Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times.) With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not efficient. We need some mechanism of caching. This is where the <em>lazy evaluation</em> in OCaml comes to help.</p>
 <div class="highlight">
 <pre><code class="language-clike">val lazy: 'a -&gt; 'a lazy_t
 
@@ -1317,15 +1304,22 @@ module Lazy :
     val force : 'a t -&gt; 'a
   end</code></pre>
 </div>
-<p>OCaml provides a built-in function <code>lazy</code> that accept an input of type <code>'a</code> and returns a <code>'a lazy_t</code> object. It is a value of type <code>'a</code> whose computation has been delayed. This lazy expression won’t be evaluated until it is called by <code>Lazy.force</code>. The first time it is called by <code>Lazy.force</code>, the expresion is evaluted and the result is saved; and thereafter every time it is called by <code>Lazy.force</code>, the saved results will be returned without evaluation.</p>
+<p>As shown in the code above, OCaml provides a built-in function <code>lazy</code> that accept an input of type <code>'a</code> and returns a <code>'a lazy_t</code> object. It is a value of type <code>'a</code> whose computation has been delayed. This lazy expression won’t be evaluated until it is called by <code>Lazy.force</code>. The first time it is called by <code>Lazy.force</code>, the expresion is evaluted and the result is saved; and thereafter every time it is called by <code>Lazy.force</code>, the saved results will be returned without evaluation.</p>
 <p>Here is an example:</p>
 <div class="highlight">
-<pre><code class="language-clike">(* TODO: check the code *)
-# let x = Printf.printf "hello world!"; 42
-# let lazy_x = lazy (Printf.printf "hello world!"; 42)
-# let _ = Lazy.force lazy_x
-# let _ = Lazy.force lazy_x
-# let _ = Lazy.force lazy_x</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Printf.printf "hello world!"; 42;;
+&gt;hello world!
+&gt;val x : int = 42
+let lazy_x = lazy (Printf.printf "hello world!"; 42);;
+&gt;val lazy_x : int lazy_t = &lt;lazy&gt;
+let _ = Stdlib.Lazy.force lazy_x;;
+&gt;hello world!
+&gt;- : int = 42
+let _ = Stdlib.Lazy.force lazy_x;;
+&gt;- : int = 42
+let _ = Stdlib.Lazy.force lazy_x;;
+&gt;- : int = 42
+</code></pre>
 </div>
 <p>In this example you can see that building <code>lazy_x</code> does not evaluate the content, which is delayed to the first <code>Lazy.force</code>. After that, ever time <code>force</code> is called, only the value is returned; the <code>x</code> itself, including the <code>printf</code> function, will not be evaluated.</p>
 <p>We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a <code>sin</code> operation that the AD module supposedly “does not provide”. We can still do:</p>
@@ -1340,25 +1334,23 @@ module Sin = struct
   let dr a _cp ca = Maths.(!ca * cos (primal a))
 end</code></pre>
 </div>
-<p>This part is the same, but now we need to utilise the lazy evalutation:</p>
+<p>This part is the same, but now we need to utilise the lazy evaluation:</p>
 <div class="highlight">
 <pre><code class="language-clike">let _sin_ad = lazy Builder.build_siso (module Sin : Builder.Siso)
 
 let sin_ad = Lazy.force _sin_ad</code></pre>
 </div>
 <p>Int this way, regardless of how many times this <code>sin</code> function is called in a massive computation, the <code>Builder.build_siso</code> process is only invoked once.</p>
-<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as computation result. This module is called the <em>computation graph</em>. It is an quite important idea, and we will talk about it in length in the second part of this book.</p>
+<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as computation result. This module is called the <em>computation graph</em> module. It is also a quite important idea, and we will talk about it in detail in the second part of this book.</p>
 </section>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
+<p>In this chapter, we introduce the idea of algorithmic differentiation (AD) and how it works in Owl. First, we start with the classic chain rule in differentiation and different methods to do it, and the benefit of AD. Next, we use an example to introduce two basic modes in AD: the forward mode and the reverse mode. This section is followed by a step-by-step coding of a simple strawman AD engine using OCaml. You can see that the core idea of AD can be implemented with surprisingly simple code. Then we turn to the Owl side: first, how Owl support what we have done in the strawman implementation with the forward and reverse propagation APIs; next, how Owl provides various powerful high level APIs to enable users to directly perform AD. Finally, we give an in-depth introduction to the implementation of the AD module in Owl, including some details that enhance the simple strawman code, how to build user-defined AD computation, and using lazy evaluation to improve performance, etc. Hopefully, after finishing this chapter, you can have a solid understanding of both its theory and implementation.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
-<div id="ref-feynman1964feynman">
-<p>Feynman, Richard P. 1964. “Feynman Lectures on Physics. Volume 2: Mainly Electromagnetism and Matter.” <em>Reading, Ma.: Addison-Wesley, 1964, Edited by Feynman, Richard P.; Leighton, Robert B.; Sands, Matthew</em>.</p>
-</div>
 <div id="ref-griewank1989automatic">
 <p>Griewank, Andreas, and others. 1989. “On Automatic Differentiation.” <em>Mathematical Programming: Recent Developments and Applications</em> 6 (6): 83–107.</p>
 </div>
