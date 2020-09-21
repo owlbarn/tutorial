@@ -155,7 +155,7 @@ let _ =
 </div>
 <p>Next, we want to specify the <em>timespan</em> of this problem: from 0 to 2, at a step of 0.001.</p>
 <div class="highlight">
-<pre><code class="language-clike">let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 2.; dt=1E-3})</code></pre>
+<pre><code class="language-ocaml">let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 2.; dt=1E-3})</code></pre>
 </div>
 <p>One last thing to solve the problem is the <em>initial values</em>:</p>
 <div class="highlight">
@@ -163,18 +163,18 @@ let _ =
 </div>
 <p>And finally we can provide all these information to the <code>rk4</code> solver in <code>Owl_ode</code> and get the answer:</p>
 <div class="highlight">
-<pre><code class="language-clike">let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.rk4 f x0 tspec ()
-
-val ts : Owl_dense_matrix_d.mat =
-
-   C0    C1    C2    C3    C4     C1996 C1997 C1998 C1999 C2000
-R0  0 0.001 0.002 0.003 0.004 ... 1.996 1.997 1.998 1.999     2
-
-val ys : Owl_dense_matrix_d.mat =
-
-   C0       C1       C2       C3       C4        C1996    C1997    C1998    C1999    C2000
-R0 -1   -1.002 -1.00399 -1.00599 -1.00798 ... -3.56302 -3.56451   -3.566 -3.56749 -3.56898
-R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.07707 -2.07798</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.rk4 f x0 tspec ();;
+&gt;val ts : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0    C1    C2    C3    C4     C1996 C1997 C1998 C1999 C2000
+&gt;R0  0 0.001 0.002 0.003 0.004 ... 1.996 1.997 1.998 1.999     2
+&gt;
+&gt;val ys : Owl_dense_matrix_d.mat =
+&gt;
+&gt;   C0       C1       C2       C3       C4        C1996    C1997    C1998    C1999    C2000
+&gt;R0 -1   -1.002 -1.00399 -1.00599 -1.00798 ... -3.56302 -3.56451   -3.566 -3.56749 -3.56898
+&gt;R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.07707 -2.07798
+</code></pre>
 </div>
 <p>The <code>rk4</code> solver is short for “forth-order Runge-Kutta Method” that we have introduced before. The result shows both the steps <span class="math inline">\(ts\)</span> and the system values at each step <span class="math inline">\(ys\)</span>. We can visualise the oscillation according to the result:</p>
 <figure>
@@ -261,7 +261,7 @@ R1  1 0.995005 0.990022 0.985049 0.980088 ... -2.07436 -2.07527 -2.07617 -2.0770
 <p><span class="math display">\[y' = Ay, \textrm{where } A = \left[\begin{matrix} 0 &amp; 1 \\ -1 &amp; 0 \end{matrix} \right].\]</span></p>
 <p>We can then apply the previous methods such as Euler to solve it:</p>
 <div class="highlight">
-<pre><code class="language-clike">let f y t =
+<pre><code class="language-ocaml">let f y t =
   let a = [|[|0.; 1.|];[|-1.; 0.|]|]|&gt; Mat.of_arrays in
   Mat.(a *@ y)
 
@@ -285,7 +285,7 @@ let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.euler f x0 tspec ()</code></pre
 <p>Another feature of <code>owl-ode</code> is that the users can easily define new solver module by creating a module of type <code>Solver</code>. For example, to create a custom Cvode solver that has a relative tolerance of 1E-7 as opposed to the default 1E-4, we can define and use the <code>custom_cvode</code> as follows:</p>
 <div class="highlight">
 <pre><code class="language-clike">let custom_cvode = Owl_ode_sundials.cvode ~stiff:false ~relative_tol:1E-7 ~abs_tol:1E-4
-let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec () (* usage *)</code></pre>
+let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec ()</code></pre>
 </div>
 <p>Here, we use the <code>cvode</code> function to construct a solver module <code>Custom_Owl_Cvode</code>. Similar helper functions like <code>cvode</code> have been also defined for native and symplectic solvers.</p>
 <p>We aim to make the <code>owl-ode</code> to run across different backends such as JavaScript. One way to do this is to use tools like <code>js_of_ocaml</code> to convert OCaml bytecode into JavaScript. However, this approach only supports pure OCaml implementation. The sundial and ODEPACK solvers are therefore excluded. Part of the library, the <code>owl-ode-base</code> contains implementations of solvers that are purely written in OCaml. These parts are therefore suitable to be used for in JavaScript and executed on web browsers. Another backend option is the Unikernl virtual machine such as MirageOS. We will talk about these backends in the “Compiler Backends” chapter in the Part II of this book.</p>
@@ -299,7 +299,7 @@ let ts, xs = Owl_ode.Ode.odeint custom_cvode f x0 tspec () (* usage *)</code></p
 <h3>Explicit ODE</h3>
 <p>Now that we have this powerful tool, we can use the solver in <code>owl-ode</code> to solve the motivative problem in eq.&nbsp;4 with simple code.</p>
 <div class="highlight">
-<pre><code class="language-clike">let f y t = Mat.((2. $* y *$ t) +$ t)
+<pre><code class="language-ocaml">let f y t = Mat.((2. $* y *$ t) +$ t)
 
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 1.; dt=1E-3})
 
@@ -311,11 +311,12 @@ let _, ys = Owl_ode.Ode.odeint solver f y0 tspec ()</code></pre>
 </div>
 <p>The code is mostly similar to previous example, the only difference is that we can now try another solver provided: the <code>rk45</code> solver, with certain parameters specified. You don’t have to worry about what the <code>tol</code> or <code>dtmax</code> means for now. Note that this solver (and the previous one) requires input to be of type <code>mat</code> in Owl, and the function <span class="math inline">\(f\)</span> be of type <code>mat -&gt; float -&gt; mat</code>. The result is shown below. You can verify the result with eq.&nbsp;5, by setting the <span class="math inline">\(x\)</span> to 1 in this equation, and the numerical value of <span class="math inline">\(y\)</span> will be close to 0.859079.</p>
 <div class="highlight">
-<pre><code class="language-clike"># Mat.transpose ys
-- : Mat.mat =
-
-   C0          C1          C2          C3         C4         C124     C125     C126    C127     C128
-R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.transpose ys;;
+&gt;- : Mat.mat =
+&gt;
+&gt;   C0          C1          C2          C3         C4         C124     C125     C126    C127     C128
+&gt;R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817586 0.83809 0.859079
+</code></pre>
 </div>
 </section>
 <section class="level3" id="two-body-problem">
@@ -328,7 +329,7 @@ R0  0 7.62941E-06 9.91919E-05 0.000251833 0.00046561 ... 0.777984 0.797555 0.817
 <p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span id="eq:diffequation:twobody_system"><span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\qquad(11)\]</span></span> <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
 <p>Based on eq.&nbsp;11, we can build up our code as below:</p>
 <div class="highlight">
-<pre><code class="language-clike">let f y _t =
+<pre><code class="language-ocaml">let f y _t =
   let y = Mat.to_array y in
   let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in
   let y0' = y.(2) in
@@ -343,7 +344,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 </div>
 <p>Here the <code>y0</code> provides initial status of the system: first two numbers denote the initial location of object, and the next two numbers indicate the initial momentum of this object. After building the function, initial status, timespan, and solver, we can then solve the system and visualise it.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ =
+<pre><code class="language-ocaml">let plot () =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create "two_body.png" in
   let open Plot in
@@ -376,13 +377,13 @@ let f y _t =
 </div>
 <p>We set the initial values of the system to <code>-1</code>, <code>-1</code>, and <code>1</code> respectively. The simulation timespan is set to 30 seconds, and the <code>rk45</code> solver is used.</p>
 <div class="highlight">
-<pre><code class="language-clike">let y0 = Mat.of_array [|-1.; -1.; 1.|] 1 3
+<pre><code class="language-ocaml">let y0 = Mat.of_array [|-1.; -1.; 1.|] 1 3
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 30.; dt=1E-2})
 let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 </div>
 <p>Now, we can solve the ODEs system and visualise the results. In the plots, we first show how the value of <span class="math inline">\(x\)</span>, <span class="math inline">\(y\)</span> and <span class="math inline">\(z\)</span> changes with time; next we show the phase plane plots between each two of them.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ =
+<pre><code class="language-ocaml">let _ =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create ~m:2 ~n:2 "lorenz_01.png" in
   let open Plot in
@@ -412,14 +413,14 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0</code></pre>
 <p>From fig.&nbsp;5, we can imagine that the status of system keep going towards two “voids” in a three dimensional space, jumping from one to the other. These two voids are a certain type of <em>attractors</em> in this dynamic system, where a system tends to evolve towards.</p>
 <p>Now, about Lorenz equation, there is an interesting question: “what would happen if I change the initial value slightly?” For some systems, such as a pendulum, that wouldn’t make much a difference, but not here. We can see that clearly with a simple experiment. Keeping function and timespan the same, let’s change only 0.1% of initial value and then solve the system again.</p>
 <div class="highlight">
-<pre><code class="language-clike">let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
+<pre><code class="language-ocaml">let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
 let y01 = Mat.of_array [|-1.001; -1.001; 1.001|] 1 3
 let ts0, ys0 = Ode.odeint custom_solver f y00 tspec ()
 let ts1, ys1 = Ode.odeint custom_solver f y01 tspec ()</code></pre>
 </div>
 <p>To make later calculation easier, we can set the two resulting matrices to be of the same shape using slicing.</p>
 <div class="highlight">
-<pre><code class="language-clike">let r0, c0 = Mat.shape ys0
+<pre><code class="language-ocaml">let r0, c0 = Mat.shape ys0
 let r1, c1 = Mat.shape ys1
 let r  = if (r0 &lt; r1) then r0 else r1
 let ts = if (r0 &lt; r1) then ts0 else ts1
@@ -428,7 +429,7 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1</code></pre>
 </div>
 <p>Now, we can compare the Euclidean distance between the status of these two systems at certain time. Also, we show the value change of the three components after changing initial values along the time axis.</p>
 <div class="highlight">
-<pre><code class="language-clike">let _ =
+<pre><code class="language-ocaml">let _ =
   let h = Plot.create ~m:1 ~n:2 "lorenz_02.png" in
   let open Plot in
   subplot h 0 0;
@@ -469,7 +470,7 @@ let damped_noforcing a (xs, ps) _t : Owl.Mat.mat =
 </div>
 <p>The system evolve function takes the two matrices, position and momentum, and the float number time <code>t</code> as input states. For simplicity, we assume the coefficients are all the same and can be set to one. Let’s then solve with the symplectic solver; we can use the <code>LeapFrog</code>, <code>ruth3</code>, and <code>Symplectic_Euler</code> to compare how their solutions differ.</p>
 <div class="highlight">
-<pre><code class="language-clike">let main () =
+<pre><code class="language-ocaml">let main () =
   let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
   let p0 = Owl.Mat.of_array [| 0.75 |] 1 1 in
   let t0, duration = 0.0, 15.0 in
@@ -480,12 +481,11 @@ let damped_noforcing a (xs, ps) _t : Owl.Mat.mat =
   let _, sol3, _ =
     Ode.odeint (module Symplectic.D.Symplectic_Euler) f (x0, p0) tspec ()
   in
-  plot_sol "damped.png" t sol1 sol2 sol3</code></pre>
+  t, sol1, sol2, sol3</code></pre>
 </div>
 <p>You should be familiar with this code by now. It defines the initial values, the time duration, time step, and then provides this information to the solvers. Unlike native solvers, these symplectic solvers return three values instead of two: the first is the time sequence, and the next two sequences indicate how the <span class="math inline">\(x\)</span> and <span class="math inline">\(p\)</span> values evolve at each time point.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let plot_sol fname t sol1 sol2 sol3 =
-  let open Owl in
   let h = Plot.create fname in
   let open Plot in
   plot ~h ~spec:[ RGB (0, 0, 255); LineStyle 1 ] t (Mat.col sol1 0);
@@ -512,8 +512,7 @@ let damped_noforcing a (xs, ps) _t : Owl.Mat.mat =
 <p>As we will show shortly, by varying the damping parameter, this group of equations can be either non-still or stiff.</p>
 <p>We provide both stiff (<code>Owl_Cvode_Stiff</code>) and non-still (<code>Owl_Cvode</code>) solvers by interfacing to Sundials, and the <code>LSODA</code> solver of ODEPACK can automatically switch between stiff and non-stiff algorithms. We will try both in the example. We start with the basic function definition code that are shared by both cases:</p>
 <div class="highlight">
-<pre><code class="language-clike">open Owl
-open Owl_ode
+<pre><code class="language-ocaml">open Owl_ode
 open Owl_ode.Types
 open Owl_plplot
 
