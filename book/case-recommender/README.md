@@ -12,7 +12,7 @@ Therefore, even though the relevant research still remains active in academia, t
 
 Collaborative Filtering (CF), which was first coined in 1992, is a thriving research area and also the second alternative solution. Recommenders built on top of CF exploit the similarities in users' rankings to predict one user's preference on a specific content.
 CF attracts more research interest these years due to the popularity of online shopping (e.g., Amazon, eBay, Taobao, etc.) and video services (e.g., YouTube, Vimeo, Dailymotion, etc.).
-However, recommender systems need user behaviour rather than content itself as explicit input to bootstrap the service, and is usually constrained within a single domain. Cross-domain recommenders have made progress lately, but the complexity and scalability need further investigation.
+However, recommender systems need user behaviour rather than content itself as explicit input to bootstrap the service, and are usually constrained within a single domain. Cross-domain recommenders have made progress lately, but the complexity and scalability need further investigation.
 
 Search engines can be considered as the third alternative though a user needs explicitly extract the keywords from the page then launch another search. The ranking of the search results is based on multiple ranking signals such as
 link analysis on the underlying graph structure of interconnected pages such as PageRank. Such graph-based link analysis is based on the assumption that those web pages of related topics tend to link to each other, and the importance of a page often positively correlates to its degree.
@@ -71,7 +71,7 @@ In addition to the text body, the Crawler also records the timestamp, URL and ti
 :  Two data sets are used in Kvasir evaluation {#tbl:case-recommender:dataset}
 
 **Cleaner** cleans the unstructured text corpus and converts the corpus into term frequency-inverse document frequency (TF-IDF) model. In the preprocessing phase, we clean the text by removing HTML tags and stop words, de-accenting, tokenisation, etc.
-The dictionary refers to the vocabulary of a language model, its quality directly impacts the model performance.
+The dictionary refers to the vocabulary of a language model. Its quality directly impacts the model performance.
 To build the dictionary, we exclude both extremely rare and extremely common terms, and keep $10^5$ most popular ones as `features`. More precisely, a term is considered as rare if it appears in less than 20 documents, while a term is considered as common if it appears in more than 40\% of documents.
 
 
@@ -79,7 +79,7 @@ To build the dictionary, we exclude both extremely rare and extremely common ter
 However, MLlib is unable to perform SVD on a data set of $10^5$ features with limited RAM, we have to implement our own stochastic SVD on Apache Spark using rank-revealing technique. The DLSA will be discussed in detail in later chapter.
 
 **PANNS** builds the search index to enable fast $k$-NN search in high dimensional LSA vector spaces. Though dimensionality has been significantly reduced from TF-IDF ($10^5$ features) to LSA ($10^3$ features), $k$-NN search in a $10^3$-dimension space is still a great challenge especially when we try to provide responsive services.
-Naive linear search using one CPU takes over 6 seconds to finish in a database of 4 million entries, which is unacceptably long for any realistic services.
+A naive linear search using one CPU takes over 6 seconds to finish in a database of 4 million entries, which is unacceptably long for any realistic services.
 [PANNS](https://github.com/ryanrhymes/panns) implements a parallel RP-tree algorithm which makes a reasonable tradeoff between accuracy and efficiency. PANNS is the core component in the backend system and we will present its algorithm in detail in later chapter.
 PANNS is becoming a popular choice of Python-based approximate k-NN library for application developers. According to the PyPI's statistics, PANNS has achieved over 27,000 downloads since it was first published in October 2014.
 
@@ -113,15 +113,15 @@ However, a more serious problem is posed by the second issue. The SVD function i
 ![Rank-revealing reduces dimensionality to perform in-memory SVD](images/case-recommender/plot_06.png "plot_06"){ width=90%, #fig:case-recommender:revealing }
 
 In linear algebra, a matrix can be approximated by another matrix of lower rank while still retaining approximately properties of the matrix that are important for the problem at hand. In other words, we can use another thinner matrix $B$ to approximate the original fat $A$. The corresponding technique is referred to as rank-revealing QR estimation.
-We won't talk about this method in detail, but the basic idea is that, the columns are sparse and quite likely linearly dependant. If we can find the rank $r$ of a matrix $A$ and find suitable $r$ columns to replace the original matrix, we can then approximate it.
+We won't talk about this method in detail, but the basic idea is that, the columns are sparse and quite likely linearly dependent. If we can find the rank $r$ of a matrix $A$ and find suitable $r$ columns to replace the original matrix, we can then approximate it.
 A TF-IDF model having $10^5$ features often contains a lot of redundant information. Therefore, we can effectively thin the matrix $A$ then fit $C$ into the memory.
 Figure [@fig:case-recommender:revealing] illustrates the algorithmic logic in DLSA, which is essentially a distributed stochastic SVD implementation.
 
-To sum up, we propose to reduce the size of TF-IDF model matrix to fit it into the memory, so that we can get a LSA model, where we knows the document-topic and topic-word probability distribution.
+To sum up, we propose to reduce the size of TF-IDF model matrix to fit it into the memory, so that we can get a LSA model, where we know the document-topic and topic-word probability distribution.
 
 ## Index Text Corpus
 
-With an LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors.
+With a LSA model at hand, finding the most relevant document is equivalent to finding the nearest neighbours for a given point in the derived vector space, which is often referred to as k-NN problem. The distance is usually measured with the cosine similarity of two vectors.
 In the NLP chapter we have seen how to use linear search in the LSA model.
 However, neither naive linear search nor conventional `k-d` tree is capable of performing efficient search in such high dimensional space even though the dimensionality has been significantly reduced from $10^5$ to $10^3$ by LSA.
 
@@ -146,8 +146,8 @@ The general idea of RP-tree algorithm used here is clustering the points by part
 
 ![Construct a binary search tree from the random projection](images/case-recommender/plot_02.png "plot_01"){ width=90%, #fig:case-recommender:search }
 
-[@fig:case-recommender:search] illustrates how binary search can be built according to the dividing steps shown above.
-You can see the five nodes in the vector space is put into five clusters/leaves step by step.
+The [@fig:case-recommender:search] illustrates how binary search can be built according to the dividing steps shown above.
+You can see the five nodes in the vector space are put into five clusters/leaves step by step.
 The information of the random vectors such as `x`, `y`, and `z` are also saved.
 Once we have this tree, given another query vector, we can put it into one of the clusters along the tree to find the cluster of vectors that are close to it.
 
@@ -164,28 +164,27 @@ As shown in [@fig:case-recommender:union], given an input query vector `x`, we f
 
 ### Optimising Vector Storage
 
-You may have noticed that, in this method, we need to store all the random vectors that are generated in the non-leaf nodes of the tree.  
-That means storing a large number of random vectors at every node of the tree, each with a large number features.
+You may have noticed that, in this method, we need to store all the random vectors that are generated in the non-leaf nodes of the tree. That means storing a large number of random vectors at every node of the tree, each with a large number features.
 It introduces significant storage overhead.
 For a corpus of 4 million documents, if we use $10^5$ random vectors (i.e., a cluster size of $\frac{4\times~10^6}{2\times~10^5} = 20$ on average), and each vector is a $10^3$-dimension real vector (32-bit float number), the induced storage overhead is about 381.5~MB for each RP-tree.
 Therefore, such a solution leads to a huge index of $47.7$~GB given $128$ RP-trees are included, or $95.4$~GB given $256$ RP-trees.
 
 The huge index size not only consumes a significant amount of storage resources, but also prevents the system from scaling up after more and more documents are collected.
-One possible solution to reduce the index size is reusing the random vectors. Namely, we can generate a pool of random vectors once, then randomly choose one from the pool each time when one is needed. However, the immediate challenge emerges when we try to parallelise the tree building on multiple nodes, because we need to broadcast the pool of vectors onto every node, which causes significant network traffic.
+One possible solution to reduce the index size is reusing the random vectors. Namely, we can generate a pool of random vectors once, and then randomly choose one from the pool each time when one is needed. However, the immediate challenge emerges when we try to parallelise the tree building on multiple nodes, because we need to broadcast the pool of vectors onto every node, which causes significant network traffic.
 
 ![Use a random seed to generate on the fly](images/case-recommender/plot_04.png "plot_04"){ width=100% #fig:case-recommender:randomseed }
 
 To address this challenge, we propose to use a pseudo random seed in building and storing search index. Instead of maintaining a pool of random vectors, we just need a random seed for each RP-tree.
 As shown in [@fig:case-recommender:randomseed], in a leaf cluster, instead of storing all the vectors, only the indices of vectors in the original data set are stored. The computation node can build all the random vectors on the fly from the given seed according to the random seed.
 
-From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network, therefore we improve the computation efficiency.
+From the model building perspective, we can easily broadcast several random seeds with negligible traffic overhead instead of a large matrix in the network. In this way we improve the computation efficiency.
 From the storage perspective, we only need to store one 4-byte random seed for each RP-tree. In such a way, we are able to successfully reduce the storage overhead from $47.7$~GB to $512$~B for a search index consisting of $128$ RP-trees (with cluster size 20), or from $95.4$~GB to only $1$~KB if $256$ RP-trees are used.
 
 
 ### Optimise Data Structure
 
 Let's consider a bit more about using multiple RP-trees.
-Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can either use less trees with larger leaf clusters, or use more trees with smaller leaf clusters.
+Regarding the design of PANNS, we have two design options in order to improve the searching accuracy. Namely, given the size of the aggregated cluster which is taken as the union of all the target clusters from every tree, we can either use fewer trees with larger leaf clusters, or use more trees with smaller leaf clusters.
 Increasing cluster size is intuitive: if we increase it to so large that includes all the vectors, then it is totally accurate.
 
 On the other hand, we expect that when using more trees the probability of a query point to fall very close to a splitting hyperplane should be reduced, thus it should be less likely for its nearest neighbours to lie in a different cluster.
@@ -201,7 +200,8 @@ Then we measure the searching accuracy by calculating the amount of actual neare
 
 We query $1,000$ points in each experiment.
 The results presented in [@fig:case-recommender:exp01] correspond to the mean values of the aggregated nearest neighbours of the $1,000$ query points discovered by PANNS out of $100$ experiment runs.
-Note that $x$-axis represents the "size of search space" which is defined by the number of unique points within the union of all the leaf clusters that the query point fall in. Therefore, given the same search space size, using more tress indicates that the leaf clusters become smaller.
+Note that $x$-axis represents the "size of search space" which is defined by the number of unique points within the union of all the leaf clusters that the query point falls in.
+Therefore, given the same search space size, using more tress indicates that the leaf clusters become smaller.
 As we can see in [@fig:case-recommender:exp01], for a given $x$ value, the curves move upwards as we use more and more trees, indicating that the accuracy improves.
 As shown in the case of 50 trees, almost $80\%$ of the actual nearest neighbours are found by performing a search over the $10\%$ of the data set.
 
@@ -227,9 +227,9 @@ The projected length on $b$ can be expressed as:
 $$\|a\|\cos~\theta = a.\frac{b}{\|b\|}.$$ {#eq:case-recommender:project}
 
 Here $\|a\|$ means the length of vector $\mathbf{a}$.
-If we requires that all the random vectors $\mathbf{b}$. has to be normalised, then [@eq:case-recommender:project] becomes $a.b$, the vector dot.
+If we requires that all the random vectors $\mathbf{b}$ has to be normalised, [@eq:case-recommender:project] becomes $a.b$, the vector dot.
 Now we can perform the projection at this layer by computing: $Xb_l$.
-Here $X$ is the dataset, each row is a document and each column is a feature. $b_l$ is a random vector that we use for this layer.
+Here $X$ is the dataset, and each row is a document and each column is a feature; $b_l$ is a random vector that we use for this layer.
 In this way, we don't have to wait for the left tree to finish to start cutting the right tree.
 
 Now here is the tricky bit: we don't even have to wait for the upper layer to start cutting the lower layer!
@@ -242,7 +242,7 @@ Here each column of $B$ is just the random vector we use at a layer.
 In this approach there is not boundary, and all the projections can be done in just one matrix multiplication.
 While some of the observed speed-up is explained by a decreased amount of the random vectors that have to be generated, mostly it is due to enabling efficient computation of all the projections.
 Although the total amount of computation stays the same, in practice this speeds up the index construction significantly due to the cache effects and low-level parallelisation through vectorisation.
-The matrix multiplication is a basic linear algebra operation and many low level numerical libraries, such as OpenBLAS and MKL, provides extremely high-performance implementation of it.
+The matrix multiplication is a basic linear algebra operation and many low level numerical libraries, such as OpenBLAS and MKL, provide extremely high-performance implementation of it.
 
 ## Search Articles
 
@@ -335,7 +335,7 @@ This function projects all the document vectors in the model to the `projected` 
 Recall that the result only contains the projected value instead of the whole vector.
 
 As we have explained in the "Search Articles" section, this process can be accelerated to use matrix multiplication.
-The code below show this implementation for the random projection function.
+The code below shows this implementation for the random projection function.
 It also returns the shape of projection and the projected result.
 
 
@@ -355,7 +355,7 @@ let random seed cluster data =
   n, level, projected, projection
 ```
 
-After getting the projection result, we need to build a RP-tree accodingly.
+After getting the projection result, we need to build a RP-tree accordingly.
 The following is about how to build the index in the form of a binary search tree.
 The tree is defined as:
 
@@ -396,7 +396,7 @@ let filter_projected_space level projected subspace =
 ```
 
 Based on the document id of the points in the subspace, `filter_projected_space` function filters the projected space.
-The purpose of this function is to update the projected value using specified level so the recursion can continue.
+The purpose of this function is to update the projected value using a  specified level so the recursion can continue.
 Both the space and the returned result are of the same format: `(doc_id, projected value)`.
 
 
@@ -452,7 +452,7 @@ let rec traverse node level x =
 ```
 
 Now that the tree is built, we can perform search on it.
-The recursive `traverse` function traverses the whole tree to locate the cluster for a projected vector `x` starting from a a given level.
+The recursive `traverse` function traverses the whole tree to locate the cluster for a projected vector `x` starting from a given level.
 
 
 ```ocaml env=case-recommender-00
@@ -475,7 +475,7 @@ let search_leaves node id =
   Array.copy !leaf
 ```
 
-Finally, `search_leaves` returns the leaves/clusters which have the given `id` inside it. It mainly depends on the `iter_iterate` function which iterates all the leaves in a tree and apply function, to perform this search.
+Finally, `search_leaves` returns the leaves/clusters which have the given `id` inside it. It mainly depends on the `iter_iterate` function which iterates all the leaves in a tree and applies function, to perform this search.
 
 All these code above is executed on one tree.
 When we collect the k-NN candidates from all the trees, instead of calculating the vector similarity, we utilise the frequency/count of the vectors in the union of all the candidate sets from all the RP-trees.
@@ -582,9 +582,9 @@ In this chapter, we presented Kvasir which provides seamless integration of LSA-
 To build Kvasir as a scalable Internet service, we addressed various technical challenges in the system implementation.
 Specifically, we proposed a parallel RP-tree algorithm and implemented stochastic SVD on Spark to tackle the scalability challenges in index building and searching.
 We have introduced the basic algorithm and how it can optimised step by step,  from storage to computation.
-These optimisation includes aggregating results from multiple trees, replacing random variable with a single random seed, removing the projection computation boundary between different layers, using count to approximate vector distance, etc.
+These optimisations include aggregating results from multiple trees, replacing random variable with a single random seed, removing the projection computation boundary between different layers, using count to approximate vector distance, etc.
 Thanks to its novel design, Kvasir can easily achieve millisecond query speed for a 14 million document repository.
 Kvasir is an open-source project and is currently under active development. The key components of Kvasir are implemented as an Apache Spark library, and all
-the [source code](https://www.cl.cam.ac.uk/~lw525/kvasir/#code) are publicly accessible on Github.
+the [source code](https://www.cl.cam.ac.uk/~lw525/kvasir/#code) are publicly accessible on GitHub.
 
 ## References
