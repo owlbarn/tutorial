@@ -5,16 +5,16 @@
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="regression">
 <h1>Regression</h1>
 <p>TODO: unify notation</p>
-<p>Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors. Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common form of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems.</p>
-<p>Part of the material used in this chapter is attributed to the the Coursera course ML004: <a href="https://www.coursera.org/learn/machine-learning">“Machine Learning”</a> by Andrew Ng. This is a great introductory course if you are interested to learn machine learning.</p>
+<p>Regression is an important topic in statistical modelling and machine learning. It’s about modelling problems which include one or more variables (also called “features” or “predictors”) and making predictions of another variable (“output variable”) based on previous data of predictors. Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields. Explaining all these models are beyond the scope of this book. In this chapter, we focus on several common forms of regressions, mainly linear regression and logistic regression. We introduce their basic ideas, how they are supported in Owl, and how to use them to solve real problems.</p>
+<p>Part of the material used in this chapter is attributed to the Coursera course ML004: <a href="https://www.coursera.org/learn/machine-learning">“Machine Learning”</a> by Andrew Ng. This is a great introductory course if you are interested to learn machine learning.</p>
 <section class="level2" id="linear-regression">
 <h2>Linear Regression</h2>
 <p>Linear regression models the relationship of the features and output variable with a linear model. It is the most widely used regression model in research and business and is the easiest to understand, so it makes an ideal starting point for us to build understanding or regression. Let’s start with a simple problem where only one feature needs to be considered.</p>
 <section class="level3" id="problem-where-to-locate-a-new-mcdonalds-restaurant">
 <h3>Problem: Where to locate a new McDonald’s restaurant?</h3>
-<p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores world wide, and surely more is being built as you are reading this book. One question you might be interested in then is: where to locate a new McDonald’s branch?</p>
-<p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplified this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch), what would be your decision about where to locate your next branch? Linear regression would be a good friend when you are deciding.</p>
-<p>Part of the data are listed in tbl.&nbsp;1. However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.</p>
+<p>McDonald’s is undoubtedly one of the most successful fast food chains in the world. By 2018, it has already opened more than 37,000 stores worldwide, and surely more is being built as you are reading this book. One question you might be interested in then is: where to locate a new McDonald’s branch?</p>
+<p>According to its <a href="https://www.mcdonalds.com/gb/en-gb/help/faq/18665-how-do-you-decide-where-to-open-a-new-restaurant.html#">website</a>, a lot of factors are in play: area population, existing stores in the area, proximity to retail parks, shopping centres, etc. Now let’s simplify this problem by asserting that the potential profit is only related to area population. Suppose you are the decision maker in McDonald’s, and also have access to data of each branch store (profit, population around this branch), what would be your decision about where to locate your next branch? Linear regression would be a good friend when you are deciding.</p>
+<p>Part of the data is listed in tbl.&nbsp;1. However, note that this data set (and most of the dataset used below) is not taken from real data source but taken from that of the ML004 course by Andrew Ng. So perhaps you will be disappointed if you are looking for real data from running McDonald’s.</p>
 <div id="tbl:regression:data01">
 <table>
 <caption>Table 1: Sample of input data: single feature</caption>
@@ -52,12 +52,12 @@
 </tbody>
 </table>
 </div>
-<p>Visualising these data can present a clear view about the relationship between profit and population. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
+<p>Visualising these data can give a clear view about the relationship between profit and population. We can use the code below to do that. It first extracts the two columns data from the data file, converts it to dense matrix, and then visualise the data using the scatter plot.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let extract_data csv_file =
-  let data = Owl_io.read_csv ~sep:',' csv_file in 
-  let data = Array.map (fun x -&gt; Array.map float_of_string x) data 
-    |&gt; Mat.of_arrays in 
+  let data = Owl_io.read_csv ~sep:',' csv_file in
+  let data = Array.map (fun x -&gt; Array.map float_of_string x) data
+    |&gt; Mat.of_arrays in
   let x = Mat.get_slice [[];[1]] data in
   let y = Mat.get_slice [[];[0]] data in
   x, y</code></pre>
@@ -73,35 +73,35 @@
 <figure>
 <img alt="" style="width:50.0%" id="fig:regression:regdata" title="regdata" src="images/regression/regdata.png"><figcaption>Figure 1: Visualise data for regression problem</figcaption>
 </figure>
-<p>The visualisation is shown in fig.&nbsp;1. As can be expected, there is a clear trend that larger population and larger profit are co-related with each other. But precisely how?</p>
+<p>The visualisation result is shown in fig.&nbsp;1. As can be expected, there is a clear trend that larger population and larger profit are co-related with each other. But precisely how?</p>
 </section>
 <section class="level3" id="cost-function">
 <h3>Cost Function</h3>
-<p>Let’s start with a linear model that assumes the the relationship between these two variables be formalised as:</p>
+<p>Let’s start with a linear model that assumes the relationship between these two variables be formalised as:</p>
 <p><span id="eq:regression:eq00"><span class="math display">\[ y = \theta_0~ + \theta_1~x_1 + \epsilon,\qquad(1)\]</span></span></p>
 <p>where <span class="math inline">\(y\)</span> denotes the profit we want to predict, and input variable <span class="math inline">\(x_1\)</span> is the population number in this example. Since modelling can hardly make a perfect match with the real data, we use <span class="math inline">\(\epsilon\)</span> to denote the error between our prediction and the data. Specifically, we represent the prediction part as <span class="math inline">\(h(\theta_0, \theta_1)\)</span>: <span id="eq:regression:eq01"><span class="math display">\[h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1\qquad(2)\]</span></span></p>
 <p>The <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> are the parameters of this model. Mathematically they decide a line on a plane. We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in fig.&nbsp;2. Our target is to choose suitable parameters so that the line is <em>close</em> to data we observed.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:reg_options" title="reg_options" src="images/regression/reg_options.png"><figcaption>Figure 2: Find possible regression line for given data</figcaption>
 </figure>
-<p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimizes the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
+<p>How do we define the line being “close” to the observed data then? One frequently used method is to use the <em>ordinary least square</em> to minimise the sum of squared distances between the data and line. We have shown the “<span class="math inline">\(x\)</span>-<span class="math inline">\(y\)</span>” pairs in the data above, and we represent the total number of data pairs with <span class="math inline">\(n\)</span>, and thus the <span class="math inline">\(i\)</span>’th pair of data can be represented with <span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span>. With these notations, we can represent a metric to represent the <em>closeness</em> as:</p>
 <p><span id="eq:regression:eq02"><span class="math display">\[J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2\qquad(3)\]</span></span></p>
 <p>In regression, we call this function the <em>cost function</em>. It measures how close the models are to an ideal one, and our target is thus clear: find suitable <span class="math inline">\(\theta\)</span> parameters to minimise the cost function.</p>
-<p>Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line – by “distance” we mean the the euclidean distance. between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance.</p>
+<p>Why do we use least square in the cost function? Physically, the cost function <span class="math inline">\(J\)</span> represents the average distance of each data point to the line. By “distance” we mean the Euclidean distance between a data point and the point on the line with the same x-axis. A reasonable solution can thus be achieved by minimising this average distance.</p>
 </section>
 <section class="level3" id="solving-problem-with-gradient-descent">
 <h3>Solving Problem with Gradient Descent</h3>
 <p>To give a clearer view, we can visualise the cost function with a contour graph. According to eq.&nbsp;3, the cost function <code>j</code> is implemented as below:</p>
 <div class="highlight">
-<pre><code class="language-clike">let j theta0 theta1 = 
+<pre><code class="language-ocaml">let j x_data y_data theta0 theta1 =
   let f x = x *. theta1 +. theta0 in
-  Mat.(pow_scalar (map f x - y) 2. |&gt; mean') *. 0.5</code></pre>
+  Mat.(pow_scalar (map f x_data - y_data) 2. |&gt; mean') *. 0.5</code></pre>
 </div>
-<p>Here <code>x</code> and <code>y</code> are the two columns of data from tbl.&nbsp;1. We can then visualise this cost function within a certain range using surface and contour graphs:</p>
+<p>Here <code>x_data</code> and <code>y_data</code> are the two columns of data from tbl.&nbsp;1. We can then visualise this cost function within a certain range using surface and contour graphs:</p>
 <div class="highlight">
-<pre><code class="language-text">let plot_surface () = 
+<pre><code class="language-ocaml">let plot_surface x_data y_data =
   let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
-  let z = Mat.(map2 j x y) in
+  let z = Mat.(map2 (j x_data y_data) x y) in
   let h = Plot.create ~m:1 ~n:2 "reg_cost.png" in
   Plot.subplot h 0 0;
   Plot.(mesh ~h ~spec:[ NoMagColor ] x y z);
@@ -123,42 +123,40 @@
 <p><span id="eq:regression:eq04"><span class="math display">\[ \theta_0 \leftarrow \theta_0 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(0)}, \qquad(5)\]</span></span> and <span id="eq:regression:eq05"><span class="math display">\[ \theta_1 \leftarrow \theta_1 - \frac{\alpha}{n}\sum_{i=1}^{m} (h_{\theta_0, \theta_1}(x_i) - y_i)x_{i}^{(1)}.\qquad(6)\]</span></span></p>
 <p>Here the <span class="math inline">\(x_{i}^{(0)}\)</span> and <span class="math inline">\(x_{i}^{(1)}\)</span> are just different input features of the <span class="math inline">\(i\)</span>-th row in data. Since currently we only focus on one feature in our problem, <span class="math inline">\(x_i^{(0)} = 1\)</span> and <span class="math inline">\(x_i^{(1)} = x_i\)</span>. Following these equations, you can manually perform the gradient descent process until it converges.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let gradient_desc x y = 
-  let alpha = 0.01 in 
+<pre><code class="language-ocaml">let gradient_desc x y =
+  let alpha = 0.01 in
   let theta0 = ref 10. in
   let theta1 = ref 10. in
 
   for i = 0 to 500 do
     let f x = x *. !theta1 +. !theta0 in
     theta0 := !theta0 -. Mat.(map f x - y |&gt; mean') *. alpha;
-    theta1 := !theta1 -. Mat.((map f x - y) * x |&gt; mean') *. alpha 
+    theta1 := !theta1 -. Mat.((map f x - y) * x |&gt; mean') *. alpha
   done;
   theta0, theta1</code></pre>
 </div>
-<p>In the code above, we set the step size <span class="math inline">\(\alpha = 0.01\)</span>, and start from a set of initial parameters: <span class="math inline">\(\theta_0 = 10\)</span> and <span class="math inline">\(\theta_1 = 10\)</span>, and aim to improve them gradually. We then iteratively update the parameters using 500 iterations. Note that instead of manual summation, we ues the vectorised operations with ndarray.</p>
-<p>By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = 5.14\)</span> and <span class="math inline">\(\theta_1 = 0.55\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure fig.&nbsp;4 shows a line that aligns with input data quite nicely.</p>
+<p>In the code above, we set the step size <span class="math inline">\(\alpha = 0.01\)</span>, and start from a set of initial parameters: <span class="math inline">\(\theta_0 = 10\)</span> and <span class="math inline">\(\theta_1 = 10\)</span>, and aim to improve them gradually. We then iteratively update the parameters using 500 iterations. Note that instead of manual summation in the equations, we use the vectorised operations with ndarray. By executing the code, we can get a pair of parameters: <span class="math inline">\(\theta_0 = 5.14\)</span> and <span class="math inline">\(\theta_1 = 0.55\)</span>. To check if they indeed are suitable parameters, we can visualise them against the input data. The resulting figure fig.&nbsp;4 shows a line that aligns with input data quite nicely.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:reg_gd" title="reg_gd.png" src="images/regression/reg_gd.png"><figcaption>Figure 4: Validate regression result with original dataset</figcaption>
 </figure>
-<p>Of course, there is no need to use to manually solve a linear regression problem in Owl. It has already provides high-level regression functions for use. For example, the <code>ols</code> function in the <code>Regression</code> module uses the ordinary least square method we have introduced to perform linear regression.</p>
+<p>Of course, there is no need to use to manually solve a linear regression problem in Owl. It has already provided high-level regression functions. For example, the <code>ols</code> function in the <code>Regression</code> module uses the ordinary least square method we have introduced to perform linear regression.</p>
 <div class="highlight">
 <pre><code class="language-clike">val ols : ?i:bool -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>Here the parameter <code>i</code> denotes if the constant parameter <span class="math inline">\(\theta_0\)</span> is used or not. By default it is set to <code>false</code>. We can use this function to directly solve the problem:</p>
+<p>Here the Boolean parameter <code>i</code> denotes if the constant parameter <span class="math inline">\(\theta_0\)</span> is used or not. By default it is set to <code>false</code>. We can use this function to directly solve the problem, and the resulting parameters are similar to what we have get manually:</p>
 <div class="highlight">
 <pre><code class="language-clike"># let theta = Regression.D.ols ~i:true x y
 
 val theta : Owl_algodiff_primal_ops.D.arr array =
   [|
-         C0 
-R0 0.588442 
-; 
-        C0 
-R0 4.72381 
+         C0
+R0 0.588442
+;
+        C0
+R0 4.72381
 |]</code></pre>
 </div>
-<p>The resulting parameters are similar to what we have get manually.</p>
-<p>The API is not limited to the regression module. The <code>linreg</code> function in Linear Algebra module can also be used to perform the same task. The code snippet below first generates some random data, then using <code>linreg</code> function to perform a simple linear regression and plots the data as well as the regression line.</p>
+<p>The API is not limited to the regression module. The <code>linreg</code> function in the Linear Algebra module can also be used to perform the same task. The code snippet below first generates some random data, then using <code>linreg</code> function to perform a simple linear regression and plots the data as well as the regression line.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let generate_data () =
   let x = Mat.uniform 500 1 in
@@ -178,21 +176,21 @@ let t1_sol () =
 <figure>
 <img alt="" style="width:60.0%" id="fig:linear-algebra:plot_00" title="linalg plot 00" src="images/regression/plot_00.png"><figcaption>Figure 5: An example of using linear regression to fit data</figcaption>
 </figure>
-<p>Of course, since the process of finding suitable parameters can be performed using gradient descent methods, another approach to the regression problem is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation methods introduced in the Optimisation chapter, and apply them directly on the cost function eq.&nbsp;3. As a matter of fact, the regression functions in Owl are mostly implemented using the <code>minimise_weight</code> function from the optimisation module.</p>
+<p>Of course, since the process of finding suitable parameters can be performed using gradient descent methods, another approach to the regression problem is from the perspective of function optimisation instead of regression. We can use the gradient descent optimisation methods introduced in the Optimisation chapter, and apply them directly on the cost function eq.&nbsp;3. As a matter of fact, the regression functions in Owl are mostly implemented using the <code>minimise_weight</code> function from the <code>Optimisation</code> module.</p>
 </section>
 </section>
 <section class="level2" id="multiple-regression">
 <h2>Multiple Regression</h2>
-<p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of it’s surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affects the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
+<p>Back to our McDonald’s problem. We have seen how a new store’s profit can be related to the population of its surrounding, and we can even predict it given previous data. Now, remember that in the real world, population is not the only input features that affect the store’s profit. Other factors such as existing stores in the area, proximity to retail parks, shopping centres, etc. also play a role. In that case, how can we extend our one-variable linear regression to the case of multiple variables?</p>
 <p>The answer is very straight forward. We just use more parameters, so the model becomes:</p>
 <p><span id="eq:regression:eq06"><span class="math display">\[h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... \qquad(7)\]</span></span></p>
 <p>However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features. Therefore, we use the vectorised format in the model:</p>
-<p><span id="eq:regression:eq065"><span class="math display">\[h(\Theta) = \Theta~X^{(i)},\qquad(8)\]</span></span></p>
-<p>where <span class="math inline">\(\Theta = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(X^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
+<p><span id="eq:regression:eq065"><span class="math display">\[h(\boldsymbol{\theta}) = \boldsymbol{\theta}~\boldsymbol{x}^{(i)},\qquad(8)\]</span></span></p>
+<p>where <span class="math inline">\(\boldsymbol{\theta} = [\theta_0, \theta_1, \theta_2, \theta_3, ...]\)</span>, and <span class="math inline">\(\boldsymbol{x}^{(i)} = [1, x_1, x_2, x_3, ...]^T\)</span> contains all the features from the <span class="math inline">\(i\)</span>th row in data.</p>
 <p>Accordingly, the cost function can be represented as:</p>
-<p><span id="eq:regression:eq07"><span class="math display">\[ J(\Theta) = \frac{1}{2n}\sum_{i=1}^{n}(\Theta~X^{(i)} - y^{(i)})^2,\qquad(9)\]</span></span></p>
+<p><span id="eq:regression:eq07"><span class="math display">\[ J(\boldsymbol{\theta}) = \frac{1}{2n}\sum_{i=1}^{n}(\theta~X^{(i)} - y^{(i)})^2,\qquad(9)\]</span></span></p>
 <p>where <span class="math inline">\(y^{(i)}\)</span> is the output variable value on the <span class="math inline">\(i\)</span>th row of input data.</p>
-<p>The derivative and manual gradient descent are left as exercise. Here we only show an example of using the regression function Owl has provided. Similar to the previous problem, we provide some data to this multiple variable problem. Part of the data are listed below:</p>
+<p>The derivative and manual gradient descent are left as exercise. Here we only show an example of using the regression function Owl has provided. Similar to the previous problem, we provide some data to this multiple variable problem. Part of the data is listed below:</p>
 <div id="tbl:regression:data02">
 <table>
 <caption>Table 2: Sample of input data: multiple features</caption>
@@ -246,9 +244,9 @@ let t1_sol () =
 <div class="highlight">
 <pre><code class="language-ocaml">let multi_regression csv_file =
   let data = Owl_io.read_csv ~sep:',' csv_file in
-  let data = Array.map (fun x -&gt; Array.map float_of_string x) data 
-    |&gt; Mat.of_arrays in 
-  let x = Mat.get_slice [[];[0; 1]] data in 
+  let data = Array.map (fun x -&gt; Array.map float_of_string x) data
+    |&gt; Mat.of_arrays in
+  let x = Mat.get_slice [[];[0; 1]] data in
   let y = Mat.get_slice [[];[2]] data in
   Regression.D.ols ~i:true x y</code></pre>
 </div>
@@ -256,12 +254,12 @@ let t1_sol () =
 <div class="highlight">
 <pre><code class="language-text">val theta : Owl_algodiff_primal_ops.D.arr array =
   [|
-        C0 
-R0  57.342 
-R1 57.6741 
-; 
-        C0 
-R0 57.6766 
+        C0
+R0  57.342
+R1 57.6741
+;
+        C0
+R0 57.6766
 |]</code></pre>
 </div>
 <p>The result means that the linear model we get is about:</p>
@@ -269,11 +267,10 @@ R0 57.6766
 <p>Hmm, it might be right, but something about this model feels wrong. If you apply any line of data in tbl.&nbsp;2 to this model, the prediction result deviates too much from the true <code>y</code> value. So what have gone wrong? To address this problem, we move on to an important issue: normalisation.</p>
 <section class="level3" id="feature-normalisation">
 <h3>Feature Normalisation</h3>
-<p>Getting a result doesn’t mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: feature normalisation.</p>
-<p>Let’s look at the multi-variable data again. Apparently, the first feature is magnitudes larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. That’s why the model we get in the previous section is wrong.</p>
+<p>Getting a result doesn’t mean the end. Using the multi-variable regression problem as example, we would like to discuss an important issue about regression: <em>feature normalisation</em>. Let’s look at the multi-variable data again. Apparently, the first feature is magnitudes larger than the second feature. That means the model and cost function are dominated by the first feature, and a minor change of this column will have a disproportionally large impact on the model. That’s why the model we get in the previous section is wrong.</p>
 <p>To overcome this problem, we hope to pre-process the data before the regression, and normalise every features within about <code>[-1, 1]</code>. This step is also called <em>feature scaling</em>. There are many ways to do this, and one of them is the <em>mean normalisation</em>: for a column of features, calculate its mean, and divided by the difference between the largest value and smallest value, as shown in the code below:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let norm_ols data = 
+<pre><code class="language-ocaml">let norm_ols data =
   let m = Arr.mean ~axis:0 data in
   let r = Arr.(sub (max ~axis:0 data) (min ~axis:0 data)) in
   let data' = Arr.((data - m) / r) in
@@ -282,16 +279,16 @@ R0 57.6766
   let theta' = Regression.D.ols ~i:true x' y' in
   theta'</code></pre>
 </div>
-<p>Here the <code>data</code> is the matrix we get from loading the csv file from the previous section. This time we get a new set of parameters for the normalised data:</p>
+<p>Here <code>data</code> is the matrix we get from loading the csv file from the previous section. This time we get a new set of parameters for the normalised data:</p>
 <div class="highlight">
 <pre><code class="language-text">val theta' : Owl_algodiff_primal_ops.D.arr array =
   [|
-           C0 
-R0   0.952411 
-R1 -0.0659473 
+           C0
+R0   0.952411
+R1 -0.0659473
 ;
-             C0 
-R0 -1.93878E-17 
+             C0
+R0 -1.93878E-17
 |]</code></pre>
 </div>
 <p>These parameters set the model as: <span class="math inline">\(\bar{y}=0.95\bar{x}_0-0.06\bar{x}_1\)</span>. This result can be cross-validated with the analytical solution shown in the next section. You can also manually check this result with the normalised data:</p>
@@ -303,17 +300,17 @@ R0 -1.93878E-17
  R1  -0.202063 -0.0425532  -0.151911
  ...</code></pre>
 </div>
-<p>Another benefit of performing data normalisation is that gradient descent can be accelerated. The illustration in fig.&nbsp;6 shows the point. We have already seen that, in a “slim” slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.</p>
+<p>Another benefit of performing data normalisation is to accelerate gradient descent. The illustration in fig.&nbsp;6 shows the point. We have already seen that, in a “slim” slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.</p>
 <figure>
 <img alt="" style="width:90.0%" id="fig:regression:normalisation" title="normalisation" src="images/regression/normalisation.png"><figcaption>Figure 6: Compare gradient descent efficiency with and without data normalisation</figcaption>
 </figure>
-<p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimension. Each element represents an pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
+<p>Normalisation is not only used in regression, but also may other data analysis and machine learning tasks. For example, in computer vision tasks, an image is represented as an ndarray with three dimensions. Each element represents a pixel in the image, with a value between 0 and 255. More often than not, this ndarray needs to be normalised in data pre-processed for the next step processing such as image classification.</p>
 </section>
 <section class="level3" id="analytical-solution">
 <h3><a href="#analytical-solution">Analytical Solution</a></h3>
 <p>Before taking a look at some other forms of regression, let’s discuss solution to the linear regression besides gradient descent. It turns out that there is actually one close form solution to linear regression problems:</p>
 <p><span id="eq:regression:eq075"><span class="math display">\[\Theta = (X^T~X)^{-1}X^Ty\qquad(10)\]</span></span></p>
-<p>(Chapter 3 of <em>The elements of statistical learning</em> <span data-cites="friedman2001elements" class="citation">(Friedman, Hastie, and Tibshirani 2001)</span> covers how this solution is derived if you are interested.) Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is m+1 columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
+<p>Chapter 3 of <em>The elements of statistical learning</em> <span data-cites="friedman2001elements" class="citation">(Friedman, Hastie, and Tibshirani 2001)</span> covers how this solution is derived if you are interested. Suppose the linear model contains <span class="math inline">\(m\)</span> features, and the input data contains <span class="math inline">\(n\)</span> rows, then here <span class="math inline">\(X\)</span> is a <span class="math inline">\(n\times~(m+1)\)</span> matrix representing the features data, and the output data <span class="math inline">\(y\)</span> is a <span class="math inline">\(n\times~1\)</span> matrix. The reason there is <span class="math inline">\(m+1\)</span> columns in <span class="math inline">\(X\)</span> is that we need an extra constant feature for each data, and it equals to one for each data point.</p>
 <p>With this method, we don’t need to iterate the solutions again and again until converge. We can just compute the result with one pass with the given input data. This calculation can be efficiently performed in Owl using its Linear Algebra module. Let’s use the dataset from multi-variable regression again and perform the computation.</p>
 <div class="highlight">
 <pre><code class="language-clike">let o = Arr.ones [|(Arr.shape x).(0); 1|]
@@ -322,59 +319,57 @@ let z = Arr.concatenate ~axis:1 [|o; x'|];;
 let solution = Mat.dot (Mat.dot
     (Linalg.D.inv Mat.(dot (transpose z) z)) (Mat.transpose z)) y'</code></pre>
 </div>
-<p>Here the <code>x'</code>, <code>y'</code> are the normalised data from the previous section. The result is close to what we have gotten using the regression method:</p>
+<p>Here the <code>x'</code>, <code>y'</code> are the normalised data from the previous section. The result is close to what we have gotten using the gradient descent method:</p>
 <div class="highlight">
 <pre><code class="language-text">val solution : Mat.mat =
-  
-             C0 
-R0 -3.28614E-17 
-R1     0.952411 
-R2   -0.0659473 </code></pre>
+
+             C0
+R0 -3.28614E-17
+R1     0.952411
+R2   -0.0659473</code></pre>
 </div>
-<p>Compared to the gradient descent solution, the methods does not require multiple iterations, and you also don’t need to worry about hyper-parameters settings such as the choice of learning rate. On the other hand, however, this approach has its own problems.</p>
-<p>When the size of <span class="math inline">\(X\)</span>, or the input data, becomes very large, the computation of large linear algebra operations such as matrix multiplication and inversion could become really slow. Or even worse: your computer might don’t even have enough memory to perform the computation. Compare to it, gradient descent proves to work well even when the dataset is large.</p>
-<p>Besides, there could be no solution at all using this method. That’s when the <span class="math inline">\(X^T~X\)</span> matrix is non-invertible, e.g.&nbsp;a singular matrix. That could be caused by multiple reasons. Perhaps some of the features are linear dependent, or that there are many redundant features. Then techniques such as choosing feature or regularisation are required.</p>
-<p>Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution.</p>
+<p>Compared to gradient descent, this method does not require multiple iterations, and you also don’t need to worry about hyper-parameters settings such as the choice of learning rate. On the other hand, however, this approach has its own problems. When the size of <span class="math inline">\(X\)</span>, or the input data, becomes very large, the computation of large linear algebra operations such as matrix multiplication and inversion could become really slow. Or even worse: your computer might don’t even have enough memory to perform the computation. Compare to it, gradient descent proves to work well even when the dataset is large.</p>
+<p>Besides, there could be no solution at all using this method. That’s when the <span class="math inline">\(X^T~X\)</span> matrix is non-invertible, e.g.&nbsp;a singular matrix. That could be caused by multiple reasons. Perhaps some of the features are linear dependent, or that there are many redundant features. Then techniques such as choosing feature or regularisation are required. Most importantly, there is not always a close-form solution for you to use in other regression or machine learning problems. Gradient descent is a much more general solution.</p>
 </section>
 </section>
 <section class="level2" id="non-linear-regressions">
 <h2>Non-linear regressions</h2>
-<p>As powerful as it is, not all the regression problems can be solved with the linear model above. A lot of data can follow other patterns than a linear one. We can show this point with data from the <a href="https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html">Boston Housing Dataset</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Mass. It contains 506 cases. Each case contain 14 properties, such as crime rate, nitric oxides concentration, average number of rooms per dwelling, etc. For this example, we observe the relationship between percentage of lower status of the population (“LSTAT”) and the median value of owner-occupied homes in $1000’s (“MDEV”).</p>
+<p>As powerful as it is, not all the regression problems can be solved with the linear model above. A lot of data can follow other patterns than a linear one. We can show this point with data from the <a href="https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html">Boston Housing Dataset</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston Mass. It contains 506 cases. Each case contains 14 properties, such as crime rate, nitric oxides concentration, average number of rooms per dwelling, etc. For this example, we observe the relationship between percentage of lower status of the population (“LSTAT”) and the median value of owner-occupied homes in $1000’s (“MDEV”).</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let f ?(csv_file="boston.csv") () = 
-  let data = Owl_io.read_csv ~sep:' ' csv_file in 
-  let data = Array.map (fun x -&gt; Array.map float_of_string x) data 
+<pre><code class="language-ocaml">let f ?(csv_file="boston.csv") () =
+  let data = Owl_io.read_csv ~sep:' ' csv_file in
+  let data = Array.map (fun x -&gt; Array.map float_of_string x) data
     |&gt; Mat.of_arrays in
-  let lstat = Mat.get_slice [[];[12]] data in 
+  let lstat = Mat.get_slice [[];[12]] data in
   let medv = Mat.get_slice [[];[13]] data in
   lstat, medv</code></pre>
 </div>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:boston" title="boston" src="images/regression/boston.png"><figcaption>Figure 7: Visualise part of the boston housing dataset</figcaption>
 </figure>
-<p>We can then visualise the data to see the trend clearly. As fig.&nbsp;7 shows, the relationship basically follows a convex curve. You can try to fit a line into these data, but it’s quite likely that the result would not be very fitting. And that requires us to use non-linear models. In this section, we present a common non-linear regressions, the <strong>polynomial regression</strong>. We shows how to use them with examples, without going into details of the math.</p>
+<p>We can then visualise the data to see the trend clearly. As fig.&nbsp;7 shows, the relationship basically follows a convex curve. You can try to fit a line into these data, but it’s quite likely that the result would not be very fitting. And that requires us to use non-linear models. In this section, we present a type of non-linear regression, the <em>polynomial regression</em>. We show how to use them with examples, without going into details of the math.</p>
 <p>In polynomial regression, the relationship between the feature <span class="math inline">\(x\)</span> and the output variable is modelled as an <span class="math inline">\(n\)</span>-th degree polynomial in the feature <span class="math inline">\(x\)</span>:</p>
 <p><span id="eq:regression:eq08"><span class="math display">\[ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots \qquad(11)\]</span></span></p>
 <p>Owl provides a function to perform this forms of regression:</p>
 <div class="highlight">
 <pre><code class="language-clike">val poly : arr -&gt; arr -&gt; int -&gt; arr</code></pre>
 </div>
-<p>Let’s look at how to use it in the code. We use the <code>poly</code> function in the <code>Regression</code> module to get the model parameter. We limit the model to be 2nd order.</p>
+<p>In the code, we use the <code>poly</code> function in the <code>Regression</code> module to get the model parameter. We limit the model to be 2nd order.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let poly lstat medv = 
-  let a = Regression.D.poly lstat medv 2 in 
-  let a0 = Mat.get a 0 0 in 
-  let a1 = Mat.get a 1 0 in 
-  let a2 = Mat.get a 2 0 in 
-  fun x -&gt; a0 +. a1 *. x +. a2 *. x *. x </code></pre>
+<pre><code class="language-ocaml">let poly lstat medv =
+  let a = Regression.D.poly lstat medv 2 in
+  let a0 = Mat.get a 0 0 in
+  let a1 = Mat.get a 1 0 in
+  let a2 = Mat.get a 2 0 in
+  fun x -&gt; a0 +. a1 *. x +. a2 *. x *. x</code></pre>
 </div>
 <p>By executing the <code>poly</code> function, the parameters we can get are:</p>
 <div class="highlight">
 <pre><code class="language-clike">- : Owl_algodiff_primal_ops.D.arr =
 
-          C0 
-R0    42.862 
-R1  -2.33282 
+          C0
+R0    42.862
+R1  -2.33282
 R2 0.0435469</code></pre>
 </div>
 <p>That gives us the polynomial model:</p>
@@ -396,13 +391,13 @@ R2 0.0435469</code></pre>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:poly4s" title="reg_poly4s" src="images/regression/reg_poly4s.png"><figcaption>Figure 9: Polynomial regression with high order</figcaption>
 </figure>
-<p>This model could be visualised as in fig.&nbsp;9. Apparently, this model fits too closely with the given data, even the outliers. This model does not make a good prediction of future output values.</p>
-<p>To reduce the effect of higher order parameters, we can penalize these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. Actually we don’t need to change the cost functions dramatically. All we need is to add some extra bit at the end, for example, we can do this:</p>
-<p><span id="eq:regression:eq10"><span class="math display">\[J(\Theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\Theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].\qquad(12)\]</span></span></p>
-<p>Here the sum of squared parameter values is the penalty we add to the original cost function, and <span class="math inline">\(lambda\)</span> is a regularisation control parameter. That leads to a bit of change in the derivative of <span class="math inline">\(J(\Theta)\)</span> in using gradient descent:</p>
+<p>This model could be visualised as in fig.&nbsp;9. Apparently, this model fits too closely with the given data, even the outliers. Therefore, this model does not make a good prediction for future output values.</p>
+<p>To reduce the effect of higher order parameters, we can penalise these parameters in the cost function. We design the cost function so that the large parameter values leads to higher cost, and therefore by minimising the cost function we keep the parameters relatively small. Actually we don’t need to change the cost functions dramatically. All we need is to add some extra bit at the end. For example, we can add this:</p>
+<p><span id="eq:regression:eq10"><span class="math display">\[J(\theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].\qquad(12)\]</span></span></p>
+<p>Here the sum of squared parameter values is the penalty we add to the original cost function, and <span class="math inline">\(\lambda\)</span> is a regularisation control parameter. That leads to a bit of change in the derivative of <span class="math inline">\(J(\theta)\)</span> in using gradient descent:</p>
 <p><span id="eq:regression:eq11"><span class="math display">\[\theta_j \leftarrow \theta_j - \frac{\alpha}{n} \left[ \sum_{i=1}^{m} (h_{\Theta}(x_i) - y_i)x_{i}^{(j)} - \lambda~\theta_j \right].\qquad(13)\]</span></span></p>
 <p>We can now apply the new update procedure in gradient descent code, with a polynomial model with 4th order.</p>
-<p>Currently not all the regression methods support regularisation. But we can implement one easily. For the polynomial regression, we can implement it this way:</p>
+<p>Currently not all the regression methods in Owl support regularisation. But we can implement one easily. For the polynomial regression, we can implement it this way:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Optimise.D
 open Optimise.D.Algodiff
@@ -425,14 +420,14 @@ let poly_ridge ~alpha x y n =
   in
   (Regression.D._linear_reg false params x y).(0)</code></pre>
 </div>
-<p>The implementation is based on the optimisation module and the general low level <code>_linear_reg</code> function. In this code, the key point is to use the L2-norm function as regularisation method. By using this regularised version of polynomial regression, we can have an updated model as shown in fig.&nbsp;10.</p>
+<p>The implementation is based on the optimisation module and the general low level <code>_linear_reg</code> function. It utilises the optimisation parameter module, which will be explained in detail in the Neural Network chapter. For now, just know that the key point is to use the L2-norm function as regularisation method. By using this regularised version of polynomial regression, we can have an updated model as shown in fig.&nbsp;10.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:poly4s_reg" title="poly reg" src="images/regression/reg_poly4s_reg.png"><figcaption>Figure 10: Revised polynomial model by applying regularisation in regression</figcaption>
 </figure>
-<p>Here we choose the alpha parameter to be 20. We can see that by using regularisation the model is less prone to the over-fitting problem, compared to fig.&nbsp;9. Note that we use linear regression as example in the equation, but regularisation is widely use in all kinds of regressions.</p>
+<p>Here we choose the alpha parameter to be 20. We can see that by using regularisation the model is less prone to the over-fitting problem, compared to fig.&nbsp;9. Note that linear regression is used as an example in the equation, but regularisation is widely use in all kinds of regressions.</p>
 <section class="level3" id="ols-ridge-lasso-and-elastic_net">
 <h3>Ols, Ridge, Lasso, and Elastic_net</h3>
-<p>You might notice that Owl provides a series of functions other than <code>ols</code>:</p>
+<p>You might notice that Owl provides a series of functions other than <code>ols</code> in the regression module:</p>
 <div class="highlight">
 <pre><code class="language-clike">val ridge : ?i:bool -&gt; ?alpha:float -&gt; arr -&gt; arr -&gt; arr array
 
@@ -440,21 +435,20 @@ val lasso : ?i:bool -&gt; ?alpha:float -&gt; arr -&gt; arr -&gt; arr array
 
 val elastic_net : ?i:bool -&gt; ?alpha:float -&gt; ?l1_ratio:float -&gt; arr -&gt; arr -&gt; arr array</code></pre>
 </div>
-<p>What are these functions? The short answer is that: they are for regularisation in regression using different methods. The <code>ridge</code> cost function adds the L2 norm of <span class="math inline">\(\theta\)</span> as the penalty term: <span class="math inline">\(\lambda\sum\theta^2\)</span>, which is what we have introduced. The <code>lasso</code> cost function is similar. It adds the <em>L1 norm</em>, or absolute value of the parameter as penalty: <span class="math inline">\(\lambda\sum|\theta|\)</span>. This difference makes <code>lasso</code> to be able to allow for some coefficients to be zero, which is very useful for feature selection. The <code>elastic_net</code> is proposed by Hui Zou and Trevor Hastie of the Stanford University to combine the penalties of the previous two. What it adds is this: <span id="eq:regression:eq115"><span class="math display">\[\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),\qquad(14)\]</span></span> where <span class="math inline">\(a\)</span> is a control parameter between <code>ridge</code> and <code>lasso</code>. The elastic net method aims to make the feature selection less dependent on input data. We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.</p>
+<p>What are these functions? The short answer is that: they are for regularisation in regression using different methods. The <code>ridge</code> cost function adds the L2 norm of <span class="math inline">\(\theta\)</span> as the penalty term: <span class="math inline">\(\lambda\sum\theta^2\)</span>, which is what we have introduced. The <code>lasso</code> cost function is similar. It adds the <em>L1 norm</em>, or absolute value of the parameter as penalty: <span class="math inline">\(\lambda\sum|\theta|\)</span>. This difference makes <code>lasso</code> allow for some coefficients to be zero, which is very useful for feature selection. The <code>elastic_net</code> is proposed by Hui Zou and Trevor Hastie of the Stanford University to combine the penalties of the previous two. What it adds is this: <span id="eq:regression:eq115"><span class="math display">\[\lambda(\frac{1-a}{2}\sum\theta^2 + a\sum|\theta|),\qquad(14)\]</span></span> where <span class="math inline">\(a\)</span> is a control parameter between <code>ridge</code> and <code>lasso</code>. The elastic net method aims to make the feature selection less dependent on input data. We can thus choose one of these functions to perform regression with regularisation on the dataset in the previous chapter.</p>
 </section>
 </section>
 <section class="level2" id="logistic-regression">
 <h2>Logistic Regression</h2>
-<p>So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. What if we care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features.<br>
-This kind of variables are called <em>categorical variables</em>. They represent data that can be divided into groups. Such variables include “race”, “age group”, “religion”, etc. To predicting if a given data belongs to which group for a categorical variable, the previous regression methods do not apply. Instead, we need to use the <em>Logistic Regression</em>. Its point is to figure out certain “boundaries” among the data space so that different data can be divided into corresponding variable group. Let’s start with introducing how it works.</p>
+<p>So far we have been predicting a value for our problems, whether using linear, polynomial or exponential regression. What if we care about is not the value, but a classification? For example, we have some historical medical data, and want to decide if a tumour is cancer or not based on several features. These kind of variables are called <em>categorical variables</em>. They represent data that can be divided into groups. Such variables include “race”, “age group”, “religion”, etc. To predicting if a given data belongs to which group for a categorical variable, the previous regression methods do not apply. Instead, we need to use the <em>Logistic Regression</em>. Its point is to figure out certain “boundaries” among the data space so that different data can be divided into corresponding variable group. Let’s start with introducing how it works.</p>
 <section class="level3" id="sigmoid-function">
 <h3>Sigmoid Function</h3>
-<p>As a naive solution, we can still try to continue using linear regression, and the model can be interpreted as the possibility of one of these result. But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range? The solution is to use the sigmoid function (or logistic function): <span class="math inline">\(\sigma~(x) = \frac{1}{1 + e^{-x}}\)</span>.</p>
+<p>As a naive solution, we can still try to continue using linear regression, and the model can be interpreted as the possibility of one of these results. But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range? The solution is to use the sigmoid function (or logistic function): <span class="math inline">\(\sigma~(x) = \frac{1}{1 + e^{-x}}\)</span>.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:sigmoid" title="sigmoid" src="images/regression/sigmoid.png"><figcaption>Figure 11: The logistic function curve</figcaption>
 </figure>
-<p>As shown in fig.&nbsp;11, this function project value within the range of [0, 1]. Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].</p>
-<p><span id="eq:regression:eq12"><span class="math display">\[h_{\Theta}(X) = f(\Theta~X) = \frac{1}{1 + e^{-\Theta~x}}.\qquad(15)\]</span></span></p>
+<p>As shown in fig.&nbsp;11, this function projects value within the range of [0, 1]. Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].</p>
+<p><span id="eq:regression:eq12"><span class="math display">\[h_{\boldsymbol{\theta}}(\boldsymbol{x}) = \sigma(\boldsymbol{\theta}~\boldsymbol{x}) = \frac{1}{1 + e^{-\boldsymbol{\theta}~\boldsymbol{x}}}.\qquad(15)\]</span></span></p>
 <p>Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1. Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.</p>
 </section>
 <section class="level3" id="cost-function-1">
@@ -469,8 +463,8 @@ This kind of variables are called <em>categorical variables</em>. They represent
 <p><span id="eq:regression:logistic_cost_large"><span class="math display">\[J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}\log(h(x^{(i)})) + (1-y^{(i)})\log(1-h(x^{(i)})))\qquad(19)\]</span></span></p>
 <p>The next step is to follow eq.&nbsp;4 to find the partial derivative of this cost function and then iteratively minimise it to find suitable parameters <span class="math inline">\(\Theta\)</span>. It turns out that the partial derivative of this cost function is similar as that in linear regression:</p>
 <p><span id="eq:regression:eq15"><span class="math display">\[\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{m}\sum_{i=1}^{m}(\sigma_{\Theta}(x^{(i)}) - y^{(i)})^2~x_j^{(i)}\qquad(20)\]</span></span></p>
-<p>Here <span class="math inline">\(\sigma()\)</span> denotes the sigmoid function. This simple solution benefits from the fact that the sigmoid function has a simple derivative: <span class="math inline">\(\sigma^{'}~(x) = \sigma(x)~(1 - \sigma(x))\)</span>.</p>
-<p>With this derivative form at hand, the rest is similar to what we have done with linear regression: follow eq.&nbsp;4 and repeat this gradient descent step until it converges. Besides, Owl also provides a <code>logistic</code> function in the <code>Regression</code> module. In the next section, we will show a example of binary categorisation with logistic regression.</p>
+<p>This solution benefits from the fact that the sigmoid function has a simple derivative: <span class="math inline">\(\sigma^{'}~(x) = \sigma(x)~(1 - \sigma(x))\)</span>.</p>
+<p>With this derivative at hand, the rest is similar to what we have done with linear regression: follow eq.&nbsp;4 and repeat this gradient descent step until it converges. Owl also provides a <code>logistic</code> function in the <code>Regression</code> module. In the next section, we will show an example of binary categorisation with logistic regression.</p>
 </section>
 <section class="level3" id="example">
 <h3>Example</h3>
@@ -493,14 +487,14 @@ This kind of variables are called <em>categorical variables</em>. They represent
   let y = concat_vertical y1 y2 in
   x, y
 
-let x, y = generate_data () </code></pre>
+let x, y = generate_data ()</code></pre>
 </div>
-<p>Basically this code creates two groups of random data with <code>gaussian</code> function. Data <code>x</code> is of shape <code>[|1000; 2|]</code>, and is equally divided into to groups. The first group is at a higher position, and the corresponding <code>y</code> label is positive. The lower group of nodes are labelled as negative. Our task is to try to divide a given data point into one of these two categories.</p>
+<p>Basically this code creates two groups of random data with <code>gaussian</code> function. Data <code>x</code> is of shape <code>[|1000; 2|]</code>, and is equally divided into two groups. The first group is at a higher position, and the corresponding <code>y</code> label is positive. The nodes in lower group are labelled as negative. Our task is to try to divide a given data point into one of these two categories.</p>
 <p>With the <code>logistic</code> function, we train a model:</p>
 <p><span class="math display">\[h_{\Theta}(x_0, x_1) = \sigma(\theta_0~x_0 + \theta_1~x_1 + \theta_2).\]</span></p>
-<p>In the linear model within the sigmoid function, we have two parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> for the two variables that represent the two coordinates of a data point. The <code>logistic</code> functions takes an <code>i</code> argument. If set to <code>true</code>, the linear model contains an extra parameter <span class="math inline">\(\theta_2\)</span>. Based on the data, we can get the parameters by simply executing:</p>
+<p>In the linear model within the sigmoid function, we have two parameters <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span> for the two variables that represent the two coordinates of a data point. The <code>logistic</code> functions takes an <code>i</code> argument. If <code>i</code> is set to <code>true</code>, the linear model contains an extra parameter <span class="math inline">\(\theta_2\)</span>. Based on the data, we can get the parameters by simply executing:</p>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let theta = 
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let theta =
   Owl.Regression.D.logistic ~i:true x y
 ;;
 &gt;val theta : Owl_algodiff_primal_ops.D.arr array =
@@ -528,47 +522,47 @@ let x, y = generate_data () </code></pre>
   Printf.printf "accuracy: %.4f\n" (1. -. e)</code></pre>
 </div>
 <div class="highlight">
-<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">test_log x y ;;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">test_log x y;;
 &gt;accuracy: 0.9910
 &gt;- : unit = ()
 </code></pre>
 </div>
-<p>The result shows that, the trained model has more than 99% prediction accuracy when applied on the original dataset. Of course, a more suitable approach is to use a new set of test data set.</p>
+<p>The result shows that, the trained model has more than 99% prediction accuracy when applied on the original dataset. Of course, a more suitable approach would be to use a new set of test data set, but you can get a basic idea about how well it works.</p>
 <p><strong>Decision Boundary</strong></p>
-<p>As we have said, the physical meaning of classification is to draw a <em>decision boundary</em> in a hyperplane to divide different groups of data points. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the sigmoid function, the linear model itself divide the points into two halves in the plane. Use eq.&nbsp;21 as an example, any <span class="math inline">\(x_0\)</span>, <span class="math inline">\(x_1\)</span> that makes the <span class="math inline">\(h(x_0, x_1) &gt; 0\)</span> is taken as positive, otherwise it’s negative. Therefore, the boundary line we need to draw is: <span class="math inline">\(16~x_0 + 12~x_1 + 20 = 0\)</span>, or <span class="math inline">\(x_1 = -(4x_0 + 5)/3\)</span>. We can visualise this decision boundary on a 2D-plane and how it divides the two groups of data.</p>
+<p>As we have said, the physical meaning of classification is to draw a <em>decision boundary</em> in a hyperplane to divide different groups of data points. For example, if we are using a linear model <span class="math inline">\(h\)</span> within the sigmoid function, the linear model itself divides the points into two halves in the plane. Use eq.&nbsp;21 as an example, any <span class="math inline">\(x_0\)</span>, <span class="math inline">\(x_1\)</span> that makes the <span class="math inline">\(h(x_0, x_1) &gt; 0\)</span> is taken as positive, otherwise it’s negative. Therefore, the boundary line we need to draw is: <span class="math inline">\(16~x_0 + 12~x_1 + 20 = 0\)</span>, or <span class="math inline">\(x_1 = -(4x_0 + 5)/3\)</span>. We can visualise this decision boundary on a 2D-plane and how it divides the two groups of data.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Owl
 let data = Mat.concat_horizontal x y
 
 let f x = -.(4. *. x +. 5.) /. 3.
 
-let plot_logistic data = 
-  let neg_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 0.) data in 
-  let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in 
-  let pos_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 1.) data in 
-  let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in 
+let plot_logistic data =
+  let neg_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 0.) data in
+  let neg_data = Mat.get_fancy [ L (Array.to_list neg_idx); R [] ] data in
+  let pos_idx = Mat.filter_rows (fun m -&gt; Mat.get m 0 2 = 1.) data in
+  let pos_data = Mat.get_fancy [ L (Array.to_list pos_idx); R [] ] data in
   (* plot dataset *)
   let h = Plot.create "reg_logistic.png" in
-  Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ] 
-      (Mat.get_slice [[];[0]] neg_data) 
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2217]"; MarkerSize 5. ]
+      (Mat.get_slice [[];[0]] neg_data)
       (Mat.get_slice [[];[1]] neg_data));
-  Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ] 
-      (Mat.get_slice [[];[0]] pos_data) 
+  Plot.(scatter ~h ~spec:[ Marker "#[0x2295]"; MarkerSize 5. ]
+      (Mat.get_slice [[];[0]] pos_data)
       (Mat.get_slice [[];[1]] pos_data));
   (* plot line *)
   Plot.plot_fun ~h ~spec:[ RGB (0,0,255); LineWidth 2. ] f (-5.) 5.;
   Plot.output h</code></pre>
 </div>
-<p>The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model. The result is shown in fig.&nbsp;12. There are some wrong categorisation, but you can see that this model works well for most the data points.</p>
+<p>The code above visualises the data, two types of points showing the negative and positive data, and the line shows the decision boundary we get from the logistic model. The result is shown in fig.&nbsp;12. There are some wrong categorisations, but you can see that this model works well for most the data points.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:regression:logistic" title="logistic" src="images/regression/reg_logistic.png"><figcaption>Figure 12: Visualise the logistic regression dataset</figcaption>
 </figure>
-<p>Of course, we can use more than linear model within the sigmoid function. for example, we can use to set the model as <span class="math inline">\(h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)\)</span>. If we use a non-linear polynomial model, then the plane is divided by curve lines.</p>
+<p>Of course, we can use more than linear model within the sigmoid function. for example, we can use to set the model as <span class="math inline">\(h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)\)</span>. If we use a non-linear polynomial model, the plane is divided by curve lines.</p>
 <p>Logistic regression uses the linear model. If you believe your data won’t be linearly separable, or you need to be more robust to outliers, you should look at SVM (see sections below) and look at one of the non-linear models.</p>
 </section>
 <section class="level3" id="multi-class-classification">
 <h3>Multi-class classification</h3>
-<p>We have seen how to classify objects into one of two classes using logistic regression. What if our target consists of multiple classes? For this problem, one approach is called <em>one-vs-all</em>. It’s basic idea is simple. Suppose we need to classify one object into three different classes; we can still use the logistic regression, but instead of one classifier, we train three binary classifiers, each one is about one class against the other two. In the prediction phase, using an object as input, each classifier yields a probability as output. We then choose the largest probability as the classification result.</p>
+<p>We have seen how to classify objects into one of two classes using logistic regression. What if our target consists of multiple classes? For this problem, one approach is called <em>one-vs-all</em>. Its basic idea is simple. Suppose we need to classify one object into three different classes; we can still use the logistic regression, but instead of one classifier, we train three binary classifiers, each one is about one class against the other two. In the prediction phase, using an object as input, each classifier yields a probability as output. We then choose the largest probability as the classification result.</p>
 <p>The multi-class classification problem is prevalent in the image recognition tasks, which often includes classifying one object in the image into of ten, hundred, or more different classes. For example, one popular classification problem is the hand-written recognition task based on the <a href="http://yann.lecun.com/exdb/mnist/">MNIST</a> dataset. It requires the model to recognise a 28x28 grey scale image, representing a hand-written number, to be one of ten numbers, from 0 to 9. It is a widely used ABC task for Neural Networks. We will discuss this example in detail later in the beginning of the Neural Network chapter. You will see how this logistic regression line of thought is extended, and how the real-world multi-class classification problems are solved using neural networks.</p>
 </section>
 </section>
@@ -578,16 +572,16 @@ let plot_logistic data =
 <p>Similar to logistic regression, the SVM creates a hyperplane (decision boundary) that separates data into classes. However, it tries to maximise the “margin” between the hyperplane and the boundary points of both classes in the data. By use the “kernels”, the SVM can also fit non-linear boundaries. Besides, the SVM works well with unstructured and semi-structured data such as text and images, with less risk of over-fitting. In this section, we will introduce the basic idea behind SVM and how it works in example.</p>
 <p>Again, let’s start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in eq.&nbsp;19, with some modifications:</p>
 <p><span id="eq:regression:svm_cost"><span class="math display">\[J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2\qquad(22)\]</span></span></p>
-<p>Here function <span class="math inline">\(g_0()\)</span> and <span class="math inline">\(g_1()\)</span> are simplification of the logarithm function:</p>
+<p>Function <span class="math inline">\(g_0()\)</span> and <span class="math inline">\(g_1()\)</span> are simplification of the logarithm function:</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:svm_cost" title="svm_cost" src="images/regression/svm_cost.png"><figcaption>Figure 13: Simplifying the cost function of logistic regression</figcaption>
 </figure>
-<p>Here <span class="math inline">\(f_0(x) = -\log(\sigma(x))\)</span> is what used in the cost function of regression, and the complex logarithm computing is replaced with <span class="math inline">\(g_0(x)\)</span>, a simple segmented function. Similarly, <span class="math inline">\(f_1(x) = -\log(1-\sigma(x))\)</span> is replaced by <span class="math inline">\(g_1(x)\)</span>.</p>
-<p>Also, the other difference is that a regularisation item is added to the cost function in eq.&nbsp;22. Therefore, considering the properties of <span class="math inline">\(g_0(x)\)</span> and <span class="math inline">\(g_1(x)\)</span>, by minimising this function, we are actually seeking parameters set <span class="math inline">\(\theta\)</span> to minimise <span class="math inline">\(\sum_{j=1}^{m}\theta_j^2\)</span>, with the limitation that <span class="math inline">\(\theta^Tx &gt; 1\)</span> when <span class="math inline">\(y=1\)</span>, or <span class="math inline">\(\theta^Tx &lt; -1\)</span> when <span class="math inline">\(y=0\)</span>.</p>
+<p>Here <span class="math inline">\(f_0(x) = -\log(\sigma(x))\)</span> is what is used in the cost function of the logistic regression. This computation-heavy logarithm is replaced with <span class="math inline">\(g_0(x)\)</span>, a simple segmented function. Similarly, <span class="math inline">\(f_1(x) = -\log(1-\sigma(x))\)</span> is replaced by <span class="math inline">\(g_1(x)\)</span>.</p>
+<p>Also, another difference is that a regularisation item is added to the cost function in eq.&nbsp;22. Therefore, considering the properties of <span class="math inline">\(g_0(x)\)</span> and <span class="math inline">\(g_1(x)\)</span>, by minimising this function, we are actually seeking parameters set <span class="math inline">\(\boldsymbol{\theta}\)</span> to minimise <span class="math inline">\(\sum_{j=1}^{m}\theta_j^2\)</span>, with the limitation that <span class="math inline">\(\theta^Tx &gt; 1\)</span> when <span class="math inline">\(y=1\)</span>, or <span class="math inline">\(\theta^Tx &lt; -1\)</span> when <span class="math inline">\(y=0\)</span>.</p>
 <figure>
 <img alt="" style="width:50.0%" id="fig:regression:svm_margin" title="svm_margin" src="images/regression/svm_margin.png"><figcaption>Figure 14: Margins in the Supported Vector Machines</figcaption>
 </figure>
-<p>It turns out that, by solving this optimisation problem, SVM tends to get a <em>large margin</em> between different categories of data points. (TODO: Explain the math?) One example is shown in fig.&nbsp;14. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
+<p>It turns out that, by solving this optimisation problem, SVM tends to get a <em>large margin</em> between different categories of data points. One example is shown in fig.&nbsp;14. It shows two possible decision boundaries, both can effectively divide the two groups of training data. But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the <em>margin</em> of the SVM. As to the inference phase, any data <span class="math inline">\(x\)</span> that makes <span class="math inline">\(\theta^T~x &gt; 0\)</span> is deeded positive, i.e.&nbsp;<span class="math inline">\(y=1\)</span>, or negative if <span class="math inline">\(\theta^T~x &lt; 0\)</span>. It is intuitive to see that a model with larger margin tends to predict the test data better.</p>
 <section class="level3" id="kernel-and-non-linear-boundary">
 <h3>Kernel and Non-linear Boundary</h3>
 <p>So far we have talked about the linear boundary, but that’s surely not the limit of SVM. In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space. To do that, we can simply update the linear part <span class="math inline">\(\theta^Tx\)</span> in the cost function to make it a non-linear function, e.g.:</p>
@@ -596,18 +590,18 @@ let plot_logistic data =
 <p>Currently, one common way to model this function is to choose <span class="math inline">\(k\)</span> reference points in the space, and use the <em>distances</em> to these points as feature. In other words, for data <span class="math inline">\(\boldsymbol{x}\)</span> that contains any number of features, the objective function is reduced to use a fixed <span class="math inline">\(k\)</span> features:</p>
 <p><span id="eq:regression:svm_kernel_2"><span class="math display">\[\theta_0 + \sum_{i=1}^k\theta_i~d_i,\qquad(24)\]</span></span></p>
 <p>where <span class="math inline">\(d_i\)</span> is the “distance” of the current point to the reference point <span class="math inline">\(p_k\)</span>. In inference phase, if this function is larger than zero, then the point is predicted to be positive, otherwise it is negative.</p>
-<p>So how exactly is this “distance”? There are many ways to do that, and one of the most used is the gaussian distance, as shown in eq.&nbsp;25. Here the total number of feature is <span class="math inline">\(n\)</span>. <span class="math inline">\(x_j\)</span> is the <span class="math inline">\(j\)</span>-th feature of <span class="math inline">\(x\)</span> and <span class="math inline">\(p_k^{(j)}\)</span> is the <span class="math inline">\(j\)</span>-th feature of reference point <span class="math inline">\(p_k\)</span>.</p>
+<p>So how exactly is this “distance” calculated? There are many ways to do that, and one of the most used is the gaussian distance, as shown in eq.&nbsp;25. Here the total number of feature is <span class="math inline">\(n\)</span>. <span class="math inline">\(x_j\)</span> is the <span class="math inline">\(j\)</span>-th feature of <span class="math inline">\(x\)</span> and <span class="math inline">\(p_k^{(j)}\)</span> is the <span class="math inline">\(j\)</span>-th feature of reference point <span class="math inline">\(p_k\)</span>.</p>
 <p><span id="eq:regression:svm_kernel_3"><span class="math display">\[d_i = \exp(-\frac{\sum_{j=1}^n(x_j - p_k^{(j)})}{2\sigma^2}).\qquad(25)\]</span></span></p>
 <p>The intuition is that, with suitable trained parameters <span class="math inline">\(\theta\)</span>, this approach can represent different regions in the classification. For example, in fig.&nbsp;15 we choose only three reference points: <span class="math inline">\(p_0\)</span>, <span class="math inline">\(p_1\)</span>, and <span class="math inline">\(p_2\)</span>. In this example, we set the parameters for <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_3\)</span> to be larger than that of <span class="math inline">\(p_2\)</span>. The figure left shows the summation of distances of a point to all three of them. The contour graph on the right then shows clearly how this model lead to a prediction that’s obviously large around a region that’s close to the point <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_3\)</span>. That’s the boundary we use to decide if a point is positive (close to <span class="math inline">\(p_1\)</span> or <span class="math inline">\(p_3\)</span>) or negative. You can imagine how this non-linear boundary can be changed with new parameters.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:regression:svm_kernel" title="svm_kernel.png" src="images/regression/kernel.png"><figcaption>Figure 15: Using the gaussian kernel to locate non-linear boundary in categorisation</figcaption>
 </figure>
-<p>In practice, only three reference points is normally not enough to support a complex non-linear boundary. In fact, one common practice is to use all the training data, each as one point, as the reference points.</p>
+<p>Only three reference points is normally not enough to support a complex non-linear boundary. In fact, one common practice is to use all the training data, each as one point, as the reference points.</p>
 <p>In this example, the distance function <span class="math inline">\(d_i\)</span> is called the <em>Kernel Function</em>. The Gaussian kernel we have just used is a commonly used one, but other kernel functions can also be used in eq.&nbsp;24, such as the polynomial kernel, the Laplacian kernel, etc. The previous linear model <span class="math inline">\(\theta^T~x\)</span> is called the linear kernel, or “no kernel” as is sometimes called.</p>
 </section>
 <section class="level3" id="example-1">
 <h3>Example</h3>
-<p>The SVM is a very important and widely used machine learning method, and that is accompanied by highly efficient implementation in libraries. For example, the <a href="https://www.csie.ntu.edu.tw/~cjlin/libsvm/">Libsvm</a> is a open source library that devotes solely to SVMs. It is widely interfaced to many languages such as Matlab and Python.</p>
+<p>The SVM is a very important and widely used machine learning method, and that is accompanied by highly efficient implementation in libraries. For example, the <a href="https://www.csie.ntu.edu.tw/~cjlin/libsvm/">Libsvm</a> is an open source library that devotes solely to SVMs. It is widely interfaced to many languages such as Matlab and Python.</p>
 <p>Using its optimisation engine, Owl provides initial support for SVM using linear kernel. Let’s look at an example. Here we apply SVM to another randomly generated dataset in the similar way. The only difference is that previous we have label <code>0</code> and <code>1</code>, but now we have label <code>1</code> and <code>-1</code>. After applying <code>Regression.D.svm ~i:true x y</code>, for a certain data we get, the result we get is:</p>
 <div class="highlight">
 <pre><code class="language-clike">val theta : Owl_algodiff_primal_ops.D.arr array =
@@ -630,14 +624,14 @@ R0 5.7011
 <h2>Model error and selection</h2>
 <section class="level3" id="error-metrics">
 <h3>Error Metrics</h3>
-<p>We have introduced using the least square as a target in minimising the distance between model and data, but it is by no means the only way to assess how good a model is. In this section, we discuss several error metrics for assessing the quality of a model and comparing different models. In testing a model, for each data point, the its real value <span class="math inline">\(y\)</span> and predicted value <span class="math inline">\(y'\)</span>. The difference between these two are called <strong>residual</strong>. In this section, when we say error, we actually mean residual, and do not confuse it with the <span class="math inline">\(\epsilon\)</span> item in the linear model. The latter is the deviation of the observed value from the unobservable true value, and residual means the difference between the observed value and the predicted value.</p>
+<p>We have introduced using the least square as a target in minimising the distance between model and data, but it is by no means the only way to assess how good a model is. In this section, we discuss several error metrics for assessing the quality of a model and comparing different models. In testing a model, for each data point, its real value <span class="math inline">\(y\)</span> and predicted value <span class="math inline">\(y'\)</span>. The difference between these two is called <em>residual</em>. In this section, when we say error, we actually mean residual, and do not confuse it with the <span class="math inline">\(\epsilon\)</span> item in the linear model. The latter is the deviation of the observed value from the unobservable true value, and residual means the difference between the observed value and the predicted value.</p>
 <p>First, let’s look at two most commonly used metrics:</p>
 <ul>
 <li><strong>Mean absolute error</strong> (MAE): average absolute value fo residuals, represented by: <span class="math inline">\(\textrm{MAE}=\frac{1}{n}\sum|y - y'|\)</span>.</li>
 <li><strong>Mean square error</strong> (MSE): average squared residuals, represented as: <span class="math inline">\(\textrm{MSE}=\frac{1}{n}\sum(y-y')^2\)</span>. This is the method we have previous used in linear regression in this chapter. The part before applying average is called <strong>Residual Sum of Squares</strong> (RSS): <span class="math inline">\(\textrm{RSS}=\sum(y-y')^2\)</span>.</li>
 </ul>
 <p>The difference between using absolute value and squared value means different sensitivity to outliers. Using the squared residual value, MSE grows quadratically with error. As a result, the outliers are taken into consideration in the regression so as to minimise MSE. On the other hand, by using the absolute error, in MAE each residual contribute proportionally to the metric, and thus the outliers do not have especially large impact on the model fitting. How to choose one of these metrics depends on how you want to treat the outliers in data.</p>
-<p>Based on the these two basic metrics, we can derive the definition of other metrics:</p>
+<p>Based on these two basic metrics, we can derive the definition of other metrics:</p>
 <ul>
 <li><p><strong>Root mean squared error</strong> (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out.</p></li>
 <li><p><strong>Mean absolute percentage error</strong> (MAPE): based on MAE, MAPE changes it into percentage representation: <span class="math inline">\(\textrm{MAPE}=\frac{1}{n}\sum |\frac{y - y'}{y}|\)</span>. It denotes the average distance between a model’s predictions and their corresponding outputs in percentage format, for easier interpretation.</p></li>
@@ -649,13 +643,13 @@ R0 5.7011
 <p>We have already mentioned the issue of feature selection in <a href="#analytical-solution">previous sections</a>. It is common to see that in a multiple regression model, many variables are used in the data and modelling, but only a part of them are actually useful. For example, we can consider the weather factor, such as precipitation quantity, in choosing the location of McDonald’s store, but I suspect its contribution would be marginal at best. By removing these redundant features, we can make a model clearer and increase its interpretability. <a href="#regularisation">Regularisation</a> is one way to downplay these features, and in this section we briefly introduce another commonly used technique: <em>feature selection</em>.</p>
 <p>The basic idea of feature selection is simple: choose features from all the possible combinations, test the performance of each model using metric such as RSS. Then choose the best one from them. To put it into detail, suppose we have <span class="math inline">\(n\)</span> features in a multi-variable regression, then for each <span class="math inline">\(i=1, 2, ... n\)</span>, test all the <span class="math inline">\({n\choose i}\)</span> possible models with <span class="math inline">\(i\)</span> variable(s), choose a best one according to its RSS, and we call this model <span class="math inline">\(M_i\)</span>. Once this step is done, we can select the best one from the <span class="math inline">\(n\)</span> models: <span class="math inline">\(M_1, M2, .... M_n\)</span> using <em>certain methods</em>.</p>
 <p>You might have already spotted on big problem in this approach: computation complexity. To test all <span class="math inline">\(2^n\)</span> possibilities is a terribly large cost for even medium number of features. Therefore, some computationally efficient approaches are proposed. One of them is the <em>stepwise selection</em>.</p>
-<p>The idea of stepwise selection is to build models based on existing best models. We start with one model with zero parameters (always predict the same value regardless of input data) and assume it is the best model. Based on this one, we increase the number of features to one, choose among all the <span class="math inline">\(n\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_1\)</span>. And based on <span class="math inline">\(M_1\)</span>, we consider adding another feature. Choose among all the <span class="math inline">\(n-1\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_2\)</span>. So on an so forth. Once we have all the models <span class="math inline">\(M_i, i=1,2,...n\)</span>, we can select the the the best one from them using suitable methods. This process is called “Forward stepwise selection”, and similarly there is also a “Backward stepwise selection”, where you build the model sequence from full features selection <span class="math inline">\(M_n\)</span> down to <span class="math inline">\(M_1\)</span>.</p>
-<p>You might notice that we mention using “certain methods” in selecting the best one from these <span class="math inline">\(n\)</span> models. What are these methods? An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. Instead, we need to estimate the test error. We can directly do that using a validation dataset. Otherwise we can make adjustment to the training error such as RSS to include the bias caused by over-fitting. Such methods includes: <span class="math inline">\(\textrm{C}_p\)</span>, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted <span class="math inline">\(\textrm{R}^2\)</span>, etc. To further dig into these statistical methods is beyond the scope of this book. We recommend specific textbooks such as <span data-cites="james2013introduction" class="citation">(James et al. 2013)</span>.</p>
+<p>The idea of stepwise selection is to build models based on existing best models. We start with one model with zero parameters (always predict the same value regardless of input data) and assume it is the best model. Based on this one, we increase the number of features to one, choose among all the <span class="math inline">\(n\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_1\)</span>. And based on <span class="math inline">\(M_1\)</span>, we consider adding another feature. Choose among all the <span class="math inline">\(n-1\)</span> possible models according to their RSS, name the best one <span class="math inline">\(M_2\)</span>. So on and so forth. Once we have all the models <span class="math inline">\(M_i, i=1,2,...n\)</span>, we can select the best one from them using suitable methods. This process is called “Forward stepwise selection”, and similarly there is also a “Backward stepwise selection”, where you build the model sequence from full features selection <span class="math inline">\(M_n\)</span> down to <span class="math inline">\(M_1\)</span>.</p>
+<p>You might notice that we mention using “certain methods” in selecting the best one from these <span class="math inline">\(n\)</span> models. What are these methods? An obvious answer is continue to use RSS etc. as the metric, but the problem is that the model with full features always has the smallest error and then get selected every time. Instead, we need to estimate the test error. We can directly do that using a validation dataset. Otherwise we can make adjustment to the training error such as RSS to include the bias caused by over-fitting. Such methods include: <span class="math inline">\(\textrm{C}_p\)</span>, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted <span class="math inline">\(\textrm{R}^2\)</span>, etc. To further dig into these statistical methods is beyond the scope of this book. We recommend specific textbooks such as <span data-cites="james2013introduction" class="citation">(James et al. 2013)</span>.</p>
 </section>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
-<p>This chapter introduces different techniques of regression. It starts with the most basic linear regression with one variant, then extends it multiple variants. We introduced the basic idea of linear regression, its theoretical support, and shows how it is supported in Owl with examples. Furthermore, we extend it to more complex regressions with non-linear models, such as the polynomial regression. Unlike linear regression, the logistic regression model categorises data into different groups by finding out a decision boundary. With a bit of change in its cost function, we venture to introduce a type of advanced machine learning techniques, the Support Vector Machines. They can be used for both linear and non-linear decision boundary by using different kernel functions. We have also talked about related issues, such as the regularisation, model error and selection.</p>
+<p>This chapter introduces different techniques of regression. It starts with the most basic linear regression with one variant, and then extends it multiple variants. We introduced the basic idea of linear regression, its theoretical support, and shows how it is supported in Owl with examples. Furthermore, we extend it to more complex regressions with non-linear models, such as the polynomial regression. Unlike linear regression, the logistic regression model categorises data into different groups by finding out a decision boundary. With a bit of change in its cost function, we venture to introduce a type of advanced machine learning techniques, the Support Vector Machines. They can be used for both linear and non-linear decision boundary by using different kernel functions. We have also talked about related issues, such as the regularisation, model error and selection.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
