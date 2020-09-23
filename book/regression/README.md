@@ -1,7 +1,5 @@
 # Regression
 
-TODO: unify notation
-
 Regression is an important topic in statistical modelling and machine learning.
 It's about modelling problems which include one or more variables (also called "features" or "predictors") and making predictions of another variable ("output variable") based on previous data of predictors.
 Regression analysis includes a wide range of models, from linear regression to isotonic regression, each with different theory background and application fields.
@@ -78,7 +76,7 @@ $$ y = \theta_0~ + \theta_1~x_1 + \epsilon,$$ {#eq:regression:eq00}
 where $y$ denotes the profit we want to predict, and input variable $x_1$ is the population number in this example.
 Since modelling can hardly make a perfect match with the real data, we use $\epsilon$ to denote the error between our prediction and the data.
 Specifically, we represent the prediction part as $h(\theta_0, \theta_1)$:
-$$h(\theta_0, \theta_1) = \theta_0~ + \theta_1~x_1$$ {#eq:regression:eq01}
+$$h_{\theta_0, \theta_1}(x_1) = \theta_0~ + \theta_1~x_1$$ {#eq:regression:eq01}
 
 The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically they decide a line on a plane.
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in [@fig:regression:reg_options].
@@ -91,8 +89,9 @@ One frequently used method is to use the *ordinary least square* to minimise the
 We have shown the "$x$-$y$" pairs in the data above, and we represent the total number of data pairs with $n$, and thus the $i$'th pair of data can be represented with $x_i$ and $y_i$.
 With these notations, we can represent a metric to represent the *closeness* as:
 
-$$J(\theta_0, \theta_1) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2$$ {#eq:regression:eq02}
+$$J_{\theta_0, \theta_1}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{2n}\sum_{i=1}^{n}(h_{\theta_1, \theta_0}(x_i) - y_i)^2$$ {#eq:regression:eq02}
 
+Here $\boldsymbol{x}$ and $\boldsymbol{y}$ are both vectors of length $n$.
 In regression, we call this function the *cost function*. It measures how close the models are to an ideal one, and our target is thus clear: find suitable $\theta$ parameters to minimise the cost function.
 
 Why do we use least square in the cost function? Physically, the cost function $J$ represents the average distance of each data point to the line.
@@ -139,7 +138,7 @@ It is thus natural to recall the gradient descent we have introduced in the prev
 Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest descent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
 Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be obtained by using partial derivative on the surface.
 Therefore, what we need to do is to apply this update process iteratively for both $\theta$ parameters:
-$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J(\theta_0, \theta_1), $$ {#eq:regression:eq03}
+$$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial}{\partial \theta_j}~J_{\theta_0, \theta_1}(\boldsymbol{x}, \boldsymbol{y}), $$ {#eq:regression:eq03}
 where $i$ is 1 or 2.
 
 This process may seem terribly complex at first sight, but by solving the partial derivative we can calculate it as two parts:
@@ -232,18 +231,18 @@ In that case, how can we extend our one-variable linear regression to the case o
 
 The answer is very straight forward. We just use more parameters, so the model becomes:
 
-$$h(\theta_0, \theta_1, \theta_2, \theta_3, ...) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 ... $$ {#eq:regression:eq06}
+$$h_{\theta_0, \theta_1, \theta_2, \theta_3, \ldots})(x_1, x_2, x_3, \ldots) = \theta_0~ + \theta_1~x_1 + \theta_2~x_2 + \theta_3~x_3 \ldots $$ {#eq:regression:eq06}
 
 However, to list all the parameters explicitly is not a good idea, especially when the question requires considering thousands or even more features.
 Therefore, we use the vectorised format in the model:
 
-$$h(\boldsymbol{\theta}) = \boldsymbol{\theta}~\boldsymbol{x}^{(i)},$$ {#eq:regression:eq065}
+$$h_{\boldsymbol{\theta}}(X^{(i)}) = \boldsymbol{\theta}~X^{(i)},$$ {#eq:regression:eq065}
 
-where $\boldsymbol{\theta} = [\theta_0, \theta_1, \theta_2, \theta_3, ...]$, and $\boldsymbol{x}^{(i)} = [1, x_1, x_2, x_3, ...]^T$ contains all the features from the $i$th row in data.
+where $\boldsymbol{\theta} = [\theta_0, \theta_1, \theta_2, \theta_3, ...]$, and $X^{(i)} = [1, x_1^{(i)}, x_2^{(i)}, x_3^{(i)}, ...]^T$ contains all the features from the $i$th row in data.
 
 Accordingly, the cost function can be represented as:
 
-$$ J(\boldsymbol{\theta}) = \frac{1}{2n}\sum_{i=1}^{n}(\theta~X^{(i)} - y^{(i)})^2,$$ {#eq:regression:eq07}
+$$ J_{(\boldsymbol{\theta}}(X, \boldsymbol{y}) = \frac{1}{2n}\sum_{i=1}^{n}(\theta~X^{(i)} - y^{(i)})^2,$$ {#eq:regression:eq07}
 
 where $y^{(i)}$ is the output variable value on the $i$th row of input data.
 
@@ -363,7 +362,7 @@ More often than not, this ndarray needs to be normalised in data pre-processed f
 Before taking a look at some other forms of regression, let's discuss solution to the linear regression besides gradient descent.
 It turns out that there is actually one close form solution to linear regression problems:
 
-$$\Theta = (X^T~X)^{-1}X^Ty$$ {#eq:regression:eq075}
+$$\boldsymbol{\theta} = (X^T~X)^{-1}X^Ty$$ {#eq:regression:eq075}
 
 Chapter 3 of *The elements of statistical learning* [@friedman2001elements] covers how this solution is derived if you are interested.
 Suppose the linear model contains $m$ features, and the input data contains $n$ rows, then here $X$ is a $n\times~(m+1)$ matrix representing the features data, and the output data $y$ is a $n\times~1$ matrix.
@@ -435,7 +434,7 @@ We show how to use them with examples, without going into details of the math.
 
 In polynomial regression, the relationship between the feature $x$ and the output variable is modelled as an $n$-th degree polynomial in the feature $x$:
 
-$$ h(\Theta) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$ {#eq:regression:eq08}
+$$ h_{\boldsymbol{\theta}}(x) = \theta_0 + \theta_1~x + \theta_2~x^2 + \theta_3~x^3 \ldots $$ {#eq:regression:eq08}
 
 Owl provides a function to perform this forms of regression:
 
@@ -501,7 +500,7 @@ To reduce the effect of higher order parameters, we can penalise these parameter
 Actually we don't need to change the cost functions dramatically. All we need is to add some extra bit at the end.
 For example, we can add this:
 
-$$J(\theta)=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$ {#eq:regression:eq10}
+$$J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y})=\frac{1}{2n}\left[ \sum_{i=1}{n}(h_{\theta}(x^{(i)} - y^{(i)}))^2 + \lambda\sum_{j=1}^{m}\theta_j^2 \right].$$ {#eq:regression:eq10}
 
 Here the sum of squared parameter values is the penalty we add to the original cost function, and $\lambda$ is a regularisation control parameter.
 That leads to a bit of change in the derivative of $J(\theta)$ in using gradient descent:
@@ -587,9 +586,9 @@ The solution is to use the sigmoid function (or logistic function): $\sigma~(x) 
 ![The logistic function curve](images/regression/sigmoid.png "sigmoid"){width=60% #fig:regression:sigmoid}
 
 As shown in [@fig:regression:sigmoid], this function projects value within the range of [0, 1].
-Applying this function on the returned value of a regression, we can get a model returns value within [0, 1].
+Applying this function on the returned value of a regression, we can get a model that returns value within [0, 1].
 
-$$h_{\boldsymbol{\theta}}(\boldsymbol{x}) = \sigma(\boldsymbol{\theta}~\boldsymbol{x}) = \frac{1}{1 + e^{-\boldsymbol{\theta}~\boldsymbol{x}}}.$$ {#eq:regression:eq12}
+$$h_{\boldsymbol{\theta}}(\boldsymbol{x}) = \sigma(\boldsymbol{\theta}^T~\boldsymbol{x}) = \frac{1}{1 + e^{-\boldsymbol{\theta}^T~\boldsymbol{x}}}.$$ {#eq:regression:eq12}
 
 Now we can interpret this model easily. The function value can be seen as possibility. If it is larger than 0.5, then the classification result is 0, otherwise it returns 1.
 Remember that in logistic regression we only care about the classification. So for a 2-class classification, returning 0 and 1 is enough.
@@ -604,12 +603,12 @@ But the problem is that, in this case it will end up being a non-convex function
 
 Therefore, in the logistic regression, we define its cost function as:
 
-$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}g(h(x^{(i)})-y^{(i)}),$$ {#eq:regression:logistic_cost}
+$$J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^{m}g(h(x^{(i)})-y^{(i)}),$$ {#eq:regression:logistic_cost}
 
 where the function $g$ is defined as:
 
-$$g(h_{\Theta}(x), y) = -log(h_{\Theta}(x)), \textrm{if }~y = 1, $$ {#eq:regression:eq13} or
-$$g(h_{\Theta}(x), y) = -log(1 - h_{\Theta}(x)), \textrm{if }~y = 0.$$ {#eq:regression:eq14}
+$$g(h_{\boldsymbol{\theta}}(x), y) = -log(h_{\boldsymbol{\theta}}(x)), \textrm{if }~y = 1, $$ {#eq:regression:eq13} or
+$$g(h_{\boldsymbol{\theta}}(x), y) = -log(1 - h_{\boldsymbol{\theta}}(x)), \textrm{if }~y = 0.$$ {#eq:regression:eq14}
 
 Both forms of function $g()$ capture the same idea.
 Since the $h$ function is in the range [0, 1], the range of $g$ is [0, $\infty$].
@@ -618,12 +617,12 @@ on the other hand, if the prediction result $h(x)$ and $y$ are different, then $
 
 The previous three equations can be combined as one:
 
-$$J_{\Theta}(h(x), y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}\log(h(x^{(i)})) + (1-y^{(i)})\log(1-h(x^{(i)})))$$ {#eq:regression:logistic_cost_large}
+$$J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}\log(h(x^{(i)})) + (1-y^{(i)})\log(1-h(x^{(i)})))$$ {#eq:regression:logistic_cost_large}
 
 The next step is to follow [@eq:regression:eq03] to find the partial derivative of this cost function and then iteratively minimise it to find suitable parameters $\Theta$.
 It turns out that the partial derivative of this cost function is similar as that in linear regression:
 
-$$\frac{\partial J(\Theta)}{\partial \theta_j} = \frac{1}{m}\sum_{i=1}^{m}(\sigma_{\Theta}(x^{(i)}) - y^{(i)})^2~x_j^{(i)}$$ {#eq:regression:eq15}
+$$\frac{\partial J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y})}{\partial \theta_j} = \frac{1}{m}\sum_{i=1}^{m}(\sigma_{\boldsymbol{\theta}}(x^{(i)}) - y^{(i)})^2~x_j^{(i)}$$ {#eq:regression:eq15}
 
 This solution benefits from the fact that the sigmoid function has a simple derivative: $\sigma^{'}~(x) = \sigma(x)~(1 - \sigma(x))$.
 
@@ -663,7 +662,7 @@ Our task is to try to divide a given data point into one of these two categories
 
 With the `logistic` function, we train a model:
 
-$$h_{\Theta}(x_0, x_1) = \sigma(\theta_0~x_0 + \theta_1~x_1 + \theta_2).$$
+$$h_{\boldsymbol{\theta}}(x_0, x_1) = \sigma(\theta_0~x_0 + \theta_1~x_1 + \theta_2).$$
 
 In the linear model within the sigmoid function, we have two parameters $\theta_0$ and $\theta_1$ for the two variables that represent the two coordinates of a data point.
 The `logistic` functions takes an `i` argument. If `i` is set to `true`, the linear model contains an extra parameter $\theta_2$.
@@ -747,7 +746,7 @@ There are some wrong categorisations, but you can see that this model works well
 ![Visualise the logistic regression dataset](images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
 
 Of course, we can use more than linear model within the sigmoid function.
-for example, we can use to set the model as $h(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)$.
+for example, we can use to set the model as $h_{\boldsymbol{\theta}}(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)$.
 If we use a non-linear polynomial model, the plane is divided by curve lines.
 
 Logistic regression uses the linear model.
@@ -783,7 +782,7 @@ In this section, we will introduce the basic idea behind SVM and how it works in
 
 Again, let's start with the objective cost function. It turns out that the cost function of the SVM is very similar to that of logistic regression in [@eq:regression:logistic_cost_large], with some modifications:
 
-$$J_{\Theta}(x, y) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\theta^T~x^{(i)}) + (1-y^{(i)})g_1(\theta^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2$$ {#eq:regression:svm_cost}
+$$J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^{m}(y^{(i)}g_0(\boldsymbol{\theta}^T~x^{(i)}) + (1-y^{(i)})g_1(\boldsymbol{\theta}^T~x^{(i)})) + \frac{1}{2}\sum_{j=1}^m\theta_j^2$$ {#eq:regression:svm_cost}
 
 Function $g_0()$ and $g_1()$ are simplification of the logarithm function:
 
@@ -793,7 +792,7 @@ Here $f_0(x) = -\log(\sigma(x))$ is what is used in the cost function of the log
 Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$.
 
 Also, another difference is that a regularisation item is added to the cost function in [@eq:regression:svm_cost].
-Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising this function, we are actually seeking parameters set $\boldsymbol{\theta}$ to minimise $\sum_{j=1}^{m}\theta_j^2$, with the limitation that $\theta^Tx > 1$ when $y=1$, or $\theta^Tx < -1$ when $y=0$.
+Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising this function, we are actually seeking parameters set $\boldsymbol{\theta}$ to minimise $\sum_{j=1}^{m}\theta_j^2$, with the limitation that $\boldsymbol{\theta}^Tx > 1$ when $y=1$, or $\boldsymbol{\theta}^Tx < -1$ when $y=0$.
 
 ![Margins in the Supported Vector Machines](images/regression/svm_margin.png "svm_margin"){width=50% #fig:regression:svm_margin}
 
@@ -801,7 +800,7 @@ It turns out that, by solving this optimisation problem, SVM tends to get a *lar
 One example is shown in [@fig:regression:svm_margin].
 It shows two possible decision boundaries, both can effectively divide the two groups of training data.
 But the blue boundary has a larger distance towards the positive and negative training samples, denoted with dotted lines. These dotted lines indicates the *margin* of the SVM.
-As to the inference phase, any data $x$ that makes $\theta^T~x > 0$ is deeded positive, i.e. $y=1$, or negative if $\theta^T~x < 0$.
+As to the inference phase, any data $x$ that makes $\boldsymbol{\theta}^T~x > 0$ is deemed positive, i.e. $y=1$, or negative if $\boldsymbol{\theta}^T~x < 0$.
 It is intuitive to see that a model with larger margin tends to predict the test data better.
 
 ### Kernel and Non-linear Boundary
@@ -810,7 +809,7 @@ So far we have talked about the linear boundary, but that's surely not the limit
 In fact, it is normally the case that we use SVM to train a non-linear boundary in categorising different groups of points in the space.
 To do that, we can simply update the linear part $\theta^Tx$ in the cost function to make it a non-linear function, e.g.:
 
-$$f_{\theta}(\boldsymbol{x}) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \theta_3x_1x_2 + \theta_4x_1^2 + \theta_5x_2^2 + \ldots$$ {#eq:regression:svm_kernel_1}
+$$f_{\boldsymbol{\theta}}(\boldsymbol{x}) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \theta_3x_1x_2 + \theta_4x_1^2 + \theta_5x_2^2 + \ldots$$ {#eq:regression:svm_kernel_1}
 
 This function and the linear function  $\theta^Tx$ are both examples of a *Kernel Function*, which are to be used within $g()$ in the cost function.
 With the trained parameters $\theta$, if [@eq:regression:svm_kernel_1] is larger than zero, then the inference result is positive, otherwise it's negative.
