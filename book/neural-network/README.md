@@ -98,6 +98,7 @@ The computation is repeated logistic regression:
 
 $$h_{\Theta}(x) = f(f(x^T~\boldsymbol{\theta_0})~\boldsymbol{\theta_1}).$$
 
+Here $\Theta$ denotes the collection of parameters $\boldsymbol{\theta_0}$ and $\boldsymbol{\theta_1}$.
 It can be implemented as:
 
 ```ocaml env=neural-network:simple-nn
@@ -131,7 +132,7 @@ Recall in the Regression chapter, training parameters is the process is to find 
 In the case of this neural network, its cost function $J$ is similar to that of logistic regression.
 Suppose we have $m$ training data pairs, then it can be expressed as:
 
-$$J_{\theta_0, \theta_1}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).$$ {#eq:neural-network:costfun}
+$$J_{\Theta}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).$$ {#eq:neural-network:costfun}
 
 It can be translated to Owl code as:
 
@@ -727,8 +728,6 @@ Another great reference on this topic is the Stanford CS class CS231n: Convoluti
 
 ## Recurrent Neural Network
 
-The figures in this sections come from [colah's blog](https://colah.github.io/posts/2015-08-Understanding-LSTMs/).
-
 In all the previous examples, even the computer vision tasks, one pattern is obvious to see: given one input, the trained network generates another output.
 However, that's not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence.
 For example, if we need to generate English based on French, or label each frame in a video, only focusing on the current word/frame is not enough.
@@ -817,7 +816,7 @@ The LSTM has been refined in later work since its proposal.
 There are many variants of it, and one of them is the *Gated Recurrent Unit* (GRU) which is proposed by Cho, et al. in 2014.
 Its processing unit is shown in [@fig:neural-network:gru].
 
-![Basic processing unit in GRU](images/neural-network/gru.png "gru"){width=60% #fig:neural-network:gru}
+![Basic processing unit in GRU](images/neural-network/gru.png "gru"){width=50% #fig:neural-network:gru}
 
 Compared to LSTM, the GRU consists of two parts.
 The first is a "reset gate" that decides how much information to forget from the past, and the "update gate" behaves like a combination of LSTM's forget and input gate.

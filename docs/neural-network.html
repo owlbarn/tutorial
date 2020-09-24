@@ -63,7 +63,7 @@ val y_shape : int array = [|60000; 10|]</code></pre>
 <h3>Forward Propagation</h3>
 <p>Specifically we use a hidden layer of size 25, and the output class is 10. Since we will use derivatives in training parameters, we construct all the computation using the Algorithmic Differentiation module. The computation is repeated logistic regression:</p>
 <p><span class="math display">\[h_{\Theta}(x) = f(f(x^T~\boldsymbol{\theta_0})~\boldsymbol{\theta_1}).\]</span></p>
-<p>It can be implemented as:</p>
+<p>Here <span class="math inline">\(\Theta\)</span> denotes the collection of parameters <span class="math inline">\(\boldsymbol{\theta_0}\)</span> and <span class="math inline">\(\boldsymbol{\theta_1}\)</span>. It can be implemented as:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">open Algodiff.D
 module N = Dense.Ndarray.D
@@ -86,7 +86,7 @@ let h theta0 theta1 x =
 <p>Training a network is essentially a process of minimising the cost function by adjusting the weight of each layer. The core of training is the backpropagation algorithm. As its name suggests, backpropagation algorithm propagates the error from the end of a network back to the input layer, in the reverse direction of evaluating the network. Backpropagation algorithm is especially useful for those functions whose input parameters are far larger than output parameters.</p>
 <p>Backpropagation is the core of all neural networks; actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of <code>Algodiff</code> module.</p>
 <p>Recall in the Regression chapter, training parameters is the process is to find the parameters that minimise the cost function of iteratively. In the case of this neural network, its cost function <span class="math inline">\(J\)</span> is similar to that of logistic regression. Suppose we have <span class="math inline">\(m\)</span> training data pairs, then it can be expressed as:</p>
-<p><span id="eq:neural-network:costfun"><span class="math display">\[J_{\theta_0, \theta_1}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).\qquad(1)\]</span></span></p>
+<p><span id="eq:neural-network:costfun"><span class="math display">\[J_{\Theta}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).\qquad(1)\]</span></span></p>
 <p>It can be translated to Owl code as:</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let j t0 t1 x y =
@@ -463,7 +463,6 @@ let make_network input_shape =
 </section>
 <section class="level2" id="recurrent-neural-network">
 <h2>Recurrent Neural Network</h2>
-<p>The figures in this sections come from <a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">colah’s blog</a>.</p>
 <p>In all the previous examples, even the computer vision tasks, one pattern is obvious to see: given one input, the trained network generates another output. However, that’s not how every real world task works; in many cases the input data is in a sequence, and the output is updated based on the previous data in the sequence. For example, if we need to generate English based on French, or label each frame in a video, only focusing on the current word/frame is not enough.</p>
 <p>That’s where the Recurrent Neural Network (RNN) comes to help. It allows the input and output to be in sequence. The basic structure of RNN is quite simple: it is a neural network with loops, and the output of the previous loop is fed into the next loop as input, together with the current data in sequence. In this way, the information from previous data in the sequence is kept.</p>
 <figure>
@@ -505,7 +504,7 @@ let make_network wndsz vocabsz =
 <p><strong>Gated Recurrent Unit (GRU)</strong></p>
 <p>The LSTM has been refined in later work since its proposal. There are many variants of it, and one of them is the <em>Gated Recurrent Unit</em> (GRU) which is proposed by Cho, et al.&nbsp;in 2014. Its processing unit is shown in fig.&nbsp;9.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 9: Basic processing unit in GRU</figcaption>
+<img alt="" style="width:50.0%" id="fig:neural-network:gru" title="gru" src="images/neural-network/gru.png"><figcaption>Figure 9: Basic processing unit in GRU</figcaption>
 </figure>
 <p>Compared to LSTM, the GRU consists of two parts. The first is a “reset gate” that decides how much information to forget from the past, and the “update gate” behaves like a combination of LSTM’s forget and input gate. Besides, it also merges the information flow <span class="math inline">\(C\)</span> and output status <span class="math inline">\(h\)</span>. With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training. In the LSTM code above, we can just replace the <code>lstm</code> node to <code>gru</code>.</p>
 </section>
