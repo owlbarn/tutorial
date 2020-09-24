@@ -1,6 +1,6 @@
 # Computation Graph
 
-This chapter first gives a bird's-eye-view on the computation graph in Owl. Then we will continue to cover the design and implementation details of computation graph and how it is fitted into Owl's functor stack, and its implications on the architecture of numerical systems.
+This chapter first gives a bird's-eye-view on the computation graph in Owl. Then we will continue to cover the design and implementation details of the computation graph and how it is fitted into Owl's functor stack, and its implications on the architecture of numerical systems.
 
 ## Introduction
 
@@ -11,20 +11,20 @@ As a functional programmer, it is basic knowledge that a function takes an input
 ![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=30% #fig:cgraph:plot_01 }
 
 [@fig:cgraph:plot_01] shows an example graph for calculating function `sin (x * y)`.
-The generated computation graph contains several pieces of information which are essential for debugging the applications. These information includes node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcast on the matrix `x` of shape [8; 4] in `Mul` operation.
+The generated computation graph contains several pieces of information which are essential for debugging the applications. These information include node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcast on the matrix `x` of shape [8; 4] in `Mul` operation.
 
 ### From Dynamic to Static
 
-The computation graph can be either implicitly constructed or explicitly declared in the code. Often, implicit construction is done by operator overloading while explicit declaration uses domain specific languages (DSL). The two methods lead to two different kinds of computation graphs -- *dynamic* and *static graph*, each has its own pros and cons.
+The computation graph can be either implicitly constructed or explicitly declared in the code. Often, implicit construction is done by operator overloading while explicit declaration uses domain specific languages (DSL). The two methods lead to two different kinds of computation graphs -- *dynamic graph* and *static graph*, each has its own pros and cons.
 
-Dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language's native constructs such as `if ... else ...` and `for` loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, static graphs sometimes make it difficult to express conditions and loops when using with native code together.
+A dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language's native constructs such as `if ... else ...` and `for` loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, it is sometimes very difficult to use static graphs to express conditions and loops when using with native code together.
 
-As we can see, the flexibility of a dynamic graph comes with the price of lower performance. Facebook's PyTorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively. 
-Many programmers need to make a decision between these two different types.
+As we can see, the flexibility of a dynamic graph comes at the price of lower performance. Facebook's PyTorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively. 
+Many programmers need to make a choice between these two different types.
 A common practice is "using PyTorch at home and using TensorFlow in the company", In other words, PyTorch is preferred for prototyping and TensorFlow is ideal for production use. 
 
 Owl does something slightly different from these two in order to get the best parts of both worlds.
-Owl achieves this by converting a dynamic graph into static one in the runtime. The motivation is based on a very important observationL: in many cases, a computation graph is continuously re-evaluated after its construction. This is especially true for those iterative optimisation algorithms, we only update some inputs of the graph in each iteration.
+Owl achieves this by converting a dynamic graph into static one in the runtime. The motivation is based on a very important observation: in many cases, a computation graph is continuously re-evaluated after its construction. This is especially true for those iterative optimisation algorithms, we only update some inputs of the graph in each iteration.
 
 If we know that the graph structure remains the same in every iteration, rather than re-constructing it all the time, we can convert it into a static graph before the iterative evaluation. This is exactly what Owl does. By so doing, the programmer can enjoy the flexibility offered by the dynamic graph construction with operator overloading, but still achieve the best performance from static graph.
 
