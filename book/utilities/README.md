@@ -401,7 +401,9 @@ let _ =
   List.iter (fun word -> Printf.printf "%s: %d\n" word (CM.count c word)) words
   
 ```
+
 Example output:
+
 ```
 the: 3378663
 and: 1289949
@@ -409,6 +411,7 @@ of: 1404742
 said: 463257
 floccinaucinihilipilification: 15540
 ```
+
 The common words appear with accurate counts, but the word which does not appear in the text gets a positive count.
 
 
@@ -445,6 +448,7 @@ factor epsilon, and failure probability delta.
   *)
 end
 ```
+
 NOTE: Owl provides two implementations of the heavy-hitters data structure, as `Owl_base.HeavyHitters_sketch.Native` and `Owl_base.HeavyHitters_sketch.Owl`, using the two types of count-min sketch table. As described above, we have found the `Native` implementation to be faster.
 
 An example use of this data structure to find the heavy hitters in the `news.txt` corpus can be found in the [Owl examples repository](https://github.com/owlbarn/owl/blob/master/examples/countmin_texts.ml).
