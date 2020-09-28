@@ -327,6 +327,8 @@ Specifically, we have two error bounds parameter: failure probability $\sigma$, 
 It can be proved that with a probability of $1-\sigma$, the error between the the estimated count and the true count is $\epsilon~s$ at most.
 The detailed proof can be see in the original paper [@cormode2005improved].
 
+Note that this guarantee implies that elements that appear more frequently will have more accurate counts, since the maximum possible error in a count is linear in the total number of counts in the data structure.
+
 Owl has provided this probabilistic data structure.
 It is implemented by [Pratap Singh](https://pratap.dev/ocaml/owl/count-min-sketch/sublinear-algorithms/countmin-sketch/).
 Owl provides these interfaces for use:
@@ -364,14 +366,91 @@ module type Sig = sig
 end
 ```
 
-TODO: a simple example of using it. (Perhaps also the benchmarking from blog)
+NOTE: Owl provides two different implementations of the underlying table of counts, one based on the OCaml native array and one based on the Owl `ndarray`. These are exported as `Owl_base.Countmin_sketch.Native` and `Owl_base.Countmin_sketch.Owl` respectively. In our testing, we have found the OCaml native array to be about 30% faster.
+
+As an example, we can use the count-min sketch to calculate the frequencies of some words in a large corpus. The code below builds a count-min sketch and fills it with text data from [here](https://github.com/ryanrhymes/owl_dataset), a corpus of online news articles of about 61 million words. It then tests for the frequencies of some common words and one that doesn't appear. WARNING: this code will download the file [news.txt.gz](https://github.com/ryanrhymes/owl_dataset) (96.5MB) onto your machine and expand it into news.txt (340.3MB).
 
 ```
-CODE
+module CM = Owl_base.Countmin_sketch.Native
+
+let get_corpus () = 
+  let fn = "news.txt" in
+  if not (Sys.file_exists (Owl_dataset.local_data_path () ^ fn)) then
+    Owl_dataset.download_data (fn ^ ".gz");
+  open_in (Owl_dataset.local_data_path () ^ fn)
+
+let get_line_words inch =
+  let regexp = Str.regexp "[^A-Za-z]+" in
+  try
+    Some ((input_line inch) |> Str.split regexp)
+  with
+    End_of_file -> None
+
+let fill_sketch inch epsilon delta =
+  let c = CM.init ~epsilon ~delta in
+  let rec aux () =
+    match get_line_words inch with
+    | Some lst -> List.iter (CM.incr c) lst; aux ()
+    | None -> c in
+  aux ()
+
+let _ =
+  let inch = get_corpus () in
+  let c = fill_sketch inch 0.001 0.001 in
+  let words = ["the"; "and"; "of"; "said"; "floccinaucinihilipilification"] in
+  List.iter (fun word -> Printf.printf "%s: %d\n" word (CM.count c word)) words
+  
 ```
 
+Example output:
 
-Count-Min Sketch is a useful data structure when we are interested in the approximate counting of important objects in a group of things.
-One such application is to find *heavy hitters*. For example, finding out the most popular web pages given a large website access log with a long history. (DETAIL)
+```
+the: 3378663
+and: 1289949
+of: 1404742
+said: 463257
+floccinaucinihilipilification: 15540
+```
+
+The common words appear with accurate counts, but the word which does not appear in the text gets a positive count.
+
+
+
+The count-min sketch is a useful data structure when we are interested in approximate counts of important objects in a data set.
+One such application is to find *heavy hitters*--for example, finding out the most popular web pages given a very long website access log. Formally, the $k$-heavy-hitters of a dataset are those elements that occur with relative frequency at least $1/k$. So the 100-heavy-hitters are the elements which each appear at least 1% of the time in the dataset.
+
+We can use the count-min sketch, combined with a min-heap, to find the $k$-heavy-hitters in a particular dataset. The general idea is to maintain in the heap all the current heavy hitters, with the lowest-count heavy hitter at the top. Whenever we get a new element, we add it to the count-min sketch, then get its count from the sketch. If the relative frequency of that element is greater than $1/k$, we add it to the heap. Then, we check if the current minimum element in the heap has gone below the relative frequency threshold of $1/k$, and if so remove it from the heap. We repeat this process to remove all heavy hitters whose relative frequency is below $1/k$. So the heap always contains only the elements which have relative frequency at least $1/k$. To get the heavy hitters and their counts, we just get all the elements currently in the heap.
+
+Owl implements this data structure on top of the count-min sketch. The interface is as follows:
+
+```
+module type Sig = sig
+  (** {6 Type definition} *)
+
+  type 'a t
+  (** The type of heavy-hitters sketches *)
+
+  (** {6 Core functions} *)
+
+  val init : k:float -> epsilon:float -> delta:float -> 'a t
+  (**
+`init k epsilon delta` initializes a sketch with threshold k, approximation
+factor epsilon, and failure probability delta.
+  *)
+
+  val add : 'a t -> 'a -> unit
+  (** `add h x` adds value `x` to sketch `h` in-place. *)
+
+  val get : 'a t -> ('a * int) list
+  (**
+`get h` returns a list of all heavy-hitters in sketch `h`, as a
+(value, frequency) pair, sorted in decreasing order of frequency.
+  *)
+end
+```
+
+NOTE: Owl provides two implementations of the heavy-hitters data structure, as `Owl_base.HeavyHitters_sketch.Native` and `Owl_base.HeavyHitters_sketch.Owl`, using the two types of count-min sketch table. As described above, we have found the `Native` implementation to be faster.
+
+An example use of this data structure to find the heavy hitters in the `news.txt` corpus can be found in the [Owl examples repository](https://github.com/owlbarn/owl/blob/master/examples/countmin_texts.ml).
 
 ## Summary
