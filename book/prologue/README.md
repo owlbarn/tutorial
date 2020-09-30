@@ -53,7 +53,7 @@ The Owl system evolves very fast, and OCaml's numerical ecosystem is booming as 
 
 ## Contact Me
 
-If you want to discuss about the book, the code, or other related topics, you can reach me in the following ways.
+If you want to discuss about the book, the code, or any other related topics, you can reach me in the following ways.
 
 * [Email Me](mailto:liang.wang@cl.cam.ac.uk)
 * [Slack Channel](https://join.slack.com/t/owl-dev-team/shared_invite/enQtMjQ3OTM1MDY4MDIwLTcxYTlkODhiNGI4YjVkN2FmMjhlZGZhYzhkMTFhZjY0OGI1NDY5M2Y2NmYzNjBhZmRhZGE0NTY1ZjA5MTk4MjI)
