@@ -61,6 +61,6 @@ If you want to discuss about the book, the code, or any other related topics, yo
 
 **Student Project:** If you happen to be a student in the Computer Lab and want to do some challenging development and design, here are some [Part II Projects](http://www.cl.cam.ac.uk/research/srg/netos/stud-projs/studproj-17/#owl0).
 
-If you are interested in more research-y topics, I offer Part III Projects and please have a look at :doc:[Owl's Sub-Projects](../project/proposal) page and contact me directly via email.
+If you are interested in more researchy topics, I offer Part III Projects and please have a look at :doc:[Owl's Sub-Projects](../project/proposal) page and contact me directly via email.
 
 I am looking forward to hearing from you!
