@@ -410,10 +410,10 @@ We have already mentioned most of them in previous sections.
 Only building a network structure is not enough. Another important aspect is proper weights of a neural network.
 It can be achieved by training on GBs of image data for days or longer on powerful machine clusters.
 
-The training is usually done via supervised learning using a large set of labelled images. Although Inception v3 can be trained from many different labelled image sets, ImageNet is a common dataset of choice.
-ImageNet has over ten million URLs of labelled images. About a million of the images also have bounding boxes specifying a more precise location for the labelled objects.
-For the Inception model, the ImageNet dataset is composed of 1,331,167 images which are split into training and evaluation datasets containing 1,281,167 and 50,000 images, respectively.
-([COPY ALERT](https://cloud.google.com/tpu/docs/inception-v3-advanced))
+The training is usually done via supervised learning using a large set of labelled images. Although Inception v3 can be trained from many different labelled image sets, [ImageNet](http://www.image-net.org/) is a common dataset of choice.
+In this image dataset, the basic unit is called  "synset", which is a concept that is described by multiple words or word phrases.
+ImageNet aims to provide about 1,000 images for each of the 100,000 synset in WordNet.
+In training the InceptionV3 model, it takes more than 1 million images from ImageNet.
 The training of this model can take hundreds of hours of training on multiple high-performance GPUs.
 
 However, not everyone has access to such large resource.
@@ -662,21 +662,20 @@ Prediction #3 (0.04%) : soccer ball
 Prediction #4 (0.03%) : indri, indris, Indri indri, Indri brevicaudatus
 ```
 
-If you are not interested in installing anything, [here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else!
+If you are not interested in installing anything, [here](http://demo.ocaml.xyz/) is a web-based demo of this image classification application powered by Owl. Please feel free to play with it! And the server won’t store your image. Actually, if you are so keen to protect your personal data privacy, then you definitely should try to pull the code here and fast build a local image processing service without worrying your images being seen by anybody else.
 
 
 ## Applications
 
-TODO: rewrite these applications.
-
 Building an image classification application is not the end by itself. It can be used in a wide range of applications.
-We list some in this section to show how Owl can be deployed in these scenarios.
 
-One of the most popular applications of image recognition that we encounter daily is personal photo organisation.
-Image recognition is empowering the user experience of photo organisation apps. Besides offering a photo storage, apps want to go a step further by giving people better search and discovery functions. They can do that with the automated image organisation capabilities provided by machine learning. The image recognition API integrated in the apps categorises images on the basis of identified patterns and groups them thematically. (COPY ALERT)
+- Face recognition. If you have a Facebook account, it must be very familiar to you how your friends are tagged in your uploaded photo.
+- Photo organisation. Take [Eden Photo](https://imagga.com/success-stories/eden-case-study), a Mac application, for an example. It automatically provides tags and keywords to a photo, so as to provide powerful photo categorisation and enhanced user experience.
+- Self-driving cars. The image recognition is no doubt the core part in self-driving technology, by identifying objects on the road.
+- Medical imaging. This technology can be used to enhance cancer detection and MRIs etc. by automatically detect signs diseases in medical images.
 
-Visual recognition on social media is already a fact. Facebook released its facial recognition app Moments, and has been using facial recognition for tagging people on users’ photos for a while.
-While face recognition remains a sensitive ground, Facebook hasn’t shied away from integrating it in users’ experience on the social media. Whenever users upload a photo, Facebook is able to recognise objects and scenes in it before people enter a description. The computer vision can distinguish objects, facial expressions, food, natural landscapes and sports, among others. Besides tagging of people on photos, image recognition is used to translate visual content for blind users and to identify inappropriate or offensive images.  ([COPY ALERT](https://imagga.com/blog/the-top-5-uses-of-image-recognition/))
+That's just a small number of examples of the usage of image recognition.
+Actually, image recognition is often one fundamental step for many computer vision tasks, including the instance segmentation and image style transfer we will talk about in the next chapters. That's why Google and Microsoft both provide their cloud-based Vision APIs.
 
 ## Summary
 
