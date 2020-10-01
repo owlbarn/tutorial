@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.name "owlbook_ci"
           git config user.email "ryanrhymes@gmail.com"
-          git add -f docs/book.pdf
+######### git add -f docs/book.pdf
           git commit -am "[owlbook_ci] automated book compilation"
           git push
 
