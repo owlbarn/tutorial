@@ -10,7 +10,7 @@
 
 Owl is built on top of an enormous amount of previous work. Without the efforts of these projects and the intellectual contribution of these people, it will be very difficult for me to continue developing Owl.
 
-We thank our sponsors all the contributors, Owl can grow and help many people in solving various real world problems because of their generous support. 
+We thank our sponsors all the contributors, Owl can grow and help many people in solving various real world problems because of their generous support.
 
 OCaml Labs has been providing various types of support including computation resources, internship and studentship revolving around Owl’s research and development.
 
@@ -121,4 +121,53 @@ list some useful links here
 \hypertarget{Epilogue}{%
 \section{Epilogue}\label{epilogue}}
 
-Write some words here ...
+Back in the summer of 2019, Liang and I were considering the maintenance of Owl's documentation. We were glad that the documentation serve us well and was growing day by day.
+Then somehow it occurred to us that, now that we have such a large documentation at hand, as well as paper drafts and blogs etc., why don't we put these different pieces together into something like a tutorial book.
+That's basically the root of this book.
+
+We then discussed the possible ways to organise the book.
+One obvious and convenient way is to extending the existing materials according to the different modules of Owl.
+However, while the architectures of Owl may change easily in the future, the topic of scientific computing does not.
+In the end, we decided to more or less follow the outlines of the traditional textbooks in scientific computing and numerical computing etc.
+However, we do not intend to make it yet another data science/machine learning/numerical computing algorithm book, and you may find this book a little bit different.
+
+The whole book is divided into three parts.
+The first part "numerical techniques" covers a wide range of topics.
+The Statistics and Linear Algebra are traditional mathematical topics;
+manipulation and slicing of ndarray belongs to the introductory part of a language;
+visualisation and dataframes are often placed in the first chapter of a data science book;
+differential equation, signal processing, and optimisation are among the core topics of numerical methods;
+regression, DNN, and NLP are surely covered in numerous Machine Learning books.
+There is also AD, the topic that is less mentioned but nevertheless extremely important.
+The reason we mix all these topics together is that, instead of letting the content of book to follow the structure of Owl, we want Owl to follow as many topics as possible that are related to scientific computing, and check our coverage of them.
+We are glad to find out that Owl can be of help in most of these listed topics.
+Also, it provides a good guidance for our next step development.
+
+The second part is about system architecture of Owl. Most of the topics discussed here, such as distributed computing, low level optimisation, computation graph, etc. are not often seen in other books.
+Maybe they are too academic for general readers.
+However, as the creator and developer of Owl, what we can provide is not just ``how to use it'', but also ``how it is built''.
+
+The third part demonstrates several cases. While the foundation of scientific computing is solid and concrete, its applications are springing out at an astounding speed.
+Each chapter shows one sophisticated real world use case of Owl.
+Currently we have three computer vision applications: image recognition, instance segmentation, and style transfer. They are widely used in the state-of-art technologies.
+The recommender system is also based on a product Kvasir that's deployed in the production environment.
+% The finance chapter
+This part is meant to be extendable.
+We are very interested to add more cases contributed by experts from other fields and disciplines.
+
+So that's a brief explanation about the organisation of this book. I feel obliged to explain to those readers who are confused about the theme of this book.
+No doubt that there are still a lot to be improved about this book.
+Almost all the chapters in the first part can be extended to at least one whole book, and there is no way we can claim ourselves master of each one of them.
+We will keep fixing and updating this book in the second and third editions.
+Also, while the core of scientific computing keeps stable for the last several decades, its applications are changing day by day.
+More state-of-art use cases should be included in the third part.
+
+Writing this book surely feels like a long journey for me, and what a journey it is.
+I joined the Owl project at about 2017, and worked on two parts: optimising the low level operations, and building high level DNN applications to verify and drive the design of Owl architecture.
+Working on these two extremes gives me a great opportunity to get to know the Owl stack. To debug a neural network application, I have to understand how the modules work with each other, how the computation graph is built, and how it is affected by the performance of single operations, etc.
+Some of the chapters are actually based on the learning notes of myself.
+For example, the AD chapter starts with the definition of algorithmic differentiation, builds a toy implementation based on one example, and then keeps revising the solution with more and more details.
+That's exactly how I learned this topic in Owl.
+You can also find this learn-and-write style in several other chapters.
+If you can learn something by following the way we did it, I would call this book a great success.
+\textit{"For here, I hope, begins our lasting joy."}
