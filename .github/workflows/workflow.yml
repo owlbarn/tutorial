@@ -26,6 +26,7 @@ jobs:
           chown -R opam . &&
           su - opam -c 'export PATH=/home/opam/.cabal/bin:${PATH} && cd /__w/book/book/book-workflow && make compile'
           cd /__w/book/book/book-workflow
+          date >> HISTORY.log
 
       - name: Save to the repository
         working-directory: ./book-workflow
