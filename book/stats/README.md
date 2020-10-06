@@ -246,6 +246,16 @@ Mean and Variance
 
 Multinomial distribution
 
+## Sampling
+
+So far we have talked about the whole population, now we turn to a sample of it. 
+
+Sample median/variance 
+
+Infer population parameters from sample
+
+Z test, t test, chi-square test  
+
 ## Hypothesis Tests
 
 ### Theory
@@ -255,7 +265,7 @@ While descriptive statistics solely concern properties of the observed data, sta
 * Null hypothesis $H_0$: there is no relationship between two data sets.
 * Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
 
-Type I and Type II errors.
+Type I and Type II errors: the 2x2 matrix. 
 
 ### Gaussian Distribution in Hypothesis Testing
 
@@ -373,5 +383,9 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 ```
 
 ## Analysis of Variance
+
+So far we have talked about compare two variables. how about comparing more? one by one solution increases error. 
+
+Introduce the simplest of ANOVA...
 
 ## Summary
