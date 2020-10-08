@@ -6,13 +6,12 @@
 <h1>Constants and Metric System</h1>
 <p>In many scientific computing problems, numbers are not abstract but reflect the realistic meanings. In other words, these numbers only make sense on top of a well-defined metric system.</p>
 <section class="level2" id="what-is-a-metric-system">
-<h2>What Is A Metric System</h2>
-<p>For example, when we talk about the distance between two objects, I write down a number <code>30</code>. But what does <code>30</code> mean in reality? Is it meters, kilometers, miles, or lightyears? Another example, what is the speed of light? Well, this is really depends on what metrics you are using, e.g., <code>km/s</code>, <code>m/s</code>, <code>mile/h</code> …</p>
-<p>Things can get really messy in computation if we do not unify the metric system in a numerical library. The translation between different metrics are often important in real-world application. I do not intend to dig deep into the metric system here, so please read online articles to find out more, e.g., <a href="https://en.wikipedia.org/wiki/Outline_of_the_metric_system">Wiki: Outline of the metric system</a>.</p>
+<h2>What Is a Metric System</h2>
+<p>For example, when we talk about the distance between two objects, I write down a number <code>30</code>, but what does <code>30</code> mean in reality? Is it meters, kilometers, miles, or lightyears? Another example, what is the speed of light? Well, this is really depends on what metrics you are using, e.g., <code>km/s</code>, <code>m/s</code>, <code>mile/h</code> … Things can get really messy in computation if we do not unify the metric system in a numerical library. The translation between different metrics is often important in real-world application. I do not intend to dig deep into the metric system here, so please read online articles to find out more, e.g., <a href="https://en.wikipedia.org/wiki/Outline_of_the_metric_system">Wiki: Outline of the metric system</a>.</p>
 </section>
-<section class="level2" id="four-systems-in-owl">
-<h2>Four Systems in Owl</h2>
-<p>There are four metrics adopted in Owl, and all of them are wrapped in <code>Owl.Const</code> module.</p>
+<section class="level2" id="four-metric-systems">
+<h2>Four Metric Systems</h2>
+<p>There are four metrics adopted in Owl, and all of them are wrapped in the <code>Owl.Const</code> module.</p>
 <ul>
 <li><p><code>Const.SI</code>: <a href="https://en.wikipedia.org/wiki/International_System_of_Units">International System of Units</a></p></li>
 <li><p><code>Const.MKS</code>: <a href="https://en.wikipedia.org/wiki/MKS_system_of_units">MKS system of units</a></p></li>
@@ -20,30 +19,25 @@
 <li><p><code>Const.CGSM</code>: <a href="https://en.wikipedia.org/wiki/Centimetre%E2%80%93gram%E2%80%93second_system_of_units#CGS_approach_to_electromagnetic_units">Electromagnetic System of Units</a></p></li>
 </ul>
 <p>All the metrics defined in these four systems can be found in the interface file <a href="https://github.com/owlbarn/owl/blob/master/src/base/core/owl_const.mli">owl_const.mli</a>.</p>
-<p>In general, SI is much newer and recommended to use. International System of Units (French: Système international d’unités, SI), historically also called the MKSA system of units for metre–kilogram–second–ampere. The SI system of units extends the MKS system and has 7 base units, by expressing any measurement of physical quantities using fundamental units of Length, Mass, Time, Electric Current, Thermodynamic Temperature, Amount of substance and Luminous Intensity, which are Metre, Kilogram, Second, Ampere, Kelvin, Mole and Candela respectively.</p>
-<p>Here is a nice <a href="http://www.npl.co.uk/upload/pdf/units-of-measurement-poster.pdf">one-page poster</a> from NPL to summarise what have talked about SI.</p>
+<p>In general, SI is much newer and recommended to use. International System of Units (French: Système international d’unités, SI), historically also called the MKSA system of units for metre–kilogram–second–ampere. The SI system of units extends the MKS system and has 7 base units, by expressing any measurement of physical quantities using fundamental units of Length, Mass, Time, Electric Current, Thermodynamic Temperature, Amount of substance and Luminous Intensity, which are Metre, Kilogram, Second, Ampere, Kelvin, Mole and Candela respectively. Here is a nice <a href="http://www.npl.co.uk/upload/pdf/units-of-measurement-poster.pdf">one-page poster</a> from NPL to summarise what have talked about SI.</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:constant:metric" title="owl_constants_001" src="images/constant/metric_001.png"><figcaption>Figure 1: Owl constants</figcaption>
+<img alt="" style="width:90.0%" id="fig:constant:metric" title="owl_constants_001" src="images/constant/metric_001.png"><figcaption>Figure 1: Units of measurement in the SI metric system</figcaption>
 </figure>
 </section>
 <section class="level2" id="si-prefix">
 <h2>SI Prefix</h2>
-<p>As a computer scientist, you must be familiar with <code>kilo</code>, <code>mega</code>, <code>giga</code> these prefixes. SI system includes the definition of these prefixes as well. But be careful (especially for computer science guys), the base is <code>10</code> instead of 2.</p>
-<p>These prefixes are defined in <code>Const.Prefix</code> module.</p>
+<p>As a computer scientist, you must be familiar with prefixes such as <code>kilo</code>, <code>mega</code>, <code>giga</code>. SI system includes the definition of these prefixes as well. But be careful (especially for computer science guys), the base is <code>10</code> instead of 2. These prefixes are defined in the <code>Const.Prefix</code> module.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  Const.Prefix.peta;;
+<pre><code class="language-ocaml">  Const.Prefix.peta;;
   Const.Prefix.tera;;
   Const.Prefix.giga;;
   Const.Prefix.mega;;
   Const.Prefix.kilo;;
-  Const.Prefix.hecto;;
-</code></pre>
+  Const.Prefix.hecto;;</code></pre>
 </div>
-</section>
-<section class="level2" id="examples-physics-and-math-constants">
-<h2>Examples: Physics and Math constants</h2>
-<p>Now we can safely talk about the distance between two objects, light of speed, and many other real-world stuff with atop of a well-defined metric system in Owl. See the following examples.</p>
+<section class="level3" id="example-physics-and-math-constants">
+<h3>Example: Physics and Math constants</h3>
+<p>Now we can safely talk about the distance between two objects, light of speed, and a lot of other real-world stuff with atop of a well-defined metric system in Owl. See the following examples.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   Const.SI.light_year;;     (* light year in SI system *)
@@ -238,6 +232,7 @@
 <li><code>sqrtpi</code> (<span class="math inline">\(\sqrt{\pi}\)</span>)</li>
 </ul>
 </section>
+</section>
 <section class="level2" id="international-system-of-units">
 <h2>International System of Units</h2>
 <p>Now that you know how to use constants, we will use the International System of Units (SI) module as an example to show the constants we include in Owl. These units are all derived from the seven basic units we have mentioned, and can be categorised according to different application fields.</p>
@@ -333,7 +328,7 @@
 </section>
 <section class="level3" id="area">
 <h3>Area</h3>
-<p>Measuring area and volume still relies SI base unit metre.</p>
+<p>Measuring area and volume still relies on SI base unit metre.</p>
 <div id="tbl:constant:area">
 <table>
 <caption>Table 5: Area units</caption>
@@ -496,7 +491,7 @@
 </section>
 <section class="level3" id="force">
 <h3>Force</h3>
-<p>Measuring force relies on the SI derived unit: <code>newton</code>, and one newtong equals to 1 kilogram metre per squared second.</p>
+<p>Measuring force relies on the SI derived unit: <code>newton</code>, and one newton equals to 1 kilogram metre per squared second.</p>
 <div id="tbl:constant:force">
 <table>
 <caption>Table 9: Force units</caption>
@@ -595,7 +590,7 @@
 </section>
 <section class="level3" id="pressure">
 <h3>Pressure</h3>
-<p>To measure we often use pascal as a standard unit. One pascal equals to a kilogram per metre per square second, or a newton per square metre.</p>
+<p>To measure pressure we often use pascal as a standard unit. One pascal equals to a kilogram per metre per square second, or a newton per square metre.</p>
 <div id="tbl:constant:pressure">
 <table>
 <caption>Table 12: Pressure units</caption>
@@ -710,7 +705,7 @@
 </section>
 <section class="level3" id="radioactivity">
 <h3>Radioactivity</h3>
-<p>The SI unit of radioactivity is <code>becquerel</code>, named in honour of the scientist Henri Becquerel, defined as one transformation (or decay or disintegration) per second. The other base unit ampere, second, and kilogram are also used.</p>
+<p>The SI unit of radioactivity is <code>becquerel</code>, named in honour of the scientist Henri Becquerel, defined as one transformation (or decay or disintegration) per second. The other base units such as ampere, second, and kilogram are also used.</p>
 <div id="tbl:constant:radioactivity">
 <table>
 <caption>Table 15: Radioactivity units</caption>
