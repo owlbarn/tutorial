@@ -1,7 +1,6 @@
 # Testing Framework
 
 Every proper software requires testing, and so is Owl. All too often we have found that testing can help use to find potential errors we had not anticipated during coding.
-
 In this chapter, we introduce the philosophy of testing in Owl, the tool we use for conducting the unit test, and examples to demonstrate how to do that in Owl.
 Issues such as using functors in test, and other things to notice in writing test code for Owl etc. are also discussed in this chapter.
 
@@ -11,11 +10,11 @@ There are multiple ways to perform tests on your code. One common way is to use 
 These kinds of tests are useful, but embedded in the code itself, while we need separate test modules that check the implementation of functions against expected behaviours.
 
 In Owl, we apply *unit test* to make sure the correctness of numerical routines as much as possible.
-Unit test is a software test method that check the behaviour of individual units in the code.
+Unit test is a software test method that checks the behaviour of individual units in the code.
 In our case the "unit" often means a single numerical function.
 
 There is an approach of software development that is called Test Driven Development, where you write test code even before you implement the function to be tested itself.
-Though we don't enforce such approach, there are certain testing philosophy we follow during the development of Owl.
+Though we don't enforce such approach, there are certain testing principles we follow during the development of Owl.
 For example, we generally don't trust code that is not tested, so in a PR it is always a good practice to accompany your implementation with unit test in the `test/` directory in the source code.
 Besides, try to keep the function short and simple, so that a test case can focus on a certain aspect.
 
@@ -102,11 +101,11 @@ In the first section, you specify the required precision and some predefined inp
 Here we use `1e-6` as precision threshold. Two ndarrays are deemed the same if the sum of their difference is less than `1e-6`, as shown in `mpow`.
 The predefined input data can also be defined in each test case, as in `is_triu_1`.
 
-In the second section, a test module need to be built, which contains a series of test functions.
+In the second section, a test module that contains a series of test functions needs to be built.
 The most common test function used in Owl has the type `unit -> bool`.
-The idea is that each test function compare a certain aspect of a function with expected results.
+The idea is that each test function compares a certain aspect of a function with expected results.
 If there are multiple test cases for the same function, such the case in `vecnorm`, we tend to build different test cases instead of using one large test function to include all the cases.
-The common pattern of these function can be summarised as:
+The common pattern of these functions can be summarised as:
 
 ```
 let test_func () =
@@ -115,15 +114,15 @@ let test_func () =
     assert (expected = result)
 ```
 
-It is important to understand that the equal sign does not necessarily mean the two values have to be the same; in fact, for the float-point number is involved, which is quite often the case, we only need the two values to be approximately equal enough.
-If that's case, you need to pay attention to which precision you are using, double or float. The same threshold might be enough for float number, but could still be a large error for double precision computation.
+It is important to understand that the equal sign does not necessarily mean the two values have to be the same; in fact, if the float-point number is involved, which is quite often the case, we only need the two values to be approximately equal enough.
+If that's the case, you need to pay attention to which precision you are using: double or float. The same threshold might be enough for single precision float number, but could still be a large error for double precision computation.
 
 In the third section wraps these functions with `alcotest` by stating the expected output. Here we expect all the test functions to return `true`, though `alcotest` does support testing returning a lot of other types such as string, int, etc. Please refer to the [source file](https://github.com/mirage/alcotest/blob/master/src/alcotest/alcotest.mli) for more detail.
 
-In the final section, we take functions from section 3 and put them into a list of test set. The test set specify the name and mode of the test.
+In the final section, we take functions from section 3 and put them into a list of test set. The test set specifies the name and mode of the test.
 The test mode is either `Quick` or `Slow`.
-Quick tests are ran on any invocations of the test suite.
-Slow tests are for stress tests that are ran only on occasion, typically before a release or after a major change.
+Quick tests run on any invocations of the test suite.
+Slow tests are for stress tests that run only on occasion, typically before a release or after a major change.
 
 After this step, the whole file is named `unit_linalg.ml` and put under the `test/` directory, as with all other unit test files.
 Now the only thing left is to add it in the `test_runner.ml`:
@@ -147,16 +146,15 @@ What if one of the test functions does not pass? Let's intentionally make a wron
 
 ## What Could Go Wrong
 
-> Who's Watching the Watchers?
+> Who's watching the watchers?
 
 Beware that the test code itself is still code, and thus can also be wrong. We need to be careful in implementing the testing code.
 There are certain cases that you may want to check.
 
 ### Corner Cases
 
-Corner cases involves situations that occur outside of normal operating parameters.
+Corner cases involve situations that occur outside of normal operating parameters.
 That is obvious in the testing of convolution operations.
-
 As the core operation in deep neural networks, convolution is complex: it contains input, kernel, strides, padding, etc. as parameters.
 Therefore, special cases such as `1x1` kernel, strides of different height and width etc. are tested in various combinations, sometimes with different input data.
 
@@ -185,9 +183,8 @@ module To_test_conv2d_back_input = struct
 
 ### Test Coverage
 
-Another issue is the test coverage. It means the percentage of code for which an associated test has exist.
-Though we don't seek a strict 100% coverage for now, a wider test coverage is always a good idea.
-
+Another issue is the test coverage. It means the percentage of code for which an associated test has existed.
+Though we don't seek a strict 100% coverage for now, wider test coverage is always a good idea.
 For example, in our implementation of the `repeat` operation, depending on whether the given axes contains one or multiple integers, the implementation changes. Therefore in the test functions it is crucial to cover both cases.
 
 
@@ -219,3 +216,8 @@ include Unit_conv2d_generic.Make (Owl_base_algodiff_primal_ops.S)
 ```
 
 ## Summary
+
+In this chapter we briefly introduce how the unit tests are performed with the `alcotest` framework in the existing Owl code base.
+We use one example piece of test code for the linear algebra module in Owl to demonstrate the general structure of the Owl test code.
+We then discuss some tips we find helpful in writing tests, such as considering corner cases, test coverage, and using functors to simplify the test code.
+In practice, we find the unit tests come really handy in development, and we just cannot have too much of them. 

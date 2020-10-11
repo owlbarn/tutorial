@@ -7,7 +7,7 @@ But we hope to present how these features are used in Owl.
 
 ## Dataset Module
 
-The dataset modules provides easy access to various datasets to be used in Owl, mainly the MNSIT and CIFAR10 datasets.
+The dataset modules provide easy access to various datasets to be used in Owl, mainly the MNSIT and CIFAR10 datasets.
 You can get all these data in Owl by executing: `Dataset.download_all ()`.
 The data are downloaded in the home directory, for example,  `~/.owl/dataset` on Linux.
 
@@ -16,7 +16,6 @@ The data are downloaded in the home directory, for example,  `~/.owl/dataset` on
 The [MNIST database](http://yann.lecun.com/exdb/mnist/) of handwritten digits has a training set of 60,000 examples,
 and a test set of 10,000 examples. Each example is of size 28 x 28.
 It is a good starting point for deep neural network related tasks.
-
 You can get MNIST data via these Owl functions:
 
 - `Dataset.load_mnist_train_data ()`: returns a triplet `x, y, y'`.
@@ -36,7 +35,7 @@ You can get MNIST data via these Owl functions:
   `load_mnist_train_data_arr`, but it returns the test set, so the example size
   is 10, 000 instead of 60, 000.
 
-- `Dataset.draw_samples x y n` draws `n` random examples from images ndarray `x` and label ndarray `y`.  
+- `Dataset.draw_samples x y n` draws `n` random examples from images ndarray `x` and label ndarray `y`.
 
 Here is what the dataset looks like when loaded into Owl:
 
@@ -104,7 +103,7 @@ The [CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html) include smal
 It includes 10 classes of images: aeroplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck.
 It consists of 60,000 32 x 32 colour images in 10 classes, with 6,000 images per class. There are 50,000 training images and 10,000 test images.
 
-Due to the limit of file size on Github, the training set is cut into 5 smaller batch. You can get CIFAR-10 data using `Owl`:
+Due to the limit of file size on GitHub, the training set is cut into 5 smaller batches. You can get CIFAR-10 data using `Owl`:
 
 - `Dataset.load_cifar_train_data batch`: returns a triplet `x, y, y'`.
   + The input paramter `batch` can range from 1 to 5, indicating which training set batch to choose.
@@ -112,7 +111,7 @@ Due to the limit of file size on Github, the training set is cut into 5 smaller 
   dimension indicates color channels (first Red, then Green, finally Blue).
   + `y` is an [10000, 1] label ndarray, each number representing
   an image class.
-  + `y'` is the corresponding [10000, 10] one-hot label ndarray.  
+  + `y'` is the corresponding [10000, 10] one-hot label ndarray.
 
 - `Dataset.load_cifar_test_data ()`: similar to `load_cifar_train_data`, only
   that it loads test data.
@@ -120,17 +119,13 @@ Due to the limit of file size on Github, the training set is cut into 5 smaller 
 - `Dataset.draw_samples_cifar x y n` draws `n` random examples from images ndarray `x` and label ndarray `y`.
 
 Note that all elements in the loaded matrices and ndarrays are of `float32` format.
-
-The CIFAR10 dataset is similar to MNIST in training DNN:
+The CIFAR10 dataset can be loaded in a similar way as MNIST:
 
 ```
 let train network =
   let x, _, y = Dataset.load_cifar_train_data 1 in
   Graph.train network x y
 ```
-
-### Text Datasets
-
 
 ## Graph Module
 
@@ -151,7 +146,7 @@ type 'a node =
 ```
 
 The attribution here is generic so that you can define your own graph where each node contains an integer, a string, or any data type you define.
-This make the graph module extremely flexible.
+This makes the graph module extremely flexible.
 
 Graph module provides a rich set of APIs.
 First, you can build a Graph using these methods:
@@ -167,11 +162,11 @@ Note that this function does not eliminate any duplicates in the array.
 
 - `connect_descendants parents children` connects parents to their children.
 This function creates unidirectional links from parents to children. In other
-words, this function save `children` to `parent.next` field.
+words, this function saves `children` to `parent.next` field.
 
 - `connect_ancestors parents children` connects children to their parents.
 This function creates unidirectional links from children to parents. In other
-words, this function save `parents` to `child.prev` field.
+words, this function saves `parents` to `child.prev` field.
 
 - `remove_node x` removes node `x` from the graph by disconnecting itself
 from all its parent nodes and child nodes.
@@ -182,11 +177,11 @@ will be removed. Note that it does not remove [dst -> src] if there exists one.
 
 - `replace_child x y` replaces `x` with `y` in `x` parents. Namely, `x`
 parents now make link to `y` rather than `x` in `next` field.
-Note that the function does note make link from `y` to `x` children. Namely,
+Note that the function does not make link from `y` to `x` children. Namely,
 the `next` field of `y` remains intact.
 
 
-Then, to obtain and update properties of a graph:
+Then, to obtain and update properties of a graph using these functions:
 
 ```
 val id : 'a node -> int
@@ -303,7 +298,7 @@ The problem with this solution is that the stream could have millions and billio
 Now that you think about it, you don't really care about the precise count of an element from the stream. What you really need is an estimation that is not very far away from the true.
 That leaves space for optimising the solution.
 First, apply a hashing function and use `h(e)` as the key, instead of the element `e` itself.
-Besides, the total number of key-value pairs cab be limited.
+Besides, the total number of key-value pairs can be limited.
 Towards the end, this approach can be summarised as three steps:
 
 1. initialised an array of $n$ elements, each set to 0;
@@ -312,7 +307,7 @@ Towards the end, this approach can be summarised as three steps:
 
 Obviously, this approach tends to give an overestimated answer because of the inevitable collision in hash table.
 Here the *Count-Min Sketch* method comes to help.
-It's basic idea is simple: follow the process stated above, but the only difference is that now instead of maintaining a vector of length $n$, we now need to maintain a matrix of shape $dxn$, i.e. $d$ rows and $n$ columns.
+Its basic idea is simple: follow the process stated above, but the only difference is that now instead of maintaining a vector of length $n$, we now need to maintain a matrix of shape $dxn$, i.e. $d$ rows and $n$ columns.
 Each row is assigned with a different hash function, and when processing one element $e$, apply $h_0, h_1, \ldots, h_d$ to it, and make $count[i][h_i(e)] += 1$, for each $i = 0, 1, 2, \ldots, d$.
 At any time if you want to know the count of an element $e$, you again apply the same set of hash functions, retrieve the $d$ counts of this element from all the rows, and choose the smallest count to return.
 This process is shown in [@fig:utilities:count-min] ([Src](https://blog.csdn.net/u012315428/article/details/79338773)).
@@ -322,11 +317,10 @@ This process is shown in [@fig:utilities:count-min] ([Src](https://blog.csdn.net
 In this way, the effect of collision is reduced in the counting.
 The reason is simple: if these different hashing functions are independent, then the probability that the same element leads to collision in multiple lines can be exponentially reduced with more hash function used.
 
-Even though this method looks like just a heuristic, it actually provides an theoretical guarantee of its counting error.
+Even though this method looks like just a heuristic, it actually provides a theoretical guarantee of its counting error.
 Specifically, we have two error bounds parameter: failure probability $\sigma$, and the approximation ratio $\epsilon$, and let $s$ be the sum of all counts stored in the data structure.
-It can be proved that with a probability of $1-\sigma$, the error between the the estimated count and the true count is $\epsilon~s$ at most.
-The detailed proof can be see in the original paper [@cormode2005improved].
-
+It can be proved that with a probability of $1-\sigma$, the error between the estimated count and the true count is $\epsilon~s$ at most.
+The detailed proof can be seen in the original paper [@cormode2005improved].
 Note that this guarantee implies that elements that appear more frequently will have more accurate counts, since the maximum possible error in a count is linear in the total number of counts in the data structure.
 
 Owl has provided this probabilistic data structure.
@@ -366,14 +360,14 @@ module type Sig = sig
 end
 ```
 
-NOTE: Owl provides two different implementations of the underlying table of counts, one based on the OCaml native array and one based on the Owl `ndarray`. These are exported as `Owl_base.Countmin_sketch.Native` and `Owl_base.Countmin_sketch.Owl` respectively. In our testing, we have found the OCaml native array to be about 30% faster.
+Owl provides two different implementations of the underlying table of counts, one based on the OCaml native array and one based on the Owl `ndarray`. These are exported as `Owl_base.Countmin_sketch.Native` and `Owl_base.Countmin_sketch.Owl` respectively. In our testing, we have found the OCaml native array to be about 30% faster.
 
 As an example, we can use the count-min sketch to calculate the frequencies of some words in a large corpus. The code below builds a count-min sketch and fills it with text data from [here](https://github.com/ryanrhymes/owl_dataset), a corpus of online news articles of about 61 million words. It then tests for the frequencies of some common words and one that doesn't appear. WARNING: this code will download the file [news.txt.gz](https://github.com/ryanrhymes/owl_dataset) (96.5MB) onto your machine and expand it into news.txt (340.3MB).
 
 ```
 module CM = Owl_base.Countmin_sketch.Native
 
-let get_corpus () = 
+let get_corpus () =
   let fn = "news.txt" in
   if not (Sys.file_exists (Owl_dataset.local_data_path () ^ fn)) then
     Owl_dataset.download_data (fn ^ ".gz");
@@ -399,10 +393,11 @@ let _ =
   let c = fill_sketch inch 0.001 0.001 in
   let words = ["the"; "and"; "of"; "said"; "floccinaucinihilipilification"] in
   List.iter (fun word -> Printf.printf "%s: %d\n" word (CM.count c word)) words
-  
+
 ```
 
-Example output:
+The example output is shown below.
+It shows that the common words appear with accurate counts, but the word which does not appear in the text gets a positive count.
 
 ```
 the: 3378663
@@ -412,25 +407,22 @@ said: 463257
 floccinaucinihilipilification: 15540
 ```
 
-The common words appear with accurate counts, but the word which does not appear in the text gets a positive count.
-
-
-
 The count-min sketch is a useful data structure when we are interested in approximate counts of important objects in a data set.
 One such application is to find *heavy hitters*--for example, finding out the most popular web pages given a very long website access log. Formally, the $k$-heavy-hitters of a dataset are those elements that occur with relative frequency at least $1/k$. So the 100-heavy-hitters are the elements which each appear at least 1% of the time in the dataset.
 
-We can use the count-min sketch, combined with a min-heap, to find the $k$-heavy-hitters in a particular dataset. The general idea is to maintain in the heap all the current heavy hitters, with the lowest-count heavy hitter at the top. Whenever we get a new element, we add it to the count-min sketch, then get its count from the sketch. If the relative frequency of that element is greater than $1/k$, we add it to the heap. Then, we check if the current minimum element in the heap has gone below the relative frequency threshold of $1/k$, and if so remove it from the heap. We repeat this process to remove all heavy hitters whose relative frequency is below $1/k$. So the heap always contains only the elements which have relative frequency at least $1/k$. To get the heavy hitters and their counts, we just get all the elements currently in the heap.
+We can use the count-min sketch, combined with a min-heap, to find the $k$-heavy-hitters in a particular dataset. The general idea is to maintain in the heap all the current heavy hitters, with the lowest-count heavy hitter at the top. Whenever we get a new element, we add it to the count-min sketch, and then get its count from the sketch.
+If the relative frequency of that element is greater than $1/k$, we add it to the heap.
+Then, we check if the current minimum element in the heap has gone below the relative frequency threshold of $1/k$, and if so remove it from the heap.
+We repeat this process to remove all heavy hitters whose relative frequency is below $1/k$. So the heap always contains only the elements which have relative frequency at least $1/k$. To get the heavy hitters and their counts, we just get all the elements currently in the heap.
 
 Owl implements this data structure on top of the count-min sketch. The interface is as follows:
 
 ```
 module type Sig = sig
-  (** {6 Type definition} *)
 
   type 'a t
-  (** The type of heavy-hitters sketches *)
 
-  (** {6 Core functions} *)
+  (** Core functions *)
 
   val init : k:float -> epsilon:float -> delta:float -> 'a t
   (**
@@ -449,8 +441,7 @@ factor epsilon, and failure probability delta.
 end
 ```
 
-NOTE: Owl provides two implementations of the heavy-hitters data structure, as `Owl_base.HeavyHitters_sketch.Native` and `Owl_base.HeavyHitters_sketch.Owl`, using the two types of count-min sketch table. As described above, we have found the `Native` implementation to be faster.
-
+Owl provides two implementations of the heavy-hitters data structure, as `Owl_base.HeavyHitters_sketch.Native` and `Owl_base.HeavyHitters_sketch.Owl`, using the two types of count-min sketch table. As described above, we have found the `Native` implementation to be faster.
 An example use of this data structure to find the heavy hitters in the `news.txt` corpus can be found in the [Owl examples repository](https://github.com/owlbarn/owl/blob/master/examples/countmin_texts.ml).
 
 ## Summary
