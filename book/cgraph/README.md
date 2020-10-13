@@ -10,7 +10,7 @@ As a functional programmer, it is basic knowledge that a function takes an input
 
 ![Computation graph of a simple function: sin(x*y)](images/cgraph/plot_cgraph_01.png "plot_cgraph_01.png"){ width=30% #fig:cgraph:plot_01 }
 
-[@fig:cgraph:plot_01] shows an example graph for calculating function `sin (x * y)`.
+The [@fig:cgraph:plot_01] shows an example graph for calculating function `sin (x * y)`.
 The generated computation graph contains several pieces of information which are essential for debugging the applications. These information include node index, operation type, reference counter, and shapes of data. In the figure above, we can see the row vector `y` of shape [1; 4] is broadcast on the matrix `x` of shape [8; 4] in `Mul` operation.
 
 ### From Dynamic to Static
@@ -19,12 +19,13 @@ The computation graph can be either implicitly constructed or explicitly declare
 
 A dynamic graph is constructed during the runtime. Due to operator overloading, its construction can be naturally blended with a language's native constructs such as `if ... else ...` and `for` loops. This renders greatest flexibility and expressiveness. On the other hand, a static graph needs to be declared using a specific DSL (which has a steeper learning curve). Because the structure of a graph is already known during the compilation phase, there is a great space for optimisation. However, it is sometimes very difficult to use static graphs to express conditions and loops when using with native code together.
 
-As we can see, the flexibility of a dynamic graph comes at the price of lower performance. Facebook's PyTorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively. 
+As we can see, the flexibility of a dynamic graph comes at the price of lower performance. Facebook's PyTorch and Google's TensorFlow are the typical examples of dynamic and static graph respectively.
 Many programmers need to make a choice between these two different types.
-A common practice is "using PyTorch at home and using TensorFlow in the company", In other words, PyTorch is preferred for prototyping and TensorFlow is ideal for production use. 
+A common practice is "using PyTorch at home and using TensorFlow in the company", In other words, PyTorch is preferred for prototyping and TensorFlow is ideal for production use.
+(The TensorFlow 2.0 uses eager execution by default, which is easier for users to get start with.)
 
 Owl does something slightly different from these two in order to get the best parts of both worlds.
-Owl achieves this by converting a dynamic graph into static one in the runtime. The motivation is based on a very important observation: in many cases, a computation graph is continuously re-evaluated after its construction. This is especially true for those iterative optimisation algorithms, we only update some inputs of the graph in each iteration.
+Owl achieves this by converting a dynamic graph into static one in the runtime. The motivation is based on a very important observation: in many cases, a computation graph is continuously re-evaluated after its construction. This is especially true for those iterative optimisation algorithms. We only update some inputs of the graph in each iteration.
 
 If we know that the graph structure remains the same in every iteration, rather than re-constructing it all the time, we can convert it into a static graph before the iterative evaluation. This is exactly what Owl does. By so doing, the programmer can enjoy the flexibility offered by the dynamic graph construction with operator overloading, but still achieve the best performance from static graph.
 
@@ -35,26 +36,26 @@ Technically, JIT is very straightforward to implement in Owl's architecture. Giv
 
 ### Significance in Computing
 
-Now that you know the basic ideas of computation graph, you may ask why it matters? Well, the computation graph makes many things a lot easier. Here is an incomplete list of potential benefits.
+Now that you know the basic ideas of computation graph, you may ask why it matters? Well, the computation graph makes many things a lot easier. Here is an incomplete list of potential benefits:
 
-- Simulate lazy evaluation in a language with eager evaluation;
-- Incremental computation (a.k.a Self-Adjusted Computation);
-- Reduce computation complexity by optimising the structure of a graph;
-- Reduce memory management overhead by pre-allocating the space;
-- Reduce memory footprint by reusing allocated memory space;
-- Natural support for parallel and distributed computing;
-- Natural support for heterogeneous computing;
-- Natural support for symbolic maths;
+- simulate lazy evaluation in a language with eager evaluation;
+- incremental computation (a.k.a Self-Adjusted Computation);
+- reduce computation complexity by optimising the structure of a graph;
+- reduce memory management overhead by pre-allocating the space;
+- reduce memory footprint by reusing allocated memory space;
+- natural support for parallel and distributed computing;
+- natural support for heterogeneous computing;
+- natural support for symbolic maths.
 
 Some of the benefits are very obvious. Memory usage can certainly be optimised if the graph structure is fixed and the input shapes are known. One optimisation is reusing previously allocated memory, which is especially useful for those applications involving large ndarray calculations. In fact, this optimisation can also be performed by a compiler by tracking the reference number of allocated memory, a technique referred to as linear types.
 
 Some may appear less obvious at the first glance. For example, we can decompose a computation graph into multiple independent subgraphs and each can be evaluated in parallel on different cores or even computers. Maintaining the graph structure also improves fault-tolerance, by providing natural support for rollback mechanisms.
 
-The computation graph provides a way to abstract the flow of computations, therefore it is able to bridge the high-level applications and low-level machinery of various hardware devices. This is why I say it has natural support for heterogeneous computing.
+The computation graph provides a way to abstract the flow of computations, therefore it is able to bridge the high-level applications and low-level machinery of various hardware devices. This is why we say it has natural support for heterogeneous computing.
 
 The computation graph has more profound implications. Because the memory allocated for each node is mutable, Algodiff becomes more scalable when evaluating large and complex graphs. At the same time, mutable transformation is handled by Owl so programmers can still write safe functional code.
 
-## Example
+## Examples
 
 Before diving into the details of the design of the computation graph module, let's first shows some examples of using the CGraph modules and how the computation can be transformed into lazy evaluation.
 
@@ -76,15 +77,15 @@ Now, let's make it into a lazy evaluation calculation with CGraph:
 module N = Owl_computation_cpu_engine.Make (Owl_algodiff_primal_ops.D)
 ```
 
-The computation graph is designed as a functor stack. A CGraph module can be built based on a ndarray module, since in the end a lazy evaluation still requires specific computation at some point. 
+The computation graph is designed as a functor stack. A CGraph module can be built based on a ndarray module, since in the end a lazy evaluation still requires specific computation at some point.
 
 ```ocaml env=cgraph:example-01
 let x = N.var_arr ~shape:[|2;2|] "x"
 let y = N.var_elt "y"
-let g = N.add_scalar x y 
+let g = N.add_scalar x y
 ```
 
-Next we define two variables, the first `x` is a ndarray, and `y` is and scalar. At this stage, we only define these two as placeholders with no real data.
+Next we define two variables, the first `x` is a ndarray, and `y` is a scalar. At this stage, we only define these two as placeholders with no real data.
 Then we use the `add_scalar` function to get another lazy evaluated array `g`.
 
 To get the value of the lazy expression `g`, we need to first assign real values to `x` and `y`:
@@ -97,13 +98,13 @@ let _ = N.assign_elt y y_val
 ```
 
 The real values are the familiar dense ndarray and float number.
-Note the two different assignment method for ndarray and scalar. 
+Note the two different assignment method for ndarray and scalar.
 Finally, we can evaluate the ndarray `g`:
 
 ```ocaml env=cgraph:example-01
 # N.eval_arr [|g|]
 - : unit = ()
-# N.unpack_arr g 
+# N.unpack_arr g
 - : Owl_algodiff_primal_ops.D.arr =
    C0 C1
 R0  3  3
@@ -111,24 +112,24 @@ R1  3  3
 
 ```
 
-The `eval_arr` returns nothing. To get the value, we need to use the `unpack_arr` or `unpack_elt` function to finally get the value.
+The `eval_arr` returns nothing. To get the value, we need to use the `unpack_arr` or `unpack_elt` function.
 
 ### Example 02: CGraph with AD
 
-In the real application, we normally need to deal with CGraphs that are constructed in the Algorithmic Differentiation process. 
-Here is an example of using dense ndarray module to compute the gradient of a function:
+In real applications, we normally need to deal with CGraphs that are constructed in the Algorithmic Differentiation process.
+Here is an example of using the dense ndarray module to compute the gradients of a function:
 
 ```ocaml
 include Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)
 
 let f x y = Maths.((x * sin (x + x) + ((pack_flt 1.) * sqrt x) / (pack_flt 7.)) * (relu y) |> sum')
 
-let x = Dense.Ndarray.D.ones [|2;2|] |> pack_arr 
-let y = pack_elt 2. 
+let x = Dense.Ndarray.D.ones [|2;2|] |> pack_arr
+let y = pack_elt 2.
 let z = (grad (f x)) y |> unpack_elt
 ```
 
-Obviously, it's difficult for the users to manually construct the computation graph that computes the gradient of the function `f`.
+Obviously, it is extremely difficult for the users to manually construct the computation graph that computes the gradient of the function `f`.
 Instead, we use the computation graph as the base module to build the Algorithmic Differentiation module:
 
 ```ocaml env=cgraph:example-02
@@ -142,9 +143,9 @@ let y = G.var_elt "y" |> pack_elt
 let z = (grad (f x)) y
 ```
 
-Note how the CGraph module are treated as equal to the Ndarray module in building the AD module. 
+Note how the CGraph module are treated as equal to the Ndarray module in building the AD module.
 They decide if the AD module uses normal or lazy evaluation.
-Now we can evaluate `z` with the approach as before. Or we can use another approach: build a graph based on the input and output.
+Now we can evaluate `z` with the approach as before. Or we can use another approach: building a graph based on the input and output.
 
 ```ocaml env=cgraph:example-02
 let inputs  = [| unpack_arr x |> G.arr_to_node; unpack_elt y |> G.elt_to_node |]
@@ -154,23 +155,28 @@ let g = G.make_graph inputs outputs "graph"
 
 To build a graph, we need to specify the input and output *nodes*.
 Here it might be a bit confusing, since there are two layers of packing and unpacking.
-Currently the `x`, `y`, and `z` are both AD vlaues of type `AD.t`, therefore we need to `AD.unpack_arr` and `AD.unpack_elt` to make them CGraph lazy array and scalar values.
+Currently the `x`, `y`, and `z` are both AD values of type `AD.t`, therefore we need `AD.unpack_arr` and `AD.unpack_elt` to make them CGraph lazy array and scalar values.
 And then, to build the explicit computation graph, we need to use the `G.arr_to_node` and `G.elt_to_node` functions to make them into graph nodes first.
-Finally a explicit computation graph can be built with `make_graph` function.
+Finally an explicit computation graph can be built with `make_graph` function.
 
-You might be wondering why both to build the graph if we can directly evaluate the value `z`. 
-The reason is that evaluation is not always the target. For example, we often need to visualise the generated computation graph:
+You might be wondering why bother to build the graph if we can directly evaluate the value `z`.
+The reason is that evaluation is not always the target. For example, we often need to visualise the generated computation graph.
+Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions.
 
+Owl provides the `graph_to_dot` function to facilitate you in generating computation graphs.
+It converts the computation graph into a [dot](https://www.graphviz.org/doc/info/lang.html) format string. The dot file can be visualised with professional tools such as [graphviz](https://www.graphviz.org/).
 
 ```text
 let s = G.graph_to_dot g
 let _ = Owl_io.write_file "cgraph.dot" s
 ```
 
-The `graph_to_dot` function convert the computation graph into a [dot](https://www.graphviz.org/doc/info/lang.html) format string. The dot file can be visualised with tools such as [graphviz](https://www.graphviz.org/).
+The generated computation graph looks like below. The Owl source code contains more examples about visualising a computation graph.
 
-Comeback to the evaluation of graph. After constructing the graph `g`, we can then assign real data values to the computation graph. 
-The only difference is that, now we need to first unpack the AD value to CGraph value and then assign:
+![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
+
+Come back to the evaluation of graph. After constructing the graph `g`, we can then assign real data values to the computation graph.
+The only difference is that, now we need to first unpack the AD value to CGraph value before assignment:
 
 ```text
 let x_val = Dense.Ndarray.D.ones [|2;2|]
@@ -179,7 +185,7 @@ let _ = G.assign_arr (unpack_arr x) x_val
 let _ = G.assign_elt (unpack_elt y) y_val
 ```
 
-Finally, we can evaluate the whole graph with 
+Finally, we can evaluate the whole graph with
 
 ```text
 G.eval_graph g
@@ -193,41 +199,10 @@ Since the whole graph is evaluated, then surely the output ndarray `z` is also e
 - : float = 4.20861827873129801
 ```
 
-**Extra: visualisation**
-
-(TODO: better merge the content below with other content of this section.)
-
-Backward mode generates and maintains a computation graph in order to back propagate the error. The computation graph is very helpful in both debugging and understanding the characteristic of your numerical functions. Owl provides two functions to facilitate you in generating computation graphs.
-
-```text
-  val to_trace: t list -> string
-  (* print out the trace in human-readable format *)
-
-  val to_dot : tlist -> string
-  (* print out the computation graph in dot format *)
-```
-
-`to_trace` is useful when the graph is small and you can print it out on the terminal then observe it directly. `to_dot` is more useful when the graph grows bigger since you can use specialised visualisation tools to generate professional figures, such as Graphviz.
-
-In the following, we will showcase several computation graphs. However, I will skip the details of how to generate these graphs since you can find out in the [computation_graph.ml](https://github.com/ryanrhymes/owl/blob/master/examples/computation_graph.ml).
-
-Let's look at a simple function as below.
-
-```ocaml env=algodiff_00
-open Algodiff.D;;
-
-let f x y = Maths.((x * sin (x + x) + ( F 1. * sqrt x) / F 7.) * (relu y) |> sum)
-```
-
-The generated computation graph looks like this.
-
-![Computation graph of a simple math function](images/algodiff/plot_028.png "plot 028"){ width=60% #fig:algodiff:plot28 }
-
-
 ### Example 03: CGraph with DNN
 
-Since the optimisation and neural network modules are built on Algorithmic Differentiation module, they can also benefit from the power of CGraph. 
-Suppose we have a network built of CGraph based neural network `nn`, we can then use the `forward` and `backward` function to get the forward inference and backward propagation computation graph from the neural network graph module, with CGraph array variable. 
+Since the optimisation and neural network modules are built on Algorithmic Differentiation module, they can also benefit from the power of CGraph.
+Suppose we have a network built of CGraph based neural network `nn`, we can then use the `forward` and `backward` function to get the forward inference and backward propagation computation graph from the neural network graph module, with CGraph array variable.
 
 Actually, for ease of access, Owl has provided another functor to build the neural network module based on the CGraph module:
 
@@ -250,7 +225,7 @@ let make_network input_shape =
   |> get_network ~name:"mnist"
 ```
 
-The CGraph-built neural network module does not requires any change of code in building the CNN except for the headers.
+The CGraph-built neural network module does not require any change of code in building the CNN except for the headers.
 We can then use the training function in `CGCompiler` module.
 
 ```ocaml env=cgraph:example-03
@@ -269,21 +244,21 @@ You can see that to make the existing DNN programme into lazy evaluation version
 
 You might be asking: the lazy evaluation version of neural network looks cool and all, but why do I need it?
 That brings to the large performance improvement the CGraph module can bring about to computation.
-To motivate you to continue to understand more about the design and optimisation of the CGraph module, you can try to run both [mnist_cnn.ml](https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml) and [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml) then compare their performance. 
-Both Zoo scripts train the same convolution neural network to recognise the handwritten digits using MNIST datasets in 60 iterations. 
+To motivate you to continue to understand more about the design and optimisation of the CGraph module, you can try to run both [mnist_cnn.ml](https://github.com/owlbarn/owl/blob/master/examples/mnist_cnn.ml) and [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml) then compare their performance.
+Both Zoo scripts train the same convolution neural network to recognise the handwritten digits using MNIST datasets in 60 iterations.
 On a normal laptop, `mnist_cnn.ml` takes 30s to finish and consumes approximate 4GB memory, whilst `lazy_mnist.ml` only takes 5s and consumes about 0.75GB. `lazy_mnist.ml` achieves the state-of-the-art performance which you can obtain by using TensorFlow (with its recent XLA optimisation), actually Owl runs even faster on 3 out of 4 machines we have tested.
 
 If these numbers make you interested in knowing how the magic happens, let's unveil the underlying mechanism of Owl's computation graph in the following sections.
 
 ## Design Rationale
 
-How is the computation graph is designed? In the older versions, Algodiff module has some partial support of computation graph in order to perform reverse mode algorithmic differentiation (AD). The full support was only introduced in Owl 0.4.0.
+How the computation graph is designed? In the older versions, Algodiff module has some partial support of computation graph in order to perform reverse mode algorithmic differentiation (AD). The full support was only introduced in Owl 0.4.0.
 
-Owl implements the computation graph in a very unique and interesting way. Let's first see several principles which I followed.
+Owl implements the computation graph in a very unique and interesting way. Let's first see several principles which we followed:
 
-- Non-intrusive, the original functor stack should work as it was.
-- Transparent to the programmers as much as possible.
-- Support both eager and lazy evaluation.
+- Non-intrusive, the original functor stack should work as it was;
+- Transparent to the programmers as much as possible;
+- Support both eager and lazy evaluation;
 - Flexible enough for future extension on other devices.
 
 The computation graph is implemented in a very self-contained stack. I have devised a good way to "inject" it into Owl's original functor stack. If it sounds too abstract, please have a look at the final product in the following figure.
@@ -297,13 +272,13 @@ The left figure shows part of Owl's original functor stack, and the right one sh
 - `Ndarray`: provides number type abstraction and implements the fundamental numerical operations.
 - `Algodiff`: implements algorithmic differentiation.
 - `Optimise`: uses the derivative information to build an optimisation engine.
-- `Neural_Neuron`: implements various kind of neuron functions which can be optimised.
+- `Neural_Neuron`: implements various kinds of neuron functions which can be optimised.
 - `Neural_Graph`: connects neurons together to form a network so that we can train a useful model.
 
 
-The functor stack of computation graph is injected between `Ndarray` and `Algodiff`. **The design principle is that the functor stack of a numerical system should be parameterised by both number type and device type.** Number type provides data representation (real or complex, single or double, row-based or column-based layout, etc.) which decides how a maths construct should be built and operated. Device type provides hardware representation (CPU, GPU, FPGA, etc.) which decides how the computation should be performed on a specific device.
+The functor stack of computation graph is injected between `Ndarray` and `Algodiff`. *The design principle is that the functor stack of a numerical system should be parameterised by both number type and device type.* Number type provides data representation (real or complex, single or double, row-based or column-based layout, etc.) which decides how a maths construct should be built and operated. Device type provides hardware representation (CPU, GPU, FPGA, etc.) which decides how the computation should be performed on a specific device.
 
-The list below summarises the functionality of each functor. The order and naming of these functors can already give you a rough understanding about how it is designed.
+The list below summarises the functionality of each functor. The order and naming of these functors can give you a rough understanding about how it is designed.
 
 - `Device`: device abstraction contains device-dependent types and functions.
 - `Type`: type definition of various (mathematical) operations.
@@ -329,14 +304,14 @@ The Optimiser functor searches for various structural patterns in a graph, remov
 
 ![Optimisation techniques in computation graph: fusing operations](images/cgraph/owl_cgraph_opt_1.png "owl_cgraph_opt_1"){ width=90% #fig:cgraph:opt_1 }
 
-In the next example, *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for `repeat` operation is also removed because `add` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
+In the next example, the *Adding zero* pattern is firstly detected hence `#164` and `#166` are removed and others are folded. Moreover, nodes `#255` for `repeat` operation is also removed because `add` operation already supports broadcasting operation. Removing `#255` can save some runtime memory in the evaluation.
 
 ![Optimisation techniques in computation graph: remove zero](images/cgraph/owl_cgraph_opt_2.png "owl_cgraph_opt_2"){ width=90% #fig:cgraph:opt_2}
 
-To understand how effective the Optimiser works, I present both the [original computation graph](images/cgraph/owl_cgraph_mnist_raw.png) and the [optimised graph](images/cgraph/owl_cgraph_mnist_opt.png) taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
+To understand how effective the Optimiser works, we present both the [original computation graph](images/cgraph/owl_cgraph_mnist_raw.png) and the [optimised graph](images/cgraph/owl_cgraph_mnist_opt.png) taken from [lazy_mnist.ml](https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml). Comparing to the original network which has 201 nodes, 239 edges, the optimised one contains only 103 nodes, 140 edges.
 
 
-Engine functor sits on top of the stack, this is where a computation graph finally gets executed. Engine functor contains two sub modules, one for initialising the graph and the other for evaluating graph.
+Engine functor sits on top of the stack. This is where a computation graph finally gets executed. Engine functor contains two sub modules, one for initialising the graph and the other for evaluating graph.
 
 Before we finish this section, we can try the following snippet in `utop`. Both snippets generate a module for DNN applications, the difference is that the first one uses the old stack whereas the second one uses the new stack with computation graph.
 
@@ -377,21 +352,21 @@ For the new stack, we can see it is indeed much deeper.
 
 ```
 
-## Optimisation of CGraph 
+## Optimisation of CGraph
 
 The design of Owl is often driven by real-world applications.
 Besides the MNIST example, we find the image segmentation another challenging application for Owl. Seeking to push the performance of this application, we manage to further optimise the design of CGraph module.
-This work is done by Pierre Vandenhove, and you can visit his [report](http://math.umons.ac.be/staff/Vandenhove.Pierre/resources/ocamllabs_internship_report.pdf) for more details. 
+This work is done by Pierre Vandenhove, and you can visit his [report](http://math.umons.ac.be/staff/Vandenhove.Pierre/resources/ocamllabs_internship_report.pdf) for more details.
 It starts with the MRCNN-based Object Detection application we introduce in the [Case - Object Detection](https://ocaml.xyz/book/case-obj-detect.html) chapter.
 Please refer to this chapter for detail explanation of this application.
 
 The first issue after constructing the network in Owl was that the memory usage, in inference mode, was huge. The network has over 400 layers and to avoid reinitialising the network for every picture, it is good to keep its input size fixed and to resize instead all the images to that size --- a larger size takes more time and memory but yields more accurate results. A reasonable input size for this network is a 1024-pixel-wide square. Unfortunately, obtaining detections for one picture with this size required over 11 GB of RAM, which was too much for a laptop. As a comparison, the TensorFlow implementation only uses 1 GB. There was a big room for improvement!
 
 This is where CGraph comes to rescue.
-A computation graph is always directed and acyclic. Representing the structure of a program as a computation graph has several advantages, especially for computationally-intensive code dealing with big multi-dimensional arrays. 
-A really useful one is that prior to evaluating the nodes, you can optimise the structure of the graph: for instance, useless calculations such as adding an array with nothing but zeros can be removed, common patterns can be merged into one node and executed more efficiently, etc. 
+A computation graph is always directed and acyclic. Representing the structure of a program as a computation graph has several advantages, especially for computationally-intensive code dealing with big multi-dimensional arrays.
+A really useful one is that prior to evaluating the nodes, you can optimise the structure of the graph: for instance, useless calculations such as adding an array with nothing but zeros can be removed, common patterns can be merged into one node and executed more efficiently, etc.
 This helps a bit: thanks to these
-optimisations, the number of nodes of Mask R-CNN drops from 4095 to 3765. 
+optimisations, the number of nodes of Mask R-CNN drops from 4095 to 3765.
 Another really important feature in this case is the ability to pre-allocate a memory space to each node, to decrease the overall memory consumption and reduce the garbage collector overhead.
 
 ### Optimising memory with pebbles
@@ -445,11 +420,11 @@ looking for a fast heuristic instead of an exact algorithm.
 The initially implemented strategy to allocate memory to a node $u$ in
 Owl's computation graph module was simply to reuse the memory of a
 direct predecessor with same output shape as $u$ when that is possible.
-This optimisation allowed to decrease the memory consumption of Mask
+This optimisation decreases the memory consumption of Mask
 R-CNN from 11 GB to 7 GB --- much better, but still quite far from the 1
 GB of the TensorFlow implementation!
 
-We can actually make it much more better by sharing memory between
+We can actually make it much better by sharing memory between
 nodes
 
 -  that are not necessarily a parent/child pair;
@@ -482,14 +457,14 @@ this new algorithm achieves:
   -------------- ----------- ----------------------- ------------- -----------
   Architecture   Time        Time with CG (building  Memory        Memory with
                  without CG  + evaluating) (s)       without CG    CG (MB)
-                 (s)                                 (MB)          
+                 (s)                                 (MB)
 
   InceptionV3    0.565       0.107 + 0.228 = 0.335   625.76        230.10
 
   ResNet50       0.793       0.140 + 0.609 = 0.749   1309.9        397.07
 
   MNIST          20.422      0.144 + 10.920 = 11.064 3685.3        895.32
-  (training)                                                       
+  (training)
 
   Mask R-CNN     11.538      0.363 + 8.379 = 8.742   6483.4        870.48
   -------------- ----------- ----------------------- ------------- -----------
@@ -512,10 +487,10 @@ Part of the generated computation graph is shown in [@fig:cgraph:lazy].
 
 ![Optimised memory allocation](images/cgraph/owl_vision_lazymnistinf_small.png "allocation"){width=50% #fig:cgraph:lazy}
 
-You can find bigger visualisations of the allocation performed by [the
-new algorithm](https://drive.google.com/drive/folders/12KCY9OC6GjuHiH2pRiAjqNi-pz2sNcc1?usp=sharing). 
+You can find bigger visualisations of the allocation performed by the
+new algorithm in this [link](https://drive.google.com/drive/folders/12KCY9OC6GjuHiH2pRiAjqNi-pz2sNcc1?usp=sharing).
 You can also check [this page](http://demo.ocaml.xyz/mrcnn.html) for a demo of this Owl-powered network.
-If you want to apply it on videos, large images or experiment a bit more, see the [GitHub repository](https://github.com/pvdhove/owl-mask-rcnn). 
+If you want to apply it on videos, large images or experiment a bit more, see the [GitHub repository](https://github.com/pvdhove/owl-mask-rcnn).
 Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.
 
 ## As Intermediate Representations
@@ -524,15 +499,16 @@ Programming a GPU is very much like programming a computer cluster. The gain of 
 
 When offloading the computation to a GPU, we should avoid transmitting data back and forth between the host and the device memory, so eager evaluation is not ideal in this context because the performance will be throttled by copying. This is the gap between CPU computing and a language with eager evaluation. Computation graph essentially fills the gap between Owl and GPU computing simply because the laziness can be simulated now.
 
-From implementation perspective, we only need to write a new engine functor for GPU devices to evaluate a graph, all the others remain the same. I am currently working on the [OpenCL engine](https://github.com/owlbarn/owl/blob/master/src/opencl/compute/owl_computation_opencl_engine.ml). The amount of code for implementing OpenCL engine is surprisingly small, only around 700 ~ 900 LOC. Comparing to the [CPU engine](https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_cpu_engine.ml), the OpenCL engine maintains the memory allocated on both host and device for each node, copying only happens whenever it is necessary, the allocated memory on the device is reused as much as possible.
+From implementation perspective, we only need to write a new engine functor for GPU devices to evaluate a graph; all the others remain the same. I am currently working on the [OpenCL engine](https://github.com/owlbarn/owl/blob/master/src/opencl/compute/owl_computation_opencl_engine.ml). The amount of code for implementing OpenCL engine is surprisingly small, only around 700 ~ 900 LOC. Comparing to the [CPU engine](https://github.com/owlbarn/owl/blob/master/src/base/compute/owl_computation_cpu_engine.ml), the OpenCL engine maintains the memory allocated on both host and device for each node, copying only happens whenever it is necessary, the allocated memory on the device is reused as much as possible.
 
 
 ## Summary
 
-The [complete functor stack](https://github.com/owlbarn/owl/tree/master/src/base/compute) of the computation graph has already been implemented, and it has been used internally in Owl to speed up many operations. However, to let other programmers take advantage of this power, I still need to do a lot of engineering work to wrap up a set of easy-to-use APIs.
+In this chapter, we have introduced the core Computation Graph module in Owl.
+We start with the general introduction of the computation graph in numerical computing and why we build that in Owl.
+Then we use several examples to demonstrate how the computation graph module is used in Owl.
+This is followed by the internal design of this module, most importantly the CGraph stack and its position in the Owl architecture.
+The computation graph creates a large optimisation space, and this chapter we present one of them in detail, which is to use the pebble game to optimise the memory allocation in Owl computation.
 
-Even though it is very fast, the Neural Compiler still takes extra time to convert and optimise a graph. Both tasks can actually be moved into compilation phase using MetaOCaml, which will squeeze out some extra performance gain for us.
-
-Moreover, I leave it to the programmer to figure out whether the structure of a computation graph remains unchanged and can be converted into a static one. It is possible to let the compiler do the same job automatically by monitoring the graph construction process.
-
-This article only covers a very small part of Owl's architecture design. There is still a lot we need to learn before we can master this topic.
+The computation graph is a hot research topic, and there is still much we can do to improve Owl's performance based on this module.
+For example, the Neural Compiler still takes extra time to convert and optimise a graph. Both tasks can actually be moved into compilation phase using MetaOCaml, which will squeeze out some extra performance gain for us.
