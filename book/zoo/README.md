@@ -1,18 +1,13 @@
 # Scripting and Zoo System
 
-In this chapter, we introduce the Zoo system, and focus on two aspects of it:
-
-1. how to use it to make "small functions", then distribute and share them with other users
-2. investigate the idea of service composing and deployment based on existing script sharing function
+In this chapter, we introduce the Zoo system, and focus on two aspects of it.
+The first is how to use it to make "small functions", then distribute and share them with other users.
+The second is to investigate the idea of service composing and deployment based on existing script sharing function
 
 ## Introduction
 
-Machine Learning (ML) techniques have begun to dominate data analytics applications and services.
-Recommendation systems are the driving force of online service providers such as Amazon and Netflix.
-Finance analytics has quickly adopted ML to harness large volume of data in such areas as fraud detection, risk-management, and compliance.
-Deep Neural Network (DNN) is the technology behind voice-based personal assistance, self-driving cars, etc.
-
-Many popular data analytics are deployed on cloud computing infrastructures.
+First, we would like to introduce the background based on which we build the Zoo system.
+Currently, many popular data analytics services such as machine learning applications are deployed on cloud computing infrastructures.
 However, they require aggregating users' data at central server for processing. This architecture is prone to issues such as increased service response latency, communication cost, single point failure, and data privacy concerns.
 
 Recently computation on edge and mobile devices has gained rapid growth, such as personal data analytics in home, DNN application on a tiny stick, and semantic search and recommendation on web browser.
@@ -32,74 +27,64 @@ Training a model often requires large datasets and rich computing resources, whi
 To this end we propose the idea *Composable Service*.
 Its basic idea is that many services can be constructed from basic ML ones such as image recognition, speech-to-text, and recommendation to meet new application requirements.
 We believe that modularity and composition will be the key to increasing usage of ML-based data analytics.
+This idea drives us to develop the Zoo system.
 
 ## Share Script with Zoo
 
-Before start digging into more academic content, we want to briefly discuss the motivation of the Zoo system.
+The core functionality of the Zoo is simple: sharing OCaml scripts.
 It is known that we can use OCaml as a scripting language as Python (at certain performance cost because the code is compiled into bytecode). Even though compiling into native code for production use is recommended, scripting is still useful and convenient, especially for light deployment and fast prototyping. In fact, the performance penalty in most Owl scripts is almost unnoticeable because the heaviest numerical computation part is still offloaded to Owl which runs native code.
 
-While designing Owl, my goal is always to make the whole ecosystem open, flexible, and extensible. Programmers can make their own "small" scripts and share them with others conveniently, so they do not have to wait for such functions to be implemented in Owl's master branch or submit something "heavy" to OPAM.
+While designing Owl, our goal is always to make the whole ecosystem open, flexible, and extensible. Programmers can make their own "small" scripts and share them with others conveniently, so they do not have to wait for such functions to be implemented in Owl's master branch or submit something "heavy" to OPAM.
 
 ### Typical Scenario
 
-To illustrate how to use Zoo, let's start with a synthetic scenario. The scenario is very simple: Alice is a data analyst and uses Owl in her daily job. One day, she realised that the functions she needed had not been implemented yet in Owl. Therefore, she spent an hour in her computer and implemented these functions by herself. She thought these functions might be useful to others, e.g., her colleague Bob, she decided to share these functions using Zoo System.
-
-Now let me see how Alice manages to do so in the following, step by step.
+To illustrate how to use Zoo, let's start with a simple synthetic scenario. Alice is a data analyst and uses Owl in her daily job. One day, she realised that the functions she needed had not been implemented yet in Owl. Therefore, she spent an hour in her computer and implemented these functions by herself. She thought these functions might be useful to others, e.g., her colleague Bob, she decided to share these functions using Zoo System.
+Now let's see how Alice manages to do so in the following, step by step.
 
 
 ### Create a Script
 
-First, Alice needs to create a folder (e.g., `myscript` folder) for her shared script. OK, what to put in the folder then?
-
+First, Alice needs to create a folder (e.g., `myscript` folder) for her shared script. What to put in the folder then?
 She needs at least two files in this folder. The first one is of course the file (i.e., `coolmodule.ml`) implementing the function as below. The function `sqr_magic` returns the square of a magic matrix, it is quite useless in reality but serves as an example here.
 
 ```shell
+#!/usr/bin/env owl
 
-  #!/usr/bin/env owl
+open Owl
 
-  open Owl
-
-  let sqr_magic n = Mat.(magic n |> sqr)
-
+let sqr_magic n = Mat.(magic n |> sqr)
 ```
 
 The second file she needs is a `#readme.md` which provides a brief description of the shared script. Note that the first line of the `#readme.md` will be used as a short description for the shared scripts. This short description will be displayed when you use `owl -list` command to list all the available Zoo code snippets on your computer.
 
 ```shell
+Square of Magic Matrix
 
-  Square of Magic Matrix
-
-  `Coolmodule` implements a function to generate the square of magic matrices.
+`Coolmodule` implements a function to generate the square of magic matrices.
 ```
 
 
 ### Share via Gist
 
-Second, Alice needs to distribute the files in `myscript` folder. But how?
-
-The distribution is done via [gist.github.com](https://gist.github.com/), so you must have `gist` installed on your computer. E.g., if you use Mac, you can install `gist` with `brew install gist`. Owl provides a simple command line tool to upload the Zoo code snippets. Note that you need to log into your Github account for `gist` and `git`.
+Second, Alice needs to distribute the files in `myscript` folder.
+The distribution is done via [Gist](https://gist.github.com/), so you must have `gist` installed on your computer. E.g., if you use Mac, you can install `gist` with `brew install gist`. Owl provides a simple command line tool to upload the Zoo code snippets. Note that you need to log into your GitHub account for `gist` and `git`.
 
 ```shell
-
-  owl -upload myscript
-
+owl -upload myscript
 ```
 
-The `owl -upload` command simply uploads all the files in `myscript` as a bundle to your [gist.github.com](https://gist.github.com/) page. The command also prints out the url after a successful upload. In our case, you can check the updated bundle on [this page](https://gist.github.com/9f0892ab2b96f81baacd7322d73a4b08).
-
+The `owl -upload` command simply uploads all the files in `myscript` as a bundle to your Gist page. The command also prints out the URL after a successful upload. In our case, you can check the updated bundle on [this page](https://gist.github.com/9f0892ab2b96f81baacd7322d73a4b08).
 
 
 ### Import in Another Script
 
-The bundle Alice uploaded before is assigned a unique `id`, i.e. `9f0892ab2b96f81baacd7322d73a4b08`. In order to use the `sqr_magic` function, Bob only needs to use `#zoo` directive in his script e.g. `bob.ml` in order to import the function.
+The bundle Alice uploaded before is assigned a unique `id`, i.e. `9f0892ab2b96f81baacd7322d73a4b08`. In order to use the `sqr_magic` function, Bob only needs to use the `#zoo` directive in his script e.g. `bob.ml` in order to import the function.
 
 ```shell
+#!/usr/bin/env owl
+#zoo "9f0892ab2b96f81baacd7322d73a4b08"
 
-  #!/usr/bin/env owl
-  #zoo "9f0892ab2b96f81baacd7322d73a4b08"
-
-  let _ = Coolmodule.sqr_magic 4 |> Owl.Mat.print
-
+let _ = Coolmodule.sqr_magic 4 |> Owl.Mat.print
 ```
 
 Bob's script is very simple, but there are a couple of things worth pointing out:
@@ -110,9 +95,7 @@ Bob's script is very simple, but there are a couple of things worth pointing out
 
 * You may also want to use `chmod +x bob.ml` to make the script executable. This is obvious if you are a heavy terminal user.
 
-
 Note that to use `#zoo` directive in `utop` you need to manually load the `owl-zoo` library with `#require "owl-zoo";;`. Alternatively, you can also load `owl-top` using `#require "owl-top";;` which is an OCaml toplevel wrapper of Owl.
-
 If you want to make `utop` load the library automatically by adding this line to `~/.ocamlinit`.
 
 
@@ -146,12 +129,12 @@ To solve this problem, Zoo provides another parameter in the naming scheme: `tol
 
 By setting the `tol` parameter to 300, Bob indicates that, if Zoo has already fetched the version information of this gist from remote server within the past 300 seconds, then keep using its local cache; otherwise contact the Gist server to check if a newer version is pushed. If so, the newest version is downloaded to local cache before being used. In the case where Bob don't want to miss every single update of Alice's gist code, he can simply set `tol` to 0, which means fetching the version information every time he executes his code.
 
-`vid` and `tol` parameters enable users to have fine-grained version control of Zoo gists. Of course, these two parameters should not be used together. When `vid` is set in a name, the `tol` parameter will be ignored. If both are not set, as shown in the previous code snippet, Zoo will use the latest locally cached version if it exists.
+The `vid` and `tol` parameters enable users to have fine-grained version control of Zoo gists. Of course, these two parameters should not be used together. When `vid` is set in a name, the `tol` parameter will be ignored. If both are not set, as shown in the previous code snippet, Zoo will use the latest locally cached version if it exists.
 
 
 ### Command Line Tool
 
-That's all. Zoo system is not complicated at all. There will be more features to be added in future. For the time being, you can check all the available options by executing `owl`.
+You can see that the Zoo system is not complicated at all. There will be more features to be added in future. For the time being, you can check all the available options by executing `owl`.
 
 ```shell
 
@@ -176,8 +159,7 @@ Note that both `run` and `info` commands accept a full gist name that can contai
 
 ### More Examples
 
-Despite of its simplicity, Zoo is a very flexible and powerful tool and we have been using it heavily in our daily work. We often use Zoo to share the prototype code and small shared modules which we do not want to bother OPAM, such those used in performance tests.
-
+Despite of its simplicity, Zoo is a very flexible and powerful tool and we have been using it heavily in our daily work. We often use Zoo to share the prototype code and small shared modules which we do not want to bother OPAM, such as those used in performance tests.
 Moreover, many interesting examples are also built atop of Zoo system.
 
 * [Google Inception V3 for Image Classification](https://gist.github.com/jzstark/9428a62a31dbea75511882ab8218076f)
@@ -200,13 +182,14 @@ For example, you can use Zoo to perform DNN-based image classification in only 6
 
 ```
 
+We include these examples as use cases in the Part III of this book, and will discuss them in detail there.
+
 ## System Design
 
-Based on these basic functionalities, we extend the Zoo system to address the composition and deployment challenges.
+Based on these basic functionalities, we extend the Zoo system to address the composition and deployment challenges we mention at the beginning.
 First, we would like to briefly introduce the workflow of Zoo as shown in [@fig:zoo:workflow].
 
 ![Zoo System Architecture](images/zoo/workflow.png){width=70% #fig:zoo:workflow}
-
 
 ### Services
 Gist is a core abstraction in Zoo. It is the centre of code sharing.
@@ -286,7 +269,7 @@ footprint, and thus quite suitable for resource-limited edge devices.
 
 ### Domain Specific Language
 
-Zoo provides a minimal DSL for service composition and deployment.
+Based on the basic functionalities, Zoo aims to provide a minimal DSL for service composition and deployment.
 
 **Composition**:
 
@@ -334,9 +317,9 @@ deployment, the URI is a DockerHub link, and for JavaScript backend, the
 URI is a URL link to the JavaScript file itself. The service discovery
 mechanism is implemented using off-the-shelf database.
 
-## Use Case
+### Use Case
 
-To illustrate the workflow above, let's consider a synthetic scenario.
+To illustrate the workflow above, let's consider another synthetic scenario.
 Alice is a French data analyst. She knows how to use ML and DL models in
 existing platforms, but is not an expert. Her recent work is about
 testing the performance of different image classification neural
@@ -349,14 +332,14 @@ classification result should be translated to French. She does not want
 to put academic-related information on Google's server, but she cannot
 find any single pre-trained model that performs this series of tasks.
 
-Here comes the Zoo system to help. Alice find Gists that can do image
+Here comes the Zoo system to help. Alice finds gists that can do image
 recognition, NST, and translation separately. Even better, she can
 perform image segmentation to greatly improve the performance of
 NST using another Gist. All she has to provide is some
 simple code to generate the style images she need to use. She can then
 assemble these parts together easily using Zoo.
 
-```
+```text
 open Zoo
 (* Image classification *)
 let s_img = $ "aa36e" # "infer";;
@@ -385,12 +368,11 @@ classification results back in French.
 
 ## Summary
 
-In this work we identify two challenges of conducting data analytics on edge: service composition and deployment. We propose the Zoo system to address these two challenges.
-For the first one, it provides a simple DSL to enable easy and type-safe composition of different advanced services. We present a use case to show the expressiveness of the code.
-For the second, to accommodate the heterogeneous edge deployment environment, we utilise multiple backends, including Docker container, JavaScript, and MirageOS.
-We thoroughly evaluate the performance of different backends using three representative groups of numerical operations as workload. The results show that no single deployment backend is preferable to the others, so deploying data analytics services requires choosing suitable backend according to the deployment environment.
-We refer the readers to our paper [@zhao2018data] for more detail.
-
-## Summary
+The Zoo system was first developed as a handy tool for sharing OCaml scripts. This chapter introduces how it works with a step-by-step example.
+Based on its basic functionalities, we propose to use it to solve two challenges when conducting data analytics on edge: service composition and deployment.
+Zoo provides a simple DSL to enable easy and type-safe composition of different advanced services.
+We present a use case to show the expressiveness of the code.
+Zoo can further be combined with multiple execution backends to accommodate the heterogeneous edge deployment environment. The compiler backends will be discussed in the next chapter.
+Part of the content in this chapter is adapted from our paper [@zhao2018data]. We refer the readers to it for more detail if you are interested.
 
 ## References
