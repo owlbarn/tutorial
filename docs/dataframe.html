@@ -5,12 +5,12 @@
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="dataframe-for-tabular-data">
 <h1>Dataframe for Tabular Data</h1>
 <p>Dataframe is a popular way to manipulate data. It originates from R’s dataframe and is widely implemented in many mainstream libraries such as Pandas. Essentially, a dataframe is simple container of the data that can be represented as a table.</p>
-<p>Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml’s static type checking, this poses greatest challenges to Owl when I was trying to introduce the similar functionality.</p>
+<p>Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml’s static type checking, this poses greatest challenges to Owl when we were trying to introduce the similar functionality.</p>
 <p>It becomes an art when balancing between flexibility and efficiency in designing the programming interface. This article covers the design of Dataframe module and its basic usage.</p>
 <section class="level2" id="basic-concepts">
 <h2>Basic Concepts</h2>
 <p>The dataframe functionality is implemented in Owl’s <a href="https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli">Dataframe</a> module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.</p>
-<p>Owl packs each series into a unified type called <code>series</code> and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, iterate the data in a frame. We need to combine dataframe with the numerical functions in <code>Stats</code> module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.</p>
+<p>Owl packs each series into a unified type called <code>series</code> and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, and iterate the data in a frame. We need to combine dataframe with the numerical functions in <code>Stats</code> module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.</p>
 </section>
 <section class="level2" id="create-frames">
 <h2>Create Frames</h2>
@@ -40,11 +40,11 @@
   let empty_frame = Dataframe.make [|"name"; "age"; "salary"|];;
 </code></pre>
 </div>
-<p>Try the code, you will see Owl prints out an empty table.</p>
+<p>Try the code, and you will see Owl prints out an empty table.</p>
 </section>
 <section class="level2" id="manipulate-frames">
 <h2>Manipulate Frames</h2>
-<p>There are a comprehensive set of table manipulation functions implemented in Dataframe module. I will go through them briefly in this section.</p>
+<p>There are a comprehensive set of table manipulation functions implemented in Dataframe module. We will go through them briefly in this section.</p>
 <p>Now that Owl allows us to create empty frames, it certainly provides functions to dynamically add new columns.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  let job = Dataframe.pack_string_series [|"Engineer"; "Driver"; "Lecturer"; "Manager"|] in
@@ -70,12 +70,12 @@
 &gt;- : unit = ()
 </code></pre>
 </div>
-<p>We can even concatenate two dataframes. Depending on concatenating direction, there are a couple of things worth our attention.</p>
+<p>We can even concatenate two dataframes. Depending on concatenating direction, there are a couple of things worth our attention:</p>
 <ul>
-<li>When two dataframes are concatenated vertically, they must have the same number of columns and consistent column types. The head names of the first argument will be used in the new dataframe.</li>
-<li>When two dataframes are concatenated horizontally, they must have the same number of rows. All the columns of two dataframes must have unique names.</li>
+<li>when two dataframes are concatenated vertically, they must have the same number of columns and consistent column types; The head names of the first argument will be used in the new dataframe;</li>
+<li>when two dataframes are concatenated horizontally, they must have the same number of rows; all the columns of two dataframes must have unique names.</li>
 </ul>
-<p>For example, the following code add two new entries to the table by concatenating two dataframes vertically.</p>
+<p>For example, the following code adds two new entries to the table by concatenating two dataframes vertically.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">  let name = Dataframe.pack_string_series [|"Erin"; "Frank"|];;
   let age = Dataframe.pack_int_series [|22; 24|];;
@@ -118,7 +118,7 @@ Dataframe.append_row frame new_row
 &gt;- : unit = ()
 </code></pre>
 </div>
-<p>There are also functions allow you to retrieve the properties.</p>
+<p>There are also functions allow you to retrieve the properties, for example:</p>
 <div class="highlight">
 <pre><code class="language-text">
   val copy : t -&gt; t          (* return the copy of a dataframe. *)
@@ -134,33 +134,39 @@ Dataframe.append_row frame new_row
   ...
 </code></pre>
 </div>
-<p>The module applies several optimisation techniques to accelerate the operations on dataframes. Please refer to the API reference for the complete function list.</p>
+<p>The module applies several optimisation techniques to accelerate the operations on dataframes. You can refer to the API reference for the complete function list.</p>
 </section>
 <section class="level2" id="query-frames">
 <h2>Query Frames</h2>
 <p>We can use various functions in the module to retrieve the information from a dataframe. The basic <code>get</code> and <code>set</code> function treats the dataframe like a matrix. We need to specify the row and column index to retrieve the value of an element.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  Dataframe.get frame 2 1;;
-  (* return Carol's age, i.e. 30 *)
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dataframe.get frame 2 1;;;;
+&gt;- : Owl_dataframe.elt = Owl.Dataframe.Int 30
 </code></pre>
 </div>
-<p><code>get_row</code> and <code>get_col</code> (also <code>get_col_by_name</code>) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding <code>get_rows</code> and <code>get_cols_by_name</code>.</p>
-<p>Because each column has a name, we can also use head to retrieves information. However, we still need to pass in the row index because rows are not associated with names.</p>
+<p>The <code>get_row</code> and <code>get_col</code> (also <code>get_col_by_name</code>) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding <code>get_rows</code> and <code>get_cols_by_name</code>.</p>
+<p>Because each column has a name, we can also use head to retrieve information. However, we still need to pass in the row index because rows are not associated with names.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">  Dataframe.get_by_name frame 2 "salary";;
-  (* return Carol's salary, i.e. 2500. *)</code></pre>
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dataframe.get_by_name frame 2 "salary";;;;
+&gt;- : Owl_dataframe.elt = Owl.Dataframe.Float 2500.
+</code></pre>
 </div>
-<p>We can use <code>head</code> and <code>tail</code> functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like <code>get_slice</code> or <code>get_slice_by_name</code> if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl’s Ndarray modules.</p>
+<p>We can use the <code>head</code> and <code>tail</code> functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like <code>get_slice</code> or <code>get_slice_by_name</code> if we are interested in the data within a dataframe. The slice definition used in these two functions is the same as that used in Owl’s Ndarray modules.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">  Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
-  (* return Bob's and Carol's name and age *)
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;;;
+&gt;- : Owl_dataframe.t =
+&gt;
+&gt;  +-----+---
+&gt;    name age
+&gt;  +-----+---
+&gt;R0   Bob  25
+&gt;R1 Carol  30
 </code></pre>
 </div>
 </section>
 <section class="level2" id="iterate-map-and-filter">
 <h2>Iterate, Map, and Filter</h2>
-<p>How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. I did not include any method to traverse columns because they can be simply extracted out as series then processed separately.</p>
+<p>How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. We did not include any method to traverse columns because they can be simply extracted out as series then processed separately.</p>
 <div class="highlight">
 <pre><code class="language-text">
   val iteri_row : (int -&gt; elt array -&gt; unit) -&gt; t -&gt; unit
@@ -180,8 +186,8 @@ Dataframe.append_row frame new_row
   val filter_map_row : (elt array -&gt; elt array option) -&gt; t -&gt; t
 </code></pre>
 </div>
-<p>Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into <code>elt</code> type, it is a programmer’s responsibility to unpack them properly in the passed in function.</p>
-<p>The interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.</p>
+<p>Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into <code>elt</code> type, it is a programmer’s responsibility to unpack them properly in the passed-in function.</p>
+<p>One interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.</p>
 <div class="highlight">
 <pre><code class="language-text">
   val ( .%( ) ) : t -&gt; int * string -&gt; elt
@@ -200,7 +206,7 @@ Dataframe.append_row frame new_row
   (* associated with `get_slice_by_name` *)
 </code></pre>
 </div>
-<p>Let me present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in <code>%()</code> to access cells.</p>
+<p>Let’s present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in <code>%()</code> to access cells.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   open Dataframe;;
@@ -212,10 +218,17 @@ Dataframe.append_row frame new_row
   (* change Carol's salary to 3000. *)
 </code></pre>
 </div>
-<p><code>.?()</code> provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.</p>
+<p>The operator <code>.?()</code> provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  frame.?(fun r -&gt; unpack_int r.(1) &lt; 30);;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">frame.?(fun r -&gt; unpack_int r.(1) &lt; 30);;;;
+&gt;- : t =
+&gt;
+&gt;  +-----+---+------+----------+------+-------------
+&gt;    name age salary        job gender      location
+&gt;  +-----+---+------+----------+------+-------------
+&gt;R0 Alice  20  2200.   Engineer female Cambridge, UK
+&gt;R1   Bob  25  2100.     Driver   male Helsinki, FIN
+&gt;R2  Erin  22  2300. Researcher   male  New York, US
 </code></pre>
 </div>
 <p>The output should look like this.</p>
@@ -257,7 +270,7 @@ Dataframe.append_row frame new_row
   filter_map_row predicate frame;;
 </code></pre>
 </div>
-<p>Alternatively, we can use <code>.?( )&lt;-</code> indexing operator. The difference is that we now need to define two functions - one (i.e.&nbsp;<code>check</code> function) for checking the predicate and one (i.e.&nbsp;<code>modify</code> function) for modifying the passed-in rows.</p>
+<p>Alternatively, we can use the <code>.?( )&lt;-</code> indexing operator. The difference is that we now need to define two functions - one (i.e.&nbsp;<code>check</code> function) for checking the predicate and one (i.e.&nbsp;<code>modify</code> function) for modifying the passed-in rows.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let check x = unpack_int x.(1) &gt; 25;;
@@ -274,8 +287,15 @@ Dataframe.append_row frame new_row
 <p>Running the code will give you the same result as that of calling <code>filter_map_row</code> function, but the way of structuring code becomes slightly different.</p>
 <p>Finally, you can also use <code>$.()</code> operator to replace <code>get_slice_by_name</code> function to retrieve a slice of dataframe.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">
-  frame.$([0;2], ["name"; "salary"]);;
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">frame.$([0;2], ["name"; "salary"]);;;;
+&gt;- : t =
+&gt;
+&gt;  +-----+------
+&gt;    name salary
+&gt;  +-----+------
+&gt;R0 Alice  2200.
+&gt;R1   Bob  2100.
+&gt;R2 Carol  3000.
 </code></pre>
 </div>
 </section>
@@ -290,15 +310,15 @@ Dataframe.append_row frame new_row
 </code></pre>
 </div>
 <p><code>of_csv</code> function loads a CSV file into in-memory dataframe while <code>to_csv</code> writes a dataframe into CSV file on the disk. In both functions, we can use <code>sep</code> to specify the separator, the default separator is <code>tab</code> in Owl.</p>
-<p>For <code>of_csv</code> function, you can pass in the head names using <code>head</code> argument, otherwise the first row of the CSV file will be used as head. <code>types</code> argument is used to specify the type of each column in a CSV file. If <code>types</code> is dropped, all the column will be treated as string series by default. Note the length of both <code>head</code> and <code>types</code> must match the actual number of columns in the CSV file.</p>
-<p>The mapping between <code>types</code> string and actual OCaml type is below.</p>
+<p>For <code>of_csv</code> function, you can pass in the head names using <code>head</code> argument; otherwise the first row of the CSV file will be used as head. <code>types</code> argument is used to specify the type of each column in a CSV file. If <code>types</code> is dropped, all the column will be treated as string series by default. Note the length of both <code>head</code> and <code>types</code> must match the actual number of columns in the CSV file.</p>
+<p>The mapping between <code>types</code> string and actual OCaml type is shown below:</p>
 <ul>
 <li><code>b</code>: boolean values;</li>
 <li><code>i</code>: integer values;</li>
 <li><code>f</code>: float values;</li>
 <li><code>s</code>: string values;</li>
 </ul>
-<p>In the following examples, we will use Zoo system to load <code>a gist &lt;http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba&gt;</code>_ which contains several example CSV files. Please make sure you have Zoo system properly installed on your machine.</p>
+<p>In the following examples, we will use Zoo system to load a <a href="http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba">gist</a> which contains several example CSV files.</p>
 <p>The first example simply loads the <code>funding.csv</code> file into a dataframe, then pretty prints out the table.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let fname = "funding.csv" in
@@ -306,7 +326,7 @@ let types =  [|"s";"s";"f";"s";"s";"s";"s";"f";"s";"s"|] in
 let df = Dataframe.of_csv ~sep:',' ~types fname in
 Owl_pretty.pp_dataframe Format.std_formatter df</code></pre>
 </div>
-<p>The result should look like this. I have truncated out some rows to save space here.</p>
+<p>The result should look like this. We have truncated out some rows to save space here.</p>
 <div class="highlight">
 <pre><code class="language-text">  funding data in csv file
 
@@ -339,17 +359,17 @@ let d = (of_csv ~sep:',' fname)
 in
 Owl_pretty.pp_dataframe Format.std_formatter d</code></pre>
 </div>
-<p>For the other examples, please refer to this Zoo gist <a href="https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml">dataframe.ml</a>.</p>
+<p>For more examples, please refer to the gist <a href="https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml">dataframe.ml</a>.</p>
 </section>
 <section class="level2" id="infer-type-and-separator">
 <h2>Infer Type and Separator</h2>
-<p>I want to devote a bit more text to CSV files. In the previous section, when we use <code>of_csv</code> function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.</p>
-<p>Dataframe is able to automatically detect the correct separator and the type of each column. Of course, it is possible that the detection mechanism fails but such probability is fairly low in many cases. Technically, Dataframe first tries a set of predefined separators to see which one can correctly separate the columns, then it tries a sequence of types to find out which one is able to correctly unpack the elements of a column.</p>
-<p>There are several technical things worth mentioning here.</p>
+<p>We want to devote a bit more text to CSV files. In the previous section, when we use <code>of_csv</code> function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.</p>
+<p>Dataframe is able to automatically detect the correct separator and the type of each column. Of course, it is possible that the detection mechanism fails but such probability is fairly low in many cases. Technically, Dataframe first tries a set of predefined separators to see which one can correctly separate the columns, and then it tries a sequence of types to find out which one is able to correctly unpack the elements of a column.</p>
+<p>There are several technical things worth mentioning here:</p>
 <ul>
-<li>To be efficient, Dataframe only takes maximum the first 100 lines in the CSV file for inference.</li>
-<li>If there are missing values in a column of integer type, it falls back to float value because we can use <code>nan</code> to represent missing values.</li>
-<li>If the types have been decided based on the first 100 lines, any following lines containing the data of inconsistent type will be dropped.</li>
+<li>to be efficient, Dataframe only takes maximum the first 100 lines in the CSV file for inference;</li>
+<li>if there are missing values in a column of integer type, it falls back to float value because we can use <code>nan</code> to represent missing values;</li>
+<li>if the types have been decided based on the first 100 lines, any following lines containing the data of inconsistent type will be dropped.</li>
 </ul>
 <p>With this capability, it is much easier to load a CSV to quickly investigate what is inside.</p>
 <div class="highlight">
@@ -359,11 +379,11 @@ let fname = "estate.csv" in
 let df = Dataframe.of_csv fname in
 Owl_pretty.pp_dataframe Format.std_formatter df</code></pre>
 </div>
-<p>You can use <code>Dataframe.types</code> function to retrieve the types of all columns in a dataframe.</p>
+<p>You can use the <code>Dataframe.types</code> function to retrieve the types of all columns in a dataframe.</p>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
-<p>Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g.&nbsp;<code>Stats</code>) in Owl.</p>
+<p>This chapter introduces the dataframe module in Owl, including its creating, manipulation, query, loading and saving, etc. Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. We also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. The dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g.&nbsp;<code>Stats</code>) in Owl.</p>
 </section>
 </section>
 </article></div><a href="symbolic.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 17</small>Symbolic Representation</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

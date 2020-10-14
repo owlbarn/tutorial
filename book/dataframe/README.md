@@ -169,8 +169,7 @@ We can use various functions in the module to retrieve the information from a da
 ```ocaml env=env_dataframe_1
 
 # Dataframe.get frame 2 1;;
-  (* return Carol's age, i.e. 30 *)
-
+- : Owl_dataframe.elt = Owl.Dataframe.Int 30
 ```
 
 The `get_row` and `get_col` (also `get_col_by_name`) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
@@ -179,8 +178,7 @@ Because each column has a name, we can also use head to retrieve information. Ho
 
 ```ocaml env=env_dataframe_1
 # Dataframe.get_by_name frame 2 "salary";;
-  (* return Carol's salary, i.e. 2500. *)
-
+- : Owl_dataframe.elt = Owl.Dataframe.Float 2500.
 ```
 
 We can use the `head` and `tail` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like `get_slice` or `get_slice_by_name` if we are interested in the data within a dataframe. The slice definition used in these two functions is the same as that used in Owl's Ndarray modules.
@@ -188,7 +186,13 @@ We can use the `head` and `tail` functions to retrieve only the beginning or end
 
 ```ocaml env=env_dataframe_1
 # Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
-  (* return Bob's and Carol's name and age *)
+- : Owl_dataframe.t =
+
+  +-----+---
+    name age
+  +-----+---
+R0   Bob  25
+R1 Carol  30
 
 ```
 
@@ -261,6 +265,14 @@ The operator `.?()` provides a shortcut to filter out the rows satisfying the pa
 ```ocaml env=env_dataframe_1
 
 # frame.?(fun r -> unpack_int r.(1) < 30);;
+- : t =
+
+  +-----+---+------+----------+------+-------------
+    name age salary        job gender      location
+  +-----+---+------+----------+------+-------------
+R0 Alice  20  2200.   Engineer female Cambridge, UK
+R1   Bob  25  2100.     Driver   male Helsinki, FIN
+R2  Erin  22  2300. Researcher   male  New York, US
 
 ```
 
@@ -336,6 +348,14 @@ Finally, you can also use `$.()` operator to replace `get_slice_by_name` functio
 ```ocaml env=env_dataframe_1
 
 # frame.$([0;2], ["name"; "salary"]);;
+- : t =
+
+  +-----+------
+    name salary
+  +-----+------
+R0 Alice  2200.
+R1   Bob  2100.
+R2 Carol  3000.
 
 ```
 
