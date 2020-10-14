@@ -3,7 +3,7 @@
 
 Dataframe is a popular way to manipulate data. It originates from R's dataframe and is widely implemented in many mainstream libraries such as Pandas. Essentially, a dataframe is simple container of the data that can be represented as a table.
 
-Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml's static type checking, this poses greatest challenges to Owl when I was trying to introduce the similar functionality.
+Different from the matrices in numerical computing, data stored in a dataframe are not necessarily numbers but a mixture of different types. The flexibility of dataframe largely comes from the dynamic typing inherently offered in a language. Due to OCaml's static type checking, this poses greatest challenges to Owl when we were trying to introduce the similar functionality.
 
 It becomes an art when balancing between flexibility and efficiency in designing the programming interface. This article covers the design of Dataframe module and its basic usage.
 
@@ -12,7 +12,7 @@ It becomes an art when balancing between flexibility and efficiency in designing
 
 The dataframe functionality is implemented in Owl's [Dataframe](https://github.com/owlbarn/owl/blob/master/src/base/misc/owl_dataframe.mli) module. Owl views a dataframe as a collection of time series data, and each series corresponds to one column in the table. All series must have the same length and each has a unique column head. In the following, we use series and column interchangeably.
 
-Owl packs each series into a unified type called `series` and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, iterate the data in a frame. We need to combine dataframe with the numerical functions in `Stats` module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.
+Owl packs each series into a unified type called `series` and stores them in an array. As you can already see, dataframe is column-based so accessing columns is way more efficient than accessing rows. The Dataframe module only provides basic functionality to create, access, query, and iterate the data in a frame. We need to combine dataframe with the numerical functions in `Stats` module to reach its full capability. Essentially, Pandas is a bundle of table manipulation and basic statistical functions.
 
 
 ## Create Frames
@@ -49,12 +49,12 @@ In fact, you do not necessarily need to pass in the data when calling `make` fun
 
 ```
 
-Try the code, you will see Owl prints out an empty table.
+Try the code, and you will see Owl prints out an empty table.
 
 
 ## Manipulate Frames
 
-There are a comprehensive set of table manipulation functions implemented in Dataframe module. I will go through them briefly in this section.
+There are a comprehensive set of table manipulation functions implemented in Dataframe module. We will go through them briefly in this section.
 
 Now that Owl allows us to create empty frames, it certainly provides functions to dynamically add new columns.
 
@@ -84,12 +84,12 @@ R3 David  35  2800.  Manager   male    Prague, CZ
 - : unit = ()
 ```
 
-We can even concatenate two dataframes. Depending on concatenating direction, there are a couple of things worth our attention.
+We can even concatenate two dataframes. Depending on concatenating direction, there are a couple of things worth our attention:
 
-- When two dataframes are concatenated vertically, they must have the same number of columns and consistent column types. The head names of the first argument will be used in the new dataframe.
-- When two dataframes are concatenated horizontally, they must have the same number of rows. All the columns of two dataframes must have unique names.
+- when two dataframes are concatenated vertically, they must have the same number of columns and consistent column types; The head names of the first argument will be used in the new dataframe;
+- when two dataframes are concatenated horizontally, they must have the same number of rows; all the columns of two dataframes must have unique names.
 
-For example, the following code add two new entries to the table by concatenating two dataframes vertically.
+For example, the following code adds two new entries to the table by concatenating two dataframes vertically.
 
 
 ```ocaml env=env_dataframe_1
@@ -138,7 +138,7 @@ However, if you just want to append one or two rows, the previous method seems a
 - : unit = ()
 ```
 
-There are also functions allow you to retrieve the properties.
+There are also functions allow you to retrieve the properties, for example:
 
 
 ```text
@@ -157,7 +157,8 @@ There are also functions allow you to retrieve the properties.
 
 ```
 
-The module applies several optimisation techniques to accelerate the operations on dataframes. Please refer to the API reference for the complete function list.
+The module applies several optimisation techniques to accelerate the operations on dataframes.
+You can refer to the API reference for the complete function list.
 
 
 ## Query Frames
@@ -167,34 +168,33 @@ We can use various functions in the module to retrieve the information from a da
 
 ```ocaml env=env_dataframe_1
 
-  Dataframe.get frame 2 1;;
+# Dataframe.get frame 2 1;;
   (* return Carol's age, i.e. 30 *)
 
 ```
 
-`get_row` and `get_col` (also `get_col_by_name`) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
+The `get_row` and `get_col` (also `get_col_by_name`) are used to obtain a complete row or column. For multiple rows and columns, there are also corresponding `get_rows` and `get_cols_by_name`.
 
-Because each column has a name, we can also use head to retrieves information. However, we still need to pass in the row index because rows are not associated with names.
-
+Because each column has a name, we can also use head to retrieve information. However, we still need to pass in the row index because rows are not associated with names.
 
 ```ocaml env=env_dataframe_1
-  Dataframe.get_by_name frame 2 "salary";;
+# Dataframe.get_by_name frame 2 "salary";;
   (* return Carol's salary, i.e. 2500. *)
+
 ```
 
-
-We can use `head` and `tail` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like `get_slice` or `get_slice_by_name` if we are interested in the data within a dataframe. The slice definition used in these two functions are the same as that used in Owl's Ndarray modules.
+We can use the `head` and `tail` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like `get_slice` or `get_slice_by_name` if we are interested in the data within a dataframe. The slice definition used in these two functions is the same as that used in Owl's Ndarray modules.
 
 
 ```ocaml env=env_dataframe_1
-  Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
+# Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
   (* return Bob's and Carol's name and age *)
 
 ```
 
 ## Iterate, Map, and Filter
 
-How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. I did not include any method to traverse columns because they can be simply extracted out as series then processed separately.
+How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. We did not include any method to traverse columns because they can be simply extracted out as series then processed separately.
 
 ```text
 
@@ -216,9 +216,9 @@ How can we miss the classic iteration functions in the functional programming? D
 
 ```
 
-Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into `elt` type, it is a programmer's responsibility to unpack them properly in the passed in function.
+Applying these functions to a dataframe is rather straightforward. All the elements in a row are packed into `elt` type, it is a programmer's responsibility to unpack them properly in the passed-in function.
 
-The interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.
+One interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.
 
 
 ```text
@@ -240,7 +240,7 @@ The interesting thing worth mentioning here is that there are several functions 
 
 ```
 
-Let me present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in `%()` to access cells.
+Let's present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in `%()` to access cells.
 
 
 ```ocaml env=env_dataframe_1
@@ -255,12 +255,12 @@ Let me present several examples to demonstrate how to use them. We can first pas
 
 ```
 
-`.?()` provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.
+The operator `.?()` provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.
 
 
 ```ocaml env=env_dataframe_1
 
-  frame.?(fun r -> unpack_int r.(1) < 30);;
+# frame.?(fun r -> unpack_int r.(1) < 30);;
 
 ```
 
@@ -311,7 +311,7 @@ It is also possible to filter out some rows then make some modifications. For ex
 
 ```
 
-Alternatively, we can use `.?( )<-` indexing operator. The difference is that we now need to define two functions - one (i.e. `check` function) for checking the predicate and one (i.e. `modify` function) for modifying the passed-in rows.
+Alternatively, we can use the `.?( )<-` indexing operator. The difference is that we now need to define two functions - one (i.e. `check` function) for checking the predicate and one (i.e. `modify` function) for modifying the passed-in rows.
 
 
 ```ocaml env=env_dataframe_1
@@ -335,7 +335,7 @@ Finally, you can also use `$.()` operator to replace `get_slice_by_name` functio
 
 ```ocaml env=env_dataframe_1
 
-  frame.$([0;2], ["name"; "salary"]);;
+# frame.$([0;2], ["name"; "salary"]);;
 
 ```
 
@@ -355,21 +355,18 @@ CSV (Comma-Separated Values) is a common format to store tabular data. The modul
 
 `of_csv` function loads a CSV file into in-memory dataframe while `to_csv` writes a dataframe into CSV file on the disk. In both functions, we can use `sep` to specify the separator, the default separator is `tab` in Owl.
 
-For `of_csv` function, you can pass in the head names using `head` argument, otherwise the first row of the CSV file will be used as head. `types` argument is used to specify the type of each column in a CSV file. If `types` is dropped, all the column will be treated as string series by default. Note the length of both `head` and `types` must match the actual number of columns in the CSV file.
+For `of_csv` function, you can pass in the head names using `head` argument; otherwise the first row of the CSV file will be used as head. `types` argument is used to specify the type of each column in a CSV file. If `types` is dropped, all the column will be treated as string series by default. Note the length of both `head` and `types` must match the actual number of columns in the CSV file.
 
-The mapping between `types` string and actual OCaml type is below.
+The mapping between `types` string and actual OCaml type is shown below:
 
 - `b`: boolean values;
 - `i`: integer values;
 - `f`: float values;
 - `s`: string values;
 
-
-In the following examples, we will use Zoo system to load `a gist <http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba>`_ which contains several example CSV files. Please make sure you have Zoo system properly installed on your machine.
-
+In the following examples, we will use Zoo system to load a [gist](http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba) which contains several example CSV files.
 
 The first example simply loads the `funding.csv` file into a dataframe, then pretty prints out the table.
-
 
 ```ocaml file=../../examples/code/dataframe/example_00.ml
 let fname = "funding.csv" in
@@ -378,8 +375,7 @@ let df = Dataframe.of_csv ~sep:',' ~types fname in
 Owl_pretty.pp_dataframe Format.std_formatter df
 ```
 
-The result should look like this. I have truncated out some rows to save space here.
-
+The result should look like this. We have truncated out some rows to save space here.
 
 ```text
   funding data in csv file
@@ -417,20 +413,20 @@ in
 Owl_pretty.pp_dataframe Format.std_formatter d
 ```
 
-For the other examples, please refer to this Zoo gist [dataframe.ml](https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml).
+For more examples, please refer to the gist [dataframe.ml](https://github.com/owlbarn/owl/blob/master/examples/dataframe.ml).
 
 
 ## Infer Type and Separator
 
-I want to devote a bit more text to CSV files. In the previous section, when we use `of_csv` function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.
+We want to devote a bit more text to CSV files. In the previous section, when we use `of_csv` function to load a CSV file, we explicitly pass in the separator and the types of all columns. However, both parameters are optional and can be skipped.
 
-Dataframe is able to automatically detect the correct separator and the type of each column. Of course, it is possible that the detection mechanism fails but such probability is fairly low in many cases. Technically, Dataframe first tries a set of predefined separators to see which one can correctly separate the columns, then it tries a sequence of types to find out which one is able to correctly unpack the elements of a column.
+Dataframe is able to automatically detect the correct separator and the type of each column. Of course, it is possible that the detection mechanism fails but such probability is fairly low in many cases. Technically, Dataframe first tries a set of predefined separators to see which one can correctly separate the columns, and then it tries a sequence of types to find out which one is able to correctly unpack the elements of a column.
 
-There are several technical things worth mentioning here.
+There are several technical things worth mentioning here:
 
-- To be efficient, Dataframe only takes maximum the first 100 lines in the CSV file for inference.
-- If there are missing values in a column of integer type, it falls back to float value because we can use `nan` to represent missing values.
-- If the types have been decided based on the first 100 lines, any following lines containing the data of inconsistent type will be dropped.
+- to be efficient, Dataframe only takes maximum the first 100 lines in the CSV file for inference;
+- if there are missing values in a column of integer type, it falls back to float value because we can use `nan` to represent missing values;
+- if the types have been decided based on the first 100 lines, any following lines containing the data of inconsistent type will be dropped.
 
 With this capability, it is much easier to load a CSV to quickly investigate what is inside.
 
@@ -442,9 +438,10 @@ let df = Dataframe.of_csv fname in
 Owl_pretty.pp_dataframe Format.std_formatter df
 ```
 
-You can use `Dataframe.types` function to retrieve the types of all columns in a dataframe.
+You can use the `Dataframe.types` function to retrieve the types of all columns in a dataframe.
 
 
 ## Summary
 
-Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. I also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. From my point of view, dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g. `Stats`) in Owl.
+This chapter introduces the dataframe module in Owl, including its creating, manipulation, query, loading and saving, etc.
+Comparing to those very mature libraries like Pandas, the Dataframe module in Owl is very young. We also try to keep its functionality minimal in the beginning to reserve enough space for future adjustment. The dataframe should only offer a minimal set of table manipulation functions, its analytical capability should come from the combination with other modules (e.g. `Stats`) in Owl.

@@ -11,21 +11,21 @@ Owl has already provided a computation graph layer to separate the definition an
 Towards this end, we begin to develop an intermediate symbolic representation of computations and facilitate various tasks based on this symbol representation.
 
 One thing to note is that do not mistake our symbolic representation as the classic symbolic computation (or Computer Algebra System) that manipulate mathematical expressions in a symbolic way, which is similar to the traditional manual computations.
-It is indeed one of our core motivation to pursue the symbolic computation with Owl. 
+It is indeed one of our core motivations to pursue the symbolic computation with Owl.
 Currently we provide a symbolic representation layer as the first step towards that target.
-More discussion will be added in future versions with the development with the support of symbolic math in Owl. 
+More discussion will be added in future versions with the development with the support of symbolic math in Owl.
 
 ## Design
 
 `owl_symbolic` is divided into two parts: the core symbolic representation that constructs a symbolic graph, and various engines that perform different task based on the graph.
 The architecture design of this system is shown in [@fig:symbolic:architecture].
 
-![Architecture of the symbolic system](images/symbolic/architecture.png "architecture"){width=90% #fig:symbolic:architecture}
+![Architecture of the symbolic system](images/symbolic/architecture.png "architecture"){width=75% #fig:symbolic:architecture}
 
-The core abstraction is a independent symbolic representation layer.
+The core abstraction is an independent symbolic representation layer.
 Based on this layer, we have various engines that can be translated to and from this symbolic representation.
-Currently we support three engines: the ONNX binary format, the computation graph in Owl, and the LaTeX string. 
-The CAS engine is currently still an on-going research project, and we envision that, once finished, this engine can be used to pre-process a symbolic representation so that it as an simplified canonical form before being processed by other engines. 
+Currently we support three engines: the ONNX binary format, the computation graph in Owl, and the LaTeX string.
+The CAS engine is currently still an on-going research project, and we envision that, once finished, this engine can be used to pre-process a symbolic representation so that it as a simplified canonical form before being processed by other engines.
 
 
 ### Core abstraction
@@ -72,7 +72,7 @@ type t =
   ....
 ```
 
-There are totally about 150 operations included in our symbolic representation. 
+There are totally about 150 operations included in our symbolic representation.
 Each operation is implemented as a module. These modules share common attributes such as name, input operation names, output shapes, and then each module contains zero or more attributes of itself.
 For example, the `Sin` operation module is implemented as:
 
@@ -95,19 +95,19 @@ end
 ```
 
 The module provides properties such as `op_type` and functions such as `create` that returns object of type `Sin.t`.
-The `name`, `input` and `out_shape` are common attributes in the operation modules. 
+The `name`, `input` and `out_shape` are common attributes in the operation modules.
 
-In implementing the supported operations, we follow the category used in ONNX. These operations can be generally divided into these different groups:
+In implementing the supported operations, we follow the category used in ONNX. These operations can be generally divided into different groups as shown below.
 
-- Generators: operations that generate data, taking no input. For example, the `Int`, `Float`, `Tensor`, `Variable`, etc. 
+- Generators: operations that generate data, taking no input. For example, the `Int`, `Float`, `Tensor`, `Variable`, etc.
 - Logical: logical operations such as `Xor`.
-- Math: mathematical operations. This group of operations makes a large part of the total operations supported. 
-- Neural Network: neural network related operations such as convolution and pooling. 
+- Math: mathematical operations. This group of operations makes a large part of the total operations supported.
+- Neural Network: neural network related operations such as convolution and pooling.
 - Object detection: also used in neural network, but the operations that are closely related with object detection applications, including `RoiAlign` and `NonMaxSuppression`.
 - Reduction: reduction (or folding) math operations such as sum reduce.
 - RNN: Recurrent neural network related operations such as LTSM.
 - Tensor: Normal tensor operations, like the ones that are included in the Ndarray module, such as `concat`, `reshape`, etc.
-- Sequence: take multiple tensor as one single object called `sequence`, and there are different corresponding functions on the sequence type data, such as `SequenceInsert`, `SequenceLength` etc.
+- Sequence: take multiple tensors as one single object called `sequence`, and there are different corresponding functions on the sequence type data, such as `SequenceInsert`, `SequenceLength` etc.
 
 
 Based on these operation modules, we provide several functions on the `Owl_symbolic_symbol.t` type:
@@ -115,14 +115,14 @@ Based on these operation modules, we provide several functions on the `Owl_symbo
 - `name`: get the name of operation
 - `op_type`: get the operation type string
 - `input`: get the input nodes name of an operation
-- `set_input`: update the input nodes name 
-- `output`: get the output nodes name 
-- `set_output`: update the output nodes name 
+- `set_input`: update the input nodes name
+- `output`: get the output nodes name
+- `set_output`: update the output nodes name
 
-There are also some functions that only apply to certain types of operations. 
+There are also some functions that only apply to certain types of operations.
 The generator type of operations all need to specify the type of data it supports. Therefore, we use `dtype` function to check their data types.
 Another example is the `output` property. For most of the operation, it has only one output, and therefore its name is its output name.
-However, for operations such as `MaxPool` that contains multiple output, we need another function: `output`. 
+However, for operations such as `MaxPool` that contains multiple outputs, we need another function: `output`.
 
 **Type Checking**
 
@@ -151,8 +151,8 @@ This list of types covers most number and non-number types. `SNT_SEQ` means the 
 
 **Operators**
 
-All these operations are invisible to users. 
-What the users really uses is the *operators*. 
+All these operations are invisible to users.
+What the users really use are the *operators*.
 To build a graph, we first need to build the required attributes into an operation, and then put it into a graph node. This is what an operator does.
 Take the `sin` operator as an example:
 
@@ -166,7 +166,7 @@ let sin ?name x =
 Here the `sin` operator takes its parent node `x` as input, get its name as input property, and create a symbol node with the function `make_node`.
 This function takes an operation and an array of parent symbols, and then creates one symbol as return.
 What it does is mainly creating a child node using the given operation as node attribution, updating the child's input and output shape, and then connecting the child with parents before returning the child node.
-The connection is on both direction:
+The connection is on both directions:
 
 ```
 connect_ancestors parents [| child |];
@@ -174,7 +174,7 @@ let uniq_parents = Owl_utils_array.unique parents in
 Array.iter (fun parent -> connect_descendants [| parent |] [| child |]) uniq_parents
 ```
 
-Therefore, the users can use the operators to build an graph representation, here is an example:
+Therefore, the users can use the operators to build a graph representation. Here is an example:
 
 ```ocaml
 open Owl_symbolic
@@ -187,9 +187,9 @@ let y = exp ((sin x ** float 2.) + (cos x ** float 2.))
     + exp (pi () * complex 0. 1.)
 ```
 
-Here we start with the `variable` operator, which creates a placeholder for incoming data later. 
+Here we start with the `variable` operator, which creates a placeholder for incoming data later.
 You can specify the shape of the variable with `~shape` parameter. If not specified, then it defaults to a scalar.
-You can also choose to initialise this variable with a *tensor* so that even if you don't feed any data to the variable, the default tensor value will be used. 
+You can also choose to initialise this variable with a *tensor* so that even if you don't feed any data to the variable, the default tensor value will be used.
 A tensor in `owl-symbolic` is defined as:
 
 ```ocaml
@@ -204,38 +204,38 @@ type tensor =
 ```
 
 A tensor is of a specific type of data, and then it contains the value: string array, float array, integer array, or bytes.
-Only one of these fields can be used. 
+Only one of these fields can be used.
 If initialised with a tensor, a variable takes the same data type and shape as that of the tensor.
 
 **Naming**
 
 Currently we adopt a global naming scheme, which is to add an incremental index number after each node's type. For example, if we have an `Add` symbol, a `Div` symbol, and then another `Add` symbol in a graph, then each node will be named `add_0`, `div_1`, and `add_1`.
 One exception is the variable, where a user has to explicitly name when create a variable. Of course, users can also optionally any node in the graph, but the system will check to make sure the name of each node is unique.
-The symbolic graph contains the `node_names` field that include all the nodes' names in the graph.
+The symbolic graph contains the `node_names` field that includes all the nodes' names in the graph.
 
 **Shape Inferencing**
 
-One task the symbolic core needs to perform is shape checking and shape inferencing. 
-Shape inference is performed in the `make_node` function and therefore happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known. 
+One task the symbolic core needs to perform is shape checking and shape inferencing.
+Shape inference is performed in the `make_node` function and therefore happens every time a user uses an operation to construct a symbolic node and connect it with previous nodes. It is assumed that the parents of the current node are already known.
 
 ```
-let (in_shapes : int array option array array)= 
-  Array.map (fun sym_node -> 
+let (in_shapes : int array option array array)=
+  Array.map (fun sym_node ->
     Owl_graph.attr sym_node |> Owl_symbolic_symbol.out_shape
-  ) parents 
+  ) parents
   in
-let (shape : int array option array) = 
+let (shape : int array option array) =
   Owl_symbolic_shape.infer_shape in_shapes sym
 ...
 ```
 
 As the code shows, for each node, we first find the output shapes of its parents.
-The `in_shape` is of type `int array option array array`. 
+The `in_shape` is of type `int array option array array`.
 You can understand it this way: `int array` is a shape array; `int array option` means this shape could be `None`.Then `int array option array` is one whole input from previous parent, since one parent may contains multiple outputs.
 Finally, `int array option array array` includes output from all parents.
-The main function `Owl_symbolic_shape.infer_shape` then infer the output shape of current node, and save it to the `out_shape` property of that symbol.
+The main function `Owl_symbolic_shape.infer_shape` then infers the output shape of current node, and save it to the `out_shape` property of that symbol.
 
-The `infer_shape` function itself check the symbol type and then match with specific implementation. 
+The `infer_shape` function itself checks the symbol type and then match with specific implementation.
 For example, a large number of operations actually takes one parent and keep its output shape:
 
 ```
@@ -251,20 +251,20 @@ let infer_shape_01 input_shapes =
   | None   -> [| None |]
 ```
 
-This pattern `infer_shape_01` covers these operations. It simply takes the input shape, and returns the same shape. 
+This pattern `infer_shape_01` covers these operations. It simply takes the input shape, and returns the same shape.
 
 There are two possible reasons for the input shape to be `None`.
-At first each node will be initialised with `None` output shape. 
-During shape inference, in certain cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node. 
+At first each node will be initialised with `None` output shape.
+During shape inference, in certain cases, the output shape depends on the runtime content of input nodes, not just the shapes of input nodes and attributions of the currents node.
 In that case, the output shapes is set to `None`.
 Once the input shapes contain `None`, the shape inference results hereafter will all be `None`, which means the output shapes cannot be decided at compile time.
 
 **Multiple output**
 
-Most of the operators are straightforward to implement, but some of them returns multiple symbols as return. 
+Most of the operators are straightforward to implement, but some of them returns multiple symbols as return.
 In that case, an operation returns not a node, but a tuple or, when output numbers are uncertain, an array of nodes.
 For example, the `MaxPool` operation returns two outputs, one is the normal maxpooling result, and the other is the corresponding tensor that contains indices of the selected values during pooling.
-Or we have the `Split` operation that splits a tensor into a list of tensors, along the specified axis. It returns an array of symbols. 
+Or we have the `Split` operation that splits a tensor into a list of tensors, along the specified axis. It returns an array of symbols.
 
 ### Engines
 
@@ -282,7 +282,7 @@ val save : t -> string -> unit
 val load : string -> t
 ```
 
-It means that, each engine has its own core type `t`, be it a string or another format of graph, and it needs to convert `t` to and from the core symbolic graph type, or save/load a type `t` data structure to file. 
+It means that, each engine has its own core type `t`, be it a string or another format of graph, and it needs to convert `t` to and from the core symbolic graph type, or save/load a type `t` data structure to file.
 An engine can also contain extra functions besides these four.
 
 Now that we have explained the design of `owl_symbolic`, let's look at the details of some engines in the next few sections.
@@ -402,7 +402,7 @@ This computation simply takes an input variable `x` and then apply the `sin` ope
 Let's look at the Python side.
 
 ```python
-import numpy as np 
+import numpy as np
 import onnxruntime as rt
 
 sess = rt.InferenceSession("test.onnx")
@@ -424,7 +424,7 @@ Instead, you should use `get_overridable_initializers()`:
 
 ```python
 input_x = sess.get_overridable_initializers()[0]
-input_name_x = input_x.name 
+input_name_x = input_x.name
 input_shape_x = input_x.shape
 x = np.ones(input_shape_x, dtype="float32")
 pred_onx = sess.run(None, {input_name_x: x})
@@ -454,7 +454,7 @@ let dnn =
 ```
 
 Apparently that's too much information for the users to handle.
-To make things easier for the users, we create neural network layer based on existing symbolic operations. This light-weight layer takes only 180 LoC, and yet it provides a Owl-like clean syntax for the users to construct neural networks. For example, we can construct a MNIST-DNN model:
+To make things easier for the users, we create neural network layer based on existing symbolic operations. This light-weight layer takes only 180 LoC, and yet it provides an Owl-like clean syntax for the users to construct neural networks. For example, we can construct a MNIST-DNN model:
 
 ```ocaml
 open Owl_symbolic_neural_graph
@@ -500,7 +500,7 @@ In summary, using ONNX as the intermediate format for exchange computation acros
 ## LaTeX Engine
 
 The LaTeX engine takes a symbolic representation as input, and produce LaTeX strings which can then be visualised using different tools.
-It's design is simple, mainly about matching symbol type and project it to correct implementation.
+Its design is simple, mainly about matching symbol type and projecting it to correct implementation.
 Again, let's look at an example that builds up a symbolic representation of a calculation $\exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi~i)$
 
 ```ocaml env=symbolic:latex-engine
@@ -521,8 +521,8 @@ let make_expr0 () =
 This expression can be converted into a corresponding LaTeX string:
 
 ```ocaml env=symbolic:latex-engine
-# let () = make_expr0 () 
-    |> LaTeX_Engine.of_symbolic 
+# let () = make_expr0 ()
+    |> LaTeX_Engine.of_symbolic
     |> print_endline
 \exp(\sin(x_0) ^ 2 + \cos(x_0) ^ 2) + 10 \times x_0 ^ 2 + \exp(\pi \times 1.00i)
 ```
@@ -532,8 +532,8 @@ We have built a web UI in this Engine that utilises [KaTeX](https://katex.org/),
 Below we use the `html` function provided by the engine to show this string on our web UI using the functionality the engine provides.
 
 ```ocaml env=symbolic:latex-engine
-# let () = 
-    let exprs = [ make_expr0 () ] in 
+# let () =
+    let exprs = [ make_expr0 () ] in
     LaTeX_Engine.html ~dot:true ~exprs "example.html"
 ```
 
@@ -548,7 +548,7 @@ For each expression, the web UI contains its rendered LaTeX form and correspondi
 An Owl Engine enables converting Owl computation graph to or from a symbolic representation. Symbolic graph can thus benefit from the concise syntax and powerful features such as Algorithm Differentiation in Owl.
 
 The conversion between Owl CGraph and the symbolic representation is straightforward, since both are graph structures.
-We only need to focus on make the operation projection between these two system correct.
+We only need to focus on make the operation projection between these two systems correct.
 
 ```
 let cnode_attr = Owl_graph.attr node in
@@ -584,7 +584,7 @@ let make_graph () =
   let output = [| AD.unpack_arr z |> G.arr_to_node |] in
   G.make_graph ~input ~output "graph"
 
-let g = make_graph () |> OWL_Engine.to_symbolic 
+let g = make_graph () |> OWL_Engine.to_symbolic
 ```
 
 Here we build a simple computation graph with the algorithmic differentiation module in Owl.
@@ -603,3 +603,9 @@ let _ =
 And this `test.onnx` file can further be processed with Python code as introduced in the previous section.
 
 ## Summary
+
+To improve the performance of computation, it is necessary to utilise the power of hardware accelerators. We believe it is a growing trend that the definition and execution of computation can be separated out.
+Therefore, we build a symbolic representation based on Owl to facilitate exporting computations to other frameworks that supports multiple hardware accelerators.
+This representation can be executed by multiple backend engines. Currently it supports the ONNX, LaTeX, and Owl itself as engines.
+This chapter introduces the design of this symbolic representation, and uses several examples to demonstrate how the computation in Owl can be executed on other frameworks or visualised.
+Implementing a symbolic computation library based on Owl remains our future work.
