@@ -231,20 +231,6 @@ Dataframe.append_row frame new_row
 &gt;R2  Erin  22  2300. Researcher   male  New York, US
 </code></pre>
 </div>
-<p>The output should look like this.</p>
-<div class="highlight">
-<pre><code class="language-text">
-  val frame : Owl_dataframe.t =
-
-    +-----+---+------
-      name age salary
-    +-----+---+------
-  R0 Alice  20  2200.
-  R1   Bob  25  2100.
-  R2  Erin  22  2300.
-  R3  Erin  22  2300.
-</code></pre>
-</div>
 <p>The cool thing about <code>.?()</code> is that you can chain the filters up like below. The code first filters out the people younger than 30, then further filter out whose salary is higher than 2100.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
@@ -318,8 +304,7 @@ Dataframe.append_row frame new_row
 <li><code>f</code>: float values;</li>
 <li><code>s</code>: string values;</li>
 </ul>
-<p>In the following examples, we will use Zoo system to load a <a href="http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba">gist</a> which contains several example CSV files.</p>
-<p>The first example simply loads the <code>funding.csv</code> file into a dataframe, then pretty prints out the table.</p>
+<p>The following examples are in a <a href="http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba">gist</a> that contains code and several example CSV files. The first example simply loads the <code>funding.csv</code> file into a dataframe, then pretty prints out the table.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let fname = "funding.csv" in
 let types =  [|"s";"s";"f";"s";"s";"s";"s";"f";"s";"s"|] in
