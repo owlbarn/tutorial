@@ -276,23 +276,6 @@ R2  Erin  22  2300. Researcher   male  New York, US
 
 ```
 
-The output should look like this.
-
-
-```text
-
-  val frame : Owl_dataframe.t =
-
-    +-----+---+------
-      name age salary
-    +-----+---+------
-  R0 Alice  20  2200.
-  R1   Bob  25  2100.
-  R2  Erin  22  2300.
-  R3  Erin  22  2300.
-
-```
-
 The cool thing about `.?()` is that you can chain the filters up like below. The code first filters out the people younger than 30, then further filter out whose salary is higher than 2100.
 
 
@@ -384,8 +367,7 @@ The mapping between `types` string and actual OCaml type is shown below:
 - `f`: float values;
 - `s`: string values;
 
-In the following examples, we will use Zoo system to load a [gist](http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba) which contains several example CSV files.
-
+The following examples are in a [gist](http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba) that contains code and several example CSV files.
 The first example simply loads the `funding.csv` file into a dataframe, then pretty prints out the table.
 
 ```ocaml file=../../examples/code/dataframe/example_00.ml
