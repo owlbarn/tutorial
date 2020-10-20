@@ -252,6 +252,14 @@ Let's first define a sequential matrix as the input data for the following examp
 ```ocaml env=slicing_env2
 
 # let x = Mat.sequential 5 7;;
+val x : Mat.mat =
+
+   C0 C1 C2 C3 C4 C5 C6
+R0  0  1  2  3  4  5  6
+R1  7  8  9 10 11 12 13
+R2 14 15 16 17 18 19 20
+R3 21 22 23 24 25 26 27
+R4 28 29 30 31 32 33 34
 
 ```
 
