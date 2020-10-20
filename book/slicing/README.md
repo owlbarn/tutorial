@@ -551,10 +551,10 @@ The broadcasting operation is transparent to programmers, which means it will be
 - comparison operations: `elt_equal`, `elt_not_equal`, `elt_less`, `elt_greater`, `elt_less_equal`, `elt_greater_equal`
 - other operations: `min2`, `max2`. `atan2`, `hypot`, `fmod`
 
-## Internal Mechanism
+## Slicing in NumPy and Julia
 
-The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
-For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy with code below. 
+The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other libraries.
+For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy with code below.
 
 ```python
 >> import numpy as np
@@ -681,6 +681,7 @@ array([[  0,   1, 200],
        [  6,   7,   8]])
 ```
 
+## Internal Mechanism
 
 To achieve good performance, slicing is implemented with C in Owl.
 The basic algorithm of slicing is simple. We need to copy part of the source array `x` to the target array `y`.
