@@ -1,14 +1,14 @@
 # N-Dimensional Arrays
 
 
-N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like NumPy to SciPy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, `Algodiff`, `Optimise`, `Neural`, and `Lazy` all these functors take Ndarray module as their module input.
+N-dimensional array (a.k.a ndarray) is the building block of Owl library. Ndarray to Owl is like NumPy to SciPy. It serves as the core dense data structure and many advanced numerical functions are built atop of it. For example, `Algodiff`, `Optimise`, `Neural`, and `Lazy`... all these functors take Ndarray module as the module input.
 
-Due to its importance, I have implemented a comprehensive set of operations on Ndarray, all of which are defined in [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli). Many of these functions (especially the critical ones) in Owl's core library have corresponding C-stub code to guarantee the best performance. If you have a look at the Ndarray's `mli` file, you probably can see hundreds. But do not get scared by the number, many of them are similar and can be grouped together. In this chapter, I will explain these functions in details w.r.t these several groups.
+Due to its importance, Owl has implemented a comprehensive set of operations on Ndarray, all of which are defined in the file  [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli). Many of these functions (especially the critical ones) in Owl's core library have corresponding C-stub code to guarantee the best performance. If you take a look at the Ndarray's `mli` file, you probably can see hundreds of them. But do not get scared by the number, since many of them are similar and can be grouped together. In this chapter, we will explain these functions in details regarding these several groups.
 
 
 ## Ndarray Types
 
-The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native `Bigarray`, more specifically it is `Bigarray.Genarray`. Ndarray has the same type as that of `Genarray`, therefore exchanging data between Owl and other libraries relying on Bigarray is trivial.
+The very first thing to understand is the types used in Ndarray. Owl's Ndarray module is built directly on top of OCaml's native `Bigarray`. More specifically, it is `Bigarray.Genarray`. Ndarray has the same type as that of `Genarray`, therefore exchanging data between Owl and other libraries relying on Bigarray is trivial.
 
 OCaml's Bigarray uses `kind` GADT to specify the number type, precision, and memory layout. Owl only keeps the first two but fixes the last one because Owl only uses `C-layout`, or `Row-based layout` in its implementation. The same design decisions can also be seen in ONNX. See the type definition in Ndarray module.
 
@@ -16,21 +16,19 @@ OCaml's Bigarray uses `kind` GADT to specify the number type, precision, and mem
   type ('a, 'b) t = ('a, 'b, c_layout) Genarray.t
 ```
 
-Technically, `C-layout` indicates the memory address is continuous at the highest dimensions, comparing to the `Fortran-layout` whose continuous memory address is at the lowest dimensions. The reason why I made this decision is as follows.
+Technically, `C-layout` indicates the memory address is continuous at the highest dimensions, comparing to the `Fortran-layout` whose continuous memory address is at the lowest dimensions. The reasons why we made this decision are as follows.
 
-* Mixing two layouts together opens a can of worms and is the source of bugs. Especially, indexing in Fortran starts from 1 whereas indexing in C starts form 0. Many native OCaml data structures such as `Array` and `List` all start indexing from 0, so using `C-layout` avoids many potential troubles in using the library.
+* Mixing two layouts together opens a can of worms and is the source of bugs. Especially, indexing in FORTRAN starts from 1 whereas indexing in C starts form 0. Many native OCaml data structures such as `Array` and `List` all start indexing from 0, so using `C-layout` avoids many potential troubles in using the library.
 
-* Supporting both layouts adds a significant amount of complexity in implementing underlying Ndarray functions. Due to the difference in memory layout, code performs well on one layout may not does well on another. Many functions may require different implementations given different layout. This will add too much complexity and increase the code base with marginal benefits.
+* Supporting both layouts adds a significant amount of complexity in implementing underlying Ndarray functions. Due to the difference in memory layout, code performs well on one layout may not does well on another. Many functions may require different implementations given different layout. This will add too much complexity and increase the code base significantly with marginal benefits.
 
-* Owl has rather different design principles comparing to OCaml's Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml's heap, facilitating exchanging data between different libraries (including Fortran ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.
+* Owl has rather different design principles comparing to OCaml's Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml's heap, facilitating exchanging data between different libraries (including FORTRAN ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.
 
-Because of Bigarray, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, Matrix is just a special case of n-dimensional array, and in fact many functions in `Matrix` module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.
-
-
+Because of Bigarray's mechanism, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, matrix is just a special case of n-dimensional array, and in fact many functions in the `Matrix` module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.
 
 ## Creation Functions
 
-The first group of functions I want to introduce is the creation functions. They generate a dense data structure for you to work on further. The most often used ones are probably these four.
+The first group of functions we would like to introduce is the ndarray creation functions. They generate dense data structures for you to work on further. The most frequently used ones are probably these four:
 
 ```ocaml file=../../examples/code/ndarray/interface_00.mli
 open Owl.Dense.Ndarray.Generic
@@ -44,11 +42,11 @@ val zeros : ('a, 'b) kind -> int array -> ('a, 'b) t
 val ones : ('a, 'b) kind -> int array -> ('a, 'b) t
 ```
 
-These four functions return an ndarray of the specified shape, number type, and precision. `empty` function is different from the other three -- it does not really allocate any memory until you access it. Therefore, calling `empty` function is very fast.
+These functions return ndarrays of specified shape, number type, and precision.
+The `empty` function is different from the other three. It does not really allocate any memory until you access it. Therefore, calling `empty` function is very fast.
+The other three functions are self-explained. The `zeros` and `ones` fill the allocated memory with zeros and one respectively, whereas `create` function fills the memory with the specified value.
 
-The other three functions are self-explained, `zeros` and `ones` fill the allocated memory with zeros and one respectively, whereas `create` function fills the memory with the specified value.
-
-If you need random numbers, you can use another three creation functions that return an ndarray where the elements following certain distributions.
+If you need random numbers, you can use another three creation functions that return an ndarray where the elements follow certain distributions.
 
 ```ocaml file=../../examples/code/ndarray/interface_01.mli
 open Owl.Dense.Ndarray.Generic
@@ -72,7 +70,7 @@ val linspace : ('a, 'b) kind -> 'a -> 'a -> int -> ('a, 'b) t
 val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
 ```
 
-If these functions cannot satisfy your need, Ndarray provides a more flexible mechanism allowing you to have more control over the initialisation of an ndarray.
+If these functions cannot satisfy your need, `Ndarray` provides a more flexible mechanism allowing you to have more control over the initialisation of an ndarray.
 
 ```ocaml file=../../examples/code/ndarray/interface_03.mli
 open Owl.Dense.Ndarray.Generic
@@ -82,7 +80,8 @@ val init : ('a, 'b) kind -> int array -> (int -> 'a) -> ('a, 'b) t
 val init_nd : ('a, 'b) kind -> int array -> (int array -> 'a) -> ('a, 'b) t
 ```
 
-The difference between the two is: `init` passes 1-d indices to the user-defined function whereas `init_nd` passes n-dimensional indices. As a result, `init` is much faster than `init_nd`. The following code creates an ndarray where all the elements are even numbers.
+The difference between the two group is: `init` passes 1-d indices to the user-defined function, whereas `init_nd` passes n-dimensional indices. As a result, `init` is much faster than `init_nd`.
+As an example, the following code creates an ndarray where all the elements are even numbers.
 
 ```ocaml
 
@@ -98,7 +97,6 @@ R4 64 66 68 70 72 74 76 78
 R5 80 82 84 86 88 90 92 94
 
 ```
-
 
 
 ## Properties Functions
@@ -135,18 +133,16 @@ val same_shape : ('a, 'b) t -> ('a, 'b) t -> bool
 val kind : ('a, 'b) t -> ('a, 'b) kind
 (** [kind x] returns the type of ndarray [x]. *)
 ```
-
+Property functions are easy to understand.
 Note that `nnz` and `density` need to traverse through all the elements in an ndarray, but because the implementation is in C so even for a very large ndarray the performance is still good.
-
-Property functions are easy to understand. In the following, I want to focus on three typical operations on n-dimensional array worth your special attention - `map`, `fold`, and `scan`.
-
+In the following, we focus on three typical operations on n-dimensional array worth your special attention : the `map`, `fold`, and `scan`.
 
 
 ## Map Functions
 
-`map` function transforms from one ndarray to another with a given function, which is often done by applying the transformation function to every element in the original ndarray. The `map` function in Owl is pure and always generates a fresh new data structure rather than modifying original one.
-
-For example, the following code creates a three-dimensional ndarray, then adds 1 to every element in `x`.
+The `map` function transforms one ndarray to another according to a given function, which is often done by applying the transformation function to every element in the original ndarray.
+The `map` function in Owl is pure and always generates a fresh new data structure rather than modifying the original one.
+For example, the following code creates a three-dimensional ndarray, and then adds 1 to every element in `x`.
 
 ```ocaml env=ndarray_00
 # let x = Arr.uniform [|3;4;5|]
@@ -187,7 +183,7 @@ R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218
 
 ```
 
-`map` function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as `sin`, `cos`, `neg`, and etc. Here are some examples to show how to make your own vectorised functions.
+The `map` function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as `sin`, `cos`, `neg`, and etc. Here are some examples to show how to make your own vectorised functions.
 
 ```ocaml
 
@@ -199,7 +195,7 @@ R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218
 
 ```
 
-If you need indices in the transformation function, you can use `mapi` function which passes in the 1-d index of the element being accessed.
+If you need indices in the transformation function, you can use the `mapi` function which accepts the 1-d index of the element being accessed.
 
 ```text
 
@@ -210,7 +206,7 @@ If you need indices in the transformation function, you can use `mapi` function 
 
 ## Fold Functions
 
-`fold` function is often referred to as reduction in other programming languages. `fold` function has a named parameter called `axis`, with which you can specify along what axis you want to fold a given ndarray.
+The `fold` function is often referred to as "reduction" in other programming languages. It has a named parameter called `axis`, with which you can specify along what axis you want to fold a given ndarray.
 
 ```text
 
@@ -218,8 +214,7 @@ If you need indices in the transformation function, you can use `mapi` function 
 
 ```
 
-The `axis` parameter is optional, if you do not specify one, the ndarray will be flattened first folding happens along the zero dimension. In other words, the all the elements will be folded into a one-element one-dimensional ndarray. The `fold` function in Ndarray is actually folding from left, and you can also specify an initial value of the folding.
-
+The `axis` parameter is optional. If you do not specify one, the ndarray will be flattened first folding happens along the zero dimension. In other words, the all the elements will be folded into a one-element one-dimensional ndarray. The `fold` function in Ndarray is actually folding from left, and you can also specify an initial value of the folding.
 The code below demonstrates how to implement your own `sum'` function.
 
 ```ocaml
@@ -228,7 +223,7 @@ The code below demonstrates how to implement your own `sum'` function.
 
 ```
 
-`sum`, `sum'`, `prod`, `prod'`, `min`, `min'`, `mean`, `mean'` all belong to this group. About the difference between the functions with/without prime ending, please refer to the chapter on :doc:`Function Naming Conventions <naming>`.
+The functions `sum`, `sum'`, `prod`, `prod'`, `min`, `min'`, `mean`, and `mean'` all belong to this group. The difference between the functions with and without prime ending is that the former one returns an ndarray, while the latter one returns a number.
 
 Similarly, if you need indices in folding function, you can use `foldi` which passes in 1-d indices.
 
@@ -242,7 +237,6 @@ Similarly, if you need indices in folding function, you can use `foldi` which pa
 ## Scan Functions
 
 To some extent, the `scan` function is like the combination of `map` and `fold`. It accumulates the value along the specified axis but it does not change the shape of the input. Think about how we generate a cumulative distribution function (CDF) from a probability density/mass function (PDF/PMF).
-
 The type signature of `scan` looks like this in Ndarray.
 
 ```text
@@ -251,7 +245,7 @@ The type signature of `scan` looks like this in Ndarray.
 
 ```
 
-There are several functions belong to this group, such as `cumsum`, `cumprod`, `cummin`, `cummax`, and etc. To implement one `cumsum` for yourself, you can write in the following way.
+Several functions belong to this group, such as `cumsum`, `cumprod`, `cummin`, `cummax`, and etc. To implement one `cumsum` for yourself, you can write in the following way.
 
 ```ocaml
 
@@ -259,8 +253,7 @@ There are several functions belong to this group, such as `cumsum`, `cumprod`, `
 
 ```
 
-Again, you can use `scani` to obtain the indices in the passed in cumulative functions.
-
+Again, you can use the `scani` to obtain the indices in the passed in cumulative functions.
 
 ## Comparison Functions
 
@@ -279,7 +272,6 @@ The comparison functions themselves can be divided into several groups. The firs
   ...
 ```
 
-
 The second group compares two ndarrays but returns an 0-1 ndarray of the same shape. The elements where the predicate is satisfied have value 1 otherwise 0.
 
 ```text
@@ -296,7 +288,7 @@ The second group compares two ndarrays but returns an 0-1 ndarray of the same sh
 ```
 
 
-The third group is similar to the first one but compares an ndarray with a scalar value, the return is a boolean value.
+The third group is similar to the first one but compares an ndarray with a scalar value, the return is a Boolean value.
 
 ```text
 
@@ -312,7 +304,7 @@ The third group is similar to the first one but compares an ndarray with a scala
 ```
 
 
-The fourth group is similar to the second one but compares an ndarray with a scalar value, the return is an 0-1 ndarray.
+The fourth group is similar to the second one but compares an ndarray with a scalar value, and the returned value is a 0-1 ndarray.
 
 ```text
 
@@ -328,8 +320,8 @@ The fourth group is similar to the second one but compares an ndarray with a sca
 ```
 
 
-You probably noticed the pattern in naming these functions. In general, I recommend using operators rather than calling these function name directly, since it leads to more concise code. Please refer to the chapter on [Conventions](convention.html).
-
+You probably have noticed the pattern in naming these functions.
+In general, we recommend using operators rather than calling these function name directly, since it leads to more concise code. Please refer to the chapter about [Conventions](convention.html).
 
 The comparison functions can do a lot of useful things for us. As an example, the following code shows how to keep the elements greater than `0.5` as they are but set the rest to zeros in an ndarray.
 
@@ -345,19 +337,17 @@ let z = Arr.((x >.$ 0.5) * x);;
 
 As you can see, comparison function combined with operators can lead to more concise code. Moreover, it sometimes outperforms the first solution at the price of higher memory consumption, because the loop is done in C rather than in OCaml.
 
-At this point, you might start understanding why I chose to let comparison functions return 0-1 ndarray as the result.
-
 
 ## Vectorised Functions
 
-Many common operations on ndarrays can be decomposed as a series of `map`, `fold`, and `scan` operations. There is even a specific programming paradigm built atop of this called `Map-Reduce`, which was hyped several years ago in many data processing frameworks. Nowadays, map-reduce is one dominant data-parallel processing paradigm.
+Many common operations on ndarrays can be decomposed as a series of `map`, `fold`, and `scan` operations. There is even a specific programming paradigm built atop of this which is called `Map-Reduce`.
+It was hyped several years ago in many data processing frameworks. Nowadays, map-reduce is one dominant data-parallel processing paradigm.
 
 The ndarray module has included a very comprehensive set of mathematical functions and all have been vectorised. This means you can apply them directly on an ndarray and the function will be automatically applied to every element in the ndarray.
 
-Conceptually, I can implement all these functions using the aforementioned `map`, `fold`, and `scan`. In reality, these vectorised math is done in C code to guarantee the best performance. Accessing the elements in a bigarray is way faster in C than in OCaml.
-
 For binary math operators, there are `add`, `sub`, `mul`, and etc. For unary operators, there are `sin`, `cos`, `abs`, and etc. You can obtain the complete list of functions in [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli>).
 
+Conceptually, Owl can implement all these functions using the aforementioned `map`, `fold`, and `scan`. In reality, these vectorised math is done in C code to guarantee the best performance. Accessing the elements in a bigarray is way faster in C than in OCaml.
 
 
 ## Iteration Functions
@@ -372,7 +362,8 @@ Like native OCaml array, Owl also provides `iter` and `iteri` functions with whi
 
 ```
 
-One common use case is iterating all the elements and checks if one (or several) predicate is satisfied, there is a special set of iteration functions to help you finish this task.
+One common use case is iterating all the elements and checking if one (or several) predicate is satisfied.
+There is a special set of iteration functions to help you finish this task.
 
 ```text
 
@@ -412,7 +403,7 @@ All aforementioned functions only tell us whether the predicates are met or not.
 
 ```
 
-We have mentioned many times that 1-d indices will be passed in. The reason is passing in 1-d indices is way faster than passing in n-d indices. However, if you do need n-dimensional indices, you can use the following two functions to convert between 1-d and 2-d indices, both are defined in `Owl.Utils` module.
+We have mentioned that 1-d indices are passed in. The reason is passing in 1-d indices is way faster than passing in n-d indices. However, if you do need n-dimensional indices, you can use the following two functions to convert between 1-d and 2-d indices, both are defined in the `Owl.Utils` module.
 
 ```text
 
@@ -426,12 +417,9 @@ We have mentioned many times that 1-d indices will be passed in. The reason is p
 
 Note that you need to pass in the original ndarray because the shape information is required for calculating index conversion.
 
-
-
 ## Manipulation Functions
 
-Ndarray module contains many useful functions to manipulate ndarrays. For example, you can tile and repeat an ndarray along a specified axis. 
-
+Ndarray module contains many useful functions to manipulate ndarrays. For example, you can tile and repeat an ndarray along a specified axis.
 Let's first create a sequential ndarray.
 
 ```ocaml
@@ -462,7 +450,7 @@ R5  8  9 10 11  8  9 10 11
 
 ```
 
-Comparing to `tile`, `repeat` function replicates each element in their adjacent places along specified dimension.
+Comparing to `tile`, the `repeat` function replicates each element in their adjacent places along specified dimension.
 
 ```ocaml
 # let z = Arr.repeat x [|2;1|]
@@ -491,9 +479,10 @@ You can also expand the dimensionality of an ndarray, or squeeze out those dimen
 
 ```
 
-Another two useful functions are `concatenate` and `split`. `concatenate` allows us to concatenate an array of ndarrays along the specified axis. The constraint on the shapes is that, except the dimension for concatenation, the rest dimension must be equal. For matrices, there are two operators associated with concatenation: `@||` for concatenating horizontally (i.e. along axis 1); `@=` for concatenating vertically (i.e. along axis 0).
-
-`split` is simply the inverse operation of concatenation.
+Another two useful functions are `concatenate` and `split`.
+The `concatenate` allows us to concatenate an array of ndarrays along the specified axis. The constraint on the shapes is that, except for the dimension of concatenation, the rest dimensions must be equal.
+For matrices, there are two operators associated with concatenation: `@||` for concatenating horizontally (i.e. along axis 1); `@=` for concatenating vertically (i.e. along axis 0).
+The `split` is simply the inverse operation of concatenation.
 
 ```text
 
@@ -511,7 +500,7 @@ You can also sort an ndarray but note that modification will happen in place.
 
 ```
 
-Converting between ndarrays and OCaml native arrays can be efficiently done with these functions.
+Converting between ndarrays and OCaml native arrays can be efficiently done with these conversion functions:
 
 ```text
 
@@ -521,13 +510,12 @@ Converting between ndarrays and OCaml native arrays can be efficiently done with
 
 ```
 
-Again, for matrix this special case, there are `to_arrays` and `of_arrays` two functions.
-
+Again, there also exist the `to_arrays` and `of_arrays` two functions for the special case of matrix module.
 
 
 ## Serialisation
 
-Serialisation and de-serialisation are simply done with `save` and `load` two functions.
+Serialisation and de-serialisation are simply done with the `save` and `load` functions.
 
 ```text
 
@@ -537,7 +525,7 @@ Serialisation and de-serialisation are simply done with `save` and `load` two fu
 
 ```
 
-Note that you need to pass in type information in `load` function otherwise Owl cannot figure out what is contained in the chunk of binary file. Alternatively, you can use the corresponding `load` functions in `S/D/C/Z` module to save the type information.
+Note that you need to pass in type information in the `load` function, otherwise Owl cannot figure out what is contained in the chunk of binary file. Alternatively, you can use the corresponding `load` functions in the `S/D/C/Z` modules to save the type information.
 
 ```ocaml
 # let x = Mat.uniform 8 8 in
@@ -547,62 +535,62 @@ Note that you need to pass in type information in `load` function otherwise Owl 
 - : bool = true
 ```
 
-`save` and `load` currently use the Marshall module which is brittle since it depends on specific OCaml versions. In the future, these two functions will be improved.
+The `save` and `load` currently use the `Marshall` module which is brittle since it depends on specific OCaml versions. In the future, these two functions will be improved.
 
 With the help of [npy-ocaml](https://github.com/LaurentMazare/npy-ocaml), we can save and load files in the format of npy file.
-Proposed by NumPy, [NPY](https://docs.scipy.org/doc/numpy-1.14.2/neps/npy-format.html) is a standard binary file format for persisting a single arbitrary ndarray on disk. 
+Proposed by NumPy, [NPY](https://docs.scipy.org/doc/numpy-1.14.2/neps/npy-format.html) is a standard binary file format for persisting a single arbitrary ndarray on disk.
 The format stores all of the shape and data type information necessary to reconstruct the array correctly even on another machine with a different architecture.
 NPY is a widely used serialisation format.
-Owl can thus easily interact with the Python-world data by using this format. 
+Owl can thus easily interact with the Python-world data by using this format.
 
-Using NPY files are the same as that of normal serialisation. Here is a simple example:
+Using NPY files are the same as that of normal serialisation methods. Here is a simple example:
 
 ```ocaml
-# let x = Arr.uniform [|3; 3|] in 
+# let x = Arr.uniform [|3; 3|] in
   Arr.save_npy ~out:"data.npy" x;
-  let y = Arr.load_npy "data.npy" in 
-  Arr.(x = y) 
+  let y = Arr.load_npy "data.npy" in
+  Arr.(x = y)
 - : bool = true
 ```
 
-There are way more functions contained in the Ndarray module than the ones I have introduced here. Please refer to the API documentation for the full list.
+There are way more functions contained in the `Ndarray` module than the ones we have introduced here. Please refer to the API documentation for the full list.
 
-## Tensors 
+## Tensors
 
-At last, we will briefly introduce the idea of *tensor*. 
-If you look at some articles online the tensor is defined as a n-dimensional array.
-However, mathematically, there are differences between these two. 
-In a n-dimension space, a tensor contains $m$ indices is an mathematical object that obeys certain transformation rules.
-For example, in a three dimension space, we have a value `A = [0, 1, 2]` that indicate an vector in this space. 
+In the last part of this chapter, we will briefly introduce the idea of *tensor*.
+If you look at some articles online the tensor is often defined as an n-dimensional array.
+However, mathematically, there are differences between these two.
+In a n-dimension space, a tensor that contains $m$ indices is a mathematical object that obeys certain transformation rules.
+For example, in a three dimension space, we have a value `A = [0, 1, 2]` that indicate a vector in this space.
 We can find each element in this vector by a single index $i$, e.g. $A_1 = 1$.
-This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems. 
-But if we do so, then the content in $A$ needs to be updated accordingly. 
-Therefore we say that, a tensor can normally be expressed in the form of a ndarray, but it is not a ndarray. 
+This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems.
+But if we do so, then the content in $A$ needs to be updated accordingly.
+Therefore we say that, a tensor can normally be expressed in the form of an ndarray, but it is not an ndarray.
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
-The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, then the component of the vector needs to be changed to another direction.
-Considering a single vector $v$ in coordinate system with basis $e$. 
-We can change the coordinate base to $\tilde{e}$ with linear transformation: $\tilde{e} = Ae$ where A is a matrix, then for any vector in this space using $e$ as base, its content will be transformed as: $\tilde{v} = A^{-1}v$, or we can write it as;
+The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, the component of the vector needs to be changed to another direction.
+Considering a single vector $v$ in a coordinate system with basis $e$.
+We can change the coordinate base to $\tilde{e}$ with linear transformation: $\tilde{e} = Ae$ where A is a matrix. For any vector in this space using $e$ as base, its content will be transformed as: $\tilde{v} = A^{-1}v$, or we can write it as:
 
 $$\tilde{v}^i = \sum_j~B_j^i~v^j.$$
 
 Here $B=A^{-1}$.
-We call a vector *contravector* because it changes in the opposite way to the basis. 
+We call a vector *contravector* because it changes in the opposite way to the basis.
 Note we use the superscript to denote the element in contravectors.
 
-As a comparison, think about a matrix multiplication $\alpha~v$. The $\alpha$ itself forms a different vector space, which basis is related to the basis of $v$'s vector space.
+As a comparison, think about a matrix multiplication $\alpha~v$. The $\alpha$ itself forms a different vector space, the basis of which is related to the basis of $v$'s vector space.
 It turns out that the direction of change of $\alpha$ is the same as that of $e$. When $v$ uses new $\tilde{e} = Ae$, its component changes in the same way:
 
 $$\tilde{\alpha}_j = \sum_i~A_j^i~\alpha_i.$$
 
 It is called a *covector*, denoted with subscript.
-We can further extend it matrix. Think about a linear mapping $L$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication. 
+We can further extend it to matrix. Think about a linear mapping $L$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication.
 With the change of the coordinate system, it can be proved that the content of the linear map $L$ itself is updated to:
 
 $$\tilde{L_j^i} = \sum_{kl}~B_k^i~L_l^k~A_j^l.$$
 
 Again, note we use both superscript and subscript for the linear map $L$, since it contains one covariant component and one contravariant component.
-Further more, we can extend this process and define the tensor. 
+Further more, we can extend this process and define the tensor.
 A tensor $T$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
 The way is that:
 
@@ -610,48 +598,48 @@ $$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_{ijk\ldots~rst\ldots}~B_i^aB_j^bB_k
 
 Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $rst\ldots$ are that of the covariant part.
 
-One of the important operations of tensor is the tensor contraction. We are familiar with the matrix multiplication:
+One of the important operations of tensor is the *tensor contraction*. We are familiar with the matrix multiplication:
 $$C_j^i = \sum_{k}A_k^iB_j^k.$$ {#eq:ndarray:matmul}
-The *contraction* operations extends this process to multiple dimension space. 
+The *contraction* operations extends this process to multiple dimension space.
 It sums the products of the two ndarrays' elements over specified axes.
 For example, we can perform the matrix multiplication with contraction:
 
 ```ocaml env=ndarray:matmul
 let x = Mat.uniform 3 4
-let y = Mat.uniform 4 5 
+let y = Mat.uniform 4 5
 
-let z1 = Mat.dot x y 
+let z1 = Mat.dot x y
 let z2 = Arr.contract2 [|(1,0)|] x y
 ```
 
-We can see that the matrix multiplication is a special case of and can be implemented with the contraction operation.
+We can see that the matrix multiplication is a special case of contraction operation and can be implemented with it.
 
-Then let's extend the two dimension case to multiple dimensions.
-Let's say we have two three-dimensional array A and B. We hope to compute the matrix C so that: 
+Next, let's extend the two dimension case to multiple dimensions.
+Let's say we have two three-dimensional array A and B. We hope to compute the matrix C so that:
 
 $$C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}$$ {#eq:ndarray:contract}
 
-We can use the `contract2` function in the Ndarray module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
+We can use the `contract2` function in the `Ndarray` module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
 
 ```ocaml env=ndarray:contraction
 let x = Arr.sequential [|3;4;5|]
 let y = Arr.sequential [|4;3;2|]
 
-let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y 
+let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y
 ```
 
-The indices means that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`, as shown in [@eq:ndarray:contract].
+The indices mean that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`, as shown in [@eq:ndarray:contract].
 We can verify the result with the naive way of implementation:
 
 ```ocaml env=ndarray:contraction
 let z2 = Arr.zeros [|5;2|]
 
-let _ = 
+let _ =
   for h = 0 to 2 do
-    for k = 0 to 3 do 
-      for i = 0 to 4 do 
-        for j = 0 to 1 do 
-          let r = (Arr.get x [|h;k;i|]) *. (Arr.get y [|k;h;j|]) in 
+    for k = 0 to 3 do
+      for i = 0 to 4 do
+        for j = 0 to 1 do
+          let r = (Arr.get x [|h;k;i|]) *. (Arr.get y [|k;h;j|]) in
           Arr.set z2 [|i;j|] ((Arr.get z2 [|i;j|]) +. r)
         done
       done
@@ -659,14 +647,14 @@ let _ =
   done
 ```
 
-Then check if the two results agree:
+Then we can check if the two results agree:
 
 ```ocaml env=ndarray:contraction
-# Arr.equal z1 z2 
+# Arr.equal z1 z2
 - : bool = true
 ```
 
-The contraction can also be applied on one single ndarray to perform the reduction operation using `contract1` function.
+The contraction can also be applied on one single ndarray to perform the reduction operation using the `contract1` function.
 
 ```ocaml env=ndarray:contraction-01
 # let x = Arr.sequential [|2;2;3|]
@@ -688,17 +676,22 @@ R  9 11 13
 
 ```
 
-We can surely perform the matrix multiplication with the contraction. 
+We can surely perform the matrix multiplication with contraction.
 High-performance implementation of the contraction operation has been a research topic.
-Actually, many tensor operations involve summation over particular indices. 
+Actually, many tensor operations involve summation over particular indices.
 Therefore in using tensors in applications such as linear algebra and physics, the *Einstein notation* is used to simplified notations.
 It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term).
-For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$. 
-[@eq:ndarray:tensor] can also be greatly simplified in this way. 
+For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$.
+The [@eq:ndarray:tensor] can also be greatly simplified in this way.
 
 The tensor calculus is of important use in disciplines such as geometry and physics.
 More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as [@dullemond1991introduction] for deeper understanding about this topic.
 
 ## Summary
+
+N-dimensional array is the fundamental data type in Owl, as well as in many other numerical libraries such as NumPy.
+This chapter explain in detail the Ndarray module, including its creation, properties, manipulation, serialisation, etc.
+Besides, we also discuss the subtle difference between tensor and ndarray in this chapter.
+This chapter is easy to follow, and can serve as a reference whenever users need a quick check of functions they need.
 
 ## References

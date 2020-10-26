@@ -1,22 +1,22 @@
 # Slicing and Broadcasting
 
 Indexing, slicing, and broadcasting are three fundamental functions to manipulate multidimensional arrays.
-They are so basic and are used in practically every application, therefore understanding the nuts and bolts is very important.
+They are used in practically every numerical application.
+Therefore understanding their nuts and bolts is very important.
 In this chapter we will introduce how to use these functions in Owl.
 
 ## Slicing
 
 Indexing and slicing is arguably the most important function in any numerical library. A flexible design is able to significantly simplify the code and allow us to write concise algorithms.
+Before we start, let's clarify some things:
 
-Before we start, let's clarify some things.
+* slicing refers to the operation that extracts part of the data from an ndarray or a matrix according to a well-defined *slice definition*;
 
-* Slicing refers to the operation that extracts part of the data from an ndarray or a matrix according to a well-defined *slice definition*.
+* slicing can be applied to all dense data structures, i.e. both ndarrays and matrices;
 
-* Slicing can be applied to all the dense data structures, i.e. both ndarrays and matrices.
+* slice definition is an `index list` which clarifies *what indices* should be accessed and in *what order* for each dimension of the passed in variable;
 
-* Slice definition is an `index list` which clarifies *what indices* should be accessed and in *what order* for each dimension of the passed in variable.
-
-* There are two types of slicing in Owl: *basic slicing* and *fancy slicing*. The difference between the two is how the slice is defined.
+* there are two types of slicing in Owl: *basic slicing* and *fancy slicing*. The difference between the two lies in how the slice is defined.
 
 ### Basic Slicing
 
@@ -28,12 +28,12 @@ val get_slice : int list list -> ('a, 'b) t -> ('a, 'b) t
 val set_slice : int list list -> ('a, 'b) t -> ('a, 'b) t -> unit
 ```
 
-Both functions accept `int list list` as its slice definition. Every `list` element in the `int list list` is assumed to be a range. E.g., `[ []; [2]; [-1;3] ]` is equivalent to its full slice definition `[ R []; R [2]; R [-1;3] ]`, as we will introduce below in fancy slicing.
-
+Both functions accept `int list list` as its slice definition. Every `list` element in the `int list list` is assumed to be a range.
+For example, `[ []; [2]; [-1;3] ]` is equivalent to its full slice definition `[ R []; R [2]; R [-1;3] ]`, as we will introduce below in the fancy slicing.
 
 ### Fancy Slicing
 
-Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrarily ordered indices which may not be possible to specify with aforementioned `[start;stop;step]` format.
+Fancy slicing is more powerful than the basic one thanks to its slice definition. With fancy slicing, we can pass in a list of arbitrarily ordered indices which may not be possible to specify with aforementioned simple `[start;stop;step]` format.
 
 ```ocaml
 type index =
@@ -42,14 +42,14 @@ type index =
   | R of int list  (* index range *)
 ```
 
-Fancy slice is defined by an `index list` where you can use three type constructors to specify:
+As shown above, fancy slice is defined by an `index list` where you can use three type constructors to specify:
 
 * an individual index (using `I` constructor);
 * a list of indices (using `L` constructor);
 * a range of indices (using `R` constructor).
 
 
-There are two functions to handle fancy slicing operations.
+Similar to the basic slicing, there are two functions to handle fancy slicing operations.
 
 ```text
 
@@ -59,7 +59,7 @@ There are two functions to handle fancy slicing operations.
 
 ```
 
-`get_fancy s x` retrieves a slice of `x` defined by `s`; whereas `set_fancy s x y` assigns the slice of `x` defined by `s` according to values in `y`. Note that `y` must have the same shape as that defined by `s`.
+The `get_fancy s x` retrieves a slice of `x` defined by `s`; whereas `set_fancy s x y` assigns the slice of `x` defined by `s` according to values in `y`. Note that `y` must have the same shape as that defined by `s`.
 
 Basic slicing is a special case of fancy slicing where only type constructor `R` is used in the definition. For example, the following two definitions are equivalent.
 
@@ -73,24 +73,21 @@ Basic slicing is a special case of fancy slicing where only type constructor `R`
 
 ```
 
-Note that both `get_basic` and `get_fancy` return a copy (rather than a view as that in Numpy); whilst `set_basic` and `set_fancy` modifies the original data in place.
+Note that both `get_basic` and `get_fancy` return a copy rather than a view as that in NumPy; whilst `set_basic` and `set_fancy` modifies the original data in place.
 
 
 ### Conventions in Definition
 
-Essentially, Owl's slicing functions are very similar to those in NumPy. So if you already know how to slice n-dimensional arrays in NumPy, you should find this chapter very easy.
+Essentially, Owl's slicing functions are very similar to those in NumPy. So if you already know how to slice n-dimensional arrays in NumPy, you should find this chapter quite easy to follow.
 
-The core building block is the slice definition. Slice definition is a `index list`. Each element within the `index list` corresponds one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors `I`, `L`, and `R` to let you specify single index, a list of indices, or a range of indices.
+The core building block is the slice definition. Slice definition is an `index list`. Each element within the `index list` corresponds to one dimension in the passed in data, and it defines how the indices along this dimension should be accessed. Owl provides three constructors `I`, `L`, and `R` to let you specify single index, a list of indices, or a range of indices.
+Constructor `I` is trivial, it specifies an index. E.g., `[ I 2; I 5 ]` returns the element at position `(2, 5)` in a matrix.
+Constructor `L` is used to specify a list of indices. E.g., `[ I 2; L [5;3] ]` returns a `1 x 2` matrix consists of the elements at `(2, 5)` and `(2, 3)` in the original matrix.
 
-* Constructor `I` is trivial, it specifies a specific index. E.g., `[ I 2; I 5 ]` returns the element at position `(2, 5)` in a matrix.
+Constructor `R` is for specifying a range of indices. It has more conventions but by no means complicated. The following text is dedicated for range conventions.
+These conventions or rules require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.
 
-* Constructor `L` is used to specify a list of indices. E.g., `[ I 2; L [5;3] ]` returns a `1 x 2` matrix consists of the elements at `(2, 5)` and `(2, 3)` in the original matrix.
-
-* Constructor `R` is for specifying a range of indices. It has more conventions but by no means complicated. The following text is dedicated for range conventions.
-
-The following conventions require our attentions in order to write correct slice definition. These conventions can be equally applied to both basic and fancy slicing.
-
-**Rule #1**: The format of the range definition follows **R [ start; stop; step ]**. Obviously, `start` specifies the starting index; `stop` specifies the stopping index (inclusive); and `step` specifies the step size. You do not have to specifies all three variables in the definition, please see the following rules.
+**Rule #1**: The format of the range definition follows **R [ start; stop; step ]**. Obviously, `start` specifies the starting index; `stop` specifies the stopping index (inclusive); and `step` specifies the step size. You do not have to specify all three variables in the definition; please see the following rules.
 
 **Rule #2**: All three variables `start`, `stop`, and `step` can take both positive and negative values, but `step` is not allowed to take `0` value. Positive step indicates that indices will be visited in increasing order from `start` to `stop`; and vice versa.
 
@@ -98,18 +95,17 @@ The following conventions require our attentions in order to write correct slice
 
 **Rule #4**: If you pass in an empty list `R []`, this will be expanded into `[ 0; n - 1; 1 ]` which means all the indices will be visited in increasing order with step size `1`.
 
-**Rule #5**: If you only specify one variable such as `[ start ]`, then `get_slice` function assumes that you will take one specific index by automatically extending it into `[ start; start; 1 ]`. As we can see, `start` and `stop` are the same, with step size 1.
+**Rule #5**: If you only specify one variable such as `[ start ]`, `get_slice` function assumes that you will take one specific index by automatically extending it into `[ start; start; 1 ]`. As we can see, `start` and `stop` are the same, with step size 1.
 
-**Rule #6**: If you only specify two variables then `slice` function assumes they are `[ start; stop ]` which defines the range of indices. However, how `get_slice` will expand this slice definition depends, as we can see in the below, `slice` will visit the indices in different orders.
+**Rule #6**: If you only specify two variables then `slice` function assumes they are `[ start; stop ]` which defines the range of indices. However, how `get_slice` will expand this slice definition depends. As we can see below, `slice` will visit the indices in different orders:
 
-  * if `start <= stop`, then it will be expanded to `[ start; stop; 1 ]`;
-  * if `start > stop`, then it will be expanded to `[ start; stop; -1 ]`;
+  * if `start <= stop`, it will be expanded to `[ start; stop; 1 ]`;
+  * if `start > stop`, it will be expanded to `[ start; stop; -1 ]`;
 
 **Rule #7**: It is not necessary to specify all the definitions for all the dimensions, `get_slice` function will also expand it by assuming you will take all the data in higher dimensions. E.g., `x` has the shape `[ 2; 3; 4 ]`, if we define the slice as `[ [0] ]` then `get_slice` will expand the definition into `[ [0]; []; [] ]`
 
 OK, that's all. Please make sure you understand it well before you start, but it is also fine you just learn by doing.
-
-Here is some illustrated examples that can get you started with some of these rules.
+Now here are some illustrated examples that can get you started with some of these rules.
 These examples are based on a `8x8` matrix.
 
 ```ocaml env=slicing_example_00
@@ -152,7 +148,7 @@ R7 58
 
 ```
 
-The second example in in [@fig:slicing:example_slice_01](b)is similar, but part of a row. Still, this can be gotten using both methods.
+The second example in in [@fig:slicing:example_slice_01](b)is similar, but about retrieving part of a row. Still, this can be gotten using both methods.
 
 ```ocaml env=slicing_example_00
 # Arr.get_fancy [ I 2; R [4; 6] ] x
@@ -184,7 +180,7 @@ R1 41 43 45 47
 
 ```
 
-Finally, the last example concerns taking a sub-matrix. We can do it in the similar way as to the example 1 and 2.
+Finally, the last example concerns taking a sub matrix. We can do it in the similar way as the example 1 and 2.
 Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.
 
 ```ocaml env=slicing_example_00
@@ -198,7 +194,7 @@ R1 61 62
 
 ### Extended Operators
 
-The operators for indexing and slicing are built atop of the extended indexing operators introduced in OCaml 4.06. Three are used in Owl as follows. All of them are defined in the functors in  `Owl_operator` module.
+The operators for indexing and slicing are built on the extended indexing operators introduced in OCaml 4.06. All of them are defined in the functors in  `Owl_operator` module. They are used in Owl as follows.
 
 * `.%{ }`   : `get`
 * `.%{ }<-` : `set`
@@ -207,9 +203,9 @@ The operators for indexing and slicing are built atop of the extended indexing o
 * `.!{ }`   : `get_fancy`
 * `.!{ }<-` : `set_fancy`
 
-Here are some examples to show how to use them.
+Here are some examples that show how to use them.
 
-**.%{ }** for indexing, as follows.
+**.%{ }** for indexing:
 
 ```ocaml env=slicing_env1
   open Arr;;
@@ -219,7 +215,7 @@ Here are some examples to show how to use them.
   x.%{2; 3; 4} <- 111.;;         (* i.e. Arr.set *)
 ```
 
-**.${ }** for basic slicing, as follows.
+**.${ }** for basic slicing:
 
 ```ocaml env=slicing_env1
 
@@ -232,7 +228,7 @@ Here are some examples to show how to use them.
 
 ```
 
-**.!{ }** for fancy slicing, as follows.
+**.!{ }** for fancy slicing:
 
 ```ocaml env=slicing_env1
 
@@ -248,33 +244,26 @@ Here are some examples to show how to use them.
 
 ### Advanced Usage
 
-We believe that nothing is better than concrete examples.
-We will first use the basic slicing to demonstrate some examples in the following. Note that all the following examples can be equally applied to ndarray.
+There are more advanced usages of slicing besides what we have just seen.
+We will first use the basic slicing to demonstrate some examples in this section. Note that all the following examples can be equally applied to ndarray.
 
 Let's first define a sequential matrix as the input data for the following examples.
 
 ```ocaml env=slicing_env2
 
-  let x = Mat.sequential 5 7;;
+# let x = Mat.sequential 5 7;;
+val x : Mat.mat =
+
+   C0 C1 C2 C3 C4 C5 C6
+R0  0  1  2  3  4  5  6
+R1  7  8  9 10 11 12 13
+R2 14 15 16 17 18 19 20
+R3 21 22 23 24 25 26 27
+R4 28 29 30 31 32 33 34
 
 ```
 
-You should be able to see the following output in `utop`.
-
-```text
-
-     C0 C1 C2 C3 C4 C5 C6
-  R0  0  1  2  3  4  5  6
-  R1  7  8  9 10 11 12 13
-  R2 14 15 16 17 18 19 20
-  R3 21 22 23 24 25 26 27
-  R4 28 29 30 31 32 33 34
-
-  val x : Mat.mat =
-
-```
-
-Now, we can finally start our experiment. One benefit of running code in `utop` is that you can observe the output immediately to understand better how `slice` function works.
+Now, we can start our experiment. One benefit of running code in `utop` is that you can observe the output immediately to understand better how `slice` function works.
 
 ```ocaml env=slicing_env2
 
@@ -337,7 +326,6 @@ Let' see some more complicated examples.
 ```
 
 
-
 The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a `5 x 5` sequential matrix for illustration.
 
 ```ocaml env=slicing_env2
@@ -369,7 +357,7 @@ R4  0  1  2  3  4
 
 ```
 
-The second `reverse` function treats a matrix as one-dimensional vector and reverse the elements. This operation is equivalent to flipping in both vertical and horizontal directions.
+The second `reverse` function treats a matrix as one-dimensional vector and reverse its elements. This operation is equivalent to flipping in both vertical and horizontal directions.
 
 ```ocaml env=slicing_env2
 # let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
@@ -385,7 +373,7 @@ R4  4  3  2  1  0
 
 ```
 
-The third function rotates a matrix 90 degrees in clockwise direction. As we see, slicing function leads to very concise code.
+The third function rotates a matrix 90 degrees in clockwise direction. As we can see, slicing function leads to very concise code.
 
 ```ocaml env=slicing_env2
 # let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]) in
@@ -426,20 +414,20 @@ R4 23 24 20 21 22
 
 ```
 
-Slicing and indexing is an important topic in Owl, make sure you understand it well before proceeding to other chapters.
+Slicing and indexing is an important topic in Owl, so make sure you understand it well before proceeding to other chapters.
 
 
 ## Broadcasting
 
-Following indexing and slicing introduced in previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly called, broadcasting are often implicitly called when certain conditions are met. This automatic behaviour on one hand is able to simplify the code, it can also potentially introduce bugs and make the debugging really difficult.
+Following indexing and slicing introduced in the previous section, this section introduces the broadcasting operation in Owl. In contrast to indexing and slicing which are explicitly used, broadcasting are often implicitly called when certain conditions are met. This automatic behaviour on one hand is able to simplify the code, on the other it can also potentially introduce bugs and make the debugging really difficult.
 
 
 ### What Is Broadcasting?
 
-There are many binary (mathematical) operators take two ndarrays as inputs, e.g. `add`, `sub`, and etc. In the trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match, then how to apply the smaller one to the bigger one is referred to as `broadcasting`.
+There are many binary (mathematical) operators that take two ndarrays as inputs, e.g. `add`, `sub`, and etc. In a trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match.
+How to apply the smaller one to the bigger one is referred to as *broadcasting*.
 
-Broadcasting can save unnecessary memory allocation. E.g., assume we have a `1000 x 500` matrix `x` containing 1000 samples, and each sample has 500 features. Now we want to add a bias value for each feature, i.e. a bias vector `v` of shape `1 x 500`.
-
+Broadcasting can save unnecessary memory allocation. For example, assume we have a `1000 x 500` matrix `x` containing 1000 samples, and each sample has 500 features. Now we want to add a bias value for each feature, i.e. a bias vector `v` of shape `1 x 500`.
 Because the shape of `x` and `v` do not match, we need to tile `v` so that it has the same shape as that of `x`.
 
 ```ocaml
@@ -451,7 +439,7 @@ Because the shape of `x` and `v` do not match, we need to tile `v` so that it ha
 
 ```
 
-The code above certainly works, but it is obvious that the solution uses much more memory. High memory consumption is not desirable for many applications, especially for those running on resource-constrained devices. Therefore we need the broadcasting operation come to rescue.
+The code above certainly works, but it is obvious that the solution uses too much memory. High memory consumption is not desirable for many applications, especially for those running on resource-constrained devices. Therefore we need the broadcasting.
 
 ```ocaml
 
@@ -465,13 +453,11 @@ The code above certainly works, but it is obvious that the solution uses much mo
 ### Shape Constraints
 
 In broadcasting, the shapes of two inputs cannot be arbitrarily different, they must be subject to some constraints.
-
 The convention used in broadcasting operation is much simpler than slicing. Given two matrices/ndarrays of the same dimensionality, for each dimension, one of the following two conditions must be met:
+1) both are equal;
+2) either is one.
 
-* both are equal.
-* either is one.
-
-Here are some **valid** shapes where broadcasting can be applied between `x` and `y`.
+Here are some valid shapes where broadcasting can be applied between `x` and `y`.
 
 ```text
 
@@ -484,7 +470,7 @@ Here are some **valid** shapes where broadcasting can be applied between `x` and
 
 ```
 
-Here are some **invalid** shapes that violate the aforementioned constraints so that the broadcasting cannot be applied.
+Here are some invalid shapes that violate the aforementioned constraints so that the broadcasting cannot be applied.
 
 ```text
 
@@ -497,8 +483,7 @@ Here are some **invalid** shapes that violate the aforementioned constraints so 
 
 
 What if `y` has less dimensionality than `x`? E.g., `x` has the shape `[|2;3;4;5|]` whereas `y` has the shape `[|4;5|]`. In this case, Owl first calls `Ndarray.expand` function to increase `y`'s dimensionality to the same number as `x`'s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending `1` s to lower dimension of `y`, so the new shape of `y` becomes `[|1;1;4;5|]`.
-
-You can try `expand` by yourself, as below.
+You can try `expand` by yourself, as shown below.
 
 ```ocaml env=broadcasting_example00
 let y = Arr.sequential [|4;5|];;
@@ -568,18 +553,16 @@ R2  2  4  6
 
 ### Supported Operations
 
-The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the operations in Owl support broadcasting are listed below:
+The broadcasting operation is transparent to programmers, which means it will be automatically applied if the shapes of two operators do not match (given the constraints are met of course). Currently, the operations in Owl that support broadcasting are listed below:
 
 - basic computation: `add`, `sub`, `mul`, `div`, `pow`
 - comparison operations: `elt_equal`, `elt_not_equal`, `elt_less`, `elt_greater`, `elt_less_equal`, `elt_greater_equal`
 - other operations: `min2`, `max2`. `atan2`, `hypot`, `fmod`
 
-## Internal Mechanism
+## Slicing in NumPy and Julia
 
-TODO: A short history of the development of NumPy and Julia.
-
-The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other languages.
-For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy.
+The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other libraries.
+For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy with code below.
 
 ```python
 >> import numpy as np
@@ -600,8 +583,8 @@ array([[53, 54],
        [61, 62]])
 ```
 
-You can see that the basic indexing syntax are similar, only that Python is not strong-typed, so the users can mix single index, list of indices, or index range.
-Note that index range in NumPy is different than that in Owl.
+You can see that the basic indexing syntax are similar, only that Python is not strong-typed, so the users can mix single index, list of indices, or index range at will.
+Note that index range in NumPy is different from that in Owl.
 
 Also, in Julia it can be done with:
 
@@ -637,13 +620,13 @@ Also, in Julia it can be done with:
  61  62
 ```
 
-The Julia interface is similar to that of NumPy. However, there are some crucial differences as shown these examples.
-First, the array in Julia uses column-major order, so we need to use the `transpose` function to achieve the same example.
+The Julia interface is also similar to that of NumPy. However, there are some crucial differences as shown in these examples.
+First, the array in Julia uses column-major order, so we need to use the `transpose` function to build the same example.
 The other obvious difference is that, the indexing of Julia array starts from 1, not 0.
 Besides, the negative indexing is not supported in Julia.
 
-However, one important thing to notice in slicing is the difference between *copy* and *view*.
-For example, in Owl we can make a slice:
+One important thing to notice in slicing is the difference between *copy* and *view*.
+For example, in Owl we can make a slice, change the slice, and check what the original ndarray looks like.
 
 ```ocaml env=slicing_example_01
 # let x = Arr.sequential [|3;3|]
@@ -706,8 +689,9 @@ array([[  0,   1, 200],
        [  6,   7,   8]])
 ```
 
+## Internal Mechanism
 
-For performance, slicing is implemented in C.
+To achieve good performance, slicing is implemented with C in Owl.
 The basic algorithm of slicing is simple. We need to copy part of the source array `x` to the target array `y`.
 So you can imagine two cursors move one step at a time, only that for each dimension, the cursor start at different position and offset compared to the starting point, and at different increments.
 At each step, we simply copy the content from `x` to `y`.
@@ -747,8 +731,14 @@ Taking a 2-dimensional slicing as example, here is the core step:
     }
 ```
 
-So this algorithm basically says that for each row, we calculate its starting points in `x` and `y`, and then for each column, copy the element, and them move the cursors forward until the current row is finished.
+So this algorithm basically says that for each row, we calculate its starting points in `x` and `y`; for each column, copy the element; and then move the cursors forward until the current row is finished.
 And then move the rows forward.
 If it becomes multiple dimension, we implement it with recursive algorithm.
 
 ## Summary
+
+In this chapter we introduce the fundamental operation for ndarrays in a numerical library: the slicing, indexing, and broadcasting.
+These topics are not difficult, but mastering them takes practice. This chapter provides a lot examples and illustrations.
+Hope they can be of help to the readers.
+We also briefly list how the slicing is done in NumPy and Julia, so that the users can see the similarities and differences between Owl and them.
+In the last of this chapter, we briefly introduce the implementation mechanism of slicing in Owl, for those who are interested in the low level details. More will be discussed in the Part II of this book.
