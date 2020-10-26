@@ -4,18 +4,18 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="mathematical-functions">
 <h1>Mathematical Functions</h1>
-<p>TBD</p>
+<p>Staring from this chapter, we begin our journey to explore the world of numerical computing with Owl. But let’s not be hasty. Before the main dishes such as algorithmic differentiation, optimisation, computation graph, etc., let’s taste some starters first. In this chapter, we will introduce how the familiar mathematical operations are supported in Owl. This chapter is organised according to different types of functions, and you can feel free to browse any of them. Note that functions in this chapter works on scalar values. The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.</p>
 <section class="level2" id="basic-functions">
 <h2>Basic Functions</h2>
-<p>Note that functions in this chapter works on scalar values. The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.</p>
 <section class="level3" id="basic-unary-math-functions">
 <h3>Basic Unary Math Functions</h3>
-<p>Many basic math functions takes one float number as input and returns one float number. We call them <em>unary</em> functions. You can use these unary functions easily from the <code>Maths</code> module. For example:</p>
+<p>Many basic mathematic functions take one float number as input and return one float number. We call them <em>unary</em> functions. You can use these unary functions easily from the <code>Maths</code> module. For example:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sqrt 2.;;
 &gt;- : float = 1.41421356237309515
 </code></pre>
 </div>
+<p>The tbl.&nbsp;1 lists these unary functions supported in this module.</p>
 <div id="tbl:maths:basic_unary">
 <table style="width:97%;">
 <caption>Table 1: Basic unary math functions</caption>
@@ -72,7 +72,7 @@
 </section>
 <section class="level3" id="basic-binary-functions">
 <h3>Basic Binary Functions</h3>
-<p>Binary functions takes two floats as inputs and returns one float as return. The most common arithmetic functions belong to this category.</p>
+<p>Unlike the unary ones, the <em>binary functions</em> take two floats as inputs and return one float as output. Most common arithmetic functions belong to this category, as shown in tbl.&nbsp;2.</p>
 <div id="tbl:maths:binary">
 <table style="width:97%;">
 <caption>Table 2: Binary math functions</caption>
@@ -125,11 +125,10 @@
 </section>
 <section class="level3" id="exponential-and-logarithmic-functions">
 <h3>Exponential and Logarithmic Functions</h3>
-<p>The constant <span class="math inline">\(e = \sum_{n=0}^{\infty}\frac{1}{n!}\)</span> is what we called the “natural constant”. It is called this way because the exponential function and it inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.</p>
-<p>We also have this beautiful Euler’s formula that connects the two most frequently used constants and the base of complex number and natural numbers:</p>
+<p>The constant <span class="math inline">\(e = \sum_{n=0}^{\infty}\frac{1}{n!}\)</span> is what we call the <em>natural constant</em>. It is named this way because the exponential function and its inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc. As an example, in a scientific experiment about bacteria, we can assume the number of bacterial at time <span class="math inline">\(t\)</span> follows an exponential function <span class="math inline">\(n(t) = Ce^rt\)</span> where <span class="math inline">\(C\)</span> is the initial population and <span class="math inline">\(r\)</span> is the daily increase rate. With this model, we can predict how the population of bacterial grows within certain time.</p>
+<p>We also have this beautiful Euler’s formula that connects the two most frequently used constants and the base of complex numbers and natural numbers:</p>
 <p><span class="math display">\[e^{i\pi}+ 1=0.\]</span></p>
-<p>As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function <span class="math inline">\(n(t) = Ce^rt\)</span> where <span class="math inline">\(C\)</span> is the initial population and <span class="math inline">\(r\)</span> is the daily increase rate. With this model, we can predict how the population of bacterial grows within certain time.</p>
-<p>The full list of exponential and logarithmic functions, together with some variants, are presented in tbl.&nbsp;3.</p>
+<p>The full list of exponential and logarithmic functions, together with some handy variants, are presented in tbl.&nbsp;3.</p>
 <div id="tbl:maths:explog">
 <table style="width:97%;">
 <caption>Table 3: Exponential and logarithmic math functions</caption>
@@ -162,23 +161,23 @@
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>log</code></td>
-<td style="text-align: left;"><span class="math inline">\(log_e~x\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log_e~x\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>log2</code></td>
-<td style="text-align: left;"><span class="math inline">\(log_2~x\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log_2~x\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>log10</code></td>
-<td style="text-align: left;"><span class="math inline">\(log_10~x\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log_10~x\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>logn</code></td>
-<td style="text-align: left;"><span class="math inline">\(log_n~x\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log_n~x\)</span></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>log1p</code></td>
-<td style="text-align: left;">Inverse of <code>expm1</code></td>
+<td style="text-align: left;">inverse of <code>expm1</code></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>logabs</code></td>
@@ -202,11 +201,11 @@
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>log1mexp</code></td>
-<td style="text-align: left;"><span class="math inline">\(log(1-exp(x))\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log(1-\exp(x))\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>log1pexp</code></td>
-<td style="text-align: left;"><span class="math inline">\(log(1+exp(x))\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\log(1+\exp(x))\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -214,14 +213,13 @@
 </section>
 <section class="level3" id="trigonometric-functions">
 <h3>Trigonometric Functions</h3>
-<p>In mathematics, the trigonometric functions are real functions which relate an angle of a right-angled triangle to ratios of two side lengths. They are widely used in all sciences that are related to geometry, such as navigation, solid mechanics, celestial mechanics, geodesy, and many others. They are among the simplest periodic functions, and as such are also widely used for studying periodic phenomena, through Fourier analysis. The most widely used trigonometric functions are the sine, the cosine, and the tangent. Their reciprocals are respectively the cosecant, the secant, and the cotangent, which are less used in modern mathematics. (<a href="https://en.wikipedia.org/wiki/Trigonometric_functions">COPY</a>)</p>
-<p>The triangular functions are all unary functions, for example:</p>
+<p>The sine, cosine, and tangent functions belong to the <em>trigonometric functions</em>, which relate ratios of two side lengths to an angle of a right-angled triangle. They include the commonly used <code>sin</code> and <code>cos</code> etc., and their reciprocals such as the cosecant, secant, etc. These functions are widely used in the numerical computation applications of different fields, such as mechanics and geometry. The triangular functions are all unary functions, for example:</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Maths.sin (Owl_const.pi /. 2.);;
 &gt;- : float = 1.
 </code></pre>
 </div>
-<p>And they are all included in the math module in Owl, as shown in tbl.&nbsp;4.</p>
+<p>They are all included in the math module in Owl, as shown in tbl.&nbsp;4.</p>
 <div id="tbl:maths:triangular">
 <table>
 <caption>Table 4: Trigonometric math functions</caption>
@@ -279,7 +277,7 @@
 </tbody>
 </table>
 </div>
-<p>Here the <span class="math inline">\(B_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Bernoulli_number">Bernoulli number</a>, and <span class="math inline">\(E_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Euler_number">Euler number</a>. The fig.&nbsp;1 shows the relationship between these trigonometric functions (<a href="https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0">figure src</a>). These functions also have corresponding inverse functions: <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>acot</code>, <code>asec</code>, <code>acsc</code>. For example, if <span class="math inline">\(\sin(a) = b\)</span>, then <span class="math inline">\(\textrm{asin}(b) = a\)</span>.</p>
+<p>Here the <span class="math inline">\(B_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Bernoulli_number">Bernoulli number</a>, and <span class="math inline">\(E_n\)</span> is the <span class="math inline">\(n\)</span>th <a href="https://en.wikipedia.org/wiki/Euler_number">Euler number</a>. The fig.&nbsp;1 shows the relationship between these trigonometric functions. This figure is inspired by a <a href="https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0">wiki post</a>. These functions also have corresponding inverse functions: <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>acot</code>, <code>asec</code>, <code>acsc</code>. For example, if <span class="math inline">\(\sin(a) = b\)</span>, then <span class="math inline">\(\textrm{asin}(b) = a\)</span>.</p>
 <figure>
 <img alt="" style="width:60.0%" id="fig:algodiff:trio" title="trio" src="images/maths/trio.png"><figcaption>Figure 1: Relationship between different trigonometric functions</figcaption>
 </figure>
