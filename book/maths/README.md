@@ -1,21 +1,25 @@
 # Mathematical Functions
 
-TBD
-
-## Basic Functions
-
+Staring from this chapter, we begin our journey to explore the world of numerical computing with Owl. 
+But let's not be hasty. Before the main dishes such as algorithmic differentiation, optimisation, computation graph, etc., let's taste some starters first.
+In this chapter, we will introduce how the familiar mathematical operations are supported in Owl.
+This chapter is organised according to different types of functions, and you can feel free to browse any of them. 
 Note that functions in this chapter works on scalar values.
 The N-dimensional array module introduced in later chapters contains these basic functions that work on n-dimensional arrays, including vectors and matrices.
 
+## Basic Functions
+
 ### Basic Unary Math Functions
 
-Many basic math functions takes one float number as input and returns one float number. We call them *unary* functions.
+Many basic mathematic functions take one float number as input and return one float number. We call them *unary* functions.
 You can use these unary functions easily from the `Maths` module. For example:
 
 ```ocaml
 # Maths.sqrt 2.
 - : float = 1.41421356237309515
 ```
+
+The [@tbl:maths:basic_unary] lists these unary functions supported in this module. 
 
 ------------  -------------------------------------------------------
 Function      Explanation
@@ -42,8 +46,8 @@ Function      Explanation
 
 ### Basic Binary Functions
 
-Binary functions takes two floats as inputs and returns one float as return.
-The most common arithmetic functions belong to this category.
+Unlike the unary ones, the *binary functions* take two floats as inputs and return one float as output. 
+Most common arithmetic functions belong to this category, as shown in [@tbl:maths:binary].
 
 ------------  -------------------------------------------------------
 Function      Explanation
@@ -69,17 +73,16 @@ Function      Explanation
 
 ### Exponential and Logarithmic Functions
 
-The constant $e = \sum_{n=0}^{\infty}\frac{1}{n!}$ is what we called the "natural constant".
-It is called this way because the exponential function and it inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.
+The constant $e = \sum_{n=0}^{\infty}\frac{1}{n!}$ is what we call the *natural constant*.
+It is named this way because the exponential function and its inverse function logarithm are so frequently used in nature and our daily life: logarithmic spiral, population growth, carbon date ancient artifacts, computing bank investments, etc.
+As an example, in a scientific experiment about bacteria, we can assume the number of bacterial at time $t$ follows an exponential function $n(t) = Ce^rt$ where $C$ is the initial population and $r$ is the daily increase rate.
+With this model, we can predict how the population of bacterial grows within certain time.
 
-We also have this beautiful Euler's formula that connects the two most frequently used constants and the base of complex number and natural numbers:
+We also have this beautiful Euler's formula that connects the two most frequently used constants and the base of complex numbers and natural numbers:
 
 $$e^{i\pi}+ 1=0.$$
 
-As an example, in a scientific experiment about bacteria, we can assume the number of bacterial follows an exponential function $n(t) = Ce^rt$ where $C$ is the initial population and $r$ is the daily increase rate.
-With this model, we can predict how the population of bacterial grows within certain time.
-
-The full list of exponential and logarithmic functions, together with some variants, are presented in [@tbl:maths:explog].
+The full list of exponential and logarithmic functions, together with some handy variants, are presented in [@tbl:maths:explog].
 
 ------------  -------------------------------------------------------
 Function      Explanation
@@ -92,15 +95,15 @@ Function      Explanation
 
 `expm1`       returns $\exp(x) - 1$ but more accurate for $x \sim 0$
 
-`log`         $log_e~x$
+`log`         $\log_e~x$
 
-`log2`        $log_2~x$
+`log2`        $\log_2~x$
 
-`log10`       $log_10~x$
+`log10`       $\log_10~x$
 
-`logn`        $log_n~x$
+`logn`        $\log_n~x$
 
-`log1p`       Inverse of `expm1`
+`log1p`       inverse of `expm1`
 
 `logabs`      $\log(|x|)$
 
@@ -112,16 +115,16 @@ Function      Explanation
 
 `expit`       $1/(1+\exp(-x))$
 
-`log1mexp`    $log(1-exp(x))$
+`log1mexp`    $\log(1-\exp(x))$
 
-`log1pexp`    $log(1+exp(x))$
+`log1pexp`    $\log(1+\exp(x))$
 ------------  -------------------------------------------------------
 : Exponential and logarithmic math functions {#tbl:maths:explog}
 
 ### Trigonometric Functions
 
-In mathematics, the trigonometric functions are real functions which relate an angle of a right-angled triangle to ratios of two side lengths. They are widely used in all sciences that are related to geometry, such as navigation, solid mechanics, celestial mechanics, geodesy, and many others. They are among the simplest periodic functions, and as such are also widely used for studying periodic phenomena, through Fourier analysis. The most widely used trigonometric functions are the sine, the cosine, and the tangent. Their reciprocals are respectively the cosecant, the secant, and the cotangent, which are less used in modern mathematics. ([COPY](https://en.wikipedia.org/wiki/Trigonometric_functions))
-
+The sine, cosine, and tangent functions belong to the *trigonometric functions*, which relate ratios of two side lengths to an angle of a right-angled triangle. They include the commonly used `sin` and `cos` etc., and their reciprocals such as the cosecant, secant, etc. 
+These functions are widely used in the numerical computation applications of different fields, such as mechanics and geometry. 
 The triangular functions are all unary functions, for example:
 
 ```ocaml
@@ -129,7 +132,7 @@ The triangular functions are all unary functions, for example:
 - : float = 1.
 ```
 
-And they are all included in the math module in Owl, as shown in [@tbl:maths:triangular].
+They are all included in the math module in Owl, as shown in [@tbl:maths:triangular].
 
 ------------  ---------------- -----------------                  ---------------------------------------------
 Function      Explanation      Derivatives                        Taylor Expansion
@@ -149,7 +152,7 @@ Function      Explanation      Derivatives                        Taylor Expansi
 : Trigonometric math functions {#tbl:maths:triangular}
 
 Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $E_n$ is the $n$th [Euler number](https://en.wikipedia.org/wiki/Euler_number).
-The [@fig:algodiff:trio] shows the relationship between these trigonometric functions ([figure src](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0)).
+The [@fig:algodiff:trio] shows the relationship between these trigonometric functions. This figure is inspired by a [wiki post](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0).
 These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $\sin(a) = b$, then $\textrm{asin}(b) = a$.
 
 ![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=60% #fig:algodiff:trio}
