@@ -157,11 +157,12 @@ These functions also have corresponding inverse functions: `asin`, `acos`, `atan
 
 ![Relationship between different trigonometric functions](images/maths/trio.png "trio"){width=60% #fig:algodiff:trio}
 
-Another related idea is the *Hyperbolic functions*.
-Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola.
-Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace's equation in Cartesian coordinates. ([COPY](https://en.wikipedia.org/wiki/Hyperbolic_functions))
-
-These functions in Owl is shown below:
+Another related idea is the *Hyperbolic functions* such as `sinh` and `cosh`.
+These functions are defined using exponential functions.
+We have seen in [@#fig:algodiff:trio] that the trigonometric functions are related to a circle. Similarly, the hyperbolic functions are related to a hyperbola. 
+For example, the points `(cosh(x), sinh(x))` form the right half of the equilateral hyperbola, just like `(cos(x), sin(x))` on a circle.
+The hyperbolic functions is applied widely in numerical computing, such as in the differential equation solutions, hyperbolic geometry, etc.   
+These functions in Owl are shown below:
 
 - `sinh`: $\frac{e^x - e^{-x}}{2}$, derivative is $\cosh(x)$, and taylor expansion is $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$.
 - `cosh`: $\frac{e^x + e^{-x}}{2}$, derivative is $\sinh(x)$, and taylor expansion is $\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}$.
@@ -172,7 +173,7 @@ These functions in Owl is shown below:
 
 (TODO: Change these information to table; beware that this table would lead to page overflow.)
 
-Similarly, each of these functions has corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
+Similarly, each of these functions has a corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
 The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
 ![Relationship between different hyperbolic trigonometric functions](images/maths/hyper_trio.png "hyper_trio"){width=70% #fig:algodiff:hyper_trio}
@@ -185,13 +186,14 @@ Besides these functions, there are also some related functions.
 
 ### Other Math Functions
 
-There are some other function that may not be very common in traditional math.
-Functions such as `sigmoid` and `relu` are frequently used in Deep Learning as the activation functions in a neural network.
+There are some other functions that may not be very commonly used in traditional mathematics.
+Functions such as `sigmoid` and `relu` are frequently used in the Deep Learning as the activation functions in a neural network.
 The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.
+We will talk about them in detail in the Neural Network chapter later in this book. 
 
 - `sigmoid x`: $1 / (1 + \exp(-x))$
 - `signum x`: returns the sign of `x`: -1, 0, or 1
-- `softsign x`: smoothed `sign` function
+- `softsign x`: smooths `sign` function
 - `relu x`: $\max(0, x)$
 
 ## Special Functions
