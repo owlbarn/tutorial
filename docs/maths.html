@@ -281,8 +281,8 @@
 <figure>
 <img alt="" style="width:60.0%" id="fig:algodiff:trio" title="trio" src="images/maths/trio.png"><figcaption>Figure 1: Relationship between different trigonometric functions</figcaption>
 </figure>
-<p>Another related idea is the <em>Hyperbolic functions</em>. Hyperbolic functions are analogous of the ordinary trigonometric functions defined for the hyperbola rather than on the circle: just as the points (cos t, sin t) form a circle with a unit radius, the points (cosh(x), sinh(x)) form the right half of the equilateral hyperbola. Hyperbolic functions occur in the solutions of many linear differential equations, calculations of angles and distances in hyperbolic geometry, and of Laplace’s equation in Cartesian coordinates. (<a href="https://en.wikipedia.org/wiki/Hyperbolic_functions">COPY</a>)</p>
-<p>These functions in Owl is shown below:</p>
+<p>Another related idea is the <em>Hyperbolic functions</em> such as <code>sinh</code> and <code>cosh</code>. These functions are defined using exponential functions. We have seen in [@#fig:algodiff:trio] that the trigonometric functions are related to a circle. Similarly, the hyperbolic functions are related to a hyperbola. For example, the points <code>(cosh(x), sinh(x))</code> form the right half of the equilateral hyperbola, just like <code>(cos(x), sin(x))</code> on a circle. The hyperbolic functions is applied widely in numerical computing, such as in the differential equation solutions, hyperbolic geometry, etc.<br>
+These functions in Owl are shown below:</p>
 <ul>
 <li><code>sinh</code>: <span class="math inline">\(\frac{e^x - e^{-x}}{2}\)</span>, derivative is <span class="math inline">\(\cosh(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span>.</li>
 <li><code>cosh</code>: <span class="math inline">\(\frac{e^x + e^{-x}}{2}\)</span>, derivative is <span class="math inline">\(\sinh(x)\)</span>, and taylor expansion is <span class="math inline">\(\sum_{n=0}\frac{x^{2n+1}}{(2n+1)!}\)</span>.</li>
@@ -292,7 +292,7 @@
 <li><code>csch</code>:<span class="math inline">\(1/\sinh(x)\)</span>, derivative is <span class="math inline">\(-\coth(x)/\sinh(x)\)</span>, and taylor expansion is <span class="math inline">\(\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}\)</span>.</li>
 </ul>
 <p>(TODO: Change these information to table; beware that this table would lead to page overflow.)</p>
-<p>Similarly, each of these functions has corresponding inverse functions: <code>asinh</code>, <code>acosh</code>, <code>atanh</code>, <code>acoth</code>, <code>asech</code>, <code>acsch</code>. The relationship between these hyperbolic trigonometric functions are clearly depicted in fig.&nbsp;2.</p>
+<p>Similarly, each of these functions has a corresponding inverse functions: <code>asinh</code>, <code>acosh</code>, <code>atanh</code>, <code>acoth</code>, <code>asech</code>, <code>acsch</code>. The relationship between these hyperbolic trigonometric functions are clearly depicted in fig.&nbsp;2.</p>
 <figure>
 <img alt="" style="width:70.0%" id="fig:algodiff:hyper_trio" title="hyper_trio" src="images/maths/hyper_trio.png"><figcaption>Figure 2: Relationship between different hyperbolic trigonometric functions</figcaption>
 </figure>
@@ -300,11 +300,11 @@
 </section>
 <section class="level3" id="other-math-functions">
 <h3>Other Math Functions</h3>
-<p>There are some other function that may not be very common in traditional math. Functions such as <code>sigmoid</code> and <code>relu</code> are frequently used in Deep Learning as the activation functions in a neural network. The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc.</p>
+<p>There are some other functions that may not be very commonly used in traditional mathematics. Functions such as <code>sigmoid</code> and <code>relu</code> are frequently used in the Deep Learning as the activation functions in a neural network. The activation functions are crucial to the neural network regarding various aspects, including output result, accuracy, convergence speed, etc. We will talk about them in detail in the Neural Network chapter later in this book.</p>
 <ul>
 <li><code>sigmoid x</code>: <span class="math inline">\(1 / (1 + \exp(-x))\)</span></li>
 <li><code>signum x</code>: returns the sign of <code>x</code>: -1, 0, or 1</li>
-<li><code>softsign x</code>: smoothed <code>sign</code> function</li>
+<li><code>softsign x</code>: smooths <code>sign</code> function</li>
 <li><code>relu x</code>: <span class="math inline">\(\max(0, x)\)</span></li>
 </ul>
 </section>
