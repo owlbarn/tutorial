@@ -198,19 +198,19 @@ We will talk about them in detail in the Neural Network chapter later in this bo
 
 ## Special Functions
 
-The definition of numerous special functions of mathematical physics.
-Special functions are particular mathematical functions that have more or less established names and notations due to their importance in mathematical analysis, functional analysis, physics, or other applications.(COPY)
-It interfaces to the [Cephes Mathematical Functions Library](http://www.netlib.org/cephes/).
+Besides what we have just listed, there are also a lot special functions. You may not heard of them before, but they have established names and are important in different fields such as mathematical analysis, physics, etc. 
+In Owl, the implementations of these functions rely on the [Cephes Mathematical Functions Library](http://www.netlib.org/cephes/), a C language library with special functions of interest to scientists and engineers.
+They are list in the rest of this section. Perhaps we cannot dig deep into the mathematical or physical implication of all these functions, but you may find them handy when you need one.
 
 ### Airy Functions
 
-In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY)
-It is the solution of differential equation:
+The Airy function `Ai(x)` is named after the British astronomer George B. Airy. 
+It is the solution of the second order linear differential equation:
 
 $$y''(x) = xy(x).$$
 
 This differential equation has two linearly independent solutions `Ai` and `Bi`.
-Owl provides the `airy` to do that:
+Owl provides the `airy` function to do that:
 
 ```
 val airy : float -> float * float * float * float
@@ -218,6 +218,7 @@ val airy : float -> float * float * float * float
 
 The four returned numbers are `Ai`, its derivative `Ai'`, `Bi`, and its derivative `Bi'`.
 Let's look at an example.
+It plots the two solutions `Ai` and `Bi` in [@fig:algodiff:airy].
 
 ```ocaml
 let x = Mat.linspace (-15.) 5. 200
@@ -239,24 +240,21 @@ let _ =
   Plot.output h
 ```
 
-![Examples of the two solutions of an Airy equation](images/maths/example_airy.png "airy"){width=75% #fig:algodiff:airy}
+![Examples of the two solutions of an Airy equation](images/maths/example_airy.png "airy"){width=60% #fig:algodiff:airy}
 
-APPLICATION description
 
 ### Bessel Functions
 
-Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel's differential equation:
+Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions of Bessel's differential equation:
 
 $$x^2y''+xy'+(x^2 - \alpha^2)y = 0.$$
 
-The complex number $\alpha$ is called the *order* of the bessel function.
+The complex number $\alpha$ is called the "order" of the bessel function.
+Bessel functions are important for many problems in studying the wave propagation and static potentials, such as electromagnetic waves in a cylindrical waveguide. 
+In solving cylindrical coordinate systems, Bessel functions of integer order or half integer order are often used. 
 
-The Bessel functions can be divided into two "kinds".
-Bessel functions of the first kind $J$ are solutions of Bessel's differential equation that are finite at $x=0$ integer or positive order and diverge as $x$ approaches zero for negative non-integer order.
-Bessel functions of the second kind are solutions of the Bessel differential equation that have a singularity at $x=0$ and are multivalued. (COPY ALERT)
-
-A special case is when $x$ is purely imaginary. In this case, the solutions to the Bessel equation are called the *modified Bessel functions*. These modified Bessel functions can also be categorised as first kind and second kind.
-
+The Bessel functions can be divided into two kinds. Both kinds are solutions to the Bessel's differential equations, but the first kind is non-singular at the origin, while the second kind is singular at the origin ($x=0$).
+A special case is when $x$ is purely imaginary. In this case, the solutions are called the modified Bessel functions, which can also be categorised into first kind and second kind.
 Based on these category, Owl provides these functions.
 
 -------- ---------------------------------------------
@@ -296,7 +294,7 @@ Function Explanation
 -------- ---------------------------------------------
 : Bessel functions {#tbl:maths:bessel}
 
-Let's look at one example.
+In the example below, we plot the first kind Bessel function of order 0, 1, and 2, as shown in [@fig:algodiff:bessel].
 
 ```ocaml
 let x = Mat.linspace (0.) 20. 200
@@ -316,12 +314,8 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Bessel function of the first kind, with different order](images/maths/example_bessel.png "bessel"){width=75% #fig:algodiff:bessel}
+![Examples of Bessel function of the first kind, with different order](images/maths/example_bessel.png "bessel"){width=60% #fig:algodiff:bessel}
 
-(More examples can be added if we want to expand)
-
-Bessel's equation arises when finding separable solutions to Laplace's equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order.
-For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc.  (COPY ALERT)
 
 ### Elliptic Functions
 
