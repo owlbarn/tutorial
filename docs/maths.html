@@ -311,16 +311,16 @@ These functions in Owl are shown below:</p>
 </section>
 <section class="level2" id="special-functions">
 <h2>Special Functions</h2>
-<p>The definition of numerous special functions of mathematical physics. Special functions are particular mathematical functions that have more or less established names and notations due to their importance in mathematical analysis, functional analysis, physics, or other applications.(COPY) It interfaces to the <a href="http://www.netlib.org/cephes/">Cephes Mathematical Functions Library</a>.</p>
+<p>Besides what we have just listed, there are also a lot special functions. You may not heard of them before, but they have established names and are important in different fields such as mathematical analysis, physics, etc. In Owl, the implementations of these functions rely on the <a href="http://www.netlib.org/cephes/">Cephes Mathematical Functions Library</a>, a C language library with special functions of interest to scientists and engineers. They are list in the rest of this section. Perhaps we cannot dig deep into the mathematical or physical implication of all these functions, but you may find them handy when you need one.</p>
 <section class="level3" id="airy-functions">
 <h3>Airy Functions</h3>
-<p>In the physical sciences, the Airy function (or Airy function of the first kind) Ai(x) is a special function named after the British astronomer George Biddell Airy. (COPY) It is the solution of differential equation:</p>
+<p>The Airy function <code>Ai(x)</code> is named after the British astronomer George B. Airy. It is the solution of the second order linear differential equation:</p>
 <p><span class="math display">\[y''(x) = xy(x).\]</span></p>
-<p>This differential equation has two linearly independent solutions <code>Ai</code> and <code>Bi</code>. Owl provides the <code>airy</code> to do that:</p>
+<p>This differential equation has two linearly independent solutions <code>Ai</code> and <code>Bi</code>. Owl provides the <code>airy</code> function to do that:</p>
 <div class="highlight">
 <pre><code class="language-clike">val airy : float -&gt; float * float * float * float</code></pre>
 </div>
-<p>The four returned numbers are <code>Ai</code>, its derivative <code>Ai'</code>, <code>Bi</code>, and its derivative <code>Bi'</code>. Let’s look at an example.</p>
+<p>The four returned numbers are <code>Ai</code>, its derivative <code>Ai'</code>, <code>Bi</code>, and its derivative <code>Bi'</code>. Let’s look at an example. It plots the two solutions <code>Ai</code> and <code>Bi</code> in fig.&nbsp;3.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Mat.linspace (-15.) 5. 200
 
@@ -341,18 +341,15 @@ let _ =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:airy" title="airy" src="images/maths/example_airy.png"><figcaption>Figure 3: Examples of the two solutions of an Airy equation</figcaption>
+<img alt="" style="width:60.0%" id="fig:algodiff:airy" title="airy" src="images/maths/example_airy.png"><figcaption>Figure 3: Examples of the two solutions of an Airy equation</figcaption>
 </figure>
-<p>APPLICATION description</p>
 </section>
 <section class="level3" id="bessel-functions">
 <h3>Bessel Functions</h3>
-<p>Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions y(x) of Bessel’s differential equation:</p>
+<p>Bessel functions, first defined by the mathematician Daniel Bernoulli and then generalized by Friedrich Bessel, are canonical solutions of Bessel’s differential equation:</p>
 <p><span class="math display">\[x^2y''+xy'+(x^2 - \alpha^2)y = 0.\]</span></p>
-<p>The complex number <span class="math inline">\(\alpha\)</span> is called the <em>order</em> of the bessel function.</p>
-<p>The Bessel functions can be divided into two “kinds”. Bessel functions of the first kind <span class="math inline">\(J\)</span> are solutions of Bessel’s differential equation that are finite at <span class="math inline">\(x=0\)</span> integer or positive order and diverge as <span class="math inline">\(x\)</span> approaches zero for negative non-integer order. Bessel functions of the second kind are solutions of the Bessel differential equation that have a singularity at <span class="math inline">\(x=0\)</span> and are multivalued. (COPY ALERT)</p>
-<p>A special case is when <span class="math inline">\(x\)</span> is purely imaginary. In this case, the solutions to the Bessel equation are called the <em>modified Bessel functions</em>. These modified Bessel functions can also be categorised as first kind and second kind.</p>
-<p>Based on these category, Owl provides these functions.</p>
+<p>The complex number <span class="math inline">\(\alpha\)</span> is called the “order” of the bessel function. Bessel functions are important for many problems in studying the wave propagation and static potentials, such as electromagnetic waves in a cylindrical waveguide. In solving cylindrical coordinate systems, Bessel functions of integer order or half integer order are often used.</p>
+<p>The Bessel functions can be divided into two kinds. Both kinds are solutions to the Bessel’s differential equations, but the first kind is non-singular at the origin, while the second kind is singular at the origin (<span class="math inline">\(x=0\)</span>). A special case is when <span class="math inline">\(x\)</span> is purely imaginary. In this case, the solutions are called the modified Bessel functions, which can also be categorised into first kind and second kind. Based on these category, Owl provides these functions.</p>
 <div id="tbl:maths:bessel">
 <table style="width:76%;">
 <caption>Table 5: Bessel functions</caption>
@@ -434,7 +431,7 @@ let _ =
 </tbody>
 </table>
 </div>
-<p>Let’s look at one example.</p>
+<p>In the example below, we plot the first kind Bessel function of order 0, 1, and 2, as shown in fig.&nbsp;4.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let x = Mat.linspace (0.) 20. 200
 
@@ -453,10 +450,8 @@ let _ =
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:75.0%" id="fig:algodiff:bessel" title="bessel" src="images/maths/example_bessel.png"><figcaption>Figure 4: Examples of Bessel function of the first kind, with different order</figcaption>
+<img alt="" style="width:60.0%" id="fig:algodiff:bessel" title="bessel" src="images/maths/example_bessel.png"><figcaption>Figure 4: Examples of Bessel function of the first kind, with different order</figcaption>
 </figure>
-<p>(More examples can be added if we want to expand)</p>
-<p>Bessel’s equation arises when finding separable solutions to Laplace’s equation and the Helmholtz equation in cylindrical or spherical coordinates. Bessel functions are therefore especially important for many problems of wave propagation and static potentials. In solving problems in cylindrical coordinate systems, one obtains Bessel functions of integer order or half integer order. For example, electromagnetic waves in a cylindrical waveguide, pressure amplitudes of inviscid rotational flows, heat conduction in a cylindrical object, etc. (COPY ALERT)</p>
 </section>
 <section class="level3" id="elliptic-functions">
 <h3>Elliptic Functions</h3>
