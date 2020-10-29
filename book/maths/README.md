@@ -171,8 +171,6 @@ These functions in Owl are shown below:
 - `sech`: $1/\cosh(x)$, derivative is $-\tanh(x)/\cosh(x)$, and taylor expansion is $\sum_{n=0}\frac{E_{2n}~x^{2n}}{(2n)!}$.
 - `csch`:$1/\sinh(x)$, derivative is $-\coth(x)/\sinh(x)$, and taylor expansion is $\frac{1}{x}+\sum_{n=1}\frac{2(1-2^{2n-1})B_{2n}~x^{2n-1}}{(2n)!}$.
 
-(TODO: Change these information to table; beware that this table would lead to page overflow.)
-
 Similarly, each of these functions has a corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
 The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
@@ -319,6 +317,18 @@ let _ =
 
 ### Elliptic Functions
 
+The *Jacobian elliptic functions* are used in studying the pendulum motion.
+There are twelve Jacobi elliptic functions and `ellipj` we include here in Owl returns three of them: `sn`, `cn`, and `dn`. The fourth output `phi` of this function is called the amplitude of input `u`. 
+
+On the other hand, the *Elliptic integrals* are initially used to find the perimeters of ellipses. 
+A Elliptic integral function can be expressed in the form of:
+$$f(x)=\int_c^xR(t, \sqrt(P(t)))dt,$$
+where $R$ is a rational function of its two arguments, $P$ is a polynomial of degree 3 or 4 with no repeated roots, and $c$ is a constant.
+An elliptic integral can be categorised as "complete" or "incomplete".
+The former one is function of a single argument, while the latter contains two arguments.
+Each elliptic integral can be transformed so that it contains integrals of rational functions and the three Legendre canonical forms, according to which the elliptic can be categorised into the first, second, and third kind. 
+The elliptic functions in Owl are listed in [@tbl:maths:elliptic].
+
 ---------------------- -----------------------------------------------------------------------------------
 Function               Explanation
 ---------------------- -----------------------------------------------------------------------------------
@@ -337,19 +347,8 @@ Function               Explanation
 : Elliptic functions {#tbl:maths:elliptic}
 
 
-The Jacobian elliptic functions are found in the description of the motion of a pendulum, as well as in the design of the electronic elliptic filters. These functions are periodic, with quarter-period on the real axis equal to the complete elliptic integral.
-There are twelve Jacobi elliptic functions and `ellipj` returns three of them: sn, cn, dn. And the fourth result `phi` is called the amplitude of `u`. (COPY)
-
-Elliptic integrals arose from the attempts to find the perimeter of an ellipse.
-elliptic integral. A Elliptic integral function can be expressed in the form of:
-$$f(x)=\int_c^xR(t, \sqrt(P(t)))dt,$$
-where $R$ is a rational function of its two arguments, $P$ is a polynomial of degree 3 or 4 with no repeated roots, and $c$ is a constant.
-Incomplete elliptic integrals are functions of two arguments; complete elliptic integrals are functions of a single argument. (COPY)
-
-In general, integrals in this form cannot be expressed in terms of elementary functions. Exceptions to this general rule are when P has repeated roots, or when $R(x,y)$ contains no odd powers of y. However, with the appropriate reduction formula, every elliptic integral can be brought into a form that involves integrals over rational functions and the three Legendre canonical forms (i.e. the elliptic integrals of the first, second and third kind). (COPY)
-
-We can use `ellipe` to compute the circumference of an ellipse. To compute that requires calculus, and the elliptic functions provides a solution.
-Suppose an ellipse has semi-major axis $a=4$ and semi-minor axis $b=3$. We an compute its circumference using $4a\textrm{ellipe}(1 - \frac{b^2}{a^2})$.
+We can use `ellipe` to compute the circumference of an ellipse. To compute that normally requires calculus, but the elliptic functions provides a simple solution.
+Suppose an ellipse has semi-major axis $a=4$ and semi-minor axis $b=3$. We an compute its circumference simply using $4a\textrm{ellipe}(1 - \frac{b^2}{a^2})$.
 
 ```ocaml
 # let a = 4.
@@ -362,16 +361,20 @@ val c : float = 22.1034921607095072
 
 ### Gamma Functions
 
-For a positive integer n, the Gamma function is the factorial function.
+For a positive integer n, the *Gamma function* is the factorial function:
 
 $$\Gamma(n) = (n-1)!$$
 
-For a complex numbers $z$ with a positive real part,
+For a complex numbers $z$ with a positive real part, the Gamma function is defined as:
 
 $$\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.$$
 
+
+Here the gamma function is an integral from zero to infinity. If we change it to an integral from zero to a certain upper limit, it is called the "lower incomplete gamma function". 
+Similarly, if it is an integral from a certain lower limit to infinity, the integral is called the "upper incomplete gamma function".
+
 The Gamma function is widely used in a range of areas such as fluid dynamics, geometry, astrophysics, etc. It is especially suitable for describing a common pattern of processes that decay exponentially in time or space.
-The Gamma function and related function provided in Owl are list in [@tbl:maths:gamma].
+The Gamma function and related function provided in Owl are listed in [@tbl:maths:gamma].
 
 ------------------------- ------------------------------------------------------
 Function                  Explanation
@@ -394,9 +397,6 @@ Function                  Explanation
 ------------------------- ------------------------------------------------------
 : Gamma functions {#tbl:maths:gamma}
 
-The incomplete gamma functions are similarly to the gamma function but with different or "incomplete" integral limits. The gamma function is defined as an integral from zero to infinity. This contrasts with the lower incomplete gamma function, which is defined as an integral from zero to a variable upper limit. Similarly, the upper incomplete gamma function is defined as an integral from a variable lower limit to infinity.
-The digamma function is defined as the logarithmic derivative of the gamma function. (COPY)
-
 Here is an example of using `gamma`.
 
 ```ocaml
@@ -411,9 +411,7 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Gamma function along part of the real axis](images/maths/example_gamma.png "gamma"){width=75% #fig:algodiff:gamma}
-
-(TODO: this figure should not have the vertical lines)
+![Examples of Gamma function along part of the real axis](images/maths/example_gamma.png "gamma"){width=60% #fig:algodiff:gamma}
 
 
 ### Beta Functions
@@ -422,24 +420,16 @@ Beta function is defined as:
 
 $$B(x,y) = \int_0^1t^{x-1}(1-t)^{y-1}dt = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x+y)}$$
 
-The incomplete beta function extends this definition to:
+Here $\Gamma$ is the Gamma function, and similar to it, the Beta function has its "incomplete" version. 
+The incomplete Beta function extends this definition to:
 
 $$B(x, a, b) = \int_0^xt^{a-1}(1-t)^{b-1}dt.$$
 
-They are both included in the special functions provided by Owl.
+In Owl the Beta function is called using the `beta x y` function from the `Maths` module, and its incomplete version is `betainc a b x`.
+We also provide the `betaincinv` function, which is the inverse of `betainc`.
 
-------------------------- ------------------------------------------------------
-Function                  Explanation
-------------------------- ------------------------------------------------------
-`beta x y`                Beta function
-
-`betainc a b x`           Incomplete Beta integral
-
-`betaincinv a b y`        Inverse function of `betainc`
-------------------------- ------------------------------------------------------
-: Beta functions {#tbl:maths:beta}
-
-The Beta function has several properties:
+The Beta function has several properties.
+For example, the code below shows the relationship between beta function and gamma function.
 
 ```ocaml
 # let x = Maths.beta 3. 4.
@@ -448,8 +438,7 @@ val x : float = 0.0166666666666666664
 val y : float = 0.0166666666666666664
 ```
 
-This validate the relationship between beta funtion and gamma function.
-Another property of beta function is it is symmetric, which means $B(x,y) = B(y, x)$.
+Another property is its symmetricity, which means $B(x,y) = B(y, x)$.
 
 ```ocaml
 # let x = Maths.beta 3. 4.
@@ -458,16 +447,19 @@ val x : float = 0.0166666666666666664
 val y : float = 0.0166666666666666664
 ```
 
-Beta function is the first known scattering amplitude in String theory in physics. It can also be used to model a preferential attachment process, which describes the distribution of resources among individuals based on the resource amount they already have. (COPY)
+Beta function is the first known scattering amplitude in the String theory in physics. 
+It is also used in the analysis of the preferential attachment process, a type of stochastic urn process that describes how the resource can be distributed among a group of individuals based on the existing resource each one has acquired. 
 
 ### Struve Functions
 
-The Struve function is defined as:
+The *Struve function* is defined as:
 $$H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},$$
 
-where $\Gamma$ is the gamma funcction. $x$ must be positive unless $v$ is an integer.
-The function `struve v x` returns the value of Struve function. The paramter $v$ is called the *order* of this Struve function.
-Here is an example.
+where $\Gamma$ is the Gamma function. $x$ must be positive unless $v$ is an integer.
+Struve functions are used across a wide variety of physics applications, such as water-wave problems and calculations in unsteady aerodynamics.
+
+The Owl function `struve v x` returns the value of Struve function. The parameter $v$ is called the *order* of this function.
+Here is an example that shows the curves of Struve functions with order from 0 to 4.
 
 ```ocaml
 let _ =
@@ -482,19 +474,20 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Struve function for different orders.](images/maths/example_struve.png "struve"){width=75% #fig:algodiff:struve}
-
-Struve functions have some specific uses across many different fields of physics in a wide variety of applications. For example, they can be found in water-wave and surface-wave problems (specifically flow of liquid near a turning ship) as well as calculations to do with the distribution of fluid pressure over a vibrating disk and other unsteady aerodynamics. They also crop up when considering aspects of optical diffraction, plasma stability (specifically resistive magnetohydrodynamics instability theory), quantum dynamical studies of spin decoherence and excitation in carbon nanotubes. ([COPY](https://www.nag.co.uk/content/struve-functions))
+![Examples of Struve function for different orders.](images/maths/example_struve.png "struve"){width=60% #fig:algodiff:struve}
 
 
 ### Zeta Functions
 
-The Hurwitz zeta function `zeta x q` returns the Hurwitz zeta function:
+The *Hurwitz zeta function* `zeta x q` is defined as:
 
 $$\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.$$
 
-When $q$ is set to 1, this function is reduced to Riemann zeta function.
+When $q$ is set to 1, this function is reduced to the *Riemann zeta function*.
 The function `zetac x` returns Riemann zeta function minus 1.
+The zeta function is often used to analyse the dynamic systems.
+Besides, the Riemann zeta function plays an important role in number theory and is widely applied in quantum physics, probability theory, and applied statistics, etc. 
+
 We can evaluate the zeta function at certain points, for example:
 
 ```ocaml
@@ -505,14 +498,15 @@ We can evaluate the zeta function at certain points, for example:
 - : float = 1.08232323371113792
 ```
 
-The Riemann zeta function plays a pivotal role in analytic number theory and has applications in physics, probability theory, and applied statistics.
-Zeta function regularization is used as one possible means of regularization of divergent series and divergent integrals in quantum field theory. In one notable example, the Riemann zeta-function shows up explicitly in one method of calculating the Casimir effect. The zeta function is also useful for the analysis of dynamical systems. (COPY)
-
 ### Error Functions
 
-The error functions are not about error processing in programming.
-In mathematics, it is defined as:
+The error functions here are not about error processing in programming, but yet another family of special functions.
+In mathematics, an error function is defined as:
 $$\frac{2}{\sqrt{\pi}}\int_0^x e^{-t^2})dt.$$
+
+The error function occurs often in probability and statistics. Actually, in statistics, for a non-negative value `x`, `erf x` is the probability that a random variable `y` falls in the range `[-x, x]`. Here `y` follows a normal distribution with mean 0 and variance 0.5.
+Since it represents certain probability, the *complementary* error function `1 - erf(x)` is also frequently used.
+The error function and related variants in Owl are listed in [@tbl:maths:error].
 
 ------------------------- ------------------------------------------------------
 Function                  Explanation
@@ -540,17 +534,18 @@ let _ =
 
 ![Plot of the Error function.](images/maths/example_erf.png "struve"){width=75% #fig:algodiff:erf}
 
-The error function occurs often in probability, statistics, and partial differential equations describing diffusion. In statistics, for nonnegative values of x, the error function has the following interpretation: for a random variable `Y` that is normally distributed with mean 0 and variance 0.5, then `erf x` is the probability that `Y` falls in the range `[-x, x]`. (COPY)
-
 ### Integral Functions
 
-Owl also provides several special integral functions.
-The Dawson function is defined as:
+Besides what we have mentioned so far, Owl also provides several special integral functions.
+
+For example, the *Dawson function* is defined as:
 $$D(x) = e^{-x^2}\int_0^x~e^{t^2}dt$$
 
-And the Fresnel trigonometric integral returns a tuple that contains two parts:
+And the *Fresnel trigonometric integral* returns a tuple that contains two parts:
 $$S(x) = \int_0^x~sin(t^2)dt, C(x) = \int_0^x~cos(t^2)dt.$$
 
+Just like many otheer special functions, these two types of inegrals are motivated by research in physics, such as the electromagnetic problems.
+They are provided by the `dawsn` and `fresnel` functions in the `Maths` module respecitively.
 We can observe the functions of these integrals with plots.
 
 ```ocaml
@@ -569,7 +564,7 @@ let _ =
 
 ![Plot of the Dawson and Fresnel integral function.](images/maths/example_integrals.png "integrals"){width=100% #fig:algodiff:integrals}
 
-Besides these two, other type of special integral functions are also provided, as shown in [@tbl:maths:integral].
+Besides these two, several other type of special integral functions are also provided. The full list is shown in [@tbl:maths:integral].
 
 ----------------- -----------------------------------------------------------
 Function          Explanation
@@ -588,19 +583,17 @@ Function          Explanation
 
 `sici x`          (`si x`, `ci x`)
 ----------------- -----------------------------------------------------------
-: Integral functions {#tbl:maths:integral}
-
-Dawson integrals is motivated by research on the electromagnetic radiation propagation across the surface of earth.
-The Fresnel integrals were originally used in the calculation of the electromagnetic field intensity in an environment where light bends around opaque objects. More recently, they have been used in the design of highways and railways, specifically their curvature transition zones. Other applications are roller coasters or calculating the transitions on a velodrome track to allow rapid entry to the bends and gradual exit. ([COPY](https://en.wikipedia.org/wiki/Fresnel_integral))
+: Special integral functions {#tbl:maths:integral}
 
 
 ## Factorials
 
-The definition of *factorials* is simple:
+After the functions, let's turn to a concept that we are familiar with: the *factorials*. 
+The definition of factorials is simple:
 
 $F(n) = n! = n \times (n - 1) \times (n-2) \ldots \times 1$
 
-The factorial function, together with several variants, are contained in the math module.
+The factorial function, together with several of its variants, are contained in the `Math` module.
 
 ----------------- -----------------------------------------------------------
 Function          Explanation
@@ -624,9 +617,9 @@ The factorial functions accepts integer as input, for example:
 
 The factorials are applied in many areas of mathematics, most notably the combinatorics.
 The permutation and combination are both defined in factorials.
-The permutation returns the number $n!/(n-k)!$ of ordered subsets of length $k$, taken from a set of $n$ elements.
-THe combination returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of $k$ elements of a set of $n$ elements.
-[@tbl:maths:perm] provides the combinatorics functions you can use in the math module.
+The permutation function returns the number $n!/(n-k)!$ of ordered subsets of length $k$, taken from a set of $n$ elements.
+The combination function returns the number ${n\choose k} = n!/(k!(n-k)!)$ of subsets of $k$ elements of a set of $n$ elements.
+[@tbl:maths:perm] provides the combinatorics functions you can use in the `Math` module.
 
 
 ----------------------  -----------------------------------------------------------
@@ -644,7 +637,7 @@ Function                Explanation
 ----------------------  -----------------------------------------------------------
 : Permutation and combination functions {#tbl:maths:perm}
 
-We can see a simple example.
+Let's take a look at a simple example.
 
 ```ocaml
 # let x = Maths.combination 10 2
@@ -664,15 +657,13 @@ The `Owl_maths_interpolate` module provides an `polint` function for interpolati
 val polint : float array -> float array -> float -> float * float
 ```
 
-`polint xs ys x` performs polynomial interpolation of the given arrays `xs` and `ys`. Given arrays $xs[0 \ldots (n-1)]$ and $ys[0\ldots~(n-1)]$, and a value `x`.
-The function returns a value `y`, and an error estimate `dy`.
-The paramter `xs` is an array of input `x` values of `P(x)`, and `ys` is an array of corresponding `y` values of `P(x)`.
-It returns `(y', dy)` wherein `y'` is the returned value `y' = P(x)`, and `dy` is the estimated error.
+The function `polint xs ys x` performs polynomial interpolation of the given arrays `xs` and `ys`. 
+Given arrays $xs[0 \ldots (n-1)]$ and $ys[0\ldots~(n-1)]$, and a value `x`, this function returns a value `y`, and an error estimate `dy`.
 
-As its name suggests, the `polint` approximate complicated curves with polynomial of lowest possible degree that passes the given points.
-We can show how this interplation method works for an example.
-In the previous chapter we have introduced that the Gamma function is actually a interpolation solution to the integer function $y(x) = (n-1)!$.
-So we can specify five nodes on a plane that are generated from this factorial functions.
+As its name suggests, the `polint` approximates complicated curves with polynomial of the lowest possible degree that passes the given points.
+We show how this interplation method works with an example.
+In the previous section we have said that the Gamma function is actually an interpolation solution to the integer function $y(x) = (n-1)!$.
+So we can specify five nodes on a plane that are generated from this factorial functions, and see how the interpolation function works compared with the Gamma function itself. 
 
 ```ocaml env=maths:interp
 # let x = [|2; 3; 4; 5; 6|]
@@ -683,7 +674,7 @@ val y : float array = [|1.; 2.; 6.; 24.; 120.|]
 val x : float array = [|2.; 3.; 4.; 5.; 6.|]
 ```
 
-Now we can define the interpolation function `f` that accept on float number and returns another float number.
+Now we can define the interpolation function `f` that accepts one float number and returns another float number.
 Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
 
 ```ocaml env=maths:interp
@@ -695,8 +686,8 @@ let xm = Mat.of_array x 1 5
 let ym = Mat.of_array y 1 5
 ```
 
-Now we can plot the interpolation function. We compare it to the Gamma function.
-As can be seen in [@fig:maths:interp], both lines cross the given nodes. We can see that the interpolated line fits well with the "true interpolation", i.e. the Gamma function.
+Now we can plot the interpolation function and compare it to the Gamma function.
+As can be seen in [@fig:maths:interp], both lines cross the given nodes. The interpolated line fits well with the "true interpolation", i.e. the Gamma function, within a certain range. 
 However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.
 
 ```ocaml env=maths:interp
@@ -709,17 +700,18 @@ let _ =
   Plot.output h
 ```
 
-![Plot of interpolation and corresponding Gamma function.](images/maths/interp.png "interp"){width=75% #fig:maths:interp}
+![Plot of interpolation and corresponding Gamma function.](images/maths/interp.png "interp"){width=60% #fig:maths:interp}
 
 ## Integration
 
+We have introduced some special integral functions, but we still need general integration methods that work for any input functions. 
 Given a function $f$ that accepts a real variable and an interval $[a, b]$ of the real line, the integral of this function
 
 $$\int_a^bf(x)dx$$
 
 can be thought of as the sum of signed area of the region in the cartesian plane that is bounded by the curve of f, the x-axis within the x-axis range $[a, b]$. The area above the x-axis adds to the sum and that below the x-axis subtracts from the area sum.
 
-Owl provides several neumerical routines to help you to do integrations in `Owl_maths_quandrature` module. For example, we can compute  $\int_1^4x^2$ with the code below:
+In the `Owl_maths_quandrature` module, Owl provides several neumerical routines to help you to do integrations. For example, we can compute  $\int_1^4x^2$ with the code below:
 
 ```ocaml
 # Owl_maths_quadrature.trapz (fun x -> x ** 2.) 1. 4.
@@ -730,21 +722,17 @@ We can verify this result using the fundamental theorem of calculus:
 
 $$\int_1^4x^2 = (4^3 -1^3) / 3 = 21$$.
 
-So you might be thinking, what is this `trapz`? Why the result is not exactly `21`?
-
+So you might be thinking, what is this `trapz`? Why the result is not exactly `21`? 
 Using numerical methods (or *quadrature*) to do integration dates back to the invention of calculus or even earlier.
-The basic idea is to use summation of small areas to approximate that of an integration, as shown in [@fig:maths:integration_basic] ([src](https://www.sciencedirect.com/topics/computer-science/numerical-integration)).
+The basic idea is to use summation of small areas to approximate that of an integration.
+There exist a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them.
 
-![Basic method of numerical integration](images/maths/integration_basic.png "integration"){width=80% #fig:maths:integration_basic}
-
-There exists a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them.
-This classical method divide a to b into $N$ equally spaced abscissas: $x_0, x_1, \ldots, x_N$. Each area between $x_i$ and $x_j$ is seen as an Trapezoid and the area formula is computed as:
+This classical method divides `a` to `b` into $N$ equally spaced abscissas: $x_0, x_1, \ldots, x_N$. Each area between $x_i$ and $x_j$ is seen as an "Trapezoid" and the area formula is computed as:
 
 $$\int_{x_0}^{x_1}f(x)dx = h(\frac{f(x_0)}{2} + \frac{f(x_1)}{2}) + O(h^3f'').$$
 
 Here the error term $O(h^3f'')$ indicated that the error of approximation is related with that of abscissas size $h$ and second order derivative of the original function.
-
-Function `trapz` implements this method. It's interface is:
+The function `trapz` implements this method. It's interface is:
 
 ```
 val trapz : ?n:int -> ?eps:float -> (float -> float) -> float -> float -> float
@@ -759,10 +747,11 @@ For example, the `simpson` uses the Simpson formula:
 
 $$\int_{x_0}^{x_2}f(x)dx = h(\frac{f(x_0)}{3} + \frac{4f(x_1)}{3} + \frac{f(x_2)}{3}) + O(h^5f(4)).$$
 
-Then there is the *Romberg integration* (`romberg`) that can choose methods of different orders to give good accuracy, and the algorithms is normally much faster than the `trapz` and `simpson` methods.
-Moreover, if the abscissas can be varied, then there is the adaptive Gaussian quadrature of fixed tolerance `gaussian` and Gaussian quadrature of fixed order `gaussian`.
+Then there is the *Romberg integration* (`romberg`) that can choose methods of different orders to give good accuracy, and the algorithms are normally much faster than the `trapz` and `simpson` methods.
+Moreover, if the abscissas can be varied, we have the adaptive Gaussian quadrature of fixed tolerance (`gaussian`) and Gaussian quadrature of fixed order (`gaussian_fixed`).
 
-As an example, we can compute the special integral function $Si(x)=\int_0^x\frac{sin(t)}{t}dt$ from previous section using the numerical integration method. Let's set $x=4$.
+As an example, we can compute the special sine integral function $Si(x)=\int_0^x\frac{sin(t)}{t}dt$ from previous section using the numerical integration method. Let's set $x=4$.
+We can see the numerical method `gaussian` works well to approximate this special integral function.
 
 ```ocaml
 # let f t = Maths.(div (sin t) t)
@@ -773,22 +762,18 @@ val f : float -> float = <fun>
 - : float = 1.75820313894905289
 ```
 
-We can see the numerical method `gaussian` works well to approximate this special integral function.
-
 ## Utility Functions
 
-Besides what we have mentioned, there are also some utitlity functions that worth mentioning.
+Besides what we have mentioned so far, there are also some utitlity math functions that worth mentioning.
 
-A prime number is a natural number greater than `1` that cannot be formed by multiplying two smaller natural numbers.
-The `is_prime` checks if an integer is a prime number.
+We know that a prime number is a natural number greater than `1` that cannot be formed by multiplying two smaller natural numbers. It is a key idea in information technology and widely used in applications such as the public-key cryptography. 
+The `is_prime` function checks if an integer is a prime number.
 This function is deterministic for all numbers representable by an int. It is implemented using the [Miller-Rabin primality test](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test) method.
 
 ```ocaml
 # Maths.is_prime 997
 - : bool = true
 ```
-
-Primes are used in several routines in information technology, such as public-key cryptography, which relies on the difficulty of factoring large numbers into their prime factors. In abstract algebra, objects that behave in a generalized way like prime numbers include prime elements and prime ideals.([COPY](https://en.wikipedia.org/wiki/Prime_number))
 
 Another number theory related idea is the *Fermat's factorization*, which represents an odd integer as the difference of two squares: $N = a^2 - b^2$, and therefore `N` can be factorised as $(a+b)(a-b)$.
 The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.e. into two roughly equal factors $x$ and $y$ so that $N=x\times~y$.
@@ -802,13 +787,9 @@ The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.
 
 Next two functions concerns the precision of float numbers in computer.
 
-TODO: Explain the mechansim of float number in a computer.
-
-`nextafter from to` returns the next representable double precision value of ``from`` in the direction of `to`. If `from` equals `to`, this value is returned.
-The other is `nextafterf`.
-`nextafter from to` returns the next representable single precision value
-of `from` in the direction of `to`. If `from` equals `to`, this value
-is returned.
+The `nextafter from to` returns the next representable double precision value of `from` in the direction of `to`.
+The other one, `nextafter from to` returns the next representable single precision value of `from` in the direction of `to`. 
+In both cases, if `from` equals `to`, this value itself is returned.
 For example:
 
 ```ocaml
@@ -821,3 +802,8 @@ For example:
 ```
 
 ## Summary
+
+We start the topic of numeric computation from the mathematics functions we are familiar with.
+This chapter introduces the math functions supported by Owl, including the basic and commonly used functions, some less freqently used but nontheless important special function, factorial, interpolation, extrapolation, integration, etc.
+Feel free to jump into any part you are interested in and use these functions to solve a mathematical problem at hand. 
+You may find Owl as good a calculator as any other numerical library.
