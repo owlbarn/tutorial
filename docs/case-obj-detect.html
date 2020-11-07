@@ -4,35 +4,35 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="case---instance-segmentation">
 <h1>Case - Instance Segmentation</h1>
-<p>Computer vision is a field dealing with many different automated tasks whose goal is to give high-level descriptions of images and videos. It has been applied to a wide variety of domains ranging from highly technical (automatic tagging of satellite images, analysis of medical images, …) to more mundane (categorise pictures in your phone, make your face into an emoji, …). It has seen tremendous progress since 2012, when <a href="https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks">A. Krizhevsky et al.</a> used the first deep learning approach to computer vision, crushing all their opponents in the <a href="http://image-net.org/challenges/LSVRC/2012/results.html">ImageNet challenge</a>. It has therefore evolved quite a lot since Inception was first described in 2014 and it was relevant to implement a more recent and involved network with Owl.</p>
-<p>In this chapter, we are going to introduce another classical computer vision task: Instance Segmentation, including its connection with other similar applications, how the deep neural network is constructed in Owl, and how the network, loaded with pre-trained weights, can be used to process users’ input image. We have also included an online demo for this application.</p>
+<p>Computer vision is a field dealing with many different automated tasks whose goal are to give high-level descriptions of images and videos. It has been applied to a wide variety of domains ranging from highly technical ones, such as automatic tagging of satellite images, analysis of medical images etc., to more mundane applications, including categorising pictures in your phone, making your face into an emoji, etc. This field has seen tremendous progress since 2012, when <a href="https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks">A. Krizhevsky et al.</a> used the first deep learning approach to computer vision, crushing all their opponents in the <a href="http://image-net.org/challenges/LSVRC/2012/results.html">ImageNet challenge</a>. We have already discussed this image recognition task in the previous chapter.</p>
+<p>In this chapter, we are going to introduce another classical computer vision task: the <em>Instance Segmentation</em>, which is to give different labels for separate instances of objects in an image. We will discuss its connection with other similar applications, how the deep neural network is constructed in Owl, and how the network, loaded with pre-trained weights, can be used to process users’ input images. We have also included an online demo for this application. Let’s begin!</p>
 <section class="level2" id="introduction">
 <h2>Introduction</h2>
-<p>In the chapter about the <a href="https://ocaml.xyz/book/case-image-inception.html">image classification</a>, we have introduced how the DNN can be applied to classify the one single object in an image. It gets easily confused when there are lots of objects.</p>
-<p><em>Object Detection</em> is another classical computer vision task. Given an image that contains multiple objects, an object detection applications aims to classify individual objects and localize each using a bounding box.</p>
+<p>In the previous chapter about the image recognition task, we have introduced how the DNN can be applied to classify the one single object in an image. However, this technique can easily get confused if it is applied on an image with multiple objects, which frequently happens in the real world. That’s why we need other methods.</p>
+<p>For example, <em>Object Detection</em> is another classical computer vision task. Given an image that contains multiple objects, an object detection application aims to classify individual objects and localize each one using a bounding box, as shown in the fig.&nbsp;<strong>¿fig:case-obj-detect:example_obj?</strong>.</p>
 <p><img id="fig:case-obj-detect:example_obj" src="images/case-obj-detect/example_obj.jpg"> <em>Example of object detection (<a href="https://en.wikipedia.org/wiki/File:Detected-with-YOLO--Schreibtisch-mit-Objekten.jpg">src</a>)</em></p>
-<p>Similarly, <em>Semantic Segmentation</em> classify the pixels on an image in different categories. Each segment is recognised by a “mask” that follows cover the whole object.</p>
+<p>Similarly, the <em>Semantic Segmentation</em> task requires to classify the pixels on an image into different categories. Each segment is recognised by a “mask” that follows cover the whole object. This can be illustrated in the [@#fig:case-obj-detect:example_seg].</p>
 <p><img id="fig:case-obj-detect:example_seg" src="images/case-obj-detect/example_seg.jpg"> <em>Example of semantic segmentation (<a href="https://gts.ai/how-do-we-solve-the-challenges-faced-due-to-semantic-segmentation/">src</a>)</em></p>
-<p>In 2017, the <em>Mask R-CNN</em> (Mask Region-based Convolutional Neural Network) architecture was published and with sufficient training, it can solve all these problems at once: it can detect objects on an image, label each of them and provide a binary mask to tell which pixels belong to the objects. This task is called <em>Instance Segmentation</em>. This network has now been implemented in Owl. As a preliminary example, this is what it can do:</p>
+<p>In 2017, the <em>Mask R-CNN</em> (Mask Region-based Convolutional Neural Network) architecture was published. With sufficient training, it can solve these problems at once: it can detect objects on an image, label each of them, and provide a binary mask to tell which pixels belong to the objects. This task is called the <em>Instance Segmentation</em>. As a preliminary example and visual motivation, the examples below show what this task generates:</p>
 <figure>
 <img alt="" id="fig:case-obj-detect:example_01" src="images/case-obj-detect/example_00.jpg"><figcaption>Figure 1: Example: Street view</figcaption>
 </figure>
 <figure>
 <img alt="" id="fig:case-obj-detect:example_02" src="images/case-obj-detect/example_01.jpg"><figcaption>Figure 2: Example: Sheep</figcaption>
 </figure>
-<p>In these two examples, normal pictures are processed by MRCNN, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1.</p>
-<p>Image segmentation have massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells …), traffic control systems, locate objects in satellite images, etc.</p>
+<p>In these two examples, normal pictures are processed by the pre-trained Mask R-CNN (MRCNN) network, and the objects (people, sheep, bag, car, bus, umbrella, etc.) are segmented from the picture and recognised with a percentage of confidence, represented by a number between 0 and 1.</p>
+<p>Image segmentation have massive application scenarios in the industry, such as medical imaging (locating tumours, detecting cancer cells …), traffic control systems, locate objects in satellite images, etc. The Mask R-CNN network has been implemented in Owl. In the next sections, we will explain how this network is constructed.</p>
 </section>
 <section class="level2" id="mask-r-cnn-network">
 <h2>Mask R-CNN Network</h2>
-<p>This section will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. You can of course get more detailed and technical explanations in the <a href="https://arxiv.org/abs/1703.06870">original paper</a>. The Owl implementation of the inference mode is available in <a href="https://github.com/pvdhove/owl-mask-rcnn">this repository</a>. The code was mostly ported from this <a href="https://github.com/matterport/Mask_RCNN">Keras/TensorFlow implementation</a>. This work in this chapter is conducted by <a href="http://math.umons.ac.be/staff/Vandenhove.Pierre/">Pierre Vandenhove</a> during his internship in the OCamlLabs.</p>
-<p>MRCNN extends <a href="https://arxiv.org/abs/1506.01497">Faster R-CNN</a>, which itself extends <a href="https://arxiv.org/abs/1504.08083">Fast R-CNN</a>. In Fast R-CNN, the authors propose a network that accepts input images and regions of interest (RoI). For each region, features are extracted by several fully-connected layers, and the features are fed into a branch. One output of this branch contains the output classification (together with possibility of that classification) of the object in that region, and the other specifies the rectangle location of the object.</p>
-<p>In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods. They propose a Region Proposal Network (RPN) that share the same feature extraction backbone with that in Fast R-CNN. RPN is a small convolutional network that scans the feature maps quickly, output a set of rectangular possible object region proposals, each associated with a number that could be called the <em>objectness</em> of that region. The RoI feature extraction part of Fast R-CNN is kept unchanged here. In this way, a single Faster R-CNN network can be trained and then perform the object detection task without extra help from other region proposal methods.</p>
-<p>To perform the task of not just objection detection, but also semantic segmentation Mask R-CNN keeps the architecture of Faster R-CNN, only adding an extra branch in the final stage of its RoI feature layer. Where previously the outputs includes object classification and location, now a third branch contains information about the mask of object in the RoI. Therefore, for any RoI, the Mask R-CNN retrieves its rectangle bound, classification results, classification possibility, and the mask of that object, all information at one pass.</p>
+<p>This section will briefly outline the main parts of architecture of Mask R-CNN and how it stands out from its predecessors. You can get more detailed and technical explanations in the original paper <span data-cites="he2017mask" class="citation">(He et al. 2017)</span>. The Owl implementation of the inference mode is available in <a href="https://github.com/pvdhove/owl-mask-rcnn">this repository</a>. The code was mostly ported from the <a href="https://github.com/matterport/Mask_RCNN">Keras/TensorFlow implementation</a>. Work in this chapter is conducted by <a href="http://math.umons.ac.be/staff/Vandenhove.Pierre/">Pierre Vandenhove</a> during his internship in the OCamlLabs.</p>
+<p>MRCNN network is extended based on the Faster R-CNN network <span data-cites="ren2015faster" class="citation">(Ren et al. 2015)</span>, which itself extends the Fast R-CNN <span data-cites="girshick2015fast" class="citation">(Girshick 2015)</span>. In Fast R-CNN, the authors propose a network that accepts input images and regions of interest (RoI). For each region, features are extracted by several fully-connected layers, and the features are fed into a branch. One output of this branch contains the output classification (together with possibility of that classification) of the object in that region, and the other specifies the rectangle location of the object.</p>
+<p>In Faster R-CNN, the authors point out that, there is no need to find RoIs using other methods than the network itself. They propose a Region Proposal Network (RPN) that share the same feature extraction backbone as that in Fast R-CNN. RPN is a small convolutional network that scans the feature maps quickly, produces a set of rectangular possible object region proposals, each associated with a number that could be called the <em>objectness</em> of that region. The RoI feature extraction part of Fast R-CNN is kept unchanged here. In this way, a single Faster R-CNN network can be trained and then perform the object detection task without extra help from other region proposal methods.</p>
+<p>To perform the task of not just objection detection, but also semantic segmentation, Mask R-CNN keeps the architecture of Faster R-CNN, only adding an extra branch in the final stage of its RoI feature layer. Where previously the outputs includes object classification and location, now a third branch contains information about the mask of object in the RoI. Therefore, for any RoI, the Mask R-CNN can retrieve its rectangle bound, classification results, classification possibility, and the mask of that object, all information in one pass.</p>
 </section>
 <section class="level2" id="building-mask-r-cnn">
 <h2>Building Mask R-CNN</h2>
-<p>After a quick introduction of the MRCNN and how it is developed in theory, let’s look at the code to understand how it is constructed in Owl, one piece at a time. Feel free to jump this part for now if you are just interested in using the network directly.</p>
+<p>After a quick introduction of the MRCNN and how it is developed in theory, let’s look at the code to understand how it is constructed in Owl, one piece at a time. Please feel free to jump this part if you are eager to try to run the code and process one of your images.</p>
 <div class="highlight">
 <pre><code class="language-clike">open Owl
 
@@ -59,10 +59,10 @@ let input_image = inputs.(0)
 and input_image_meta = inputs.(1)
 and input_anchors = inputs.(2) i</code></pre>
 </div>
-<p>The network accepts three inputs, for images, meta data, and number of anchors. The <code>Configuration</code> module contains a list of constants that will be used in building the network.</p>
+<p>The network accepts three inputs, representing images, meta data, and number of anchors (the rectangular regions). The <code>Configuration</code> module contains a list of constants that will be used in building the network.</p>
 <section class="level3" id="feature-extractor">
 <h3>Feature Extractor</h3>
-<p>The picture is first fed to a convolutional neural network in order to extract features on the image. The first few layers detect low-level features (edges and basic shapes) but as you go deeper into the network, these features are assembled to detect higher level features (people, cars) (which, some argue, works in the same way as the brain). Five of these layers (called feature maps) of various sizes, both high- and low-level, are then passed on to the next parts. This implementation chooses Microsoft’s <a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">ResNet101</a> as a feature extractor.</p>
+<p>The picture is first fed to a convolutional neural network in order to extract features of the image. The first few layers detect low-level features of an image, such as edges and basic shapes. But as you go deeper into the network, these features are assembled to detect higher level features such as “people”, “cars” (which, some argue, works in the same way as the brain). Five of these layers (called “feature maps”) of various sizes, both high- and low-level, are then passed on to the next parts. This implementation chooses Microsoft’s <a href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html">ResNet101</a> as a feature extractor.</p>
 <div class="highlight">
 <pre><code class="language-clike">let tdps = C.top_down_pyramid_size in
 let str = [|1; 1|] in
@@ -95,7 +95,7 @@ Feature Pyramid Network creates a second pyramid of feature maps from top to bot
 </section>
 <section class="level3" id="proposal-generation">
 <h3>Proposal Generation</h3>
-<p>To try to locate the objects, about 250,000 overlapping rectangular regions (anchors) are generated.</p>
+<p>To try to locate the objects, about 250,000 overlapping rectangular regions or anchors are generated.</p>
 <div class="highlight">
 <pre><code class="language-clike">let nb_ratios = Array.length C.rpn_anchor_ratios in
 let rpns = Array.init 5 (fun i -&gt;
@@ -107,7 +107,7 @@ let rpn_class = concatenate 1 ~name:"rpn_class"
 let rpn_bbox = concatenate 1 ~name:"rpn_bbox"
                 (Array.init 5 (fun i -&gt; rpns.(i).(1)))</code></pre>
 </div>
-<p>Single RPN graphs are applied on the different features in <code>rpn_features_maps</code>, and the results from these networks are then concatenated together. For each anchor (or bounding box) on the image, the RPN returns the likelihood that it contains an object and a refinement for the anchor, both are rank-3 ndarrays.</p>
+<p>Single RPN graphs are applied on different features in <code>rpn_features_maps</code>, and the results from these networks are then concatenated together. For each bounding box on the image, the RPN returns the likelihood that it contains an object and a refinement for the anchor, both are represented by rank-3 ndarrays.</p>
 <p>Next, in the proposal layer, the 1000 best anchors are then selected according to their objectness (higher is better). Anchors that overlap too much with each other are eliminated, to avoid detecting the same object multiple times. Each selected anchor is also refined in case it was not perfectly centred around the object.</p>
 <div class="highlight">
 <pre><code class="language-clike">let rpn_rois =
@@ -115,11 +115,11 @@ let rpn_bbox = concatenate 1 ~name:"rpn_bbox"
     MrcnnUtil.delay_lambda_array [|C.post_nms_rois; 4|] prop_f ~name:"ROI"
       [|rpn_class; rpn_bbox; input_anchors|] in</code></pre>
 </div>
-<p>The proposal layer picks the top anchors from the RPN output, based on non maximum suppression and anchor scores. It applies the deltas to the anchors.</p>
+<p>The proposal layer picks the top anchors from the RPN output, based on non maximum suppression and anchor scores. It then applies the deltas to the anchors.</p>
 </section>
 <section class="level3" id="classification">
 <h3>Classification</h3>
-<p>All anchor proposals from the previous layer are resized to a fixed size and fed into a 10-layer neural network that assigns to each of them probabilities that it belongs to each class (the network is pre-trained on fixed classes; changing the set of classes requires to re-train the whole network). Note that this step does not take as much time for each anchor as a full-fledged image classifier (such as Inception) since it reuses the pre-computed feature maps from the Feature Pyramid Network, therefore no need to go back to the original picture. The class with the highest probability is chosen for each proposal and thanks to the class predictions, the anchor proposals are even more refined. Proposals classified in the ’background’ class are deleted. Eventually, only the proposals with an objectness over some threshold are kept, and we have our final detections, each coming with a bounding box and a label!</p>
+<p>All anchor proposals from the previous layer are resized to a fixed size and fed into a 10-layer neural network. The network assigns each of them the probability that it belongs to each class. The network is pre-trained on fixed classes; changing the set of classes requires to re-train the whole network. Note that this step does not take as much time for each anchor as a full-fledged image classifier such as Inception, since it reuses the pre-computed feature maps from the Feature Pyramid Network. Therefore there is no need to go back to the original picture. The class with the highest probability is chosen for each proposal, and, thanks to the class predictions, the anchor proposals are even more refined. Proposals classified in the background class are deleted. Eventually, only the proposals with an objectness over some threshold are kept, and we have our final detections, each having a bounding box and a label.</p>
 <div class="highlight">
 <pre><code class="language-clike">let mrcnn_class, mrcnn_bbox =
 FPN.fpn_classifier_graph rpn_rois mrcnn_feature_maps input_image_meta
@@ -132,13 +132,12 @@ let detection_boxes = lambda_array [|C.detection_max_instances; 4|]
                 (fun t -&gt; Maths.get_slice [[]; []; [0;3]] t.(0))
                 [|detections|]</code></pre>
 </div>
-<p>A Feature Pyramid Network classifier associates a class to each proposal and refines the bounding box for that class even more.</p>
-<p>The only thing left to do is to generate a binary mask on each object. This is handled by a small convolutional neural network which outputs for each detected bounding box a small square of values between 0 and 1. This square is resized to the original size of the bounding box with bilinear interpolation, and pixels with a value over 0.5 are tagged as being part of the object.</p>
+<p>A Feature Pyramid Network classifier associates a class to each proposal and refines the bounding box for that class even more. The only thing left to do is to generate a binary mask on each object. This is handled by a small convolutional neural network which produces a small square of values between 0 and 1 for each detected bounding box. This square is resized to the original size of the bounding box with bilinear interpolation, and pixels with a value over 0.5 are tagged as being part of the object.</p>
 <div class="highlight">
 <pre><code class="language-clike">let mrcnn_mask = FPN.build_fpn_mask_graph detection_boxes mrcnn_feature_maps
     input_image_meta C.mask_pool_size C.num_classes</code></pre>
 </div>
-And finally, the output contains detection results and mask from previous steps.
+<p>And finally, the output contains detection results and masks from the previous steps.</p>
 <div class="highlight">
 <pre><code class="language-clike">outputs ~name:C.name [|detections; mrcnn_mask|]</code></pre>
 </div>
@@ -146,7 +145,7 @@ And finally, the output contains detection results and mask from previous steps.
 </section>
 <section class="level2" id="run-the-code">
 <h2>Run the Code</h2>
-<p>One example of using the MRCNN code is in <a href="https://github.com/owlbarn/owl_mask_rcnn/blob/master/examples/evalImage.ml">this example</a>. The core part is list below:</p>
+<p>After getting to know the internal mechanism of the MRCNN architecture, we can then try run the code to see how it works. One example of using the MRCNN code is in <a href="https://github.com/owlbarn/owl_mask_rcnn/blob/master/examples/evalImage.ml">this example script</a>. The core part is listed below:</p>
 <div class="highlight">
 <pre><code class="language-clike">open Mrcnn
 
@@ -163,12 +162,26 @@ Visualise.display_labels camlimg rois class_ids scores;
 Image.save out_loc format camlimg;
 Visualise.print_results class_ids rois scores</code></pre>
 </div>
-<p>The most import step is to apply <code>Model.detect ()</code> on the input images, which returns the region of interests (rois), the classification result id of the object in that region, the classification certainty scores, and a mask that shows the outline of that object in the region. With this information, the <code>Visualise</code> module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the number close to the bounding box, and finally for printing out the resulting images from the previous two steps.</p>
-<p>Pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above.</p>
-<p>Processing one image with a size of 1024x1024 pixels takes between 10 and 15 seconds on a moderate laptop. You can try a <a href="http://demo.ocaml.xyz/mrcnn.html">demo</a> of the network without installing anything.</p>
+<p>The most important step is to apply the <code>Model.detect</code> function on the input images, which returns the region of interests, the classification result ID of the object in that region, the classification certainty scores, and a mask that shows the outline of that object in the region. With this information, the <code>Visualise</code> module runs for three passes on the original image: the first for adding bounding boxes and object masks, the second for adding the numbers close to the bounding box, and finally for printing out the resulting images from the previous two steps.</p>
+<p>In this example, the pre-trained weights on 80 classes of common objects are provided, which have been converted from the TensorFlow implementation mentioned above. As to the execution speed, processing one image with a size of 1024x1024 pixels takes between 10 and 15 seconds on a moderate laptop. You can try a <a href="http://demo.ocaml.xyz/mrcnn.html">demo</a> of the network without installing anything.</p>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
+<p>This chapter introduces Instance Segmentation, another powerful computer vision task that is wildly used in various fields. It encompasses several different tasks, including image recognition, semantic segmentation, and object detection. This task can be performed with the Mask R-CNN network architecture. We explain in detail how it is constructed using the Owl code. Besides, we also provide example code and online demo so that the readers can try to play with this powerful application conveniently.</p>
+</section>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-girshick2015fast">
+<p>Girshick, Ross. 2015. “Fast R-Cnn.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 1440–8.</p>
+</div>
+<div id="ref-he2017mask">
+<p>He, Kaiming, Georgia Gkioxari, Piotr Dollár, and Ross Girshick. 2017. “Mask R-Cnn.” In <em>Proceedings of the Ieee International Conference on Computer Vision</em>, 2961–9.</p>
+</div>
+<div id="ref-ren2015faster">
+<p>Ren, Shaoqing, Kaiming He, Ross Girshick, and Jian Sun. 2015. “Faster R-Cnn: Towards Real-Time Object Detection with Region Proposal Networks.” In <em>Advances in Neural Information Processing Systems</em>, 91–99.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="case-nst.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 30</small>Case - Neural Style Transfer</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
