@@ -4,7 +4,7 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="introduction">
 <h1>Introduction</h1>
-<p>This chapter briefly introduces the outline of the whole book, targeted audience, how to use the book, then the installation of Owl. There are different ways to interact with Owl, including <code>utop</code>, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us.</p>
+<p>This chapter briefly introduces the outline of the whole book, targeted audience, how to use the book, and then the installation of Owl. There are different ways to interact with Owl, including <code>utop</code>, notebook, and the Owl-Jupyter. Feel free to choose one as you are exploring the Owl world with us.</p>
 <section class="level2" id="what-is-scientific-computing">
 <h2>What Is Scientific Computing</h2>
 <p>Scientific Computing is a rapidly evolving multidisciplinary field which uses advanced computing capabilities to understand and solve complex problems. The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation). The former uses numerical approximation to solve mathematical problems, while the latter requires a exact close-form representation of computation and manipulates symbols that are not assigned specific values.</p>
@@ -26,21 +26,19 @@ let make_network input_shape =
   |&gt; get_network</code></pre>
 </div>
 <p>It actually consists of basic operations such as <code>add</code>, <code>div</code>, <code>convolution</code>, <code>dot</code>, etc. It’s totally OK if you have no idea what this piece of code is doing. We’ll cover that later in this book. The point is that how to dissect a complex application into basic building blocks in a numerical library, and that’s what we are trying to convey throughout this book.</p>
-<p>The book is divided into three parts, each contains multiple chapters. The first part covers the numerical techniques such as the math function, optimisation methods, neural networks, etc. This part aims to introduce how to <em>use</em> Owl as a tool. The second part introduces the system architecture of Owl. It introduces the design and implementation of Owl itself for those users who are interested in how things work. In this part we include things such as how we optimise the performance of operations and graphs in computation. The third part contains interesting use cases of Owl. They are not toy examples, but real applications used in particular fields. For example, we have computer vision applications such as image classification, segmentation, and neural style transfer, each is covered by a whole chapter.</p>
-<p>There is a long way to go from simple math calculation to those large use cases. Now let’s start from the very first step: installing Owl.</p>
 </section>
 <section class="level2" id="what-is-functional-programming">
 <h2>What is Functional Programming</h2>
-<p><strong>[jianxin]</strong> Two pages. Have to include at least: imperative (procedure, OO); different computational model, one follows Church, the other Turing (who is the student of Church); basic lambda calculus.</p>
-<p>TBD: Function programming is … but do we want to use a functional programming language to do scientific computing?</p>
-<p>Explain the fundamental difference between imperative languages (e.g.&nbsp;C) and functional languages is the underlying model of computation. The imperative one is based Alan Turing model, whereas the functional one is based on Alonzo Church. Mention that Church was Turing’s teacher.</p>
-<p>Spend some words on lambda calculus …</p>
+<p>Most existing numerical or scientific computing software are based on the imperative programming paradigm, which uses statements that change a program’s state. Imperative programs often work by being built from one or more procedures, or functions. This modular style is widely adopted. Later around 1980s the idea of object oriented programming is rapidly developed. It extends the modular programming style to include the idea of “object”. An object can contains both data and procedure codes. The imperative programming is not widely adopted in numerical computing for no reason. Almost all computers’ hardware implementation follows imperative design. Actually, FORTRAN, the first cross-platform programming language and an imperative language, is still heavily used for numerical and scientific computations in various fields after first being developed at the 1950s. There is a good chance that, even if you are using modern popular numerical libraries such as SciPy, Julia, or Matlab, they still rely on FORTRAN in the core part somewhere.</p>
+<p>As a contrast, the <em>Functional Programming</em> seems to born to perform hight-level tasks. When John McCarthy designed LISP, the first functional programming language, he meant to use it in the artificial intelligence field. The S-expression it uses was meant to be an intermediate representation, but later proved to be powerful and expressive enough. In LISP you can see the clear distinction between functional and imperative programming. Whereas the later uses a sequence of statements to change the state of the program, the former one builds a program that constructs a tree of expressions by using and composing functions.</p>
+<p>TODO: The fundamental difference between these two programming paradigms lies the underlying model of computation. The imperative one is based Alan Turing model. The functional one is based on Alonzo Church. Mention that Church was Turing’s teacher. Spend some words on lambda calculus …</p>
+<p>Compared to imperative programming, functional programming features immutable data, first-class functions, and optimisations on tail-recursion. By using techniques such as higher oder functions, currying, map &amp; reduce etc., functional programming can often achieves parallelisation of threads, lazy evaluation, and determinism of program execution. But asides from these benefits, we are now talking about numerical computation which requires good performance. The question is, do we want to use a functional programming language to do scientific computing? We hope that by presenting Owl, which built on the functional programming language OCaml, we can give you an satisfactory answer.</p>
 </section>
 <section class="level2" id="who-is-this-book-for">
 <h2>Who Is This Book For</h2>
 <p>We really hope this book can cover as broad an audience as possible. Both scientific computing and functional programming are big areas, therefore it is quite a challenge to write a book that satisfies everyone. If you are reading this book now, we assume you are already interested in analytical tasks and enthusiastic about gaining some hands-on experience with functional programming languages. We also assume you know how to program in OCaml and are familiar with the core concepts of functional programming.</p>
 <p>We want this book to be relatively general so we have covered many topics in scientific computing. However, this means we cannot dive very deeply into each topic, and each of them per se is probably worth a book. When designing the chapters, we select those topics which are either classical (e.g.&nbsp;statistics, linear algebra) or popular and proven-to-be-effective in industry (e.g.&nbsp;deep neural network, probabilistic programming, and etc.). We strive to reach a good balance between breadth and depth. For each topic, we will try our best to list sufficient references to guide our readers to study further.</p>
-<p>Unlike from other data science books, this book can serve as a reference for other software architects building modern numerical software systems. A big part of this book is dedicated to explaining the underlying details of Owl. Not only we will give you a bird’s-eye-view of the overall Owl system, but also teach you how to build the system up and optimise each component step-by-step. If you use Owl to build applications, this book can serve as a useful reference manual as well.</p>
+<p>Unlike other data science books, this book can serve as a reference for other software architects building modern numerical software systems. A big part of this book is dedicated to explaining the underlying details of Owl. Not only will we give you a bird’s-eye-view of the overall Owl system, but also teach you how to build the system up and optimise each component step-by-step. If you use Owl to build applications, this book can serve as a useful reference manual as well.</p>
 </section>
 <section class="level2" id="structure-of-the-book">
 <h2>Structure of the Book</h2>
@@ -52,7 +50,7 @@ let make_network input_shape =
 </section>
 <section class="level2" id="installation">
 <h2>Installation</h2>
-<p>Owl requires OCaml version <code>&gt;=4.10.0</code>. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to <a href="https://ocaml.org/docs/install.html">Install OCaml</a>.</p>
+<p>That being said, there is a long way to go from simple math calculation to those large use cases. Now let’s start from the very first step: installing Owl. Owl requires OCaml version <code>&gt;=4.10.0</code>. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to <a href="https://ocaml.org/docs/install.html">Install OCaml</a>.</p>
 <p>Owl’s installation is rather trivial. There are four possible ways as shown below, from the most straightforward one to the least one.</p>
 <section class="level3" id="option-1-install-from-opam">
 <h3>Option 1: Install from OPAM</h3>
@@ -75,8 +73,7 @@ let make_network input_shape =
   docker run -t -i owlbarn/owl
 </code></pre>
 </div>
-<p>Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - <code>utop</code>. You can start <code>utop</code> in the container and try out some examples. The source code of Owl is stored in <code>/root/owl</code> directory. You can modify the source code and rebuild the system directly in the started container.</p>
-<p>There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g.&nbsp;<code>docker pull owlbarn/owl:alpine</code>.</p>
+<p>Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - <code>utop</code>. You can start <code>utop</code> in the container and try out some examples. The source code of Owl is stored in <code>/root/owl</code> directory. You can modify the source code and rebuild the system directly in the started container. There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g.&nbsp;<code>docker pull owlbarn/owl:alpine</code>.</p>
 </section>
 <section class="level3" id="option-3-pin-the-dev-repo">
 <h3>Option 3: Pin the Dev-Repo</h3>
@@ -90,7 +87,7 @@ let make_network input_shape =
 </section>
 <section class="level3" id="option-4-compile-from-source">
 <h3>Option 4: Compile from Source</h3>
-<p>This is an old-schooled but my favourite option. First, you need to clone the repository.</p>
+<p>Compiling directly from the source is an old-school but a recommended option. First, you need to clone the repository.</p>
 <div class="highlight">
 <pre><code class="language-shell">
   git clone git@github.com:owlbarn/owl.git
@@ -112,7 +109,7 @@ let make_network input_shape =
 </section>
 <section class="level3" id="cblaslapacke-dependency">
 <h3>CBLAS/LAPACKE Dependency</h3>
-<p>The most important dependency is <a href="https://github.com/xianyi/OpenBLAS">OpenBLAS</a>. Linking to the correct OpenBLAS is the key to achieve the best performance. Depending on the specific platform, you can use <code>yum</code>, <code>apt-get</code>, <code>brew</code> to install the binary format. For example on my Mac OSX, the installation looks like this:</p>
+<p>The most important dependency of Owl is the <a href="https://github.com/xianyi/OpenBLAS">OpenBLAS</a> library, which efficiently implement the BLAS and LAPACK linear algebra routines. Linking to the correct OpenBLAS is the key to achieve the best performance. Depending on the specific platform, you can use <code>yum</code>, <code>apt-get</code>, <code>brew</code> to install the binary format. For example on my Mac OSX, the installation looks like this:</p>
 <div class="highlight">
 <pre><code class="language-shell">
   brew install homebrew/science/openblas
@@ -124,10 +121,9 @@ let make_network input_shape =
 </section>
 <section class="level2" id="interacting-with-owl">
 <h2>Interacting with Owl</h2>
-<p>There are several ways to interact with Owl system. The classic one is to write an OCaml application, compile the code, link to Owl system, then run it natively on a computer. You can also skip the compilation and linking step, and use Zoo system to run the code as a script.</p>
-<p>However, the easiest way for a beginner to try out Owl is using REPL (Read–Eval–Print Loop), namely an interactive toplevel. The toplevel offers a convenient way to play with small code snippets. The code run in the toplevel is compiled into bytecode rather than native code. Bytecode often runs much slower than native code. However, this has very little impact on Owl’s performance because all its performance-critical functions are implemented in C language.</p>
-<p>OCaml code can be compiled in either bytecode or native code. The bytecode is executed on OCaml virtual machine which is less performant then platform-optimised native code. Toplevel runs the user code in bytecode mode, but this has little impact on Owl’s performance because its core functions are implemented in C language. It is hard to notice any performance degradation if you run Owl in a script.</p>
-<p>In the following, I will introduce two options to set up an interactive environment for Owl.</p>
+<p>There are several ways to interact with Owl system. The classic one is to write an OCaml application, compile the code, link to Owl system, then run it natively on a computer. You can also skip the compilation and linking step, and use Zoo system in Owl to run the code as a script.</p>
+<p>However, the easiest way for a beginner to try out Owl is using REPL (Read–Eval–Print Loop), namely an interactive toplevel such as that of Python. The toplevel offers a convenient way to play with small code snippets. The code run in the toplevel is compiled into bytecode rather than native code. Bytecode often runs much slower than native code. However, this has very little impact on Owl’s performance because all its performance-critical functions are implemented in C language.</p>
+<p>OCaml code can be compiled in either bytecode or native code. The bytecode is executed on OCaml virtual machine which is less performant then platform-optimised native code. Toplevel runs the user code in bytecode mode, but this has little impact on Owl’s performance because its core functions are implemented in C language. It is hard to notice any performance degradation if you run Owl in a script. In the following, we will introduce two options to set up an interactive environment for Owl.</p>
 <section class="level3" id="using-toplevel">
 <h3>Using Toplevel</h3>
 <p>OCaml language has bundled with a simple toplevel, but I recommend <em>utop</em> as a more advance replacement. Installing <em>utop</em> is straightforward using OPAM, simply run the following command in the system shell.</p>
@@ -169,8 +165,7 @@ let make_network input_shape =
 #require "owl-top, jupyter.notebook";;
 </code></pre>
 </div>
-<p>At this point, a complete Owl environment is set up in the Jupyter Notebook, and you are free to go with any experiments you like.</p>
-<p>For example, you can simply copy &amp; paste the whole <a href="https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml">lazy_mnist.ml</a> to train a convolutional neural network in the notebook. But here, let us just use the following code.</p>
+<p>At this point, a complete Owl environment is set up in the Jupyter Notebook, and you are free to go with any experiments you like. For example, you can simply copy &amp; paste the whole <a href="https://github.com/owlbarn/owl/blob/master/examples/lazy_mnist.ml">lazy_mnist.ml</a> to train a convolutional neural network in the notebook. But here, let us just use the following code.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">#use "topfind";;
 #require "owl-top, jupyter.notebook";;
@@ -191,7 +186,7 @@ let make_network input_shape =
 &gt;val make_network : int array -&gt; network = &lt;fun&gt;
 </code></pre>
 </div>
-<p><code>make_network</code> defines the structure of a convolution neural network. By passing the shape of input data, Owl automatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.</p>
+<p>The <code>make_network</code> function defines the structure of a convolution neural network. By passing the shape of input data, Owl automatically infers the shape of whole network, and prints out the summary of network structure nicely on the screen.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">make_network [|28;28;1|];;
 &gt;- : network =
@@ -276,7 +271,7 @@ Plot.output h
 &gt;- : unit = ()
 </code></pre>
 </div>
-<p>To load the image into browser, we need to call <code>Jupyter_notebook.display_file</code> function. Then we can see the plot fig.&nbsp;1 is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.</p>
+<p>To load the image into browser, we need to call the <code>Jupyter_notebook.display_file</code> function. Then we can see the plot fig.&nbsp;1 is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.</p>
 <div class="highlight">
 <pre><code class="language-text">Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"</code></pre>
 </div>
@@ -309,12 +304,13 @@ Plot.output h
 <figure>
 <img alt="" style="width:90.0%" id="fig:introduction:plot01" title="plot_01" src="images/introduction/plot_01.png"><figcaption>Figure 2: Plot example using Owl-Jupyter</figcaption>
 </figure>
-<p>From the example above, you can see Owl users’ experience can be significantly improved.</p>
+<p>From the example above, you can see Owl users’ experience can be significantly improved by using the notebook.</p>
 </section>
 </section>
-<section class="level2" id="start-the-adventure">
-<h2>Start The Adventure</h2>
-<p>At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. Often, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its compilation and intallation. Anyway, it is time to move foward, so roll up your sleeves and let’s march into the wonderful scientific computing world</p>
+<section class="level2" id="summary">
+<h2>Summary</h2>
+<p>In this chapter we give an brief introduction to the background of Owl, including scientific computing, functional programming, and target audience, and the layout of this book. Then we start introduces how Owl can be installed and used, as a first step to start this journey. You can feel free to browse any part of this book as you want.</p>
+<p>At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. To be honest, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its compilation and intallation. Now, let’s roll out and start the exploration of more interesting topics.</p>
 </section>
 </section>
 </article></div><a href="convention.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 02</small>Conventions</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
