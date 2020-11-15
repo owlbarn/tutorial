@@ -252,12 +252,7 @@ val topo_sort : 'a node array -> 'a node array
 ```
 
 You can also use functions: `filter_ancestors`, `filter_descendants`, `fold_ancestors`, `fold_descendants`, `fold_in_edges`, and `fold_out_edges` to perform fold or filter operations when iterating the graph.
-
-Within Owl, the Graph module is heavily use to facilitate the Computation Graph module.
-
-TODO: Explain how it is used in CGraph.
-
-TODO: Use examples and text, not just code.
+Within Owl, the Graph module is heavily use to facilitate other modules such as the Computation Graph module to provide the basic graph structuring functionalities. We will discuss the Computation Graph in detail in later chapter in the book. 
 
 ## Stack and Heap Modules
 
@@ -301,7 +296,7 @@ First, apply a hashing function and use `h(e)` as the key, instead of the elemen
 Besides, the total number of key-value pairs can be limited.
 Towards the end, this approach can be summarised as three steps:
 
-1. initialised an array of $n$ elements, each set to 0;
+1. initialise an array of $n$ elements, each set to 0;
 2. when processing one element $e$, increase the count of the hashed index: `count[h(e)] += 1`;
 3. when querying the count for certain element, just return `count[h(e)]`.
 
@@ -445,3 +440,9 @@ Owl provides two implementations of the heavy-hitters data structure, as `Owl_ba
 An example use of this data structure to find the heavy hitters in the `news.txt` corpus can be found in the [Owl examples repository](https://github.com/owlbarn/owl/blob/master/examples/countmin_texts.ml).
 
 ## Summary
+
+In this chapter, we introduce several internal modules in Owl. 
+First we have the dataset module that provides access to the commonly used datasets such as MNIST and CIFAR10.
+Then we also have modules that can be used to build common data structures such as graph, stack, and heap.
+One less-known but interesting data structure is the Count-Min Sketch, which is a probabilistic data structure for computing approximate counts. It is also discussed in detail in this chapter.
+These modules are not complex and may even not quite necessary in all numerical libraries, but they may come surprisingly handy when you need them. 

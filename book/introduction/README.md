@@ -49,12 +49,15 @@ The S-expression it uses was meant to be an intermediate representation, but lat
 In LISP you can see the clear distinction between functional and imperative programming. 
 Whereas the later uses a sequence of statements to change the state of the program, the former one builds a program that constructs a tree of expressions by using and composing functions. 
 
-TODO:
 The fundamental difference between these two programming paradigms lies the underlying model of computation. 
-The imperative one is based Alan Turing model.
-The functional one is based on Alonzo Church. 
-Mention that Church was Turing's teacher. 
-Spend some words on lambda calculus ...
+The imperative one is based on the Alan Turing model.
+In their book *Alan Turing: His Work and Impact*,  S. Barry Cooper and J. Van Leeuwen said that "computability via Turing machines gave rise to imperative programming". 
+On the other hand, functional programming evolves from the *lambda calculus*, a formal system of computation built from function application.
+Lambda Calculus was invented by Alonzo Church in the 1930s, and it was meant to be a formal mathematical logic systems, instead of programming language. 
+Actually, it was not until the programming language was invented that the relationship between these two is reviled. 
+Turing himself proved that the lambda calculus is Turing complete. 
+(Fun fact: Turing is the student of Church.)
+We can say that the Lambda calculus is the basis of all functional programming languages.
 
 Compared to imperative programming, functional programming features immutable data, first-class functions, and optimisations on tail-recursion. 
 By using techniques such as higher oder functions, currying, map & reduce etc., functional programming can often achieves parallelisation of threads, lazy evaluation, and determinism of program execution. 
