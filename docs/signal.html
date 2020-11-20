@@ -250,16 +250,16 @@ let y = Mat.get_slice [[];[1]] data</code></pre>
 </figure>
 <p>We can see there is a cycle of about 10 years, but exactly how long is it? Let’s start by applying the FFT on this signal. To process the data, we first remove the first element of the frequency vector <code>y'</code>, since it stores the sum of the data. The frequency is reduced to half, since we plot only half of the coefficients.</p>
 <div class="highlight">
-<pre><code class="language-ocaml">let get_frequency y = 
-  let y' = Owl_fft.D.rfft ~axis:0 y in 
-  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in 
+<pre><code class="language-ocaml">let get_frequency y =
+  let y' = Owl_fft.D.rfft ~axis:0 y in
+  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in
   Dense.Ndarray.Z.(abs y' |&gt; re)</code></pre>
 </div>
 <p>The frequency (<code>cycle/year</code>) as unit of measurement seems a bit confusing. To get the cyclical activity that is easier to interpret, we also plot the squared power as a function of <code>years/cycle</code>. Both are plotted with code below.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let plot_sunspot_freq p =
   let n = (Arr.shape p).(0) in
-  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in 
+  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in
 
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
@@ -370,10 +370,52 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 <p>Blurring an image with a two-dimensional FFT. IMPLEMENTATION required: FFT2D, iFFT2D, fftShift. Image utils also need to be made clean. <a href="https://scipython.com/book/chapter-6-numpy/examples/blurring-an-image-with-a-two-dimensional-fft/">Reference</a>.</p>
 <p>FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.</p>
 <p>We use the famous Lena image as example:</p>
-<figure>
-<img alt="" style="width:50.0%" id="fig:signal:lena" src="images/signal/lena.png"><figcaption>Figure 5: Lena</figcaption>
-</figure>
+<p><img alt="Noise Moonlanding image" style="width:40.0%" id="fig:signal:moonlanding" src="images/signal/moonlanding.png"> <img alt="De-noised Moonlanding image" style="width:40.0%" id="fig:signal:moonlanding_denoise" src="images/signal/moonlanding_denoise.png"></p>
 <p>As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.</p>
+<div class="highlight">
+<pre><code class="language-clike">#use "image_utils.ml";;
+
+module N = Dense.Ndarray.S
+module C = Dense.Ndarray.C
+
+let img_arr = load_ppm "moonlanding.ppm" |&gt; N.get_slice [[];[];[0]]
+
+let shp = N.shape img_arr
+let h, w = shp.(0), shp.(1)
+let img = N.reshape img_arr [|h; w|] |&gt; Dense.Ndarray.Generic.cast_s2c
+
+let img_fft = Owl_fft.S.fft2 img
+
+(* set to zeros *)
+
+let sub_length x frac = (float_of_int x) *. frac |&gt; int_of_float
+
+let h1 = sub_length h 0.1
+let h2 = sub_length h 0.9
+let w1 = sub_length w 0.1
+let w2 = sub_length w 0.9
+
+let index_0 = [ R [h1; h2]; R []]
+let index_1 = [ R [0; h1]; R [w1; w2] ]
+let index_2 = [ R [h2; h-1]; R [w1; w2] ]
+
+let slice_0 = C.get_fancy index_0 img_fft
+let slice_1 = C.get_fancy index_1 img_fft
+let slice_2 = C.get_fancy index_2 img_fft
+
+let _ = C.set_fancy index_0 img_fft (C.shape slice_0 |&gt; C.zeros)
+let _ = C.set_fancy index_1 img_fft (C.shape slice_1 |&gt; C.zeros)
+let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |&gt; C.zeros)
+
+let img = Owl_fft.S.ifft img_fft |&gt; C.re
+
+(* concate them together *)
+
+let image = N.stack ~axis:2 [|img; img; img|]
+let image = N.expand image 4
+
+let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"</code></pre>
+</div>
 <div class="highlight">
 <pre><code class="language-clike">code</code></pre>
 </div>
@@ -439,9 +481,9 @@ let data = Array.map (fun x -&gt;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 6: Smoothed stock price of Google</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 5: Smoothed stock price of Google</figcaption>
 </figure>
-<p>The results are shown in fig.&nbsp;6. The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price. The sudden drop in the last month might be related with the COVID-19 pandemic.</p>
+<p>The results are shown in fig.&nbsp;5. The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price. The sudden drop in the last month might be related with the COVID-19 pandemic.</p>
 </section>
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
@@ -459,9 +501,9 @@ let data = Array.map (fun x -&gt;
 
 let filter = gaussian_kernel 3.</code></pre>
 </div>
-<p>Computing the correlation between filter and the input data as before, we get a better smoothed curve in fig.&nbsp;7.</p>
+<p>Computing the correlation between filter and the input data as before, we get a better smoothed curve in fig.&nbsp;6.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 7: Smoothed stock price of Google with Gaussian filtering</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 6: Smoothed stock price of Google with Gaussian filtering</figcaption>
 </figure>
 <p>Filters can be generally categorised by their usage into time domain filters and frequency domain filters. Time domain filters are used when the information is encoded in the shape of the signal’s waveform, and can be used for tasks such as smoothing, waveform shaping, etc. It includes filter methods such as moving average and single pole. Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. There are many filters, each with different shape (or <em>impulse response</em>) and application scenarios, and we cannot fully cover them here. Please refer to some classical textbooks on signal processing such as <span data-cites="smith1997scientist" class="citation">(Smith and others 1997)</span> for more information.</p>
 </section>
@@ -499,16 +541,16 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z</code></pre>
 <div class="highlight">
 <pre><code class="language-clike">let y2 = Owl_fft.D.irfft ~axis:0 yf</code></pre>
 </div>
-<p>We can similarly check how the smoothing approach works in fig.&nbsp;8. Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.</p>
+<p>We can similarly check how the smoothing approach works in fig.&nbsp;7. Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 8: Smoothed stock price of Google using FFT method</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 7: Smoothed stock price of Google using FFT method</figcaption>
 </figure>
 </section>
 <section class="level3" id="fft-and-image-convolution">
 <h3>FFT and Image Convolution</h3>
-<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated in fig.&nbsp;9 (inspired by the nice work by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
+<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated in fig.&nbsp;8 (inspired by the nice work by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 9: Image convolution illustration</figcaption>
+<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 8: Image convolution illustration</figcaption>
 </figure>
 <p>Owl has provided thorough support of convolution operations:</p>
 <div class="highlight">
@@ -526,7 +568,7 @@ val conv3d : ?padding:padding -&gt; (float, 'a) t -&gt; (float, 'a) t -&gt; int 
 let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]</code></pre>
 </div>
-<p>If you are interested to check the result, this vector <code>y3'</code> contains the data to plot a smoothed curve. The smoothed data would be similar to that in fig.&nbsp;6 since the calculation is the same, only with more concise code.</p>
+<p>If you are interested to check the result, this vector <code>y3'</code> contains the data to plot a smoothed curve. The smoothed data would be similar to that in fig.&nbsp;5 since the calculation is the same, only with more concise code.</p>
 <p>Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.</p>
 </section>
 </section>

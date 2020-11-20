@@ -1,7 +1,7 @@
 # Signal Processing
 
 We rely on signals such as sound and images to convey information.
-The signal processing is a field that's about analysing, generation, and transformation of signals. 
+The signal processing is a field that's about analysing, generation, and transformation of signals.
 Its applications can be seen in a wide range of fields: audio processing, speech recognition, image processing, communication system, data science, etc.
 In this chapter we mainly focus on Fourier Transform, the core idea in signal processing and modern numerical computing.
 We introduce its basic idea, and then demonstrate how Owl supports FFT with examples and applications.
@@ -190,9 +190,9 @@ R (5.01874, 0i) (5.02225, 0.0182513i) (5.03281, 0.0366004i) (5.05051, 0.0551465i
 
 ```
 
-In the results, each tuple can be seen as a frequency vector in the complex space. 
-We can plot the length of these vectors. 
-As we have said, we use only the first half, or the positive frequencies, of array `yf`. 
+In the results, each tuple can be seen as a frequency vector in the complex space.
+We can plot the length of these vectors.
+As we have said, we use only the first half, or the positive frequencies, of array `yf`.
 
 ```ocaml env=fft_env02
 # let z = Dense.Ndarray.Z.(abs yf |> re)
@@ -215,7 +215,7 @@ R 5.01874 5.02228 5.03294 5.05081 5.07604 ... 5.10886 5.07604 5.05081 5.03294 5.
 
 ![Using FFT to separate two sine signals from their mixed signal](images/signal/plot_001.png "plot_001"){.align-center width=70%}
 
-Next let's see `rfft` and `irfft`. 
+Next let's see `rfft` and `irfft`.
 Function `rfft` calculates the FFT of a real signal input and generates the complex number FFT coefficients for half of the frequency domain range.
 The negative part is implied by the Hermitian symmetry of the FFT.
 Similarly, `irfft` performs the reverse step of `rfft`.
@@ -256,7 +256,7 @@ The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
 
 (TODO: This is not the real N-D FFT. IMPLEMENTATION required.
-TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. 
+TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6.
 Implementation is not difficult: (1) do 1D FFT on each row (real to complex); (2) do 1D FFT on each column resulting from (1) (complex to complex))
 
 ```ocaml env=fft_env05
@@ -336,9 +336,9 @@ To process the data, we first remove the first element of the frequency vector `
 The frequency is reduced to half, since we plot only half of the coefficients.
 
 ```ocaml
-let get_frequency y = 
-  let y' = Owl_fft.D.rfft ~axis:0 y in 
-  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in 
+let get_frequency y =
+  let y' = Owl_fft.D.rfft ~axis:0 y in
+  let y' = Dense.Ndarray.Z.get_slice [[1; (Dense.Ndarray.Z.shape y').(0) - 1];[]] y' in
   Dense.Ndarray.Z.(abs y' |> re)
 ```
 
@@ -349,7 +349,7 @@ Both are plotted with code below.
 ```ocaml
 let plot_sunspot_freq p =
   let n = (Arr.shape p).(0) in
-  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in 
+  let f = Arr.(mul_scalar (linspace 0. 1. n) 0.5) in
 
   let h = Plot.create ~m:1 ~n:2 "plot_sunspot_freq.png" in
   Plot.set_pen_size h 3.;
@@ -376,7 +376,7 @@ Now we can see clearly that the most prominent cycle is a little bit less than 1
 
 When we are dialling a phone number, the soundwave can be seen a signal.
 In this example, we show how to decipher which number is dialled according to the given soundwave.
-This examples uses the data from [@moler2008numerical]. 
+This examples uses the data from [@moler2008numerical].
 Let's first load and visualise them.
 
 ```
@@ -411,7 +411,7 @@ Apparently, according to the dense area in this signal, there are 11 digits in t
 
 ![Recording of an 11-digit number and its FFT decomposition](images/signal/tone.png "tone"){width=100% #fig:signal:tone}
 
-This is a suitable question for FFT. 
+This is a suitable question for FFT.
 Let's start by applying the FFT to the original data.
 
 ```
@@ -428,10 +428,10 @@ This frequency keypad is specified in the Dual-tone multi-frequency signalling (
 
 || 1209 Hz  | 1336 Hz | 1477 Hz |
 |:---------:|:-------:|:-------:|:-------:|
-| **697Hz** | 1 | 2 | 3 | 
-| **770Hz** | 4 | 5 | 6 | 
-| **852Hz** | 7 | 8 | 9 | 
-| **941Hz** | * | 2 | # | 
+| **697Hz** | 1 | 2 | 3 |
+| **770Hz** | 4 | 5 | 6 |
+| **852Hz** | 7 | 8 | 9 |
+| **941Hz** | * | 2 | # |
 : DTMF keypad frequencies {#tbl:signal:keypad}
 
 We can use the first tone as an example to find out which two frequencies it is composed from.
@@ -458,9 +458,56 @@ FFT on multi-dimensional signal is effective for image compression, because many
 
 We use the famous Lena image as example:
 
-![Lena](images/signal/lena.png){width=50% #fig:signal:lena}
+
+![Noise Moonlanding image](images/signal/moonlanding.png){width=40% #fig:signal:moonlanding}
+![De-noised Moonlanding image](images/signal/moonlanding_denoise.png){width=40% #fig:signal:moonlanding_denoise}
 
 As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.
+
+```
+#use "image_utils.ml";;
+
+module N = Dense.Ndarray.S
+module C = Dense.Ndarray.C
+
+let img_arr = load_ppm "moonlanding.ppm" |> N.get_slice [[];[];[0]]
+
+let shp = N.shape img_arr
+let h, w = shp.(0), shp.(1)
+let img = N.reshape img_arr [|h; w|] |> Dense.Ndarray.Generic.cast_s2c
+
+let img_fft = Owl_fft.S.fft2 img
+
+(* set to zeros *)
+
+let sub_length x frac = (float_of_int x) *. frac |> int_of_float
+
+let h1 = sub_length h 0.1
+let h2 = sub_length h 0.9
+let w1 = sub_length w 0.1
+let w2 = sub_length w 0.9
+
+let index_0 = [ R [h1; h2]; R []]
+let index_1 = [ R [0; h1]; R [w1; w2] ]
+let index_2 = [ R [h2; h-1]; R [w1; w2] ]
+
+let slice_0 = C.get_fancy index_0 img_fft
+let slice_1 = C.get_fancy index_1 img_fft
+let slice_2 = C.get_fancy index_2 img_fft
+
+let _ = C.set_fancy index_0 img_fft (C.shape slice_0 |> C.zeros)
+let _ = C.set_fancy index_1 img_fft (C.shape slice_1 |> C.zeros)
+let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |> C.zeros)
+
+let img = Owl_fft.S.ifft img_fft |> C.re
+
+(* concate them together *)
+
+let image = N.stack ~axis:2 [|img; img; img|]
+let image = N.expand image 4
+
+let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"
+```
 
 ```
 code
@@ -696,14 +743,14 @@ let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]
 ```
 
-If you are interested to check the result, this vector `y3'` contains the data to plot a smoothed curve. 
+If you are interested to check the result, this vector `y3'` contains the data to plot a smoothed curve.
 The smoothed data would be similar to that in [@fig:signal:goog] since the calculation is the same, only with more concise code.
 
 Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
 
 ## Summary
 
-This chapter centres around a fundamental idea behind signal processing: the Fourier Transform. 
+This chapter centres around a fundamental idea behind signal processing: the Fourier Transform.
 We started with its definition, and then introduce a crucial idea behind its efficient implementation: the Fast Fourier Transform (FFT).
 Owl provides support to FFT by linking to existing FFTPack library.
 We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications.
