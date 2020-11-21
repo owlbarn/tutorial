@@ -3,11 +3,6 @@
 Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example the [rules on broadcasting operation](broadcast.html) and the [conventions on slice definition](slicing.html). In this chapter, I will cover the function naming and various conventions in Owl.
 
 
-## OCaml In a Nutshell
-
-TBD
-
-
 ## Pure vs. Impure
 
 `Ndarray` module contains many functions to manipulate and perform mathematical operations over multi-dimensional arrays. The **pure functions** (a.k.a immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, **impure functions** (a.k.a mutable functions) refer to those which modifies the passed-in variables in place.

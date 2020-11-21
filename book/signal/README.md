@@ -441,32 +441,35 @@ Let's get a subset of the signal:
 let data2 = Arr.get_slice [[];[0; 4999]] data
 ```
 
+![Recording of the first digit and its FFT decomposition](images/signal/tone2.png "tone"){width=100% #fig:signal:tone2}
+
+
 And then perform the same process as before, the results are shown in [@fig:signal:tone2].
 We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200.
 Looking it up in [@tbl:signal:keypad], we can see that the first digit is `1`.
 You can investigate the whole phone number following the same procedure.
 
-![Recording of the first digit and its FFT decomposition](images/signal/tone2.png "tone"){width=100% #fig:signal:tone2}
 
 ### Image Processing
 
-Blurring an image with a two-dimensional FFT.
-IMPLEMENTATION required: FFT2D, iFFT2D, fftShift. Image utils also need to be made clean.
-[Reference](https://scipython.com/book/chapter-6-numpy/examples/blurring-an-image-with-a-two-dimensional-fft/).
+When the data  to be processed goes from being one dimensional to multiple dimensional, FFT is still a powerful tool.
+It can be used for a wide range of image processing tasks such as blurring, compression or denosing.
+In this section, we demonstrate an image denoising example.
+The basic idea is similar: many Fourier frequencies in the image are small and can be neglected via using filters. The image quality can be largely preserved by recreating the image from only the major frequencies.
 
-FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.
-
-We use the famous Lena image as example:
-
+As input, we use the noised version of the moon landing image, as shown in [@fig:signal:moonlanding].
 
 ![Noise Moonlanding image](images/signal/moonlanding.png){width=40% #fig:signal:moonlanding}
-![De-noised Moonlanding image](images/signal/moonlanding_denoise.png){width=40% #fig:signal:moonlanding_denoise}
 
-As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.
+As a tool for image processing, we use the [imageUtils.ml](https://gist.github.com/jzstark/f93177fcb0ab843e82d2c6b83880d873) script. It can be used for reading images of PPM format into ndarray, or saving ndarray into PPM image. You can copy this script to local directory.
 
 ```
-#use "image_utils.ml";;
+#use "imageUtils.ml"
+```
 
+As the first step, we read in the image into Owl as a ndarray using the function `load_ppm`. All the elements in this matrix are within the range 0 to 255. Since this is an greyscale image, we only need to process on single channel of this array, which is a matrix.
+
+```
 module N = Dense.Ndarray.S
 module C = Dense.Ndarray.C
 
@@ -475,11 +478,19 @@ let img_arr = load_ppm "moonlanding.ppm" |> N.get_slice [[];[];[0]]
 let shp = N.shape img_arr
 let h, w = shp.(0), shp.(1)
 let img = N.reshape img_arr [|h; w|] |> Dense.Ndarray.Generic.cast_s2c
+```
 
+The next step is simple: applying the `fft2` function on the image.
+
+```
 let img_fft = Owl_fft.S.fft2 img
+```
 
-(* set to zeros *)
+Next, we can apply all kinds of filters on this frequency map `img_fft` to remove the unwanted frequencies.
+We choose use a simple one here: only keep the frequencies on the four "corner" in this matrix, and set the rest to zeros.  
+We can achieve that with the slicing.
 
+```
 let sub_length x frac = (float_of_int x) *. frac |> int_of_float
 
 let h1 = sub_length h 0.1
@@ -498,47 +509,21 @@ let slice_2 = C.get_fancy index_2 img_fft
 let _ = C.set_fancy index_0 img_fft (C.shape slice_0 |> C.zeros)
 let _ = C.set_fancy index_1 img_fft (C.shape slice_1 |> C.zeros)
 let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |> C.zeros)
+```
 
+Finally, let's apply the reverse FFT function on the processed frequency map, and save the result as image.
+
+```
 let img = Owl_fft.S.ifft img_fft |> C.re
-
-(* concate them together *)
 
 let image = N.stack ~axis:2 [|img; img; img|]
 let image = N.expand image 4
-
 let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"
 ```
 
-```
-code
-```
+As can be seen in [@fig:signal:moonlanding_denoise], though a bit blur, the output image remove the noise in the original image, and manage to keep most of the information in it.
 
-Then we take the 2-D FFT, and centre the frequencies.
-
-```
-code: fft2 + fftshift; image output
-```
-
-IMAGE
-
-The result is shown in a figure. It is clear that there are several small frequency bands that can be ignored.
-Let's remove them using a Gaussian Filter.
-
-```
-code: using Mat.meshgrid to build a gaussian mask; matrix multiplication; image output
-```
-
-IMAGE
-
-Now that we remove the insignificant frequencies, we can rebuild the image based on this filtered frequency with inverse 2-D FFT.
-
-```
-code:ifft2; show image
-```
-
-IMAGE + some comment about it: its blur but keep basic information; maybe we can do better with ... (some advanced tricks + s-o-a if there is any).
-
-Of course, following similar method as previous applications on 1-D signals, FFT is widely used for removing noise in images by isolate and manipulate particular frequency bands.
+![De-noised Moonlanding image](images/signal/moonlanding_denoise.png){width=40% #fig:signal:moonlanding_denoise}
 
 ## Filtering
 
@@ -753,7 +738,7 @@ Also, FFT is a popular implementation method of convolution. There has been a lo
 This chapter centres around a fundamental idea behind signal processing: the Fourier Transform.
 We started with its definition, and then introduce a crucial idea behind its efficient implementation: the Fast Fourier Transform (FFT).
 Owl provides support to FFT by linking to existing FFTPack library.
-We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications.
+We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications: finding the frequency of sunspot events, decipher the dial tone number according to its sound, and de-noising an image.
 Finally, we discussed filtering in signal process using different techniques, including simple averaging smoothing, gaussian filtering, and FFT-based filtering.
 Here we also explained the relationship between the two most crucial computations in numerical applications: FFT and convolution.
 More about convolution can be find in the Neural Network chapter.

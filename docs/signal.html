@@ -360,35 +360,41 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 <div class="highlight">
 <pre><code class="language-clike">let data2 = Arr.get_slice [[];[0; 4999]] data</code></pre>
 </div>
-<p>And then perform the same process as before, the results are shown in fig.&nbsp;4. We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200. Looking it up in tbl.&nbsp;2, we can see that the first digit is <code>1</code>. You can investigate the whole phone number following the same procedure.</p>
 <figure>
 <img alt="" style="width:100.0%" id="fig:signal:tone2" title="tone" src="images/signal/tone2.png"><figcaption>Figure 4: Recording of the first digit and its FFT decomposition</figcaption>
 </figure>
+<p>And then perform the same process as before, the results are shown in fig.&nbsp;4. We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200. Looking it up in tbl.&nbsp;2, we can see that the first digit is <code>1</code>. You can investigate the whole phone number following the same procedure.</p>
 </section>
 <section class="level3" id="image-processing">
 <h3>Image Processing</h3>
-<p>Blurring an image with a two-dimensional FFT. IMPLEMENTATION required: FFT2D, iFFT2D, fftShift. Image utils also need to be made clean. <a href="https://scipython.com/book/chapter-6-numpy/examples/blurring-an-image-with-a-two-dimensional-fft/">Reference</a>.</p>
-<p>FFT on multi-dimensional signal is effective for image compression, because many Fourier frequencies in the image are small and can be neglected via using filters, leaving the major frequencies, and thus the image quality can be largely preserved.</p>
-<p>We use the famous Lena image as example:</p>
-<p><img alt="Noise Moonlanding image" style="width:40.0%" id="fig:signal:moonlanding" src="images/signal/moonlanding.png"> <img alt="De-noised Moonlanding image" style="width:40.0%" id="fig:signal:moonlanding_denoise" src="images/signal/moonlanding_denoise.png"></p>
-<p>As the first step, we read in the image into Owl as a matrix. All the elements in this matrix are scaled to within 0 to 1.</p>
+<p>When the data to be processed goes from being one dimensional to multiple dimensional, FFT is still a powerful tool. It can be used for a wide range of image processing tasks such as blurring, compression or denosing. In this section, we demonstrate an image denoising example. The basic idea is similar: many Fourier frequencies in the image are small and can be neglected via using filters. The image quality can be largely preserved by recreating the image from only the major frequencies.</p>
+<p>As input, we use the noised version of the moon landing image, as shown in fig.&nbsp;5.</p>
+<figure>
+<img alt="" style="width:40.0%" id="fig:signal:moonlanding" src="images/signal/moonlanding.png"><figcaption>Figure 5: Noise Moonlanding image</figcaption>
+</figure>
+<p>As a tool for image processing, we use the <a href="https://gist.github.com/jzstark/f93177fcb0ab843e82d2c6b83880d873">imageUtils.ml</a> script. It can be used for reading images of PPM format into ndarray, or saving ndarray into PPM image. You can copy this script to local directory.</p>
 <div class="highlight">
-<pre><code class="language-clike">#use "image_utils.ml";;
-
-module N = Dense.Ndarray.S
+<pre><code class="language-clike">#use "imageUtils.ml"</code></pre>
+</div>
+<p>As the first step, we read in the image into Owl as a ndarray using the function <code>load_ppm</code>. All the elements in this matrix are within the range 0 to 255. Since this is an greyscale image, we only need to process on single channel of this array, which is a matrix.</p>
+<div class="highlight">
+<pre><code class="language-clike">module N = Dense.Ndarray.S
 module C = Dense.Ndarray.C
 
 let img_arr = load_ppm "moonlanding.ppm" |&gt; N.get_slice [[];[];[0]]
 
 let shp = N.shape img_arr
 let h, w = shp.(0), shp.(1)
-let img = N.reshape img_arr [|h; w|] |&gt; Dense.Ndarray.Generic.cast_s2c
-
-let img_fft = Owl_fft.S.fft2 img
-
-(* set to zeros *)
-
-let sub_length x frac = (float_of_int x) *. frac |&gt; int_of_float
+let img = N.reshape img_arr [|h; w|] |&gt; Dense.Ndarray.Generic.cast_s2c</code></pre>
+</div>
+<p>The next step is simple: applying the <code>fft2</code> function on the image.</p>
+<div class="highlight">
+<pre><code class="language-clike">let img_fft = Owl_fft.S.fft2 img</code></pre>
+</div>
+<p>Next, we can apply all kinds of filters on this frequency map <code>img_fft</code> to remove the unwanted frequencies. We choose use a simple one here: only keep the frequencies on the four “corner” in this matrix, and set the rest to zeros.<br>
+We can achieve that with the slicing.</p>
+<div class="highlight">
+<pre><code class="language-clike">let sub_length x frac = (float_of_int x) *. frac |&gt; int_of_float
 
 let h1 = sub_length h 0.1
 let h2 = sub_length h 0.9
@@ -405,36 +411,20 @@ let slice_2 = C.get_fancy index_2 img_fft
 
 let _ = C.set_fancy index_0 img_fft (C.shape slice_0 |&gt; C.zeros)
 let _ = C.set_fancy index_1 img_fft (C.shape slice_1 |&gt; C.zeros)
-let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |&gt; C.zeros)
-
-let img = Owl_fft.S.ifft img_fft |&gt; C.re
-
-(* concate them together *)
+let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |&gt; C.zeros)</code></pre>
+</div>
+<p>Finally, let’s apply the reverse FFT function on the processed frequency map, and save the result as image.</p>
+<div class="highlight">
+<pre><code class="language-clike">let img = Owl_fft.S.ifft img_fft |&gt; C.re
 
 let image = N.stack ~axis:2 [|img; img; img|]
 let image = N.expand image 4
-
 let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"</code></pre>
 </div>
-<div class="highlight">
-<pre><code class="language-clike">code</code></pre>
-</div>
-<p>Then we take the 2-D FFT, and centre the frequencies.</p>
-<div class="highlight">
-<pre><code class="language-clike">code: fft2 + fftshift; image output</code></pre>
-</div>
-<p>IMAGE</p>
-<p>The result is shown in a figure. It is clear that there are several small frequency bands that can be ignored. Let’s remove them using a Gaussian Filter.</p>
-<div class="highlight">
-<pre><code class="language-clike">code: using Mat.meshgrid to build a gaussian mask; matrix multiplication; image output</code></pre>
-</div>
-<p>IMAGE</p>
-<p>Now that we remove the insignificant frequencies, we can rebuild the image based on this filtered frequency with inverse 2-D FFT.</p>
-<div class="highlight">
-<pre><code class="language-clike">code:ifft2; show image</code></pre>
-</div>
-<p>IMAGE + some comment about it: its blur but keep basic information; maybe we can do better with … (some advanced tricks + s-o-a if there is any).</p>
-<p>Of course, following similar method as previous applications on 1-D signals, FFT is widely used for removing noise in images by isolate and manipulate particular frequency bands.</p>
+<p>As can be seen in fig.&nbsp;6, though a bit blur, the output image remove the noise in the original image, and manage to keep most of the information in it.</p>
+<figure>
+<img alt="" style="width:40.0%" id="fig:signal:moonlanding_denoise" src="images/signal/moonlanding_denoise.png"><figcaption>Figure 6: De-noised Moonlanding image</figcaption>
+</figure>
 </section>
 </section>
 <section class="level2" id="filtering">
@@ -481,9 +471,9 @@ let data = Array.map (fun x -&gt;
   Plot.output h</code></pre>
 </div>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 5: Smoothed stock price of Google</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog" title="goog.png" src="images/signal/plot_goog.png"><figcaption>Figure 7: Smoothed stock price of Google</figcaption>
 </figure>
-<p>The results are shown in fig.&nbsp;5. The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price. The sudden drop in the last month might be related with the COVID-19 pandemic.</p>
+<p>The results are shown in fig.&nbsp;7. The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price. The sudden drop in the last month might be related with the COVID-19 pandemic.</p>
 </section>
 <section class="level3" id="gaussian-filter">
 <h3>Gaussian Filter</h3>
@@ -501,9 +491,9 @@ let data = Array.map (fun x -&gt;
 
 let filter = gaussian_kernel 3.</code></pre>
 </div>
-<p>Computing the correlation between filter and the input data as before, we get a better smoothed curve in fig.&nbsp;6.</p>
+<p>Computing the correlation between filter and the input data as before, we get a better smoothed curve in fig.&nbsp;8.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 6: Smoothed stock price of Google with Gaussian filtering</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog_gauss" title="goog_gauss.png" src="images/signal/plot_goog_gauss.png"><figcaption>Figure 8: Smoothed stock price of Google with Gaussian filtering</figcaption>
 </figure>
 <p>Filters can be generally categorised by their usage into time domain filters and frequency domain filters. Time domain filters are used when the information is encoded in the shape of the signal’s waveform, and can be used for tasks such as smoothing, waveform shaping, etc. It includes filter methods such as moving average and single pole. Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev. There are many filters, each with different shape (or <em>impulse response</em>) and application scenarios, and we cannot fully cover them here. Please refer to some classical textbooks on signal processing such as <span data-cites="smith1997scientist" class="citation">(Smith and others 1997)</span> for more information.</p>
 </section>
@@ -541,16 +531,16 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z</code></pre>
 <div class="highlight">
 <pre><code class="language-clike">let y2 = Owl_fft.D.irfft ~axis:0 yf</code></pre>
 </div>
-<p>We can similarly check how the smoothing approach works in fig.&nbsp;7. Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.</p>
+<p>We can similarly check how the smoothing approach works in fig.&nbsp;9. Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.</p>
 <figure>
-<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 7: Smoothed stock price of Google using FFT method</figcaption>
+<img alt="" style="width:60.0%" id="fig:signal:goog2" title="goog2.png" src="images/signal/plot_goog2.png"><figcaption>Figure 9: Smoothed stock price of Google using FFT method</figcaption>
 </figure>
 </section>
 <section class="level3" id="fft-and-image-convolution">
 <h3>FFT and Image Convolution</h3>
-<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated in fig.&nbsp;8 (inspired by the nice work by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
+<p>You might heard of the word “convolution” before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications. The convolution in DNN is often applied on ndarrays. It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called “kernel” to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray. This process can be best illustrated in fig.&nbsp;10 (inspired by the nice work by <a href="https://cs231n.github.io/convolutional-networks/">Andrej Karpathy</a>:</p>
 <figure>
-<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 8: Image convolution illustration</figcaption>
+<img alt="" style="width:90.0%" id="fig:signal:conv" title="conv" src="images/signal/conv.png"><figcaption>Figure 10: Image convolution illustration</figcaption>
 </figure>
 <p>Owl has provided thorough support of convolution operations:</p>
 <div class="highlight">
@@ -568,13 +558,13 @@ val conv3d : ?padding:padding -&gt; (float, 'a) t -&gt; (float, 'a) t -&gt; int 
 let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]</code></pre>
 </div>
-<p>If you are interested to check the result, this vector <code>y3'</code> contains the data to plot a smoothed curve. The smoothed data would be similar to that in fig.&nbsp;5 since the calculation is the same, only with more concise code.</p>
+<p>If you are interested to check the result, this vector <code>y3'</code> contains the data to plot a smoothed curve. The smoothed data would be similar to that in fig.&nbsp;7 since the calculation is the same, only with more concise code.</p>
 <p>Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.</p>
 </section>
 </section>
 <section class="level2" id="summary">
 <h2>Summary</h2>
-<p>This chapter centres around a fundamental idea behind signal processing: the Fourier Transform. We started with its definition, and then introduce a crucial idea behind its efficient implementation: the Fast Fourier Transform (FFT). Owl provides support to FFT by linking to existing FFTPack library. We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications. Finally, we discussed filtering in signal process using different techniques, including simple averaging smoothing, gaussian filtering, and FFT-based filtering. Here we also explained the relationship between the two most crucial computations in numerical applications: FFT and convolution. More about convolution can be find in the Neural Network chapter.</p>
+<p>This chapter centres around a fundamental idea behind signal processing: the Fourier Transform. We started with its definition, and then introduce a crucial idea behind its efficient implementation: the Fast Fourier Transform (FFT). Owl provides support to FFT by linking to existing FFTPack library. We showed how the FFT functions can be used in Owl, first with some simple examples, and then with three real applications: finding the frequency of sunspot events, decipher the dial tone number according to its sound, and de-noising an image. Finally, we discussed filtering in signal process using different techniques, including simple averaging smoothing, gaussian filtering, and FFT-based filtering. Here we also explained the relationship between the two most crucial computations in numerical applications: FFT and convolution. More about convolution can be find in the Neural Network chapter.</p>
 </section>
 <section class="level2 unnumbered" id="references">
 <h2 class="unnumbered">References</h2>
