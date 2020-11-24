@@ -54,7 +54,7 @@ The imperative one is based on the Alan Turing model.
 In their book *Alan Turing: His Work and Impact*,  S. Barry Cooper and J. Van Leeuwen said that "computability via Turing machines gave rise to imperative programming". 
 On the other hand, functional programming evolves from the *lambda calculus*, a formal system of computation built from function application.
 Lambda Calculus was invented by Alonzo Church in the 1930s, and it was meant to be a formal mathematical logic systems, instead of programming language. 
-Actually, it was not until the programming language was invented that the relationship between these two is reviled. 
+Actually, it was not until the programming language was invented that the relationship between these two is revealed. 
 Turing himself proved that the lambda calculus is Turing complete. 
 (Fun fact: Turing is the student of Church.)
 We can say that the Lambda calculus is the basis of all functional programming languages.
