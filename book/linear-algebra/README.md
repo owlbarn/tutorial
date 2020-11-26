@@ -640,18 +640,16 @@ R3  0.223607
 - : float = 2.87802701599908967e-15
 ```
 
-(Question: but this example does not really show the orthogonal part.)
-
 Now that we know what is orthogonal basis, the next question is, how to build one?
-The method to construct orthogonal basis in a subspace is called the *Gram-Schmidt orthogonalisation*.
-
-TODO: Explain Gram-Schmidt and QR.
+The *QR Factorisation* is used to construct orthogonal basis in a subspace.
+Specifically, it decomposes a matrix A into the product of an orthogonal matrix Q and an upper triangular matrix R, i.e. A = QR.
+It is provided in the linear algebra module.  
 
 ```
 val qr : ?thin:bool -> ?pivot:bool -> ('a, 'b) t -> ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
 ```
 
-`qr x` calculates QR decomposition for an `m` by `n` matrix `x`.
+The `qr x` function calculates QR decomposition for an `m` by `n` matrix `x`.
 The function returns a 3-tuple, the first two are `Q` and `R`, and the third is the permutation vector of columns.
 The default value of parameter `pivot` is `false`, setting pivot  to true lets `qr` performs pivoted factorisation. Note that
 the returned indices are not adjusted to 0-based C layout.
@@ -867,8 +865,6 @@ We can see that by changing the matrix by only a tiny bit, the inverse of $A$ ch
 
 ## Determinants
 
-TODO: extend this section, add sub-sections.
-
 Other than pivots, another basic quantity in linear algebra is the *determinants*.
 For a square matrix A:
 
@@ -987,11 +983,8 @@ R0 (2, 0i) (1, 0i) (1, 0i)
 
 Note that the result are expressed as complex numbers.
 If we only want the eigenvalues, we can use the `eigvals` function.
-TODO: Explain the `permute` and `scale` parameters.
-QUESTION: what if the nullspace is more than one dimension? what would be the resulting eigenvalue matrix look like?
-
+Both functions provide the boolean `permute` and `scale` arguments to indicate whether the input matrix should be permuted and/or diagonally scaled.
 One reason that eigenvalue and eigenvector are important is that the pattern $Ax=\lambda~x$ frequently appears in scientific and engineering analysis to describe the change of dynamic system over time.
-TODO: more detail and perhaps example.
 
 ### Complex Matrices
 
@@ -1052,9 +1045,8 @@ It can be compared to the orthogonal vectors in the real space.
 
 For a $nxn$ matrix A, and any invertible $nxn$ matrix M, the matrix $B = M^{-1}AM$ is *similar* to A.
 One important property is that similar matrices share the same eigenvalues.
-Changing from A to B actually changes the linear transformation using one set of basis to another.
-
-TODO: more thorough explanation of the intuition of similar matrices.
+The intuition is that, think of M as the change of basis matrix, and A itself is a linear transformation, so $M^{-1}AM$ means changing the basis first, applying the linear transformation, and then change the basis back.
+Therefore, changing from A to B actually changes the linear transformation using one set of basis to another.
 
 In a three dimensional space, if we can change using three random vectors as the basis of linear transformation to using the standard basis $[1, 0, 0]$, $[0, 1, 0]$,  $[0, 0, 1]$, the related problem can be greatly simplified.
 Finding the suitable similar matrix is thus important in simplifying the calculation in many scientific and engineering problems.

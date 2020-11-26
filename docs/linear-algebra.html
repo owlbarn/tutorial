@@ -449,13 +449,11 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 &gt;- : float = 2.87802701599908967e-15
 </code></pre>
 </div>
-<p>(Question: but this example does not really show the orthogonal part.)</p>
-<p>Now that we know what is orthogonal basis, the next question is, how to build one? The method to construct orthogonal basis in a subspace is called the <em>Gram-Schmidt orthogonalisation</em>.</p>
-<p>TODO: Explain Gram-Schmidt and QR.</p>
+<p>Now that we know what is orthogonal basis, the next question is, how to build one? The <em>QR Factorisation</em> is used to construct orthogonal basis in a subspace. Specifically, it decomposes a matrix A into the product of an orthogonal matrix Q and an upper triangular matrix R, i.e.&nbsp;A = QR. It is provided in the linear algebra module.</p>
 <div class="highlight">
 <pre><code class="language-clike">val qr : ?thin:bool -&gt; ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t</code></pre>
 </div>
-<p><code>qr x</code> calculates QR decomposition for an <code>m</code> by <code>n</code> matrix <code>x</code>. The function returns a 3-tuple, the first two are <code>Q</code> and <code>R</code>, and the third is the permutation vector of columns. The default value of parameter <code>pivot</code> is <code>false</code>, setting pivot to true lets <code>qr</code> performs pivoted factorisation. Note that the returned indices are not adjusted to 0-based C layout. By default, <code>qr</code> performs a reduced QR factorisation, full factorisation can be enabled by setting <code>thin</code> parameter to <code>false</code>.</p>
+<p>The <code>qr x</code> function calculates QR decomposition for an <code>m</code> by <code>n</code> matrix <code>x</code>. The function returns a 3-tuple, the first two are <code>Q</code> and <code>R</code>, and the third is the permutation vector of columns. The default value of parameter <code>pivot</code> is <code>false</code>, setting pivot to true lets <code>qr</code> performs pivoted factorisation. Note that the returned indices are not adjusted to 0-based C layout. By default, <code>qr</code> performs a reduced QR factorisation, full factorisation can be enabled by setting <code>thin</code> parameter to <code>false</code>.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3;;
 &gt;val a : Mat.mat =
@@ -618,7 +616,6 @@ There are many sufficient and necessary conditions to decide if <span class="mat
 </section>
 <section class="level2" id="determinants">
 <h2>Determinants</h2>
-<p>TODO: extend this section, add sub-sections.</p>
 <p>Other than pivots, another basic quantity in linear algebra is the <em>determinants</em>. For a square matrix A:</p>
 <p><span class="math display">\[\left[\begin{matrix}a_{11} &amp; a_{12} &amp; \ldots &amp; a_{1n} \\ a_{21} &amp; a_{22} &amp; \ldots &amp; a_{2n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ a_{n1} &amp; a_{n2} &amp; \ldots &amp; a_{nn} \end{matrix} \right]\]</span></p>
 <p>its determinants <code>det(A)</code> is defined as:</p>
@@ -696,8 +693,7 @@ Linalg.D.logdet x;;
 &gt;R0 (2, 0i) (1, 0i) (1, 0i)
 </code></pre>
 </div>
-<p>Note that the result are expressed as complex numbers. If we only want the eigenvalues, we can use the <code>eigvals</code> function. TODO: Explain the <code>permute</code> and <code>scale</code> parameters. QUESTION: what if the nullspace is more than one dimension? what would be the resulting eigenvalue matrix look like?</p>
-<p>One reason that eigenvalue and eigenvector are important is that the pattern <span class="math inline">\(Ax=\lambda~x\)</span> frequently appears in scientific and engineering analysis to describe the change of dynamic system over time. TODO: more detail and perhaps example.</p>
+<p>Note that the result are expressed as complex numbers. If we only want the eigenvalues, we can use the <code>eigvals</code> function. Both functions provide the boolean <code>permute</code> and <code>scale</code> arguments to indicate whether the input matrix should be permuted and/or diagonally scaled. One reason that eigenvalue and eigenvector are important is that the pattern <span class="math inline">\(Ax=\lambda~x\)</span> frequently appears in scientific and engineering analysis to describe the change of dynamic system over time.</p>
 </section>
 <section class="level3" id="complex-matrices">
 <h3>Complex Matrices</h3>
@@ -740,8 +736,7 @@ Linalg.D.logdet x;;
 </section>
 <section class="level3" id="similarity-transformation-and-diagonalisation">
 <h3>Similarity Transformation and Diagonalisation</h3>
-<p>For a <span class="math inline">\(nxn\)</span> matrix A, and any invertible <span class="math inline">\(nxn\)</span> matrix M, the matrix <span class="math inline">\(B = M^{-1}AM\)</span> is <em>similar</em> to A. One important property is that similar matrices share the same eigenvalues. Changing from A to B actually changes the linear transformation using one set of basis to another.</p>
-<p>TODO: more thorough explanation of the intuition of similar matrices.</p>
+<p>For a <span class="math inline">\(nxn\)</span> matrix A, and any invertible <span class="math inline">\(nxn\)</span> matrix M, the matrix <span class="math inline">\(B = M^{-1}AM\)</span> is <em>similar</em> to A. One important property is that similar matrices share the same eigenvalues. The intuition is that, think of M as the change of basis matrix, and A itself is a linear transformation, so <span class="math inline">\(M^{-1}AM\)</span> means changing the basis first, applying the linear transformation, and then change the basis back. Therefore, changing from A to B actually changes the linear transformation using one set of basis to another.</p>
 <p>In a three dimensional space, if we can change using three random vectors as the basis of linear transformation to using the standard basis <span class="math inline">\([1, 0, 0]\)</span>, <span class="math inline">\([0, 1, 0]\)</span>, <span class="math inline">\([0, 0, 1]\)</span>, the related problem can be greatly simplified. Finding the suitable similar matrix is thus important in simplifying the calculation in many scientific and engineering problems.</p>
 <p>One possible kind of simplification is to find a triangular matrix as similar. The <em>Schur’s Lemma</em> declares that A can be decomposed into <span class="math inline">\(UTU^{-1}\)</span> where <span class="math inline">\(U\)</span> is a unitary function, and T is an upper triangular matrix.</p>
 <div class="highlight">
