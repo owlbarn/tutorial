@@ -4,6 +4,7 @@
         algodiff.html
         architecture.html
         backend.html
+        case-finance.html
         case-image-inception.html
         case-nst.html
         case-obj-detect.html
@@ -22,6 +23,7 @@
         neural-network.html
         nlp.html
         optimisation.html
+        ppl.html
         prologue.html
         regression.html
         signal.html
@@ -39,6 +41,7 @@
         algodiff.tex
         architecture.tex
         backend.tex
+        case-finance.tex
         case-image-inception.tex
         case-nst.tex
         case-obj-detect.tex
@@ -57,6 +60,7 @@
         neural-network.tex
         nlp.tex
         optimisation.tex
+        ppl.tex
         prologue.tex
         regression.tex
         signal.tex
@@ -106,6 +110,16 @@
 (rule
   (targets backend.tex)
   (deps    (:md_file backend/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets case-finance.html)
+  (deps    (:md_file case-finance/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets case-finance.tex)
+  (deps    (:md_file case-finance/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
@@ -286,6 +300,16 @@
 (rule
   (targets optimisation.tex)
   (deps    (:md_file optimisation/README.md))
+  (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
+
+(rule
+  (targets ppl.html)
+  (deps    (:md_file ppl/README.md))
+  (action  (run otb-convert_md %{md_file} -t html -o %{targets})))
+
+(rule
+  (targets ppl.tex)
+  (deps    (:md_file ppl/README.md))
   (action  (run otb-convert_md %{md_file} -t latex -o %{targets})))
 
 (rule
