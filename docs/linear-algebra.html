@@ -779,7 +779,6 @@ Linalg.D.logdet x;;
 </code></pre>
 </div>
 <p>Another very important similar transformation is <em>diagonalisation</em>. Suppose A has <span class="math inline">\(n\)</span> linear-independent eigenvectors, and make them the columns of a matrix Q, then <span class="math inline">\(Q^{-1}AQ\)</span> is a diagonal matrix <span class="math inline">\(\Lambda\)</span>, and the eigenvalues of A are the diagonal elements of <span class="math inline">\(\Lambda\)</span>. It’s inverse <span class="math inline">\(A = Q\Lambda~Q^{-1}\)</span> is called <em>Eigendecomposition</em>. Analysing A’s diagonal similar matrix <span class="math inline">\(\Lambda\)</span> instead of A itself can greatly simplify the problem.</p>
-<p>TODO: Give an example</p>
 <p>Not every matrix can be diagonalised. If any two of the <span class="math inline">\(n\)</span> eigenvalues of A are not the same, then its <span class="math inline">\(n\)</span> eigenvectors are linear-independent ana thus A can be diagonalised. Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix. Or put into the complex space, every hermitian matrix can be diagonalised by a unitary matrix.</p>
 </section>
 </section>
@@ -993,10 +992,6 @@ Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
 <p>The SVD is not only important linear algebra concept, but also has a wide and growing applications. For example, the <a href="https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse">Moore-Penrose pseudo-inverse</a> that works for non-invertible matrix can be implemented efficiently using SVD (we provide <code>pinv</code> function in the linear algebra module for the pseudo inverse). In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.</p>
 </section>
 </section>
-<section class="level2" id="linear-programming">
-<h2>Linear Programming</h2>
-<p>TODO: placeholder for future implementation. Or in the optimisation chapter. Understand the method used such as interior point, and then make the decision.</p>
-</section>
 <section class="level2" id="internal-cblas-and-lapacke">
 <h2>Internal: CBLAS and LAPACKE</h2>
 <p>This section is for those of you who are eager for more low level information. The BLAS (Basic Linear Algebara Subprogramms) is a specification that describes a set of low-level routines for common linear algebra operation. The LAPACKE contains more linear algebra routines, such as solving linear systems and matrix factorisations, etc. Efficient implementation of these function has been practices for a long time in many softwares. Interfacing to them can provide easy access to high performance routines.</p>
@@ -1004,31 +999,24 @@ Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
 <h3>Low-level Interface to CBLAS &amp; LAPACKE</h3>
 <p>Owl has implemented the full interface to CBLAS and LAPACKE. Comparing to Julia which chooses to interface to BLAS/LAPACK, you might notice the extra <code>C</code> in <code>CBLAS</code> and <code>E</code> in <code>LAPACKE</code> because they are the corresponding C-interface of Fortran implementations. It is often believed that C-interface may introduce some extra overhead. However, it turns out that we cannot really notice any difference at all in practice when dealing with medium or large problems.</p>
 <ul>
-<li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas module</a> provides the raw interface to CBLAS functions, from level-1 to level-3. The interfaced functions have the same names as those in CBLAS.</p></li>
-<li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated module</a> provides the raw interface to LAPACKE functions (over 1,000) which also have the same names defined in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/lapacke.h">lapacke.h</a>.</p></li>
-<li><p><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke.ml">Owl_lapacke module</a> is a very thin layer of interface between <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated module</a> and <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg module</a>. The purpose is to provide a unified function to make generic functions over different number types.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas module</a> provides the raw interface to CBLAS functions, from level-1 to level-3. The interfaced functions have the same names as those in CBLAS.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated module</a> provides the raw interface to LAPACKE functions (over 1,000) which also have the same names defined in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/lapacke/lapacke.h">lapacke.h</a>.</p></li>
+<li><p><a href="https://github.com/owlbarn/owl/blob/master/src/owl/lapacke/owl_lapacke.ml">Owl_lapacke module</a> is a very thin layer of interface between <a href="https://github.com/owlbarn/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated module</a> and <a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg module</a>. The purpose is to provide a unified function to make generic functions over different number types.</p></li>
 </ul>
-</section>
-<section class="level3" id="high-level-wrappers-in-linalg-module">
-<h3>High-level Wrappers in Linalg Module</h3>
-<p>The functions in <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas</a> and <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated</a> are very low-level, e.g., you need to deal with calculating parameters, allocating workspace, post-processing results, and many other tedious details. You do not really want to use them directly unless you have enough background in numerical analysis and chase after the performance. In practice, you should use <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg</a> module which gives you a high-level wrapper for frequently used functions.</p>
-<p>TODO: Examples</p>
-</section>
-<section class="level3" id="low-level-factorisation-and-helper-functions">
-<h3>Low-level factorisation and Helper functions</h3>
+<p>The functions in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/cblas/owl_cblas.mli">Owl_cblas</a> and <a href="https://github.com/owlbarn/owl/blob/master/src/owl/lapacke/owl_lapacke_generated.mli">Owl_lapacke_generated</a> are very low-level, e.g., you need to deal with calculating parameters, allocating workspace, post-processing results, and many other tedious details. You do not really want to use them directly unless you have enough background in numerical analysis and chase after the performance. So for example, the LU factorisation is performed using the <code>sgetrf</code> or <code>dgetrf</code> function in the <code>Owl_lapacke_generated</code> module, the signature of which look like this:</p>
 <div class="highlight">
-<pre><code class="language-text">
-  val lufact : ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
-
-  val qrfact : ?pivot:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t
-
-  val bkfact : ?upper:bool -&gt; ?symmetric:bool -&gt; ?rook:bool -&gt; ('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t
-
-  val peakflops : ?n:int -&gt; unit -&gt; float
-  (* peak number of float point operations using [Owl_cblas.dgemm] function. *)
-</code></pre>
+<pre><code class="language-clike">val sgetrf:  layout:int -&gt; m:int -&gt; n:int -&gt; a:float ptr -&gt; lda:int -&gt; ipiv:int32 ptr -&gt; int</code></pre>
 </div>
-<p>TODO: How these low level functions are used in Owl Code.</p>
+<p>Instead of worrying about all these parameters, the <code>getrf</code> function in the <code>Owl_lapacke</code> module provides interface that are more straightforward:</p>
+<div class="highlight">
+<pre><code class="language-clike">val getrf : a:('a, 'b) t -&gt; ('a, 'b) t * (int32, int32_elt) t</code></pre>
+</div>
+<p>These low-level functions provides more general access for users. If this still looks a bit unfamiliar to your, in the <code>Linalg</code> module we have:</p>
+<div class="highlight">
+<pre><code class="language-clike">val lu : ('a, 'b) t -&gt; ('a, 'b) t * ('a, 'b) t * (int32, int32_elt) t</code></pre>
+</div>
+<p>Here the function <code>lu x -&gt; (l, u, ipiv)</code> calculates LU decomposition of input matrix <code>x</code>, and returns the L, U matrix together with the pivoting index. In practice, you should always use <a href="https://github.com/owlbarn/owl/blob/master/src/owl/linalg/owl_linalg_generic.mli">Linalg</a> module which gives you a high-level wrapper for frequently used functions.</p>
+<p>Besides these function, the linear algebra module also provides some helper functions. For example, the <code>peakflops ~n ()</code> function returns the peak number of float point operations using <code>Owl_cblas_basic.dgemm</code> function. The default matrix size is <code>2000 x 2000</code>, but the user can change this by setting <code>n</code> arguments.</p>
 </section>
 </section>
 <section class="level2" id="sparse-matrices">
