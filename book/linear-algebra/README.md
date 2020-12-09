@@ -1194,9 +1194,16 @@ $$A=U\Sigma~V^T$$ {#eq:linear-algebra:svg}
 Here $U$ is is a $m\times~m$ matrix. Its columns are the eigenvectors of $AA^T$.
 Similarly, $V$ is a $n\times~n$ matrix, and the columns of V are eigenvectors of $A^TA$.
 The $r$ (rank of A) singular value on the diagonal of the $m\times~n$ diagonal matrix $\Sigma$ are the square roots of the nonzero eigenvalues of both $AA^T$ and $A^TA$.
-
 It's close related with eigenvector factorisation of a positive definite matrix.
 For a positive definite matrix, the SVD factorisation is the same as the $Q\Lambda~Q^T$.
+
+The SVD has a profound intuition. 
+A matrix $A$ represents a linear transformation.
+SVD states that, any such linear transformation, can be decomposed into three simple transformation: a rotation ($V$), a scaling transformation ($\Sigma$), and another rotation ($U$).
+These three transformations are much easier to analyse than a random transformation $A$.
+After applying $A$ to a domain, the columns of $V$ is and a set of orthonormal basis in the original domain, and columns of $U$ is the new set of orthonormal basis of the domain that is transferred after applying $A$.
+The $\Sigma$ diagonal matrix contains the scaling factors on different dimensions, and a singular value in $\Sigma$ thus represents the *significance* of that certain dimension in the linear space. A small singular value indicates that the information contained in a matrix is somehow redundant and can be compressed/removed without affecting the information carried in this matrix.
+This is why SVD can be used for *Principal Component Analysis* (PCA), as we will show in the NLP chapter later in this book. 
 
 We can use the `svd` function to perform this factorisation.
 Let's use the positive definite matrix as an example:
@@ -1355,11 +1362,11 @@ R4        0        0         0        0   0.555067
 - : bool = true
 ```
 
-TODO: The intuition of SVD.
 
 The SVD is not only important linear algebra concept, but also has a wide and growing applications.
 For example, the [Moore-Penrose pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse) that works for non-invertible matrix can be implemented efficiently using SVD (we provide `pinv` function in the linear algebra module for the pseudo inverse).
-In the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field.
+It can also be used for information compression such as in image processing. 
+As we have said, in the Natural Language Processing chapter we will see how SVD plays a crucial role in the language processing field to perform principal component analysis.
 
 
 ## Internal: CBLAS and LAPACKE
