@@ -53,7 +53,7 @@ let p = Array.map (Stats.binomial_cdf ~p:0.3 ~n:3) x;;
 <section class="level3" id="continuous-random-variables">
 <h3>Continuous Random Variables</h3>
 <p>Unlike discrete random variable, a continuous random variable has infinite number of possible outcomes. For example, in uniform distribution, we can pick a random real number between 0 and 1. Apparently there can be infinite number of outputs.</p>
-<p>One of the most widely used continuous distribution is no doubt the <em>Gaussian distribution</em>. It’s probability function is a continuous one: <span id="eq:stats:gaussian_pdf"><span class="math display">\[p(x) = \frac{1}{\sqrt{2\pi~\delta}}s\exp{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}\qquad(2)\]</span></span></p>
+<p>One of the most widely used continuous distribution is no doubt the <em>Gaussian distribution</em>. It’s probability function is a continuous one: <span id="eq:stats:gaussian_pdf"><span class="math display">\[p(x) = \frac{1}{\sqrt{2\pi~\delta}}e^{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}\qquad(2)\]</span></span></p>
 <p>Here the <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are parameters. Depending on them, the <span class="math inline">\(p(x)\)</span> can take different shapes. Let’s look at an example.</p>
 <p>We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution <span class="math inline">\(\mathcal{N} (\mu, \sigma^{2})\)</span>. For the first one, the configuration is <span class="math inline">\((\mu = 1, \sigma = 1)\)</span>; whilst for the second one, the configuration is <span class="math inline">\((\mu = 12, \sigma = 3)\)</span>.</p>
 <div class="highlight">
@@ -105,9 +105,12 @@ Plot.output h</code></pre>
 </section>
 <section class="level3" id="descriptive-statistics">
 <h3>Descriptive Statistics</h3>
-<p>Mean, Variance: Definition, and math derivation of Gaussian as examples.</p>
-<p>The definition of moments, and higher moments.</p>
-<p>Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.</p>
+<p>A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a <em>population</em>. A population can be characterised with multiple descriptive statistics. Two of the most frequently used of them are <em>mean</em> and <em>variance</em>. The mean of a population <span class="math inline">\(X\)</span> with <span class="math inline">\(n\)</span> elements is defined as:</p>
+<p><span id="eq:stats:mean"><span class="math display">\[E(X) = \frac{1}{n}\sum_{i}x_i,\qquad(3)\]</span></span> where <span class="math inline">\(x_i\)</span> is the <span class="math inline">\(i\)</span>-th element in population. And the definition of variance is similar:</p>
+<p><span id="eq:stats:variance"><span class="math display">\[Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.\qquad(4)\]</span></span></p>
+<p>A similar and commonly used idea is <em>standard deviation</em>, which is the square root of variance. These definitions are for discrete random variables, but they can easily be extended to the continuous cases.</p>
+<p>Next…. The definition of moments, and higher moments.</p>
+<p>Examples:</p>
 <p>We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let data = Array.init 100 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;</code></pre>
@@ -126,6 +129,7 @@ Stats.kurtosis data;;
 &gt;- : float = 1.75165078829330856
 </code></pre>
 </div>
+<p>Explain the meaning of these values.</p>
 <p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
@@ -138,9 +142,7 @@ Stats.central_moment 3 data;;
 &gt;- : float = -2.75496511397836663
 </code></pre>
 </div>
-</section>
-<section class="level3" id="order-statistics">
-<h3>Order Statistics</h3>
+<p><strong>Order Statistics</strong></p>
 <p>Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">Stats.min;; (* the mininum of the samples *)
@@ -153,7 +155,7 @@ Stats.interquartile;; (* the interquartile of the samples *)
 Stats.percentile;; (* percentile of the samples *)</code></pre>
 </div>
 <p>In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.</p>
-<p>IMAGE to show the difference of mean, median, mode, etc.</p>
+<p>IMAGE to show the difference of mean, median, mode, etc. with code</p>
 </section>
 </section>
 <section class="level2" id="special-distribution">

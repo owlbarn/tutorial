@@ -20,7 +20,6 @@
     nlp
     dataframe
     symbolic
-    ppl
     ))))
 
 (part
@@ -45,5 +44,4 @@
     case-obj-detect
     case-nst
     case-recommender
-    case-finance
     ))))

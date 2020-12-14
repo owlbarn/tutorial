@@ -283,16 +283,6 @@
            ../book/toc.scm)
   (action  (run otb-build build chapter -o . -repo-root .. %{x})))
 
-(alias (name site) (deps case-finance.html))
-
-(rule
-  (targets case-finance.html)
-  (deps    (:x ../book/case-finance.html)
-           (alias ../book/html)
-           ../bin/bin/app.exe
-           ../book/toc.scm)
-  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
-
 (alias (name site) (deps case-image-inception.html))
 
 (rule
@@ -468,16 +458,6 @@
 (rule
   (targets optimisation.html)
   (deps    (:x ../book/optimisation.html)
-           (alias ../book/html)
-           ../bin/bin/app.exe
-           ../book/toc.scm)
-  (action  (run otb-build build chapter -o . -repo-root .. %{x})))
-
-(alias (name site) (deps ppl.html))
-
-(rule
-  (targets ppl.html)
-  (deps    (:x ../book/ppl.html)
            (alias ../book/html)
            ../bin/bin/app.exe
            ../book/toc.scm)

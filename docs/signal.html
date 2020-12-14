@@ -368,7 +368,7 @@ let x' = Mat.linspace 0. (fs /. 2.) n</code></pre>
 <section class="level3" id="image-processing">
 <h3>Image Processing</h3>
 <p>When the data to be processed goes from being one dimensional to multiple dimensional, FFT is still a powerful tool. It can be used for a wide range of image processing tasks such as blurring, compression or denosing. In this section, we demonstrate an image denoising example. The basic idea is similar: many Fourier frequencies in the image are small and can be neglected via using filters. The image quality can be largely preserved by recreating the image from only the major frequencies.</p>
-<p>As input, we use the noised version of the moon landing image, as shown in fig.&nbsp;5.</p>
+<p>As input, we use the noised version of the moon landing image(<a href="https://imgur.com/gallery/MHcHVmX">src</a>), as shown in fig.&nbsp;5.</p>
 <figure>
 <img alt="" style="width:40.0%" id="fig:signal:moonlanding" src="images/signal/moonlanding.png"><figcaption>Figure 5: Noise Moonlanding image</figcaption>
 </figure>

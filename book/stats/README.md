@@ -82,7 +82,7 @@ For example, in uniform distribution, we can pick a random real number between 0
 
 One of the most widely used continuous distribution is no doubt the *Gaussian distribution*.
 It's probability function is a continuous one:
-$$p(x) = \frac{1}{\sqrt{2\pi~\delta}}s\exp{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}$$ {#eq:stats:gaussian_pdf}
+$$p(x) = \frac{1}{\sqrt{2\pi~\delta}}e^{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}$$ {#eq:stats:gaussian_pdf}
 
 Here the $\mu$ and $\sigma$ are parameters. Depending on them, the $p(x)$ can take different shapes.
 Let's look at an example.
@@ -143,11 +143,25 @@ Plot.output h
 
 ### Descriptive Statistics
 
-Mean, Variance: Definition, and math derivation of Gaussian as examples.
+A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a *population*.
+A population can be characterised with multiple descriptive statistics.
+Two of the most frequently used of them are *mean* and *variance*.
+The mean of a population $X$ with $n$ elements is defined as:
 
+$$E(X) = \frac{1}{n}\sum_{i}x_i,$$ {#eq:stats:mean}
+where $x_i$ is the $i$-th element in population.
+And the definition of variance is similar:
+
+$$Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.$$ {#eq:stats:variance}
+
+A similar and commonly used idea is *standard deviation*, which is the square root of variance.
+These definitions are for discrete random variables, but they can easily be extended to the continuous cases.  
+
+
+Next....
 The definition of moments, and higher moments.
 
-Descriptive statistics are used to summarise the characteristics of data. The commonly used ones are mean, variance, standard deviation, skewness, kurtosis, and etc.
+Examples:
 
 We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
 
@@ -170,6 +184,8 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 - : float = 1.75165078829330856
 ```
 
+Explain the meaning of these values.
+
 The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.
 
 ```ocaml env=stats_00
@@ -183,7 +199,7 @@ The following code calculates different central moments of `data`. A central mom
 - : float = -2.75496511397836663
 ```
 
-### Order Statistics
+**Order Statistics**
 
 Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
 
@@ -200,7 +216,7 @@ Stats.percentile;; (* percentile of the samples *)
 
 In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
 
-IMAGE to show the difference of mean, median, mode, etc.
+IMAGE to show the difference of mean, median, mode, etc. with code
 
 ## Special Distribution
 
@@ -248,9 +264,9 @@ Multinomial distribution
 
 ## Sampling
 
-So far we have talked about the whole population, now we turn to a sample of it. 
+So far we have talked about the whole population, now we turn to a sample of it.
 
-Sample median/variance 
+Sample median/variance
 
 Infer population parameters from sample
 
@@ -265,7 +281,7 @@ While descriptive statistics solely concern properties of the observed data, sta
 * Null hypothesis $H_0$: there is no relationship between two data sets.
 * Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
 
-Type I and Type II errors: the 2x2 matrix. 
+Type I and Type II errors: the 2x2 matrix.
 
 ### Gaussian Distribution in Hypothesis Testing
 
@@ -384,7 +400,7 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 
 ## Analysis of Variance
 
-So far we have talked about compare two variables. how about comparing more? one by one solution increases error. 
+So far we have talked about compare two variables. how about comparing more? one by one solution increases error.
 
 Introduce the simplest of ANOVA...
 

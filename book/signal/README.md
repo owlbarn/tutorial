@@ -457,7 +457,7 @@ It can be used for a wide range of image processing tasks such as blurring, comp
 In this section, we demonstrate an image denoising example.
 The basic idea is similar: many Fourier frequencies in the image are small and can be neglected via using filters. The image quality can be largely preserved by recreating the image from only the major frequencies.
 
-As input, we use the noised version of the moon landing image, as shown in [@fig:signal:moonlanding].
+As input, we use the noised version of the moon landing image([src](https://imgur.com/gallery/MHcHVmX)), as shown in [@fig:signal:moonlanding].
 
 ![Noise Moonlanding image](images/signal/moonlanding.png){width=40% #fig:signal:moonlanding}
 
