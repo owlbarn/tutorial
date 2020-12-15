@@ -144,6 +144,7 @@ Plot.output h
 ### Descriptive Statistics
 
 A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a *population*.
+(TODO: do we need to say the "population" here?)
 A population can be characterised with multiple descriptive statistics.
 Two of the most frequently used of them are *mean* and *variance*.
 The mean of a population $X$ with $n$ elements is defined as:
@@ -155,21 +156,27 @@ And the definition of variance is similar:
 $$Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.$$ {#eq:stats:variance}
 
 A similar and commonly used idea is *standard deviation*, which is the square root of variance.
+The meaning of both the mean (or *expected value*) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.
+
 These definitions are for discrete random variables, but they can easily be extended to the continuous cases.  
+To make it more general, we define the *n-th moment* of a real variable about a value X as:
 
+$$M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,$$ {#eq:stats:moment}
 
-Next....
-The definition of moments, and higher moments.
+where $f(x)$ is the the continuous function of the variable $X$, and $c$ is certain constant.
+You can see that the mean value is actually the first order moment, and variance is the second order.  
+The third order moment is called *skewness*, indicating the asymmetry of the probability distribution of a real random variable.
+The fourth order moment is called *kurtosis*, and it shows how long a "tail" the probability distribution has.
 
-Examples:
-
+Let's look at one simple example.
 We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
 
 ```ocaml env=stats_00
 let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
 ```
 
-Then We use `mean` function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.
+Then We use `mean` function calculate sample average. As can be expected, it is around 5. We can also calculate other higher moments easily with corresponding functions.
+We can do a very rough and quick interpretation about these results. It has a widely spread distribution (about 3 to the left and right), and the distribution is not skew, according to a very small skewness number. Finally, a small kurtosis shows that the distribution does not have an obvious tail.
 
 ```ocaml env=stats_00
 # Stats.mean data
@@ -184,9 +191,8 @@ Then We use `mean` function calculate sample average. As we can see, it is aroun
 - : float = 1.75165078829330856
 ```
 
-Explain the meaning of these values.
 
-The following code calculates different central moments of `data`. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.
+The following code calculates different central moments of the distribution. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.
 
 ```ocaml env=stats_00
 # Stats.central_moment 0 data
@@ -199,9 +205,10 @@ The following code calculates different central moments of `data`. A central mom
 - : float = -2.75496511397836663
 ```
 
-**Order Statistics**
-
-Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The $k^{th}$ order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.
+Besides the moments, we also use *order statistics* frequently to understand data.
+Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference.
+The $k^{th}$ order statistic of a statistical sample is equal to its k-th smallest value.
+The example functions of ordered statistics are shown as follows.
 
 ```ocaml
 Stats.min;; (* the mininum of the samples *)
@@ -213,6 +220,8 @@ Stats.third_quartile;; (* the third quartile of the samples *)
 Stats.interquartile;; (* the interquartile of the samples *)
 Stats.percentile;; (* percentile of the samples *)
 ```
+
+Meaning of these functions
 
 In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
 
@@ -235,6 +244,8 @@ illustrate the naming convention.
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 
 TODO: Add Poisson Distribution Implementation
+
+Make a table of the distributions below.
 
 ### Gamma Distribution
 

@@ -105,17 +105,20 @@ Plot.output h</code></pre>
 </section>
 <section class="level3" id="descriptive-statistics">
 <h3>Descriptive Statistics</h3>
-<p>A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a <em>population</em>. A population can be characterised with multiple descriptive statistics. Two of the most frequently used of them are <em>mean</em> and <em>variance</em>. The mean of a population <span class="math inline">\(X\)</span> with <span class="math inline">\(n\)</span> elements is defined as:</p>
+<p>A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a <em>population</em>. (TODO: do we need to say the “population” here?) A population can be characterised with multiple descriptive statistics. Two of the most frequently used of them are <em>mean</em> and <em>variance</em>. The mean of a population <span class="math inline">\(X\)</span> with <span class="math inline">\(n\)</span> elements is defined as:</p>
 <p><span id="eq:stats:mean"><span class="math display">\[E(X) = \frac{1}{n}\sum_{i}x_i,\qquad(3)\]</span></span> where <span class="math inline">\(x_i\)</span> is the <span class="math inline">\(i\)</span>-th element in population. And the definition of variance is similar:</p>
 <p><span id="eq:stats:variance"><span class="math display">\[Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.\qquad(4)\]</span></span></p>
-<p>A similar and commonly used idea is <em>standard deviation</em>, which is the square root of variance. These definitions are for discrete random variables, but they can easily be extended to the continuous cases.</p>
-<p>Next…. The definition of moments, and higher moments.</p>
-<p>Examples:</p>
-<p>We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
+<p>A similar and commonly used idea is <em>standard deviation</em>, which is the square root of variance. The meaning of both the mean (or <em>expected value</em>) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.</p>
+<p>These definitions are for discrete random variables, but they can easily be extended to the continuous cases.<br>
+To make it more general, we define the <em>n-th moment</em> of a real variable about a value X as:</p>
+<p><span id="eq:stats:moment"><span class="math display">\[M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,\qquad(5)\]</span></span></p>
+<p>where <span class="math inline">\(f(x)\)</span> is the the continuous function of the variable <span class="math inline">\(X\)</span>, and <span class="math inline">\(c\)</span> is certain constant. You can see that the mean value is actually the first order moment, and variance is the second order.<br>
+The third order moment is called <em>skewness</em>, indicating the asymmetry of the probability distribution of a real random variable. The fourth order moment is called <em>kurtosis</em>, and it shows how long a “tail” the probability distribution has.</p>
+<p>Let’s look at one simple example. We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use <code>Stats.uniform_rvs</code> function to generate numbers following uniform distribution.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let data = Array.init 100 (fun _ -&gt; Stats.uniform_rvs 0. 10.);;</code></pre>
 </div>
-<p>Then We use <code>mean</code> function calculate sample average. As we can see, it is around 5. We can also calculate higher moments such as variance and skewness easily with corresponding functions.</p>
+<p>Then We use <code>mean</code> function calculate sample average. As can be expected, it is around 5. We can also calculate other higher moments easily with corresponding functions. We can do a very rough and quick interpretation about these results. It has a widely spread distribution (about 3 to the left and right), and the distribution is not skew, according to a very small skewness number. Finally, a small kurtosis shows that the distribution does not have an obvious tail.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.mean data;;
 &gt;- : float = 5.18160409659184573
@@ -129,8 +132,7 @@ Stats.kurtosis data;;
 &gt;- : float = 1.75165078829330856
 </code></pre>
 </div>
-<p>Explain the meaning of these values.</p>
-<p>The following code calculates different central moments of <code>data</code>. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
+<p>The following code calculates different central moments of the distribution. A central moment is a moment of a probability distribution of a random variable about the random variable’s mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Stats.central_moment 0 data;;
 &gt;- : float = 1.
@@ -142,8 +144,7 @@ Stats.central_moment 3 data;;
 &gt;- : float = -2.75496511397836663
 </code></pre>
 </div>
-<p><strong>Order Statistics</strong></p>
-<p>Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its kth-smallest value. The example functions of ordered statistics are as follows.</p>
+<p>Besides the moments, we also use <em>order statistics</em> frequently to understand data. Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its k-th smallest value. The example functions of ordered statistics are shown as follows.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">Stats.min;; (* the mininum of the samples *)
 Stats.max;; (* the maximum of the samples *)
@@ -154,6 +155,7 @@ Stats.third_quartile;; (* the third quartile of the samples *)
 Stats.interquartile;; (* the interquartile of the samples *)
 Stats.percentile;; (* percentile of the samples *)</code></pre>
 </div>
+<p>Meaning of these functions</p>
 <p>In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.</p>
 <p>IMAGE to show the difference of mean, median, mode, etc. with code</p>
 </section>
@@ -174,6 +176,7 @@ Stats.percentile;; (* percentile of the samples *)</code></pre>
 </ul>
 <p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.</p>
 <p>TODO: Add Poisson Distribution Implementation</p>
+<p>Make a table of the distributions below.</p>
 <section class="level3" id="gamma-distribution">
 <h3>Gamma Distribution</h3>
 <p>Definition</p>
