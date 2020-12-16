@@ -245,6 +245,11 @@ A small number of them are listed in the table below.
 | Distribution name | PDF | Application |
 | :------------- |:-------------|:------------------------ |
 | Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | xxx |
+| Gamma distribution | $\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$ | xxx | 
+| Beta distribution  | $\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$ | xxx |
+
+
+Here $\Gamma(x)$ is the Gamma function.
 
 * `gaussian_rvs` : random number generator.
 * `gaussian_pdf` : probability density function.
@@ -258,25 +263,14 @@ A small number of them are listed in the table below.
 
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 
-TODO: Example that shows variant parameters of one
+Applications
 
+Square Distribution | 
+Student-t Distribution |
+Cauchy Distribution
+
+TODO: Example that shows variant parameters of one.
 TODO: adjust this section according to later use.
-
-### Gamma Distribution
-
-Definition
-
-PDF, CDF
-
-Application
-
-### Beta Distribution
-
-### Chi-Square Distribution
-
-### Student-t Distribution
-
-### Cauchy Distribution
 
 ## Multiple Variables
 

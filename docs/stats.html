@@ -183,8 +183,19 @@ Stats.percentile;;</code></pre>
 <td style="text-align: left;"><span class="math inline">\(\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}\)</span></td>
 <td style="text-align: left;">xxx</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;">Gamma distribution</td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}\)</span></td>
+<td style="text-align: left;">xxx</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Beta distribution</td>
+<td style="text-align: left;"><span class="math inline">\(\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}\)</span></td>
+<td style="text-align: left;">xxx</td>
+</tr>
 </tbody>
 </table>
+<p>Here <span class="math inline">\(\Gamma(x)\)</span> is the Gamma function.</p>
 <ul>
 <li><code>gaussian_rvs</code> : random number generator.</li>
 <li><code>gaussian_pdf</code> : probability density function.</li>
@@ -197,26 +208,9 @@ Stats.percentile;;</code></pre>
 <li><code>gaussian_logsf</code> : logarithmic survival function.</li>
 </ul>
 <p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.</p>
-<p>TODO: Example that shows variant parameters of one</p>
-<p>TODO: adjust this section according to later use.</p>
-<section class="level3" id="gamma-distribution">
-<h3>Gamma Distribution</h3>
-<p>Definition</p>
-<p>PDF, CDF</p>
-<p>Application</p>
-</section>
-<section class="level3" id="beta-distribution">
-<h3>Beta Distribution</h3>
-</section>
-<section class="level3" id="chi-square-distribution">
-<h3>Chi-Square Distribution</h3>
-</section>
-<section class="level3" id="student-t-distribution">
-<h3>Student-t Distribution</h3>
-</section>
-<section class="level3" id="cauchy-distribution">
-<h3>Cauchy Distribution</h3>
-</section>
+<p>Applications</p>
+<p>Square Distribution | Student-t Distribution | Cauchy Distribution</p>
+<p>TODO: Example that shows variant parameters of one. TODO: adjust this section according to later use.</p>
 </section>
 <section class="level2" id="multiple-variables">
 <h2>Multiple Variables</h2>
