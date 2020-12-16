@@ -4,6 +4,7 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="statistical-functions">
 <h1>Statistical Functions</h1>
+<p>TODO: Implementation details</p>
 <p>Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.</p>
 <section class="level2" id="random-variables">
 <h2>Random Variables</h2>
@@ -109,8 +110,7 @@ Plot.output h</code></pre>
 <p><span id="eq:stats:mean"><span class="math display">\[E(X) = \frac{1}{n}\sum_{i}x_i,\qquad(3)\]</span></span> where <span class="math inline">\(x_i\)</span> is the <span class="math inline">\(i\)</span>-th element in population. And the definition of variance is similar:</p>
 <p><span id="eq:stats:variance"><span class="math display">\[Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.\qquad(4)\]</span></span></p>
 <p>A similar and commonly used idea is <em>standard deviation</em>, which is the square root of variance. The meaning of both the mean (or <em>expected value</em>) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.</p>
-<p>These definitions are for discrete random variables, but they can easily be extended to the continuous cases.<br>
-To make it more general, we define the <em>n-th moment</em> of a real variable about a value X as:</p>
+<p>These definitions are for discrete random variables, but they can easily be extended to the continuous cases. To make it more general, we define the <em>n-th moment</em> of a real variable about a value X as:</p>
 <p><span id="eq:stats:moment"><span class="math display">\[M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,\qquad(5)\]</span></span></p>
 <p>where <span class="math inline">\(f(x)\)</span> is the the continuous function of the variable <span class="math inline">\(X\)</span>, and <span class="math inline">\(c\)</span> is certain constant. You can see that the mean value is actually the first order moment, and variance is the second order.<br>
 The third order moment is called <em>skewness</em>, indicating the asymmetry of the probability distribution of a real random variable. The fourth order moment is called <em>kurtosis</em>, and it shows how long a “tail” the probability distribution has.</p>
@@ -144,25 +144,47 @@ Stats.central_moment 3 data;;
 &gt;- : float = -2.75496511397836663
 </code></pre>
 </div>
-<p>Besides the moments, we also use <em>order statistics</em> frequently to understand data. Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its k-th smallest value. The example functions of ordered statistics are shown as follows.</p>
+<p>Besides the moments, we also use <em>order statistics</em> frequently to understand data. Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference. The <span class="math inline">\(k^{th}\)</span> order statistic of a statistical sample is equal to its k-th smallest value. The example functions of</p>
+<p>There are many ordered statistical functions in the <code>Stat</code> module in Owl for you to explore. Some of the most frequently used are shown as follows:</p>
 <div class="highlight">
-<pre><code class="language-ocaml">Stats.min;; (* the mininum of the samples *)
-Stats.max;; (* the maximum of the samples *)
-Stats.median;; (* the median value of the samples *)
-Stats.quartile;; (* quartile of the samples *)
-Stats.first_quartile;; (* the first quartile of the samples *)
-Stats.third_quartile;; (* the third quartile of the samples *)
-Stats.interquartile;; (* the interquartile of the samples *)
-Stats.percentile;; (* percentile of the samples *)</code></pre>
+<pre><code class="language-ocaml">Stats.min;;
+Stats.max;;
+Stats.median;;
+Stats.quartile;;
+Stats.first_quartile;;
+Stats.third_quartile;;
+Stats.interquartile;;
+Stats.percentile;;</code></pre>
 </div>
-<p>Meaning of these functions</p>
-<p>In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.</p>
-<p>IMAGE to show the difference of mean, median, mode, etc. with code</p>
+<p>The <code>min</code> and <code>max</code> is plain to use. The <code>median</code> is the middle number in a sorted list of numbers of the whole samples. It is sometimes more descriptive than the <code>mean</code> about the data, since the later is more prone to outliers.</p>
+<p>A similar idea is <code>quartile</code>: there are 75% of the measurements in the sample are larger than the first quartile, and 25% are larger than the third quartile. The <code>median</code> is also the second quartile. A more general idea is the <code>percentile</code>, a measure at which that percentage of the total values are below that measure. For example, the first quartile is also the 25th percentile.</p>
+<p>TODO: IMAGE to show the difference of mean, median, mode, etc. with code</p>
 </section>
 </section>
 <section class="level2" id="special-distribution">
 <h2>Special Distribution</h2>
-<p>illustrate the naming convention.</p>
+<p>All distributions are equal, but some are more equal than others. Certain types of special distributions are used again and again in practice and are given special names. A small number of them are listed in the table below.</p>
+<table>
+<colgroup>
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 47%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Distribution name</th>
+<th style="text-align: left;">PDF</th>
+<th style="text-align: left;">Application</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Gaussian distribution</td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}\)</span></td>
+<td style="text-align: left;">xxx</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li><code>gaussian_rvs</code> : random number generator.</li>
 <li><code>gaussian_pdf</code> : probability density function.</li>
@@ -175,8 +197,8 @@ Stats.percentile;; (* percentile of the samples *)</code></pre>
 <li><code>gaussian_logsf</code> : logarithmic survival function.</li>
 </ul>
 <p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.</p>
-<p>TODO: Add Poisson Distribution Implementation</p>
-<p>Make a table of the distributions below.</p>
+<p>TODO: Example that shows variant parameters of one</p>
+<p>TODO: adjust this section according to later use.</p>
 <section class="level3" id="gamma-distribution">
 <h3>Gamma Distribution</h3>
 <p>Definition</p>

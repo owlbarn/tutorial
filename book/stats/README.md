@@ -1,5 +1,7 @@
 # Statistical Functions
 
+TODO: Implementation details
+
 Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.
 
 ## Random Variables
@@ -158,8 +160,7 @@ $$Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.$$ {#eq:stats:variance}
 A similar and commonly used idea is *standard deviation*, which is the square root of variance.
 The meaning of both the mean (or *expected value*) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.
 
-These definitions are for discrete random variables, but they can easily be extended to the continuous cases.  
-To make it more general, we define the *n-th moment* of a real variable about a value X as:
+These definitions are for discrete random variables, but they can easily be extended to the continuous cases. To make it more general, we define the *n-th moment* of a real variable about a value X as:
 
 $$M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,$$ {#eq:stats:moment}
 
@@ -208,28 +209,42 @@ The following code calculates different central moments of the distribution. A c
 Besides the moments, we also use *order statistics* frequently to understand data.
 Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference.
 The $k^{th}$ order statistic of a statistical sample is equal to its k-th smallest value.
-The example functions of ordered statistics are shown as follows.
+The example functions of
+
+There are many ordered statistical functions in the `Stat` module in Owl for you to explore.
+Some of the most frequently used are shown as follows:
 
 ```ocaml
-Stats.min;; (* the mininum of the samples *)
-Stats.max;; (* the maximum of the samples *)
-Stats.median;; (* the median value of the samples *)
-Stats.quartile;; (* quartile of the samples *)
-Stats.first_quartile;; (* the first quartile of the samples *)
-Stats.third_quartile;; (* the third quartile of the samples *)
-Stats.interquartile;; (* the interquartile of the samples *)
-Stats.percentile;; (* percentile of the samples *)
+Stats.min;;
+Stats.max;;
+Stats.median;;
+Stats.quartile;;
+Stats.first_quartile;;
+Stats.third_quartile;;
+Stats.interquartile;;
+Stats.percentile;;
 ```
 
-Meaning of these functions
+The `min` and `max` is plain to use.
+The `median` is the middle number in a sorted list of numbers of the whole samples.
+It is sometimes more descriptive than the `mean` about the data, since the later is more prone to outliers.
 
-In addition to the aforementioned ones, there are many other ordered statistical functions in Owl for you to explore.
+A similar idea is `quartile`: there are 75% of the measurements in the sample are larger than the first quartile, and 25% are larger than the third quartile.
+The `median` is also the second quartile.
+A more general idea is the `percentile`, a measure at which that percentage of the total values are below that measure.
+For example, the first quartile is also the 25th percentile.
 
-IMAGE to show the difference of mean, median, mode, etc. with code
+TODO: IMAGE to show the difference of mean, median, mode, etc. with code
 
 ## Special Distribution
 
-illustrate the naming convention.
+All distributions are equal, but some are more equal than others.
+Certain types of special distributions are used again and again in practice and are given special names.
+A small number of them are listed in the table below.
+
+| Distribution name | PDF | Application |
+| :------------- |:-------------|:------------------------ |
+| Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | xxx |
 
 * `gaussian_rvs` : random number generator.
 * `gaussian_pdf` : probability density function.
@@ -243,9 +258,9 @@ illustrate the naming convention.
 
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 
-TODO: Add Poisson Distribution Implementation
+TODO: Example that shows variant parameters of one
 
-Make a table of the distributions below.
+TODO: adjust this section according to later use.
 
 ### Gamma Distribution
 
