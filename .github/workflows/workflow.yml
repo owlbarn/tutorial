@@ -20,6 +20,18 @@ jobs:
         with:
           path: book-workflow
 
+      - name: Create release tag
+        id: create_release_tag
+        working-directory: ./code
+        if: ${{ contains(github.ref, 'master') }}
+        run: |
+          release_version=$(cat < package.json | jq -r .version)
+          yarn version --new-version $release_version
+          git tag $release_version
+          git push --tags
+          echo "APP_RELEASE_VERSION=$release_version" >> $GITHUB_ENV
+          echo '::set-output name=app_release_version::'$release_version''
+
       - name: Compile the book
         working-directory: ./book-workflow
         run: |

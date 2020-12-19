@@ -1,0 +1,10 @@
+{
+  "name": "owl_manual",
+  "version": "1.0.0",
+  "description": "Owl Manual",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Liang Wang",
+  "license": "Private",
+  "dependencies": {}
+}
