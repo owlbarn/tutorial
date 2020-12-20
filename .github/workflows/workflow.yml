@@ -37,20 +37,20 @@ jobs:
           git commit -am "[owlbook_ci] automated book compilation"
           git push
 
-      - name: Checkout the website
-        uses: actions/checkout@v2
-        with:
-          repository: owlbarn/owlbarn.github.io
-          path: owlbarn.github.io
-          token: ${{ secrets.OWLBOOK_CI_TOKEN }}
-
-      - name: Update the website
-        working-directory: owlbarn.github.io
-        if: ${{ always() }}
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.OWLBOOK_CI_TOKEN }}
-        run: |
-          git config user.name "owlbook_ci"
-          git config user.email "ryanrhymes@gmail.com"
-          git commit -am "[owlbook_ci] automated book and website update"
-          git push https://ryanrhymes:${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
+#      - name: Checkout the website
+#        uses: actions/checkout@v2
+#        with:
+#          repository: owlbarn/owlbarn.github.io
+#          path: owlbarn.github.io
+#          token: ${{ secrets.OWLBOOK_CI_TOKEN }}
+#
+#      - name: Update the website
+#        working-directory: owlbarn.github.io
+#        if: ${{ always() }}
+#        env:
+#          API_TOKEN_GITHUB: ${{ secrets.OWLBOOK_CI_TOKEN }}
+#        run: |
+#          git config user.name "owlbook_ci"
+#          git config user.email "ryanrhymes@gmail.com"
+#          git commit -am "[owlbook_ci] automated book and website update"
+#          git push https://ryanrhymes:${API_TOKEN_GITHUB}@github.com/owlbarn/owlbarn.github.io/
