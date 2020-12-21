@@ -218,10 +218,9 @@ Some of the most frequently used are shown as follows:
 Stats.min;;
 Stats.max;;
 Stats.median;;
-Stats.quartile;;
+Stats.quantile;;
 Stats.first_quartile;;
 Stats.third_quartile;;
-Stats.interquartile;;
 Stats.percentile;;
 ```
 
@@ -311,13 +310,22 @@ TODO: adjust this section according to later use.
 
 ## Multiple Variables
 
-Joint Density
+So far we have talked about one single random variable, but a problem often involves multiple variables.
+For example, in a data centre, if we know the probability that the servers stop working, and the probability that the network links break, we might want to consider the probability that a data centre functions normally.
+The *joint probability* of two random variable $X$ and $Y$ is expressed as $p(X, Y)$, or $P(X~\cap~Y)$, indicating the probability of the two events happened at the same time.
 
-Independence of random variables
+There is one special case where the joint probability is intuitive to compute.
+If the two events are *independent*, i.e. not related with each other, then the probability of result $X=x$ and $Y=y$ is:
 
-Mean and Variance
+$$p(xy) = p(X=x \textrm{AND} Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).$$
 
-Multinomial distribution
+Multinomial distribution is...
+
+
+Another related concept is the *conditional probability*.
+
+Baysian
+
 
 ## Sampling
 

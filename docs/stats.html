@@ -150,10 +150,9 @@ Stats.central_moment 3 data;;
 <pre><code class="language-ocaml">Stats.min;;
 Stats.max;;
 Stats.median;;
-Stats.quartile;;
+Stats.quantile;;
 Stats.first_quartile;;
 Stats.third_quartile;;
-Stats.interquartile;;
 Stats.percentile;;</code></pre>
 </div>
 <p>The <code>min</code> and <code>max</code> is plain to use. The <code>median</code> is the middle number in a sorted list of numbers of the whole samples. It is sometimes more descriptive than the <code>mean</code> about the data, since the later is more prone to outliers.</p>
@@ -214,7 +213,6 @@ Stats.percentile;;</code></pre>
 <li><code>gaussian_logcdf</code> : logarithmic cumulative distribution function.</li>
 <li><code>gaussian_logsf</code> : logarithmic survival function.</li>
 </ul>
-<<<<<<< HEAD
 <p>Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix. As an example, the code below plots the probability density function of the Gamma distribution using <code>gamma_pdf</code>. The result is shown in fig.&nbsp;3.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">module N = Dense.Ndarray.D
@@ -249,17 +247,16 @@ let _ =
 <figure>
 <img alt="" style="width:60.0%" id="fig:stats:gamma_pdf" title="gamma_pdf" src="images/stats/gamma_pdf.png"><figcaption>Figure 3: Probability density functions of Gamma distribution</figcaption>
 </figure>
-=======
-<p>TODO: Example that shows variant parameters of one.</p>
->>>>>>> c02d0505e8d84b2da352e86127ae809555657b2c
 <p>TODO: adjust this section according to later use.</p>
 </section>
 <section class="level2" id="multiple-variables">
 <h2>Multiple Variables</h2>
-<p>Joint Density</p>
-<p>Independence of random variables</p>
-<p>Mean and Variance</p>
-<p>Multinomial distribution</p>
+<p>So far we have talked about one single random variable, but a problem often involves multiple variables. For example, in a data centre, if we know the probability that the servers stop working, and the probability that the network links break, we might want to consider the probability that a data centre functions normally. The <em>joint probability</em> of two random variable <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> is expressed as <span class="math inline">\(p(X, Y)\)</span>, or <span class="math inline">\(P(X~\cap~Y)\)</span>, indicating the probability of the two events happened at the same time.</p>
+<p>There is one special case where the joint probability is intuitive to compute. If the two events are <em>independent</em>, i.e.&nbsp;not related with each other, then the probability of result <span class="math inline">\(X=x\)</span> and <span class="math inline">\(Y=y\)</span> is:</p>
+<p><span class="math display">\[p(xy) = p(X=x \textrm{AND} Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).\]</span></p>
+<p>Multinomial distribution is…</p>
+<p>Another related concept is the <em>conditional probability</em>.</p>
+<p>Baysian</p>
 </section>
 <section class="level2" id="sampling">
 <h2>Sampling</h2>
