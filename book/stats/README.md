@@ -245,6 +245,18 @@ A small number of them are listed in the table below.
 | Distribution name | PDF | Application |
 | :------------- |:-------------|:------------------------ |
 | Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | xxx |
+| Gamma distribution | $\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$ | xxx |
+| Beta distribution  | $\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$ | xxx |
+| Cauchy distribution | $(\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}$ | xxx |
+
+Here $\Gamma(x)$ is the Gamma function.
+
+To add:
+Square Distribution |
+Student-t Distribution |
+
+These different kinds of distributions are supported in the `Stats` module in Owl. For each distribution, there is a set of related functions using the distribution name as their common prefix.
+For example, for the gaussian distribution, we can utilise the function below:
 
 * `gaussian_rvs` : random number generator.
 * `gaussian_pdf` : probability density function.
