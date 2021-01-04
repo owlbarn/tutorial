@@ -317,15 +317,31 @@ The *joint probability* of two random variable $X$ and $Y$ is expressed as $p(X,
 There is one special case where the joint probability is intuitive to compute.
 If the two events are *independent*, i.e. not related with each other, then the probability of result $X=x$ and $Y=y$ is:
 
-$$p(xy) = p(X=x \textrm{AND} Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).$$
-
-Multinomial distribution is...
-
+$$p(xy) = p(X=x \textrm{AND } Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).$$
 
 Another related concept is the *conditional probability*.
+Intuitively, many events in the real world are not totally independent with each other. For example, consider the probability that a person put a raincoat, and the probability that a person put on a raincoat *in a rainy day*. The events "putting on raincoat" and "rainy day" are apparently related.
+Formally, the probability of event A given event B is computed as:
 
-Baysian
+$$P(X | Y) = \frac{P(X~\cap~Y)}{P(Y)}.$$
 
+There is not doubt that the most important application of conditional probabilities is the *Bayes' Theorem*, proposed first by Thomas Bayes in 1991 [@bayes1991essay].
+It is expressed by an simple form as shown in [@eq:stats:bayes], e.g. it provides a way to compute the condition probability when it is not directly available.
+
+$$P(X|Y) = \frac{P(Y|X)P(X)}{P(Y)}$$ {#eq:stats:bayes}
+
+One powerful application of this theorem is that it provides the tool to calibrate your knowledge about something ("it has 10% percentage to happen") based on observed evidence.
+For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one,  you would say "hmm, I don't know, perhaps 10%". Define event $X$ to be "the dice is loaded", and you just set a **prior** that $P(X) = 0.1$.
+Now I begin to roll for three times, and somehow, I got three 6's. Now I ask you again, *given the evidence you just observed*, estimate again the probability that the dice is loaded. 
+Define $Y$ as the event "get all 6's of all three rolling". 
+
+We can easily calculate that in the normal case $P(Y) = 1 / 6^3 \approx 0.005$, and the probability this "normal case" happens, is 90%, according to our prior knowledge.  
+In total, $P(Y) = P(Y|X)P(X) + P(Y|X')P(X')$, where $P(X')$ denotes the probability the dice is normal one. 
+Besides, we can say that getting all 6's if the dice is loaded $P(Y | X)$ would be pretty high, for example 0.99.
+Therefore, we can calculate that, now that given the observed evidence, the dice is loaded with a probability 
+$P(X|Y) = \frac{0.99 * 0.1}{0.99~\times~0.1 + 0.005~\times~0.9} \approx 0.96$. 
+This is the **posterior** that we get after observing the evidence, which improves our previous knowledge significantly. 
+This process can be widely applied to numerous scientific fields, where existing theory or knowledge are often put to test with new evidences. 
 
 ## Sampling
 

@@ -253,10 +253,14 @@ let _ =
 <h2>Multiple Variables</h2>
 <p>So far we have talked about one single random variable, but a problem often involves multiple variables. For example, in a data centre, if we know the probability that the servers stop working, and the probability that the network links break, we might want to consider the probability that a data centre functions normally. The <em>joint probability</em> of two random variable <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> is expressed as <span class="math inline">\(p(X, Y)\)</span>, or <span class="math inline">\(P(X~\cap~Y)\)</span>, indicating the probability of the two events happened at the same time.</p>
 <p>There is one special case where the joint probability is intuitive to compute. If the two events are <em>independent</em>, i.e.&nbsp;not related with each other, then the probability of result <span class="math inline">\(X=x\)</span> and <span class="math inline">\(Y=y\)</span> is:</p>
-<p><span class="math display">\[p(xy) = p(X=x \textrm{AND} Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).\]</span></p>
-<p>Multinomial distribution is…</p>
-<p>Another related concept is the <em>conditional probability</em>.</p>
-<p>Baysian</p>
+<p><span class="math display">\[p(xy) = p(X=x \textrm{AND } Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).\]</span></p>
+<p>Another related concept is the <em>conditional probability</em>. Intuitively, many events in the real world are not totally independent with each other. For example, consider the probability that a person put a raincoat, and the probability that a person put on a raincoat <em>in a rainy day</em>. The events “putting on raincoat” and “rainy day” are apparently related. Formally, the probability of event A given event B is computed as:</p>
+<p><span class="math display">\[P(X | Y) = \frac{P(X~\cap~Y)}{P(Y)}.\]</span></p>
+<p>There is not doubt that the most important application of conditional probabilities is the <em>Bayes’ Theorem</em>, proposed first by Thomas Bayes in 1991 <span data-cites="bayes1991essay" class="citation">(Bayes 1991)</span>. It is expressed by an simple form as shown in eq.&nbsp;6, e.g.&nbsp;it provides a way to compute the condition probability when it is not directly available.</p>
+<p><span id="eq:stats:bayes"><span class="math display">\[P(X|Y) = \frac{P(Y|X)P(X)}{P(Y)}\qquad(6)\]</span></span></p>
+<p>One powerful application of this theorem is that it provides the tool to calibrate your knowledge about something (“it has 10% percentage to happen”) based on observed evidence. For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one, you would say “hmm, I don’t know, perhaps 10%”. Define event <span class="math inline">\(X\)</span> to be “the dice is loaded”, and you just set a <strong>prior</strong> that <span class="math inline">\(P(X) = 0.1\)</span>. Now I begin to roll for three times, and somehow, I got three 6’s. Now I ask you again, <em>given the evidence you just observed</em>, estimate again the probability that the dice is loaded. Define <span class="math inline">\(Y\)</span> as the event “get all 6’s of all three rolling”.</p>
+<p>We can easily calculate that in the normal case <span class="math inline">\(P(Y) = 1 / 6^3 \approx 0.005\)</span>, and the probability this “normal case” happens, is 90%, according to our prior knowledge.<br>
+In total, <span class="math inline">\(P(Y) = P(Y|X)P(X) + P(Y|X')P(X')\)</span>, where <span class="math inline">\(P(X')\)</span> denotes the probability the dice is normal one. Besides, we can say that getting all 6’s if the dice is loaded <span class="math inline">\(P(Y | X)\)</span> would be pretty high, for example 0.99. Therefore, we can calculate that, now that given the observed evidence, the dice is loaded with a probability <span class="math inline">\(P(X|Y) = \frac{0.99 * 0.1}{0.99~\times~0.1 + 0.005~\times~0.9} \approx 0.96\)</span>. This is the <strong>posterior</strong> that we get after observing the evidence, which improves our previous knowledge significantly. This process can be widely applied to numerous scientific fields, where existing theory or knowledge are often put to test with new evidences.</p>
 </section>
 <section class="level2" id="sampling">
 <h2>Sampling</h2>
@@ -386,8 +390,13 @@ Stats.corrcoef x z;;
 <p>So far we have talked about compare two variables. how about comparing more? one by one solution increases error.</p>
 <p>Introduce the simplest of ANOVA…</p>
 </section>
-<section class="level2" id="summary">
-<h2>Summary</h2>
+<section class="level2 unnumbered" id="summary">
+<h2 class="unnumbered">Summary</h2>
+<div role="doc-bibliography" class="references hanging-indent" id="refs">
+<div id="ref-bayes1991essay">
+<p>Bayes, Thomas. 1991. “An Essay Towards Solving a Problem in the Doctrine of Chances. 1763.” <em>MD Computing: Computers in Medical Practice</em> 8 (3): 157.</p>
+</div>
+</div>
 </section>
 </section>
 </article></div><a href="ndarray.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 06</small>N-Dimensional Arrays</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
