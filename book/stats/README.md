@@ -345,11 +345,37 @@ This process can be widely applied to numerous scientific fields, where existing
 
 ## Sampling
 
-So far we have talked about the whole population, now we turn to a sample of it.
+We have talked about using random variables to describe certain events of interests. The whole of individuals constitutes *population*. It can be characterised by statistics such as mean, standard deviation as we have shown before.
+However, in the real world, most population is difficult to enumerate, if not possible. For example, if we are interested to know the average weight of all sands on earth, then it surely difficult to measure them one by one.
+Instead, a *sample* is required to represent this population.
 
-Sample median/variance
+### Unbiased Estimator
 
-Infer population parameters from sample
+There can be multiple ways to do the sampling. 
+Random sampling is a common choice. A similar method is "stratified random sampling", which first divide population into several groups, and then choose randomly within each group.
+For example, in designing a questionnaire, you want people from all age groups to be equally represented, and then stratified randomly sampling would be a more proper method.
+Of course, more sampling methods are also plausible as long as the sample is representative, which means that a member in the population is equally possible to be chosen into the sample. 
+
+After choosing a suitable sample, the next thing is to describe the population with the sample. 
+The statistics such as mean and variance etc. are still very useful, but can we directly use the statistics of the sample and declare that they can also be used to represent the whole population?
+In fact, that depends on if the statistics is an *unbiased estimator*, i.e. the expected value of its value is the corresponding population parameter.
+
+For example, let's take a sample of $n$ elements, and its mean $m$ is:
+
+$$m = \frac{1}{n}\sum_{i=1}^n~x_i,$$
+
+where $x_i$ is an element in the sample. 
+Denoting the population as $\mu$, it can be further proved that:  $E(m) = \mu$. 
+Therefore, the sample mean is an unbiased estimator of the population. 
+
+The same cannot of said of variance. The sample variance:
+
+$$v = \frac{1}{n}\sum_{i=1}^n(x_i - m)^2.$$
+
+Assume the variance of population is $\sigma^2$, then it can be proved that $E(v) = \frac{n - 1}{n}\sigma^2$.
+Therefore, the unbiased estimator of population variance of not that of the sample $v$, but $\frac{n}{n-1}v$.
+
+### Inferring population parameters 
 
 Z test, t test, chi-square test  
 
