@@ -272,13 +272,37 @@ In total, <span class="math inline">\(P(Y) = P(Y|X)P(X) + P(Y|X')P(X')\)</span>,
 <p>For example, let’s take a sample of <span class="math inline">\(n\)</span> elements, and its mean <span class="math inline">\(m\)</span> is:</p>
 <p><span class="math display">\[m = \frac{1}{n}\sum_{i=1}^n~x_i,\]</span></p>
 <p>where <span class="math inline">\(x_i\)</span> is an element in the sample. Denoting the population as <span class="math inline">\(\mu\)</span>, it can be further proved that: <span class="math inline">\(E(m) = \mu\)</span>. Therefore, the sample mean is an unbiased estimator of the population.</p>
-<p>The same cannot of said of variance. The sample variance:</p>
+<p>The same cannot of said of variance. The sample variance is:</p>
 <p><span class="math display">\[v = \frac{1}{n}\sum_{i=1}^n(x_i - m)^2.\]</span></p>
 <p>Assume the variance of population is <span class="math inline">\(\sigma^2\)</span>, then it can be proved that <span class="math inline">\(E(v) = \frac{n - 1}{n}\sigma^2\)</span>. Therefore, the unbiased estimator of population variance of not that of the sample <span class="math inline">\(v\)</span>, but <span class="math inline">\(\frac{n}{n-1}v\)</span>.</p>
 </section>
 <section class="level3" id="inferring-population-parameters">
-<h3>Inferring population parameters</h3>
-<p>Z test, t test, chi-square test</p>
+<h3>Inferring Population Parameters</h3>
+<p>In the previous section, we have shown how to get the expected value of the mean and variance of the population, given a sample from this population. But we perhaps need to know more than just the expected value. For example, can we locate an interval in which we can be quite sure the population mean lies? This section investigates this question.</p>
+<p>First, we need to explain the <em>Central Limit Theorem</em>. It states that, if you have a population and take sufficiently large random samples from the population with replacement, the distribution of the sample means will be approximately normally distributed. If the sample size is sufficiently large (such as <span class="math inline">\(n \lt 20\)</span>), this theorem holds true regardless of the population distribution.</p>
+<p>Specifically, suppose we repeatedly sample a subset of the same size <span class="math inline">\(n\)</span>, and we can then define random variable <span class="math inline">\(X\)</span> to represents the mean value of each sampled subset. According to the central limit theorem, it can be derived that, suppose the population has mean <span class="math inline">\(\mu\)</span> and variance of <span class="math inline">\(\sigma^2\)</span>, both unknown, then <span class="math inline">\(X\)</span> follows a normal distribution of mean value <span class="math inline">\(\mu\)</span>, and variance <span class="math inline">\(\frac{\sigma^2}{n}\)</span>.</p>
+<p>Since both the mean and the variance of the population is unknown, apparently we cannot solve this case with mystery at both ends. To get a more precise estimation about population mean <span class="math inline">\(\mu\)</span>, let’s first assume that the population variance can be calculated directly with the sample variance: <span class="math inline">\(\sigma^2 = \frac{1}{n-1}\sum_{i=1}^n(x_i - m)^2\)</span>. This assumption is of good quality in practice when <span class="math inline">\(n\)</span> is sufficiently large.</p>
+<p>Now that we know <span class="math inline">\(X\)</span> follows a normal distribution, we can utilise some of this nice properties. For example, we know that 95% of the probability mass lies within 1.96 standard deviations of this means. We can verify this point this simple code using the CDF function of normal distribution:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f = Stats.gaussian_cdf ~mu:0. ~sigma:1. in
+f 1.96 -. f (-1.96)
+;;
+&gt;- : float = 0.950004209703559
+</code></pre>
+</div>
+<p>Therefore, for any value <span class="math inline">\(x\)</span> in <span class="math inline">\(X\)</span>, we know that: <span class="math display">\[P(\mu - 1.96~\frac{\sigma}{\sqrt{n}} \le x \le  \mu + 1.96~\frac{\sigma}{\sqrt{n}}).\]</span></p>
+<p>With a bit variation, it becomes:</p>
+<p><span class="math display">\[P( x - 1.96~\frac{\sigma}{\sqrt{n}} \le \mu \le  x + 1.96~\frac{\sigma}{\sqrt{n}}).\]</span></p>
+<p>That means that given the sample mean <span class="math inline">\(m\)</span>, the population mean <span class="math inline">\(\mu\)</span> lies within this range [<span class="math inline">\(m - 1.96~\frac{\sigma}{\sqrt{n}}\)</span>, <span class="math inline">\(m + 1.96~\frac{\sigma}{\sqrt{n}}\)</span>] with 95% probability. It is called its <em>confidence interval</em>. Again, the population variance <span class="math inline">\(\sigma^2\)</span> directly use that of the unbiased estimation from sample.</p>
+<p>Let’s go back to the <em>1.96</em> number. We use this range because X is assumed to follow a normal distribution. The <span class="math inline">\(\frac{x - \mu}{\sigma/\sqrt{n}}\)</span> variable follows a standard normal distribution. It is called tne <em>standard Z variable</em>. We can check the standard normal distribution table to find the range that corresponds to 95% confidence. However, as we have explained, this does not hold when <span class="math inline">\(n\)</span> is small, since we actually uses <span class="math inline">\(\frac{x-\mu}{\sqrt{\frac{\sum_{i}(x - m)^2}{n(n-1)}}}\)</span> instead of the real <span class="math inline">\(z\)</span> variable. The latter one is called <em>standard t variable</em>, which follows the t-distribution with <span class="math inline">\(n-1\)</span> degree of freedom. When <span class="math inline">\(n\)</span> is a large number, the t distribution behave almost the same as that of a normal distribution. Therefore, if the <span class="math inline">\(n\)</span> is small, we need to look up the t table. For example, if <span class="math inline">\(n=17\)</span>, then the range parameter is about 2.12, which can be verified as:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x = Stats.t_cdf x ~df:16. ~loc:0. ~scale:1. in 
+f 2.12 -. f (-2.12)
+;;
+&gt;- : float = 0.950009071286895823
+</code></pre>
+</div>
+<p>That’s all for the population mean. The estimation of population variance range uses <span class="math inline">\(\chi\)</span>-square distribution, but rarely used in practice. So we omitted it in this section.</p>
 </section>
 </section>
 <section class="level2" id="hypothesis-tests">

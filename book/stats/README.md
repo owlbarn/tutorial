@@ -368,16 +368,65 @@ where $x_i$ is an element in the sample.
 Denoting the population as $\mu$, it can be further proved that:  $E(m) = \mu$. 
 Therefore, the sample mean is an unbiased estimator of the population. 
 
-The same cannot of said of variance. The sample variance:
+The same cannot of said of variance. The sample variance is:
 
 $$v = \frac{1}{n}\sum_{i=1}^n(x_i - m)^2.$$
 
 Assume the variance of population is $\sigma^2$, then it can be proved that $E(v) = \frac{n - 1}{n}\sigma^2$.
 Therefore, the unbiased estimator of population variance of not that of the sample $v$, but $\frac{n}{n-1}v$.
 
-### Inferring population parameters 
+### Inferring Population Parameters 
 
-Z test, t test, chi-square test  
+In the previous section, we have shown how to get the expected value of the mean and variance of the population, given a sample from this population.
+But we perhaps need to know more than just the expected value. For example, can we locate an interval in which we can be quite sure the population mean lies?
+This section investigates this question.
+
+First, we need to explain the *Central Limit Theorem*.
+It states that, if you have a population and take sufficiently large random samples from the population with replacement, the distribution of the sample means will be approximately normally distributed. 
+If the sample size is sufficiently large (such as $n \lt 20$), this theorem holds true regardless of the population distribution. 
+
+Specifically, suppose we repeatedly sample a subset of the same size $n$, and we can then define random variable $X$ to represents the mean value of each sampled subset. 
+According to the central limit theorem, it can be derived that, suppose the population has mean $\mu$ and variance of $\sigma^2$, both unknown, then $X$ follows a normal distribution of mean value $\mu$, and variance $\frac{\sigma^2}{n}$.
+
+Since both the mean and the variance of the population is unknown, apparently we cannot solve this case with mystery at both ends.
+To get a more precise estimation about population mean $\mu$, let's first assume that the population variance can be calculated directly with the sample variance: $\sigma^2 = \frac{1}{n-1}\sum_{i=1}^n(x_i - m)^2$.
+This assumption is of good quality in practice when $n$ is sufficiently large.
+
+Now that we know $X$ follows a normal distribution, we can utilise some of this nice properties. For example, we know that 95% of the probability mass lies within 1.96 standard deviations of this means. We can verify this point this simple code using the CDF function of normal distribution:
+
+```ocaml
+# let f = Stats.gaussian_cdf ~mu:0. ~sigma:1. in
+  f 1.96 -. f (-1.96)
+- : float = 0.950004209703559
+```
+
+Therefore, for any value $x$ in $X$, we know that:
+$$P(\mu - 1.96~\frac{\sigma}{\sqrt{n}} \le x \le  \mu + 1.96~\frac{\sigma}{\sqrt{n}}).$$
+
+With a bit variation, it becomes:
+
+$$P( x - 1.96~\frac{\sigma}{\sqrt{n}} \le \mu \le  x + 1.96~\frac{\sigma}{\sqrt{n}}).$$
+
+That means that given the sample mean $m$, the population mean $\mu$ lies within this range [$m - 1.96~\frac{\sigma}{\sqrt{n}}$, $m + 1.96~\frac{\sigma}{\sqrt{n}}$] with 95% probability. It is called its *confidence interval*. 
+Again, the population variance $\sigma^2$ directly use that of the unbiased estimation from sample.
+
+Let's go back to the *1.96* number. We use this range because X is assumed to follow a normal distribution. 
+The $\frac{x - \mu}{\sigma/\sqrt{n}}$ variable follows a standard normal distribution. It is called tne *standard Z variable*.
+We can check the standard normal distribution table to find the range that corresponds to 95% confidence. 
+However, as we have explained, this does not hold when $n$ is small, since we actually uses $\frac{x-\mu}{\sqrt{\frac{\sum_{i}(x - m)^2}{n(n-1)}}}$ instead of the real $z$ variable. 
+The latter one is called *standard t variable*, which follows the t-distribution with  $n-1$ degree of freedom. 
+When $n$ is a large number, the t distribution behave almost the same as that of a normal distribution. 
+Therefore, if the $n$ is small, we need to look up the t table. 
+For example, if $n=17$, then the range parameter is about 2.12, which can be verified as:
+
+```ocaml
+# let f x = Stats.t_cdf x ~df:16. ~loc:0. ~scale:1. in 
+  f 2.12 -. f (-2.12)
+- : float = 0.950009071286895823
+```
+
+That's all for the population mean.
+The estimation of population variance range uses $\chi$-square distribution, but rarely used in practice. So we omitted it in this section.
 
 ## Hypothesis Tests
 
