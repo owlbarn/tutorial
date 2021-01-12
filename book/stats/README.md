@@ -432,29 +432,32 @@ The estimation of population variance range uses $\chi$-square distribution, but
 
 ### Theory
 
-While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.
+While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. 
+
+Let's think about the classic flip coin experiment. Suppose we have a basic assumption/hypothesis that most coins can give a result of head or tail with 50/50 chance. 
+Now, if you flip a given coin 3 times and get 3 heads, can you make a claim that this coin is not a normal one? With how much probability?
+Another example is that, suppose you claim that one of your proposed algorithm improves the running speed of the state of art, and you have two samples about the execution time using two different algorithms, and then how can you be sure that your claim is justified. 
+That's where we need hypothesis tests.
+
+There are two hypotheses proposed with regard to the statistical relationship between data sets.
 
 * Null hypothesis $H_0$: there is no relationship between two data sets.
 * Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
 
-Type I and Type II errors: the 2x2 matrix.
+The probability of an outcome assuming that a hypothesis is true is called its p-value. 
+In practice the p-value is set to 5% (1% is also used frequently).
+For example, if we believe that a coin is a normal one, but the experiment result can only happen with a low probability of, e.g. 0.03 given this belief, we can reject the the hypothesis ("this coin is normal"), at the 5% confidence level. 
+
+Note that, if we do not reject a hypothesis, that does not mean it is accepted. If we flip the coin three times and get three heads. Given the hypothesis that this coin is normal, this result happens with a probability of 12.5%, therefore we cannot reject this hypothesis.  
+The non-rejection does not mean we are pretty sure the coin is totally not biased with much confidence. 
+Therefore, one needs to be very careful in choosing hypothesis. 
+$H_0$ should be something we believe is solid enough to explain the data unless the strongly challenged by observed data. 
+Besides, it also helps to make the null hypothesis as precise as possible. A wide coverage only makes the hypothesis undeniable.
 
 ### Gaussian Distribution in Hypothesis Testing
 
-The `Stats` module in Owl supports many different kinds of hypothesis tests.
-
-* Z-Test
-* Student's T-Test
-* Paired Sample T-Test
-* Unpaired Sample T-Test
-* Kolmogorov-Smirnov Test
-* Chi-Square Variance Test
-* Jarque-Bera Test
-* Fisher's Exact Test
-* Wald–Wolfowitz Runs Test
-* Mann-Whitney Rank Test
-* Wilcoxon Signed-rank Test
-
+One of the most common test to make is to see if observed data come from a certain gaussian distribution. 
+This is called a "z-test."
 Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
 
 ```ocaml env=stats_03
@@ -492,13 +495,76 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
 
 As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
 
+
+Explain briefly:
+
+Student's T-Test. `t_test ~mu ~alpha ~side x` returns a test decision of one-sample t-test which is a parametric test of the location parameter when the population standard deviation is unknown. `mu` is population mean, and `alpha` is the significance level.
+
 ### Two-Sample Inferences
+
+* Paired Sample T-Test
+`t_test_paired ~alpha ~side x y` returns a test decision for the null
+hypothesis that the data in `x – y` comes from a normal distribution with
+mean equal to zero and unknown variance, using the paired-sample t-test. 
+
+* Unpaired Sample T-Test
+`t_test_unpaired ~alpha ~side ~equal_var x y` returns a test decision for
+the null hypothesis that the data in vectors `x` and `y` comes from
+independent random samples from normal distributions with equal means and
+equal but unknown variances, using the two-sample t-test. The alternative
+hypothesis is that the data in `x` and `y` comes from populations with
+unequal means.
+`equal_var` indicates whether two samples have the same variance. If the
+two variances are not the same, the test is referred to as Welche's t-test.
 
 ### Goodness-of-fit Tests
 
+The `Stats` module in Owl supports many different kinds of hypothesis tests.
+
+* Kolmogorov-Smirnov Test:
+`ks_test ~alpha x f` returns a test decision for the null
+hypothesis that the data in vector `x` comes from independent
+random samples of the distribution with CDF f. The alternative
+hypothesis is that the data in `x` comes from a different
+distribution.
+The result `(h,p,d)` : `d` is the Kolmogorov-Smirnov
+test statistic.
+
+* `ks2_test ~alpha x y` returns a test decision for the null
+hypothesis that the data in vectors `x` and `y` come from
+independent random samples of the same distribution. 
+
+* Chi-Square Variance Test
+`var_test ~alpha ~side ~variance x` returns a test decision for the null
+hypothesis that the data in `x` comes from a normal distribution with input
+`variance`, using the chi-square variance test. The alternative hypothesis
+is that `x` comes from a normal distribution with a different variance.
+
+* Jarque-Bera Test
+`jb_test ~alpha x` returns a test decision for the null hypothesis that the
+data `x` comes from a normal distribution with an unknown mean and variance,
+using the Jarque-Bera test.
+
+* Fisher's Exact Test
+
+* Wald–Wolfowitz Runs Test
+`runs_test ~alpha ~v x` returns a test decision for the null hypothesis that
+the data `x` comes in random order, against the alternative that they do not,
+by running Wald–Wolfowitz runs test. The test is based on the number of runs
+of consecutive values above or below the mean of `x`. `~v` is the reference
+value, the default value is the median of `x`.
+
+* Mann-Whitney Rank Test
+`mannwhitneyu ~alpha ~side x y` Computes the Mann-Whitney rank test on
+samples x and y. If length of each sample less than 10 and no ties, then
+using exact test, otherwise using asymptotic normal distribution.
+
+
 ### Non-parametric Statistics
 
-Wilcoxon Tests
+(Perhaps just very briefly as a paragraph)
+
+* Wilcoxon Signed-rank Test
 
 
 ## Covariance and Correlations

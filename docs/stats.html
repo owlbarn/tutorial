@@ -309,30 +309,20 @@ f 2.12 -. f (-2.12)
 <h2>Hypothesis Tests</h2>
 <section class="level3" id="theory">
 <h3>Theory</h3>
-<p>While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis. There are two hypotheses proposed with regard to the statistical relationship between data sets.</p>
+<p>While descriptive statistics solely concern properties of the observed data, statistical inference focusses on studying whether the data set is sampled from a larger population. In other words, statistical inference make propositions about a population. Hypothesis test is an important method in inferential statistical analysis.</p>
+<p>Let’s think about the classic flip coin experiment. Suppose we have a basic assumption/hypothesis that most coins can give a result of head or tail with 50/50 chance. Now, if you flip a given coin 3 times and get 3 heads, can you make a claim that this coin is not a normal one? With how much probability? Another example is that, suppose you claim that one of your proposed algorithm improves the running speed of the state of art, and you have two samples about the execution time using two different algorithms, and then how can you be sure that your claim is justified. That’s where we need hypothesis tests.</p>
+<p>There are two hypotheses proposed with regard to the statistical relationship between data sets.</p>
 <ul>
 <li>Null hypothesis <span class="math inline">\(H_0\)</span>: there is no relationship between two data sets.</li>
 <li>Alternative hypothesis <span class="math inline">\(H_1\)</span>: there is statistically significant relationship between two data sets.</li>
 </ul>
-<p>Type I and Type II errors: the 2x2 matrix.</p>
+<p>The probability of an outcome assuming that a hypothesis is true is called its p-value. In practice the p-value is set to 5% (1% is also used frequently). For example, if we believe that a coin is a normal one, but the experiment result can only happen with a low probability of, e.g.&nbsp;0.03 given this belief, we can reject the the hypothesis (“this coin is normal”), at the 5% confidence level.</p>
+<p>Note that, if we do not reject a hypothesis, that does not mean it is accepted. If we flip the coin three times and get three heads. Given the hypothesis that this coin is normal, this result happens with a probability of 12.5%, therefore we cannot reject this hypothesis.<br>
+The non-rejection does not mean we are pretty sure the coin is totally not biased with much confidence. Therefore, one needs to be very careful in choosing hypothesis. <span class="math inline">\(H_0\)</span> should be something we believe is solid enough to explain the data unless the strongly challenged by observed data. Besides, it also helps to make the null hypothesis as precise as possible. A wide coverage only makes the hypothesis undeniable.</p>
 </section>
 <section class="level3" id="gaussian-distribution-in-hypothesis-testing">
 <h3>Gaussian Distribution in Hypothesis Testing</h3>
-<p>The <code>Stats</code> module in Owl supports many different kinds of hypothesis tests.</p>
-<ul>
-<li>Z-Test</li>
-<li>Student’s T-Test</li>
-<li>Paired Sample T-Test</li>
-<li>Unpaired Sample T-Test</li>
-<li>Kolmogorov-Smirnov Test</li>
-<li>Chi-Square Variance Test</li>
-<li>Jarque-Bera Test</li>
-<li>Fisher’s Exact Test</li>
-<li>Wald–Wolfowitz Runs Test</li>
-<li>Mann-Whitney Rank Test</li>
-<li>Wilcoxon Signed-rank Test</li>
-</ul>
-<p>Now let’s see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one <code>data_0</code> is drawn from <span class="math inline">\(\mathcal{N}(0, 1)\)</span>, while the second one <code>data_1</code> is drawn from <span class="math inline">\(\mathcal{N}(3, 1)\)</span>.</p>
+<p>One of the most common test to make is to see if observed data come from a certain gaussian distribution. This is called a “z-test.” Now let’s see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one <code>data_0</code> is drawn from <span class="math inline">\(\mathcal{N}(0, 1)\)</span>, while the second one <code>data_1</code> is drawn from <span class="math inline">\(\mathcal{N}(3, 1)\)</span>.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">let data_0 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
 let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</code></pre>
@@ -362,16 +352,35 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 </code></pre>
 </div>
 <p>As we expected, the null hypothesis is accepted with a very small p value. This indicates that <code>data_1</code> is drawn from a different distribution rather than assumed <span class="math inline">\(\mathcal{N}(0, 1)\)</span>.</p>
+<p>Explain briefly:</p>
+<p>Student’s T-Test. <code>t_test ~mu ~alpha ~side x</code> returns a test decision of one-sample t-test which is a parametric test of the location parameter when the population standard deviation is unknown. <code>mu</code> is population mean, and <code>alpha</code> is the significance level.</p>
 </section>
 <section class="level3" id="two-sample-inferences">
 <h3>Two-Sample Inferences</h3>
+<ul>
+<li><p>Paired Sample T-Test <code>t_test_paired ~alpha ~side x y</code> returns a test decision for the null hypothesis that the data in <code>x – y</code> comes from a normal distribution with mean equal to zero and unknown variance, using the paired-sample t-test.</p></li>
+<li><p>Unpaired Sample T-Test <code>t_test_unpaired ~alpha ~side ~equal_var x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> comes from independent random samples from normal distributions with equal means and equal but unknown variances, using the two-sample t-test. The alternative hypothesis is that the data in <code>x</code> and <code>y</code> comes from populations with unequal means. <code>equal_var</code> indicates whether two samples have the same variance. If the two variances are not the same, the test is referred to as Welche’s t-test.</p></li>
+</ul>
 </section>
 <section class="level3" id="goodness-of-fit-tests">
 <h3>Goodness-of-fit Tests</h3>
+<p>The <code>Stats</code> module in Owl supports many different kinds of hypothesis tests.</p>
+<ul>
+<li><p>Kolmogorov-Smirnov Test: <code>ks_test ~alpha x f</code> returns a test decision for the null hypothesis that the data in vector <code>x</code> comes from independent random samples of the distribution with CDF f.&nbsp;The alternative hypothesis is that the data in <code>x</code> comes from a different distribution. The result <code>(h,p,d)</code> : <code>d</code> is the Kolmogorov-Smirnov test statistic.</p></li>
+<li><p><code>ks2_test ~alpha x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> come from independent random samples of the same distribution.</p></li>
+<li><p>Chi-Square Variance Test <code>var_test ~alpha ~side ~variance x</code> returns a test decision for the null hypothesis that the data in <code>x</code> comes from a normal distribution with input <code>variance</code>, using the chi-square variance test. The alternative hypothesis is that <code>x</code> comes from a normal distribution with a different variance.</p></li>
+<li><p>Jarque-Bera Test <code>jb_test ~alpha x</code> returns a test decision for the null hypothesis that the data <code>x</code> comes from a normal distribution with an unknown mean and variance, using the Jarque-Bera test.</p></li>
+<li><p>Fisher’s Exact Test</p></li>
+<li><p>Wald–Wolfowitz Runs Test <code>runs_test ~alpha ~v x</code> returns a test decision for the null hypothesis that the data <code>x</code> comes in random order, against the alternative that they do not, by running Wald–Wolfowitz runs test. The test is based on the number of runs of consecutive values above or below the mean of <code>x</code>. <code>~v</code> is the reference value, the default value is the median of <code>x</code>.</p></li>
+<li><p>Mann-Whitney Rank Test <code>mannwhitneyu ~alpha ~side x y</code> Computes the Mann-Whitney rank test on samples x and y. If length of each sample less than 10 and no ties, then using exact test, otherwise using asymptotic normal distribution.</p></li>
+</ul>
 </section>
 <section class="level3" id="non-parametric-statistics">
 <h3>Non-parametric Statistics</h3>
-<p>Wilcoxon Tests</p>
+<p>(Perhaps just very briefly as a paragraph)</p>
+<ul>
+<li>Wilcoxon Signed-rank Test</li>
+</ul>
 </section>
 </section>
 <section class="level2" id="covariance-and-correlations">
