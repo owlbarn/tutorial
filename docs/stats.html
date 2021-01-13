@@ -4,7 +4,6 @@
       gtag('js', new Date());
       gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="statistical-functions">
 <h1>Statistical Functions</h1>
-<p>TODO: Implementation details</p>
 <p>Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.</p>
 <section class="level2" id="random-variables">
 <h2>Random Variables</h2>
@@ -106,7 +105,7 @@ Plot.output h</code></pre>
 </section>
 <section class="level3" id="descriptive-statistics">
 <h3>Descriptive Statistics</h3>
-<p>A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a <em>population</em>. (TODO: do we need to say the “population” here?) A population can be characterised with multiple descriptive statistics. Two of the most frequently used of them are <em>mean</em> and <em>variance</em>. The mean of a population <span class="math inline">\(X\)</span> with <span class="math inline">\(n\)</span> elements is defined as:</p>
+<p>A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a <em>population</em>. A population can be characterised with multiple descriptive statistics. Two of the most frequently used of them are <em>mean</em> and <em>variance</em>. The mean of a population <span class="math inline">\(X\)</span> with <span class="math inline">\(n\)</span> elements is defined as:</p>
 <p><span id="eq:stats:mean"><span class="math display">\[E(X) = \frac{1}{n}\sum_{i}x_i,\qquad(3)\]</span></span> where <span class="math inline">\(x_i\)</span> is the <span class="math inline">\(i\)</span>-th element in population. And the definition of variance is similar:</p>
 <p><span id="eq:stats:variance"><span class="math display">\[Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.\qquad(4)\]</span></span></p>
 <p>A similar and commonly used idea is <em>standard deviation</em>, which is the square root of variance. The meaning of both the mean (or <em>expected value</em>) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.</p>
@@ -157,7 +156,6 @@ Stats.percentile;;</code></pre>
 </div>
 <p>The <code>min</code> and <code>max</code> is plain to use. The <code>median</code> is the middle number in a sorted list of numbers of the whole samples. It is sometimes more descriptive than the <code>mean</code> about the data, since the later is more prone to outliers.</p>
 <p>A similar idea is <code>quartile</code>: there are 75% of the measurements in the sample are larger than the first quartile, and 25% are larger than the third quartile. The <code>median</code> is also the second quartile. A more general idea is the <code>percentile</code>, a measure at which that percentage of the total values are below that measure. For example, the first quartile is also the 25th percentile.</p>
-<p>TODO: IMAGE to show the difference of mean, median, mode, etc. with code</p>
 </section>
 </section>
 <section class="level2" id="special-distribution">
@@ -165,43 +163,39 @@ Stats.percentile;;</code></pre>
 <p>All distributions are equal, but some are more equal than others. Certain types of special distributions are used again and again in practice and are given special names. A small number of them are listed in the table below.</p>
 <table>
 <colgroup>
-<col style="width: 26%">
-<col style="width: 26%">
-<col style="width: 47%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Distribution name</th>
 <th style="text-align: left;">PDF</th>
-<th style="text-align: left;">Application</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Gaussian distribution</td>
 <td style="text-align: left;"><span class="math inline">\(\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}\)</span></td>
-<td style="text-align: left;">xxx</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Gamma distribution</td>
 <td style="text-align: left;"><span class="math inline">\(\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}\)</span></td>
-<td style="text-align: left;">xxx</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Beta distribution</td>
 <td style="text-align: left;"><span class="math inline">\(\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}\)</span></td>
-<td style="text-align: left;">xxx</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Cauchy distribution</td>
 <td style="text-align: left;"><span class="math inline">\((\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}\)</span></td>
-<td style="text-align: left;">xxx</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Student’s <span class="math inline">\(t\)</span>-distribution</td>
+<td style="text-align: left;"><span class="math inline">\(\frac{\Gamma((v+1)/2)}{\sqrt{v\pi}\Gamma(v/2)}(1 + \frac{x^2}{v})^{-\frac{v+1}{2}}\)</span></td>
 </tr>
 </tbody>
 </table>
-<p>Here <span class="math inline">\(\Gamma(x)\)</span> is the Gamma function.</p>
-<p>To add: Square Distribution | Student-t Distribution |</p>
-<p>These different kinds of distributions are supported in the <code>Stats</code> module in Owl. For each distribution, there is a set of related functions using the distribution name as their common prefix. For example, for the gaussian distribution, we can utilise the function below:</p>
+<p>Here <span class="math inline">\(\Gamma(x)\)</span> is the Gamma function. These different kinds of distributions are supported in the <code>Stats</code> module in Owl. For each distribution, there is a set of related functions using the distribution name as their common prefix. For example, for the gaussian distribution, we can utilise the function below:</p>
 <ul>
 <li><code>gaussian_rvs</code> : random number generator.</li>
 <li><code>gaussian_pdf</code> : probability density function.</li>
@@ -247,7 +241,6 @@ let _ =
 <figure>
 <img alt="" style="width:60.0%" id="fig:stats:gamma_pdf" title="gamma_pdf" src="images/stats/gamma_pdf.png"><figcaption>Figure 3: Probability density functions of Gamma distribution</figcaption>
 </figure>
-<p>TODO: adjust this section according to later use.</p>
 </section>
 <section class="level2" id="multiple-variables">
 <h2>Multiple Variables</h2>
@@ -352,34 +345,27 @@ let data_1 = Array.init 10 (fun _ -&gt; Stats.gaussian_rvs ~mu:3. ~sigma:1.);;</
 </code></pre>
 </div>
 <p>As we expected, the null hypothesis is accepted with a very small p value. This indicates that <code>data_1</code> is drawn from a different distribution rather than assumed <span class="math inline">\(\mathcal{N}(0, 1)\)</span>.</p>
-<p>Explain briefly:</p>
-<p>Student’s T-Test. <code>t_test ~mu ~alpha ~side x</code> returns a test decision of one-sample t-test which is a parametric test of the location parameter when the population standard deviation is unknown. <code>mu</code> is population mean, and <code>alpha</code> is the significance level.</p>
+<p>In the previous section we have introduced the z-variable and t-variable. Besides the z-test, another frequently used test is to see if the given data follows a Student’s t-distribution under the null hypothesis. In the <code>Stats</code> module, the <code>t_test ~mu ~alpha ~side x</code> function returns a test decision of t-test, which is a parametric test of the location parameter when the population standard deviation is unknown. Here <code>mu</code> is population mean, and <code>alpha</code> is the significance level.</p>
 </section>
 <section class="level3" id="two-sample-inferences">
 <h3>Two-Sample Inferences</h3>
-<ul>
-<li><p>Paired Sample T-Test <code>t_test_paired ~alpha ~side x y</code> returns a test decision for the null hypothesis that the data in <code>x – y</code> comes from a normal distribution with mean equal to zero and unknown variance, using the paired-sample t-test.</p></li>
-<li><p>Unpaired Sample T-Test <code>t_test_unpaired ~alpha ~side ~equal_var x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> comes from independent random samples from normal distributions with equal means and equal but unknown variances, using the two-sample t-test. The alternative hypothesis is that the data in <code>x</code> and <code>y</code> comes from populations with unequal means. <code>equal_var</code> indicates whether two samples have the same variance. If the two variances are not the same, the test is referred to as Welche’s t-test.</p></li>
-</ul>
+<p>Another common type of test is to test if two samples comes from the same population. For example, we need to test performance of the improvement to an algorithm to see if it really works. The default null hypothesis is that, the two samples are drawn from the same population. The test strategy depends on if the sample sizes.</p>
+<p>If the two samples are of the same size, then the test can be simplified by subtracting the elements in the two sets one-by-one. The test then becomes to check if the resulting set is taken from a population of mean value 0. This problem can be solved with the method introduced in the previous section by using t-test. Specifically, we provides the paired sample t-test function. The <code>t_test_paired ~alpha ~side x y</code> returns a test decision for the null hypothesis that the data in <code>x – y</code> comes from a normal distribution with mean equal to zero and unknown variance.</p>
+<p>The problem get trickier when the size of these two subsets are not the same. We then need to discuss the two cases about their confidence interval. If both intervals do not overlap, apparently we can be fairly certain that the two samples come from different population, and thus reject the null hypothesis. If the intervals overlap, we need to make sure that some other conditions stand. For example, if we can assume that the variances of both population are the same, then it can be shown that the variable:</p>
+<p><span class="math display">\[\frac{\bar{x} - \bar{y}}{\sqrt{\frac{\sum_{i=1}^a~(x_i - \bar{x})^2 + \sum_{i=1}^b~(y_i - \bar{y})^2}{a + b - 2}(\frac{1}{a} + \frac{1}{b})}},\]</span></p>
+<p>is a standard t variable with <span class="math inline">\(a + b - 2\)</span> degree of freedom, where <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> are the length of the sample <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>.</p>
+<p>This idea is implemented as the unpaired sample t-test. The function <code>t_test_unpaired ~alpha ~side ~equal_var x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> comes from independent random samples from normal distributions with equal means and equal but unknown variances. Here <code>equal_var</code> indicates whether two samples have the same variance. If the two variances are not the same, we need to use the <em>nonparametric tests</em> such as Welche’s t-test.</p>
 </section>
-<section class="level3" id="goodness-of-fit-tests">
-<h3>Goodness-of-fit Tests</h3>
-<p>The <code>Stats</code> module in Owl supports many different kinds of hypothesis tests.</p>
+<section class="level3" id="other-types-of-test">
+<h3>Other Types of Test</h3>
+<p>Besides what we have mentioned so far, the <code>Stats</code> module in Owl supports many other different kinds of hypothesis tests. This section will give them a brief introduction.</p>
 <ul>
 <li><p>Kolmogorov-Smirnov Test: <code>ks_test ~alpha x f</code> returns a test decision for the null hypothesis that the data in vector <code>x</code> comes from independent random samples of the distribution with CDF f.&nbsp;The alternative hypothesis is that the data in <code>x</code> comes from a different distribution. The result <code>(h,p,d)</code> : <code>d</code> is the Kolmogorov-Smirnov test statistic.</p></li>
-<li><p><code>ks2_test ~alpha x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> come from independent random samples of the same distribution.</p></li>
+<li><p>Two-sample Kolmogorov-Smirnov Test: <code>ks2_test ~alpha x y</code> returns a test decision for the null hypothesis that the data in vectors <code>x</code> and <code>y</code> come from independent random samples of the same distribution.</p></li>
 <li><p>Chi-Square Variance Test <code>var_test ~alpha ~side ~variance x</code> returns a test decision for the null hypothesis that the data in <code>x</code> comes from a normal distribution with input <code>variance</code>, using the chi-square variance test. The alternative hypothesis is that <code>x</code> comes from a normal distribution with a different variance.</p></li>
 <li><p>Jarque-Bera Test <code>jb_test ~alpha x</code> returns a test decision for the null hypothesis that the data <code>x</code> comes from a normal distribution with an unknown mean and variance, using the Jarque-Bera test.</p></li>
-<li><p>Fisher’s Exact Test</p></li>
 <li><p>Wald–Wolfowitz Runs Test <code>runs_test ~alpha ~v x</code> returns a test decision for the null hypothesis that the data <code>x</code> comes in random order, against the alternative that they do not, by running Wald–Wolfowitz runs test. The test is based on the number of runs of consecutive values above or below the mean of <code>x</code>. <code>~v</code> is the reference value, the default value is the median of <code>x</code>.</p></li>
 <li><p>Mann-Whitney Rank Test <code>mannwhitneyu ~alpha ~side x y</code> Computes the Mann-Whitney rank test on samples x and y. If length of each sample less than 10 and no ties, then using exact test, otherwise using asymptotic normal distribution.</p></li>
-</ul>
-</section>
-<section class="level3" id="non-parametric-statistics">
-<h3>Non-parametric Statistics</h3>
-<p>(Perhaps just very briefly as a paragraph)</p>
-<ul>
-<li>Wilcoxon Signed-rank Test</li>
 </ul>
 </section>
 </section>
@@ -430,13 +416,12 @@ Stats.corrcoef x z;;
 </code></pre>
 </div>
 </section>
-<section class="level2" id="analysis-of-variance">
-<h2>Analysis of Variance</h2>
-<p>So far we have talked about compare two variables. how about comparing more? one by one solution increases error.</p>
-<p>Introduce the simplest of ANOVA…</p>
+<section class="level2" id="summary">
+<h2>Summary</h2>
+<p>In this chapter, we briefly introduced several of the main topics in probability and statistics. Random variables and different types of distribution are two building blocks in this chapter. Based on them, we introduced the joint- and conditional probabilities when there are multiple variables. One important topic here is the Bayes Theorem. Then we went from descriptive statistics to inference statistics, and introduced sampling, including the idea of unbiased population estimator based on a given sample, and how to infer population parameters such as mean. Next, we covered the basic idea in hypothesis testing with examples. The difference between covariance and correlations is also discussed.</p>
 </section>
-<section class="level2 unnumbered" id="summary">
-<h2 class="unnumbered">Summary</h2>
+<section class="level2 unnumbered" id="references">
+<h2 class="unnumbered">References</h2>
 <div role="doc-bibliography" class="references hanging-indent" id="refs">
 <div id="ref-bayes1991essay">
 <p>Bayes, Thomas. 1991. “An Essay Towards Solving a Problem in the Doctrine of Chances. 1763.” <em>MD Computing: Computers in Medical Practice</em> 8 (3): 157.</p>

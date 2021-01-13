@@ -1417,17 +1417,36 @@ For example, the `peakflops ~n ()` function returns the peak number of float poi
 ## Sparse Matrices
 
 What we have mentioned so far are dense matrix. But when the elements are sparsely distributed in the matrix, such as the identity matrix, the *sparse* structure might be more efficient.
+
+The most intuitive way to represent a sparse matrix is to use the `(row, column, value)` triplet. The tuples can be pre-sorted according to row and column values so enhance random access time. 
+Another commonly used format is the *Compressed Sparse Row* (CSR) format.
+It is similar to the triplet format with row indices compressed.
+Here is an example. Suppose that we need to represent the matrix below in CSR:
+
+$\left[\begin{matrix} 10 & 0 & 9 & 8 \\ 0 & 7 & 0 & 0  \\  6 & 5 & 0 & 0 \end{matrix} \right]$
+
+The column indicies and values are still the same, but now the length of row indicies is the same as that of the row number.
+Each element shows the index of the first value in that row in the whole value vector, as shown in [@tbl:linear-algebra:csr].
+
+| Row |  0  |  1  |  4  | 
+| --- | --- | ------ | ---- |
+| Column | 0 | 2, 3, 1 | 0, 1 |
+| Value  | 10 | 9, 8, 7 | 6, 5 |
+: CSR format illustration {#tbl:linear-algebra:csr}
+
+The benefit of CSR is that it is more efficient at accessing row-vectors or row operations.
+Another data structure *Compressed Sparse Column* (CSC) is similar, except that it compresses column vector instead of row.
+
 The sparse matrix is proivded in the `Sparse.Matrix` module, and also support the four types of number in the `S`, `D`, `C`, and `Z` submodules.
-
-(Perhaps these contents are better to discuss in Ndarray module.)
-
-Very brief.
-Focusing on introducing the data structure (CSC, CSR, etc), no the method.
-Mention the [owl_suitesparse](https://github.com/owlbarn/owl_suitesparse)
-TODO: Introduce the sparse data structure in owl, and introduce CSR, CSC, tuples, and other formats.
-
+Currently we interfaces to the Eigen library to use its sparse matrix representation. 
 
 ## Summary
 
+This chapter gives an overview of the topic of Linear Algebra.
+Starting from the basic vector and matrix, we briefly introduce several key ideas in this field, including Guassian elimination, vector spaces, determinatns, Eigenvalues, Positive Definite Matrices, etc. 
+We explain these topics with example and code using Owl. 
+Sure enough, there is no way to cover all these topics in one chapter. We refer to classic textbooks for more inforation. 
+In the end, we introduce how the linear algebra module is implemented in a numerical library such as Owl. 
+We close the discussion with a brief explanation of the sparse matrix and the representation formats used.
 
 ## References

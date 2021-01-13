@@ -1,7 +1,5 @@
 # Statistical Functions
 
-TODO: Implementation details
-
 Statistics is an indispensable tool for data analysis, it helps us to gain the insights from data. The statistical functions in Owl can be categorised into three groups: descriptive statistics, distributions, and hypothesis tests.
 
 ## Random Variables
@@ -146,7 +144,6 @@ Plot.output h
 ### Descriptive Statistics
 
 A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a *population*.
-(TODO: do we need to say the "population" here?)
 A population can be characterised with multiple descriptive statistics.
 Two of the most frequently used of them are *mean* and *variance*.
 The mean of a population $X$ with $n$ elements is defined as:
@@ -233,27 +230,21 @@ The `median` is also the second quartile.
 A more general idea is the `percentile`, a measure at which that percentage of the total values are below that measure.
 For example, the first quartile is also the 25th percentile.
 
-TODO: IMAGE to show the difference of mean, median, mode, etc. with code
-
 ## Special Distribution
 
 All distributions are equal, but some are more equal than others.
 Certain types of special distributions are used again and again in practice and are given special names.
 A small number of them are listed in the table below.
 
-| Distribution name | PDF | Application |
-| :------------- |:-------------|:------------------------ |
-| Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | xxx |
-| Gamma distribution | $\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$ | xxx |
-| Beta distribution  | $\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$ | xxx |
-| Cauchy distribution | $(\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}$ | xxx |
+| Distribution name | PDF |
+| :------------- |:-------------|
+| Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | 
+| Gamma distribution | $\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$ | 
+| Beta distribution  | $\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$ | 
+| Cauchy distribution | $(\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}$ | 
+| Student's $t$-distribution | $\frac{\Gamma((v+1)/2)}{\sqrt{v\pi}\Gamma(v/2)}(1 + \frac{x^2}{v})^{-\frac{v+1}{2}}$ | 
 
 Here $\Gamma(x)$ is the Gamma function.
-
-To add:
-Square Distribution |
-Student-t Distribution |
-
 These different kinds of distributions are supported in the `Stats` module in Owl. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 For example, for the gaussian distribution, we can utilise the function below:
 
@@ -305,8 +296,6 @@ let _ =
 ```
 
 ![Probability density functions of Gamma distribution](images/stats/gamma_pdf.png "gamma_pdf"){ width=60% #fig:stats:gamma_pdf}
-
-TODO: adjust this section according to later use.
 
 ## Multiple Variables
 
@@ -496,30 +485,48 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
 As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
 
 
-Explain briefly:
-
-Student's T-Test. `t_test ~mu ~alpha ~side x` returns a test decision of one-sample t-test which is a parametric test of the location parameter when the population standard deviation is unknown. `mu` is population mean, and `alpha` is the significance level.
+In the previous section we have introduced the z-variable and t-variable.
+Besides the z-test, another frequently used test is to see if the given data follows a Student's t-distribution under the null hypothesis.
+In the `Stats` module, the `t_test ~mu ~alpha ~side x` function returns a test decision of t-test, which is a parametric test of the location parameter when the population standard deviation is unknown. Here `mu` is population mean, and `alpha` is the significance level.
 
 ### Two-Sample Inferences
 
-* Paired Sample T-Test
-`t_test_paired ~alpha ~side x y` returns a test decision for the null
-hypothesis that the data in `x – y` comes from a normal distribution with
-mean equal to zero and unknown variance, using the paired-sample t-test. 
+Another common type of test is to test if two samples comes from the same population. 
+For example, we need to test performance of the improvement to an algorithm to see if it really works. 
+The default null hypothesis is that, the two samples are drawn from the same population.
+The test strategy depends on if the sample sizes.
 
-* Unpaired Sample T-Test
-`t_test_unpaired ~alpha ~side ~equal_var x y` returns a test decision for
+If the two samples are of the same size, then the test can be simplified by subtracting the elements in the two sets one-by-one.
+The test then becomes to check if the resulting set is taken from a population of mean value 0. 
+This problem can be solved with the method introduced in the previous section by using t-test. 
+Specifically, we provides the paired sample t-test function.
+The `t_test_paired ~alpha ~side x y` returns a test decision for the null
+hypothesis that the data in `x – y` comes from a normal distribution with
+mean equal to zero and unknown variance.
+
+The problem get trickier when the size of these two subsets are not the same. 
+We then need to discuss the two cases about their confidence interval.
+If both intervals do not overlap, apparently we can be fairly certain that the two samples come from different population, and thus reject the null hypothesis. 
+If the intervals overlap, we need to make sure that some other conditions stand. 
+For example, if we can assume that the variances of both population are the same, then it can be shown that the variable:
+
+$$\frac{\bar{x} - \bar{y}}{\sqrt{\frac{\sum_{i=1}^a~(x_i - \bar{x})^2 + \sum_{i=1}^b~(y_i - \bar{y})^2}{a + b - 2}(\frac{1}{a} + \frac{1}{b})}},$$
+
+is a standard t variable with $a + b - 2$ degree of freedom, 
+where $a$ and $b$ are the length of the sample $X$ and $Y$.
+
+This idea is implemented as the unpaired sample t-test.
+The function `t_test_unpaired ~alpha ~side ~equal_var x y` returns a test decision for
 the null hypothesis that the data in vectors `x` and `y` comes from
 independent random samples from normal distributions with equal means and
-equal but unknown variances, using the two-sample t-test. The alternative
-hypothesis is that the data in `x` and `y` comes from populations with
-unequal means.
-`equal_var` indicates whether two samples have the same variance. If the
-two variances are not the same, the test is referred to as Welche's t-test.
+equal but unknown variances. 
+Here `equal_var` indicates whether two samples have the same variance. 
+If the two variances are not the same, we need to use the *nonparametric tests* such as Welche's t-test.
 
-### Goodness-of-fit Tests
+### Other Types of Test
 
-The `Stats` module in Owl supports many different kinds of hypothesis tests.
+Besides what we have mentioned so far, the `Stats` module in Owl supports many other different kinds of hypothesis tests.
+This section will give them a brief introduction.
 
 * Kolmogorov-Smirnov Test:
 `ks_test ~alpha x f` returns a test decision for the null
@@ -530,7 +537,8 @@ distribution.
 The result `(h,p,d)` : `d` is the Kolmogorov-Smirnov
 test statistic.
 
-* `ks2_test ~alpha x y` returns a test decision for the null
+* Two-sample Kolmogorov-Smirnov Test:
+`ks2_test ~alpha x y` returns a test decision for the null
 hypothesis that the data in vectors `x` and `y` come from
 independent random samples of the same distribution. 
 
@@ -545,8 +553,6 @@ is that `x` comes from a normal distribution with a different variance.
 data `x` comes from a normal distribution with an unknown mean and variance,
 using the Jarque-Bera test.
 
-* Fisher's Exact Test
-
 * Wald–Wolfowitz Runs Test
 `runs_test ~alpha ~v x` returns a test decision for the null hypothesis that
 the data `x` comes in random order, against the alternative that they do not,
@@ -558,14 +564,6 @@ value, the default value is the median of `x`.
 `mannwhitneyu ~alpha ~side x y` Computes the Mann-Whitney rank test on
 samples x and y. If length of each sample less than 10 and no ties, then
 using exact test, otherwise using asymptotic normal distribution.
-
-
-### Non-parametric Statistics
-
-(Perhaps just very briefly as a paragraph)
-
-* Wilcoxon Signed-rank Test
-
 
 ## Covariance and Correlations
 
@@ -620,10 +618,14 @@ Intuitively, we can easily see there is stronger relation between `x` and `y` fr
 - : float = 0.692163016204755288
 ```
 
-## Analysis of Variance
-
-So far we have talked about compare two variables. how about comparing more? one by one solution increases error.
-
-Introduce the simplest of ANOVA...
-
 ## Summary
+
+In this chapter, we briefly introduced several of the main topics in probability and statistics. 
+Random variables and different types of distribution are two building blocks in this chapter. 
+Based on them, we introduced the joint- and conditional probabilities when  there are multiple variables.
+One important topic here is the Bayes Theorem. 
+Then we went from descriptive statistics to inference statistics, and introduced sampling, including the idea of unbiased population estimator based on a given sample, and how to infer population parameters such as mean.
+Next, we covered the basic idea in hypothesis testing with examples. 
+The difference between covariance and correlations is also discussed.
+
+## References
