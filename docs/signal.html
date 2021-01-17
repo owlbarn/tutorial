@@ -15,7 +15,7 @@
 <p>In computer-based numerical computation, signals are often represented in a discrete way, i.e.&nbsp;a finite sequence of sampled data, instead of continuous. In that case, the method is called <em>Discrete Fourier Transform</em> (DFT). Suppose we have a complex vector <span class="math inline">\(y\)</span> as signal, which contains <span class="math inline">\(n\)</span> elements, then to get the Fourier Transform vector <span class="math inline">\(Y\)</span>, the discrete form of eq.&nbsp;1 can be expressed with:</p>
 <p><span id="eq:signal:dft01"><span class="math display">\[ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},\qquad(2)\]</span></span> <span class="math display">\[ y_k = \frac{1}{n}\sum_{j=0}^{n-1}Y_k~\omega^{-jk},\]</span></p>
 <p>where <span class="math inline">\(\omega = e^{-2\pi~i/n}\)</span> and <span class="math inline">\(i = \sqrt{-1}\)</span>. <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span> are indices that go from 0 to <span class="math inline">\(n-1\)</span>.</p>
-<p>We highly recommend you to checkout the <a href="https://www.youtube.com/watch?v=spUNpyF58BY">video</a> that’s named “But what is the Fourier Transform? A visual introduction” produced by 3Blue1Brown. It shows how this eq.&nbsp;2 of Fourier Transform comes into being with beautiful and clear illustration. (TODO: follow the video, explain the idea of FT clearly, not just smashing an equation into readers’ faces.)</p>
+<p>We highly recommend you to checkout the <a href="https://www.youtube.com/watch?v=spUNpyF58BY">video</a> that’s named “But what is the Fourier Transform? A visual introduction” produced by 3Blue1Brown. It shows how this eq.&nbsp;2 of Fourier Transform comes into being with beautiful and clear illustration.</p>
 <p>What can we do if we know how a sound is composed? Think of a classic example where you need to remove some high pitch noise from some music. By using DFT, you can easily find out the frequency of this noise, remove this frequency, and turn the signal back to the time domain by using something a reverse process. You can also get a noisy image, recognise its noise by applying Fourier Transform, remove the noises, and reconstruct the image without noise. We will show such examples later.</p>
 <p>Actually, the application of FT is more than on sound or image signal processing. We all use Fourier Transform every day without knowing it: mobile phones, image and audio compression, communication networks, large scale numerical physics and engineering, etc. It is the cornerstone fo computational mathematics. One important reason of its popularity is that it has an efficient algorithm in implementation: Fast Fourier Transform.</p>
 </section>
@@ -192,7 +192,6 @@ let b = Arr.of_array a [|6|];;
 </div>
 <p><strong>N-D Discrete Fourier transforms</strong></p>
 <p>The owl FFT functions also applies to multi-dimensional arrays, such as matrix. Example: the fft matrix.</p>
-<p>(TODO: This is not the real N-D FFT. IMPLEMENTATION required. TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6. Implementation is not difficult: (1) do 1D FFT on each row (real to complex); (2) do 1D FFT on each column resulting from (1) (complex to complex))</p>
 <div class="highlight">
 <pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let a = Dense.Matrix.Z.eye 5;;
 &gt;val a : Dense.Matrix.Z.mat =
@@ -217,7 +216,6 @@ let b = Arr.of_array a [|6|];;
 &gt;R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785i)  (0.309017, -0.951057i)
 </code></pre>
 </div>
-<p>IMAGE: plot x and y in to circle-like shape</p>
 </section>
 </section>
 <section class="level2" id="applications-of-fft">
