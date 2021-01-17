@@ -37,7 +37,6 @@ where $\omega = e^{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that
 
 We highly recommend you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown.
 It shows how this [@eq:signal:dft01] of Fourier Transform comes into being with beautiful and clear illustration.
-(TODO: follow the video, explain the idea of FT clearly, not just smashing an equation into readers' faces.)
 
 What can we do if we know how a sound is composed?
 Think of a classic example where you need to remove some high pitch noise from some music. By using DFT, you can easily find out the frequency of this noise, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
@@ -255,10 +254,6 @@ R  1  2  1 -1 1.5  1
 The owl FFT functions also applies to multi-dimensional arrays, such as matrix.
 Example: the fft matrix.
 
-(TODO: This is not the real N-D FFT. IMPLEMENTATION required.
-TODO: explain briefly how 2D FFT can be built with 1D. Reference: Data-Driven Book, Chap2.6.
-Implementation is not difficult: (1) do 1D FFT on each row (real to complex); (2) do 1D FFT on each column resulting from (1) (complex to complex))
-
 ```ocaml env=fft_env05
 # let a = Dense.Matrix.Z.eye 5
 val a : Dense.Matrix.Z.mat =
@@ -284,9 +279,6 @@ R3 (1, 0i)  (-0.809017, 0.587785i)  (0.309017, -0.951057i)   (0.309017, 0.951057
 R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785i)  (0.309017, -0.951057i)
 
 ```
-
-IMAGE: plot x and y in to circle-like shape
-
 
 ## Applications of FFT
 
