@@ -204,7 +204,7 @@ After three years of intense development, Owl currently contains about 130k line
 As of March 2020, it contains about 4,200 commits and contains 29 releases.
 Owl has a small and concise team. These codes are mainly provided by three main developers, but so far more than 40 contributors have also participated in the project.
 
-Owl is a large open source project, to guarantee quality of the software and sustainable development. We enforce the following rules in day-to-day research, development, and project management.
+Owl is a large open source project. To guarantee quality of the software and sustainable development, we enforce the following rules in day-to-day research, development, and project management.
 Besides coding, there are many other ways you can contribute. Bug reporting, typo fix, asking/answering questions, and improvement of existing documents are all well welcome.
 
 **Coding Style**
