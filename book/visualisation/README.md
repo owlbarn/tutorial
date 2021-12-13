@@ -34,7 +34,7 @@ Here is an example.
 - : unit = ()
 ```
 
-For any graph, we need to have a handle `h` by calling the `create` function. They type of images can be automatically inferred from the figure file name. In this case, we want to create a PNG image that plots the sine function. 
+For any graph, we need to have a handle `h` by calling the `create` function. The type of images can be automatically inferred from the figure file name. In this case, we want to create a PNG image that plots the sine function. 
 We can do that with the `plot_fun` function.
 Besides, we also set the x- and y-axis labels and figure title, together with the font and line size. 
 You will find that these commands are similar to those in other plotting tools such as Matplotlib.
