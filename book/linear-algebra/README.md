@@ -147,7 +147,7 @@ R3 19 20 21 22 23 24
 
 ```
 
-Iterating rows and columns are similar to iterating elements, by using `iteri_rows`, `mapi_rows`, and etc. The following example prints the sum of each row.
+Iterating rows and columns are similar to iterating elements, by using `iteri_rows`, `mapi_rows`, etc. The following example prints the sum of each row.
 
 ```ocaml env=matrix_env1
 

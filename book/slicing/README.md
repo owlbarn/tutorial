@@ -424,7 +424,7 @@ Following indexing and slicing introduced in the previous section, this section 
 
 ### What Is Broadcasting?
 
-There are many binary (mathematical) operators that take two ndarrays as inputs, e.g. `add`, `sub`, and etc. In a trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match.
+There are many binary (mathematical) operators that take two ndarrays as inputs, e.g. `add`, `sub`, etc. In a trivial case, the inputs have exactly the same shape. However, in many real-world applications, we need to operate on two ndarrays whose shapes do not match.
 How to apply the smaller one to the bigger one is referred to as *broadcasting*.
 
 Broadcasting can save unnecessary memory allocation. For example, assume we have a `1000 x 500` matrix `x` containing 1000 samples, and each sample has 500 features. Now we want to add a bias value for each feature, i.e. a bias vector `v` of shape `1 x 500`.
