@@ -186,7 +186,7 @@ Next, we introduce these two methods.
 
 Our target is to calculate $\frac{\partial~y}{\partial~x_0}$ (partial derivative regarding $x_1$ should be similar).
 But hold your horse, let's start with some earlier intermediate results that might be helpful.
-For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 1, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 0$. It's just elementary.
+For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 0, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 1$. It's just elementary.
 Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? It is a good time to use the chain rule:
 
 $$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.$$
