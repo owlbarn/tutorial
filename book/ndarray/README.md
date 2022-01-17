@@ -24,7 +24,7 @@ Technically, `C-layout` indicates the memory address is continuous at the highes
 
 * Owl has rather different design principles comparing to OCaml's Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml's heap, facilitating exchanging data between different libraries (including FORTRAN ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.
 
-Because of Bigarray's mechanism, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, matrix is just a special case of n-dimensional array, and in fact many functions in the `Matrix` module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.
+Because of Bigarray's mechanism, Owl's Ndarray is also subject to maximum 16 dimensions limits. Moreover, matrix is just a special case of n-dimensional array, and in fact many functions in the `Matrix` module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, etc.
 
 ## Creation Functions
 
@@ -183,7 +183,7 @@ R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218
 
 ```
 
-The `map` function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as `sin`, `cos`, `neg`, and etc. Here are some examples to show how to make your own vectorised functions.
+The `map` function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as `sin`, `cos`, `neg`, etc. Here are some examples to show how to make your own vectorised functions.
 
 ```ocaml
 
@@ -245,7 +245,7 @@ The type signature of `scan` looks like this in Ndarray.
 
 ```
 
-Several functions belong to this group, such as `cumsum`, `cumprod`, `cummin`, `cummax`, and etc. To implement one `cumsum` for yourself, you can write in the following way.
+Several functions belong to this group, such as `cumsum`, `cumprod`, `cummin`, `cummax`, etc. To implement one `cumsum` for yourself, you can write in the following way.
 
 ```ocaml
 
@@ -345,7 +345,7 @@ It was hyped several years ago in many data processing frameworks. Nowadays, map
 
 The ndarray module has included a very comprehensive set of mathematical functions and all have been vectorised. This means you can apply them directly on an ndarray and the function will be automatically applied to every element in the ndarray.
 
-For binary math operators, there are `add`, `sub`, `mul`, and etc. For unary operators, there are `sin`, `cos`, `abs`, and etc. You can obtain the complete list of functions in [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli>).
+For binary math operators, there are `add`, `sub`, `mul`, etc. For unary operators, there are `sin`, `cos`, `abs`, etc. You can obtain the complete list of functions in [owl_dense_ndarray_generic.mli](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli>).
 
 Conceptually, Owl can implement all these functions using the aforementioned `map`, `fold`, and `scan`. In reality, these vectorised math is done in C code to guarantee the best performance. Accessing the elements in a bigarray is way faster in C than in OCaml.
 

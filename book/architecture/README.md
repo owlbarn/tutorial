@@ -16,15 +16,15 @@ Beyond these libraries focusing on one specific numerical task, the interest on 
 Python has been one popular choice among developers for fast prototyping analytical applications.
 One important reason is because SciPy and NumPy two libraries, tightly integrated with other advanced functionality such as plotting, offer a powerful environment which lets developers write very concise code to finish complicated numerical tasks. As a result, even for the frameworks which were not originally developed in Python (such as Caffe and TensorFlow), they often provide Python bindings to take advantage of the existing numerical infrastructure in NumPy and SciPy.
 
-On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, and etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries.
+On the other hand, the supporting of basic scientific computing in OCaml is rather fragmented. There have been some initial efforts (e.g., Lacaml, Oml, Pareto, etc.), but their APIs are either too low-level to offer satisfying productivity, or the designs overly focus on a specific problem domain. Moreover, inconsistent data representation and careless use of abstract types make it difficult to pass data across different libraries.
 Consequently, developers often have to write a significant amount of boilerplate code just to finish rather trivial numerical tasks.
 As we can see, there is a severe lack of a general purpose numerical library in OCaml ecosystem. We believe OCaml per se is a good candidate for developing such a general purpose numerical library for two important reasons: 1) we can write functional code as concise as that in Python with type-safety; 2) OCaml code often has much superior performance comparing to dynamic languages such as Python and Julia.
 
 However, designing and developing a full-fledged numerical library is a non-trivial task, despite that OCaml has been widely used in system programming such as MirageOS.
 The key difference between the two is obvious and interesting: system libraries provide a lean set of APIs to abstract complex and heterogeneous physical hardware, whilst numerical library offer a fat set of functions over a small set of abstract number types.
 
-When Owl project started in 2016, we were immediately confronted by a series of fundamental questions like: "what should be the basic data types", "what should be the core data structures", "what modules should be designed", and etc.
-In the following development and performance optimisation, we also tackled many research and engineering challenges on a wide range of different topics such as software engineering, language design, system and network programming, and etc.
+When Owl project started in 2016, we were immediately confronted by a series of fundamental questions like: "what should be the basic data types", "what should be the core data structures", "what modules should be designed", etc.
+In the following development and performance optimisation, we also tackled many research and engineering challenges on a wide range of different topics such as software engineering, language design, system and network programming, etc.
 
 In this chapter, We show that Owl benefits greatly from OCaml’s module system which not only allows us to write concise generic code with superior performance, but also leads to a very unique design to enable parallel and distributed computing.
 OCaml's static type checking significantly reduces potential bugs and accelerate the development cycle. We would like to share the knowledge and lessons learnt from building up a full-fledge system for scientific computing with the functional programming community.
@@ -38,7 +38,7 @@ Owl is a complex library consisting of numerous functions (over 6500 by the end 
 The [@fig:architecture:architecture] gives a bird view of Owl’s system architecture, i.e. the two subsystems and their modules.
 The subsystem on the left part is Owl's Numerical Subsystem. The modules contained in this subsystem fall into three categories:
 (1) core modules contains basic data structures and foreign function interfaces to other libraries (e.g., CBLAS and LAPACKE);
-(2) classic analytics contains basic mathematical and statistical functions, linear algebra, regression, optimisation, plotting, and etc.;
+(2) classic analytics contains basic mathematical and statistical functions, linear algebra, regression, optimisation, plotting, etc.;
 (3) composable service includes more advanced numerical techniques such as deep neural network, natural language processing, data processing and service deployment tools.
 
 The numerical subsystem is further organised in a
@@ -83,9 +83,9 @@ both dense and sparse data structures. The dense data
 structure is built atop of OCaml’s native Bigarray module hence it can be easily interfaced with other libraries
 like BLAS and LAPACK. Owl also supports both single and double precisions for both real and complex number. Therefore, Owl essentially has covered all the necessary number types in most common scientific computations.
 
-- The first group contains the vectorised mathematical functions such as sin, cos, relu, and etc.
+- The first group contains the vectorised mathematical functions such as sin, cos, relu, etc.
 
-- The second group contains the high-level functionality to manipulate arrays and matrices, e.g., index, slice, tile, repeat, pad, and etc.
+- The second group contains the high-level functionality to manipulate arrays and matrices, e.g., index, slice, tile, repeat, pad, etc.
 
 - The third group contains the linear algebra functions specifically for matrices. Almost all the linear algebra functions in Owl call directly the corresponding functions in CBLAS and LAPACKE.
 
@@ -112,7 +112,7 @@ For example, the mathematical functions, especially the special functions, are i
 
 Even though Fortran is no longer among the top choices as a programming language, there is still a large body of FORTRAN numerical libraries whose performance still remain competitive even by today’s standard, e.g. BLAS and LAPACK.
 When designing the linear algebra module, we decide to interface to CBLAS and LAPACKE (i.e. the corresponding C interface of BLAS and LAPACK) then further build higher-level APIs atop of the low-level FORTRAN functions.
-The high-level APIs hides many tedious tasks such as setting memory layout, allocating workspace, calculating strides, and etc.
+The high-level APIs hides many tedious tasks such as setting memory layout, allocating workspace, calculating strides, etc.
 
 ## Advanced Functionality
 

@@ -1095,7 +1095,7 @@ The result agrees with what we have calculated manually.
 What we have seen is the basic of AD modules.
 There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus.
 However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task.
-In reality, you don't really need to worry about forward or reverse mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, and etc.
+In reality, you don't really need to worry about forward or reverse mode if you simply use high-level APIs such as `diff`, `grad`, `hessian`, etc.
 They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users.
 In this section we will introduce how to use these high level APIs.
 
@@ -1291,7 +1291,7 @@ Therefore, differential equations that contains Laplacian are frequently used in
 
 ### Other APIs
 
-Besides, there are also many helper functions, such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, and etc.
+Besides, there are also many helper functions, such as `jacobianv` for calculating jacobian vector product; `diff'` for calculating both `f x` and `diff f x`, etc.
 They will come handy in certain cases for the programmers.
 Besides the functions we have already introduced, the complete list of APIs can be found in the table below.
 

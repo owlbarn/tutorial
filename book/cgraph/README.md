@@ -284,7 +284,7 @@ The list below summarises the functionality of each functor. The order and namin
 - `Type`: type definition of various (mathematical) operations.
 - `Shape`: provides the shape inference function in the graph.
 - `Symbol`: provides various functions to manipulate symbols.
-- `Operator`: implements maths operators (`+`, `-`, `*`, `/`, and etc.) which decide how the symbols should  be connected to form a graph.
+- `Operator`: implements maths operators (`+`, `-`, `*`, `/`, etc.) which decide how the symbols should  be connected to form a graph.
 - `Optimiser`: optimises the structure of a given graph by searching and optimising various patterns.
 - `Graph`: manipulates computation graphs at high level, e.g. visualisation, connecting inputs and outputs.
 - `Engine`: evaluates a computation graph on a specific device.

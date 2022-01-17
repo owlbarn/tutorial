@@ -75,7 +75,7 @@ div_scalar        `/$`              `/$=`
 
 ##  Ndarray vs. Scalar
 
-There are three types of ndarray operations: *map*, *scan*, and *reduce*. Many functions can be categorised as reduction operations, such as `Arr.sum`, `Arr.prod`, `Arr.min`, `Arr.mean`, `Arr.std`, and etc. All the reduction functions in Owl has a name parameter called `axis`. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:
+There are three types of ndarray operations: *map*, *scan*, and *reduce*. Many functions can be categorised as reduction operations, such as `Arr.sum`, `Arr.prod`, `Arr.min`, `Arr.mean`, `Arr.std`, etc. All the reduction functions in Owl has a name parameter called `axis`. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:
 
 * if axis is explicitly specified, then Owl reduces along the specified axis;
 * if axis is not specified, then Owl flattens the ndarray into a vector first and reduce all the elements along the axis 0.
@@ -570,7 +570,7 @@ let x = Dense.Matrix.Z.eye 5 in
   Dense.Matrix.Generic.sum x;;
 ```
 
-As we can see, no matter what kind of numbers are held in an identity matrix, we always pass it to `Dense.Matrix.Generic.sum` function. Similarly, we can do the same thing for other modules (`Dense.Ndarray`, `Sparse.Matrix`, and etc.) and other functions (`add`, `mul`, `neg`, and etc.).
+As we can see, no matter what kind of numbers are held in an identity matrix, we always pass it to `Dense.Matrix.Generic.sum` function. Similarly, we can do the same thing for other modules (`Dense.Ndarray`, `Sparse.Matrix`, etc.) and other functions (`add`, `mul`, `neg`, etc.).
 
 Meanwhile, each submodule also contains the same set of functions, e.g, as below,
 

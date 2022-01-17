@@ -24,7 +24,7 @@ These compute nodes can be organised in various ways.
 
 The Actor system has implemented core APIs in both map-reduce engine and parameter sever engine. Both map-reduce and parameter server engines need a (logical) centralised entity to coordinate all the nodes' progress.  To demonstrate PSP's capability to transform an existing barrier control method into its fully distributed version, we also extended the parameter server engine to peer-to-peer (p2p) engine. The p2p engine can be used to implement both data and model parallel applications, both data and model parameters can be (although not necessarily) divided into multiple parts then distributed over different nodes.
 
-Each engine has its own set of APIs. E.g., map-reduce engine includes `map`, `reduce`, `join`, `collect`, and etc.; whilst the peer-to-peer engine provides four major APIs: push, pull, schedule, barrier. It is worth noting there is one function shared by all the engines, i.e. barrier function which implements various barrier control mechanisms.
+Each engine has its own set of APIs. E.g., map-reduce engine includes `map`, `reduce`, `join`, `collect`, etc.; whilst the peer-to-peer engine provides four major APIs: push, pull, schedule, barrier. It is worth noting there is one function shared by all the engines, i.e. barrier function which implements various barrier control mechanisms.
 
 Next we will introduce these three different kinds of engines of Actor.
 

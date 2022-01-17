@@ -59,7 +59,7 @@ POST https://api.kvasir/query?type=0&info=url
 The backend system implements indexing and searching functionality which consist of five components: *Crawler*, *Cleaner*, *DLSA*, *PANNS* and *KServer*. Three components (i.e., Cleaner, DLSA and PANNS) are wrapped into one library since all are implemented on top of Apache Spark. The library covers three phases as text cleaning, database building, and indexing. We briefly present the main tasks in each component as below.
 
 **Crawler** collects raw documents from the web and then compiles them into two data sets.
-One is the English Wikipedia dump, and another is compiled from over 300 news feeds of the high-quality content providers such as BBC, Guardian, Times, Yahoo News, MSNBC, and etc.
+One is the English Wikipedia dump, and another is compiled from over 300 news feeds of the high-quality content providers such as BBC, Guardian, Times, Yahoo News, MSNBC, etc.
 [@tbl:case-recommender:dataset] summarises the basic statistics of the data sets. Multiple instances of the Crawler run in parallel on different machines.
 Simple fault-tolerant mechanisms like periodical backup have been implemented to improve the robustness of crawling process.
 In addition to the text body, the Crawler also records the timestamp, URL and title of the retrieved news as meta information, which can be further utilised to refine the search results.
@@ -86,7 +86,7 @@ PANNS is becoming a popular choice of Python-based approximate k-NN library for 
 **KServer** runs within a web server, processes the users requests and replies with a list of similar documents.
 KServer uses the index built by PANNS to perform fast search in the database. The ranking of the search results is based on the cosine similarity metric. A key performance metric for KServer is the service time. We wrapped KServer into a Docker image and deployed multiple KServer instances on different machines to achieve better performance. We also implemented a simple round-robin mechanism to balance the request loads among the multiple KServers.
 
-Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, and etc. We provide the [live demo](https://kvasira.com/demo) videos of the seamless integration of Kvasir into web browsing at the official website.
+Kvasir architecture provides a great potential and flexibility for developers to build various interesting applications on different devices, e.g., semantic search engine, intelligent Twitter bots, context-aware content provision, etc. We provide the [live demo](https://kvasira.com/demo) videos of the seamless integration of Kvasir into web browsing at the official website.
 Kvasir is also available as [browser extension](https://kvasira.com/2019/10/03/Announcing-Kvasira-in-your-browser.html) on Chrome and Firefox.
 
 
