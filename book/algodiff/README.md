@@ -186,7 +186,7 @@ Next, we introduce these two methods.
 
 Our target is to calculate $\frac{\partial~y}{\partial~x_0}$ (partial derivative regarding $x_1$ should be similar).
 But hold your horse, let's start with some earlier intermediate results that might be helpful.
-For example, what is $\frac{\partial~x_0}{\partial~x_1}$? 1, obviously. Equally obvious is $\frac{\partial~x_1}{\partial~x_1} = 0$. It's just elementary.
+For example, what is $\frac{\partial~x_0}{\partial~x_1}$? It's 0. Also, $\frac{\partial~x_1}{\partial~x_1} = 1$.
 Now, things gets a bit trickier: what is $\frac{\partial~v_3}{\partial~x_0}$? It is a good time to use the chain rule:
 
 $$\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.$$
@@ -275,7 +275,7 @@ Using this notation, [@eq:algodiff:reverse_01] can be expressed as:
 $$\bar{v_7} = \bar{v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{1}{v_8}.$$
 
 Note the difference between tangent and adjoint.
-In the forward mode, we know $\dot{v_0}$ and $\dot{v_1}$, then we calculate $\dot{v_2}$, $\dot{v3}$, .... and then finally we have $\dot{v_9}$, which is the target.
+In the forward mode, we know $\dot{v_0}$ and $\dot{v_1}$, then we calculate $\dot{v_2}$, $\dot{v_3}$, .... and then finally we have $\dot{v_9}$, which is the target.
 Here, we start with knowing $\bar{v_9} = 1$, and then we calculate $\bar{v_8}$, $\bar{v_7}$, .... and then finally we have $\bar{v_0} = \frac{\partial~y}{\partial~v_0} = \frac{\partial~y}{\partial~x_0}$, which is also exactly our target.
 Again, $\dot{v_9} = \bar{v_0}$ in this example, given that we are talking about derivative regarding $x_0$ when we use $\dot{v_9}$.
 Following this line of calculation, the reverse differentiation mode is also called *adjoint mode*.
@@ -1258,7 +1258,7 @@ It is also used for solving the optimisation problem, i.e. to find the minimum v
 Instead of following the direction of the gradient, the newton method combines gradient and second order gradients: $\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}$.
 Specifically, starting from a random position $x_0$, and it can be iteratively updated by repeating this procedure until converge, as shown in [@eq:algodiff:newtons].
 
-$$x_(n+1) = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)$$ {#eq:algodiff:newtons}
+$$x_{n+1} = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)$$ {#eq:algodiff:newtons}
 
 This process can be easily represented using the `Algodiff.D.hessian` function.
 
