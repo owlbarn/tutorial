@@ -102,7 +102,7 @@
 </section>
 <section class="level2" id="ndarray-vs.-scalar">
 <h2>Ndarray vs.&nbsp;Scalar</h2>
-<p>There are three types of ndarray operations: <em>map</em>, <em>scan</em>, and <em>reduce</em>. Many functions can be categorised as reduction operations, such as <code>Arr.sum</code>, <code>Arr.prod</code>, <code>Arr.min</code>, <code>Arr.mean</code>, <code>Arr.std</code>, and etc. All the reduction functions in Owl has a name parameter called <code>axis</code>. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:</p>
+<p>There are three types of ndarray operations: <em>map</em>, <em>scan</em>, and <em>reduce</em>. Many functions can be categorised as reduction operations, such as <code>Arr.sum</code>, <code>Arr.prod</code>, <code>Arr.min</code>, <code>Arr.mean</code>, <code>Arr.std</code>, etc. All the reduction functions in Owl has a name parameter called <code>axis</code>. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:</p>
 <ul>
 <li>if axis is explicitly specified, then Owl reduces along the specified axis;</li>
 <li>if axis is not specified, then Owl flattens the ndarray into a vector first and reduce all the elements along the axis 0.</li>
@@ -910,7 +910,7 @@ let x = Dense.Matrix.C.eye 5 in
 let x = Dense.Matrix.Z.eye 5 in
   Dense.Matrix.Generic.sum x;;</code></pre>
 </div>
-<p>As we can see, no matter what kind of numbers are held in an identity matrix, we always pass it to <code>Dense.Matrix.Generic.sum</code> function. Similarly, we can do the same thing for other modules (<code>Dense.Ndarray</code>, <code>Sparse.Matrix</code>, and etc.) and other functions (<code>add</code>, <code>mul</code>, <code>neg</code>, and etc.).</p>
+<p>As we can see, no matter what kind of numbers are held in an identity matrix, we always pass it to <code>Dense.Matrix.Generic.sum</code> function. Similarly, we can do the same thing for other modules (<code>Dense.Ndarray</code>, <code>Sparse.Matrix</code>, etc.) and other functions (<code>add</code>, <code>mul</code>, <code>neg</code>, etc.).</p>
 <p>Meanwhile, each submodule also contains the same set of functions, e.g, as below,</p>
 <div class="highlight">
 <pre><code class="language-ocaml">Dense.Matrix.S.(eye 5 |&gt; sum);;</code></pre>

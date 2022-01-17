@@ -19,7 +19,7 @@
 <li><p>Supporting both layouts adds a significant amount of complexity in implementing underlying Ndarray functions. Due to the difference in memory layout, code performs well on one layout may not does well on another. Many functions may require different implementations given different layout. This will add too much complexity and increase the code base significantly with marginal benefits.</p></li>
 <li><p>Owl has rather different design principles comparing to OCaml’s Bigarray. The Bigarray serves as a basic tool to operate on a chunk of memory living outside OCaml’s heap, facilitating exchanging data between different libraries (including FORTRAN ones). Owl focuses on providing high-level numerical functions allowing programmers to write concise analytical code. The simple design and small code base outweighs the benefits of supporting both layouts.</p></li>
 </ul>
-<p>Because of Bigarray’s mechanism, Owl’s Ndarray is also subject to maximum 16 dimensions limits. Moreover, matrix is just a special case of n-dimensional array, and in fact many functions in the <code>Matrix</code> module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, and etc.</p>
+<p>Because of Bigarray’s mechanism, Owl’s Ndarray is also subject to maximum 16 dimensions limits. Moreover, matrix is just a special case of n-dimensional array, and in fact many functions in the <code>Matrix</code> module simply calls the same functions in Ndarray. But the module does provide more matrix-specific functions such as iterating rows or columns, etc.</p>
 </section>
 <section class="level2" id="creation-functions">
 <h2>Creation Functions</h2>
@@ -153,7 +153,7 @@ val kind : ('a, 'b) t -&gt; ('a, 'b) kind
 &gt;R[2,3] 1.12627 1.94613 1.42223 1.95518 1.42218
 </code></pre>
 </div>
-<p>The <code>map</code> function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as <code>sin</code>, <code>cos</code>, <code>neg</code>, and etc. Here are some examples to show how to make your own vectorised functions.</p>
+<p>The <code>map</code> function can be very useful in implementing vectorised math functions. Many functions in Ndarray can be categorised into this group, such as <code>sin</code>, <code>cos</code>, <code>neg</code>, etc. Here are some examples to show how to make your own vectorised functions.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let vec_sin x = Arr.map sin x;;
@@ -200,7 +200,7 @@ val kind : ('a, 'b) t -&gt; ('a, 'b) kind
   val scan : ?axis:int -&gt; ('a -&gt; 'a -&gt; 'a) -&gt; ('a, 'b) t -&gt; ('a, 'b) t
 </code></pre>
 </div>
-<p>Several functions belong to this group, such as <code>cumsum</code>, <code>cumprod</code>, <code>cummin</code>, <code>cummax</code>, and etc. To implement one <code>cumsum</code> for yourself, you can write in the following way.</p>
+<p>Several functions belong to this group, such as <code>cumsum</code>, <code>cumprod</code>, <code>cummin</code>, <code>cummax</code>, etc. To implement one <code>cumsum</code> for yourself, you can write in the following way.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">
   let cumsum ?axis x = Arr.scan ?axis ( +. ) x;;
@@ -279,7 +279,7 @@ let z = Arr.((x &gt;.$ 0.5) * x);;</code></pre>
 <h2>Vectorised Functions</h2>
 <p>Many common operations on ndarrays can be decomposed as a series of <code>map</code>, <code>fold</code>, and <code>scan</code> operations. There is even a specific programming paradigm built atop of this which is called <code>Map-Reduce</code>. It was hyped several years ago in many data processing frameworks. Nowadays, map-reduce is one dominant data-parallel processing paradigm.</p>
 <p>The ndarray module has included a very comprehensive set of mathematical functions and all have been vectorised. This means you can apply them directly on an ndarray and the function will be automatically applied to every element in the ndarray.</p>
-<p>For binary math operators, there are <code>add</code>, <code>sub</code>, <code>mul</code>, and etc. For unary operators, there are <code>sin</code>, <code>cos</code>, <code>abs</code>, and etc. You can obtain the complete list of functions in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli%3E">owl_dense_ndarray_generic.mli</a>.</p>
+<p>For binary math operators, there are <code>add</code>, <code>sub</code>, <code>mul</code>, etc. For unary operators, there are <code>sin</code>, <code>cos</code>, <code>abs</code>, etc. You can obtain the complete list of functions in <a href="https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli%3E">owl_dense_ndarray_generic.mli</a>.</p>
 <p>Conceptually, Owl can implement all these functions using the aforementioned <code>map</code>, <code>fold</code>, and <code>scan</code>. In reality, these vectorised math is done in C code to guarantee the best performance. Accessing the elements in a bigarray is way faster in C than in OCaml.</p>
 </section>
 <section class="level2" id="iteration-functions">

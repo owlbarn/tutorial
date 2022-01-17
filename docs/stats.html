@@ -61,7 +61,7 @@ let p = Array.map (Stats.binomial_cdf ~p:0.3 ~n:3) x;;
 let x = Array.init 999 (fun _ -&gt; Stats.gaussian_rvs ~mu:1. ~sigma:1.);;
 let y = Array.init 999 (fun _ -&gt; Stats.gaussian_rvs ~mu:12. ~sigma:3.);;</code></pre>
 </div>
-<p>We can visualise the data sets using histogram plot as below. When calling <code>histogram</code>, we also specify 30 bins explicitly. You can also fine tune the figure using <code>spec</code> named parameter to specify the colour, x range, y range, and etc. We will discuss in details on how to use Owl to plot in a separate chapter.</p>
+<p>We can visualise the data sets using histogram plot as below. When calling <code>histogram</code>, we also specify 30 bins explicitly. You can also fine tune the figure using <code>spec</code> named parameter to specify the colour, x range, y range, etc. We will discuss in details on how to use Owl to plot in a separate chapter.</p>
 <div class="highlight">
 <pre><code class="language-ocaml">(* convert arrays to matrices *)
 
