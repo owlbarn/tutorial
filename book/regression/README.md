@@ -670,8 +670,8 @@ Based on the data, we can get the parameters by simply executing:
 
 ```ocaml env=regression:logistic
 # let theta =
-    Owl.Regression.D.logistic ~i:true x y
-val theta : Owl_algodiff_primal_ops.D.arr array =
+    Owl.Regression.D.logistic ~i:true x y;;
+val theta : Algodiff.D.A.arr array =
   [|
         C0
 R0 16.4331
@@ -700,7 +700,7 @@ let test_log x y =
   Printf.printf "accuracy: %.4f\n" (1. -. e)
 ```
 ```ocaml env=regression:logistic
-# test_log x y
+# test_log x y;;
 accuracy: 0.9910
 - : unit = ()
 ```

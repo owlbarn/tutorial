@@ -102,10 +102,10 @@ Note the two different assignment method for ndarray and scalar.
 Finally, we can evaluate the ndarray `g`:
 
 ```ocaml env=cgraph:example-01
-# N.eval_arr [|g|]
+# N.eval_arr [|g|];;
 - : unit = ()
-# N.unpack_arr g
-- : Owl_algodiff_primal_ops.D.arr =
+# N.unpack_arr g;;
+- : Algodiff.D.A.arr =
    C0 C1
 R0  3  3
 R1  3  3
@@ -151,6 +151,10 @@ Now we can evaluate `z` with the approach as before. Or we can use another appro
 let inputs  = [| unpack_arr x |> G.arr_to_node; unpack_elt y |> G.elt_to_node |]
 let outputs = [| unpack_elt z |> G.elt_to_node |]
 let g = G.make_graph inputs outputs "graph"
+```
+```mdx-error
+Line 3, characters 11-23:
+Warning 6 [labels-omitted]: labels input, output were omitted in the application of this function.
 ```
 
 To build a graph, we need to specify the input and output *nodes*.

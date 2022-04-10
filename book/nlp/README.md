@@ -137,6 +137,10 @@ let tokenise_all vocab input_file =
     input_file;
   doc_s
 ```
+```mdx-error
+Line 5, characters 13-14:
+Warning 26 [unused-var]: unused variable t.
+```
 
 The process is simple: in the text corpus each line is a document and we iterate through the text line by line.
 For each line/document, we remove the special characters, filter out the words that exist in the vocabulary, and map each word to an integer index accordingly.

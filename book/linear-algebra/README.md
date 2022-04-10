@@ -43,7 +43,7 @@ There are multiple functions to help you in creating an initial matrix to start 
 Owl can create some special matrices with specific properties. For example, a *magic square* is a `n x n` matrix (where n is the number of cells on each side) filled with distinct positive integers in the range $1,2,...,n^{2}$ such that each cell contains a different integer and the sum of the integers in each row, column and diagonal is equal.
 
 ```ocaml env=matrix_env2
-# let x = Mat.magic 5
+# let x = Mat.magic 5;;
 val x : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -58,7 +58,7 @@ R4 11 18 25  2  9
 We can validate this property with the following code. The summation of all the elements on each column is 65.
 
 ```ocaml env=matrix_env2
-# Mat.sum_rows x
+# Mat.sum_rows x;;
 - : Mat.mat =
    C0 C1 C2 C3 C4
 R0 65 65 65 65 65
@@ -69,7 +69,7 @@ You can try the similar `sum_cols`.
 The summation of all the diagonal elements is also 65.
 
 ```ocaml env=matrix_env2
-# Mat.trace x
+# Mat.trace x;;
 - : float = 65.
 ```
 
@@ -87,10 +87,10 @@ Mat.get x 0 3;;                (* get the value of the element at (0,3) *)
 For dense matrices, i.e., `Dense.Matrix.*`, you can also use shorthand `.%{i; j}` to access elements.
 
 ```ocaml env=matrix_env0
-# open Mat
-# x.%{1;2} <- 0.;;         (* set the element at (1,2) to 0. *)
+# open Mat;;
+# x.%{1;2} <- 0.;;         (* set the element at (1,2) to 0. *);;
 - : unit = ()
-# let a = x.%{0;3};;       (* get the value of the element at (0,3) *)
+# let a = x.%{0;3};;       (* get the value of the element at (0,3) *);;
 val a : float = 0.563556290231645107
 ```
 
@@ -136,7 +136,7 @@ If you want to create a new matrix out of the existing one, you need `mapi` and 
 
 ```ocaml env=matrix_env1
 
-# Mat.map ((+.) 1.) x
+# Mat.map ((+.) 1.) x;;
 - : Mat.mat =
 
    C0 C1 C2 C3 C4 C5
@@ -180,21 +180,21 @@ Here are some examples.
 The first one is to filter out the elements in `x` greater than `20`.
 
 ```ocaml env=matrix_env1
-# Mat.filter ((<) 20.) x
+# Mat.filter ((<) 20.) x;;
 - : int array = [|21; 22; 23|]
 ```
 
 You can compare the next example which filters out the two-dimensional indices.
 
 ```ocaml env=matrix_env1
-# Mat.filteri_2d (fun i j a -> a > 20.) x
+# Mat.filteri_2d (fun i j a -> a > 20.) x;;
 - : (int * int) array = [|(3, 3); (3, 4); (3, 5)|]
 ```
 
 The second example is to filter out the rows whose summation is less than `22`.
 
 ```ocaml env=matrix_env1
-# Mat.filter_rows (fun r -> Mat.sum' r < 22.) x
+# Mat.filter_rows (fun r -> Mat.sum' r < 22.) x;;
 - : int array = [|0|]
 ```
 
@@ -362,9 +362,9 @@ Both triangular equations are easy to solve.
 We use the `lu` function to perform the LU factorisation. Let's use the previous example.
 
 ```ocaml env=linear-algebra-lu
-# let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|]
+# let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|];;
 val a : float array = [|2.; 2.; 2.; 2.; 2.; 3.; 3.; 4.; 5.|]
-# let a = Arr.of_array a [|3; 3|]
+# let a = Arr.of_array a [|3; 3|];;
 val a : Arr.arr =
    C0 C1 C2
 R0  2  2  2
@@ -374,15 +374,15 @@ R2  3  4  5
 ```
 
 ```ocaml env=linear-algebra-lu
-# let l, u, p = Linalg.D.lu a
-val l : Owl_dense_matrix_d.mat =
+# let l, u, p = Linalg.D.lu a;;
+val l : Linalg.D.mat =
 
          C0 C1 C2
 R0        1  0  0
 R1 0.666667  1  0
 R2 0.666667  1  1
 
-val u : Owl_dense_matrix_d.mat =
+val u : Linalg.D.mat =
 
    C0        C1        C2
 R0  3         4         5
@@ -399,7 +399,7 @@ The first two returned matrix are the lower and upper triangular matrices.
 However, if we try to check the correctness of this factorisation with dot product, the result does not fit:
 
 ```ocaml env=linear-algebra-lu
-# let a' = Mat.dot l u
+# let a' = Mat.dot l u;;
 val a' : Mat.mat =
    C0 C1 C2
 R0  3  4  5
@@ -409,7 +409,7 @@ R2  2  2  2
 ```
 
 ```ocaml env=linear-algebra-lu
-# a' = a
+# a' = a;;
 - : bool = false
 ```
 
@@ -422,7 +422,7 @@ The full LU factorisation can be expressed as:
 $$PA = LU.$$
 
 ```ocaml env=linear-algebra-lu
-# let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;1.;0.;0.|] 3 3
+# let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;1.;0.;0.|] 3 3;;
 val p : Mat.mat =
    C0 C1 C2
 R0  0  0  1
@@ -432,7 +432,7 @@ R2  1  0  0
 ```
 
 ```ocaml env=linear-algebra-lu
-# Mat.dot p a = Mat.dot l u
+# Mat.dot p a = Mat.dot l u;;
 - : bool = true
 ```
 
@@ -480,7 +480,7 @@ We use function `inv` to do the inverse operation. It's straightforward and easy
 Here we use the `semidef` function to produce a matrix that is certainly invertible.
 
 ```ocaml env=linear-algebra:inverse
-# let x = Mat.semidef 5
+# let x = Mat.semidef 5;;
 val x : Mat.mat =
 
         C0       C1       C2      C3       C4
@@ -493,8 +493,8 @@ R4 2.06612 0.751004  2.13926 2.64877  2.31124
 ```
 
 ```ocaml env=linear-algebra:inverse
-# let y = Linalg.D.inv x
-val y : Owl_dense_matrix_d.mat =
+# let y = Linalg.D.inv x;;
+val y : Linalg.D.mat =
 
          C0       C1       C2       C3       C4
 R0   12.229  -15.606  6.12229 -1.90254 -9.34742
@@ -506,7 +506,7 @@ R4 -9.34742  12.5403 -7.69399 -3.60533  15.9673
 ```
 
 ```ocaml env=linear-algebra:inverse
-# Mat.(x *@ y =~ eye 5)
+# Mat.(x *@ y =~ eye 5);;
 - : bool = true
 ```
 
@@ -520,7 +520,7 @@ We can check this property using the matrix function `Mat.transpose`. Note that 
     let b = Mat.uniform 4 4 in
     let m1 = Mat.(dot a b |> transpose) in
     let m2 = Mat.(dot (transpose b) (transpose a)) in
-    Mat.(m1 =~ m2)
+    Mat.(m1 =~ m2);;
 val flag : bool = true
 ```
 
@@ -554,7 +554,7 @@ Besides, even it is a square matrix, the information provided by two of the equa
 For example, if we try to apply LU factorisation to such a matrix:
 
 ```ocaml env=linear-algebra:rank_00
-# let x = Mat.of_array [|1.; 2.; 3.; 0.; 0.; 1.; 0.; 0.; 2.|] 3 3
+# let x = Mat.of_array [|1.; 2.; 3.; 0.; 0.; 1.; 0.; 0.; 2.|] 3 3;;
 val x : Mat.mat =
    C0 C1 C2
 R0  1  2  3
@@ -563,7 +563,7 @@ R2  0  0  2
 
 ```
 ```ocaml env=linear-algebra:rank_00
-# Linalg.D.lu x
+# Linalg.D.lu x;;
 Exception: Failure "LAPACKE: 2".
 ```
 
@@ -614,7 +614,7 @@ Moreover, if the length of each vector is normalised to one unit, it becomes the
 For example, we can use the `null` function to find an orthonormal basis vector $x$ or the null space of a matrix, i.e. $Ax=0$.
 
 ```ocaml env=linear-algebra:ortho-null
-# let a = Mat.magic 4
+# let a = Mat.magic 4;;
 val a : Mat.mat =
 
    C0 C1 C2 C3
@@ -625,19 +625,19 @@ R3 13  3  2 16
 
 ```
 ```ocaml env=linear-algebra:ortho-null
-# let x = Linalg.D.null a
-val x : Owl_dense_matrix_d.mat =
+# let x = Linalg.D.null a;;
+val x : Linalg.D.mat =
 
           C0
-R0 -0.223607
-R1  -0.67082
-R2   0.67082
-R3  0.223607
+R0  0.223607
+R1   0.67082
+R2  -0.67082
+R3 -0.223607
 
 ```
 ```ocaml env=linear-algebra:ortho-null
-# Mat.dot a x |> Mat.l2norm'
-- : float = 2.87802701599908967e-15
+# Mat.dot a x |> Mat.l2norm';;
+- : float = 3.7951119214201712e-15
 ```
 
 Now that we know what is orthogonal basis, the next question is, how to build one?
@@ -656,7 +656,7 @@ the returned indices are not adjusted to 0-based C layout.
 By default, `qr` performs a reduced QR factorisation, full factorisation can be enabled by setting `thin` parameter to `false`.
 
 ```ocaml env=linear-algebra:qr
-# let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3
+# let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3;;
 val a : Mat.mat =
 
    C0  C1  C2
@@ -666,15 +666,15 @@ R2 -4  24 -41
 
 ```
 ```ocaml env=linear-algebra:qr
-# let q, r, _ = Linalg.D.qr a
-val q : Owl_dense_matrix_d.mat =
+# let q, r, _ = Linalg.D.qr a;;
+val q : Linalg.D.mat =
 
           C0        C1         C2
 R0 -0.857143  0.394286   0.331429
 R1 -0.428571 -0.902857 -0.0342857
 R2  0.285714 -0.171429   0.942857
 
-val r : Owl_dense_matrix_d.mat =
+val r : Linalg.D.mat =
 
     C0   C1  C2
 R0 -14  -21  14
@@ -692,7 +692,7 @@ If $r(A) < n$, then the nullspace of $A$ is of dimension $n - r$ and the $n-r$ o
 Here is an example.
 
 ```ocaml env=linear-algebra:solve_00
-# let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4
+# let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4;;
 val a : Mat.mat =
 
    C0 C1 C2 C3
@@ -703,20 +703,20 @@ R3  1 -9  3  7
 
 ```
 ```ocaml env=linear-algebra:solve_00
-# Linalg.D.rank a
+# Linalg.D.rank a;;
 - : int = 2
 ```
 This a rank 2 matrix, so the nullspace contains 4 - 2 = 2 vectors:
 
 ```ocaml env=linear-algebra:solve_00
-# Linalg.D.null a
-- : Owl_dense_matrix_d.mat =
+# Linalg.D.null a;;
+- : Linalg.D.mat =
 
           C0        C1
-R0 -0.851419 0.0136382
-R1  0.273706  0.143885
-R2 0.0762491  0.962526
-R3   0.44086 -0.229465
+R0 -0.495995  0.692163
+R1 0.0375596 -0.306931
+R2 -0.747852 -0.610728
+R3  0.439655 -0.231766
 
 ```
 
@@ -745,7 +745,7 @@ If `a` is a upper or lower triangular matrix, the function calls the `solve_tria
 Here is an example.
 
 ```ocaml
-# let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3
+# let a = Mat.of_array [|2.;3.;1.;1.;-2.;4.;3.;8.;-2.;4.;-1.;9.|] 4 3;;
 val a : Mat.mat =
 
    C0 C1 C2
@@ -757,7 +757,7 @@ R3  4 -1  9
 ```
 
 ```ocaml
-# let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1
+# let b = Mat.of_array [|4.;-5.;13.;-6.|] 4 1;;
 val b : Mat.mat =
    C0
 R0  4
@@ -768,19 +768,20 @@ R3 -6
 ```
 
 ```ocaml
-# let x0 = Linalg.D.linsolve a b
+# let x0 = Linalg.D.linsolve a b;;
 val x0 : Owl_dense_matrix_d.mat =
-   C0
-R0 -5
-R1  4
-R2  2
+
+         C0
+R0 -3.97999
+R1  3.48999
+R2  1.48999
 
 ```
 
 Then we use `null` to find the fundamental solution system. You can verify that matrix `a` is of rank 2, so that the solution system for $ax=0$ should contain only 3 - 2 = 1 vector.
 
 ```ocaml
-# let x1 = Linalg.D.null a
+# let x1 = Linalg.D.null a;;
 val x1 : Owl_dense_matrix_d.mat =
 
           C0
@@ -826,15 +827,15 @@ R1 9.7 6.6
 ```
 
 ```ocaml env=linalg_20
-# let c = Linalg.D.cond a
-val c : float = 1622.99938385651058
+# let c = Linalg.D.cond a;;
+val c : float = 1622.99938385646283
 ```
 
 Its condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
 
 ```ocaml env=linalg_20
-# let a' = Linalg.D.inv a
-val a' : Owl_dense_matrix_d.mat =
+# let a' = Linalg.D.inv a;;
+val a' : Linalg.D.mat =
     C0  C1
 R0 -66  28
 R1  97 -41
@@ -842,7 +843,7 @@ R1  97 -41
 ```
 
 ```ocaml env=linalg_20
-# let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2
+# let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2;;
 val a2 : Mat.mat =
      C0    C1
 R0  4.1   2.8
@@ -851,8 +852,8 @@ R1 9.67 6.607
 ```
 
 ```ocaml env=linalg_20
-# let a2' = Linalg.D.inv a2
-val a2' : Owl_dense_matrix_d.mat =
+# let a2' = Linalg.D.inv a2;;
+val a2' : Linalg.D.mat =
 
          C0       C1
 R0  520.236 -220.472
@@ -893,7 +894,7 @@ Since sometimes we only care about if the determinant is zero or not, instead of
 It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
 
 ```ocaml env=linalg_30
-# let x = Mat.magic 5
+# let x = Mat.magic 5;;
 val x : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -906,11 +907,11 @@ R4 11 18 25  2  9
 ```
 
 ```ocaml env=linalg_30
-# Linalg.D.det x
-- : float = 5070000.00000000093
+# Linalg.D.det x;;
+- : float = 5070000.
 
-# Linalg.D.logdet x
-- : float = 15.4388513755673653
+# Linalg.D.logdet x;;
+- : float = 15.4388513755673671
 ```
 
 
@@ -947,7 +948,7 @@ Put $\lambda_1$ back to characteristic equation, we have: $(I - A)x = 0$. Theref
 ```ocaml
 # let basis =
     let ia = Mat.((eye 3) - (of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3)) in
-    Linalg.D.null ia
+    Linalg.D.null ia;;
 val basis : Owl_dense_matrix_d.mat =
 
            C0
@@ -966,18 +967,18 @@ We can use `eig` to find the eigenvectors and eigenvalues of a matrix.
 ```ocaml
 # let eigvec, eigval =
     let a = Mat.of_array [|3.;1.;0.;-4.;-1.;0.;4.;-8.;2.|] 3 3 in
-    Linalg.D.eig a
+    Linalg.D.eig a;;
 val eigvec : Owl_dense_matrix_z.mat =
 
-        C0               C1               C2
-R0 (0, 0i)  (0.0496904, 0i)  (0.0496904, 0i)
-R1 (0, 0i) (-0.0993808, 0i) (-0.0993808, 0i)
-R2 (1, 0i)  (-0.993808, 0i)  (-0.993808, 0i)
+        C0                         C1                          C2
+R0 (0, 0i) (-0.0496904, 3.56977E-10i) (-0.0496904, -3.56977E-10i)
+R1 (0, 0i) (0.0993808, -1.30892E-09i)   (0.0993808, 1.30892E-09i)
+R2 (1, 0i)             (0.993808, 0i)              (0.993808, 0i)
 
 val eigval : Owl_dense_matrix_z.mat =
 
-        C0      C1      C2
-R0 (2, 0i) (1, 0i) (1, 0i)
+        C0                C1                 C2
+R0 (2, 0i) (1, 1.19734E-08i) (1, -1.19734E-08i)
 
 ```
 
@@ -999,7 +1000,7 @@ Hermitian is thus a generalisation of the symmetric matrix.
 We can use the `is_hermitian` function to check if a  matrix is hermitian, as can be shown in the next example.
 
 ```ocaml env=linalg_35
-# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2
+# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2;;
 val a : Dense.Matrix.Z.mat =
 
         C0       C1
@@ -1009,14 +1010,14 @@ R1 (2, 1i)  (3, 0i)
 ```
 
 ```ocaml env=linalg_35
-# Linalg.Generic.is_hermitian a
+# Linalg.Generic.is_hermitian a;;
 - : bool = true
 ```
 
 We can use the `conj` function of a complex matrix to perform the conjugate transpose:
 
 ```ocaml env=linalg_35
-# Dense.Matrix.Z.(conj a |> transpose)
+# Dense.Matrix.Z.(conj a |> transpose);;
 - : Dense.Matrix.Z.mat =
 
          C0       C1
@@ -1028,11 +1029,11 @@ R1  (2, 1i) (3, -0i)
 A theorem declares that if a matrix is hermitian, then for all complex vectors $x$, $x^HAx$ is real, and every eigenvalue is real.
 
 ```ocaml env=linalg_35
-# Linalg.Z.eigvals a
-- : Owl_dense_matrix_z.mat =
+# Linalg.Z.eigvals a;;
+- : Linalg.Z.mat =
 
-                         C0                      C1
-R0 (-0.44949, 1.50231E-17i) (4.44949, 2.07021E-16i)
+                          C0                      C1
+R0 (-0.44949, -5.06745E-17i) (4.44949, 5.06745E-17i)
 
 ```
 
@@ -1055,7 +1056,7 @@ One possible kind of simplification is to find a triangular matrix as similar.
 The *Schur's Lemma* declares that A can be decomposed into $UTU^{-1}$ where $U$ is a unitary function, and T is an upper triangular matrix.
 
 ```ocaml env=linear-algebra:schur
-# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2
+# let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2;;
 val a : Dense.Matrix.Z.mat =
 
          C0      C1
@@ -1065,21 +1066,20 @@ R1 (-2, 0i) (3, 0i)
 ```
 
 ```ocaml env=linear-algebra:schur
-# let t, u, eigvals = Linalg.Z.schur a
-val t : Owl_dense_matrix_z.mat =
+# let t, u, eigvals = Linalg.Z.schur a;;
+val t : Linalg.Z.mat =
 
-        C0                    C1
-R0 (2, 1i) (2.10381, -0.757614i)
-R1 (0, 0i)              (2, -1i)
+        C0                     C1
+R0 (2, 1i) (-2.21283, -0.321545i)
+R1 (0, 0i)               (2, -1i)
 
-val u : Owl_dense_matrix_z.mat =
+val u : Linalg.Z.mat =
 
-                       C0                      C1
-R0 (-0.408248, 0.408248i)  (0.563384, -0.590987i)
-R1        (-0.816497, 0i) (-0.577185, 0.0138014i)
+                       C0                     C1
+R0 (-0.408248, 0.408248i) (-0.775215, 0.256337i)
+R1        (-0.816497, 0i)  (0.515776, 0.259439i)
 
-val eigvals : Owl_dense_matrix_z.mat =
-
+val eigvals : Linalg.Z.mat =
         C0       C1
 R0 (2, 1i) (2, -1i)
 
@@ -1088,12 +1088,12 @@ R0 (2, 1i) (2, -1i)
 The returned result `t` is apparent a upper triangular matrix, and the `u` can be verified to be a unitary matrix:
 
 ```ocaml env=linear-algebra:schur
-# Dense.Matrix.Z.(dot u (conj u |> transpose))
+# Dense.Matrix.Z.(dot u (conj u |> transpose));;
 - : Dense.Matrix.Z.mat =
 
-                             C0                          C1
-R0                      (1, 0i) (7.97973E-17, 5.81132E-17i)
-R1 (7.97973E-17, -5.81132E-17i)                     (1, 0i)
+                             C0                         C1
+R0           (1, -1.70126E-17i) (7.12478E-17, 7.4864E-17i)
+R1 (7.12478E-17, -8.63331E-17i)          (1, 7.21217E-18i)
 
 ```
 
@@ -1127,7 +1127,7 @@ For the last condition, we can use the *Cholesky Decomposition* to find the matr
 It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose $LL^H$:
 
 ```ocaml env=linalg_40
-# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3
+# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
 val a : Mat.mat =
 
     C0  C1  C2
@@ -1138,9 +1138,8 @@ R2 -16 -43  98
 ```
 
 ```ocaml env=linalg_40
-# let l = Linalg.D.chol a
-val l : Owl_dense_matrix_d.mat =
-
+# let l = Linalg.D.chol a;;
+val l : Linalg.D.mat =
    C0 C1 C2
 R0  2  6 -8
 R1  0  1  5
@@ -1149,7 +1148,7 @@ R2  0  0  3
 ```
 
 ```ocaml env=linalg_40
-# Mat.(dot (transpose l) l)
+# Mat.(dot (transpose l) l);;
 - : Mat.mat =
 
     C0  C1  C2
@@ -1168,7 +1167,7 @@ If you look at the code in Owl, it is implemented by checking if the Cholesky de
 ```ocaml
 # let is_pos =
     let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3 in
-    Linalg.D.is_posdef a
+    Linalg.D.is_posdef a;;
 val is_pos : bool = true
 ```
 
@@ -1209,7 +1208,7 @@ We can use the `svd` function to perform this factorisation.
 Let's use the positive definite matrix as an example:
 
 ```ocaml env=linear-algebra:svd
-# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3
+# let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
 val a : Mat.mat =
 
     C0  C1  C2
@@ -1219,20 +1218,20 @@ R2 -16 -43  98
 
 ```
 ```ocaml env=linear-algebra:svd
-# let u, s, vt = Linalg.D.svd ~thin:false a
-val u : Owl_dense_matrix_d.mat =
+# let u, s, vt = Linalg.D.svd ~thin:false a;;
+val u : Linalg.D.mat =
 
           C0        C1        C2
 R0 -0.163007 -0.212727  0.963419
 R1 -0.457324 -0.848952  -0.26483
 R2  0.874233 -0.483764 0.0410998
 
-val s : Owl_dense_matrix_d.mat =
+val s : Linalg.D.mat =
 
         C0     C1       C2
 R0 123.477 15.504 0.018805
 
-val vt : Owl_dense_matrix_d.mat =
+val vt : Linalg.D.mat =
 
           C0        C1        C2
 R0 -0.163007 -0.457324  0.874233
@@ -1243,7 +1242,7 @@ R2  0.963419  -0.26483 0.0410998
 Note that the diagonal matrix `s` is represented as a vector. We can extend it with
 
 ```ocaml env=linear-algebra:svd
-# let s = Mat.diagm s
+# let s = Mat.diagm s;;
 val s : Mat.mat =
 
         C0     C1       C2
@@ -1257,8 +1256,8 @@ However, it is only possible when we know that the original diagonal matrix is s
 Also, we can find to the eigenvectors of $AA^T$ to verify that it equals to the eigenvector factorisation.
 
 ```ocaml env=linear-algebra:svd
-# Linalg.D.eig Mat.(dot a (transpose a))
-- : Owl_dense_matrix_z.mat * Owl_dense_matrix_z.mat =
+# Linalg.D.eig Mat.(dot a (transpose a));;
+- : Linalg.Z.mat * Linalg.Z.mat =
 (
                 C0              C1             C2
 R0  (0.163007, 0i)  (0.963419, 0i) (0.212727, 0i)
@@ -1281,7 +1280,7 @@ The shape of `x` is `m x n` and the shape of `y` is `p x n`.
 Here is an example:
 
 ```ocaml env=linalg_50
-# let x = Mat.uniform 5 5
+# let x = Mat.uniform 5 5;;
 val x : Mat.mat =
 
          C0       C1       C2       C3        C4
@@ -1294,7 +1293,7 @@ R4 0.474817 0.176199 0.316661 0.476701  0.138534
 ```
 
 ```ocaml env=linalg_50
-# let y = Mat.uniform 2 5
+# let y = Mat.uniform 2 5;;
 val y : Mat.mat =
 
          C0       C1       C2       C3         C4
@@ -1304,8 +1303,8 @@ R1 0.714052 0.874704 0.436799 0.198898   0.406196
 ```
 
 ```ocaml env=linalg_50
-# let u, v, q, d1, d2, r = Linalg.D.gsvd x y
-val u : Owl_dense_matrix_d.mat =
+# let u, v, q, d1, d2, r = Linalg.D.gsvd x y;;
+val u : Linalg.D.mat =
 
           C0        C1        C2        C3        C4
 R0 -0.385416 -0.294725 -0.398047 0.0383079 -0.777614
@@ -1314,13 +1313,13 @@ R2 -0.380469 0.0913876 -0.199462  0.847599  0.297795
 R3 -0.807427 -0.147819  0.194202 -0.418909  0.336172
 R4  0.146816 -0.848345  0.442095  0.249201 0.0347409
 
-val v : Owl_dense_matrix_d.mat =
+val v : Linalg.D.mat =
 
          C0        C1
 R0 0.558969  0.829189
 R1 0.829189 -0.558969
 
-val q : Owl_dense_matrix_d.mat =
+val q : Linalg.D.mat =
 
           C0        C1        C2        C3        C4
 R0 -0.436432 -0.169817  0.642272 -0.603428 0.0636394
@@ -1329,7 +1328,7 @@ R2  0.400859  0.207482 -0.268507 -0.567199  0.634391
 R3 -0.283012 -0.758558 -0.559553 -0.173745 0.0347457
 R4  0.743733 -0.431612  0.245375 -0.197629  -0.40163
 
-val d1 : Owl_dense_matrix_d.mat =
+val d1 : Linalg.D.mat =
 
    C0 C1 C2       C3        C4
 R0  1  0  0        0         0
@@ -1338,13 +1337,13 @@ R2  0  0  1        0         0
 R3  0  0  0 0.319964         0
 R4  0  0  0        0 0.0583879
 
-val d2 : Owl_dense_matrix_d.mat =
+val d2 : Linalg.D.mat =
 
    C0 C1 C2      C3       C4
 R0  0  0  0 0.94743        0
 R1  0  0  0       0 0.998294
 
-val r : Owl_dense_matrix_d.mat =
+val r : Linalg.D.mat =
 
          C0       C1        C2       C3         C4
 R0 -0.91393 0.196148 0.0738038  1.45659  -0.268024
@@ -1356,9 +1355,9 @@ R4        0        0         0        0   0.555067
 ```
 
 ```ocaml env=linalg_50
-# Mat.(u *@ d1 *@ r *@ transpose q =~ x)
+# Mat.(u *@ d1 *@ r *@ transpose q =~ x);;
 - : bool = true
-# Mat.(v *@ d2 *@ r *@ transpose q =~ y)
+# Mat.(v *@ d2 *@ r *@ transpose q =~ y);;
 - : bool = true
 ```
 

@@ -85,7 +85,7 @@ As an example, the following code creates an ndarray where all the elements are 
 
 ```ocaml
 
-# let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i))
+# let x = Arr.init [|6;8|] (fun i -> 2. *. (float_of_int i));;
 val x : Arr.arr =
 
    C0 C1 C2 C3 C4 C5 C6 C7
@@ -145,7 +145,7 @@ The `map` function in Owl is pure and always generates a fresh new data structur
 For example, the following code creates a three-dimensional ndarray, and then adds 1 to every element in `x`.
 
 ```ocaml env=ndarray_00
-# let x = Arr.uniform [|3;4;5|]
+# let x = Arr.uniform [|3;4;5|];;
 val x : Arr.arr =
 
               C0        C1       C2       C3         C4
@@ -165,7 +165,7 @@ R[2,3]  0.126273  0.946126  0.42223 0.955181   0.422184
 
 
 ```ocaml env=ndarray_00
-# let y = Arr.map (fun a -> a +. 1.) x
+# let y = Arr.map (fun a -> a +. 1.) x;;
 val y : Arr.arr =
 
             C0      C1      C2      C3      C4
@@ -424,7 +424,7 @@ Let's first create a sequential ndarray.
 
 ```ocaml
 
-# let x = Arr.sequential [|3;4|]
+# let x = Arr.sequential [|3;4|];;
 val x : Arr.arr =
 
    C0 C1 C2 C3
@@ -437,7 +437,7 @@ R2  8  9 10 11
 The code below tiles `x` once on both dimensions.
 
 ```ocaml
-# let y = Arr.tile x [|2;2|]
+# let y = Arr.tile x [|2;2|];;
 val y : Arr.arr =
 
    C0 C1 C2 C3 C4 C5 C6 C7
@@ -453,7 +453,7 @@ R5  8  9 10 11  8  9 10 11
 Comparing to `tile`, the `repeat` function replicates each element in their adjacent places along specified dimension.
 
 ```ocaml
-# let z = Arr.repeat x [|2;1|]
+# let z = Arr.repeat x [|2;1|];;
 val z : Arr.arr =
 
    C0 C1 C2 C3
@@ -531,7 +531,9 @@ Note that you need to pass in type information in the `load` function, otherwise
 # let x = Mat.uniform 8 8 in
   Mat.save "data.mat" x;
   let y = Mat.load "data.mat" in
-  Mat.(x = y)
+  Mat.(x = y);;
+Line 2, characters 3-11:
+Warning 6 [labels-omitted]: label out was omitted in the application of this function.
 - : bool = true
 ```
 
@@ -549,7 +551,7 @@ Using NPY files are the same as that of normal serialisation methods. Here is a 
 # let x = Arr.uniform [|3; 3|] in
   Arr.save_npy ~out:"data.npy" x;
   let y = Arr.load_npy "data.npy" in
-  Arr.(x = y)
+  Arr.(x = y);;
 - : bool = true
 ```
 
@@ -650,14 +652,14 @@ let _ =
 Then we can check if the two results agree:
 
 ```ocaml env=ndarray:contraction
-# Arr.equal z1 z2
+# Arr.equal z1 z2;;
 - : bool = true
 ```
 
 The contraction can also be applied on one single ndarray to perform the reduction operation using the `contract1` function.
 
 ```ocaml env=ndarray:contraction-01
-# let x = Arr.sequential [|2;2;3|]
+# let x = Arr.sequential [|2;2;3|];;
 val x : Arr.arr =
 
        C0 C1 C2
@@ -669,7 +671,7 @@ R[1,1]  9 10 11
 ```
 
 ```ocaml env=ndarray:contraction-01
-# let y = Arr.contract1 [|(0,1)|] x
+# let y = Arr.contract1 [|(0,1)|] x;;
 val y : Arr.arr =
   C0 C1 C2
 R  9 11 13

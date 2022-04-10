@@ -1,8 +1,10 @@
+[@@@alert "-all--all+unix@window"]
+
 let pp_section ppf (n, title) =
   let pp_n ppf () = Fmt.string ppf (String.make n '#') in
   Fmt.pf ppf "%a %s\n" pp_n () title
 
-let pp_list pp = Fmt.(list ~sep:(unit "") pp)
+let pp_list pp = Fmt.(list ~sep:(any "") pp)
 
 let pp_html ppf s =
   let add = function
@@ -18,14 +20,40 @@ let pp_output ppf = function
   |`Output s -> Fmt.pf ppf ">%a\n" pp_html s
   |`Ellipsis -> Fmt.pf ppf "...\n"
 
- let pp_line ppf l = Fmt.pf ppf "%a\n" pp_html l
+ let pp_html_line ppf l = Fmt.pf ppf "%a\n" pp_html l
+ let pp_md_line ppf l = Fmt.pf ppf "%s\n" l
 
  let pp_toplevel ppf (t:Mdx.Toplevel.t) =
-  let cmds = match t.command with [c] -> [c ^ ";;"] | l -> l @ [";;"] in
-  Fmt.pf ppf "%a%a" (pp_list pp_line) cmds (pp_list pp_output) t.output
+  Fmt.pf ppf "%a%a" (pp_list pp_html_line) t.command (pp_list pp_output) t.output
+
+let pp_toplevel_block (b: Mdx.Block.t) ppf =
+  let ts =
+    Mdx.Toplevel.of_lines
+      ~syntax:Normal
+      ~loc:b.loc
+      b.contents
+  in
+  pp_list pp_toplevel ppf ts
 
 let pp_contents (t:Mdx.Block.t) ppf =
-  Fmt.(list ~sep:(unit "\n") pp_html) ppf t.contents
+  Fmt.(list ~sep:(any "\n") pp_html) ppf t.contents
+
+let pp_markdown_output ppf = function
+  |`Output s -> Fmt.pf ppf "((:%s::)\n" s
+  |`Ellipsis -> Fmt.pf ppf "...\n"
+
+let pp_markdown_toplevel ppf (t:Mdx.Toplevel.t) =
+  let cmds = match t.command with hd::tl -> ("# " ^ hd) :: tl | [] -> [] in
+  Fmt.pf ppf "%a%a" (pp_list pp_md_line) cmds (pp_list pp_markdown_output) t.output
+
+let pp_markdown_toplevel_block (b: Mdx.Block.t) ppf =
+  let ts =
+    Mdx.Toplevel.of_lines
+      ~syntax:Normal
+      ~loc:b.loc
+      b.contents
+  in
+  pp_list pp_markdown_toplevel ppf ts
 
 let pp_cram ppf (t:Mdx.Cram.t) =
   let pp_exit ppf = match t.exit_code with
@@ -33,25 +61,32 @@ let pp_cram ppf (t:Mdx.Cram.t) =
     | i -> Fmt.pf ppf "[%d]" i
   in
   Fmt.pf ppf "%a%a%t"
-    (pp_list pp_line) t.command
+    (pp_list pp_html_line) t.command
     (pp_list pp_output) t.output pp_exit
+
+let pp_cram_block content ppf =
+  pp_list pp_cram ppf (snd (Mdx.Cram.of_lines ~syntax:Mdx.Syntax.Normal ~loc:Location.none content))
+
+let header_to_string = Fmt.str "%a" Mdx.Block.Header.pp 
 
 let pp_block_html ppf (b:Mdx.Block.t) =
   let lang, pp_code, attrs = match b.value with
-    | Toplevel t -> Some "ocaml", (fun ppf -> pp_list pp_toplevel ppf t), [
+    | Toplevel _ -> Some "ocaml", pp_toplevel_block b, [
         ("class"             , "command-line");
         ("data-prompt"       , "#");
         ("data-filter-output", ">");
       ]
-    | OCaml  -> Some "ocaml", pp_contents b, []
-    | Cram t -> Some "bash" , (fun ppf -> pp_list pp_cram ppf t.tests), [
+    | Include {file_kind = Fk_ocaml _; _}
+    | OCaml _ -> Some "ocaml", pp_contents b, []
+    | Cram _ -> Some "bash" , pp_cram_block b.contents, [
         ("class"             , "command-line");
         ("data-user"         , "fun");
         ("data-host"         , "lama");
         ("data-filter-output", ">");
       ]
-    | Raw     -> b.header, pp_contents b, []
-    | Error s -> Some "error", (fun ppf -> pp_list Fmt.string ppf s), []
+    | Include {file_kind = Fk_other {header}; _}
+    | Raw {header} ->
+      Option.map header_to_string header, pp_contents b, []
   in
   let pp_attr ppf (k, v) = Fmt.pf ppf "%s=%S" k v in
   let pp_lang ppf () = match lang with
@@ -60,7 +95,7 @@ let pp_block_html ppf (b:Mdx.Block.t) =
   in
   let pp_attrs ppf () = match attrs with
     | [] -> ()
-    | _  -> Fmt.pf ppf " %a" Fmt.(list ~sep:(unit " ") pp_attr) attrs
+    | _  -> Fmt.pf ppf " %a" Fmt.(list ~sep:(any " ") pp_attr) attrs
   in
   Fmt.pf ppf "<div class=\"highlight\"><pre%a><code%a>%t</code></pre></div>"
     pp_attrs () pp_lang () pp_code
@@ -68,12 +103,30 @@ let pp_block_html ppf (b:Mdx.Block.t) =
 let pp_block_latex ppf (b:Mdx.Block.t) =
   let lang = match b.value with
     | Toplevel _
-    | OCaml  -> Some "ocaml"
+    | Include {file_kind = Fk_ocaml _; _}
+    | OCaml _ -> Some "ocaml"
     | Cram _ -> Some "bash"
-    | Raw     -> b.header
-    | Error _ -> Some "error"
+    | Include {file_kind = Fk_other {header}; _}
+    | Raw {header} -> Option.map header_to_string header
   in
-  let pp_code = (fun ppf -> Fmt.(list ~sep:(unit "\n") string) ppf b.contents) in
+  let pp_code = (fun ppf -> Fmt.(list ~sep:(any "\n") string) ppf b.contents) in
+  let lang = match lang with
+    | None   -> "shell"
+    | Some l -> l
+  in
+  Fmt.pf ppf "```%s\n%t\n```"
+    lang pp_code
+
+let pp_block_md ppf (b:Mdx.Block.t) =
+  let pp_code = (fun ppf -> Fmt.(list ~sep:(any "\n") string) ppf b.contents) in
+  let lang, pp_code = match b.value with
+    | Toplevel _ -> Some "ocaml", (pp_markdown_toplevel_block b)
+    | Include {file_kind = Fk_ocaml _; _}
+    | OCaml _ -> Some "ocaml", pp_code
+    | Cram _ -> Some "bash", pp_code
+    | Include {file_kind = Fk_other {header}; _}
+    | Raw {header} -> Option.map header_to_string header, pp_code
+  in
   let lang = match lang with
     | None   -> "clike"
     | Some l -> l
@@ -82,6 +135,9 @@ let pp_block_latex ppf (b:Mdx.Block.t) =
     lang pp_code
 
 let pp_text_html ppf l =
+  List.iter (Fmt.pf ppf "%s\n") (List.rev l)
+
+let pp_text_md ppf l =
   List.iter (Fmt.pf ppf "%s\n") (List.rev l)
 
 open Astring
@@ -109,7 +165,8 @@ let pp_text_latex ppf l =
             |> String.fold_left escape_latex []
             |> List.rev
             |> String.concat
-            |> Fmt.strf "\\index{%s}"
+            |> Base.String.map ~f:(function '/' -> '!' | x -> x)
+            |> Fmt.str "\\index{%s}"
           in
           let e = String.sub ~start:(i + 7) t |> String.Sub.to_string in
           f b (m::e::acc)
@@ -121,29 +178,36 @@ let pp_text_latex ppf l =
 
 type outputs =
     Html
+  | Markdown
   | Latex
 
 let get_output_infos = function
-  | Html -> pp_block_html, pp_text_html, " --mathjax -t html"
+  | Html -> pp_block_html, pp_text_html, "-t html"
   | Latex -> pp_block_latex, pp_text_latex,  "-t latex --listings"
+  | Markdown -> pp_block_md, pp_text_latex, "-t markdown"
 
 let run (`File file) (`Output output) output_type =
   let (pp_block, pp_text, out_args) = get_output_infos output_type in
-  let t = Mdx.parse_file Normal file in
-  match t with
-  | [] -> 1
-  | _  ->
+  match Mdx.parse_file Normal file with
+  | Error (`Msg msg) ->
+    Printf.eprintf "%s\n" msg;
+    1
+  | Ok [] -> 1
+  | Ok t  ->
     let tmp = Filename.temp_file "ocaml-mdx" "pandoc" in
     let oc = open_out tmp in
     let ppf = Format.formatter_of_out_channel oc in
+    let boost_section (i,t) =
+      match output_type with
+      | Markdown -> i+1, t (* for top-level-division=part in pandoc *)
+      | _ -> i, t in
     let f acc t =
       match t with
         | Mdx.Section s ->
-          Fmt.pf ppf "%a%a" pp_text acc pp_section s;
+          Fmt.pf ppf "%a%a" pp_text acc pp_section (boost_section s);
           []
         | Text t        -> t::acc
         | Block b ->
-          let b = Mdx.Block.eval b in
           Fmt.pf ppf "%a%a" pp_text acc pp_block b;
           []
     in
@@ -151,10 +215,9 @@ let run (`File file) (`Output output) output_type =
     close_out oc;
     let output = match output with None -> "-" | Some o -> o in
     Fmt.pr "Generating %s...\n%!" output;
-    Fmt.kstrf
+    Fmt.kstr
       Sys.command
       "pandoc \
-      \  -F pandoc-crossref -F pandoc-citeproc --bibliography ../../../book/references.bib \
       \  --section-divs \
       \  -f markdown-ascii_identifiers \
       \  --no-highlight\
@@ -175,8 +238,8 @@ let output =
     Arg.(value & opt (some string) None & info ["o";"output"] ~doc ~docv:"FILE")
 
 let out_type =
-  let doc = "Output type: html or latex. Default is html" in
-  Arg.(value & opt (enum ["html", Html; "latex", Latex]) Html & info ["t";"type"] ~doc ~docv:"TYPE")
+  let doc = "Output type: html, md or latex. Default is html" in
+  Arg.(value & opt (enum ["html", Html; "latex", Latex; "md", Markdown]) Html & info ["t";"type"] ~doc ~docv:"TYPE")
 
 let main =
   let doc = "Pre-process markdown files to produce OCaml code." in

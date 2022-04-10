@@ -151,7 +151,7 @@ R7 58
 The second example in in [@fig:slicing:example_slice_01](b)is similar, but about retrieving part of a row. Still, this can be gotten using both methods.
 
 ```ocaml env=slicing_example_00
-# Arr.get_fancy [ I 2; R [4; 6] ] x
+# Arr.get_fancy [ I 2; R [4; 6] ] x;;
 - : Arr.arr =
    C0 C1 C2
 R0 20 21 22
@@ -159,7 +159,7 @@ R0 20 21 22
 ```
 
 ```ocaml env=slicing_example_00
-# Arr.get_slice [ [2]; [4; 6] ] x
+# Arr.get_slice [ [2]; [4; 6] ] x;;
 - : Arr.arr =
    C0 C1 C2
 R0 20 21 22
@@ -172,7 +172,7 @@ R0 20 21 22
 The next example in [@fig:slicing:example_slice_02](a) is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
 
 ```ocaml env=slicing_example_00
-# Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x
+# Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x;;
 - : Arr.arr =
    C0 C1 C2 C3
 R0 25 27 29 31
@@ -184,7 +184,7 @@ Finally, the last example concerns taking a sub matrix. We can do it in the simi
 Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.
 
 ```ocaml env=slicing_example_00
-# Arr.get_fancy [ L [-2; -1]; R [-3; -2] ] x
+# Arr.get_fancy [ L [-2; -1]; R [-3; -2] ] x;;
 - : Arr.arr =
    C0 C1
 R0 53 54
@@ -329,7 +329,7 @@ Let' see some more complicated examples.
 The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a `5 x 5` sequential matrix for illustration.
 
 ```ocaml env=slicing_env2
-# let x = Mat.sequential 5 5
+# let x = Mat.sequential 5 5;;
 val x : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -345,7 +345,7 @@ The first function `flip` a matrix upside down, i.e. flip vertically.
 
 ```ocaml env=slicing_env2
 # let flip x = Mat.get_slice [ [-1; 0]; [ ] ] x in
-  flip x
+  flip x;;
 - : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -361,7 +361,7 @@ The second `reverse` function treats a matrix as one-dimensional vector and reve
 
 ```ocaml env=slicing_env2
 # let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
-  reverse x
+  reverse x;;
 - : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -377,7 +377,7 @@ The third function rotates a matrix 90 degrees in clockwise direction. As we can
 
 ```ocaml env=slicing_env2
 # let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]) in
-  rotate90 x
+  rotate90 x;;
 - : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -402,7 +402,7 @@ let cshift x n =
 Applying to the previous `x`, the outcome should look like this.
 
 ```ocaml env=slicing_env2
-# cshift x 2
+# cshift x 2;;
 - : Mat.mat =
 
    C0 C1 C2 C3 C4
@@ -491,7 +491,7 @@ let y' = Arr.expand y 4;;
 ```
 
 ```ocaml env=broadcasting_example00
-# Arr.shape y'
+# Arr.shape y';;
 - : int array = [|1; 1; 4; 5|]
 ```
 
@@ -505,7 +505,7 @@ let a = Arr.sequential [|1;3|]
 ```
 
 ```ocaml env=broadcasting_example01
-# Arr.add_scalar a 3.
+# Arr.add_scalar a 3.;;
 - : Arr.arr =
    C0 C1 C2
 R0  3  4  5
@@ -522,7 +522,7 @@ let b1 = Arr.sequential ~a:1. [|1;3|]
 ```
 
 ```ocaml env=broadcasting_example01
-# Arr.mul b0 b1
+# Arr.mul b0 b1;;
 - : Arr.arr =
    C0 C1 C2
 R0  0  2  6
@@ -542,7 +542,7 @@ let c1 = Arr.copy b1
 ```
 
 ```ocaml env=broadcasting_example01
-# Arr.mul c0 c1
+# Arr.mul c0 c1;;
 - : Arr.arr =
    C0 C1 C2
 R0  0  0  0
@@ -629,7 +629,7 @@ One important thing to notice in slicing is the difference between *copy* and *v
 For example, in Owl we can make a slice, change the slice, and check what the original ndarray looks like.
 
 ```ocaml env=slicing_example_01
-# let x = Arr.sequential [|3;3|]
+# let x = Arr.sequential [|3;3|];;
 val x : Arr.arr =
    C0 C1 C2
 R0  0  1  2
@@ -638,7 +638,7 @@ R2  6  7  8
 
 ```
 ```ocaml env=slicing_example_01
-# let y = Arr.get_slice [[0]; []] x
+# let y = Arr.get_slice [[0]; []] x;;
 val y : Arr.arr =
    C0 C1 C2
 R0  0  1  2
@@ -649,14 +649,14 @@ R0  0  1  2
 - : unit = ()
 ```
 ```ocaml env=slicing_example_01
-# y
+# y;;
 - : Arr.arr =
    C0 C1  C2
 R0  0  1 200
 
 ```
 ```ocaml env=slicing_example_01
-# x
+# x;;
 - : Arr.arr =
    C0 C1 C2
 R0  0  1  2

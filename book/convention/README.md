@@ -305,14 +305,14 @@ Mat.(x >. y);;
 Here is the return of the first example.
 
 ```ocaml env=convention_00
-# Mat.(x > y)
+# Mat.(x > y);;
 - : bool = false
 ```
 
 Here is the return of the second example.
 
 ```ocaml env=convention_00
-# Mat.(x >. y)
+# Mat.(x >. y);;
 - : (float, float64_elt) Owl_dense_matrix_generic.t =
 
    C0 C1 C2 C3 C4
@@ -495,7 +495,7 @@ With `Dense.Ndarray`, you can create a dense n-dimensional array of no more than
 After deciding the suitable data structure (either dense or sparse), you can create a ndarray/matrix using creation function in the modules, using e.g., `empty`, `create`, `zeros`, `ones` ... The type of numbers (real or complex) and its precision (single or double) needs to be passed to the creations functions as the parameters.
 
 ```ocaml env=convention_01
-# Dense.Ndarray.Generic.zeros Float64 [|5;5|]
+# Dense.Ndarray.Generic.zeros Float64 [|5;5|];;
 - : (float, float64_elt) Dense.Ndarray.Generic.t =
 
    C0 C1 C2 C3 C4
@@ -631,7 +631,7 @@ In fact, all these function rely on the following `cast` function.
 The first parameter specifies the cast type. If the source type and the cast type are the same, `cast` function simply makes a copy of the passed in value.
 
 ```ocaml env=convention_02
-# let x = Arr.uniform [|5;5|]                     (* created in float64 *)
+# let x = Arr.uniform [|5;5|]                     (* created in float64 *);;
 val x : Arr.arr =
 
          C0        C1        C2       C3       C4
@@ -646,7 +646,7 @@ R4 0.981665  0.446936  0.276383 0.414747 0.174775
 Now let's cast `x` from float64 to complex32.
 
 ```ocaml env=convention_02
-# let y = Dense.Ndarray.Generic.cast Complex32 x  (* cast to complex32 *)
+# let y = Dense.Ndarray.Generic.cast Complex32 x  (* cast to complex32 *);;
 val y : (Complex.t, complex32_elt) Dense.Ndarray.Generic.t =
 
                C0              C1              C2             C3             C4
