@@ -106,7 +106,7 @@ let build : Command.t =
 (******************************************************************************)
 let main =
   Command.group
-    ~summary:"OCaml Scientific Computing authoring and publication tools"
+    ~summary:"Owl Online Tutorials authoring and publication tools"
     [ "build", build
     ]
 

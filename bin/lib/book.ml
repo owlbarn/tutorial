@@ -7,7 +7,7 @@ let (/) = Filename.concat
 (* HTML fragments                                                             *)
 (******************************************************************************)
 let head_item ?chapter_title () : Html.item =
-  let site_title = "OCaml Scientific Computing" in
+  let site_title = "Owl Online Tutorials" in
   let page_title = match chapter_title with
       | None -> site_title
       | Some t' -> sprintf "%s - %s" t' site_title
@@ -60,9 +60,9 @@ let title_bar,title_bar_frontpage =
       [`Data "API Docs"];
   ]
   in
-  let h1 = h1 [`Data "OCaml Scientific Computing"] in
+  let h1 = h1 [`Data "Owl Online Tutorials"] in
   let h4 = h4 [`Data "Functional Programming meets Data Science"] in
-  let h5 = h5 [`Data "1"; sup [`Data "st"]; `Data " Edition (in progress)"] in
+  let h5 = h5 [`Data ""] in
   let title_bar =
     div ~a:["class","title-bar"] [
       div ~a:["class","title"] [h1; h5; nav]
