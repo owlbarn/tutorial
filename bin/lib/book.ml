@@ -54,9 +54,7 @@ let title_bar,title_bar_frontpage =
   let nav = nav [
     a ~a:["href","index.html"] [`Data "Home"];
     a ~a:["href","toc.html"] [`Data "Table of Contents"];
-    a ~a:["href","faqs.html"] [`Data "FAQs"];
-    a ~a:["href","install.html"] [`Data "Install"];
-    a ~a:["href","https://ocaml.xyz/package/"]
+    a ~a:["href","https://ocaml.xyz/owl/"]
       [`Data "API Docs"];
   ]
   in
