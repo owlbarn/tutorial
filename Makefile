@@ -1,10 +1,7 @@
-.PHONY: all clean dep publish promote test test-all docker depext push compile docker cloc
+.PHONY: all clean dep promote test test-all depext push compile cloc
 
 all: compile
 	git add docs
-
-docker:
-	docker build -t owlbarn/book:latest .
 
 compile: test
 	-dune build @site
@@ -27,7 +24,6 @@ promote:
 
 clean:
 	@dune clean
-	docker stop book_builder && docker rm book_builder
 
 push:
 	git commit -am "editing book ..." && \
