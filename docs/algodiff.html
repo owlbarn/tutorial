@@ -1,0 +1,1335 @@
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="OCaml Scientific and Engineering Computing - Tutorial Book" name="description"><meta content="OCaml, Data Science, Data Analytics, Analytics, Functional Programming, Machine Learning, Deep Neural Network, Scientific Computing, Numerical Algorithm, Tutorial, Linear Algebra, Matrix" name="keywords"><meta content="Liang Wang" name="author"><title>Algorithmic Differentiation - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script><script data-ad-client="ca-pub-1868946892712371" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-123353217-1"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="algorithmic-differentiation">
+<h1>Algorithmic Differentiation</h1>
+<p>In science and engineering it is often necessary to study the relationship between two or more quantities, where changing of one quantity leads to changes of others. For example, in describing the motion an object, we denote velocity <span class="math inline">\(v\)</span> of an object with the change of the distance regarding time:</p>
+<p><span class="math display">\[v = \lim_{\Delta~t}\frac{\Delta~s}{\Delta~t} = \frac{ds}{dt}.\]</span> {#eq:algodiff:def}</p>
+<p>This relationship <span class="math inline">\(\frac{ds}{dt}\)</span> is called “<em>derivative</em> of <span class="math inline">\(s\)</span> with respect to <span class="math inline">\(t\)</span>”. This process can be extended to higher dimensional space. For example, think about a solid block of material, placed in a cartesian axis system. You heat it at some part of it and cool it down at some other place, and you can imagine that the temperature <span class="math inline">\(T\)</span> at different position of this block: <span class="math inline">\(T(x, y, z)\)</span>. In this field, we can describe this change with partial derivatives along each axis:</p>
+<p><span class="math display">\[\nabla~T = (\frac{\partial~T}{\partial~x}, \frac{\partial~T}{\partial~y}, \frac{\partial~T}{\partial~z}).\]</span> {#eq:algodiff:grad}</p>
+<p>Here, we call the vector <span class="math inline">\(\nabla~T\)</span> <em>gradient</em> of <span class="math inline">\(T\)</span>. The procedure to calculating derivatives and gradients is referred to as <em>differentiation</em>.</p>
+<p>Differentiation is crucial to many scientific related fields: find maximum or minimum values using gradient descent; ODE; Non-linear optimisation such as KKT optimality conditions is still a prime application. One new crucial application is in machine learning. The training of a supervised machine learning model often requires the forward propagation and back propagation phases, where the back propagation can be seen as the derivative of the whole model as a large function. We will talk about these applications in the next chapters.</p>
+<p>Differentiation often requires complex computation, and in these applications we surely need to rely on some computing framework to support it. Differentiation module is built into the core of Owl. In this chapter, starting from the basic computation rule in performing differentiation, we will introduce how Owl supports this important feature step by step.</p>
+<section class="level2" id="chain-rule">
+<h2>Chain Rule</h2>
+<p>Before diving into how to do differentiation on computers, let’s recall how to do it with a pencil and paper from our Calculus 101. One of the most important rules in performing differentiation is the <em>chain rule</em>. In calculus, the chain rule is a formula to compute the derivative of a composite function. Suppose we have two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>, then the chain rule states that:</p>
+<p><span class="math display">\[F'(x)=f'(g(x))g'(x).\]</span> {#eq:algodiff:chainrule01}</p>
+<p>This seemingly simple rule is one of the most fundamental rules in calculating derivatives. For example, let <span class="math inline">\(y = x^a\)</span>, where <span class="math inline">\(a\)</span> is a real number, and then we can get <span class="math inline">\(y'\)</span> using the chain rule. Specifically, let <span class="math inline">\(y=e^{\ln~x^a} = e^{a~\ln~x}\)</span>, and then we can set <span class="math inline">\(u= a\ln{x}\)</span> so that now <span class="math inline">\(y=e^u\)</span>. By applying the chain rule, we have:</p>
+<p><span class="math display">\[y' = \frac{dy}{du}~\frac{du}{dx} = e^u~a~\frac{1}{x} = ax^{a-1}.\]</span></p>
+<p>Besides the chain rule, it’s helpful to remember some basic differentiation equations, as shown in <span data-cites="tbl:algodiff:chainrule02" class="citation">[@tbl:algodiff:chainrule02]</span>. Here <span class="math inline">\(x\)</span> is variable and both <span class="math inline">\(u\)</span> and <span class="math inline">\(v\)</span> are functions with regard to <span class="math inline">\(x\)</span>. <span class="math inline">\(C\)</span> is constant. These equations are the building blocks of differentiating more complicated ones. Of course, this very short list is incomplete. Please refer to the calculus textbooks for more information. Armed with the chain rule and these basic equations, wen can begin to solve more differentiation problems than you can imagine.</p>
+<table style="width:88%;">
+<caption>A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}</caption>
+<colgroup>
+<col style="width: 33%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Derivatives</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((u(x) + v(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(u'(x) + v'(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((C\times~u(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(C\times~u'(x)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\((u(x)v(x))'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(u'(x)v(x) + u(x)v'(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\((\frac{u(x)}{v(x)})'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sin(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\cos(x)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(e^x\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(e^x\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(log_a(x)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\frac{1}{x~\textrm{ln}~a}\)</span></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level2" id="differentiation-methods">
+<h2>Differentiation Methods</h2>
+<p>As the models and algorithms become increasingly complex, sometimes the function being implicit, it is impractical to perform manual differentiation. Therefore, we turn to computer-based automated computation methods. There are three different ways widely used to automate differentiation: numerical differentiation, symbolic differentiation, and algorithmic differentiation.</p>
+<p><strong>Numerical Differentiation</strong></p>
+<p>The numerical differentiation comes from the definition of derivative in <span data-cites="eq:algodiff:def" class="citation">[@eq:algodiff:def]</span>. It uses a small step <span class="math inline">\(\delta\)</span> to approximate the limit in the definition:</p>
+<p><span class="math display">\[f'(x) = \lim_{\delta~\to~0}\frac{f(x+\delta) - f(x)}{\delta}.\]</span> {#eq:algodiff:numdiff}</p>
+<p>This method is pretty easy to follow: evaluate the given <span class="math inline">\(f\)</span> at point <span class="math inline">\(x\)</span>, and then choose a suitable small amount <span class="math inline">\(\delta\)</span>, add it to the original <span class="math inline">\(x\)</span> and then re-evaluate the function. Then the derivative can be calculated using <span data-cites="eq:algodiff:numdiff" class="citation">[@eq:algodiff:numdiff]</span>. As long as you knows how to evaluate function <span class="math inline">\(f\)</span>, this method can be applied. The function <span class="math inline">\(f\)</span> per se can be treated a black box. The implementation is also straightforward. However, the problem with this method is prone to truncation errors and round-off errors.</p>
+<p>The <em>truncation error</em> comes from the fact that <span data-cites="eq:algodiff:numdiff" class="citation">[@eq:algodiff:numdiff]</span> is only an approximation of the true gradient value. We can see their difference with Taylor expansion:</p>
+<p><span class="math display">\[f(x+h) = f(x) + hf'(x) + \frac{h^2}{2}f^{''}(\sigma_h)\]</span></p>
+<p>Here <span class="math inline">\(h\)</span> is the step size and <span class="math inline">\(\sigma_h\)</span> is in the range of <span class="math inline">\([x, x+h]\)</span>. This can be transformed into:</p>
+<p><span class="math display">\[\frac{h^2}{2}f^{''}(\sigma_h)= f'(x) - \frac{f(x+h) - f(x)}{h}.\]</span></p>
+<p>This represent the truncation error in the approximation. For example, for function <span class="math inline">\(f(x) = sin(x)\)</span>, <span class="math inline">\(f''(x) = -sin(x)\)</span>. Suppose we want to calculate the derivative at <span class="math inline">\(x=1\)</span> numerically using a step size of 0.01, then the truncation error should be in the range <span class="math inline">\(\frac{0.01^2}{2}[sin(1), sin(1.01)]\)</span>.</p>
+<p>We can see the effect of this truncation error in an example, by using an improperly large step size. Let’s say we want to find the derivative of <span class="math inline">\(f(x) = cos(x)\)</span> at point <span class="math inline">\(x=1\)</span>. Basic calculus tells us that it should be equals to <span class="math inline">\(-sin(1) = 0.84147\)</span>, but the result is obviously a bit different.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d =
+  let _eps = 0.1 in
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in
+  diff Maths.cos 1.
+&gt;val d : float = -0.867061844425624506
+</code></pre>
+</div>
+<p>Another source of error is the <em>round-off error</em>. It is caused by representing numbers approximately in numerical computation during this process. Looking back at <span data-cites="eq:algodiff:numdiff" class="citation">[@eq:algodiff:numdiff]</span>, we need to calculate <span class="math inline">\(f(x+h) - f(x)\)</span>, the subtraction of two almost identical number. That could lead to a large round-off errors in a computer. For example, let’s choose a very small step size this time:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let d =
+  let _eps = 5E-16 in
+  let diff f x = (f (x +. _eps) -. f x) /. _eps in
+  diff Maths.cos 1.
+&gt;val d : float = -0.888178419700125121
+</code></pre>
+</div>
+<p>It is still significantly different from the expected result. Actually if we use a even smaller step size <span class="math inline">\(1e-16\)</span>, the result becomes 0, which means the round-off error is large enough that <span class="math inline">\(f(x)\)</span> and <span class="math inline">\(f(x+h)\)</span> are deemed the same by the computer.</p>
+<p>Besides these sources of error, the numerical differentiation method is also slow due to requiring multiple evaluations of function <span class="math inline">\(f\)</span>. Some discussion about numerically solving derivative-related problems is also covered in the Ordinary Differentiation Equation chapter, where we focus on introducing solving these equations numerically, and how the impact of these errors can be reduced.</p>
+<p><strong>Symbolic Differentiation</strong></p>
+<p>Symbolic Differentiation is the opposite of numerical solution. It does not involve numerical computation, only math symbol manipulation. The rules we have introduced in <span data-cites="tbl:algodiff:chainrule02" class="citation">[@tbl:algodiff:chainrule02]</span> are actually expressed in symbols. Think about this function: <span class="math inline">\(f(x_0, x_1, x_2) = x_0 * x_1 * x_2\)</span>. If we compute <span class="math inline">\(\nabla~f\)</span> symbolically, we end up with:</p>
+<p><span class="math display">\[\nabla~f = (\frac{\partial~f}{\partial~x_0}, \frac{\partial~f}{\partial~x_1}, \frac{\partial~f}{\partial~x_2}) = (x_1 * x_2, x_0 * x_2, x_1 * x_2).\]</span></p>
+<p>It is nice and accurate, leaving limited space for numerical errors. However, you can try to extend the number of variables from 3 to a large number <span class="math inline">\(n\)</span>, which means <span class="math inline">\(f(x) = \prod_{i=0}^{n-1}x_i\)</span>, and then try to perform the symbolic differentiation again.</p>
+<p>The point is that, symbolic computations tend to give a very large and complex result for even simple functions. It’s easy to have duplicated common sub computations, and produce exponentially large symbolic expressions. Therefore, as intuitive as it is, the symbolic differentiation method can easily takes a lot of memory in computer, and it is slow.</p>
+<p>The explosion of computation complexity is not the only limitation of symbolic differentiation. In contrast to the numerical differentiation, we have to treat the function in symbolic differentiation as a white box, knowing exactly what is inside of it. This further indicates that it cannot be used for arbitrary functions.</p>
+<p><strong>Algorithmic Differentiation</strong></p>
+<p>Algorithmic differentiation (AD) is a chain-rule based technique for calculating the derivatives with regards to input variables of functions defined in a computer programme. It is also known as automatic differentiation, though strictly speaking AD does not fully automate differentiation and can sometimes lead to inefficient code.</p>
+<p>AD can generate exact results with superior speed and memory usage, therefore highly applicable in various real world applications. Even though AD also follows the chain rule, it directly applies numerical computation for intermediate results. It is important to point out that AD is neither numerical nor symbolic differentiation. It takes the best parts of both worlds, as we will see in the next section. Actually, according to <span data-cites="griewank1989automatic" class="citation">[@griewank1989automatic]</span>, the reverse mode of AD yields any gradient vector at no more than five times the cost of evaluating the function <span class="math inline">\(f\)</span> itself. AD has already been implemented in various popular languages, including the <a href="https://pythonhosted.org/ad/"><code>ad</code></a> in Python, <a href="https://www.juliadiff.org/"><code>JuliaDiff</code></a> in Julia, and <a href="http://www.cayugaresearch.com/admat.html"><code>ADMAT</code></a> in MATLAB, etc. In the rest of this chapter, we focus on introducing the AD module in Owl.</p>
+</section>
+<section class="level2" id="how-algorithmic-differentiation-works">
+<h2>How Algorithmic Differentiation Works</h2>
+<p>We have seen the chain rules being applied on simple functions such as <span class="math inline">\(y=x^a\)</span>. Now let’s check how this rule can be applied to more complex computations. Let’s look at the function below:</p>
+<p><span class="math display">\[y(x_0, x_1) = (1 + e^{x_0~x_1 + sin(x_0)})^{-1}.\]</span> {#eq:algodiff:example}</p>
+<p>This functions is based on a sigmoid function. Our goal is to compute the partial derivative <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span>. To better illustrate this process, we express <span data-cites="eq:algodiff:example" class="citation">[@eq:algodiff:example]</span> as a graph, as shown in <span data-cites="fig:algodiff:example_01" class="citation">[@fig:algodiff:example_01]</span>. At the right side of the figure, we have the final output <span class="math inline">\(y\)</span>, and at the roots of this graph are input variables. The nodes between them indicate constants or intermediate variables that are gotten via basic functions such as <code>sine</code>. All nodes are labelled by <span class="math inline">\(v_i\)</span>. An edge between two nodes represents an explicit dependency in the computation.</p>
+<figure>
+<img style="width:100.0%" id="fig:algodiff:example_01" alt="Graph expression of function" title="example_01" src="images/algodiff/example_01.png"><figcaption>Graph expression of function</figcaption>
+</figure>
+<p>Based on this graphic representation, there are two major ways to apply the chain rules: the forward differentiation mode, and the reverse differentiation mode (not “backward differentiation”, which is a method used for solving ordinary differential equations). Next, we introduce these two methods.</p>
+<section class="level3" id="forward-mode">
+<h3>Forward Mode</h3>
+<p>Our target is to calculate <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span> (partial derivative regarding <span class="math inline">\(x_1\)</span> should be similar). But hold your horse, let’s start with some earlier intermediate results that might be helpful. For example, what is <span class="math inline">\(\frac{\partial~x_0}{\partial~x_1}\)</span>? It’s 0. Also, <span class="math inline">\(\frac{\partial~x_1}{\partial~x_1} = 1\)</span>. Now, things gets a bit trickier: what is <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>? It is a good time to use the chain rule:</p>
+<p><span class="math display">\[\frac{\partial~v_3}{\partial~x_0} = \frac{\partial~(x_0~x_1)}{\partial~x_0} = x_1~\frac{\partial~(x_0)}{\partial~x_0} + x_0~\frac{\partial~(x_1)}{\partial~x_0} = x_1.\]</span></p>
+<p>After calculating <span class="math inline">\(\frac{\partial~v_3}{\partial~x_0}\)</span>, we can then processed with derivatives of <span class="math inline">\(v_5\)</span>, <span class="math inline">\(v_6\)</span>, all the way to that of <span class="math inline">\(v_9\)</span> which is also the output <span class="math inline">\(y\)</span> we are looking for. This process starts with the input variables, and ends with output variables. Therefore, it is called <em>forward differentiation</em>. We can simplify the math notations in this process by letting <span class="math inline">\(\dot{v_i}=\frac{\partial~(v_i)}{\partial~x_0}\)</span>. The <span class="math inline">\(\dot{v_i}\)</span> here is called <em>tangent</em> of function <span class="math inline">\(v_i(x_0, x_1, \ldots, x_n)\)</span> with regard to input variable <span class="math inline">\(x_0\)</span>, and the original computation results at each intermediate point is called <em>primal</em> values. The forward differentiation mode is sometimes also called “tangent linear” mode.</p>
+<p>Now we can present the full forward differentiation calculation process, as shown in <span data-cites="tbl:algodiff:forward" class="citation">[@tbl:algodiff:forward]</span>. Two simultaneous computing processes take place, shown as two separated columns: on the left side is the computation procedure specified by <span data-cites="eq:algodiff:example" class="citation">[@eq:algodiff:example]</span>; on the right side shows computation of derivative for each intermediate variable with regard to <span class="math inline">\(x_0\)</span>. Let’s find out <span class="math inline">\(\dot{y}\)</span> when setting <span class="math inline">\(x_0 = 1\)</span>, and <span class="math inline">\(x_1 = 1\)</span>.</p>
+<table style="width:93%;">
+<caption>Computation process of forward differentiation {#tbl:algodiff:forward}</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 38%">
+<col style="width: 47%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: left;">Primal computation</th>
+<th style="text-align: left;">Tangent computation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td style="text-align: left;"><span class="math inline">\(v_0 = x_0 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_0}=1\)</span></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td style="text-align: left;"><span class="math inline">\(v_1 = x_1 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_1}=0\)</span></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td style="text-align: left;"><span class="math inline">\(v_2 = sin(v_0) = 0.84\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_2} = cos(v_0)*\dot{v_0} = 0.54 * 1 = 0.54\)</span></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td style="text-align: left;"><span class="math inline">\(v_3 = v_0~v_1 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td style="text-align: left;"><span class="math inline">\(v_4 = v_2 + v3 = 1.84\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.54\)</span></td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td style="text-align: left;"><span class="math inline">\(v_5 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_5} = 0\)</span></td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td style="text-align: left;"><span class="math inline">\(v_6 = \exp{(v_4)} = 6.30\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.54 = 9.70\)</span></td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td style="text-align: left;"><span class="math inline">\(v_7 = 1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_7} = 0\)</span></td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td style="text-align: left;"><span class="math inline">\(v_8 = v_5 + v_6 = 7.30\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{v_8} = \dot{v_5} + \dot{v_6} = 9.70\)</span></td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td style="text-align: left;"><span class="math inline">\(y = v_9 = \frac{1}{v_8}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.18\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>This procedure shown in this table can be illustrated in <span data-cites="fig:algodiff:example_01_forward" class="citation">[@fig:algodiff:example_01_forward]</span>.</p>
+<figure>
+<img style="width:100.0%" id="fig:algodiff:example_01_forward" alt="Example of forward accumulation with computational graph" title="example_01_forward" src="images/algodiff/example_01_forward.png"><figcaption>Example of forward accumulation with computational graph</figcaption>
+</figure>
+<p>Of course, all the numerical computations here are approximated with only two significant figures. We can validate this result with algorithmic differentiation module in Owl. If you don’t understand the code, don’t worry. We will cover the details of this module in later sections.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">open Algodiff.D
+let f x =
+  let x1 = Mat.get x 0 0 in
+  let x2 = Mat.get x 0 1 in
+  Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin x1))))
+&gt;val f : t -&gt; t = &lt;fun&gt;
+let x = Mat.ones 1 2
+&gt;val x : t = [Arr(1,2)]
+let _ = grad f x |&gt; unpack_arr
+&gt;- : A.arr =
+&gt;          C0        C1
+&gt;R0 -0.181974 -0.118142
+</code></pre>
+</div>
+</section>
+<section class="level3" id="reverse-mode">
+<h3>Reverse Mode</h3>
+<p>Now let’s rethink about this problem from the other direction, literally. Question remains the same, i.e.&nbsp;calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. We still follow the same “step by step” idea from the forward mode, but the difference is that, we calculate it backward. For example, here we reduce the problem in this way: since in this graph <span class="math inline">\(y = v_7 / v_8\)</span>, if only we can have <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span> and <span class="math inline">\(\frac{\partial~y}{\partial~v_8}\)</span>, then this problem should be one step closer towards my target problem.</p>
+<p>First of course, we have <span class="math inline">\(\frac{\partial~y}{\partial~v_9} = 1\)</span>, since <span class="math inline">\(y\)</span> and <span class="math inline">\(v_9\)</span> are the same. Then how do we get <span class="math inline">\(\frac{\partial~y}{\partial~v_7}\)</span>? Again, time for chain rule:</p>
+<p><span class="math display">\[\frac{\partial~y}{\partial~v_7} = \frac{\partial~y}{\partial~v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{\partial~v_9}{\partial~v_7} = \frac{\partial~(v_7 / v_8)}{\partial~v_7} = \frac{1}{v_8}.\]</span> {#eq:algodiff:reverse_01}</p>
+<p>Hmm, let’s try to apply a substitution to the terms to simplify this process. Let</p>
+<p><span class="math display">\[\bar{v_i} = \frac{\partial~y}{\partial~v_i}\]</span></p>
+<p>be the derivative of output variable <span class="math inline">\(y\)</span> with regard to intermediate node <span class="math inline">\(v_i\)</span>. It is called the <em>adjoint</em> of variable <span class="math inline">\(v_i\)</span> with respect to the output variable <span class="math inline">\(y\)</span>. Using this notation, <span data-cites="eq:algodiff:reverse_01" class="citation">[@eq:algodiff:reverse_01]</span> can be expressed as:</p>
+<p><span class="math display">\[\bar{v_7} = \bar{v_9} * \frac{\partial~v_9}{\partial~v_7} = 1 * \frac{1}{v_8}.\]</span></p>
+<p>Note the difference between tangent and adjoint. In the forward mode, we know <span class="math inline">\(\dot{v_0}\)</span> and <span class="math inline">\(\dot{v_1}\)</span>, then we calculate <span class="math inline">\(\dot{v_2}\)</span>, <span class="math inline">\(\dot{v_3}\)</span>, …. and then finally we have <span class="math inline">\(\dot{v_9}\)</span>, which is the target. Here, we start with knowing <span class="math inline">\(\bar{v_9} = 1\)</span>, and then we calculate <span class="math inline">\(\bar{v_8}\)</span>, <span class="math inline">\(\bar{v_7}\)</span>, …. and then finally we have <span class="math inline">\(\bar{v_0} = \frac{\partial~y}{\partial~v_0} = \frac{\partial~y}{\partial~x_0}\)</span>, which is also exactly our target. Again, <span class="math inline">\(\dot{v_9} = \bar{v_0}\)</span> in this example, given that we are talking about derivative regarding <span class="math inline">\(x_0\)</span> when we use <span class="math inline">\(\dot{v_9}\)</span>. Following this line of calculation, the reverse differentiation mode is also called <em>adjoint mode</em>.</p>
+<p>With that in mind, let’s see the full steps of performing reverse differentiation. First, we need to perform a forward pass to compute the required intermediate values, as shown in <span data-cites="tbl:algodiff:reverse_01" class="citation">[@tbl:algodiff:reverse_01]</span>.</p>
+<table style="width:44%;">
+<caption>Forward pass in the reverse differentiation mode {#tbl:algodiff:reverse_01}</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: left;">Primal computation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td style="text-align: left;"><span class="math inline">\(v_0 = x_0 = 1\)</span></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td style="text-align: left;"><span class="math inline">\(v_1 = x_1 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td style="text-align: left;"><span class="math inline">\(v_2 = sin(v_0) = 0.84\)</span></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td style="text-align: left;"><span class="math inline">\(v_3 = v_0~v_1 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td style="text-align: left;"><span class="math inline">\(v_4 = v_2 + v3 = 1.84\)</span></td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td style="text-align: left;"><span class="math inline">\(v_5 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td style="text-align: left;"><span class="math inline">\(v_6 = \exp{(v_4)} = 6.30\)</span></td>
+</tr>
+<tr class="even">
+<td>7</td>
+<td style="text-align: left;"><span class="math inline">\(v_7 = 1\)</span></td>
+</tr>
+<tr class="odd">
+<td>8</td>
+<td style="text-align: left;"><span class="math inline">\(v_8 = v_5 + v_6 = 7.30\)</span></td>
+</tr>
+<tr class="even">
+<td>9</td>
+<td style="text-align: left;"><span class="math inline">\(y = v_9 = \frac{1}{v_8}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>You might be wondering, this looks the same as the left side of <span data-cites="tbl:algodiff:forward" class="citation">[@tbl:algodiff:forward]</span>. You are right. These two are exactly the same, and we repeat it again to make the point that, this time you cannot perform the calculation with one pass. You must compute the required intermediate results first, and then perform the other “backward pass”, which is the key point in reverse mode.</p>
+<table>
+<caption>Computation process of the backward pass in reverse differentiation {#tbl:algodiff:reverse_02}</caption>
+<colgroup>
+<col style="width: 5%">
+<col style="width: 94%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: left;">Adjoint computation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_9} = 1\)</span></td>
+</tr>
+<tr class="even">
+<td>11</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_8} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_8} = 1 * \frac{-v_7}{v_8^2} = \frac{-1}{7.30^2} = -0.019\)</span></td>
+</tr>
+<tr class="odd">
+<td>12</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_7} = \bar{v_9}\frac{\partial~(v_7/v_8)}{\partial~v_7} = \frac{1}{v_8} = 0.137\)</span></td>
+</tr>
+<tr class="even">
+<td>13</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_6} = \bar{v_8}\frac{\partial~v_8}{\partial~v_6} = \bar{v_8} * \frac{\partial~(v_6 + v5)}{\partial~v_6} = \bar{v_8}\)</span></td>
+</tr>
+<tr class="odd">
+<td>14</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_5} = \bar{v_8}\frac{\partial~v_8}{\partial~v_5} = \bar{v_8} * \frac{\partial~(v_6 + v5)}{\partial~v_5} = \bar{v_8}\)</span></td>
+</tr>
+<tr class="even">
+<td>15</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_4} = \bar{v_6}\frac{\partial~v_6}{\partial~v_4} = \bar{v_8} * \frac{\partial~\exp{(v_4)}}{\partial~v_4} = \bar{v_8} * e^{v_4}\)</span></td>
+</tr>
+<tr class="odd">
+<td>16</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_3} = \bar{v_4}\frac{\partial~v_4}{\partial~v_3} = \bar{v_4} * \frac{\partial~(v_2 + v_3)}{\partial~v_3} = \bar{v_4}\)</span></td>
+</tr>
+<tr class="even">
+<td>17</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_2} = \bar{v_4}\frac{\partial~v_4}{\partial~v_2} = \bar{v_4} * \frac{\partial~(v_2 + v_3)}{\partial~v_2} = \bar{v_4}\)</span></td>
+</tr>
+<tr class="odd">
+<td>18</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_1} = \bar{v_3}\frac{\partial~v_3}{\partial~v_1} = \bar{v_3} * \frac{\partial~(v_0*v_1)}{\partial~v_1} = \bar{v_4} * v_0 = \bar{v_4}\)</span></td>
+</tr>
+<tr class="even">
+<td>19</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_{02}} = \bar{v_2}\frac{\partial~v_2}{\partial~v_0} = \bar{v_2} * \frac{\partial~(sin(v_0))}{\partial~v_0} = \bar{v_4} * cos(v_0)\)</span></td>
+</tr>
+<tr class="odd">
+<td>20</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_{03}} = \bar{v_3}\frac{\partial~v_3}{\partial~v_0} = \bar{v_3} * \frac{\partial~(v_0 * v_1)}{\partial~v_0} = \bar{v_4} * v_1\)</span></td>
+</tr>
+<tr class="even">
+<td>21</td>
+<td style="text-align: left;"><span class="math inline">\(\bar{v_0} = \bar{v_{02}} + \bar{v_{03}} = \bar{v_4}(cos(v_0) + v_1) = \bar{v_8} * e^{v_4}(0.54 + 1) = -0.019 * e^{1.84} * 1.54 = -0.18\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Note that things a bit different for <span class="math inline">\(x_0\)</span>. It is used in both intermediate variables <span class="math inline">\(v_2\)</span> and <span class="math inline">\(v_3\)</span>. Therefore, we compute the adjoint of <span class="math inline">\(v_0\)</span> with regard to <span class="math inline">\(v_2\)</span> (step 19) and <span class="math inline">\(v_3\)</span> (step 20), and accumulate them together (step 20).</p>
+<p>Similar to the forward mode, reverse differentiation process in [] can be clearly shown in figure <span data-cites="fig:algodiff:example_01_reverse" class="citation">[@fig:algodiff:example_01_reverse]</span>.</p>
+<figure>
+<img style="width:100.0%" id="fig:algodiff:example_01_reverse" alt="Example of reverse accumulation with computational graph" title="example_01_reverse" src="images/algodiff/example_01_reverse.png"><figcaption>Example of reverse accumulation with computational graph</figcaption>
+</figure>
+<p>This result <span class="math inline">\(\bar{v_0} = -0.18\)</span> agrees what we have have gotten using the forward mode. However, if you still need another fold of insurance, we can use Owl to perform a numerical differentiation. The code would be similar to that of using algorithmic differentiation as shown before.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module D = Owl_numdiff_generic.Make (Dense.Ndarray.D);;
+
+let x = Arr.ones [|2|]
+
+let f x =
+    let x1 = Arr.get x [|0|] in
+    let x2 = Arr.get x [|1|] in
+    Maths.(div 1. (1. +. exp (x1 *. x2 +. (sin x1))))</code></pre>
+</div>
+<p>And then we can get the differentiation result at the point <span class="math inline">\((x_0, x_1) = (0, 0)\)</span>, and it agrees with the previous results.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">D.grad f x
+&gt;- : D.arr =
+&gt;         C0        C1
+&gt;R -0.181973 -0.118142
+</code></pre>
+</div>
+<p>Before we move on, did you notice that we get <span class="math inline">\(\frac{\partial~y}{\partial~x_1}\)</span> for “free” while calculating <span class="math inline">\(\frac{\partial~y}{\partial~x_0}\)</span>. Noticing this will help you to understand the next section, about how to decide which mode (forward or backward) to use in practice.</p>
+</section>
+<section class="level3" id="forward-or-reverse">
+<h3>Forward or Reverse?</h3>
+<p>Since both modes can be used to differentiate a function, the natural question is which mode we should choose in practice. The short answer is: it depends on your function. In general, given a function that you want to differentiate, the rule of thumb is:</p>
+<ul>
+<li>if the number of input variables is far larger than that of the output variables, then use reverse mode;</li>
+<li>if the number of output variables is far larger than that of the input variables, then use forward mode.</li>
+</ul>
+<p>For each input variable, we need to seed individual variable and perform one forward pass. The number of forward passes increase linearly as the number of inputs increases. However, for backward mode, no matter how many inputs there are, one backward pass can give us all the derivatives of the inputs. I guess now you understand why we need to use backward mode for <code>f</code>. One real-world example of <code>f</code> is machine learning and neural network algorithms, wherein there are many inputs but the output is often one scalar value from loss function.</p>
+<p>Backward mode needs to maintain a directed computation graph in the memory so that the errors can propagate back; whereas the forward mode does not have to do that due to the algebra of dual numbers. Later we will show example about choosing between these two methods.</p>
+</section>
+</section>
+<section class="level2" id="a-strawman-ad-engine">
+<h2>A Strawman AD Engine</h2>
+<p>Surely you don’t want to make these tables every time you are faced with a new computation. Now that you understand how to use forward and reverse propagation to do algorithmic differentiation, let’s look at how to do it with computer programmes. In this section, we will introduce how to implement the differentiation modes using pure OCaml code. Of course, these will be elementary straw man implementations compared to the industry standard module provided by Owl, but nevertheless are important to the understanding of the latter.</p>
+<p>We will again use the function in <span data-cites="eq:algodiff:example" class="citation">[@eq:algodiff:example]</span> as example, and we limit the computation in our small AD engine to only these basic operations: <code>add</code>, <code>div</code>, <code>mul</code>.</p>
+<section class="level3" id="simple-forward-implementation">
+<h3>Simple Forward Implementation</h3>
+<p>How can we represent <span data-cites="tbl:algodiff:forward" class="citation">[@tbl:algodiff:forward]</span>? An intuitive answer is to build a table when traversing the computation graph. However, that’s not a scalable: what if there are hundreds and thousands of computation steps? A closer look at the <span data-cites="tbl:algodiff:forward" class="citation">[@tbl:algodiff:forward]</span> shows that an intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results. Based on this observation, we can define a data type that preserve these two values:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type df = {
+    mutable p: float;
+    mutable t: float
+}
+
+let primal df = df.p
+let tangent df = df.t</code></pre>
+</div>
+<p>And now we can define operators that accept type <code>df</code> as input and outputs the same type:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad x =
+    let p = primal x in
+    let t = tangent x in
+    let p' = Owl_maths.sin p in
+    let t' = (Owl_maths.cos p) *. t in
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>The core part of this function is to define how to compute its function value <code>p'</code> and derivative value <code>t'</code> based on the input <code>df</code> data. Now you can easily extend it towards the <code>exp</code> operation:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let exp_ad x =
+    let p = primal x in
+    let t = tangent x in
+    let p' = Owl_maths.exp p in
+    let t' = p' *. t in
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>But what about operators that accept multiple inputs? Let’s see multiplication.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mul_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
+    let p' = pa *. pb in
+    let t' = pa *. tb +. ta *. pb in
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>Though it require a bit more unpacking, its forward computation and derivative function are simple enough. Similarly, you can extend that towards similar operations: the <code>add</code> and <code>div</code>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let add_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
+    let p' = pa +. pb in
+    let t' = ta +. tb in
+    {p=p'; t=t'}
+
+let div_ad a b =
+    let pa = primal a in
+    let ta = tangent a in
+    let pb = primal b in
+    let tb = tangent b in
+    let p' = pa /. pb in
+    let t' = (ta *. pb -. tb *. pa) /. (pb *. pb) in
+    {p=p'; t=t'}</code></pre>
+</div>
+<p>Based on these functions, we can provide a tiny wrapper named <code>diff</code>:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f =
+  let f' x y =
+    let r = f x y in
+    primal r, tangent r
+  in
+  f'</code></pre>
+</div>
+<p>And that’s all! Now we can do differentiation on our previous example.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x0 = {p=1.; t=1.}
+let x1 = {p=1.; t=0.}</code></pre>
+</div>
+<p>These are inputs. We know the tangent of <code>x1</code> with regard to <code>x0</code> is zero, and so are the other constants used in the computation.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x0 x1 =
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = {p=1.; t=0.} in
+  let v6 = exp_ad v4 in
+  let v7 = {p=1.; t=0.} in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9
+&gt;val f : df -&gt; df -&gt; df = &lt;fun&gt;
+let pri, tan = diff f x0 x1
+&gt;val pri : float = 0.13687741466075895
+&gt;val tan : float = -0.181974376561731321
+</code></pre>
+</div>
+<p>The results are just as calculated in the previous section.</p>
+</section>
+<section class="level3" id="simple-reverse-implementation">
+<h3>Simple Reverse Implementation</h3>
+<p>The reverse mode is a bit more complex. As shown in the previous section, forward mode only needs one pass, but the reverse mode requires two passes, a forward pass followed by a backward pass. This further indicates that, besides computing primal values, we also need to “remember” the operations along the forward pass, and then utilise these information in the backward pass. There are multiple ways to do that, e.g.&nbsp;a stack or graph structure. What we choose here is bit different though. Let’s start with the data types we use.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type dr = {
+    mutable p: float;
+    mutable a: float ref;
+  mutable adj_fun : float ref -&gt; (float * dr) list -&gt; (float * dr) list
+}
+
+let primal dr = dr.p
+let adjoint dr = dr.a
+let adj_fun dr = dr.adj_fun</code></pre>
+</div>
+<p>The <code>p</code> is for primal while <code>a</code> stands for adjoint. It’s easy to understand. The <code>adj_fun</code> is a bit tricky. Let’s see an example:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad dr =
+    let p = primal dr in
+    let p' = Owl_maths.sin p in
+    let adjfun' ca t =
+        let r = !ca *. (Owl_maths.cos p) in
+        (r, dr) :: t
+    in
+    {p=p'; a=ref 0.; adj_fun=adjfun'}</code></pre>
+</div>
+<p>It’s an implementation of <code>sin</code> operation. The <code>adj_fun</code> here can be understood as a <em>placeholder</em> for the adjoint value we don’t know yet in the forward pass. The <code>t</code> is a stack of intermediate nodes to be processed in the backward process. It says that, if I have the adjoint value <code>ca</code>, I can then get the new adjoint value of my parents <code>r</code>. This result, together with the original data <code>dr</code>, is pushed to the stack <code>t</code>. This stack is implemented in OCaml list.</p>
+<p>Let’s then look at the <code>mul</code> operation with two variables:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mul_ad dr1 dr2 =
+    let p1 = primal dr1 in
+    let p2 = primal dr2 in
+
+    let p' = Owl_maths.mul p1 p2 in
+    let adjfun' ca t =
+        let r1 = !ca *. p2 in
+        let r2 = !ca *. p1 in
+        (r1, dr1) :: (r2, dr2) :: t
+    in
+    {p = p'; a = ref 0.; adj_fun = adjfun'}</code></pre>
+</div>
+<p>The difference is that, this time both of its parents are added to the task stack. For the input data, we need a helper function:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let make_reverse v =
+    let a = ref 0. in
+    let adj_fun _a t = t in
+    {p=v; a; adj_fun}</code></pre>
+</div>
+<p>With this function, we can perform the forward pass like this:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = make_reverse 1.
+&gt;val x : dr = {p = 1.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+let y = make_reverse 2.
+&gt;val y : dr = {p = 2.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+let v = mul_ad (sin_ad x) y
+&gt;val v : dr = {p = 1.68294196961579301; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+</code></pre>
+</div>
+<p>After the forward pass, we have the primal values at each intermediate node, but their adjoint values are all set to zero, since we don’t know them yet. And we have this adjoin function. Noting that executing this function would create a list of past computations, which in turn contains its own <code>adj_fun</code>. This resulting <code>adj_fun</code> remembers all the required information, and know we need to recursively calculate the adjoint values we want.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let rec reverse_push xs =
+    match xs with
+    | [] -&gt; ()
+    | (v, dr) :: t -&gt;
+        let aa = adjoint dr in
+        let adjfun = adj_fun dr in
+        aa := !aa +. v;
+        let stack = adjfun aa t in
+        reverse_push stack</code></pre>
+</div>
+<p>The <code>reverse_push</code> does exactly that. Starting from a list, it gets the top element <code>dr</code>, gets the adjoint value we already calculated <code>aa</code>, updates it with <code>v</code>, and then gets the <code>adj_fun</code>. Now that we know the adjoint value, we can use that as input parameter to the <code>adj_fun</code> to execute the data of current task and recursively execute more nodes until the task stack is empty.</p>
+<p>Now, let’s add some other required operations basically by copy and paste:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let exp_ad dr =
+    let p = primal dr in
+    let p' = Owl_maths.exp p in
+    let adjfun' ca t =
+        let r = !ca *. (Owl_maths.exp p) in
+        (r, dr) :: t
+    in
+    {p=p'; a=ref 0.; adj_fun=adjfun'}
+
+
+let add_ad dr1 dr2 =
+    let p1 = primal dr1 in
+    let p2 = primal dr2 in
+    let p' = Owl_maths.add p1 p2 in
+    let adjfun' ca t =
+        let r1 = !ca in
+        let r2 = !ca in
+        (r1, dr1) :: (r2, dr2) :: t
+    in
+    {p = p'; a = ref 0.; adj_fun = adjfun'}
+
+
+let div_ad dr1 dr2 =
+    let p1 = primal dr1 in
+    let p2 = primal dr2 in
+
+    let p' = Owl_maths.div p1 p2 in
+    let adjfun' ca t =
+        let r1 = !ca /. p2 in
+        let r2 = !ca *. (-.p1) /. (p2 *. p2) in
+        (r1, dr1) :: (r2, dr2) :: t
+    in
+    {p = p'; a = ref 0.; adj_fun = adjfun'}</code></pre>
+</div>
+<p>We can express the differentiation function <code>diff</code> with the reverse mode, with first a forward pass and then a backward pass.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f =
+  let f' x =
+    (* forward pass *)
+    let r = f x in
+    (* backward pass *)
+    reverse_push [(1., r)];
+    (* get result values *)
+    let x0, x1 = x in
+    primal x0, !(adjoint x0), primal x1, !(adjoint x1)
+  in
+  f'</code></pre>
+</div>
+<p>Now we can do the calculation, which are the same as before, and the only difference is the way to build constant values.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x1 = make_reverse 1.
+&gt;val x1 : dr = {p = 1.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+let x0 = make_reverse 1.
+&gt;val x0 : dr = {p = 1.; a = {contents = 0.}; adj_fun = &lt;fun&gt;}
+let f x =
+  let x0, x1 = x in
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = make_reverse 1. in
+  let v6 = exp_ad v4 in
+  let v7 = make_reverse 1. in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9
+&gt;val f : dr * dr -&gt; dr = &lt;fun&gt;
+</code></pre>
+</div>
+<p>Now let’s do the differentiation:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let pri_x0, adj_x0, pri_x1, adj_x1 = diff f (x0, x1)
+&gt;val pri_x0 : float = 1.
+&gt;val adj_x0 : float = -0.181974376561731321
+&gt;val pri_x1 : float = 1.
+&gt;val adj_x1 : float = -0.118141988016545588
+</code></pre>
+</div>
+<p>Again, their adjoint values are just as expected.</p>
+</section>
+<section class="level3" id="unified-implementations">
+<h3>Unified Implementations</h3>
+<p>We have shown how to implement forward and reverse AD from scratch separately. But in the real world applications, we often need a system that supports both differentiation modes. How can we build it then? We start with combining the previous two record data types <code>df</code> and <code>dr</code> into a new data type <code>t</code> and its related operations:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">type t =
+  | DF of float * float  
+  | DR of float * float ref * adjoint
+
+and adjoint = float ref -&gt; (float * t) list -&gt; (float * t) list
+
+let primal = function
+  | DF (p, _) -&gt; p
+  | DR (p, _, _) -&gt; p
+
+let tangent = function
+  | DF (_, t) -&gt; t
+  | DR (_, _, _) -&gt; failwith "error: no tangent for DR"
+
+let adjoint = function
+  | DF (_, _) -&gt;  failwith "error: no adjoint for DF"
+  | DR (_, a, _) -&gt; a
+
+
+let make_forward p a = DF (p, a)
+
+let make_reverse p =
+    let a = ref 0. in
+    let adj_fun _a t = t in
+    DR (p, a, adj_fun)
+
+let rec reverse_push xs =
+  match xs with
+  | [] -&gt; ()
+  | (v, x) :: t -&gt;
+    (match x with
+    | DR (_, a, adjfun) -&gt;
+      a := !a +. v;
+      let stack = adjfun a t in
+      reverse_push stack
+    | _ -&gt; failwith "error: unsupported type")</code></pre>
+</div>
+<p>Now we can operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a <code>match</code> clause.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad x =
+  let ff = Owl_maths.sin in
+  let df p t = (Owl_maths.cos p) *. t in
+  let dr p a = !a *. (Owl_maths.cos p) in
+  match x with
+  | DF (p, t) -&gt;
+    let p' = ff p in
+    let t' = df p t in
+    DF (p', t')
+  | DR (p, _, _) -&gt;
+    let p' = ff p in
+    let adjfun' a t =
+      let r = dr p a in
+      (r, x) :: t
+    in
+    DR (p', ref 0., adjfun')</code></pre>
+</div>
+<p>The code is mostly taken from the previous two implementations, so should be not very alien to you now. Similarly we can also build the multiplication operator:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let mul_ad xa xb =
+  let ff = Owl_maths.mul in
+  let df pa pb ta tb = pa *. tb +. ta *. pb in
+  let dr pa pb a = !a *. pb, !a *. pa in
+  match xa, xb with
+  | DF (pa, ta), DF (pb, tb) -&gt;
+    let p' = ff pa pb in
+    let t' = df pa pb ta tb in
+    DF (p', t')
+  | DR (pa, _, _), DR (pb, _, _) -&gt;
+    let p' = ff pa pb in
+    let adjfun' a t =
+      let ra, rb = dr pa pb a in
+      (ra, xa) :: (rb, xb) :: t
+    in
+    DR (p', ref 0., adjfun')
+  | _, _ -&gt; failwith "unsupported op"</code></pre>
+</div>
+<p>Now before moving forward, let’s pause and think about what’s so different among different math functions. First, they may take different number of input arguments; they could be unary functions or binary functions. Second, they have different computation rules. Specifically, three type of computations are involved: <code>ff</code>, which computes the primal value; <code>df</code>, which computes the tangent value; and <code>dr</code>, which computes the adjoint value. The rest are mostly fixed.</p>
+<p>Based on this observation, we can utilise the first-class citizen in OCaml, the “module”, to reduce a lot of copy and paste in our code. We can start with two types of modules: unary and binary:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module type Unary = sig
+  val ff : float -&gt; float
+
+  val df : float -&gt; float -&gt; float
+
+  val dr : float -&gt; float ref -&gt; float
+end
+
+module type Binary = sig
+  val ff : float -&gt; float -&gt; float
+
+  val df : float -&gt; float -&gt; float -&gt; float -&gt; float
+
+  val dr : float -&gt; float -&gt; float ref -&gt; float * float
+end</code></pre>
+</div>
+<p>They express both points of difference: first, the two modules differentiate between unary and binary ops; second, each module represents the three core operations: <code>ff</code>, <code>df</code>, and <code>dr</code>. We can focus on the computation logic of each computation in each module:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module Sin = struct
+  let ff = Owl_maths.sin
+  let df p t = (Owl_maths.cos p) *. t
+  let dr p a = !a *. (Owl_maths.cos p)
+end
+
+module Exp = struct
+  let ff = Owl_maths.exp
+  let df p t = (Owl_maths.exp p) *. t
+  let dr p a = !a *. (Owl_maths.exp p)
+end
+
+module Mul = struct
+  let ff = Owl_maths.mul
+  let df pa pb ta tb = pa *. tb +. ta *. pb
+  let dr pa pb a = !a *. pb, !a *. pa
+end
+
+module Add = struct
+  let ff = Owl_maths.add
+  let df _pa _pb ta tb = ta +. tb
+  let dr _pa _pb a = !a, !a
+end
+
+module Div = struct
+  let ff = Owl_maths.div
+  let df pa pb ta tb = (ta *. pb -. tb *. pa) /. (pb *. pb)
+  let dr pa pb a =
+     !a /. pb, !a *. (-.pa) /. (pb *. pb)
+end</code></pre>
+</div>
+<p>Now we can provide a template to build math functions:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let unary_op (module U: Unary) = fun x -&gt;
+  match x with
+  | DF (p, t) -&gt;
+    let p' = U.ff p in
+    let t' = U.df p t in
+    DF (p', t')
+  | DR (p, _, _) -&gt;
+    let p' = U.ff p in
+    let adjfun' a t =
+      let r = U.dr p a in
+      (r, x) :: t
+    in
+    DR (p', ref 0., adjfun')
+
+
+let binary_op (module B: Binary) = fun xa xb -&gt;
+  match xa, xb with
+  | DF (pa, ta), DF (pb, tb) -&gt;
+    let p' = B.ff pa pb in
+    let t' = B.df pa pb ta tb in
+    DF (p', t')
+  | DR (pa, _, _), DR (pb, _, _) -&gt;
+    let p' = B.ff pa pb in
+    let adjfun' a t =
+      let ra, rb = B.dr pa pb a in
+      (ra, xa) :: (rb, xb) :: t
+    in
+    DR (p', ref 0., adjfun')
+  | _, _ -&gt; failwith "unsupported op"</code></pre>
+</div>
+<p>Each template accepts a module, and then returns the function we need. Let’s see how it works with concise code.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad = unary_op (module Sin : Unary)
+
+let exp_ad = unary_op (module Exp : Unary)
+
+let mul_ad = binary_op (module Mul : Binary)
+
+let add_ad = binary_op (module Add: Binary)
+
+let div_ad = binary_op (module Div : Binary)</code></pre>
+</div>
+<p>As you can expect, the <code>diff</code> function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of <code>x0</code> only.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let diff f =
+  let f' x =
+    let x0, x1 = x in
+    match x0, x1 with
+    | DF (_, _), DF (_, _)    -&gt;
+      f x |&gt; tangent  
+    | DR (_, _, _), DR (_, _, _) -&gt;
+      let r = f x in
+      reverse_push [(1., r)];
+      !(adjoint x0)
+    | _, _ -&gt; failwith "error: unsupported operator"
+  in
+  f'</code></pre>
+</div>
+<p>That’s all. We can move on once again to our familiar examples.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = make_forward 1. 1.
+&gt;val x0 : t = DF (1., 1.)
+let x1 = make_forward 1. 0.
+&gt;val x1 : t = DF (1., 0.)
+let f_forward x =
+  let x0, x1 = x in
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = make_forward 1. 0. in
+  let v6 = exp_ad v4 in
+  let v7 = make_forward 1. 0. in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9
+&gt;val f_forward : t * t -&gt; t = &lt;fun&gt;
+diff f_forward (x0, x1)
+&gt;- : float = -0.181974376561731321
+</code></pre>
+</div>
+<p>That’s just forward mode. With only tiny change of how the variables are constructed, we can also do the reverse mode.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x0 = make_reverse 1.
+&gt;val x0 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
+let x1 = make_reverse 1.
+&gt;val x1 : t = DR (1., {contents = 0.}, &lt;fun&gt;)
+let f_reverse x =
+  let x0, x1 = x in
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = make_reverse 1. in
+  let v6 = exp_ad v4 in
+  let v7 = make_reverse 1. in
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9
+&gt;val f_reverse : t * t -&gt; t = &lt;fun&gt;
+diff f_reverse (x0, x1)
+&gt;- : float = -0.181974376561731321
+</code></pre>
+</div>
+<p>Once again, the results agree and are just as expected.</p>
+</section>
+</section>
+<section class="level2" id="forward-and-reverse-propagation-api">
+<h2>Forward and Reverse Propagation API</h2>
+<p>So far we have talked a lot about what is algorithmic differentiation and how it works, with theory, example illustration, and code. Now finally let’s turn to using it in Owl. Owl provides both numerical differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/optimise/owl_numdiff_generic_sig.ml">Numdiff.Generic</a> module) and algorithmic differentiation (in <a href="https://github.com/owlbarn/owl/blob/master/src/base/algodiff/owl_algodiff_generic_sig.ml">Algodiff.Generic</a> module). We have briefly used them in previous sections to validate the calculation results of our manual forward and reverse differentiation examples.</p>
+<p>Algorithmic Differentiation is a core module built in Owl, which is one of Owl’s special features among other similar numerical libraries. <code>Algodiff.Generic</code> is a functor that accepts a Ndarray modules. By plugging in <code>Dense.Ndarray.S</code> and <code>Dense.Ndarray.D</code> modules we can have AD modules that supports <code>float32</code> and <code>float64</code> precision respectively.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module S = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.S)
+module D = Owl_algodiff_generic.Make (Owl_algodiff_primal_ops.D)</code></pre>
+</div>
+<p>This <code>Owl_algodiff_primal_ops</code> module here might seem unfamiliar to you, but in essence it is mostly an alias of the Ndarray module, with certain matrix and linear algebra functions added in.<br>
+We will mostly use the double precision <code>Algodiff.D</code> module, but of course using other choices is also perfectly fine.</p>
+<section class="level3" id="expressing-computation">
+<h3>Expressing Computation</h3>
+<p>Let’s look at the the previous example of <span data-cites="eq:algodiff:example" class="citation">[@eq:algodiff:example]</span>, and express it with the AD module. Normally, the code below should do.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl
+
+let f x =
+    let x0 = Mat.get x 0 0 in
+    let x1 = Mat.get x 0 1 in
+    Owl_maths.(1. /. (1. +. exp (sin x0 +. x0 *. x1)))</code></pre>
+</div>
+<p>This function accepts a vector and returns a float value, which is exactly what we are looking for. However, the problem is that we cannot directly differentiate this programme. Instead, we need to do some minor but important change:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">module AD = Algodiff.D
+
+let f x =
+    let x0 = AD.Mat.get x 0 0 in
+    let x1 = AD.Mat.get x 0 1 in
+    AD.Maths.((F 1.) / (F 1. + exp (sin x0 + x0 * x1)))</code></pre>
+</div>
+<p>This function looks very similar, but now we are using the operators provided by the AD module, including the <code>get</code> operation and math operations. In AD, all the input/output are of type <code>AD.t</code>. There is no difference between scalar, matrix, or ndarray for the type checking.</p>
+<p>The <code>F</code> is special packing mechanism in AD. It makes a type <code>t</code> float. Think about wrapping a float number inside a container that can be recognised in this factory called “AD”. And then this factory can produce the differentiation result you want. The <code>Arr</code> operator is similar. It wraps an ndarray (or matrix) inside this same container. And as you can guess, there are also unpacking mechanisms. When this AD factory produces some result, to see the result you need to first unwrap this container with the functions <code>unpack_flt</code> and <code>unpack_arr</code>. For example, we can directly execute the AD functions, and the results need to be unpacked before being used.</p>
+<div class="highlight">
+<pre><code class="language-clike">open AD
+
+# let input = Arr (Dense.Matrix.D.ones 1 2)
+# let result = f input |&gt; unpack_flt
+val result : float = 0.13687741466075895</code></pre>
+</div>
+<p>Despite this slightly cumbersome number packing mechanism, we can now perform the forward and reverse propagation on this computation in Owl, as will be shown next.</p>
+</section>
+<section class="level3" id="example-forward-mode">
+<h3>Example: Forward Mode</h3>
+<p>The forward mode is implemented with the <code>make_forward</code> and <code>tangent</code> function:</p>
+<div class="highlight">
+<pre><code class="language-clike">val make_forward : t -&gt; t -&gt; int -&gt; t
+
+val tangent : t -&gt; t</code></pre>
+</div>
+<p>The forward process is straightforward.</p>
+<div class="highlight">
+<pre><code class="language-clike">open AD
+
+# let x = make_forward input (F 1.) (tag ());;   (* seed the input *)
+# let y = f x;;                                  (* forward pass *)
+# let y' = tangent y;;                           (* get all derivatives *)</code></pre>
+</div>
+<p>All the derivatives are ready whenever the forward pass is finished, and they are stored as tangent values in <code>y</code>. We can retrieve the derivatives using <code>tangent</code> function.</p>
+</section>
+<section class="level3" id="example-reverse-mode">
+<h3>Example: Reverse Mode</h3>
+<p>The reverse mode consists of two parts:</p>
+<div class="highlight">
+<pre><code class="language-clike">val make_reverse : t -&gt; int -&gt; t
+
+val reverse_prop : t -&gt; t -&gt; unit</code></pre>
+</div>
+<p>Let’s look at the code snippet below.</p>
+<div class="highlight">
+<pre><code class="language-clike">open AD
+
+# let x = Mat.ones 1 2;;              (* generate random input *)
+# let x' = make_reverse x (tag ());;  (* init the reverse mode *)
+# let y = f x';;                      (* forward pass to build computation graph *)
+# let _ = reverse_prop (F 1.) y;;     (* backward pass to propagate error *)
+# let y' = adjval x';;                (* get the gradient value of f *)
+
+- : A.arr =
+          C0        C1
+R0 -0.181974 -0.118142</code></pre>
+</div>
+<p>The <code>make_reverse</code> function does two things for us: 1) wrapping <code>x</code> into type <code>t</code> that <code>Algodiff</code> can process 2) generating a unique tag for the input so that input numbers can have nested structure. By calling <code>f x'</code>, we construct the computation graph of <code>f</code> and the graph structure is maintained in the returned result <code>y</code>. Finally, <code>reverse_prop</code> function propagates the error back to the inputs. In the end, the gradient of <code>f</code> is stored in the adjacent value of <code>x'</code>, and we can retrieve that with <code>adjval</code> function. The result agrees with what we have calculated manually.</p>
+</section>
+</section>
+<section class="level2" id="high-level-apis">
+<h2>High-Level APIs</h2>
+<p>What we have seen is the basic of AD modules. There might be cases you do need to operate these low-level functions to write up your own applications (e.g., implementing a neural network), then knowing the mechanisms behind the scene is definitely a big plus. However, using these complex low level function hinders daily use of algorithmic differentiation in numerical computation task. In reality, you don’t really need to worry about forward or reverse mode if you simply use high-level APIs such as <code>diff</code>, <code>grad</code>, <code>hessian</code>, etc. They are all built on the forward or reverse mode that we have seen, but provide clean interfaces, making a lot of details transparent to users. In this section we will introduce how to use these high level APIs.</p>
+<section class="level3" id="derivative-and-gradient">
+<h3>Derivative and Gradient</h3>
+<p>The most basic and commonly used differentiation functions is used for calculating the <em>derivative</em> of a function. The AD module provides <code>diff</code> function for this task. Given a function <code>f</code> that takes a scalar as input and also returns a scalar value, we can calculate its derivative at a point <code>x</code> by <code>diff f x</code>, as shown in this function signature.</p>
+<div class="highlight">
+<pre><code class="language-clike">val diff : (t -&gt; t) -&gt; t -&gt; t</code></pre>
+</div>
+<p>The physical meaning of derivative is intuitive. The function <code>f</code> can be expressed as a curve in a cartesian coordinate system, and the derivative at a point is the tangent on a function at this point. It also indicate the rate of change at this point.</p>
+<p>Suppose we define a function <code>f0</code> to be the triangular function <code>tanh</code>, we can calculate its derivative at position <span class="math inline">\(x=0.1\)</span> by simply calling:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let f0 x = Maths.(tanh x)
+let d = diff f0 (F 0.1)</code></pre>
+</div>
+<p>Moreover, the AD module is much more than that; we can easily chain multiple <code>diff</code> together to get a function’s high order derivatives. For example, we can get the first to fourth order derivatives of <code>f0</code> by using the concise code below.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let f0 x = Maths.(tanh x);;
+let f1 = diff f0;;
+let f2 = diff f1;;
+let f3 = diff f2;;
+let f4 = diff f3;;</code></pre>
+</div>
+<p>We can further plot these five functions using Owl, and the result is show in <span data-cites="fig:algodiff:plot00" class="citation">[@fig:algodiff:plot00]</span>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let map f x = Owl.Mat.map (fun a -&gt; a |&gt; pack_flt |&gt; f |&gt; unpack_flt) x;;
+
+let x = Owl.Mat.linspace (-4.) 4. 200;;
+let y0 = map f0 x;;
+let y1 = map f1 x;;
+let y2 = map f2 x;;
+let y3 = map f3 x;;
+let y4 = map f4 x;;
+
+let h = Plot.create "plot_00.png" in
+Plot.plot ~h x y0;
+Plot.plot ~h x y1;
+Plot.plot ~h x y2;
+Plot.plot ~h x y3;
+Plot.plot ~h x y4;
+Plot.output h;;</code></pre>
+</div>
+<figure>
+<img style="width:70.0%" id="fig:algodiff:plot00" alt="Higher order derivatives" title="plot 00" src="images/algodiff/plot_00.png"><figcaption>Higher order derivatives</figcaption>
+</figure>
+<p>If you want, you can play with other functions, such as <span class="math inline">\(\frac{1-e^{-x}}{1+e^{-x}}\)</span> to see what its derivatives look like.</p>
+<p>A close-related idea to derivative is the <em>gradient</em>. As we have introduced in <span data-cites="eq:algodiff:grad" class="citation">[@eq:algodiff:grad]</span>, gradient generalises derivatives to multivariate functions. Therefore, for a function that accepts a vector (where each element is a variable) and returns a scalar, we can use the <code>grad</code> function to find its gradient at a point. Imagine a 3D surface. At each points on this surface, a gradient consists of three element that each represents the derivative along the x, y or z axis. This vector shows the direction and magnitude of maximum change of a multivariate function.</p>
+<p>One important application of gradient is the <em>gradient descent</em>, a widely used technique to find minimum values on a function. The basic idea is that, at any point on the surface, we calculate the gradient to find the current direction of maximal change at this point, and move the point along this direction by a small step, and then repeat this process until the point cannot be further moved. We will talk about it in detail in the Regression and Optimisation chapters in our book.</p>
+</section>
+<section class="level3" id="jacobian">
+<h3>Jacobian</h3>
+<p>Just like gradient extends derivative, the gradient can also be extended to the <em>Jacobian matrix</em>. The <code>grad</code> can be applied on functions with vector as input and scalar as output. The <code>jacobian</code> function on the other hand, deals with functions that has both input and output of vectors. Suppose the input vector is of length <span class="math inline">\(n\)</span>, and contains <span class="math inline">\(m\)</span> output variables, the jacobian matrix is defined as:</p>
+<p><span class="math display">\[ \mathbf{J}(y) = \left[ \begin{matrix} \frac{\partial~y_1}{\partial~x_1} &amp; \frac{\partial~y_1}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_1}{\partial~x_n} \\ \frac{\partial~y_2}{\partial~x_0} &amp; \frac{\partial~y_2}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_2}{\partial~x_n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ \frac{\partial~y_m}{\partial~x_0} &amp; \frac{\partial~y_m}{\partial~x_1} &amp; \ldots &amp; \frac{\partial~y_m}{\partial~x_n} \end{matrix} \right]\]</span></p>
+<p>The intuition of Jacobian is similar to that of the gradient. At a particular point in the domain of the target function, If you give it a small change in the input vector, the Jacobian matrix shows how the output vector changes. One application field of Jacobian is in the analysis of dynamical systems. In a dynamic system <span class="math inline">\(\vec{y}=f(\vec{x})\)</span>, suppose <span class="math inline">\(f: \mathbf{R}^n \rightarrow \mathbf{R}^m\)</span> is differentiable and its jacobian is <span class="math inline">\(\mathbf{J}\)</span>.</p>
+<p>According to the <a href="https://en.wikipedia.org/wiki/Hartman%E2%80%93Grobman_theorem">Hartman-Grobman</a> theorem, the stability of a dynamic system near a stationary point is decided by the eigenvalues of <span class="math inline">\(\mathbf{J}\)</span>. It is stable if all the eigenvalues have negative real parts, otherwise its unstable, with the exception that when the largest real part of the eigenvalues is zero. In that case, the stability cannot be decided by eigenvalues.</p>
+<p>Let’s revise the two-body problem from Ordinary Differential Equation Chapter. This dynamic system is described by a group of differential equations:</p>
+<p><span class="math display">\[y_0^{'} = y_2,\]</span> <span class="math display">\[y_1^{'} = y_3,\]</span> <span class="math display">\[y_2^{'} = -\frac{y_0}{r^3},\]</span> {#eq:algodiff:twobody_system} <span class="math display">\[y_3^{'} = -\frac{y_1}{r^3},\]</span></p>
+<p>We can express this system with code:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let f y =
+  let y0 = Mat.get y 0 0 in
+  let y1 = Mat.get y 0 1 in
+  let y2 = Mat.get y 0 2 in
+  let y3 = Mat.get y 0 3 in
+
+  let r = Maths.(sqrt ((sqr y0) + (sqr y1))) in
+  let y0' = y2 in
+  let y1' = y3 in
+  let y2' = Maths.( neg y0 / pow r (F 3.)) in
+  let y3' = Maths.( neg y1 / pow r (F 3.)) in
+
+  let y' = Mat.ones 1 4 in
+  let y' = Mat.set y' 0 0 y0' in
+  let y' = Mat.set y' 0 1 y1' in
+  let y' = Mat.set y' 0 2 y2' in
+  let y' = Mat.set y' 0 3 y3' in
+  y'</code></pre>
+</div>
+<p>For this functions <span class="math inline">\(f: \mathbf{R}^4 \rightarrow \mathbf{R}^4\)</span>, we can then find its Jacobian matrix. Suppose the given point of interest of where all four input variables equals one. Then we can use the <code>Algodiff.D.jacobian</code> function in this way.</p>
+<div class="highlight">
+<pre><code class="language-text">let y = Mat.ones 1 4
+let result = jacobian f y
+
+let j = unpack_arr result;;
+- : A.arr =
+
+         C0       C1 C2 C3
+R0        0        0  1  0
+R1        0        0  0  1
+R2 0.176777  0.53033  0  0
+R3  0.53033 0.176777  0  0</code></pre>
+</div>
+<p>Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter.</p>
+<div class="highlight">
+<pre><code class="language-text">let eig = Owl_linalg.D.eigvals j
+
+val eig : Owl_dense_matrix_z.mat =
+
+               C0              C1             C2              C3
+R0 (0.840896, 0i) (-0.840896, 0i) (0, 0.594604i) (0, -0.594604i)</code></pre>
+</div>
+<p>It turns out that one of the eigenvalue is real and positive, so at current point the system is unstable.</p>
+</section>
+<section class="level3" id="hessian-and-laplacian">
+<h3>Hessian and Laplacian</h3>
+<p>Another way to extend the gradient is to find the second order derivatives of a multivariate function which takes <span class="math inline">\(n\)</span> input variables and outputs a scalar. Its second order derivatives can be organised as a matrix:</p>
+<p><span class="math display">\[ \mathbf{H}(y) = \left[ \begin{matrix} \frac{\partial^2~y_1}{\partial~x_1^2} &amp; \frac{\partial^2~y_1}{\partial~x_1~x_2} &amp; \ldots &amp; \frac{\partial^2~y_1}{\partial~x_1~x_n} \\ \frac{\partial^2~y_2}{\partial~x_2~x_1} &amp; \frac{\partial^2~y_2}{\partial~x_2^2} &amp; \ldots &amp; \frac{\partial^2~y_2}{\partial~x_2~x_n} \\ \vdots &amp; \vdots &amp; \ldots &amp; \vdots \\ \frac{\partial^2~y_m}{\partial^2~x_n~x_1} &amp; \frac{\partial^2~y_m}{\partial~x_n~x_2} &amp; \ldots &amp; \frac{\partial^2~y_m}{\partial~x_n^2} \end{matrix} \right]\]</span></p>
+<p>This matrix is called the <em>Hessian Matrix</em>. As an example of using it, consider the <em>newton’s method</em>. It is also used for solving the optimisation problem, i.e.&nbsp;to find the minimum value on a function. Instead of following the direction of the gradient, the newton method combines gradient and second order gradients: <span class="math inline">\(\frac{\nabla~f(x_n)}{\nabla^{2}~f(x_n)}\)</span>. Specifically, starting from a random position <span class="math inline">\(x_0\)</span>, and it can be iteratively updated by repeating this procedure until converge, as shown in <span data-cites="eq:algodiff:newtons" class="citation">[@eq:algodiff:newtons]</span>.</p>
+<p><span class="math display">\[x_{n+1} = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)\]</span> {#eq:algodiff:newtons}</p>
+<p>This process can be easily represented using the <code>Algodiff.D.hessian</code> function.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
+  let g = grad f x in
+  let h = hessian f x in
+  if (Maths.l2norm' g |&gt; unpack_flt) &lt; eps then x
+  else newton ~eta ~eps f Maths.(x - eta * g *@ (inv h))</code></pre>
+</div>
+<p>We can then apply this method on a two dimensional triangular function to find one of the local minimum values, staring from a random initial point. Note that here the functions has to take a vector as input and output a scalar. We will come back to this method in the in Optimisation chapter with more details.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let _ =
+  let f x = Maths.(cos x |&gt; sum') in
+  newton f (Mat.uniform 1 2)</code></pre>
+</div>
+<p>Another useful and related function is <code>laplacian</code>, it calculate the <em>Laplacian operator</em> <span class="math inline">\(\nabla^2~f\)</span>, which is the the trace of the Hessian matrix:</p>
+<p><span class="math display">\[\nabla^2~f=trace(H_f)= \sum_{i=1}^{n}\frac{\partial^2f}{\partial~x_i^2}.\]</span></p>
+<p>In Physics, the Laplacian can represent the flux density of the gradient flow of a function, e.g.&nbsp;the moving rate of a chemical in a fluid. Therefore, differential equations that contains Laplacian are frequently used in many fields to describe physical systems, such as the gravitational potentials, the fluid flow, wave propagation, and electric field, etc.</p>
+</section>
+<section class="level3" id="other-apis">
+<h3>Other APIs</h3>
+<p>Besides, there are also many helper functions, such as <code>jacobianv</code> for calculating jacobian vector product; <code>diff'</code> for calculating both <code>f x</code> and <code>diff f x</code>, etc. They will come handy in certain cases for the programmers. Besides the functions we have already introduced, the complete list of APIs can be found in the table below.</p>
+<table>
+<caption>List of other APIs in the AD module of Owl {#tbl:algodiff:apis}</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">API name</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>diff'</code></td>
+<td style="text-align: left;">similar to <code>diff</code>, but return <code>(f x, diff f x)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>grad'</code></td>
+<td style="text-align: left;">similar to <code>grad</code>, but return <code>(f x, grad f x)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>jacobian'</code></td>
+<td style="text-align: left;">similar to <code>jacobian</code>, but return <code>(f x, jacobian f x)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>jacobianv</code></td>
+<td style="text-align: left;">jacobian vector product of <code>f</code> : (vector -&gt; vector) at <code>x</code> along <code>v</code>; it calcultes <code>(jacobian x) v</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>jacobianv'</code></td>
+<td style="text-align: left;">similar to <code>jacobianv</code>, but return <code>(f x, jacobianv f x)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>jacobianTv</code></td>
+<td style="text-align: left;">it calculates <code>transpose ((jacobianv f x v))</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>jacobianTv'</code></td>
+<td style="text-align: left;">similar to <code>jacobianTv</code>, but return <code>(f x, transpose (jacobianv f x v))</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hessian'</code></td>
+<td style="text-align: left;">hessian vector product of <code>f</code> : (scalar -&gt; scalar) at <code>x</code> along <code>v</code>; it calculates <code>(hessian x) v</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>hessianv'</code></td>
+<td style="text-align: left;">similar to <code>hessianv</code>, but return <code>(f x, hessianv f x v)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>laplacian'</code></td>
+<td style="text-align: left;">similar to <code>laplacian</code>, but return <code>(f x, laplacian f x)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>gradhessian</code></td>
+<td style="text-align: left;">return <code>(grad f x, hessian f x)</code>, <code>f : (scalar -&gt; scalar)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>gradhessian'</code></td>
+<td style="text-align: left;">return <code>(f x, grad f x, hessian f x)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>gradhessianv</code></td>
+<td style="text-align: left;">return <code>(grad f x v, hessian f x v)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>gradhessianv'</code></td>
+<td style="text-align: left;">return <code>(f x, grad f x v, hessian f x v)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Differentiation is an important topic in scientific computing, and therefore is not limited to only this chapter in our book. As we have already shown in previous examples, we use AD in the newton method to find extreme values in optimisation problem in the Optimisation chapter. It is also used in the Regression chapter to solve the linear regression problem with gradient descent. More importantly, the algorithmic differentiation is core module in many modern deep neural libraries such as PyTorch. The neural network module in Owl benefit a lot from our solid AD module. We will elaborate these aspects in the following chapters. Stay tuned!</p>
+</section>
+</section>
+<section class="level2" id="internal-of-algorithmic-differentiation">
+<h2>Internal of Algorithmic Differentiation</h2>
+<section class="level3" id="go-beyond-simple-implementation">
+<h3>Go Beyond Simple Implementation</h3>
+<p>Now that you know the basic implementation of forward and reverse differentiation, and you have also seen the high level APIs that Owl provides. You might be wondering, how are these APIs implemented in Owl?</p>
+<p>It turns out that, the simple implementations we have are not very far away from the industry-level implementations in Owl. There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it. Without digging too deep into the code details, in this section we give an overview of some of the key differences between the Owl implementation and the simple version we built in the previous sections.</p>
+<figure>
+<img style="width:60.0%" id="fig:algodiff:architecture" alt="Architecture of the AD module" title="architecture" src="images/algodiff/architecture.png"><figcaption>Architecture of the AD module</figcaption>
+</figure>
+<p>The <span data-cites="fig:algodiff:architecture" class="citation">[@fig:algodiff:architecture]</span> shows the structure of AD module in Owl, and they will be introduced one by one below. Let’s start with the <strong>type definition</strong>.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">  type t =
+    | F   of A.elt
+    | Arr of A.arr
+    (* primal, tangent, tag *)
+    | DF  of t * t * int
+    (* primal, adjoint, op, fanout, tag, tracker *)
+    | DR  of t * t ref * op * int ref * int * int ref
+
+  and adjoint = t -&gt; t ref -&gt; (t * t) list -&gt; (t * t) list
+
+  and register = t list -&gt; t list
+
+  and label = string * t list
+
+  and op = adjoint * register * label</code></pre>
+</div>
+<p>You will notice some differences. First, besides <code>DF</code> and <code>DR</code>, it also contains two constructors: <code>F</code> and <code>Arr</code>. This points out one shortcoming of our simple implementation: we cannot process ndarray as input, only float. That’s why, if you look back at how our computation is constructed, we have to explicitly say that the computation takes two variable as input. In a real-world application, we only need to pass in a <code>1x2</code> vector as input.</p>
+<p>You can also note that some extra information fields are included in the DF and DR data types. The most important one is <code>tag</code>, it is mainly used to solve the problem of high order derivative and nested forward and backward mode. This problem is called <em>perturbation confusion</em> and is important in any AD implementation. Here we only scratch the surface of this problem. Think about this: what if we want to compute the derivative of:</p>
+<p><span class="math display">\[f(x) = x\frac{d(x+y)}{dy},\]</span></p>
+<p>i.e.&nbsp;a function that contains another derivative function? It’s simple, since <span class="math inline">\(\frac{d(x+y)}{dy} = 1\)</span>, so <span class="math inline">\(f'(x) = x' = 1\)</span>. Elementary. There is no way we can do it wrong, even with our strawman AD engine, right?</p>
+<p>Well, not exactly. Let’s follow our previous simple implementation:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let diff f x =
+  match x with
+  | DF (_, _)    -&gt;
+    f x |&gt; tangent
+  | DR (_, _, _) -&gt;
+    let r = f x in
+    reverse_push [(1., r)];
+    !(adjoint x)
+&gt;val diff : (t -&gt; t) -&gt; t -&gt; float = &lt;fun&gt;
+let f x =
+  let g = diff (fun y -&gt; add_ad x y) in
+  mul_ad x (make_forward (g (make_forward 2. 1.)) 1.)
+&gt;val f : t -&gt; t = &lt;fun&gt;
+diff f (make_forward 2. 1.)
+&gt;- : float = 4.
+</code></pre>
+</div>
+<p>Hmm, the result is 3 at point <span class="math inline">\((x=2, y=2)\)</span> but the result should be 1 at any point as we have calculated, so what has gone wrong?</p>
+<p>Notice that <code>x=DF(2,1)</code>. The tangent value equals to 1, which means that <span class="math inline">\(\frac{dx}{dx}=1\)</span>. Now if we continue to use this same <code>x</code> value in function <code>g</code>, whose variable is y, the same <code>x=DF(2,1)</code> can be translated by the AD engine as <span class="math inline">\(\frac{dx}{dy}=1\)</span>, which is apparently wrong. Therefore, when used within function <code>g</code>, <code>x</code> should actually be treated as <code>DF(2,0)</code>.</p>
+<p>The tagging technique is proposed to solve this nested derivative problem. The basic idea is to distinguish derivative calculations and their associated attached values by using a unique tag for each application of the derivative operator. More details of method is explained in <span data-cites="siskind2005perturbation" class="citation">[@siskind2005perturbation]</span>.</p>
+<p>Now we move on to a higher level. Its structure should be familiar to you now. The <strong>builder</strong> module abstract out the general process of forward and reverse modes, while the <strong>ops</strong> module contains all the specific calculation methods for each operations. Keep in mind that not all operations can follow exact math rules to perform differentiation. For example, what is the tangent and adjoint of the convolution or concatenation operations? These are all included in the <code>ops.ml</code>.</p>
+<p>We have shown how the unary and binary operations can be built by providing two builder modules. But of course there are many operators that have other type of signatures. Owl abstracts more operation types according to their number of input variables and output variables. For example, the <code>qr</code> operations calculates QR decomposition of an input matrix. This operation uses the SIPO (single-input-pair-output) builder template.</p>
+<p>In <code>ops</code>, each operation specifies three kinds of functions for calculating the primal value (<code>ff</code>), the tangent value (<code>df</code>), and the adjoint value (<code>dr</code>). However, actually some variants are required. In our simple examples, all the constants are either <code>DF</code> or <code>DR</code>, and therefore we have to define two different functions <code>f_forward</code> and <code>f_reverse</code>, even though only the definition of constants are different. Now that the float number is included in the data type <code>t</code>, we can define only one computation function for both modes:</p>
+<div class="highlight">
+<pre><code class="language-clike">let f_forward x =
+  let x0, x1 = x in
+  let v2 = sin_ad x0 in
+  let v3 = mul_ad x0 x1 in
+  let v4 = add_ad v2 v3 in
+  let v5 = F 1. in (* change *)
+  let v6 = exp_ad v4 in
+  let v7 = F 1. in (* change *)
+  let v8 = add_ad v5 v6 in
+  let v9 = div_ad v7 v8 in
+  v9</code></pre>
+</div>
+<p>Now, we need to consider the question: how to compute <code>DR</code> and <code>F</code> data types together? To do that, we need to consider more cases in an operation. For example, in the previous implementation, one multiplication use three functions:</p>
+<div class="highlight">
+<pre><code class="language-clike">module Mul = struct
+  let ff a b = Owl_maths.mul a b
+  let df pa pb ta tb = pa *. tb +. ta *. pb
+  let dr pa pb a = !a *. pb, !a *. pa
+end</code></pre>
+</div>
+<p>But now things get more complicated. For <code>ff a b</code>, we need to consider, e.g.&nbsp;what if <code>a</code> is float and <code>b</code> is an ndarray, or vice versa. For <code>df</code> and <code>dr</code>, we need to consider what happens if one of the input is constant (<code>F</code> or <code>Arr</code>). The builder module also has to take these factors into consideration accordingly.</p>
+<p>Finally, in the <strong>reverse</strong> module (<code>Owl_algodiff_reverse</code>), we have the <code>reverse_push</code> functions. Compared to the simple implementation, it performs an extra <code>shrink</code> step. This step checks adjoint <code>a</code> and its update <code>v</code>, ensuring rank of <code>a</code> must be larger than or equal with rank of <code>v</code>. Also, the initialisation of the computation is required. An extra <code>reverse_reset</code> functions is actually required before the reverse propagation begins to reset all adjoint values to the initial zero values.</p>
+<p>Above these parts are the high level APIs. One thing we need to notice is that although <code>diff</code> functions looks straightforward to be implemented using the forward and backward mode, the same cannot be said of other functions, especially <code>jacobian</code>. Another thing is that, our simple implementation does not support multiple precisions. It is solved by functors in Owl. In <code>Algodiff.Generic</code>, all the APIs are encapsulated in a module named <code>Make</code>. This module takes in an ndarray-like module and generate AD modules with corresponding precision. If it accepts a <code>Dense.Ndarray.S</code> module, it generate AD modules of single precision; if it is <code>Dense.Ndarray.D</code> passed in, the functor generates AD module that uses double precision. (To be precise, this description is not quite correct; the required functions actually has to follow the signatures specified in <code>Owl_types_ndarray_algodiff.Sig</code>, which also contains operation about scalar, matrix, and linear algebra, besides ndarray operations. As we have seen previously, the input modules here are acutally <code>Owl_algodiff_primal_ops.S/D</code>, the wrapper modules for Ndarray.)</p>
+</section>
+<section class="level3" id="extend-ad-module">
+<h3>Extend AD module</h3>
+<p>The module design shown above brings one large benefit: it is very flexible in supporting adding new operations on the fly. Let’s look at an example: suppose the Owl does not provide the operation <code>sin</code> in AD module, and to finish our example in <span data-cites="eq:algodiff:example" class="citation">[@eq:algodiff:example]</span>, what can we do? We can use the <code>Builder</code> module in AD.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+module Sin = struct
+  let label = "sin"
+  let ff_f a = F A.Scalar.(sin a)
+  let ff_arr a = Arr A.(sin a)
+  let df _cp ap at = Maths.(at * cos ap)
+  let dr a _cp ca = Maths.(!ca * cos (primal a))
+end</code></pre>
+</div>
+<p>As a user, you need to know how the three types of functions work for the new operation you want to add. These are defined in a module called <code>Sin</code> here. This module can be passed as parameters to the builder to build a required operation. We call it <code>sin_ad</code> to make it different from what the AD module actually provides.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let sin_ad = Builder.build_siso (module Sin : Builder.Siso)</code></pre>
+</div>
+<p>The <code>siso</code> means “single input, single output”. That’s all! Now we can use this function as if it is a native operation. You will find that this new operator works seamlessly with existing ones.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let f x =
+  let x1 = Mat.get x 0 0 in
+  let x2 = Mat.get x 0 1 in
+  Maths.(div (F 1.) (F 1. + exp (x1 * x2 + (sin_ad x1))))
+&gt;val f : t -&gt; t = &lt;fun&gt;
+let x = Mat.ones 1 2
+&gt;val x : t = [Arr(1,2)]
+let _ = grad f x |&gt; unpack_arr
+&gt;- : A.arr =
+&gt;          C0        C1
+&gt;R0 -0.181974 -0.118142
+</code></pre>
+</div>
+</section>
+<section class="level3" id="lazy-evaluation">
+<h3>Lazy Evaluation</h3>
+<p>Using the <code>Builder</code> enables users to build new operations conveniently, and it greatly improve the clarity of code. However, with this mechanism comes a new problem: efficiency. Imagine that a large computation that consists of hundreds and thousands of operations, with a function occurs many times in these operations. (Though not discussed yet, in a neural network which utilises AD, it is quite common to create a large computation where basic functions such as <code>add</code> and <code>mul</code> are repeated tens and hundreds of times.) With the current <code>Builder</code> approach, every time this operation is used, it has to be created by the builder again. This is apparently not efficient. We need some mechanism of caching. This is where the <em>lazy evaluation</em> in OCaml comes to help.</p>
+<div class="highlight">
+<pre><code class="language-clike">val lazy: 'a -&gt; 'a lazy_t
+
+module Lazy :
+  sig
+    type 'a t = 'a lazy_t
+    val force : 'a t -&gt; 'a
+  end</code></pre>
+</div>
+<p>As shown in the code above, OCaml provides a built-in function <code>lazy</code> that accept an input of type <code>'a</code> and returns a <code>'a lazy_t</code> object. It is a value of type <code>'a</code> whose computation has been delayed. This lazy expression won’t be evaluated until it is called by <code>Lazy.force</code>. The first time it is called by <code>Lazy.force</code>, the expresion is evaluted and the result is saved; and thereafter every time it is called by <code>Lazy.force</code>, the saved results will be returned without evaluation.</p>
+<p>Here is an example:</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Printf.printf "hello world!"; 42
+&gt;hello world!
+&gt;val x : int = 42
+let lazy_x = lazy (Printf.printf "hello world!"; 42)
+&gt;val lazy_x : int lazy_t = &lt;lazy&gt;
+let _ = Stdlib.Lazy.force lazy_x
+&gt;hello world!
+&gt;- : int = 42
+let _ = Stdlib.Lazy.force lazy_x
+&gt;- : int = 42
+let _ = Stdlib.Lazy.force lazy_x
+&gt;- : int = 42
+</code></pre>
+</div>
+<p>In this example you can see that building <code>lazy_x</code> does not evaluate the content, which is delayed to the first <code>Lazy.force</code>. After that, ever time <code>force</code> is called, only the value is returned; the <code>x</code> itself, including the <code>printf</code> function, will not be evaluated.</p>
+<p>We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a <code>sin</code> operation that the AD module supposedly “does not provide”. We can still do:</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Algodiff.D
+
+module Sin = struct
+  let label = "sin"
+  let ff_f a = F A.Scalar.(sin a)
+  let ff_arr a = Arr A.(sin a)
+  let df _cp ap at = Maths.(at * cos ap)
+  let dr a _cp ca = Maths.(!ca * cos (primal a))
+end</code></pre>
+</div>
+<p>This part is the same, but now we need to utilise the lazy evaluation:</p>
+<div class="highlight">
+<pre><code class="language-clike">let _sin_ad = lazy Builder.build_siso (module Sin : Builder.Siso)
+
+let sin_ad = Lazy.force _sin_ad</code></pre>
+</div>
+<p>Int this way, regardless of how many times this <code>sin</code> function is called in a massive computation, the <code>Builder.build_siso</code> process is only invoked once.</p>
+<p>What we have talked about is the lazy evaluation at the compiler level, and do not mistake it with another kind of lazy evaluation that are also related with the AD. Think about that, instead of computing the specific numbers, each step accumulates on a graph, so that computation like primal, tangent, adjoint etc. all generate a graph as result, and evaluation of this graph can only be executed when we think it is suitable. This leads to delayed lazy evaluation. Remember that the AD functor takes an ndarray-like module to produce the <code>Algodiff.S</code> or <code>Algodiff.D</code> modules, and to do what we have described, we only need to plugin another ndarray-like module that returns graph instead of numerical value as computation result. This module is called the <em>computation graph</em> module. It is also a quite important idea, and we will talk about it in detail in the second part of this book.</p>
+</section>
+</section>
+<section class="level2" id="summary">
+<h2>Summary</h2>
+<p>In this chapter, we introduce the idea of algorithmic differentiation (AD) and how it works in Owl. First, we start with the classic chain rule in differentiation and different methods to do it, and the benefit of AD. Next, we use an example to introduce two basic modes in AD: the forward mode and the reverse mode. This section is followed by a step-by-step coding of a simple strawman AD engine using OCaml. You can see that the core idea of AD can be implemented with surprisingly simple code. Then we turn to the Owl side: first, how Owl support what we have done in the strawman implementation with the forward and reverse propagation APIs; next, how Owl provides various powerful high level APIs to enable users to directly perform AD. Finally, we give an in-depth introduction to the implementation of the AD module in Owl, including some details that enhance the simple strawman code, how to build user-defined AD computation, and using lazy evaluation to improve performance, etc. Hopefully, after finishing this chapter, you can have a solid understanding of both its theory and implementation.</p>
+</section>
+<section class="level2" id="references">
+<h2>References</h2>
+</section>
+</section>
+</article></div><a href="optimisation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 12</small>Optimisation</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>

@@ -218,6 +218,7 @@ let run (`File file) (`Output output) output_type =
     Fmt.kstr
       Sys.command
       "pandoc \
+      \  --mathjax \
       \  --section-divs \
       \  -f markdown-ascii_identifiers \
       \  --no-highlight\

@@ -1,12 +1,6 @@
 .PHONY: all clean dep publish promote test test-all docker depext push compile docker cloc
 
-all:
-	-docker run -t -d --name book_builder owlbarn/book:latest
-	docker cp . book_builder:/home/opam/book_local
-	docker exec -it book_builder bash -c 'cd /home/opam/book_local && export PATH=/home/opam/.cabal/bin:${PATH} && eval `opam env` && make compile'
-	docker cp book_builder:/home/opam/book_local/book .
-	docker cp book_builder:/home/opam/book_local/docs .
-	docker cp book_builder:/home/opam/book_local/static .
+all: compile
 	git add docs
 
 docker:

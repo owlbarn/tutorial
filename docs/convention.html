@@ -1,0 +1,987 @@
+<html style="" lang="en" class="js flexbox fontface"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="OCaml Scientific and Engineering Computing - Tutorial Book" name="description"><meta content="OCaml, Data Science, Data Analytics, Analytics, Functional Programming, Machine Learning, Deep Neural Network, Scientific Computing, Numerical Algorithm, Tutorial, Linear Algebra, Matrix" name="keywords"><meta content="Liang Wang" name="author"><title>Conventions - OCaml Scientific Computing</title><link href="css/app.css" rel="stylesheet"><link href="css/prism.css" rel="stylesheet"><script src="js/min/modernizr-min.js"></script><script src="js/prism.js"></script><script src="https://use.typekit.net/gfj8wez.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>try{Typekit.load();}catch(e){}</script><script data-ad-client="ca-pub-1868946892712371" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script async src="https://www.googletagmanager.com/gtag/js?id=UA-123353217-1"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123353217-1');</script></head><body><div class="title-bar"><div class="title"><h1>OCaml Scientific Computing</h1><h5>1<sup>st</sup> Edition (in progress)</h5><nav><a href="index.html">Home</a><a href="toc.html">Table of Contents</a><a href="faqs.html">FAQs</a><a href="install.html">Install</a><a href="https://ocaml.xyz/package/">API Docs</a></nav></div></div><div class="wrap"><div class="left-column"><a class="to-chapter" href="toc.html"><small>Back</small><h5>Table of Contents</h5></a></div><article class="main-body"><section class="level1" id="conventions">
+<h1>Conventions</h1>
+<p>Every software system has its own rules and conventions which require the developers to comply with. Owl is not an exception, for example the <a href="broadcast.html">rules on broadcasting operation</a> and the <a href="slicing.html">conventions on slice definition</a>. In this chapter, I will cover the function naming and various conventions in Owl.</p>
+<section class="level2" id="pure-vs.-impure">
+<h2>Pure vs.&nbsp;Impure</h2>
+<p><code>Ndarray</code> module contains many functions to manipulate and perform mathematical operations over multi-dimensional arrays. The <strong>pure functions</strong> (a.k.a immutable functions) refer to those which do not modify the passed in variables but always return a new one as result. In contrast, <strong>impure functions</strong> (a.k.a mutable functions) refer to those which modifies the passed-in variables in place.</p>
+<p>The arguments between pure and impure functions will never end. Functional programming in general promotes the use of immutable data structures. Using impure functions makes it difficult to reason the correctness of the code, therefore you need to think carefully when you decide to use them. On the other hand, generating a fresh <code>1000 x 1000</code> matrix every time simply because you modify one element does not seem very practical either.</p>
+<p>The introduction of impure functions into Owl is under many careful and practical considerations. One primary motivation of using in-place modification is to avoid expensive memory allocation and deallocation operations, this can significantly improve the runtime performance of a numerical application especially when large ndarrays and matrices involved.</p>
+<p>Can we have the best parts of both world, i.e.&nbsp;writing functional code and being memory efficient at the same time? As you learn more about Owl, you will realise that this can be achieved by lazily evaluating a mathematical expression using <a href="cgraph.html">computation graph</a>. The programmer focusses on the functional code, Owl’s computation graph module takes care of the “dangerous task” – allocating and managing the memory efficiently.</p>
+<p>Many pure functions in Ndarray module have their corresponding impure version, the difference is that impure version has an extra underscore “<code>_</code>” at the end of function names. For example, the following functions are the pure functions in <code>Arr</code> module.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  Arr.sin;;
+  Arr.cos;;
+  Arr.log;;
+  Arr.abs;;
+  Arr.add;;
+  Arr.mul;;
+</code></pre>
+</div>
+<p>Their corresponding impure functions are as follows.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  Arr.sin_;;
+  Arr.cos_;;
+  Arr.log_;;
+  Arr.abs_;;
+  Arr.add_;;
+  Arr.mul_;;
+</code></pre>
+</div>
+<p>For unary operators such as <code>Arr.sin x</code>, the situation is rather straightforward, <code>x</code> will be modified in place. However, for binary operates such as <code>Arr.add_scalar_ x a</code> and <code>Arr.add_ x y</code>, the situation needs some clarifications. For <code>Arr.add_scalar x a</code>, <code>x</code> will be modified in place and stores the final result, this is trivial because <code>a</code> is a scalar.</p>
+<p>For <code>Arr.add_ x y</code>, the question is where to store the final result when both inputs are ndarray. Let’s look at the type of <code>Arr.add_</code> function.</p>
+<div class="highlight">
+<pre><code class="language-text">val Arr.add_ : ?out:Arr.arr -&gt; Arr.arr -&gt; Arr.arr -&gt; unit</code></pre>
+</div>
+<p>As we can see from the function type, the output can be specified by an optional <code>out</code> parameter. If <code>out</code> is missing in the inputs, then Owl will try to use first operand (i.e.&nbsp;<code>x</code>) to store the final result. Because the binary operators in Owl support broadcasting operations by default, this further indicates when using impure functions every dimension of the first argument <code>x</code> must not be smaller than that of the second argument <code>y</code>. In other words, impure function only allows broadcasting smaller <code>y</code> onto <code>x</code> which is big enough to accommodate the result.</p>
+<p>Most binary math functions in Owl are associated with a shorthand operator, such as <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code>. The impure versions also have their own operators. For example, corresponding to <code>Arr.(x + y)</code> which returns the result in a new ndarray, you can write <code>Arr.(x += y)</code> which adds up <code>x</code> and <code>y</code> and saves the result into <code>x</code>.</p>
+<table style="width:71%;">
+<caption>Alias of pure and impure binary math functions {#tbl:convention:pure}</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function Name</th>
+<th style="text-align: left;">Pure</th>
+<th style="text-align: left;">Impure</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">add</td>
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>+=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sub</td>
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>-=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mul</td>
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>*=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">div</td>
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>/=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">add_scalar</td>
+<td style="text-align: left;"><code>+$</code></td>
+<td style="text-align: left;"><code>+$=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sub_scalar</td>
+<td style="text-align: left;"><code>-$</code></td>
+<td style="text-align: left;"><code>-$=</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mul_scalar</td>
+<td style="text-align: left;"><code>*$</code></td>
+<td style="text-align: left;"><code>*$=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">div_scalar</td>
+<td style="text-align: left;"><code>/$</code></td>
+<td style="text-align: left;"><code>/$=</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="level2" id="ndarray-vs.-scalar">
+<h2>Ndarray vs.&nbsp;Scalar</h2>
+<p>There are three types of ndarray operations: <em>map</em>, <em>scan</em>, and <em>reduce</em>. Many functions can be categorised as reduction operations, such as <code>Arr.sum</code>, <code>Arr.prod</code>, <code>Arr.min</code>, <code>Arr.mean</code>, <code>Arr.std</code>, etc. All the reduction functions in Owl has a name parameter called <code>axis</code>. When you apply these reduction operations on a multi-dimensional array, there are two possible cases:</p>
+<ul>
+<li>if axis is explicitly specified, then Owl reduces along the specified axis;</li>
+<li>if axis is not specified, then Owl flattens the ndarray into a vector first and reduce all the elements along the axis 0.</li>
+</ul>
+<p>If the passed in ndarray is already one-dimensional, then two cases are equivalent. In the following code snippet, <code>a</code> has shape <code>[|3;1;3|]</code> whereas <code>b</code> has shape <code>[|1|]</code> since it only contains one element.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Arr.sequential [|3;3;3|];;
+  let a = Arr.sum ~axis:1 x;;
+  let b = Arr.sum x;;
+</code></pre>
+</div>
+<p>If you want to add the result in <code>b</code> with another float number, you need to retrieve the value by calling <code>get</code> function.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let c = Arr.get b [|0|] in
+  c +. 10.;;
+</code></pre>
+</div>
+<p>This does not look very convenient if we always need to extract a scalar value from the return of reduction operations. This is not a problem for the languages like Python and Julia since the return type is dynamically determined. However, for OCaml, this turns out to be challenging: we either use a unified type; or we implement another set of functions. In the end, we picked the latter in Owl’s design. Every reduction operation has two versions:</p>
+<ul>
+<li>one allows you to reduce along the specified axis, or reduce all the elements, but always returns an ndarray;</li>
+<li>one only reduces all the elements and always returns a scalar value.</li>
+</ul>
+<p>The difference between the two is that the functions returning a scalar ends up with an extra prime “<code>'</code>” character in their names. For example, for the first type of functions that return an ndarray, their function names look like these.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  Arr.sum;;
+  Arr.min;;
+  Arr.prod;;
+  Arr.mean;;
+  Arr.std;;
+</code></pre>
+</div>
+<p>For the second type of functions that return a scalar, their name looks like these.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  Arr.sum';;
+  Arr.min';;
+  Arr.prod';;
+  Arr.mean';;
+  Arr.std';;
+</code></pre>
+</div>
+<p>Technically, <code>Arr.sum'</code> is equivalent to the following code.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let sum' x =
+    let y = Arr.sum x in
+    Arr.get y [|0|]
+</code></pre>
+</div>
+<p>Let’s extend the previous code snippet, and test it in OCaml’s toplevel. Then you will understand the difference immediately.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">
+  let x = Arr.sequential [|3;3;3|];;
+  let a = Arr.sum ~axis:1 x;;
+  let b = Arr.sum x;;
+  let c = Arr.sum' x;;
+</code></pre>
+</div>
+<p>Rules and conventions often reveals the tradeoffs in a design. By clarifying the restrictions, we hope the programmers can choose the right functions to use in a specific scenario.</p>
+</section>
+<section class="level2" id="infix-operators">
+<h2>Infix Operators</h2>
+<p>The operators in Owl are implemented in the functors defined in the <code>Owl_operator</code> module. These operators are categorised into <code>Basic</code>, <code>Extend</code>, <code>Matrix</code>, and <code>Ndarray</code> four module type signatures, because some operations are only meaningful for certain data structures. E.g., matrix multiplication <code>*@</code> is only defined in <code>Matrix</code> signature.</p>
+<p>As long as a module implements all the functions defined in the module signature, you can use these functors to generate corresponding operators. In most cases, you do not need to work with these functors directly in Owl since I have done the generation part for you already.</p>
+<p>The operators have been included in each <code>Ndarray</code> and <code>Matrix</code> module. The following table summarises the operators currently implemented. In the table, both <code>x</code> and <code>y</code> represent either a matrix or an ndarray while <code>a</code> represents a scalar value.</p>
+<table>
+<caption>Infix operators in ndarray and matrix modules {#tbl:convention:infix}</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 30%">
+<col style="width: 16%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Example</th>
+<th style="text-align: left;">Operation</th>
+<th>Dense/Sparse</th>
+<th style="text-align: left;">Ndarray/Matrix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+<td style="text-align: left;">element-wise add</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+<td style="text-align: left;">element-wise sub</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+<td style="text-align: left;">element-wise mul</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+<td style="text-align: left;">element-wise div</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+$</code></td>
+<td style="text-align: left;"><code>x +$ a</code></td>
+<td style="text-align: left;">add scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-$</code></td>
+<td style="text-align: left;"><code>x -$ a</code></td>
+<td style="text-align: left;">sub scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*$</code></td>
+<td style="text-align: left;"><code>x *$ a</code></td>
+<td style="text-align: left;">mul scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/$</code></td>
+<td style="text-align: left;"><code>x /$ a</code></td>
+<td style="text-align: left;">div scalar</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>$+</code></td>
+<td style="text-align: left;"><code>a $+ x</code></td>
+<td style="text-align: left;">scalar add</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>$-</code></td>
+<td style="text-align: left;"><code>a $- x</code></td>
+<td style="text-align: left;">scalar sub</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>$*</code></td>
+<td style="text-align: left;"><code>a $* x</code></td>
+<td style="text-align: left;">scalar mul</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>$/</code></td>
+<td style="text-align: left;"><code>a $/ x</code></td>
+<td style="text-align: left;">scalar div</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;"><code>x = y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=</code></td>
+<td style="text-align: left;"><code>x != y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;</code></td>
+<td style="text-align: left;"><code>x &lt;&gt; y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;</code></td>
+<td style="text-align: left;"><code>x &gt; y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;</code></td>
+<td style="text-align: left;"><code>x &lt; y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=</code></td>
+<td style="text-align: left;"><code>x &gt;= y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=</code></td>
+<td style="text-align: left;"><code>x &lt;= y</code></td>
+<td style="text-align: left;">comparison</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.</code></td>
+<td style="text-align: left;"><code>x =. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.</code></td>
+<td style="text-align: left;"><code>x !=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;. y</code></td>
+<td style="text-align: left;">same as <code>!=.</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.</code></td>
+<td style="text-align: left;"><code>x &gt;. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.</code></td>
+<td style="text-align: left;"><code>x &lt;. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.</code></td>
+<td style="text-align: left;"><code>x &gt;=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.</code></td>
+<td style="text-align: left;"><code>x &lt;=. y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=$</code></td>
+<td style="text-align: left;"><code>x =$ y</code></td>
+<td style="text-align: left;">comp to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=$</code></td>
+<td style="text-align: left;"><code>x !=$ y</code></td>
+<td style="text-align: left;">comp to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;$</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;$ y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;$</code></td>
+<td style="text-align: left;"><code>x &gt;$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;$</code></td>
+<td style="text-align: left;"><code>x &lt;$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=$</code></td>
+<td style="text-align: left;"><code>x &gt;=$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=$</code></td>
+<td style="text-align: left;"><code>x &lt;=$ y</code></td>
+<td style="text-align: left;">compare to scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.$</code></td>
+<td style="text-align: left;"><code>x =.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.$</code></td>
+<td style="text-align: left;"><code>x !=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.$</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;.$ y</code></td>
+<td style="text-align: left;">same as <code>!=.$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.$</code></td>
+<td style="text-align: left;"><code>x &gt;.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.$</code></td>
+<td style="text-align: left;"><code>x &lt;.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.$</code></td>
+<td style="text-align: left;"><code>x &gt;=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.$</code></td>
+<td style="text-align: left;"><code>x &lt;=.$ y</code></td>
+<td style="text-align: left;">element-wise cmp</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=~</code></td>
+<td style="text-align: left;"><code>x =~ y</code></td>
+<td style="text-align: left;">approx <code>=</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=~$</code></td>
+<td style="text-align: left;"><code>x =~$ y</code></td>
+<td style="text-align: left;">approx <code>=$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=~.</code></td>
+<td style="text-align: left;"><code>x =~. y</code></td>
+<td style="text-align: left;">approx <code>=.</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=~.$</code></td>
+<td style="text-align: left;"><code>x =~.$ y</code></td>
+<td style="text-align: left;">approx <code>=.$</code></td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+<td style="text-align: left;">mod divide</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>%$</code></td>
+<td style="text-align: left;"><code>x %$ a</code></td>
+<td style="text-align: left;">mod divide scalar</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;"><code>x ** y</code></td>
+<td style="text-align: left;">power function</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>*@</code></td>
+<td style="text-align: left;"><code>x *@ y</code></td>
+<td style="text-align: left;">matrix multiply</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>/@</code></td>
+<td style="text-align: left;"><code>x /@ y</code></td>
+<td style="text-align: left;">solve linear system</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>**@</code></td>
+<td style="text-align: left;"><code>x **@ a</code></td>
+<td style="text-align: left;">matrix power</td>
+<td>both</td>
+<td style="text-align: left;">Matrix</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>min2</code></td>
+<td style="text-align: left;"><code>min2 x y</code></td>
+<td style="text-align: left;">element-wise min</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max2</code></td>
+<td style="text-align: left;"><code>max2 x y</code></td>
+<td style="text-align: left;">element-wise max</td>
+<td>both</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>@=</code></td>
+<td style="text-align: left;"><code>x @= y</code></td>
+<td style="text-align: left;">concatenate vertically</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>@||</code></td>
+<td style="text-align: left;"><code>x @|| y</code></td>
+<td style="text-align: left;">concatenate horizontally</td>
+<td>Dense</td>
+<td style="text-align: left;">both</td>
+</tr>
+</tbody>
+</table>
+<p>There is a list of things worth your attention as below.</p>
+<ul>
+<li><p><code>*</code> is for element-wise multiplication; <code>*@</code> is for matrix multiplication. You can easily understand the reason if you read the source code of <a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/optimise/owl_algodiff_generic.ml">Algodiff</a> module. Using <code>*</code> for element-wise multiplication (for matrices) leads to the consistent implementation of algorithmic differentiation.</p></li>
+<li><p><code>+$</code> has its corresponding operator <code>$+</code> if we flip the order of parameters. However, be very careful about the operator precedence since OCaml determines the precedence based on the first character of an infix. <code>+$</code> preserves the precedence whereas <code>$+</code> does not. Therefore, I recommend using <code>$+</code> with great care. Please always use parentheses to explicitly specify the precedence. The same also applies to <code>$-</code>, <code>$*</code>, and <code>$/</code>.</p></li>
+<li><p>For comparison operators, e.g.&nbsp;both <code>=</code> and <code>=.</code> compare all the elements in two variables <code>x</code> and <code>y</code>. The difference is that <code>=</code> returns a boolean value whereas <code>=.</code> returns a matrix or ndarray of the same shape and same type as <code>x</code> and <code>y</code>. In the returned result, the value in a given position is <code>1</code> if the values of the corresponding position in <code>x</code> and <code>y</code> satisfy the predicate, otherwise it is <code>0</code>.</p></li>
+<li><p>For the comparison operators ended with <code>$</code>, they are used to compare a matrix/ndarray to a scalar value.</p></li>
+</ul>
+<p>Operators are easy to use, here are some examples.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">let x = Mat.uniform 5 5;;
+let y = Mat.uniform 5 5;;
+
+Mat.(x + y);;
+Mat.(x * y);;
+Mat.(x ** y);;
+Mat.(x *@ y);;
+
+(* compare the returns of the following two *)
+
+Mat.(x &gt; y);;
+Mat.(x &gt;. y);;</code></pre>
+</div>
+<p>Here is the return of the first example.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.(x &gt; y);;
+&gt;- : bool = false
+</code></pre>
+</div>
+<p>Here is the return of the second example.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Mat.(x &gt;. y);;
+&gt;- : (float, float64_elt) Owl_dense_matrix_generic.t =
+&gt;
+&gt;   C0 C1 C2 C3 C4
+&gt;R0  0  1  1  0  1
+&gt;R1  0  1  1  0  1
+&gt;R2  0  0  0  0  0
+&gt;R3  1  0  0  0  1
+&gt;R4  0  1  0  0  1
+</code></pre>
+</div>
+<p>Now I am sure you can understand the difference between <code>&gt;</code> and <code>&gt;.</code>, and the same applies to other binary comparison operators.</p>
+<p>Note that the extending indexing and slicing operators are not included in the table above, but you can find the detailed explanation in <a href="slicing.html">Indexing and Slicing Chapter</a>.</p>
+</section>
+<section class="level2" id="operator-extension">
+<h2>Operator Extension</h2>
+<p>As you can see, the operators above do not allow interoperation on different number types (which may not be bad thing in my opinion actually). E.g., you cannot add a <code>float32</code> matrix to <code>float64</code> matrix unless you explicitly call the <code>cast</code> functions in <code>Generic</code> module.</p>
+<p>Some people just like Pythonic way of working, <code>Owl.Ext</code> module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, <code>Ext</code> immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.</p>
+<table style="width:86%;">
+<caption>Operator extensions {#tbl:convention:ext}</caption>
+<colgroup>
+<col style="width: 23%">
+<col style="width: 25%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Example</th>
+<th style="text-align: left;">Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;"><code>x + y</code></td>
+<td style="text-align: left;">add</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;"><code>x - y</code></td>
+<td style="text-align: left;">sub</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;"><code>x * y</code></td>
+<td style="text-align: left;">mul</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;"><code>x / y</code></td>
+<td style="text-align: left;">div</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;"><code>x = y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>!=</code></td>
+<td style="text-align: left;"><code>x != y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;&gt;</code></td>
+<td style="text-align: left;"><code>x &lt;&gt; y</code></td>
+<td style="text-align: left;">same as <code>!=</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;</code></td>
+<td style="text-align: left;"><code>x &gt; y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;</code></td>
+<td style="text-align: left;"><code>x &lt; y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&gt;=</code></td>
+<td style="text-align: left;"><code>x &gt;= y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&lt;=</code></td>
+<td style="text-align: left;"><code>x &lt;= y</code></td>
+<td style="text-align: left;">comparison, return bool</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>=.</code></td>
+<td style="text-align: left;"><code>x =. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>!=.</code></td>
+<td style="text-align: left;"><code>x !=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;&gt;.</code></td>
+<td style="text-align: left;"><code>x &lt;&gt;. y</code></td>
+<td style="text-align: left;">same as <code>!=.</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;.</code></td>
+<td style="text-align: left;"><code>x &gt;. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;.</code></td>
+<td style="text-align: left;"><code>x &lt;. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>&gt;=.</code></td>
+<td style="text-align: left;"><code>x &gt;=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>&lt;=.</code></td>
+<td style="text-align: left;"><code>x &lt;=. y</code></td>
+<td style="text-align: left;">element_wise comparison</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;"><code>x % y</code></td>
+<td style="text-align: left;">element_wise mod divide</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>**</code></td>
+<td style="text-align: left;"><code>x ** y</code></td>
+<td style="text-align: left;">power function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>*@</code></td>
+<td style="text-align: left;"><code>x *@ y</code></td>
+<td style="text-align: left;">matrix multiply</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>min2</code></td>
+<td style="text-align: left;"><code>min2 x y</code></td>
+<td style="text-align: left;">element-wise min</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>max2</code></td>
+<td style="text-align: left;"><code>max2 x y</code></td>
+<td style="text-align: left;">element-wise max</td>
+</tr>
+</tbody>
+</table>
+<p>You may have noticed, the operators ended with <code>$</code> (e.g., <code>+$</code>, <code>-$</code> …) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same <code>&gt;</code> operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need <code>&gt;$</code> any longer. Allowing interoperation makes the operator table much shorter.</p>
+<p>Currently, the operators in <code>Ext</code> only support interoperation on dense structures. Besides binary operators, <code>Ext</code> also implements most of the common math functions which can be applied to float numbers, complex numbers, matrices, and ndarray. These functions are:</p>
+<p><code>im</code>; <code>re</code>; <code>conj</code>, <code>abs</code>, <code>abs2</code>, <code>neg</code>, <code>reci</code>, <code>signum</code>, <code>sqr</code>, <code>sqrt</code>, <code>cbrt</code>, <code>exp</code>, <code>exp2</code>, <code>expm1</code>, <code>log</code>, <code>log10</code>, <code>log2</code>, <code>log1p</code>, <code>sin</code>, <code>cos</code>, <code>tan</code>, <code>asin</code>, <code>acos</code>, <code>atan</code>, <code>sinh</code>, <code>cosh</code>, <code>tanh</code>, <code>asinh</code>, <code>acosh</code>, <code>atanh</code>, <code>floor</code>, <code>ceil</code>, <code>round</code>, <code>trunc</code>, <code>erf</code>, <code>erfc</code>, <code>logistic</code>, <code>relu</code>, <code>softplus</code>, <code>softsign</code>, <code>softmax</code>, <code>sigmoid</code>, <code>log_sum_exp</code>, <code>l1norm</code>, <code>l2norm</code>, <code>l2norm_sqr</code>, <code>inv</code>, <code>trace</code>, <code>sum</code>, <code>prod</code>, <code>min</code>, <code>max</code>, <code>minmax</code>, <code>min_i</code>, <code>max_i</code>, <code>minmax_i</code>.</p>
+<p>Note that <code>Ext</code> contains its own <code>Ext.Dense</code> module which further contains the following submodules.</p>
+<ul>
+<li><code>Ext.Dense.Ndarray.S</code></li>
+<li><code>Ext.Dense.Ndarray.D</code></li>
+<li><code>Ext.Dense.Ndarray.C</code></li>
+<li><code>Ext.Dense.Ndarray.Z</code></li>
+<li><code>Ext.Dense.Matrix.S</code></li>
+<li><code>Ext.Dense.Matrix.D</code></li>
+<li><code>Ext.Dense.Matrix.C</code></li>
+<li><code>Ext.Dense.Matrix.Z</code></li>
+</ul>
+<p>These modules are simply the wrappers of the original modules in <code>Owl.Dense</code> module so they provide most of the APIs already implemented. The extra thing these wrapper modules does is to pack and unpack the raw number types for you automatically. However, you can certainly use the raw data types then use the constructors defined in <code>Owl_ext_types</code> to wrap them up by yourself. The constructors are defined as below.</p>
+<div class="highlight">
+<pre><code class="language-text">
+  type ext_typ =
+    F   of float
+    C   of Complex.t
+    DMS of dms
+    DMD of dmd
+    DMC of dmc
+    DMZ of dmz
+    DAS of das
+    DAD of dad
+    DAC of dac
+    DAZ of daz
+    SMS of sms
+    SMD of smd
+    SMC of sms
+    SMZ of smd
+    SAS of sas
+    SAD of sad
+    SAC of sac
+    SAZ of saz
+</code></pre>
+</div>
+<p>There are also corresponding <code>packing</code> and <code>unpacking</code> functions you can use, please read <code>owl_ext_types.ml &lt;https://github.com/owlbarn/owl/blob/master/src/owl/ext/owl_ext_types.ml&gt;</code>_ for more details.</p>
+<p>Let’s see some examples to understand how convenient it is to use <code>Ext</code> module.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl.Ext;;
+
+let x = Dense.Matrix.S.uniform 5 5;;
+let y = Dense.Matrix.C.uniform 5 5;;
+let z = Dense.Matrix.D.uniform 5 5;;
+
+x + F 5.;;
+x * C Complex.({re = 2.; im = 3.});;
+x - y;;
+x / y;;
+x *@ y;;
+
+(** ... *)
+
+x &gt; z;;
+x &gt;. z;;
+(x &gt;. z) * x;;
+(x &gt;. F 0.5) * x;;
+(F 10. * x) + y *@ z;;
+
+(** ... *)
+
+round (F 10. * (x *@ z));;
+sin (F 5.) * cos (x + z);;
+tanh (x * F 10. - z);;
+
+(** ... *)</code></pre>
+</div>
+<p>Before we finish this chapter, I want to point out the caveat. <code>Ext</code> tries to mimic the dynamic languages like Python by with unified types. This prevents OCaml compiler from doing type checking in compilation phase and introduces extra overhead in calling functions. Therefore, besides fast experimenting in toplevel, I do not recommend to use <code>Ext</code> module in the production code.</p>
+</section>
+<section class="level2" id="module-structures">
+<h2>Module Structures</h2>
+<p>In Owl, <code>Dense</code> module contains the modules of dense data structures. For example, <code>Dense.Matrix</code> supports the operations of dense matrices. Similarly, <code>Sparse</code> module contains the modules of sparse data structures.</p>
+<div class="highlight">
+<pre><code class="language-text">Dense.Ndarray;;   (* dense ndarray *)
+Dense.Matrix;;    (* dense matrix *)
+
+Sparse.Ndarray;;  (* sparse ndarray *)
+Sparse.Matrix;;   (* sparse ndarray *)</code></pre>
+</div>
+<p>All these four modules consists of five submodules to handle different types of numbers.</p>
+<ul>
+<li><code>S</code> module supports single precision float numbers <code>float32</code>;</li>
+<li><code>D</code> module supports double precision float numbers <code>float64</code>;</li>
+<li><code>C</code> module supports single precision complex numbers <code>complex32</code>;</li>
+<li><code>Z</code> module supports double precision complex numbers <code>complex64</code>;</li>
+<li><code>Generic</code> module supports all aforementioned number types via GADT.</li>
+</ul>
+<p>With <code>Dense.Ndarray</code>, you can create a dense n-dimensional array of no more than 16 dimensions. This constraint originates from the underlying <code>Bigarray.Genarray</code> module. In practice, this constraint makes sense since the space requirement will explode as the dimension increases. If you need anything higher than 16 dimensions, you need to use <code>Sparse.Ndarray</code> to create a sparse data structure.</p>
+</section>
+<section class="level2" id="number-and-precision">
+<h2>Number and Precision</h2>
+<p>After deciding the suitable data structure (either dense or sparse), you can create a ndarray/matrix using creation function in the modules, using e.g., <code>empty</code>, <code>create</code>, <code>zeros</code>, <code>ones</code> … The type of numbers (real or complex) and its precision (single or double) needs to be passed to the creations functions as the parameters.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">Dense.Ndarray.Generic.zeros Float64 [|5;5|];;
+&gt;- : (float, float64_elt) Dense.Ndarray.Generic.t =
+&gt;
+&gt;   C0 C1 C2 C3 C4
+&gt;R0  0  0  0  0  0
+&gt;R1  0  0  0  0  0
+&gt;R2  0  0  0  0  0
+&gt;R3  0  0  0  0  0
+&gt;R4  0  0  0  0  0
+</code></pre>
+</div>
+<p>With <code>zeros</code> function, all the elements in the created data structure will be initialised to zeros.</p>
+<p>Technically, <code>S</code>, <code>D</code>, <code>C</code>, and <code>Z</code> are the wrappers of <code>Generic</code> module with explicit type information provided. Therefore you can save the type constructor which was passed into the <code>Generic</code> module if you use these submodules directly.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Dense.Ndarray.S.zeros [|5;5|];;    (* single precision real ndarray *)
+Dense.Ndarray.D.zeros [|5;5|];;    (* double precision real ndarray *)
+Dense.Ndarray.C.zeros [|5;5|];;    (* single precision complex ndarray *)
+Dense.Ndarray.Z.zeros [|5;5|];;    (* double precision complex ndarray *)</code></pre>
+</div>
+<p>The following examples are for dense matrices.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Dense.Matrix.S.zeros 5 5;;     (* single precision real matrix *)
+Dense.Matrix.D.zeros 5 5;;     (* double precision real matrix *)
+Dense.Matrix.C.zeros 5 5;;     (* single precision complex matrix *)
+Dense.Matrix.Z.zeros 5 5;;     (* double precision complex matrix *)</code></pre>
+</div>
+<p>The following examples are for sparse ndarrays.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Sparse.Ndarray.S.zeros [|5;5|];;    (* single precision real ndarray *)
+Sparse.Ndarray.D.zeros [|5;5|];;    (* double precision real ndarray *)
+Sparse.Ndarray.C.zeros [|5;5|];;    (* single precision complex ndarray *)
+Sparse.Ndarray.Z.zeros [|5;5|];;    (* double precision complex ndarray *)</code></pre>
+</div>
+<p>The following examples are for sparse matrices.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Sparse.Matrix.S.zeros 5 5;;     (* single precision real matrix *)
+Sparse.Matrix.D.zeros 5 5;;     (* double precision real matrix *)
+Sparse.Matrix.C.zeros 5 5;;     (* single precision complex matrix *)
+Sparse.Matrix.Z.zeros 5 5;;     (* double precision complex matrix *)</code></pre>
+</div>
+<p>In short, <code>Generic</code> module can do everything that submodules can, but for some functions (e.g.&nbsp;creation functions) you need to explicitly pass in the type information.</p>
+</section>
+<section class="level2" id="polymorphic-functions">
+<h2>Polymorphic Functions</h2>
+<p>Polymorphism is achieved by pattern matching and GADT in <code>Generic</code> module. This means many functions in <code>Generic</code> module can handle aforementioned four different number types.</p>
+<p>In the following, I use the <code>sum</code> function in <code>Dense.Matrix.Generic</code> module as an example. <code>sum</code> function returns the summation of all the elements in a matrix.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">open Owl;;
+
+let x = Dense.Matrix.S.eye 5 in
+  Dense.Matrix.Generic.sum x;;
+
+let x = Dense.Matrix.D.eye 5 in
+  Dense.Matrix.Generic.sum x;;
+
+let x = Dense.Matrix.C.eye 5 in
+  Dense.Matrix.Generic.sum x;;
+
+let x = Dense.Matrix.Z.eye 5 in
+  Dense.Matrix.Generic.sum x;;</code></pre>
+</div>
+<p>As we can see, no matter what kind of numbers are held in an identity matrix, we always pass it to <code>Dense.Matrix.Generic.sum</code> function. Similarly, we can do the same thing for other modules (<code>Dense.Ndarray</code>, <code>Sparse.Matrix</code>, etc.) and other functions (<code>add</code>, <code>mul</code>, <code>neg</code>, etc.).</p>
+<p>Meanwhile, each submodule also contains the same set of functions, e.g, as below,</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Dense.Matrix.S.(eye 5 |&gt; sum);;</code></pre>
+</div>
+</section>
+<section class="level2" id="module-shortcuts">
+<h2>Module Shortcuts</h2>
+<p>In reality, we often work with double precision numbers, therefore Owl provides some shortcuts to the data structures of double precision float numbers:</p>
+<ul>
+<li><code>Arr</code> is equivalent to double precision real <code>Dense.Ndarray.D</code>;</li>
+<li><code>Mat</code> is equivalent to double precision real <code>Dense.Matrix.D</code>;</li>
+</ul>
+<p>With these shortcut modules, you are no longer required to pass in type information. Here are some examples.</p>
+<div class="highlight">
+<pre><code class="language-ocaml">Arr.zeros [|5|];;        (* same as Dense.Ndarray.D.zeros [|5|] *)
+Mat.zeros 5 5;;          (* same as Dense.Matrix.D.zeros 5 5 *)</code></pre>
+</div>
+<p>More examples besides creation functions are as follows.</p>
+<div class="highlight">
+<pre><code class="language-text">Mat.load "data.mat";;    (* same as Dense.Matrix.D.load "data.mat" *)
+Mat.of_array 5 5 x;;     (* same as Dense.Matrix.D.of_array 5 5 x *)
+Mat.linspace 0. 9. 10;;  (* same as Dense.Matrix.D.linspace 0. 9. 10 *)</code></pre>
+</div>
+<p>If you actually work more often with other number types like Complex, you can certainly make your own alias to corresponding <code>S</code>, <code>D</code>, <code>C</code>, and <code>Z</code> module if you like.</p>
+</section>
+<section class="level2" id="type-casting">
+<h2>Type Casting</h2>
+<p>As I mentioned before, there are four basic number types. You can therefore cast one value from one type to another one by using the <code>cast_*</code> functions in <code>Generic</code> module.</p>
+<ul>
+<li><code>Generic.cast_s2d</code>: cast from <code>float32</code> to <code>float64</code>;</li>
+<li><code>Generic.cast_d2s</code>: cast from <code>float64</code> to <code>float32</code>;</li>
+<li><code>Generic.cast_c2z</code>: cast from <code>complex32</code> to <code>complex64</code>;</li>
+<li><code>Generic.cast_z2c</code>: cast from <code>complex64</code> to <code>complex32</code>;</li>
+<li><code>Generic.cast_s2c</code>: cast from <code>float32</code> to <code>complex32</code>;</li>
+<li><code>Generic.cast_d2z</code>: cast from <code>float64</code> to <code>complex64</code>;</li>
+<li><code>Generic.cast_s2z</code>: cast from <code>float32</code> to <code>complex64</code>;</li>
+<li><code>Generic.cast_d2c</code>: cast from <code>float64</code> to <code>complex32</code>;</li>
+</ul>
+<p>In fact, all these function rely on the following <code>cast</code> function.</p>
+<div class="highlight">
+<pre><code class="language-text">
+  val cast : ('a, 'b) kind -&gt; ('c, 'd) t -&gt; ('a, 'b) t
+</code></pre>
+</div>
+<p>The first parameter specifies the cast type. If the source type and the cast type are the same, <code>cast</code> function simply makes a copy of the passed in value.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let x = Arr.uniform [|5;5|]                     (* created in float64 *);;
+&gt;val x : Arr.arr =
+&gt;
+&gt;         C0        C1        C2       C3       C4
+&gt;R0 0.648406  0.616945  0.828173 0.579604 0.212017
+&gt;R1 0.960002 0.0563993  0.219521 0.855164 0.414024
+&gt;R2 0.526179  0.532062 0.0640247 0.786426 0.956565
+&gt;R3 0.810557  0.476031  0.516506  0.11439 0.964041
+&gt;R4 0.981665  0.446936  0.276383 0.414747 0.174775
+</code></pre>
+</div>
+<p>Now let’s cast <code>x</code> from float64 to complex32.</p>
+<div class="highlight">
+<pre data-filter-output=">" data-prompt="#" class="command-line"><code class="language-ocaml">let y = Dense.Ndarray.Generic.cast Complex32 x  (* cast to complex32 *);;
+&gt;val y : (Complex.t, complex32_elt) Dense.Ndarray.Generic.t =
+&gt;
+&gt;               C0              C1              C2             C3             C4
+&gt;R0 (0.648406, 0i)  (0.616945, 0i)  (0.828173, 0i) (0.579604, 0i) (0.212017, 0i)
+&gt;R1 (0.960002, 0i) (0.0563993, 0i)  (0.219521, 0i) (0.855164, 0i) (0.414024, 0i)
+&gt;R2 (0.526179, 0i)  (0.532062, 0i) (0.0640247, 0i) (0.786426, 0i) (0.956565, 0i)
+&gt;R3 (0.810557, 0i)  (0.476031, 0i)  (0.516506, 0i)  (0.11439, 0i) (0.964041, 0i)
+&gt;R4 (0.981664, 0i)  (0.446936, 0i)  (0.276383, 0i) (0.414747, 0i) (0.174775, 0i)
+</code></pre>
+</div>
+<p>To know more about the functions provided in each module, please read the corresponding interface file of <code>Generic</code> module. The <code>Generic</code> module contains the documentation.</p>
+<ul>
+<li><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli">Dense.Ndarray.Generic</a></li>
+<li><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_matrix_generic.mli">Dense.Matrix.Generic</a></li>
+<li><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/sparse/owl_sparse_ndarray_generic.mli">Sparse.Ndarray.Generic</a></li>
+<li><a href="https://github.com/ryanrhymes/owl/blob/master/src/owl/sparse/owl_sparse_matrix_generic.mli">Sparse.Matrix.Generic</a></li>
+</ul>
+</section>
+</section>
+</article></div><a href="visualisation.html" class="next-chapter"><div class="content"><h1><small>Next: Chapter 03</small>Visualisation</h1></div></a><footer><div class="content"><ul><li><a href="http://ocaml.xyz">ocaml.xyz</a></li><li><a href="https://github.com/ryanrhymes">GitHub</a></li></ul><p>Copyright 2017-2020 Liang Wang.</p></div></footer><script src="js/jquery.min.js"></script><script src="js/min/app-min.js"></script></body></html>
