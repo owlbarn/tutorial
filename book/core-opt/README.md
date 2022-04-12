@@ -650,6 +650,4 @@ As can be seen, my repeat operation achieves about half of that in NumPy with re
 The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient.
 The repeat operation in Julia is much slower. One reason is that `repeat` is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.
 
-## Summary
-
 ## References

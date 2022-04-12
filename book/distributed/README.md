@@ -507,8 +507,6 @@ let push kv_pairs =
     ) kv_pairs
 ```
 
-TODO:  Explain the code
-
 ![MNIST training using Actor](images/distributed/exp_accuracy_01.png){#fig:distributed:exp_accuracy_01}
 
 In [@fig:distributed:exp_accuracy_01], we conduct the real-world experiments  using 6 worker nodes with the Parameter Server framework we have implemented.

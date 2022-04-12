@@ -333,9 +333,6 @@ for (int i = 0; i &lt; N; i++) {
 <p>The evaluation results compared with NumPy and Julia are shown in <span data-cites="fig:core-opt:opeval_repeat" class="citation">[@fig:core-opt:opeval_repeat]</span>. We also measure the peak memory usage in<span data-cites="fig:core-opt:opeval_tp_repeat_mem_00" class="citation">[@fig:core-opt:opeval_tp_repeat_mem_00]</span>. As can be seen, my repeat operation achieves about half of that in NumPy with regard to both execution speed and memory usage. The outer repeat operation in NumPy is implemented using the single axis version, and thus is less efficient. The repeat operation in Julia is much slower. One reason is that <code>repeat</code> is not a computation-intensive operation, so the optimisation techniques such as static compilation and vectorisation are of less importance than algorithm design.</p>
 </section>
 </section>
-<section class="level2" id="summary">
-<h2>Summary</h2>
-</section>
 <section class="level2" id="references">
 <h2>References</h2>
 </section>
