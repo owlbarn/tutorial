@@ -1,6 +1,6 @@
-# Owl Book V1
+# Owl Online Tutorial
 
-The main purpose of this book is for teaching how to use Owl software. The book also convers many useful numerical and system techniques in numerical computing. Furthermore, the book includes in-depth discussion on the lessons learnt by building a large and complex software system to enable scientific computing in OCaml.
+The main purpose of the online tutorial is for teaching how to use Owl software. The tutorial also convers many useful numerical and system techniques in numerical computing. Furthermore, the tutorial includes in-depth discussion on the lessons learnt by building a large and complex software system to enable scientific computing in OCaml.
 
 The tooling and template reuse those in [Real World OCaml](https://realworldocaml.org/) under original authors' permission, with minor modidications.
 
@@ -29,8 +29,3 @@ The following tools are used in the project, please refer to their documentation
 
 - [Pandoc](https://pandoc.org/MANUAL.html)
 - [Pandoc-crossref](http://lierdakil.github.io/pandoc-crossref/)
-
-## People
-
-- Liang Wang: project originator, reponsible for planning, tooling, and writing.
-- Jianxin Zhao: project leader, lead the whole book writing, designing chapters, and coordinating contributors.
