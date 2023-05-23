@@ -16,7 +16,7 @@ depends: [
   "async"
   "lambdasoup"
   "re"
-  "mdx"
+  "mdx" {< "2.2"}
   "fmt"
   "cmdliner"
   "sexp_pretty"
