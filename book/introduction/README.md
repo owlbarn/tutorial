@@ -7,7 +7,7 @@ There are different ways to interact with Owl, including `utop`, notebook, and t
 
 Scientific Computing is a rapidly evolving multidisciplinary field which uses advanced computing capabilities to understand and solve complex problems.
 The algorithms used in scientific computing can be generally divided into two types: numerical analysis, and computer algebra (or symbolic computation).
-The former uses numerical approximation to solve mathematical problems, while the latter requires a exact close-form representation of computation and manipulates symbols that are not assigned specific values.
+The former uses numerical approximation to solve mathematical problems, while the latter requires an exact close-form representation of computation and manipulates symbols that are not assigned specific values.
 
 Both approaches are widely used in various applications fields, such as engineering, physics, biology, finance, etc.
 Even though these advanced applications are sophisticated, they are all built atop of basic numerical operations in a scientific library, most of which Owl has already provided.
@@ -39,7 +39,7 @@ The point is that how to dissect a complex application into basic building block
 
 Most existing numerical or scientific computing software are based on the imperative programming paradigm, which uses statements that change a program's state. 
 Imperative programs often work by being built from one or more procedures, or functions. This modular style is widely adopted. 
-Later around 1980s the idea of object oriented programming is rapidly developed. It extends the modular programming style to include the idea of "object". An object can contains both data and procedure codes. 
+Later around 1980s the idea of object-oriented programming is rapidly developed. It extends the modular programming style to include the idea of "object". An object can contain both data and procedure codes.
 The imperative programming is not widely adopted in numerical computing for no reason. Almost all computers' hardware implementation follows imperative design.
 Actually, FORTRAN, the first cross-platform programming language and an imperative language, is still heavily used for numerical and scientific computations in various fields after first being developed at the 1950s. 
 There is a good chance that, even if you are using modern popular numerical libraries such as SciPy, Julia, or Matlab, they still rely on FORTRAN in the core part somewhere. 
@@ -51,10 +51,10 @@ Whereas the latter uses a sequence of statements to change the state of the prog
 
 The fundamental difference between these two programming paradigms lies the underlying model of computation. 
 The imperative one is based on the Alan Turing model.
-In their book *Alan Turing: His Work and Impact*,  S. Barry Cooper and J. Van Leeuwen said that "computability via Turing machines gave rise to imperative programming". 
+In their book *Alan Turing: His Work and Impact*, S. Barry Cooper and J. Van Leeuwen said that "computability via Turing machines gave rise to imperative programming". 
 On the other hand, functional programming evolves from the *lambda calculus*, a formal system of computation built from function application.
 Lambda Calculus was invented by Alonzo Church in the 1930s, and it was meant to be a formal mathematical logic systems, instead of programming language. 
-Actually, it was not until the programming language was invented that the relationship between these two is revealed. 
+Actually, it was not until the programming language was invented that the relationship between these two were revealed.
 Turing himself proved that the lambda calculus is Turing complete. 
 (Fun fact: Turing is the student of Church.)
 We can say that the Lambda calculus is the basis of all functional programming languages.
@@ -63,7 +63,7 @@ Compared to imperative programming, functional programming features immutable da
 By using techniques such as higher order functions, currying, map & reduce etc., functional programming can often achieve parallelisation of threads, lazy evaluation, and determinism of program execution.
 But asides from these benefits, we are now talking about numerical computation which requires good performance.
 The question is, do we want to use a functional programming language to do scientific computing?
-We hope that by presenting Owl, which built on the functional programming language OCaml, we can give you an satisfactory answer.
+We hope that by presenting Owl, which built on the functional programming language OCaml, we can give you a satisfactory answer.
 
 ## Who Is This Book For
 
@@ -89,7 +89,7 @@ The book does not enforce any strict order in reading, you can simply jump to th
 
 ## Installation
 
-That being said, there is a long way to go from simple math calculation to those large use cases. 
+That being said, there is a long way to go from simple maths calculation to those large use cases.
 Now let's start from the very first step: installing Owl.
 Owl requires OCaml version `>=4.10.0`. Please make sure you have a working OCaml environment before you start installing Owl. You can read the guide on how to [Install OCaml](https://ocaml.org/docs/install.html).
 
@@ -129,7 +129,7 @@ There are Owl docker images on various Linux distributions, this can be further 
 
 ### Option 3: Pin the Dev-Repo
 
-`opam pin` allows you to pin the local code to Owl's development repository on Github. The first command `opam depext` installs all the dependencies Owl needs.
+`opam pin` allows you to pin the local code to Owl's development repository on GitHub. The first command `opam depext` installs all the dependencies Owl needs.
 
 ```shell
 
@@ -141,7 +141,7 @@ There are Owl docker images on various Linux distributions, this can be further 
 
 ### Option 4: Compile from Source
 
-Compiling directly from the source is an old-school but a recommended option. First, you need to clone the repository.
+Compiling directly from the source is an old-school but recommended option. First, you need to clone the repository.
 
 ```shell
 
@@ -196,7 +196,7 @@ In the following, we will introduce two options to set up an interactive environ
 
 ### Using Toplevel
 
-OCaml language has bundled with a simple toplevel, but I recommend *utop* as a more advance replacement. Installing *utop* is straightforward using OPAM, simply run the following command in the system shell.
+The OCaml language is bundled with a simple toplevel, but I recommend *utop* as a more advance replacement. Installing *utop* is straightforward using OPAM, simply run the following command in the system shell.
 
 
 ```shell
@@ -380,7 +380,7 @@ Even though the extra call to `display_file` is not ideal, it is obvious that th
 
 ### Using Owl-Jupyter
 
-For the time being, if you want to save that extra line to display a image in Jupyter. There is a convenient module called `owl-jupyter`. Owl-jupyter module overloads the original `Plot.output` function so that a plotted figure can be directly shown on the page.
+For the time being, you may want to save that extra line to display an image in Jupyter. There is a convenient module called `owl-jupyter`. Owl-jupyter module overloads the original `Plot.output` function so that a plotted figure can be directly shown on the page.
 
 ```txt
 
@@ -408,7 +408,7 @@ From the example above, you can see Owl users' experience can be significantly i
 
 ## Summary
 
-In this chapter we give an brief introduction to the background of Owl, including scientific computing, functional programming, and target audience, and the layout of this book. 
+In this chapter we give a brief introduction to the background of Owl, including scientific computing, functional programming, and target audience, and the layout of this book. 
 Then we start introduces how Owl can be installed and used, as a first step to start this journey.
 You can feel free to browse any part of this book as you want. 
 
