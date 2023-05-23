@@ -44,10 +44,10 @@ The imperative programming is not widely adopted in numerical computing for no r
 Actually, FORTRAN, the first cross-platform programming language and an imperative language, is still heavily used for numerical and scientific computations in various fields after first being developed at the 1950s. 
 There is a good chance that, even if you are using modern popular numerical libraries such as SciPy, Julia, or Matlab, they still rely on FORTRAN in the core part somewhere. 
 
-As a contrast, the *Functional Programming* seems to born to perform hight-level tasks. When John McCarthy designed LISP, the first functional programming language, he meant to use it in the artificial intelligence field. 
+As a contrast, the *Functional Programming* seems to born to perform high-level tasks. When John McCarthy designed LISP, the first functional programming language, he meant to use it in the artificial intelligence field.
 The S-expression it uses was meant to be an intermediate representation, but later proved to be powerful and expressive enough. 
 In LISP you can see the clear distinction between functional and imperative programming. 
-Whereas the later uses a sequence of statements to change the state of the program, the former one builds a program that constructs a tree of expressions by using and composing functions. 
+Whereas the latter uses a sequence of statements to change the state of the program, the former one builds a program that constructs a tree of expressions by using and composing functions.
 
 The fundamental difference between these two programming paradigms lies the underlying model of computation. 
 The imperative one is based on the Alan Turing model.
@@ -60,7 +60,7 @@ Turing himself proved that the lambda calculus is Turing complete.
 We can say that the Lambda calculus is the basis of all functional programming languages.
 
 Compared to imperative programming, functional programming features immutable data, first-class functions, and optimisations on tail-recursion. 
-By using techniques such as higher oder functions, currying, map & reduce etc., functional programming can often achieves parallelisation of threads, lazy evaluation, and determinism of program execution. 
+By using techniques such as higher order functions, currying, map & reduce etc., functional programming can often achieve parallelisation of threads, lazy evaluation, and determinism of program execution.
 But asides from these benefits, we are now talking about numerical computation which requires good performance.
 The question is, do we want to use a functional programming language to do scientific computing?
 We hope that by presenting Owl, which built on the functional programming language OCaml, we can give you an satisfactory answer.
@@ -413,5 +413,5 @@ Then we start introduces how Owl can be installed and used, as a first step to s
 You can feel free to browse any part of this book as you want. 
 
 At this point you have installed a working environment of Owl on your computer, you should feel really proud of yourself. 
-To be honest, this can be the most challengening part for a new user, even though Owl team has spent tons of time in improving its compilation and intallation. 
+To be honest, this can be the most challenging part for a new user, even though Owl team has spent tons of time in improving its compilation and installation.
 Now, let's roll out and start the exploration of more interesting topics. 
