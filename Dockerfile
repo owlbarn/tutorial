@@ -3,7 +3,9 @@ USER root
 
 # prepare dependency
 
-RUN cd /home/opam/opam-repository && git pull --quiet origin master
+RUN cd /home/opam/opam-repository \
+    && git remote set-url origin https://github.com/ocaml/opam-repository \
+    && git pull --quiet origin master
 RUN opam install core async lambdasoup re sexp_pretty ppx_jane mdx
 
 # install owl-symbolic
