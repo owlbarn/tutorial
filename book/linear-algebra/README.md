@@ -117,10 +117,10 @@ You should be able to see the following output in your `utop`.
 ```text
 
      C0 C1 C2 C3 C4 C5
-  R0  1  2  3  4  5  6
-  R1  7  8  9 10 11 12
-  R2 13 14 15 16 17 18
-  R3 19 20 21 22 23 24
+  R0  0  1  2  3  4  5
+  R1  6  7  8  9 10 11
+  R2 12 13 14 15 16 17
+  R3 18 19 20 21 22 23
 
 ```
 
