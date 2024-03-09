@@ -5,6 +5,17 @@ The main purpose of the online tutorial is for teaching how to use Owl software.
 The tooling and template reuse those in [Real World OCaml](https://realworldocaml.org/) under original authors' permission, with minor modidications.
 
 
+Test code:
+
+```ocaml
+let test_sum_reduce ?(seq = false) ?(a = true) expected shape axis =
+    let input = if seq = false then N.ones shape else N.sequential shape in
+    let output = if a = true then N.sum_reduce ~axis input else N.sum_reduce input in
+    let out_shp = N.shape output in
+    let expected = N.of_array expected out_shp in
+    close output expected
+```
+
 ## Compile
 
 - `make` uses docker container to build the book.
