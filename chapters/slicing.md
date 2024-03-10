@@ -67,7 +67,7 @@ The `get_fancy s x` retrieves a slice of `x` defined by `s`; whereas `set_fancy 
 
 Basic slicing is a special case of fancy slicing where only type constructor `R` is used in the definition. For example, the following two definitions are equivalent.
 
-```ocaml env=slicing_env0
+```ocaml
 
   let x = Arr.sequential [|10; 10; 10|];;
 
@@ -112,7 +112,7 @@ OK, that's all. Please make sure you understand it well before you start, but it
 Now here are some illustrated examples that can get you started with some of these rules.
 These examples are based on a `8x8` matrix.
 
-```ocaml env=slicing_example_00
+```ocaml
 let x = Arr.sequential [|8; 8|]
 ```
 
@@ -120,7 +120,7 @@ let x = Arr.sequential [|8; 8|]
 
 The first example as shown in [@fig:slicing:example_slice_01](a)is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_fancy [ R[]; I 2 ] x;;
 - : Arr.arr =
 
@@ -136,7 +136,7 @@ R7 58
 
 ```
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_slice [ []; [2]  ] x;;
 - : Arr.arr =
 
@@ -154,7 +154,7 @@ R7 58
 
 The second example in in [@fig:slicing:example_slice_01](b)is similar, but about retrieving part of a row. Still, this can be gotten using both methods.
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_fancy [ I 2; R [4; 6] ] x;;
 - : Arr.arr =
    C0 C1 C2
@@ -162,7 +162,7 @@ R0 20 21 22
 
 ```
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_slice [ [2]; [4; 6] ] x;;
 - : Arr.arr =
    C0 C1 C2
@@ -175,7 +175,7 @@ R0 20 21 22
 
 The next example in [@fig:slicing:example_slice_02](a) is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x;;
 - : Arr.arr =
    C0 C1 C2 C3
@@ -187,7 +187,7 @@ R1 41 43 45 47
 Finally, the last example concerns taking a sub matrix. We can do it in the similar way as the example 1 and 2.
 Or, since this sub matrix is close to the end of both dimension, we can use the negative integers as indices.
 
-```ocaml env=slicing_example_00
+```ocaml
 # Arr.get_fancy [ L [-2; -1]; R [-3; -2] ] x;;
 - : Arr.arr =
    C0 C1
@@ -211,7 +211,7 @@ Here are some examples that show how to use them.
 
 **.%{ }** for indexing:
 
-```ocaml env=slicing_env1
+```ocaml
   open Arr;;
 
   let x = sequential [|10; 10; 10|];;
@@ -221,7 +221,7 @@ Here are some examples that show how to use them.
 
 **.${ }** for basic slicing:
 
-```ocaml env=slicing_env1
+```ocaml
 
   open Arr;;
 
@@ -234,7 +234,7 @@ Here are some examples that show how to use them.
 
 **.!{ }** for fancy slicing:
 
-```ocaml env=slicing_env1
+```ocaml
 
   open Arr;;
 
@@ -253,7 +253,7 @@ We will first use the basic slicing to demonstrate some examples in this section
 
 Let's first define a sequential matrix as the input data for the following examples.
 
-```ocaml env=slicing_env2
+```ocaml
 
 # let x = Mat.sequential 5 7;;
 val x : Mat.mat =
@@ -269,7 +269,7 @@ R4 28 29 30 31 32 33 34
 
 Now, we can start our experiment. One benefit of running code in `utop` is that you can observe the output immediately to understand better how `slice` function works.
 
-```ocaml env=slicing_env2
+```ocaml
 
   let x = Arr.sequential [|10; 10; 10|];;
 
@@ -297,7 +297,7 @@ Now, we can start our experiment. One benefit of running code in `utop` is that 
 
 Let' see some more complicated examples.
 
-```ocaml env=slicing_env2
+```ocaml
 
   (* take from row 1 to 3 and column 3 to 5, so a sub-matrix of x *)
   let s = [ [1;3]; [3;5] ] in
@@ -332,7 +332,7 @@ Let' see some more complicated examples.
 
 The following are some more advanced examples to show how to use slicing to achieve quite complicated operations. Let's use a `5 x 5` sequential matrix for illustration.
 
-```ocaml env=slicing_env2
+```ocaml
 # let x = Mat.sequential 5 5;;
 val x : Mat.mat =
 
@@ -347,7 +347,7 @@ R4 20 21 22 23 24
 
 The first function `flip` a matrix upside down, i.e. flip vertically.
 
-```ocaml env=slicing_env2
+```ocaml
 # let flip x = Mat.get_slice [ [-1; 0]; [ ] ] x in
   flip x;;
 - : Mat.mat =
@@ -363,7 +363,7 @@ R4  0  1  2  3  4
 
 The second `reverse` function treats a matrix as one-dimensional vector and reverse its elements. This operation is equivalent to flipping in both vertical and horizontal directions.
 
-```ocaml env=slicing_env2
+```ocaml
 # let reverse x = Mat.get_slice [ [-1; 0]; [-1; 0] ] x in
   reverse x;;
 - : Mat.mat =
@@ -379,7 +379,7 @@ R4  4  3  2  1  0
 
 The third function rotates a matrix 90 degrees in clockwise direction. As we can see, slicing function leads to very concise code.
 
-```ocaml env=slicing_env2
+```ocaml
 # let rotate90 x = Mat.(transpose x |> get_slice [ []; [-1;0] ]) in
   rotate90 x;;
 - : Mat.mat =
@@ -395,7 +395,7 @@ R4 24 19 14  9  4
 
 The last function `cshift` performs right circular shift along the columns of a matrix.
 
-```ocaml env=slicing_env2
+```ocaml
 let cshift x n =
   let c = Mat.col_num x in
   let h = Utils.Array.(range (c - n) (c - 1)) |> Array.to_list in
@@ -405,7 +405,7 @@ let cshift x n =
 
 Applying to the previous `x`, the outcome should look like this.
 
-```ocaml env=slicing_env2
+```ocaml
 # cshift x 2;;
 - : Mat.mat =
 
@@ -489,12 +489,12 @@ Here are some invalid shapes that violate the aforementioned constraints so that
 What if `y` has less dimensionality than `x`? E.g., `x` has the shape `[|2;3;4;5|]` whereas `y` has the shape `[|4;5|]`. In this case, Owl first calls `Ndarray.expand` function to increase `y`'s dimensionality to the same number as `x`'s. Technically, two ndarrays are aligned along the highest dimension. In other words, this is done by appending `1` s to lower dimension of `y`, so the new shape of `y` becomes `[|1;1;4;5|]`.
 You can try `expand` by yourself, as shown below.
 
-```ocaml env=broadcasting_example00
+```ocaml
 let y = Arr.sequential [|4;5|];;
 let y' = Arr.expand y 4;;
 ```
 
-```ocaml env=broadcasting_example00
+```ocaml
 # Arr.shape y';;
 - : int array = [|1; 1; 4; 5|]
 ```
@@ -504,11 +504,11 @@ The first example is vector multiplied by scalar.
 
 ![Illustrated example of shape extension in broadcasting](../images/slicing/example_broadcast_01.png "example broadcast 01"){width=90% #fig:slicing:broadcast_01}
 
-```ocaml env=broadcasting_example01
+```ocaml
 let a = Arr.sequential [|1;3|]
 ```
 
-```ocaml env=broadcasting_example01
+```ocaml
 # Arr.add_scalar a 3.;;
 - : Arr.arr =
    C0 C1 C2
@@ -520,12 +520,12 @@ The second example is matrix plus vector.
 
 ![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_02.png "example broadcast 02"){width=90% #fig:slicing:broadcast_02}
 
-```ocaml env=broadcasting_example01
+```ocaml
 let b0 = Arr.sequential [|3;3|]
 let b1 = Arr.sequential ~a:1. [|1;3|]
 ```
 
-```ocaml env=broadcasting_example01
+```ocaml
 # Arr.mul b0 b1;;
 - : Arr.arr =
    C0 C1 C2
@@ -540,12 +540,12 @@ The third example is column vector plus row vector.
 ![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_03.png "example broadcast 03"){width=90% #fig:slicing:broadcast_03}
 
 
-```ocaml env=broadcasting_example01
+```ocaml
 let c0 = Arr.sequential [|3;1|]
 let c1 = Arr.copy b1
 ```
 
-```ocaml env=broadcasting_example01
+```ocaml
 # Arr.mul c0 c1;;
 - : Arr.arr =
    C0 C1 C2
@@ -632,7 +632,7 @@ Besides, the negative indexing is not supported in Julia.
 One important thing to notice in slicing is the difference between *copy* and *view*.
 For example, in Owl we can make a slice, change the slice, and check what the original ndarray looks like.
 
-```ocaml env=slicing_example_01
+```ocaml
 # let x = Arr.sequential [|3;3|];;
 val x : Arr.arr =
    C0 C1 C2
@@ -641,25 +641,25 @@ R1  3  4  5
 R2  6  7  8
 
 ```
-```ocaml env=slicing_example_01
+```ocaml
 # let y = Arr.get_slice [[0]; []] x;;
 val y : Arr.arr =
    C0 C1 C2
 R0  0  1  2
 
 ```
-```ocaml env=slicing_example_01
+```ocaml
 # Arr.set y [|0; 2|] 200.;;
 - : unit = ()
 ```
-```ocaml env=slicing_example_01
+```ocaml
 # y;;
 - : Arr.arr =
    C0 C1  C2
 R0  0  1 200
 
 ```
-```ocaml env=slicing_example_01
+```ocaml
 # x;;
 - : Arr.arr =
    C0 C1 C2

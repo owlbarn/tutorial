@@ -24,7 +24,7 @@ Owl packs each series into a unified type called `series` and stores them in an 
 Dataframes can be created in various ways. `Dataframe.make` is the core function if we can to create a frame dynamically. For example, the following code creates a frame consisting of three columns include "name", "age", and "salary" of four people.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
   let name = Dataframe.pack_string_series [|"Alice"; "Bob"; "Carol"; "David"|]
   let age = Dataframe.pack_int_series [|20; 25; 30; 35|]
   let salary = Dataframe.pack_float_series [|2200.; 2100.; 2500.; 2800.|]
@@ -33,7 +33,7 @@ Dataframes can be created in various ways. `Dataframe.make` is the core function
 
 If you run the code in `utop`, Owl can pretty print out the dataframe in the following format. If the frame grows too long or too wide, Owl is smart enough to truncate them automatically and present the table nicely in the toplevel.
 
-```ocaml env=env_dataframe_1
+```ocaml
 # Owl_pretty.pp_dataframe Format.std_formatter frame;;
   +-----+---+------
     name age salary
@@ -62,7 +62,7 @@ There are a comprehensive set of table manipulation functions implemented in Dat
 
 Now that Owl allows us to create empty frames, it certainly provides functions to dynamically add new columns.
 
-```ocaml env=env_dataframe_1
+```ocaml
   let job = Dataframe.pack_string_series [|"Engineer"; "Driver"; "Lecturer"; "Manager"|] in
   Dataframe.append_col frame job "job";;
 
@@ -75,7 +75,7 @@ Now that Owl allows us to create empty frames, it certainly provides functions t
 
 From the output, we can see that the "job" column has been appended to the end of the previously defined dataframe.
 
-```ocaml env=env_dataframe_1
+```ocaml
 # Owl_pretty.pp_dataframe Format.std_formatter frame;;
 
   +-----+---+------+--------+------+-------------
@@ -96,7 +96,7 @@ We can even concatenate two dataframes. Depending on concatenating direction, th
 For example, the following code adds two new entries to the table by concatenating two dataframes vertically.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
   let name = Dataframe.pack_string_series [|"Erin"; "Frank"|];;
   let age = Dataframe.pack_int_series [|22; 24|];;
   let salary = Dataframe.pack_float_series [|3600.; 5500.;|];;
@@ -110,7 +110,7 @@ For example, the following code adds two new entries to the table by concatenati
 
 The new dataframe looks like the following.
 
-```ocaml env=env_dataframe_1
+```ocaml
 # Owl_pretty.pp_dataframe Format.std_formatter frame_2;;
 
   +-----+---+------+----------+------+-------------
@@ -129,7 +129,7 @@ R5 Frank  24  5500. Consultant   male   Beijing, CN
 However, if you just want to append one or two rows, the previous method seems a bit overkill. Instead, you can call `Dataframe.append_row` function.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 # let new_row = Dataframe.([|
     pack_string "Erin";
     pack_int 22;
@@ -170,7 +170,7 @@ You can refer to the API reference for the complete function list.
 We can use various functions in the module to retrieve the information from a dataframe. The basic `get` and `set` function treats the dataframe like a matrix. We need to specify the row and column index to retrieve the value of an element.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
 # Dataframe.get frame 2 1;;
 - : Dataframe.elt = Owl.Dataframe.Int 30
@@ -180,7 +180,7 @@ The `get_row` and `get_col` (also `get_col_by_name`) are used to obtain a comple
 
 Because each column has a name, we can also use head to retrieve information. However, we still need to pass in the row index because rows are not associated with names.
 
-```ocaml env=env_dataframe_1
+```ocaml
 # Dataframe.get_by_name frame 2 "salary";;
 - : Dataframe.elt = Owl.Dataframe.Float 2500.
 ```
@@ -188,7 +188,7 @@ Because each column has a name, we can also use head to retrieve information. Ho
 We can use the `head` and `tail` functions to retrieve only the beginning or end of the dataframe. The results will be returned as a new dataframe. We can also use the more powerful functions like `get_slice` or `get_slice_by_name` if we are interested in the data within a dataframe. The slice definition used in these two functions is the same as that used in Owl's Ndarray modules.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 # Dataframe.get_slice_by_name ([1;2], ["name"; "age"]) frame;;
 - : Dataframe.t =
 
@@ -251,7 +251,7 @@ One interesting thing worth mentioning here is that there are several functions 
 Let's present several examples to demonstrate how to use them. We can first pass in row index and head name tuple in `%()` to access cells.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
   open Dataframe;;
 
@@ -266,7 +266,7 @@ Let's present several examples to demonstrate how to use them. We can first pass
 The operator `.?()` provides a shortcut to filter out the rows satisfying the passed-in predicate and returns the results in a new dataframe. For example, the following code filters out the people who are younger than 30.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
 # frame.?(fun r -> unpack_int r.(1) < 30);;
 - : t =
@@ -283,7 +283,7 @@ R2  Erin  22  2300. Researcher   male  New York, US
 The cool thing about `.?()` is that you can chain the filters up like below. The code first filters out the people younger than 30, then further filter out whose salary is higher than 2100.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
   frame.?(fun r -> unpack_int r.(1) < 30)
        .?(fun r -> unpack_float r.(2) > 2100.);;
@@ -292,7 +292,7 @@ The cool thing about `.?()` is that you can chain the filters up like below. The
 
 It is also possible to filter out some rows then make some modifications. For example, we want to filter out those people older than 25, then raise their salary by 5%. We can achieve this in two ways. First, we can use `filter_map_row` functions.
 
-```ocaml env=env_dataframe_1
+```ocaml
 
   let predicate x =
     let age = unpack_int x.(1) in
@@ -313,7 +313,7 @@ It is also possible to filter out some rows then make some modifications. For ex
 Alternatively, we can use the `.?( )<-` indexing operator. The difference is that we now need to define two functions - one (i.e. `check` function) for checking the predicate and one (i.e. `modify` function) for modifying the passed-in rows.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
   let check x = unpack_int x.(1) > 25;;
 
@@ -332,7 +332,7 @@ Running the code will give you the same result as that of calling `filter_map_ro
 Finally, you can also use `$.()` operator to replace `get_slice_by_name` function to retrieve a slice of dataframe.
 
 
-```ocaml env=env_dataframe_1
+```ocaml
 
 # frame.$([0;2], ["name"; "salary"]);;
 - : t =

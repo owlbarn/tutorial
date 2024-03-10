@@ -146,7 +146,7 @@ Let's look at an example. The objective function is in a hump shape:
 
 $$f(x) = \frac{1}{(x-0.3)^2 + 0.01} + \frac{1}{(x-0.9)^2 + 0.04} -6$$
 
-```ocaml env=optimisation_00
+```ocaml
 open Algodiff.D
 
 let f x = Maths.(
@@ -162,7 +162,7 @@ let g' x = g (F x) |> unpack_flt
 
 To better understand the optimisation along this function, we can visualise the image as below:
 
-```ocaml env=optimisation_00
+```ocaml
 
 let _ =
   let h = Plot.create ~m:1 ~n:2 "plot_hump.png" in
@@ -180,7 +180,7 @@ let _ =
 
 And then you can find the extreme values using the root finding algorithm, such as Brent's:
 
-```ocaml env=optimisation_00
+```ocaml
 # Owl_maths_root.brent g' 0. 0.4
 - : float = 0.30037562625819042
 # Owl_maths_root.brent g' 0.4 0.7
@@ -283,7 +283,7 @@ $$f(x, y) = (a - x)^2 + b(y-x^2)^2.$$ {#eq:optimisation:rosenbrock}
 
 The parameters are usually set as $a=1$ and $b=100$.
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 open Algodiff.D
 module N = Dense.Ndarray.D
 
@@ -295,7 +295,7 @@ let rosenbrock a =
 
 Now we hope to apply the gradient descent method and observe the optimisation trajectory.
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 let a = N.of_array [|2.; -0.5|] [|1; 2|]
 let traj = ref (N.copy a)
 let a = ref a
@@ -306,7 +306,7 @@ let n = 200
 As preparation, we use the initial starting point `[2, -0.5]`. The step size `eta` is set to `0.0001`, and the iteration number is 100.
 Then we can perform the iterative descent process. You can also run this process in a recursive manner.
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 let _ =
   for i = 1 to n - 1 do
 	let u = grad rosenbrock (Arr !a) |> unpack_arr in
@@ -318,7 +318,7 @@ let _ =
 We apply the `grad` method on the Rosenbrock function iteratively, and the updated data `a` is stored in the `traj` array.
 Finally, let's visualise the trajectory of the optimisation process.
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 let plot () =
 	let a, b = Dense.Matrix.D.meshgrid (-2.) 2. (-1.) 3. 50 50 in
 	let c = N.(scalar_mul 100. (pow_scalar (sub b (pow_scalar a 2.)) 2.) + (pow_scalar (scalar_sub 1. a) 2.)) in
@@ -351,7 +351,7 @@ It minimises function in the form of `f : x -> y` with regard to `x`. `x` is an 
 This function is implemented following the iterative descent approach.
 Let's use the previous Rosenbrock function example to demonstrate how it works.
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 let p = Owl_optimise.D.Params.default ()
 let _ = p.epochs <- 10.
 let _ = p.gradient <- Owl_optimise.D.Gradient.GD
@@ -363,7 +363,7 @@ Currently, it suffices to just set the iteration number `epochs` to something li
 Then we set the gradient method to be the gradient descent.
 Then we can just executing the code, starting from the same starting point:
 
-```ocaml env=optimisation:gd
+```ocaml:gd
 let init_value = N.of_array [|2.;-0.5|] [|1;2|] |> pack_arr
 let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value
 ```

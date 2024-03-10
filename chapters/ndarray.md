@@ -148,7 +148,7 @@ The `map` function transforms one ndarray to another according to a given functi
 The `map` function in Owl is pure and always generates a fresh new data structure rather than modifying the original one.
 For example, the following code creates a three-dimensional ndarray, and then adds 1 to every element in `x`.
 
-```ocaml env=ndarray_00
+```ocaml
 # let x = Arr.uniform [|3;4;5|];;
 val x : Arr.arr =
 
@@ -168,7 +168,7 @@ R[2,3]  0.126273  0.946126  0.42223 0.955181   0.422184
 ```
 
 
-```ocaml env=ndarray_00
+```ocaml
 # let y = Arr.map (fun a -> a +. 1.) x;;
 val y : Arr.arr =
 
@@ -610,7 +610,7 @@ The *contraction* operations extends this process to multiple dimension space.
 It sums the products of the two ndarrays' elements over specified axes.
 For example, we can perform the matrix multiplication with contraction:
 
-```ocaml env=ndarray:matmul
+```ocaml:matmul
 let x = Mat.uniform 3 4
 let y = Mat.uniform 4 5
 
@@ -627,7 +627,7 @@ $$C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}$$ {#eq:ndarray:contract}
 
 We can use the `contract2` function in the `Ndarray` module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
 
-```ocaml env=ndarray:contraction
+```ocaml:contraction
 let x = Arr.sequential [|3;4;5|]
 let y = Arr.sequential [|4;3;2|]
 
@@ -637,7 +637,7 @@ let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y
 The indices mean that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`, as shown in [@eq:ndarray:contract].
 We can verify the result with the naive way of implementation:
 
-```ocaml env=ndarray:contraction
+```ocaml:contraction
 let z2 = Arr.zeros [|5;2|]
 
 let _ =
@@ -655,14 +655,14 @@ let _ =
 
 Then we can check if the two results agree:
 
-```ocaml env=ndarray:contraction
+```ocaml:contraction
 # Arr.equal z1 z2;;
 - : bool = true
 ```
 
 The contraction can also be applied on one single ndarray to perform the reduction operation using the `contract1` function.
 
-```ocaml env=ndarray:contraction-01
+```ocaml:contraction-01
 # let x = Arr.sequential [|2;2;3|];;
 val x : Arr.arr =
 
@@ -674,7 +674,7 @@ R[1,1]  9 10 11
 
 ```
 
-```ocaml env=ndarray:contraction-01
+```ocaml:contraction-01
 # let y = Arr.contract1 [|(0,1)|] x;;
 val y : Arr.arr =
   C0 C1 C2

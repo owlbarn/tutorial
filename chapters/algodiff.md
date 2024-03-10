@@ -109,7 +109,7 @@ We can see the effect of this truncation error in an example, by using an improp
 Let's say we want to find the derivative of $f(x) = cos(x)$ at point $x=1$.
 Basic calculus tells us that it should be equals to $-sin(1) = 0.84147$, but the result is obviously a bit different.
 
-```ocaml env=optimisation:numdiff
+```ocaml 
 # let d =
     let _eps = 0.1 in
     let diff f x = (f (x +. _eps) -. f x) /. _eps in
@@ -122,7 +122,7 @@ It is caused by representing numbers approximately in numerical computation duri
 Looking back at [@eq:algodiff:numdiff], we need to calculate $f(x+h) - f(x)$, the subtraction of two almost identical number. That could lead to a large round-off errors in a computer.
 For example, let's choose a very small step size this time:
 
-```ocaml env=optimisation:numdiff
+```ocaml 
 # let d =
     let _eps = 5E-16 in
     let diff f x = (f (x +. _eps) -. f x) /. _eps in
@@ -356,7 +356,7 @@ This result $\bar{v_0} = -0.18$ agrees what we have have gotten using the forwar
 However, if you still need another fold of insurance, we can use Owl to perform a numerical differentiation.
 The code would be similar to that of using algorithmic differentiation as shown before.
 
-```ocaml env=algodiff_reverse_example_00
+```ocaml
 module D = Owl_numdiff_generic.Make (Dense.Ndarray.D);;
 
 let x = Arr.ones [|2|]
@@ -369,7 +369,7 @@ let f x =
 
 And then we can get the differentiation result at the point $(x_0, x_1) = (0, 0)$, and it agrees with the previous results.
 
-```ocaml env=algodiff_reverse_example_00
+```ocaml
 # D.grad f x
 - : D.arr =
          C0        C1
@@ -409,7 +409,7 @@ However, that's not a scalable: what if there are hundreds and thousands of comp
 A closer look at the [@tbl:algodiff:forward] shows that an intermediate node actually only need to know the computation results (primal value and tangent value) of its parents nodes to compute its own results.
 Based on this observation, we can define a data type that preserve these two values:
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 type df = {
  	mutable p: float;
  	mutable t: float
@@ -421,7 +421,7 @@ let tangent df = df.t
 
 And now we can define operators that accept type `df` as input and outputs the same type:
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let sin_ad x =
     let p = primal x in
     let t = tangent x in
@@ -434,7 +434,7 @@ The core part of this function is to define how to compute its function value `p
 Now you can easily extend it towards the `exp` operation:
 
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let exp_ad x =
     let p = primal x in
     let t = tangent x in
@@ -445,7 +445,7 @@ let exp_ad x =
 
 But what about operators that accept multiple inputs? Let's see multiplication.
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let mul_ad a b =
     let pa = primal a in
     let ta = tangent a in
@@ -459,7 +459,7 @@ let mul_ad a b =
 Though it require a bit more unpacking, its forward computation and derivative function are simple enough.
 Similarly, you can extend that towards similar operations: the `add` and `div`.
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let add_ad a b =
     let pa = primal a in
     let ta = tangent a in
@@ -481,7 +481,7 @@ let div_ad a b =
 
 Based on these functions, we can provide a tiny wrapper named `diff`:
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let diff f =
   let f' x y =
     let r = f x y in
@@ -492,7 +492,7 @@ let diff f =
 
 And that's all! Now we can do differentiation on our previous example.
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 let x0 = {p=1.; t=1.}
 let x1 = {p=1.; t=0.}
 ```
@@ -500,7 +500,7 @@ let x1 = {p=1.; t=0.}
 These are inputs.
 We know the tangent of `x1` with regard to `x0` is zero, and so are the other constants used in the computation.
 
-```ocaml env=algodiff_simple_impl_forward
+```ocaml
 # let f x0 x1 =
     let v2 = sin_ad x0 in
     let v3 = mul_ad x0 x1 in
@@ -530,7 +530,7 @@ What we choose here is bit different though.
 Let's start with the data types we use.
 
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 type dr = {
  	mutable p: float;
  	mutable a: float ref;
@@ -546,7 +546,7 @@ The `p` is for primal while `a` stands for adjoint. It's easy to understand.
 The `adj_fun` is a bit tricky. Let's see an example:
 
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let sin_ad dr =
     let p = primal dr in
     let p' = Owl_maths.sin p in
@@ -566,7 +566,7 @@ This stack is implemented in OCaml list.
 
 Let's then look at the `mul` operation with two variables:
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let mul_ad dr1 dr2 =
     let p1 = primal dr1 in
     let p2 = primal dr2 in
@@ -583,7 +583,7 @@ let mul_ad dr1 dr2 =
 The difference is that, this time both of its parents are added to the task stack.
 For the input data, we need a helper function:
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let make_reverse v =
     let a = ref 0. in
     let adj_fun _a t = t in
@@ -592,7 +592,7 @@ let make_reverse v =
 
 With this function, we can perform the forward pass like this:
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 # let x = make_reverse 1.
 val x : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
 # let y = make_reverse 2.
@@ -605,7 +605,7 @@ After the forward pass, we have the primal values at each intermediate node, but
 And we have this adjoin function. Noting that executing this function would create a list of past computations, which in turn contains its own `adj_fun`.
 This resulting `adj_fun` remembers all the required information, and know we need to recursively calculate the adjoint values we want.
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let rec reverse_push xs =
     match xs with
     | [] -> ()
@@ -622,7 +622,7 @@ The `reverse_push` does exactly that. Starting from a list, it gets the top elem
 Now, let's add some other required operations basically by copy and paste:
 
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let exp_ad dr =
     let p = primal dr in
     let p' = Owl_maths.exp p in
@@ -660,7 +660,7 @@ let div_ad dr1 dr2 =
 
 We can express the differentiation function `diff` with the reverse mode, with first a forward pass and then a backward pass.
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 let diff f =
   let f' x =
     (* forward pass *)
@@ -676,7 +676,7 @@ let diff f =
 
 Now we can do the calculation, which are the same as before, and the only difference is the way to build constant values.
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 # let x1 = make_reverse 1.
 val x1 : dr = {p = 1.; a = {contents = 0.}; adj_fun = <fun>}
 # let x0 = make_reverse 1.
@@ -698,7 +698,7 @@ val f : dr * dr -> dr = <fun>
 
 Now let's do the differentiation:
 
-```ocaml env=algodiff_simple_impl_reverse
+```ocaml
 # let pri_x0, adj_x0, pri_x1, adj_x1 = diff f (x0, x1)
 val pri_x0 : float = 1.
 val adj_x0 : float = -0.181974376561731321
@@ -713,7 +713,7 @@ Again, their adjoint values are just as expected.
 We have shown how to implement forward and reverse AD from scratch separately. But in the real world applications, we often need a system that supports both differentiation modes. How can we build it then?
 We start with combining the previous two record data types `df` and `dr` into a new data type `t` and its related operations:
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 type t =
   | DF of float * float  
   | DR of float * float ref * adjoint
@@ -754,7 +754,7 @@ let rec reverse_push xs =
 
 Now we can operate on one unified data type. Based on this new data type, we can then combine the forward and reverse mode into one single function, using a `match` clause.
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 let sin_ad x =
   let ff = Owl_maths.sin in
   let df p t = (Owl_maths.cos p) *. t in
@@ -776,7 +776,7 @@ let sin_ad x =
 The code is mostly taken from the previous two implementations, so should be not very alien to you now.
 Similarly we can also build the multiplication operator:
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 let mul_ad xa xb =
   let ff = Owl_maths.mul in
   let df pa pb ta tb = pa *. tb +. ta *. pb in
@@ -806,7 +806,7 @@ The rest are mostly fixed.
 Based on this observation, we can utilise the first-class citizen in OCaml, the "module", to reduce a lot of copy and paste in our code.
 We can start with two types of modules: unary and binary:
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 module type Unary = sig
   val ff : float -> float
 
@@ -828,7 +828,7 @@ They express both points of difference: first, the two modules differentiate bet
 We can focus on the computation logic of each computation in each module:
 
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 module Sin = struct
   let ff = Owl_maths.sin
   let df p t = (Owl_maths.cos p) *. t
@@ -863,7 +863,7 @@ end
 
 Now we can provide a template to build math functions:
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 let unary_op (module U: Unary) = fun x ->
   match x with
   | DF (p, t) ->
@@ -897,7 +897,7 @@ let binary_op (module B: Binary) = fun xa xb ->
 
 Each template accepts a module, and then returns the function we need. Let's see how it works with concise code.
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 let sin_ad = unary_op (module Sin : Unary)
 
 let exp_ad = unary_op (module Exp : Unary)
@@ -911,7 +911,7 @@ let div_ad = binary_op (module Div : Binary)
 
 As you can expect, the `diff` function can also be implemented in a combined way. In this implementation we focus on the tangent and adjoint value of `x0` only.
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 let diff f =
   let f' x =
     let x0, x1 = x in
@@ -929,7 +929,7 @@ let diff f =
 
 That's all. We can move on once again to our familiar examples.
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 # let x0 = make_forward 1. 1.
 val x0 : t = DF (1., 1.)
 # let x1 = make_forward 1. 0.
@@ -953,7 +953,7 @@ val f_forward : t * t -> t = <fun>
 That's just forward mode. With only tiny change of how the variables are constructed, we can also do the reverse mode.
 
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 # let x0 = make_reverse 1.
 val x0 : t = DR (1., {contents = 0.}, <fun>)
 # let x1 = make_reverse 1.
@@ -1013,7 +1013,7 @@ let f x =
 This function accepts a vector and returns a float value, which is exactly what we are looking for.
 However, the problem is that we cannot directly differentiate this programme. Instead, we need to do some minor but important change:
 
-```ocaml env=algodiff_example_02
+```ocaml
 module AD = Algodiff.D
 
 let f x =
@@ -1118,7 +1118,7 @@ It also indicate the rate of change at this point.
 
 Suppose we define a function `f0` to be the triangular function `tanh`, we can calculate its derivative at position $x=0.1$ by simply calling:
 
-```ocaml env=algodiff_00
+```ocaml
 open Algodiff.D
 
 let f0 x = Maths.(tanh x)
@@ -1128,7 +1128,7 @@ let d = diff f0 (F 0.1)
 Moreover, the AD module is much more than that; we can easily chain multiple `diff` together to get a function's high order derivatives.
 For example, we can get the first to fourth order derivatives of `f0` by using the concise code below.
 
-```ocaml env=algodiff_00
+```ocaml
 let f0 x = Maths.(tanh x);;
 let f1 = diff f0;;
 let f2 = diff f1;;
@@ -1138,7 +1138,7 @@ let f4 = diff f3;;
 
 We can further plot these five functions using Owl, and the result is show in [@fig:algodiff:plot00].
 
-```ocaml env=algodiff_00
+```ocaml
 let map f x = Owl.Mat.map (fun a -> a |> pack_flt |> f |> unpack_flt) x;;
 
 let x = Owl.Mat.linspace (-4.) 4. 200;;
@@ -1197,7 +1197,7 @@ $$y_3^{'} = -\frac{y_1}{r^3},$$
 
 We can express this system with code:
 
-```ocaml env=algodiff_jacobian
+```ocaml
 open Algodiff.D
 
 let f y =
@@ -1266,7 +1266,7 @@ $$x_{n+1} = x_n - \alpha~\mathbf{H}^{-1}\nabla~f(x_n)$$ {#eq:algodiff:newtons}
 
 This process can be easily represented using the `Algodiff.D.hessian` function.
 
-```ocaml env=algodiff_hessian_example
+```ocaml
 open Algodiff.D
 
 let rec newton ?(eta=F 0.01) ?(eps=1e-6) f x =
@@ -1280,7 +1280,7 @@ We can then apply this method on a two dimensional triangular function to find o
 Note that here the functions has to take a vector as input and output a scalar.
 We will come back to this method in the in Optimisation chapter with more details.
 
-```ocaml env=algodiff_hessian_example
+```ocaml
 let _ =
   let f x = Maths.(cos x |> sum') in
   newton f (Mat.uniform 1 2)
@@ -1375,7 +1375,7 @@ i.e. a function that contains another derivative function? It's simple, since $\
 Well, not exactly.
 Let's follow our previous simple implementation:
 
-```ocaml env=algodiff_simple_impl_unified_00
+```ocaml
 # let diff f x =
     match x with
     | DF (_, _)    ->
@@ -1466,7 +1466,7 @@ The module design shown above brings one large benefit: it is very flexible in s
 Let's look at an example: suppose the Owl does not provide the operation `sin` in AD module, and to finish our example in [@eq:algodiff:example], what can we do?
 We can use the `Builder` module in AD.
 
-```ocaml env=algodiff:extend_ad
+```ocaml:extend_ad
 open Algodiff.D
 
 module Sin = struct
@@ -1483,7 +1483,7 @@ These are defined in a module called `Sin` here.
 This module can be passed as parameters to the builder to build a required operation.
 We call it `sin_ad` to make it different from what the AD module actually provides.
 
-```ocaml env=algodiff:extend_ad
+```ocaml:extend_ad
 let sin_ad = Builder.build_siso (module Sin : Builder.Siso)
 ```
 
@@ -1491,7 +1491,7 @@ The `siso` means "single input, single output".
 That's all! Now we can use this function as if it is a native operation.
 You will find that this new operator works seamlessly with existing ones.
 
-```ocaml env=algodiff:extend_ad
+```ocaml:extend_ad
 # let f x =
     let x1 = Mat.get x 0 0 in
     let x2 = Mat.get x 0 1 in
@@ -1552,7 +1552,7 @@ In this example you can see that building `lazy_x` does not evaluate the content
 
 We can use this mechanism to improve the implementation of our AD code. Back to our previous section where we need to add a `sin` operation that the AD module supposedly "does not provide". We can still do:
 
-```ocaml env=algodiff_lazy
+```ocaml
 open Algodiff.D
 
 module Sin = struct

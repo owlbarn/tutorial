@@ -669,7 +669,7 @@ We show how this interplation method works with an example.
 In the previous section we have said that the Gamma function is actually an interpolation solution to the integer function $y(x) = (n-1)!$.
 So we can specify five nodes on a plane that are generated from this factorial functions, and see how the interpolation function works compared with the Gamma function itself. 
 
-```ocaml env=maths:interp
+```ocaml:interp
 # let x = [|2; 3; 4; 5; 6|]
 val x : int array = [|2; 3; 4; 5; 6|]
 # let y = Array.map (fun x -> Maths.fact (x - 1)) x
@@ -681,7 +681,7 @@ val x : float array = [|2.; 3.; 4.; 5.; 6.|]
 Now we can define the interpolation function `f` that accepts one float number and returns another float number.
 Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
 
-```ocaml env=maths:interp
+```ocaml:interp
 let f a =
   let v, _ = Owl_maths_interpolate.polint x y a in
   v
@@ -694,7 +694,7 @@ Now we can plot the interpolation function and compare it to the Gamma function.
 As can be seen in [@fig:maths:interp], both lines cross the given nodes. The interpolated line fits well with the "true interpolation", i.e. the Gamma function, within a certain range. 
 However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.
 
-```ocaml env=maths:interp
+```ocaml:interp
 let _ =
   let h = Plot.create "interp.png" in
   Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.5);

@@ -105,7 +105,7 @@ $$h_{\Theta}(x) = f(f(x^T~\boldsymbol{\theta_0})~\boldsymbol{\theta_1}).$$
 Here $\Theta$ denotes the collection of parameters $\boldsymbol{\theta_0}$ and $\boldsymbol{\theta_1}$.
 It can be implemented as:
 
-```ocaml env=neural-network:simple-nn
+```ocaml-network:simple-nn
 open Algodiff.D
 module N = Dense.Ndarray.D
 
@@ -140,7 +140,7 @@ $$J_{\Theta}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}l
 
 It can be translated to Owl code as:
 
-```ocaml env=neural-network:simple-nn
+```ocaml-network:simple-nn
 let j t0 t1 x y =
   let z = h t0 t1 x in
   Maths.add
@@ -190,7 +190,7 @@ $$ y = a(x \times w + b) $$
 
 Each layer consists of three components: weight `w`, bias `b`, and activation function `a`. A network is just a collection of layers.
 
-```ocaml env=neural_01
+```ocaml
 open Algodiff.S
 
 type layer = {
@@ -205,7 +205,7 @@ Despite of the complicated internal structure, we can treat a neural network as 
 
 The output of one layer will be given to the next layer as its input, moving forward until it reaches the end. The following two lines show how to evaluate a neural network in the *forward mode*.
 
-```ocaml env=neural_01
+```ocaml
 let run_layer x l = Maths.((x *@ l.w) + l.b) |> l.a
 
 let run_network x nn = Array.fold_left run_layer x nn.layers
@@ -261,7 +261,7 @@ In this small example, we will only use two layers, `l0` and `l1`.
 `l0` uses a `784 x 40` matrix as weight, and `tanh` as activation function.
 `l1` is the output layer and `softmax` is the cost function.
 
-```ocaml env=neural_01
+```ocaml
 let l0 = {
   w = Maths.(Mat.uniform 784 40 * F 0.15 - F 0.075);
   b = Mat.zeros 1 40;
@@ -308,7 +308,7 @@ Of course, besides these methods, we still provide the mechanism to use the vani
 
 The loss function is constructed in the same way.
 
-```ocaml env=neural_01
+```ocaml
 let loss_fun nn x y =
   let t = tag () in
   Array.iter (fun l ->
@@ -322,7 +322,7 @@ The `backprop` also uses the same procedure as the previous example.
 The partial derivative is gotten using `adjval`, and the parameter `w` and `b` of each layer are updated accordingly.
 It then uses the gradient descent method, and the learning rate `eta` is fixed.
 
-```ocaml env=neural_01
+```ocaml
 let backprop nn eta x y =
   let loss = loss_fun nn x y in
   reverse_prop (F 1.) loss;
@@ -338,7 +338,7 @@ let backprop nn eta x y =
 We need to see how well our trained model works.
 The `test` function performs model inference and compares the predictions with the labelled data. By doing so, we can evaluate the accuracy of a neural network.
 
-```ocaml env=neural_01
+```ocaml
 let test nn x y =
   Dense.Matrix.S.iter2_rows (fun u v ->
     let p = run_network (Arr u) nn |> unpack_arr in
@@ -350,7 +350,7 @@ let test nn x y =
 Finally, we can put all the previous parts together.
 The following code starts the training for 999 iterations.
 
-```ocaml env=neural_01
+```ocaml
 let main () =
   let x, _, y = Dataset.load_mnist_train_data () in
   for i = 1 to 999 do
@@ -542,7 +542,7 @@ This step uses the `connect` function of the neuron, and also update the child's
 
 Finally, after understanding the `Graph` module of Owl, we can now "officially" re-define the network in previous example with the Owl neural network module:
 
-```ocaml env=neural-network:example-02
+```ocaml-network:example-02
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
@@ -635,7 +635,7 @@ We can also choose not to apply regularisation method by using the `None` parame
 In the `Graph` module, Owl provides a `train` function that is a wrapper of this optimisation function.
 As a result, we can train the network by simply calling:
 
-```ocaml env=neural-network:example-02
+```ocaml-network:example-02
 let train () =
   let x, _, y = Dataset.load_mnist_train_data_arr () in
   let network = make_network () in
@@ -666,7 +666,7 @@ Here by taking a 0.1 epoch, we process only a tenth of all the training data for
 After the training is finished, you can call `Graph.model` to generate a functional model to perform inference. Moreover, `Graph` module also provides functions such as `save`, `load`, `print`, `to_string` and so on to help you in manipulating the neural network.
 Finally we can test the trained parameter on test set, by comparing the accuracy of correct inference result.
 
-```ocaml env=neural-network:example-02
+```ocaml-network:example-02
 let test network =
   let imgs, _, labels = Dataset.load_mnist_test_data () in
   let m = Dense.Matrix.S.row_num imgs in
@@ -708,7 +708,7 @@ These neurons should be sufficient for creating from simple MLP to the most comp
 Since the MNIST handwritten recognition task is also a computer vision task, let's use the CNN to do it again.
 The code below creates a small convolutional neural network of six layers.
 
-```ocaml env=neural-network:example-02
+```ocaml-network:example-02
 
 let make_network input_shape =
   input input_shape
@@ -797,7 +797,7 @@ This time it first runs a `sigmoid` function again to decide which part of infor
 LSTM is widely used in time-series related applications such as speech recognition, time-series prediction, human action recognition, robot control, etc.
 Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of the input text.
 
-```ocaml env=neural-network:lstm-example01
+```ocaml-network:lstm-example01
 open Neural.S
 open Neural.S.Graph
 
@@ -844,7 +844,7 @@ It doesn't matter which digits; the point is being "real", since this output is 
 To generate such an image does not really need too complicated network structure.
 For example, we can use something like below ([Reference](https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889)):
 
-```ocaml env=neural-network:gan
+```ocaml-network:gan
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
@@ -870,7 +870,7 @@ This network accepts an ndarray of image shape `28x28` and outputs an ndarray of
 
 Besides this generator, the other half of the GAN is the discriminator. The structure is also quite simple:
 
-```ocaml env=neural-network:gan
+```ocaml-network:gan
 let make_discriminator input_shape =
   input input_shape
   |> fully_connected 512 ~act_typ:(Activation.LeakyRelu 0.2)

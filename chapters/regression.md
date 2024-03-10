@@ -107,7 +107,7 @@ A reasonable solution can thus be achieved by minimising this average distance.
 To give a clearer view, we can visualise the cost function with a contour graph.
 According to [@eq:regression:eq02], the cost function  `j` is implemented as below:
 
-```ocaml env=regression:gd
+```ocaml:gd
 let j x_data y_data theta0 theta1 =
   let f x = x *. theta1 +. theta0 in
   Mat.(pow_scalar (map f x_data - y_data) 2. |> mean') *. 0.5
@@ -116,7 +116,7 @@ let j x_data y_data theta0 theta1 =
 Here `x_data` and `y_data` are the two columns of data from [@tbl:regression:data01].
 We can then visualise this cost function within a certain range using surface and contour graphs:
 
-```ocaml env=regression:gd
+```ocaml:gd
 let plot_surface x_data y_data =
   let x, y = Mat.meshgrid (-20.) 10. (-20.) 10. 100 100 in
   let z = Mat.(map2 (j x_data y_data) x y) in
@@ -638,7 +638,7 @@ In the next section, we will show an example of binary categorisation with logis
 
 To perform the logistic regression, let's first prepare some data. We can generate the data with the code below:
 
-```ocaml env=regression:logistic
+```ocaml:logistic
 let generate_data () =
   let open Mat in
   let c = 500 in
@@ -672,7 +672,7 @@ In the linear model within the sigmoid function, we have two parameters $\theta_
 The `logistic` functions takes an `i` argument. If `i` is set to `true`, the linear model contains an extra parameter $\theta_2$.
 Based on the data, we can get the parameters by simply executing:
 
-```ocaml env=regression:logistic
+```ocaml:logistic
 # let theta =
     Owl.Regression.D.logistic ~i:true x y;;
 val theta : Algodiff.D.A.arr array =
@@ -693,7 +693,7 @@ $$h(x_0, x_1) = \sigma~(16~x_0 + 12~x_1 + 20).$$ {#eq:regression:logistic_result
 We can validate this model by comparing the inference result with the true label `y`.
 Here any prediction value larger than 0.5 produced by the model is deemed as positive, otherwise it's negative.
 
-```ocaml env=regression:logistic
+```ocaml:logistic
 let test_log x y =
   let p' = Owl.Regression.D.logistic ~i:true x y in
   let p = Mat.(p'.(0) @= p'.(1)) in
@@ -703,7 +703,7 @@ let test_log x y =
   let e = Mat.((mean' (abs (y - y')))) in
   Printf.printf "accuracy: %.4f\n" (1. -. e)
 ```
-```ocaml env=regression:logistic
+```ocaml:logistic
 # test_log x y;;
 accuracy: 0.9910
 - : unit = ()
@@ -719,7 +719,7 @@ Use [@eq:regression:logistic_result] as an example, any $x_0$, $x_1$ that makes 
 Therefore, the boundary line we need to draw is: $16~x_0 + 12~x_1 + 20 = 0$, or  $x_1 = -(4x_0 + 5)/3$.
 We can visualise this decision boundary on a 2D-plane and how it divides the two groups of data.
 
-```ocaml env=regression:logistic
+```ocaml:logistic
 open Owl
 let data = Mat.concat_horizontal x y
 

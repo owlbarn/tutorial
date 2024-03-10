@@ -185,7 +185,7 @@ let _ =
 
 Let's see the result.
 
-![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](images/diffequation/plot_rk01.png "plot_rk01"){width=80% #fig:diffequation:plot_rk01}
+![Comparing the accuracy of Euler method and Midpoint method in approximating solution to ODE](../images/diffequation/plot_rk01.png "plot_rk01"){width=80% #fig:diffequation:plot_rk01}
 
 We can see that the choice of step size indeed matters to the precision. We use 0.01 and 0.001 for step size in the test, and for both cases the midpoint method outperforms the simple Euler method.
 
@@ -241,7 +241,7 @@ The initial state at $t=0$ is $y_0 = \left[ -1, 1\right]^T$.
 Now we want to know the system state at $t=2$.
 The *function* can be expressed in Owl using the matrix module.
 
-```ocaml env=diffequation_example01
+```ocaml
 let f y t =
   let a = [|[|1.; -1.|];[|2.; -3.|]|]|> Mat.of_arrays in
   Mat.(a *@ y)
@@ -249,19 +249,19 @@ let f y t =
 
 Next, we want to specify the *timespan* of this problem: from 0 to 2, at a step of 0.001.
 
-```ocaml env=diffequation_example01
+```ocaml
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 2.; dt=1E-3})
 ```
 
 One last thing to solve the problem is the *initial values*:
 
-```ocaml env=diffequation_example01
+```ocaml
 let x0 = Mat.of_array [|-1.; 1.|] 2 1
 ```
 
 And finally we can provide all these information to the `rk4` solver in `Owl_ode` and get the answer:
 
-```ocaml env=diffequation_example01
+```ocaml
 # let ts, ys = Owl_ode.Ode.odeint Owl_ode.Native.D.rk4 f x0 tspec ()
 val ts : Owl_dense_matrix_d.mat =
 
@@ -280,7 +280,7 @@ The `rk4` solver is short for "forth-order Runge-Kutta Method" that we have intr
 The result shows both the steps $ts$ and the system values at each step $ys$.
 We can visualise the oscillation according to the result:
 
-![Visualise the solution of a simple linear system](images/diffequation/plot_rk00.png "plot_rk00"){ width=60% #fig:diffequation:plot_rk00 }
+![Visualise the solution of a simple linear system](../images/diffequation/plot_rk00.png "plot_rk00"){ width=60% #fig:diffequation:plot_rk00 }
 
 ### Solver Structure
 
@@ -350,7 +350,7 @@ $$y' = Ay, \textrm{where } A = \left[\begin{matrix} 0 & 1 \\ -1 & 0 \end{matrix}
 
 We can then apply the previous methods such as Euler to solve it:
 
-```ocaml env=diffequation_example02
+```ocaml
 let f y t =
   let a = [|[|0.; 1.|];[|-1.; 0.|]|]|> Mat.of_arrays in
   Mat.(a *@ y)
@@ -365,7 +365,7 @@ An exact solution would generate a perfect circle, but here we only get a spiral
 (We have to admit that to better show this effect a large step size is used, but it still exists even using smaller step size.)
 Aside from improving the solver and precision, is there any other way to solve it better?
 
-![Visualise the circle trajectory by solving linear system](images/diffequation/plot_circle.png "plot_circle"){ width=60% #fig:diffequation:plot_circle }
+![Visualise the circle trajectory by solving linear system](../images/diffequation/plot_circle.png "plot_circle"){ width=60% #fig:diffequation:plot_circle }
 
 Look again at [@eq:diffequation:circle].
 It shows an interesting pattern: it first uses the value of $y_1$ to update the $y_0^{'}$, and then uses $y_0$ to update the value of $y_1^{'}$.
@@ -428,7 +428,7 @@ After getting to know `owl-ode`, in this section we will demonstrate more exampl
 
 Now that we have this powerful tool, we can use the solver in `owl-ode` to solve the motivative problem in [@eq:diffequation:example01] with simple code.
 
-```ocaml env=diffequation_example_explicit
+```ocaml
 let f y t = Mat.((2. $* y *$ t) +$ t)
 
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 1.; dt=1E-3})
@@ -446,7 +446,7 @@ Note that this solver (and the previous one) requires input to be of type `mat` 
 The result is shown below.
 You can verify the result with [@eq:diffequation:example01_solution], by setting the $x$ to 1 in this equation, and the numerical value of $y$ will be close to 0.859079.
 
-```ocaml env=diffequation_example_explicit
+```ocaml
 # Mat.transpose ys
 - : Mat.mat =
 
@@ -482,7 +482,7 @@ $$y_3^{'} = -\frac{y_1}{r^3},$$
 
 Based on [@eq:diffequation:twobody_system], we can build up our code as below:
 
-```ocaml env=diffequation_example_two_body
+```ocaml
 let f y _t =
   let y = Mat.to_array y in
   let r = Maths.(sqrt ((sqr y.(0)) +. (sqr y.(1)))) in
@@ -500,7 +500,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
 Here the `y0` provides initial status of the system: first two numbers denote the initial location of object, and the next two numbers indicate the initial momentum of this object.
 After building the function, initial status, timespan, and solver, we can then solve the system and visualise it.
 
-```ocaml env=diffequation_example_two_body
+```ocaml
 let plot () =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create "two_body.png" in
@@ -511,7 +511,7 @@ let plot () =
   output h
 ```
 
-![The trajectory of lighter object orbiting the massive object in a simplified two-body problem](images/diffequation/two-body.png "two-body"){ width=80% #fig:diffequation:two-body }
+![The trajectory of lighter object orbiting the massive object in a simplified two-body problem](../images/diffequation/two-body.png "two-body"){ width=80% #fig:diffequation:two-body }
 
 One example of this simplified two-body problem is the "planet-sun" system where a planet orbits the sun.
 Kepler's law states that in this system the planet goes around the sun in an ellipse shape, with the sun at a focus of the ellipse.
@@ -534,7 +534,7 @@ $\beta$ is related to the geometry of the domain.
 The most commonly used parameter values are: $\sigma = 10, \rho=20$, and $\beta = \frac{8}{3}$.
 Based on this information, we can use `owl-ode` to express the Lorenz equations with code.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let sigma = 10.
 let beta = 8. /. 3.
 let rho = 28.
@@ -550,7 +550,7 @@ let f y _t =
 We set the initial values of the system to `-1`, `-1`, and `1` respectively.
 The simulation timespan is set to 30 seconds, and the `rk45` solver is used.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let y0 = Mat.of_array [|-1.; -1.; 1.|] 1 3
 let tspec = Owl_ode.Types.(T1 {t0 = 0.; duration = 30.; dt=1E-2})
 let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
@@ -559,7 +559,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
 Now, we can solve the ODEs system and visualise the results.
 In the plots, we first show how the value of $x$, $y$ and $z$ changes with time; next we show the phase plane plots between each two of them.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let _ =
   let ts, ys = Ode.odeint custom_solver f y0 tspec () in
   let h = Plot.create ~m:2 ~n:2 "lorenz_01.png" in
@@ -585,7 +585,7 @@ let _ =
   output h
 ```
 
-![Three components and phase plane plots of Lorenz attractor](images/diffequation/lorenz_01.png "lorenz_01"){ width=100% #fig:diffequation:lorenz_01 }
+![Three components and phase plane plots of Lorenz attractor](../images/diffequation/lorenz_01.png "lorenz_01"){ width=100% #fig:diffequation:lorenz_01 }
 
 From [@fig:diffequation:lorenz_01], we can imagine that the status of system keep going towards two "voids" in a three dimensional space, jumping from one to the other.
 These two voids are a certain type of *attractors* in this dynamic system, where a system tends to evolve towards.
@@ -594,7 +594,7 @@ Now, about Lorenz equation, there is an interesting question: "what would happen
 For some systems, such as a pendulum, that wouldn't make much a difference, but not here. We can see that clearly with a simple experiment.
 Keeping function and timespan the same, let's change only 0.1% of initial value and then solve the system again.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let y00 = Mat.of_array [|-1.; -1.; 1.|] 1 3
 let y01 = Mat.of_array [|-1.001; -1.001; 1.001|] 1 3
 let ts0, ys0 = Ode.odeint custom_solver f y00 tspec ()
@@ -603,7 +603,7 @@ let ts1, ys1 = Ode.odeint custom_solver f y01 tspec ()
 
 To make later calculation easier, we can set the two resulting matrices to be of the same shape using slicing.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let r0, c0 = Mat.shape ys0
 let r1, c1 = Mat.shape ys1
 let r  = if (r0 < r1) then r0 else r1
@@ -614,7 +614,7 @@ let ys1 = Mat.get_slice [[0; r-1]; []] ys1
 
 Now, we can compare the Euclidean distance between the status of these two systems at certain time. Also, we show the value change of the three components after changing initial values along the time axis.
 
-```ocaml env=diffequation_example_lorentz
+```ocaml
 let _ =
   let h = Plot.create ~m:1 ~n:2 "lorenz_02.png" in
   let open Plot in
@@ -638,7 +638,7 @@ let _ =
   output h
 ```
 
-![Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.](images/diffequation/lorenz_02.png "lorenz_02"){ width=100% #fig:diffequation:lorenz_02 }
+![Change the initial states on three dimension by only 0.1%, and the value of Lorenz system changes visibly.](../images/diffequation/lorenz_02.png "lorenz_02"){ width=100% #fig:diffequation:lorenz_02 }
 
 According to [@fig:diffequation:lorenz_02], the first figure shows that, initially the systems looks quite like that in [@fig:diffequation:lorenz_01], but after about 15 seconds, the system state begins to change.
 This change is then quantified using the Euclidean distance between these two systems.
@@ -671,7 +671,7 @@ Here $m$ represents the mass of the object.
 Recall from the previous section that the state of the system in a symplectic solver is a tuple of two matrices, representing the position and momentum coordinates of the system.
 Therefore, we can express the oscillation equation with a function from this system.
 
-```ocaml env=diffequation_example_damp
+```ocaml
 let a = 1.0
 let damped_noforcing a (xs, ps) _t : Owl.Mat.mat =
   Owl.Mat.((xs *$ -1.0) + (ps *$ (-1.0 *. a)))
@@ -681,7 +681,7 @@ The system evolve function takes the two matrices, position and momentum, and th
 For simplicity, we assume the coefficients are all the same and can be set to one.
 Let's then solve with the symplectic solver; we can use the `LeapFrog`, `ruth3`, and `Symplectic_Euler` to compare how their solutions differ.
 
-```ocaml env=diffequation_example_damp
+```ocaml
 let main () =
   let x0 = Owl.Mat.of_array [| -0.25 |] 1 1 in
   let p0 = Owl.Mat.of_array [| 0.75 |] 1 1 in
@@ -699,7 +699,7 @@ let main () =
 You should be familiar with this code by now. It defines the initial values, the time duration, time step, and then provides this information to the solvers.
 Unlike native solvers, these symplectic solvers return three values instead of two: the first is the time sequence, and the next two sequences indicate how the $x$ and $p$ values evolve at each time point.
 
-```ocaml env=diffequation_example_damp
+```ocaml
 let plot_sol fname t sol1 sol2 sol3 =
   let h = Plot.create fname in
   let open Plot in
@@ -718,7 +718,7 @@ The result is shown in [@fig:diffequation:damped].
 You can clearly see that the displacement decreases towards equilibrium position in this damped oscillation as the energy dissipating.
 The curves provided by three solvers are a bit different, especially at the peak of the curve, but keep close enough for most of the time.
 
-![Step response of a damped harmonic oscillator](images/diffequation/damped.png "damped"){ width=68% #fig:diffequation:damped}
+![Step response of a damped harmonic oscillator](../images/diffequation/damped.png "damped"){ width=68% #fig:diffequation:damped}
 
 ## Stiffness
 
@@ -745,7 +745,7 @@ We provide both stiff (`Owl_Cvode_Stiff`) and non-still (`Owl_Cvode`) solvers by
 We will try both in the example.
 We start with the basic function definition code that are shared by both cases:
 
-```ocaml env=diffequation_example_stiff
+```ocaml
 open Owl_ode
 open Owl_ode.Types
 open Owl_plplot
@@ -790,7 +790,7 @@ let () =
 
 ```
 
-![Solving Non-Stiff Van der Pol equations with Sundial CVode solver](images/diffequation/vdp_sundials_nonstiff.png "vdp_sundials_nonstiff"){width=70% #fig:diffequation:nonstiff}
+![Solving Non-Stiff Van der Pol equations with Sundial CVode solver](../images/diffequation/vdp_sundials_nonstiff.png "vdp_sundials_nonstiff"){width=70% #fig:diffequation:nonstiff}
 
 ### Solve Stiff ODEs
 
@@ -818,7 +818,7 @@ let () =
 
 ```
 
-![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=70% #fig:diffequation:stiff }
+![Solving Stiff Van der Pol equations with ODEPACK LSODA solver.](../images/diffequation/vdp_odepack_stiff.png "vdp_odepack_stiff"){ width=70% #fig:diffequation:stiff }
 
 ## Summary
 

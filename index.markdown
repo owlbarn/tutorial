@@ -31,8 +31,7 @@ The main purpose of the online tutorial is for teaching how to use Owl software.
 ## Contribute
 
 Currently contribution to the book is mainly in the form of Pull Request. 
-Normally you only need to change one of the `README.md` files in `book/` directory, though adding inline scripts requires some special care.
-Please make sure that your local changes compile without any error, and include both the change of markdown file in `docs/` directory in a PR. 
+Normally you only need to change one of the markdown files in the `chapters/` directory.
 
 
 ## Tooling

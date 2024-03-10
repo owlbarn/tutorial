@@ -46,7 +46,7 @@ There are multiple functions to help you in creating an initial matrix to start 
 
 Owl can create some special matrices with specific properties. For example, a *magic square* is a `n x n` matrix (where n is the number of cells on each side) filled with distinct positive integers in the range $1,2,...,n^{2}$ such that each cell contains a different integer and the sum of the integers in each row, column and diagonal is equal.
 
-```ocaml env=matrix_env2
+```ocaml
 # let x = Mat.magic 5;;
 val x : Mat.mat =
 
@@ -61,7 +61,7 @@ R4 11 18 25  2  9
 
 We can validate this property with the following code. The summation of all the elements on each column is 65.
 
-```ocaml env=matrix_env2
+```ocaml
 # Mat.sum_rows x;;
 - : Mat.mat =
    C0 C1 C2 C3 C4
@@ -72,7 +72,7 @@ R0 65 65 65 65 65
 You can try the similar `sum_cols`.
 The summation of all the diagonal elements is also 65.
 
-```ocaml env=matrix_env2
+```ocaml
 # Mat.trace x;;
 - : float = 65.
 ```
@@ -82,7 +82,7 @@ The summation of all the diagonal elements is also 65.
 Similar to ndarray, the matrix module support `set` and `get` to access and modify matrix elements.
 The only difference is that instead of accessing according to an array, an element in matrix is accessed using two integers.
 
-```ocaml env=matrix_env0
+```ocaml
 let x = Mat.uniform 5 5;;
 Mat.set x 1 2 0.;;             (* set the element at (1,2) to 0. *)
 Mat.get x 0 3;;                (* get the value of the element at (0,3) *)
@@ -90,7 +90,7 @@ Mat.get x 0 3;;                (* get the value of the element at (0,3) *)
 
 For dense matrices, i.e., `Dense.Matrix.*`, you can also use shorthand `.%{i; j}` to access elements.
 
-```ocaml env=matrix_env0
+```ocaml
 # open Mat;;
 # x.%{1;2} <- 0.;;         (* set the element at (1,2) to 0. *);;
 - : unit = ()
@@ -110,7 +110,7 @@ In reality, a matrix usually represents a collections of measurements (or points
 
 Let's first create a `4 x 6` matrix of sequential numbers as below.
 
-```ocaml env=matrix_env1
+```ocaml
 
 let x = Mat.sequential 4 6;;
 
@@ -130,7 +130,7 @@ You should be able to see the following output in your `utop`.
 
 Iterating all the elements can be done by using `iteri` function. The following example prints out all the elements on the screen.
 
-```ocaml env=matrix_env1
+```ocaml
 
 Mat.iteri_2d (fun i j a -> Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 
@@ -138,7 +138,7 @@ Mat.iteri_2d (fun i j a -> Printf.printf "(%i,%i) %.1f\n" i j a) x;;
 
 If you want to create a new matrix out of the existing one, you need `mapi` and `map` function. E.g., we create a new matrix by adding one to each element in `x`.
 
-```ocaml env=matrix_env1
+```ocaml
 
 # Mat.map ((+.) 1.) x;;
 - : Mat.mat =
@@ -153,7 +153,7 @@ R3 19 20 21 22 23 24
 
 Iterating rows and columns are similar to iterating elements, by using `iteri_rows`, `mapi_rows`, etc. The following example prints the sum of each row.
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.iteri_rows (fun i r ->
     Printf.printf "row %i: %.1f\n" i (Mat.sum' r)
@@ -164,7 +164,7 @@ Iterating rows and columns are similar to iterating elements, by using `iteri_ro
 You can also fold elements, rows, and columns.
 We can calculate the summation of all column vectors by using `fold_cols` function.
 
-```ocaml env=matrix_env1
+```ocaml
 
   let v = Mat.(zeros (row_num x) 1) in
   Mat.(fold_cols add v x);;
@@ -173,7 +173,7 @@ We can calculate the summation of all column vectors by using `fold_cols` functi
 
 It is also possible to change a specific row or column. E.g., we make a new matrix out of `x` by setting row `2` to zero vector.
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.map_at_row (fun _ -> 0.) x 2;;
 
@@ -183,28 +183,28 @@ The filter functions is also commonly used in manipulating matrix.
 Here are some examples.
 The first one is to filter out the elements in `x` greater than `20`.
 
-```ocaml env=matrix_env1
+```ocaml
 # Mat.filter ((<) 20.) x;;
 - : int array = [|21; 22; 23|]
 ```
 
 You can compare the next example which filters out the two-dimensional indices.
 
-```ocaml env=matrix_env1
+```ocaml
 # Mat.filteri_2d (fun i j a -> a > 20.) x;;
 - : (int * int) array = [|(3, 3); (3, 4); (3, 5)|]
 ```
 
 The second example is to filter out the rows whose summation is less than `22`.
 
-```ocaml env=matrix_env1
+```ocaml
 # Mat.filter_rows (fun r -> Mat.sum' r < 22.) x;;
 - : int array = [|0|]
 ```
 
 If we want to check whether there is one or (or all) element in `x` satisfying some condition, then
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.exists ((>) 5.) x;;      (* is there someone smaller than 5. *)
   Mat.not_exists ((>) 5.) x;;  (* is no one smaller than 5. *)
@@ -219,7 +219,7 @@ The math operations can be generally categorised into several groups.
 **Comparison**
 Suppose we have two matrices:
 
-```ocaml env=matrix_env1
+```ocaml
 let x = Mat.uniform 2 2;;
 let y = Mat.uniform 2 2;;
 ```
@@ -227,7 +227,7 @@ let y = Mat.uniform 2 2;;
 We can compare the relationship of `x` and `y` element-wisely as below.
 
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.(x = y);;    (* is x equal to y *)
   Mat.(x <> y);;   (* is x unequal to y *)
@@ -245,7 +245,7 @@ All aforementioned infix have their corresponding functions in the module, e.g.,
 
 The arithmetic operation also heavily uses infix. Similar to matrix comparison, each infix has its corresponding function in the module.
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.(x + y);;    (* add two matrices *)
   Mat.(x - y);;    (* subtract y from x *)
@@ -257,7 +257,7 @@ The arithmetic operation also heavily uses infix. Similar to matrix comparison, 
 
 If you do match between a matrix and a scalar value, you need to be careful about their order. Please see the examples below. In the following examples, `x` is a matrix as we used before, and `a` is a `float` scalar value.
 
-```ocaml env=matrix_env1
+```ocaml
   let a = 2.5;;
 
   Mat.(x +$ a);;    (* add a to every element in x *)
@@ -267,7 +267,7 @@ If you do match between a matrix and a scalar value, you need to be careful abou
 
 Similarly, we have the following examples for other math operations.
 
-```ocaml env=matrix_env1
+```ocaml
 
   Mat.(x -$ a);;    (* sub a from every element in x *)
   Mat.(a $- x);;
@@ -283,7 +283,7 @@ There are some ready-made math functions such as `Mat.log` and `Mat.abs` ect. to
 
 There are other functions such as concatenation:
 
-```ocaml env=matrix_env1
+```ocaml
   Mat.(x @= y);;    (* concatenate x and y vertically *)
   Mat.(x @|| y);;   (* concatenate x and y horizontally *)
 ```
@@ -365,7 +365,7 @@ Both triangular equations are easy to solve.
 
 We use the `lu` function to perform the LU factorisation. Let's use the previous example.
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # let a = [|2.;2.;2.;2.;2.;3.;3.;4.;5.|];;
 val a : float array = [|2.; 2.; 2.; 2.; 2.; 3.; 3.; 4.; 5.|]
 # let a = Arr.of_array a [|3; 3|];;
@@ -377,7 +377,7 @@ R2  3  4  5
 
 ```
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # let l, u, p = Linalg.D.lu a;;
 val l : Linalg.D.mat =
 
@@ -402,7 +402,7 @@ R0  3  2  3
 The first two returned matrix are the lower and upper triangular matrices.
 However, if we try to check the correctness of this factorisation with dot product, the result does not fit:
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # let a' = Mat.dot l u;;
 val a' : Mat.mat =
    C0 C1 C2
@@ -412,7 +412,7 @@ R2  2  2  2
 
 ```
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # a' = a;;
 - : bool = false
 ```
@@ -425,7 +425,7 @@ The full LU factorisation can be expressed as:
 
 $$PA = LU.$$
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # let p = Mat.of_array  [|0.;0.;1.;0.;1.;0.;1.;0.;0.|] 3 3;;
 val p : Mat.mat =
    C0 C1 C2
@@ -435,7 +435,7 @@ R2  1  0  0
 
 ```
 
-```ocaml env=linear-algebra-lu
+```ocaml-algebra-lu
 # Mat.dot p a = Mat.dot l u;;
 - : bool = true
 ```
@@ -483,7 +483,7 @@ There are many sufficient and necessary conditions to decide if $A$ is invertibl
 We use function `inv` to do the inverse operation. It's straightforward and easy to verify according to the definition.
 Here we use the `semidef` function to produce a matrix that is certainly invertible.
 
-```ocaml env=linear-algebra:inverse
+```ocaml-algebra:inverse
 # let x = Mat.semidef 5;;
 val x : Mat.mat =
 
@@ -496,7 +496,7 @@ R4 2.06612 0.751004  2.13926 2.64877  2.31124
 
 ```
 
-```ocaml env=linear-algebra:inverse
+```ocaml-algebra:inverse
 # let y = Linalg.D.inv x;;
 val y : Linalg.D.mat =
 
@@ -509,7 +509,7 @@ R4 -9.34742  12.5403 -7.69399 -3.60533  15.9673
 
 ```
 
-```ocaml env=linear-algebra:inverse
+```ocaml-algebra:inverse
 # Mat.(x *@ y =~ eye 5);;
 - : bool = true
 ```
@@ -557,7 +557,7 @@ Besides, even it is a square matrix, the information provided by two of the equa
 
 For example, if we try to apply LU factorisation to such a matrix:
 
-```ocaml env=linear-algebra:rank_00
+```ocaml-algebra:rank_00
 # let x = Mat.of_array [|1.; 2.; 3.; 0.; 0.; 1.; 0.; 0.; 2.|] 3 3;;
 val x : Mat.mat =
    C0 C1 C2
@@ -566,7 +566,7 @@ R1  0  0  1
 R2  0  0  2
 
 ```
-```ocaml env=linear-algebra:rank_00
+```ocaml-algebra:rank_00
 # Linalg.D.lu x;;
 Exception: Failure "LAPACKE: 2".
 ```
@@ -584,7 +584,7 @@ We can understand rank as the number of "effective" rows in the matrix.
 As an example, we can check the rank of the previous matrix.
 
 
-```ocaml env=linear-algebra:rank_00
+```ocaml-algebra:rank_00
 Linalg.D.rank x
 ```
 
@@ -617,7 +617,7 @@ Moreover, if the length of each vector is normalised to one unit, it becomes the
 
 For example, we can use the `null` function to find an orthonormal basis vector $x$ or the null space of a matrix, i.e. $Ax=0$.
 
-```ocaml env=linear-algebra:ortho-null
+```ocaml-algebra:ortho-null
 # let a = Mat.magic 4;;
 val a : Mat.mat =
 
@@ -628,7 +628,7 @@ R2  8 10 11  5
 R3 13  3  2 16
 
 ```
-```ocaml env=linear-algebra:ortho-null
+```ocaml-algebra:ortho-null
 # let x = Linalg.D.null a;;
 val x : Linalg.D.mat =
 
@@ -639,7 +639,7 @@ R2  -0.67082
 R3 -0.223607
 
 ```
-```ocaml env=linear-algebra:ortho-null
+```ocaml-algebra:ortho-null
 # Mat.dot a x |> Mat.l2norm';;
 - : float = 3.7951119214201712e-15
 ```
@@ -659,7 +659,7 @@ The default value of parameter `pivot` is `false`, setting pivot  to true lets `
 the returned indices are not adjusted to 0-based C layout.
 By default, `qr` performs a reduced QR factorisation, full factorisation can be enabled by setting `thin` parameter to `false`.
 
-```ocaml env=linear-algebra:qr
+```ocaml-algebra:qr
 # let a = Mat.of_array [|12.; -51.; 4.; 6.; 167.; -68.; -4.; 24.; -41.|] 3 3;;
 val a : Mat.mat =
 
@@ -669,7 +669,7 @@ R1  6 167 -68
 R2 -4  24 -41
 
 ```
-```ocaml env=linear-algebra:qr
+```ocaml-algebra:qr
 # let q, r, _ = Linalg.D.qr a;;
 val q : Linalg.D.mat =
 
@@ -695,7 +695,7 @@ The theorems declare that, there exists non-zero solution(s) to $Ax=0$ if and on
 If $r(A) < n$, then the nullspace of $A$ is of dimension $n - r$ and the $n-r$ orthogonal basis can be found with `null` function.
 Here is an example.
 
-```ocaml env=linear-algebra:solve_00
+```ocaml-algebra:solve_00
 # let a = Mat.of_array [|1.;5.;-1.;-1.;1.;-2.;1.;3.;3.;8.;-1.;1.;1.;-9.;3.;7.|] 4 4;;
 val a : Mat.mat =
 
@@ -706,13 +706,13 @@ R2  3  8 -1  1
 R3  1 -9  3  7
 
 ```
-```ocaml env=linear-algebra:solve_00
+```ocaml-algebra:solve_00
 # Linalg.D.rank a;;
 - : int = 2
 ```
 This a rank 2 matrix, so the nullspace contains 4 - 2 = 2 vectors:
 
-```ocaml env=linear-algebra:solve_00
+```ocaml-algebra:solve_00
 # Linalg.D.null a;;
 - : Linalg.D.mat =
 
@@ -821,7 +821,7 @@ We can calculate it using the `cond` function.
 
 Let's look at an example:
 
-```ocaml env=linalg_20
+```ocaml
 # let a = Mat.of_array [|4.1; 2.8; 9.7; 6.6 |] 2 2;;
 val a : Mat.mat =
     C0  C1
@@ -830,14 +830,14 @@ R1 9.7 6.6
 
 ```
 
-```ocaml env=linalg_20
+```ocaml
 # let c = Linalg.D.cond a;;
 val c : float = 1622.99938385646283
 ```
 
 Its condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $A^{-1}$.
 
-```ocaml env=linalg_20
+```ocaml
 # let a' = Linalg.D.inv a;;
 val a' : Linalg.D.mat =
     C0  C1
@@ -846,7 +846,7 @@ R1  97 -41
 
 ```
 
-```ocaml env=linalg_20
+```ocaml
 # let a2 = Mat.of_array [|4.1; 2.8; 9.67; 6.607 |] 2 2;;
 val a2 : Mat.mat =
      C0    C1
@@ -855,7 +855,7 @@ R1 9.67 6.607
 
 ```
 
-```ocaml env=linalg_20
+```ocaml
 # let a2' = Linalg.D.inv a2;;
 val a2' : Linalg.D.mat =
 
@@ -897,7 +897,7 @@ These properties are widely used in finding *eigenvalues*. As will be shown in t
 Since sometimes we only care about if the determinant is zero or not, instead of the value itself, we can also use a similar function `logdet`.
 It computes the logarithm of the determinant, but it avoids the possible overflow or underflow problems in computing determinant of large matrices.
 
-```ocaml env=linalg_30
+```ocaml
 # let x = Mat.magic 5;;
 val x : Mat.mat =
 
@@ -910,7 +910,7 @@ R4 11 18 25  2  9
 
 ```
 
-```ocaml env=linalg_30
+```ocaml
 # Linalg.D.det x;;
 - : float = 5070000.
 
@@ -1003,7 +1003,7 @@ A conjugate transpose means that during transposing, each element $a+bi$ changes
 Hermitian is thus a generalisation of the symmetric matrix.
 We can use the `is_hermitian` function to check if a  matrix is hermitian, as can be shown in the next example.
 
-```ocaml env=linalg_35
+```ocaml
 # let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=2.; im=(-1.)}; {re=2.; im=1.}; {re=3.; im=0.}|] 2 2;;
 val a : Dense.Matrix.Z.mat =
 
@@ -1013,14 +1013,14 @@ R1 (2, 1i)  (3, 0i)
 
 ```
 
-```ocaml env=linalg_35
+```ocaml
 # Linalg.Generic.is_hermitian a;;
 - : bool = true
 ```
 
 We can use the `conj` function of a complex matrix to perform the conjugate transpose:
 
-```ocaml env=linalg_35
+```ocaml
 # Dense.Matrix.Z.(conj a |> transpose);;
 - : Dense.Matrix.Z.mat =
 
@@ -1032,7 +1032,7 @@ R1  (2, 1i) (3, -0i)
 
 A theorem declares that if a matrix is hermitian, then for all complex vectors $x$, $x^HAx$ is real, and every eigenvalue is real.
 
-```ocaml env=linalg_35
+```ocaml
 # Linalg.Z.eigvals a;;
 - : Linalg.Z.mat =
 
@@ -1059,7 +1059,7 @@ Finding the suitable similar matrix is thus important in simplifying the calcula
 One possible kind of simplification is to find a triangular matrix as similar.
 The *Schur's Lemma* declares that A can be decomposed into $UTU^{-1}$ where $U$ is a unitary function, and T is an upper triangular matrix.
 
-```ocaml env=linear-algebra:schur
+```ocaml-algebra:schur
 # let a = Dense.Matrix.Z.of_array [|{re=1.; im=0.}; {re=1.; im=0.}; {re=(-2.); im=0.}; {re=3.; im=0.}|] 2 2;;
 val a : Dense.Matrix.Z.mat =
 
@@ -1069,7 +1069,7 @@ R1 (-2, 0i) (3, 0i)
 
 ```
 
-```ocaml env=linear-algebra:schur
+```ocaml-algebra:schur
 # let t, u, eigvals = Linalg.Z.schur a;;
 val t : Linalg.Z.mat =
 
@@ -1091,7 +1091,7 @@ R0 (2, 1i) (2, -1i)
 
 The returned result `t` is apparent a upper triangular matrix, and the `u` can be verified to be a unitary matrix:
 
-```ocaml env=linear-algebra:schur
+```ocaml-algebra:schur
 # Dense.Matrix.Z.(dot u (conj u |> transpose));;
 - : Dense.Matrix.Z.mat =
 
@@ -1130,7 +1130,7 @@ There are several necessary and sufficient condition for testing if a symmetric 
 For the last condition, we can use the *Cholesky Decomposition* to find the matrix B.
 It decompose a Hermitian positive definite matrix into the product of a lower triangular matrix and its conjugate transpose $LL^H$:
 
-```ocaml env=linalg_40
+```ocaml
 # let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
 val a : Mat.mat =
 
@@ -1141,7 +1141,7 @@ R2 -16 -43  98
 
 ```
 
-```ocaml env=linalg_40
+```ocaml
 # let l = Linalg.D.chol a;;
 val l : Linalg.D.mat =
    C0 C1 C2
@@ -1151,7 +1151,7 @@ R2  0  0  3
 
 ```
 
-```ocaml env=linalg_40
+```ocaml
 # Mat.(dot (transpose l) l);;
 - : Mat.mat =
 
@@ -1211,7 +1211,7 @@ This is why SVD can be used for *Principal Component Analysis* (PCA), as we will
 We can use the `svd` function to perform this factorisation.
 Let's use the positive definite matrix as an example:
 
-```ocaml env=linear-algebra:svd
+```ocaml-algebra:svd
 # let a = Mat.of_array [|4.;12.;-16.;12.;37.;-43.;-16.;-43.;98.|] 3 3;;
 val a : Mat.mat =
 
@@ -1221,7 +1221,7 @@ R1  12  37 -43
 R2 -16 -43  98
 
 ```
-```ocaml env=linear-algebra:svd
+```ocaml-algebra:svd
 # let u, s, vt = Linalg.D.svd ~thin:false a;;
 val u : Linalg.D.mat =
 
@@ -1245,7 +1245,7 @@ R2  0.963419  -0.26483 0.0410998
 ```
 Note that the diagonal matrix `s` is represented as a vector. We can extend it with
 
-```ocaml env=linear-algebra:svd
+```ocaml-algebra:svd
 # let s = Mat.diagm s;;
 val s : Mat.mat =
 
@@ -1259,7 +1259,7 @@ However, it is only possible when we know that the original diagonal matrix is s
 
 Also, we can find to the eigenvectors of $AA^T$ to verify that it equals to the eigenvector factorisation.
 
-```ocaml env=linear-algebra:svd
+```ocaml-algebra:svd
 # Linalg.D.eig Mat.(dot a (transpose a));;
 - : Linalg.Z.mat * Linalg.Z.mat =
 (
@@ -1283,7 +1283,7 @@ The function `gsvd` performs a generalised SVD.
 The shape of `x` is `m x n` and the shape of `y` is `p x n`.
 Here is an example:
 
-```ocaml env=linalg_50
+```ocaml
 # let x = Mat.uniform 5 5;;
 val x : Mat.mat =
 
@@ -1296,7 +1296,7 @@ R4 0.474817 0.176199 0.316661 0.476701  0.138534
 
 ```
 
-```ocaml env=linalg_50
+```ocaml
 # let y = Mat.uniform 2 5;;
 val y : Mat.mat =
 
@@ -1306,7 +1306,7 @@ R1 0.714052 0.874704 0.436799 0.198898   0.406196
 
 ```
 
-```ocaml env=linalg_50
+```ocaml
 # let u, v, q, d1, d2, r = Linalg.D.gsvd x y;;
 val u : Linalg.D.mat =
 
@@ -1358,7 +1358,7 @@ R4        0        0         0        0   0.555067
 
 ```
 
-```ocaml env=linalg_50
+```ocaml
 # Mat.(u *@ d1 *@ r *@ transpose q =~ x);;
 - : bool = true
 # Mat.(v *@ d2 *@ r *@ transpose q =~ y);;

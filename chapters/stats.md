@@ -93,7 +93,7 @@ Let's look at an example.
 
 We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution $\mathcal{N} (\mu, \sigma^{2})$. For the first one, the configuration is $(\mu = 1, \sigma = 1)$; whilst for the second one, the configuration is $(\mu = 12, \sigma = 3)$.
 
-```ocaml env=stats_02
+```ocaml
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:1. ~sigma:1.);;
 let y = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:12. ~sigma:3.);;
@@ -101,7 +101,7 @@ let y = Array.init 999 (fun _ -> Stats.gaussian_rvs ~mu:12. ~sigma:3.);;
 
 We can visualise the data sets using histogram plot as below. When calling `histogram`, we also specify 30 bins explicitly. You can also fine tune the figure using `spec` named parameter to specify the colour, x range, y range, etc. We will discuss in details on how to use Owl to plot in a separate chapter.
 
-```ocaml env=stats_02
+```ocaml
 (* convert arrays to matrices *)
 
 let x' = Mat.of_array x 1 999;;
@@ -134,7 +134,7 @@ $$p(x\leq~k)=\frac{1}{\sqrt{2\pi}}\int_{-\infty}^k~e^{-t^2/2}dt.$$
 
 We can observe this function with `gaussian_cdf`.
 
-```ocaml env=stats_02
+```ocaml
 let h = Plot.create "plot_gaussian_cdf.png" in
 Plot.set_ylabel h "CDF";
 Plot.plot_fun ~h ~spec:[ RGB (66,133,244); LineStyle 1; LineWidth 2.; Marker "*" ] (fun x -> Stats.gaussian_cdf ~mu:1. ~sigma:1. x) (-2.) 6.;
@@ -173,14 +173,14 @@ The fourth order moment is called *kurtosis*, and it shows how long a "tail" the
 Let's look at one simple example.
 We first draw one hundred random numbers which are uniformly distributed between 0 and 10. Here we use `Stats.uniform_rvs` function to generate numbers following uniform distribution.
 
-```ocaml env=stats_00
+```ocaml
 let data = Array.init 100 (fun _ -> Stats.uniform_rvs 0. 10.);;
 ```
 
 Then We use `mean` function calculate sample average. As can be expected, it is around 5. We can also calculate other higher moments easily with corresponding functions.
 We can do a very rough and quick interpretation about these results. It has a widely spread distribution (about 3 to the left and right), and the distribution is not skew, according to a very small skewness number. Finally, a small kurtosis shows that the distribution does not have an obvious tail.
 
-```ocaml env=stats_00
+```ocaml
 # Stats.mean data
 - : float = 5.18160409659184573
 # Stats.std data
@@ -196,7 +196,7 @@ We can do a very rough and quick interpretation about these results. It has a wi
 
 The following code calculates different central moments of the distribution. A central moment is a moment of a probability distribution of a random variable about the random variable's mean. The zero-th central moment is always 1, and the first is close to zero, and the second is close to the variance.
 
-```ocaml env=stats_00
+```ocaml
 # Stats.central_moment 0 data
 - : float = 1.
 # Stats.central_moment 1 data
@@ -453,14 +453,14 @@ One of the most common test to make is to see if observed data come from a certa
 This is called a "z-test."
 Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
 
-```ocaml env=stats_03
+```ocaml
 let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
 let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
 ```
 
 Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we generated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
 
-```ocaml env=stats_03
+```ocaml
 # Stats.z_test ~mu:0. ~sigma:1. data_0
 - : Owl_stats.hypothesis =
 {Owl.Stats.reject = false; p_value = 0.289340080583773251;
@@ -479,7 +479,7 @@ type hypothesis = {
 
 From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $\mathcal{N}(0, 1)$. How about the second data set then?
 
-```ocaml env=stats_03
+```ocaml
 # Stats.z_test ~mu:0. ~sigma:1. data_1
 - : Owl_stats.hypothesis =
 {Owl.Stats.reject = true; p_value = 5.06534675819424548e-23;
@@ -575,7 +575,7 @@ Correlation studies how strongly two variables are related. There are different 
 
 `x` is our explanatory variable and we draw 50 random values uniformly from an interval between 0 and 10. Both `y` and `z` are response variables with a linear relation to `x`. The only difference is that we add different level of noise to the response variables. The noise values are generated from Gaussian distribution.
 
-```ocaml env=stats_01
+```ocaml
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
 let x = Array.init 50 (fun _ -> Stats.uniform_rvs 0. 10.);;
 let y = Array.map (fun a -> 2.5 *. a +. noise 1.) x;;
@@ -584,7 +584,7 @@ let z = Array.map (fun a -> 2.5 *. a +. noise 8.) x;;
 
 It is easier to see the relation between two variables from a figure. Herein we use Owl's Plplot module to make two scatter plots.
 
-```ocaml env=stats_01
+```ocaml
 (* convert arrays to matrices *)
 
 let x' = Mat.of_array x 1 50;;
@@ -615,7 +615,7 @@ The subfigure 1 shows the functional relation between `x` and `y` whilst the sub
 
 Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.
 
-```ocaml env=stats_01
+```ocaml
 # Stats.corrcoef x y
 - : float = 0.991145445979576656
 # Stats.corrcoef x z
