@@ -18,3 +18,7 @@ book/*.toc
 book/*.ilg
 
 .vscode/
+
+_site
+Gemfile.lock
+.jekyll-cache/
