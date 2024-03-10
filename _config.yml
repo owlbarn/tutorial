@@ -18,10 +18,10 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Owl Tutorial
+title: Owl Online Tutorial
 email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Owl is a dedicated system for scientific and engineering computing, developed in OCaml
+  FUNCTIONAL PROGRAMMING MEETS DATA SCIENCE
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ocaml.xyz/tutorial/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jekyllrb
