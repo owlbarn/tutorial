@@ -30,7 +30,7 @@ The main purpose of the online tutorial is for teaching how to use the [Owl](htt
 
 ## Contribute
 
-Currently contribution to the book is mainly in the form of Pull Request. 
+Currently contribution to the book is mainly in the form of Pull Request on [GitHub](https://github.com/owlbarn/tutorial). 
 Normally you only need to change one of the markdown files in the `chapters/` directory.
 
 
