@@ -1,4 +1,4 @@
-# Owl Online Tutorial
+# Owl Online Tutorial [![build](https://github.com/owlbarn/tutorial/actions/workflows/deploy.yml/badge.svg)](https://github.com/owlbarn/tutorial/actions/workflows/deploy.yml)
 
 The online tutorial is hosted [here](https://ocaml.xyz/tutorial/).
 
