@@ -52,23 +52,15 @@ These equations are the building blocks of differentiating more complicated ones
 Of course, this very short list is incomplete. Please refer to the calculus textbooks for more information.
 Armed with the chain rule and these basic equations, wen can begin to solve more differentiation problems than you can imagine.
 
-----------------------  --------------------------------------
-Function                Derivatives
-----------------------  --------------------------------------
-$(u(x) + v(x))'$        $u'(x) + v'(x)$
-
-$(C\times~u(x))'$       $C\times~u'(x)$
-
-$(u(x)v(x))'$           $u'(x)v(x) + u(x)v'(x)$
-
-$(\frac{u(x)}{v(x)})'$  $\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}$
-
-$\sin(x)$               $\cos(x)$
-
-$e^x$                   $e^x$
-
-$log_a(x)$              $\frac{1}{x~\textrm{ln}~a}$
-----------------------  --------------------------------------
+Function                |Derivatives
+----------------------  |--------------------------------------
+$(u(x) + v(x))'$        |$u'(x) + v'(x)$
+$(C\times~u(x))'$       |$C\times~u'(x)$
+$(u(x)v(x))'$           |$u'(x)v(x) + u(x)v'(x)$
+$(\frac{u(x)}{v(x)})'$  |$\frac{u'(x)v(x) - u(x)v'(x)}{v^2(x)}$
+$\sin(x)$               |$\cos(x)$
+$e^x$                   |$e^x$
+$log_a(x)$              |$\frac{1}{x~\textrm{ln}~a}$
 : A Short Table of Basic Derivatives {#tbl:algodiff:chainrule02}
 
 
@@ -206,29 +198,18 @@ Two simultaneous computing processes take place, shown as two separated columns:
 on the right side shows computation of derivative for each intermediate variable with regard to $x_0$.
 Let's find out $\dot{y}$ when setting $x_0 = 1$, and $x_1 = 1$.
 
----- --------------------------  ---------------------------------
-Step Primal computation          Tangent computation            
----- --------------------------  ---------------------------------
-0    $v_0 = x_0 = 1$             $\dot{v_0}=1$
-
-1    $v_1 = x_1 = 1$             $\dot{v_1}=0$
-
-2    $v_2 = sin(v_0) = 0.84$     $\dot{v_2} = cos(v_0)*\dot{v_0} = 0.54 * 1 = 0.54$   
-
-3    $v_3 = v_0~v_1 = 1$         $\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1$
-
-4    $v_4 = v_2 + v3 = 1.84$     $\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.54$
-
-5    $v_5 = 1$                   $\dot{v_5} = 0$
-
-6    $v_6 = \exp{(v_4)} = 6.30$  $\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.54 = 9.70$
-
-7    $v_7 = 1$                   $\dot{v_7} = 0$
-
-8    $v_8 = v_5 + v_6 = 7.30$    $\dot{v_8} = \dot{v_5} + \dot{v_6} = 9.70$
-
-9    $y = v_9 = \frac{1}{v_8}$   $\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.18$
----- --------------------------  ---------------------------------
+Step Primal computation          |Tangent computation            
+---- --------------------------  |---------------------------------
+0    $v_0 = x_0 = 1$             |$\dot{v_0}=1$
+1    $v_1 = x_1 = 1$             |$\dot{v_1}=0$
+2    $v_2 = sin(v_0) = 0.84$     |$\dot{v_2} = cos(v_0)*\dot{v_0} = 0.54 * 1 = 0.54$   
+3    $v_3 = v_0~v_1 = 1$         |$\dot{v_3} = v_0~\dot{v_1} + v_1~\dot{v_0} = 1 * 0 + 1 * 1 = 1$
+4    $v_4 = v_2 + v3 = 1.84$     |$\dot{v_4} = \dot{v_2} + \dot{v_3} = 1.54$
+5    $v_5 = 1$                   |$\dot{v_5} = 0$
+6    $v_6 = \exp{(v_4)} = 6.30$  |$\dot{v_6} = \exp{(v_4)} * \dot{v_4} = 6.30 * 1.54 = 9.70$
+7    $v_7 = 1$                   |$\dot{v_7} = 0$
+8    $v_8 = v_5 + v_6 = 7.30$    |$\dot{v_8} = \dot{v_5} + \dot{v_6} = 9.70$
+9    $y = v_9 = \frac{1}{v_8}$   |$\dot{y} = \frac{-1}{v_8^2} * \dot{v_8} = -0.18$
 : Computation process of forward differentiation {#tbl:algodiff:forward}
 
 This procedure shown in this table can be illustrated in [@fig:algodiff:example_01_forward].
@@ -287,29 +268,18 @@ Following this line of calculation, the reverse differentiation mode is also cal
 With that in mind, let's see the full steps of performing reverse differentiation.
 First, we need to perform a forward pass to compute the required intermediate values, as shown in [@tbl:algodiff:reverse_01].
 
----- --------------------------
-Step Primal computation        
----- --------------------------
-0    $v_0 = x_0 = 1$           
-
-1    $v_1 = x_1 = 1$           
-
-2    $v_2 = sin(v_0) = 0.84$   
-
-3    $v_3 = v_0~v_1 = 1$       
-
-4    $v_4 = v_2 + v3 = 1.84$   
-
-5    $v_5 = 1$                 
-
-6    $v_6 = \exp{(v_4)} = 6.30$
-
-7    $v_7 = 1$                  
-
-8    $v_8 = v_5 + v_6 = 7.30$  
-
-9    $y = v_9 = \frac{1}{v_8}$
----- --------------------------
+Step |Primal computation        
+---- |--------------------------
+0    |$v_0 = x_0 = 1$           
+1    |$v_1 = x_1 = 1$           
+2    |$v_2 = sin(v_0) = 0.84$   
+3    |$v_3 = v_0~v_1 = 1$       
+4    |$v_4 = v_2 + v3 = 1.84$   
+5    |$v_5 = 1$                 
+6    |$v_6 = \exp{(v_4)} = 6.30$
+7    |$v_7 = 1$                  
+8    |$v_8 = v_5 + v_6 = 7.30$  
+9    |$y = v_9 = \frac{1}{v_8}$
 : Forward pass in the reverse differentiation mode {#tbl:algodiff:reverse_01}
 
 You might be wondering, this looks the same as the left side of [@tbl:algodiff:forward].
@@ -1334,7 +1304,7 @@ It turns out that, the simple implementations we have are not very far away from
 There are of course many details that need to be taken care of in Owl, but by now you should be able to understand the gist of it.
 Without digging too deep into the code details, in this section we give an overview of some of the key differences between the Owl implementation and the simple version we built in the previous sections.  
 
-![Architecture of the AD module](../images/algodiff/architecture.png "architecture"){width=60% #fig:algodiff:architecture}
+![Architecture of the AD module](../images/algodiff/architecture.png "architecture")
 
 
 The [@fig:algodiff:architecture] shows the structure of AD module in Owl, and they will be introduced one by one below.

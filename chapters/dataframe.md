@@ -374,7 +374,7 @@ The mapping between `types` string and actual OCaml type is shown below:
 The following examples are in a [gist](http://gist.github.com/3de010940ab340e3d2bfb564ecd7d6ba) that contains code and several example CSV files.
 The first example simply loads the `funding.csv` file into a dataframe, then pretty prints out the table.
 
-```ocaml file=../../examples/code/dataframe/example_00.ml
+```ocaml 
 let fname = "funding.csv" in
 let types =  [|"s";"s";"f";"s";"s";"s";"s";"f";"s";"s"|] in
 let df = Dataframe.of_csv ~sep:',' ~types fname in
@@ -408,7 +408,7 @@ The result should look like this. We have truncated out some rows to save space 
 The second example is slightly more complicated. It loads `estate.csv` file then filters out the some rows with two predicates. You can see how the two predicates are chained up with `.?()` indexing operator.
 
 
-```ocaml file=../../examples/code/dataframe/example_01.ml
+```ocaml 
 open Dataframe
 
 let fname = "estate.csv" in
@@ -436,7 +436,7 @@ There are several technical things worth mentioning here:
 
 With this capability, it is much easier to load a CSV to quickly investigate what is inside.
 
-```ocaml file=../../examples/code/dataframe/example_02.ml
+```ocaml 
 open Dataframe
 
 let fname = "estate.csv" in

@@ -176,7 +176,7 @@ let _ =
   Plot.output h
 ```
 
-![The hump function and its derivative function](../images/optimisation/plot_hump.png){width=90% #fig:optimisation:hump}
+![The hump function and its derivative function](../images/optimisation/plot_hump.png)
 
 And then you can find the extreme values using the root finding algorithm, such as Brent's:
 
@@ -240,7 +240,7 @@ From a starting point, the simplex move downwards step by step. At each step, th
 Repeat this process until it reaches a "valley", where the method "contracts itself in the transverse direction and tries to ooze down the valley".
 This three different methods are illustrated in [@fig:optimisation:simplex], where there are two variables and the simplex is a triangle.
 
-![Different movement of simplex in Nelder-Mead optimisation method](../images/optimisation/simplex.png){width=100% #fig:optimisation:simplex}
+![Different movement of simplex in Nelder-Mead optimisation method](../images/optimisation/simplex.png)
 
 There are some other method that does not rely on computing gradients such as Powell's method.
 If the function is kind of smooth, this method can find the direction in going downhill, but instead of computing gradient, it relies on a one-dimensional optimisation method to do that, and therefore faster than the simplex method.
@@ -252,7 +252,7 @@ A *descent method* is an iterative optimisation process.
 The idea is to start from an initial value, and then find a certain *search direction* along a function to decrease the value by certain *step size* until it converges to a local minimum.
 This process can be illustrated in [@fig:optimisation:gradient].
 
-![Reach the local minimum by iteratively moving downhill ](../images/optimisation/gradient.png){width=60% #fig:optimisation:gradient}
+![Reach the local minimum by iteratively moving downhill ](../images/optimisation/gradient.png)
 
 Therefore, we can describe the $n$-th iteration of descent method as:
 
@@ -340,7 +340,7 @@ We first create a mesh grid based on the Rosenbrock function to visualise the 3D
 The visualisation results are shown in [@fig:optimisation:gd_rosenbrock].
 On the right figure the black line shows the moving trajectory. You can see how it moves downwards along the slope in the right side figure.
 
-![Optimisation process of gradient descent on multivariate function](../images/optimisation/gd_rosenbrock.png "gd_rosenbrock"){width=100% #fig:optimisation:gd_rosenbrock}
+![Optimisation process of gradient descent on multivariate function](../images/optimisation/gd_rosenbrock.png "gd_rosenbrock")
 
 Optimisation lays at the foundation of machine learning and neural network training.
 In the `Owl.Optimise` module, we provide a `minimise_fun` function to perform this task.
@@ -394,7 +394,7 @@ The *Conjugate Gradient* method can solve this problem.
 It was first proposed by Hestenes and Stiefel in their work "Methods of Conjugate Gradients for Solving Linear Systems" in 1952.
 It is similar to the gradient descent, but at each step, the new direction does not totally follow the new gradient, but somehow *conjugated* to the old gradients and to all previous directions traversed.
 
-![Compare conjugate gradient and gradient descent](../images/optimisation/gradients.png "gradients"){width=60% #fig:optimisation:gradients}
+![Compare conjugate gradient and gradient descent](../images/optimisation/gradients.png "gradients")
 
 For example, [@fig:optimisation:gradients] compares the different descent efficiency of the conjugate gradient with gradient descent.
 Both methods start from the same position and go for the same direction.

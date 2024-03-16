@@ -66,7 +66,7 @@ let plot_data x y =
   Plot.output h
 ```
 
-![Visualise data for regression problem](../images/regression/regdata.png "regdata"){width=50% #fig:regression:regdata}
+![Visualise data for regression problem](../images/regression/regdata.png "regdata")
 
 The visualisation result is shown in [@fig:regression:regdata].
 As can be expected, there is a clear trend that larger population and larger profit are co-related with each other. But precisely how?
@@ -86,7 +86,7 @@ The $\theta_0$ and $\theta_1$ are the parameters of this model. Mathematically t
 We can now choose randomly these parameters and see how the result works, and some of these guesses are just bad intuitively, as shown in [@fig:regression:reg_options].
 Our target is to choose suitable parameters so that the line is *close* to data we observed.
 
-![Find possible regression line for given data](../images/regression/reg_options.png "reg_options"){width=100% #fig:regression:reg_options}
+![Find possible regression line for given data](../images/regression/reg_options.png "reg_options")
 
 How do we define the line being "close" to the observed data then?
 One frequently used method is to use the *ordinary least square* to minimise the sum of squared distances between the data and line.
@@ -137,7 +137,7 @@ In [@fig:regression:cost] we can see that cost function varies with parameters $
 The minimum point lies at somewhere at the bottom of the "valley".
 It is thus natural to recall the gradient descent we have introduced in the previous chapter, and use it to find the minimal point in this bowl-shape surface.
 
-![Visualise the cost function in linear regression problem](../images/regression/reg_cost.png "cost"){width=100% #fig:regression:cost}
+![Visualise the cost function in linear regression problem](../images/regression/reg_cost.png "cost")
 
 Recall from previous chapter that gradient descent works by starting at one point on the surface, and move in the *direction* of steepest descent at some *step size*, then gradually approach to a local minimum, hopefully as fast as possible.
 Let's use a fixed step size $\alpha$, and the direction at certain point on the surface can be obtained by using partial derivative on the surface.
@@ -175,7 +175,7 @@ By executing the code, we can get a pair of parameters: $\theta_0 = 5.14$ and $\
 To check if they indeed are suitable parameters, we can visualise them against the input data.
 The resulting figure [@fig:regression:reg_gd] shows a line that aligns with input data quite nicely.
 
-![Validate regression result with original dataset](../images/regression/reg_gd.png "reg_gd.png"){width=60% #fig:regression:reg_gd}
+![Validate regression result with original dataset](../images/regression/reg_gd.png "reg_gd.png")
 
 Of course, there is no need to use to manually solve a linear regression problem in Owl.
 It has already provided high-level regression functions.
@@ -204,7 +204,7 @@ R0 4.72381
 The API is not limited to the regression module. The `linreg` function in the Linear Algebra module can also be used to perform the same task.
 The code snippet below first generates some random data, then using `linreg` function to perform a simple linear regression and plots the data as well as the regression line.
 
-```ocaml file=../../examples/code/linear-algebra/example_00.ml
+```ocaml 
 let generate_data () =
   let x = Mat.uniform 500 1 in
   let p = Mat.uniform 1 1 in
@@ -355,7 +355,7 @@ val data' : (float, Bigarray.float64_elt) Owl_dense_ndarray_generic.t =
 Another benefit of performing data normalisation is to accelerate gradient descent. The illustration in [@fig:regression:normalisation] shows the point.
 We have already seen that, in a "slim" slope, the Gradient Descent, which always trying to find the steepest downward path, may perform bad. Normalisation can reshape the slope to a more proper shape.
 
-![Compare gradient descent efficiency with and without data normalisation](../images/regression/normalisation.png "normalisation"){width=90% #fig:regression:normalisation}
+![Compare gradient descent efficiency with and without data normalisation](../images/regression/normalisation.png "normalisation")
 
 Normalisation is not only used in regression, but also may other data analysis and machine learning tasks.
 For example, in computer vision tasks, an image is represented as an ndarray with three dimensions. Each element represents a pixel in the image, with a value between 0 and 255.
@@ -427,7 +427,7 @@ let f ?(csv_file="boston.csv") () =
   lstat, medv
 ```
 
-![Visualise part of the boston housing dataset](../images/regression/boston.png "boston"){width=60% #fig:regression:boston}
+![Visualise part of the boston housing dataset](../images/regression/boston.png "boston")
 
 We can then visualise the data to see the trend clearly.
 As [@fig:regression:boston] shows, the relationship basically follows a convex curve.
@@ -474,7 +474,7 @@ $$f(x) = 42.8 - 2.3x + 0.04x^2 + \epsilon$$
 
 We can visualise this model to see how well it fits the data:
 
-![Polynomial regression based on Boston housing dataset](../images/regression/reg_poly.png "reg_poly"){width=60% #fig:regression:reg_poly.png}
+![Polynomial regression based on Boston housing dataset](../images/regression/reg_poly.png "reg_poly")
 
 ## [Regularisation](#regularisation)
 
@@ -495,7 +495,7 @@ we can get the new model:
 
 $$f(x) = 63 - 10.4x + 0.9x^2 -0.03x^3 + 0.0004x^4.$$
 
-![Polynomial regression with high order](../images/regression/reg_poly4s.png "reg_poly4s"){width=60% #fig:regression:poly4s}
+![Polynomial regression with high order](../images/regression/reg_poly4s.png "reg_poly4s")
 
 This model could be visualised as in [@fig:regression:poly4s].
 Apparently, this model fits too closely with the given data, even the outliers. Therefore, this model does not make a good prediction for future output values.
@@ -544,7 +544,7 @@ It utilises the optimisation parameter module, which will be explained in detail
 For now, just know that the key point is to use the L2-norm function as regularisation method.
 By using this regularised version of polynomial regression, we can have an updated model as shown in [@fig:regression:poly4s_reg].
 
-![Revised polynomial model by applying regularisation in regression](../images/regression/reg_poly4s_reg.png "poly reg"){width=60% #fig:regression:poly4s_reg}
+![Revised polynomial model by applying regularisation in regression](../images/regression/reg_poly4s_reg.png "poly reg")
 
 Here we choose the alpha parameter to be 20.
 We can see that by using regularisation the model is less prone to the over-fitting problem, compared to [@fig:regression:poly4s].
@@ -587,7 +587,7 @@ As a naive solution, we can still try to continue using linear regression, and t
 But one problem is that, the prediction value could well be out of the bounds of [0, 1]. Then maybe we need some way to normalise the result to this range?
 The solution is to use the sigmoid function (or logistic function): $\sigma~(x) = \frac{1}{1 + e^{-x}}$.
 
-![The logistic function curve](../images/regression/sigmoid.png "sigmoid"){width=60% #fig:regression:sigmoid}
+![The logistic function curve](../images/regression/sigmoid.png "sigmoid")
 
 As shown in [@fig:regression:sigmoid], this function projects value within the range of [0, 1].
 Applying this function on the returned value of a regression, we can get a model that returns value within [0, 1].
@@ -747,7 +747,7 @@ The code above visualises the data, two types of points showing the negative and
 The result is shown in [@fig:regression:logistic].
 There are some wrong categorisations, but you can see that this model works well for most the data points.
 
-![Visualise the logistic regression dataset](../images/regression/reg_logistic.png "logistic"){width=60% #fig:regression:logistic}
+![Visualise the logistic regression dataset](../images/regression/reg_logistic.png "logistic")
 
 Of course, we can use more than linear model within the sigmoid function.
 for example, we can use to set the model as $h_{\boldsymbol{\theta}}(x) = \sigma(\theta_0 + \theta_1~x + \theta_2~x^2)$.
@@ -790,7 +790,7 @@ $$J_{\boldsymbol{\theta}}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1
 
 Function $g_0()$ and $g_1()$ are simplification of the logarithm function:
 
-![Simplifying the cost function of logistic regression](../images/regression/svm_cost.png "svm_cost"){width=100% #fig:regression:svm_cost}
+![Simplifying the cost function of logistic regression](../images/regression/svm_cost.png "svm_cost")
 
 Here $f_0(x) = -\log(\sigma(x))$ is what is used in the cost function of the logistic regression. This computation-heavy logarithm is replaced with $g_0(x)$, a simple segmented function.
 Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$.
@@ -798,7 +798,7 @@ Similarly, $f_1(x) = -\log(1-\sigma(x))$ is replaced by $g_1(x)$.
 Also, another difference is that a regularisation item is added to the cost function in [@eq:regression:svm_cost].
 Therefore, considering the properties of $g_0(x)$ and $g_1(x)$, by minimising this function, we are actually seeking parameters set $\boldsymbol{\theta}$ to minimise $\sum_{j=1}^{m}\theta_j^2$, with the limitation that $\boldsymbol{\theta}^Tx > 1$ when $y=1$, or $\boldsymbol{\theta}^Tx < -1$ when $y=0$.
 
-![Margins in the Supported Vector Machines](../images/regression/svm_margin.png "svm_margin"){width=50% #fig:regression:svm_margin}
+![Margins in the Supported Vector Machines](../images/regression/svm_margin.png "svm_margin")
 
 It turns out that, by solving this optimisation problem, SVM tends to get a *large margin* between different categories of data points.
 One example is shown in [@fig:regression:svm_margin].
@@ -840,7 +840,7 @@ The contour graph on the right then shows clearly how this model lead to a predi
 That's the boundary we use to decide if a point is positive (close to $p_1$ or $p_3$) or negative.
 You can imagine how this non-linear boundary can be changed with new parameters.
 
-![Using the gaussian kernel to locate non-linear boundary in categorisation](../images/regression/kernel.png "svm_kernel.png"){width=100% #fig:regression:svm_kernel}
+![Using the gaussian kernel to locate non-linear boundary in categorisation](../images/regression/kernel.png "svm_kernel.png")
 
 Only three reference points is normally not enough to support a complex non-linear boundary.
 In fact, one common practice is to use all the training data, each as one point, as the reference points.
@@ -877,7 +877,7 @@ That means the hypothesis function $\theta^Tx$ we have is: $f(x)=5.7-0.43x_1-0.9
 If $f(x)>0$, the categorisation result is positive, otherwise it's negative.
 We can visualise this boundary line by setting $f(x)=0$, as shown in [@fig:regression:svm]. Here the `y` axis is $x_2$, and `x` axis is $x_1$.  
 
-![Visualise the SVM dataset](../images/regression/reg_svm.png "logistic"){width=60% #fig:regression:svm}
+![Visualise the SVM dataset](../images/regression/reg_svm.png "logistic")
 
 ## Model error and selection
 

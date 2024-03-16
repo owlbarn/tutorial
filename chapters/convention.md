@@ -54,25 +54,17 @@ As we can see from the function type, the output can be specified by an optional
 
 Most binary math functions in Owl are associated with a shorthand operator, such as `+`, `-`, `*`, and `/`. The impure versions also have their own operators. For example, corresponding to `Arr.(x + y)` which returns the result in a new ndarray, you can write `Arr.(x += y)` which adds up `x` and `y` and saves the result into `x`.
 
---------------    --------------    --------------
-Function Name     Pure              Impure
---------------    --------------    --------------
-add               `+`               `+=`
+Function Name     |Pure              |Impure
+--------------    |--------------    |--------------
+add               |`+`               |`+=`
+sub               |`-`               |`-=`
+mul               |`*`               |`*=`
+div               |`/`               |`/=`
+add_scalar        |`+$`              |`+$=`
+sub_scalar        |`-$`              |`-$=`
+mul_scalar        |`*$`              |`*$=`
+div_scalar        |`/$`              |`/$=`
 
-sub               `-`               `-=`
-
-mul               `*`               `*=`
-
-div               `/`               `/=`
-
-add_scalar        `+$`              `+$=`
-
-sub_scalar        `-$`              `-$=`
-
-mul_scalar        `*$`              `*$=`
-
-div_scalar        `/$`              `/$=`
---------------    --------------    --------------
 : Alias of pure and impure binary math functions  {#tbl:convention:pure}
 
 
@@ -163,118 +155,63 @@ As long as a module implements all the functions defined in the module signature
 
 The operators have been included in each `Ndarray` and `Matrix` module. The following table summarises the operators currently implemented. In the table, both `x` and `y` represent either a matrix or an ndarray while `a` represents a scalar value.
 
+Operator      |Example       |Operation                 |Dense/Sparse  |Ndarray/Matrix
+------------  |------------  |------------------------  |------------  |-----------------
+`+`           |`x + y`       |element-wise add          |both          |both
+`-`           |`x - y`       |element-wise sub          |both          |both
+`*`           |`x * y`       |element-wise mul          |both          |both
+`/`           |`x / y`       |element-wise div          |both          |both
+`+$`          |`x +$ a`      |add scalar                |both          |both
+`-$`          |`x -$ a`      |sub scalar                |both          |both
+`*$`          |`x *$ a`      |mul scalar                |both          |both
+`/$`          |`x /$ a`      |div scalar                |both          |both
+`$+`          |`a $+ x`      |scalar add                |both          |both
+`$-`          |`a $- x`      |scalar sub                |both          |both
+`$*`          |`a $* x`      |scalar mul                |both          |both
+`$/`          |`a $/ x`      |scalar div                |both          |both
+`=`           |`x = y`       |comparison                |both          |both
+`!=`          |`x != y`      |comparison                |both          |both
+`<>`          |`x <> y`      |same as `!=`              |both          |both
+`>`           |`x > y`       |comparison                |both          |both
+`<`           |`x < y`       |comparison                |both          |both
+`>=`          |`x >= y`      |comparison                |both          |both
+`<=`          |`x <= y`      |comparison                |both          |both
+`=.`          |`x =. y`      |element-wise cmp          |Dense         |both
+`!=.`         |`x !=. y`     |element-wise cmp          |Dense         |both
+`<>.`         |`x <>. y`     |same as `!=.`             |Dense         |both
+`>.`          |`x >. y`      |element-wise cmp          |Dense         |both
+`<.`          |`x <. y`      |element-wise cmp          |Dense         |both
+`>=.`         |`x >=. y`     |element-wise cmp          |Dense         |both
+`<=.`         |`x <=. y`     |element-wise cmp          |Dense         |both
+`=$`          |`x =$ y`      |comp to scalar            |Dense         |both
+`!=$`         |`x !=$ y`     |comp to scalar            |Dense         |both
+`<>$  `       |`x <>$ y`     |same as `!=`              |Dense         |both
+`>$`          |`x >$ y`      |compare to scalar         |Dense         |both
+`<$`          |`x <$ y`      |compare to scalar         |Dense         |both
+`>=$`         |`x >=$ y`     |compare to scalar         |Dense         |both
+`<=$`         |`x <=$ y`     |compare to scalar         |Dense         |both
+`=.$`         |`x =.$ y`     |element-wise cmp          |Dense         |both
+`!=.$`        |`x !=.$ y`    |element-wise cmp          |Dense         |both
+`<>.$`        |`x <>.$ y`    |same as `!=.$`            |Dense         |both
+`>.$`         |`x >.$ y`     |element-wise cmp          |Dense         |both
+`<.$`         |`x <.$ y`     |element-wise cmp          |Dense         |both
+`>=.$`        |`x >=.$ y`    |element-wise cmp          |Dense         |both
+`<=.$`        |`x <=.$ y`    |element-wise cmp          |Dense         |both
+`=~`          |`x =~ y`      |approx `=`                |Dense         |both
+`=~$`         |`x =~$ y`     |approx `=$`               |Dense         |both
+`=~.`         |`x =~. y`     |approx `=.`               |Dense         |both
+`=~.$`        |`x =~.$ y`    |approx `=.$`              |Dense         |both
+`%`           |`x % y`       |mod divide                |Dense         |both
+`%$`          |`x %$ a`      |mod divide scalar         |Dense         |both
+`**`          |`x ** y`      |power function            |Dense         |both
+`*@`          |`x *@ y`      |matrix multiply           |both          |Matrix
+`/@`          |`x /@ y`      |solve linear system       |both          |Matrix
+`**@`         |`x **@ a`     |matrix power              |both          |Matrix
+`min2`        |`min2 x y`    |element-wise min          |both          |both
+`max2`        |`max2 x y`    |element-wise max          |both          |both
+`@=`          |`x @= y`      |concatenate vertically    |Dense         |both
+`@||`         |`x @|| y`     |concatenate horizontally  |Dense         |both
 
-------------  ------------  ------------------------  ------------  -----------------
-Operator      Example       Operation                 Dense/Sparse  Ndarray/Matrix
-------------  ------------  ------------------------  ------------  -----------------
-`+`           `x + y`       element-wise add          both          both
-
-`-`           `x - y`       element-wise sub          both          both
-
-`*`           `x * y`       element-wise mul          both          both
-
-`/`           `x / y`       element-wise div          both          both
-
-`+$`          `x +$ a`      add scalar                both          both
-
-`-$`          `x -$ a`      sub scalar                both          both
-
-`*$`          `x *$ a`      mul scalar                both          both
-
-`/$`          `x /$ a`      div scalar                both          both
-
-`$+`          `a $+ x`      scalar add                both          both
-
-`$-`          `a $- x`      scalar sub                both          both
-
-`$*`          `a $* x`      scalar mul                both          both
-
-`$/`          `a $/ x`      scalar div                both          both
-
-`=`           `x = y`       comparison                both          both
-
-`!=`          `x != y`      comparison                both          both
-
-`<>`          `x <> y`      same as `!=`              both          both
-
-`>`           `x > y`       comparison                both          both
-
-`<`           `x < y`       comparison                both          both
-
-`>=`          `x >= y`      comparison                both          both
-
-`<=`          `x <= y`      comparison                both          both
-
-`=.`          `x =. y`      element-wise cmp          Dense         both
-
-`!=.`         `x !=. y`     element-wise cmp          Dense         both
-
-`<>.`         `x <>. y`     same as `!=.`             Dense         both
-
-`>.`          `x >. y`      element-wise cmp          Dense         both
-
-`<.`          `x <. y`      element-wise cmp          Dense         both
-
-`>=.`         `x >=. y`     element-wise cmp          Dense         both
-
-`<=.`         `x <=. y`     element-wise cmp          Dense         both
-
-`=$`          `x =$ y`      comp to scalar            Dense         both
-
-`!=$`         `x !=$ y`     comp to scalar            Dense         both
-
-`<>$  `       `x <>$ y`     same as `!=`              Dense         both
-
-`>$`          `x >$ y`      compare to scalar         Dense         both
-
-`<$`          `x <$ y`      compare to scalar         Dense         both
-
-`>=$`         `x >=$ y`     compare to scalar         Dense         both
-
-`<=$`         `x <=$ y`     compare to scalar         Dense         both
-
-`=.$`         `x =.$ y`     element-wise cmp          Dense         both
-
-`!=.$`        `x !=.$ y`    element-wise cmp          Dense         both
-
-`<>.$`        `x <>.$ y`    same as `!=.$`            Dense         both
-
-`>.$`         `x >.$ y`     element-wise cmp          Dense         both
-
-`<.$`         `x <.$ y`     element-wise cmp          Dense         both
-
-`>=.$`        `x >=.$ y`    element-wise cmp          Dense         both
-
-`<=.$`        `x <=.$ y`    element-wise cmp          Dense         both
-
-`=~`          `x =~ y`      approx `=`                Dense         both
-
-`=~$`         `x =~$ y`     approx `=$`               Dense         both
-
-`=~.`         `x =~. y`     approx `=.`               Dense         both
-
-`=~.$`        `x =~.$ y`    approx `=.$`              Dense         both
-
-`%`           `x % y`       mod divide                Dense         both
-
-`%$`          `x %$ a`      mod divide scalar         Dense         both
-
-`**`          `x ** y`      power function            Dense         both
-
-`*@`          `x *@ y`      matrix multiply           both          Matrix
-
-`/@`          `x /@ y`      solve linear system       both          Matrix
-
-`**@`         `x **@ a`     matrix power              both          Matrix
-
-`min2`        `min2 x y`    element-wise min          both          both
-
-`max2`        `max2 x y`    element-wise max          both          both
-
-`@=`          `x @= y`      concatenate vertically    Dense         both
-
-`@||`         `x @|| y`     concatenate horizontally  Dense         both
-------------  ------------  ------------------------  ------------  -----------------
 : Infix operators in ndarray and matrix modules {#tbl:convention:infix}
 
 

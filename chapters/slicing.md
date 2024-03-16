@@ -116,7 +116,7 @@ These examples are based on a `8x8` matrix.
 let x = Arr.sequential [|8; 8|]
 ```
 
-![Illustrated Examples of Slicing](../images/slicing/example_slice_01.png "slicing example 01"){width=95% #fig:slicing:example_slice_01}
+![Illustrated Examples of Slicing](../images/slicing/example_slice_01.png "slicing example 01")
 
 The first example as shown in [@fig:slicing:example_slice_01](a)is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:
 
@@ -170,7 +170,7 @@ R0 20 21 22
 
 ```
 
-![Illustrated Examples of Slicing (Cont.)](../images/slicing/example_slice_02.png "slicing example 02"){width=95% #fig:slicing:example_slice_02}
+![Illustrated Examples of Slicing (Cont.)](../images/slicing/example_slice_02.png "slicing example 02")
 
 
 The next example in [@fig:slicing:example_slice_02](a) is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
@@ -502,7 +502,7 @@ let y' = Arr.expand y 4;;
 If these seem too abstract, here are three concrete 2D examples for you to better understand how the shapes are extended in the broadcasting.
 The first example is vector multiplied by scalar.
 
-![Illustrated example of shape extension in broadcasting](../images/slicing/example_broadcast_01.png "example broadcast 01"){width=90% #fig:slicing:broadcast_01}
+![Illustrated example of shape extension in broadcasting](../images/slicing/example_broadcast_01.png "example broadcast 01")
 
 ```ocaml
 let a = Arr.sequential [|1;3|]
@@ -518,7 +518,7 @@ R0  3  4  5
 
 The second example is matrix plus vector.
 
-![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_02.png "example broadcast 02"){width=90% #fig:slicing:broadcast_02}
+![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_02.png "example broadcast 02")
 
 ```ocaml
 let b0 = Arr.sequential [|3;3|]
@@ -537,7 +537,7 @@ R2  6 14 24
 
 The third example is column vector plus row vector.
 
-![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_03.png "example broadcast 03"){width=90% #fig:slicing:broadcast_03}
+![Illustrated example of shape extension in broadcasting (cont.)](../images/slicing/example_broadcast_03.png "example broadcast 03")
 
 
 ```ocaml

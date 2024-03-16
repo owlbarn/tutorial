@@ -325,7 +325,7 @@ let plot_sunspot x y =
   Plot.output h
 ```
 
-![Yearly sunspot data](../images/signal/plot_sunspot.png "sunspot"){width=60% #fig:signal:sunspot}
+![Yearly sunspot data](../images/signal/plot_sunspot.png "sunspot")
 
 We can see there is a cycle of about 10 years, but exactly how long is it? Let's start by applying the FFT on this signal.
 To process the data, we first remove the first element of the frequency vector `y'`, since it stores the sum of the data.
@@ -366,7 +366,7 @@ let plot_sunspot_freq p =
 The result is shown in [@fig:signal:freq].
 Now we can see clearly that the most prominent cycle is a little bit less than 11 years.
 
-![Find sunspot cycle with FFT](../images/signal/plot_sunspot_freq.png "sunspot_freq"){width=100% #fig:signal:freq}
+![Find sunspot cycle with FFT](../images/signal/plot_sunspot_freq.png "sunspot_freq")
 
 ### Decipher the Tone
 
@@ -405,7 +405,7 @@ let plot_tone data filename =
 The result is shown in [@fig:signal:tone](a).
 Apparently, according to the dense area in this signal, there are 11 digits in this phone number. The question is: which numbers?
 
-![Recording of an 11-digit number and its FFT decomposition](../images/signal/tone.png "tone"){width=100% #fig:signal:tone}
+![Recording of an 11-digit number and its FFT decomposition](../images/signal/tone.png "tone")
 
 This is a suitable question for FFT.
 Let's start by applying the FFT to the original data.
@@ -437,7 +437,7 @@ Let's get a subset of the signal:
 let data2 = Arr.get_slice [[];[0; 4999]] data
 ```
 
-![Recording of the first digit and its FFT decomposition](../images/signal/tone2.png "tone"){width=100% #fig:signal:tone2}
+![Recording of the first digit and its FFT decomposition](../images/signal/tone2.png "tone")
 
 
 And then perform the same process as before, the results are shown in [@fig:signal:tone2].
@@ -455,7 +455,7 @@ The basic idea is similar: many Fourier frequencies in the image are small and c
 
 As input, we use the noised version of the moon landing image([src](https://imgur.com/gallery/MHcHVmX)), as shown in [@fig:signal:moonlanding].
 
-![Noise Moonlanding image](../images/signal/moonlanding.png){width=40% #fig:signal:moonlanding}
+![Noise Moonlanding image](../images/signal/moonlanding.png)
 
 As a tool for image processing, we use the [imageUtils.ml](https://gist.github.com/jzstark/f93177fcb0ab843e82d2c6b83880d873) script. It can be used for reading images of PPM format into ndarray, or saving ndarray into PPM image. You can copy this script to local directory.
 
@@ -519,7 +519,7 @@ let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"
 
 As can be seen in [@fig:signal:moonlanding_denoise], though a bit blur, the output image remove the noise in the original image, and manage to keep most of the information in it.
 
-![De-noised Moonlanding image](../images/signal/moonlanding_denoise.png){width=40% #fig:signal:moonlanding_denoise}
+![De-noised Moonlanding image](../images/signal/moonlanding_denoise.png)
 
 ## Filtering
 
@@ -584,7 +584,7 @@ let plot_goog data y y' =
   Plot.output h
 ```
 
-![Smoothed stock price of Google](../images/signal/plot_goog.png "goog.png"){width=60% #fig:signal:goog}
+![Smoothed stock price of Google](../images/signal/plot_goog.png "goog.png")
 
 The results are shown in [@fig:signal:goog].
 The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price.
@@ -617,7 +617,7 @@ let filter = gaussian_kernel 3.
 
 Computing the correlation between filter and the input data as before, we get a better smoothed curve in [@fig:signal:goog_gauss].
 
-![Smoothed stock price of Google with Gaussian filtering](../images/signal/plot_goog_gauss.png "goog_gauss.png"){width=60% #fig:signal:goog_gauss}
+![Smoothed stock price of Google with Gaussian filtering](../images/signal/plot_goog_gauss.png "goog_gauss.png")
 
 Filters can be generally categorised by their usage into time domain filters and frequency domain filters.
 Time domain filters are used when the information is encoded in the shape of the signal's waveform, and can be used for tasks such as smoothing, waveform shaping, etc.
@@ -687,7 +687,7 @@ let y2 = Owl_fft.D.irfft ~axis:0 yf
 We can similarly check how the smoothing approach works in [@fig:signal:goog2].
 Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.
 
-![Smoothed stock price of Google using FFT method](../images/signal/plot_goog2.png "goog2.png"){width=60% #fig:signal:goog2}
+![Smoothed stock price of Google using FFT method](../images/signal/plot_goog2.png "goog2.png")
 
 
 ### FFT and Image Convolution
@@ -697,7 +697,7 @@ The convolution in DNN is often applied on ndarrays.
 It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called "kernel" to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray.
 This process can be best illustrated in [@fig:signal:conv] (inspired by the nice work by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
 
-![Image convolution illustration](../images/signal/conv.png "conv"){width=90% #fig:signal:conv}
+![Image convolution illustration](../images/signal/conv.png "conv")
 
 Owl has provided thorough support of convolution operations:
 

@@ -62,7 +62,7 @@ The starting example is also inspired by the Machine Learning course by Andrew N
 In logistic regression we have multiple parameters as one layer to decide if the input data belongs to one type or the other, as shown in [@fig:neural-network:simple_nn](a).
 Now we need to extend it towards multiple classes, with a new hidden layer.
 
-![Extend logistic regression to neural network with one hidden layer](../images/neural-network/simple_nn.png "simple_nn"){width=100% #fig:neural-network:simple_nn}
+![Extend logistic regression to neural network with one hidden layer](../images/neural-network/simple_nn.png "simple_nn")
 
 The data we will use is from [MNIST dataset](http://yann.lecun.com/exdb/mnist/). You can use `Owl.Dataset.download_all()` to download the dataset.
 
@@ -92,7 +92,7 @@ val y : Owl_dense_matrix.S.mat =
 
 It shows the first three labels are 5, 0, and 4.
 
-![Visualise part of MNIST dataset](../images/regression/mnist.png "mnist"){width=60% #fig:neural-network:mnist}
+![Visualise part of MNIST dataset](../images/regression/mnist.png "mnist")
 
 ### Forward Propagation
 
@@ -246,7 +246,7 @@ $$
 $$
 
 
-![Different activation functions in neural network](../images/neural-network/activations.png "activations"){width=100% #fig:neural-network:activations}
+![Different activation functions in neural network](../images/neural-network/activations.png "activations")
 
 And there is the `softmax` function.
 It takes a vector of $K$ real numbers, and normalizes it into a probability distribution consisting of $K$ probabilities proportional to the exponentials of the input numbers:
@@ -398,7 +398,7 @@ We were sure we could implement a proper neural network framework atop of Owl, b
 
 The outcome is wonderful. It turns out with Owl's architecture and its internal functionality (algodiff, optimisation, etc.), combined with OCaml's powerful module system, implementing a full featured neural network module only requires approximately 3500 LOC. Yes, you heard me, 3500 LOC, and it reach TensorFlow's level of performance on CPU (by the time we measured in 2018).
 
-![Neural network module structure](../images/neural-network/neural_module.png "neural module"){width=50% #fig:neural-network:modules}
+![Neural network module structure](../images/neural-network/neural_module.png "neural module")
 
 To understand how we do that, let's look at [@fig:neural-network:modules].
 It shows the basic module architecture of the neural network module.
@@ -741,13 +741,13 @@ The basic structure of RNN is quite simple: it is a neural network with loops, a
 In this way, the information from previous data in the sequence is kept.
 
 
-![Unroll the recurrent neural network](../images/neural-network/rnn-unrolled.png "rnn-unrolled"){width=80% #fig:neural-network:rnn-unrolled}
+![Unroll the recurrent neural network](../images/neural-network/rnn-unrolled.png "rnn-unrolled")
 
 As shown in [@fig:neural-network:rnn-unrolled], a RNN can actually be unrolled into a chain of multiple connected neural networks.
 Here the $x_i$'s are sequential input, and the $h_i$'s are the *hidden status*, or output of the RNN.
 The function of RNN therefore mainly relies on the processing logic in $A$.
 
-![Basic processing unit in classic recurrent neural network](../images/neural-network/rnn-unit.png "rnn-unit"){width=80% #fig:neural-network:rnn-unit}
+![Basic processing unit in classic recurrent neural network](../images/neural-network/rnn-unit.png "rnn-unit")
 
 In a vanilla recurrent neural network, the function can be really simple and familiar:
 
@@ -771,7 +771,7 @@ We still need to pass in the output from previous loop, but instead of take it a
 1) what to forget, 2) what to remember, and 3) what to output.
 In this way, the useful information from previous data can be kept longer and the RNN would then have a "longer memory".
 
-![Basic processing unit in LSTM](../images/neural-network/lstm.png "lstm"){width=80% #fig:neural-network:lstm}
+![Basic processing unit in LSTM](../images/neural-network/lstm.png "lstm")
 
 Let's see how it achieves this effect.
 The process unit of LSTM is shown in [@fig:neural-network:lstm].
@@ -820,7 +820,7 @@ The LSTM has been refined in later work since its proposal.
 There are many variants of it, and one of them is the *Gated Recurrent Unit* (GRU) which is proposed by Cho, et al. in 2014.
 Its processing unit is shown in [@fig:neural-network:gru].
 
-![Basic processing unit in GRU](../images/neural-network/gru.png "gru"){width=50% #fig:neural-network:gru}
+![Basic processing unit in GRU](../images/neural-network/gru.png "gru")
 
 Compared to LSTM, the GRU consists of two parts.
 The first is a "reset gate" that decides how much information to forget from the past, and the "update gate" behaves like a combination of LSTM's forget and input gate.

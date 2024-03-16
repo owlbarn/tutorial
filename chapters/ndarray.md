@@ -34,7 +34,7 @@ Because of Bigarray's mechanism, Owl's Ndarray is also subject to maximum 16 dim
 
 The first group of functions we would like to introduce is the ndarray creation functions. They generate dense data structures for you to work on further. The most frequently used ones are probably these four:
 
-```ocaml file=../../examples/code/ndarray/interface_00.mli
+```ocaml
 open Owl.Dense.Ndarray.Generic
 
 val empty : ('a, 'b) kind -> int array -> ('a, 'b) t
@@ -52,7 +52,7 @@ The other three functions are self-explained. The `zeros` and `ones` fill the al
 
 If you need random numbers, you can use another three creation functions that return an ndarray where the elements follow certain distributions.
 
-```ocaml file=../../examples/code/ndarray/interface_01.mli
+```ocaml 
 open Owl.Dense.Ndarray.Generic
 
 val uniform : ('a, 'b) kind -> ?a:'a -> ?b:'a -> int array -> ('a, 'b) t
@@ -64,7 +64,7 @@ val bernoulli : ('a, 'b) kind -> ?p:float -> int array -> ('a, 'b) t
 
 Sometimes, we want to generate numbers with equal distance between two consecutive elements. These ndarrays are useful in generating intervals and plotting figures.
 
-```ocaml file=../../examples/code/ndarray/interface_02.mli
+```ocaml 
 open Owl.Dense.Ndarray.Generic
 
 val sequential : ('a, 'b) kind -> ?a:'a -> ?step:'a -> int array -> ('a, 'b) t
@@ -76,7 +76,7 @@ val logspace : ('a, 'b) kind -> ?base:float -> 'a -> 'a -> int -> ('a, 'b) t
 
 If these functions cannot satisfy your need, `Ndarray` provides a more flexible mechanism allowing you to have more control over the initialisation of an ndarray.
 
-```ocaml file=../../examples/code/ndarray/interface_03.mli
+```ocaml 
 open Owl.Dense.Ndarray.Generic
 
 val init : ('a, 'b) kind -> int array -> (int -> 'a) -> ('a, 'b) t
@@ -107,7 +107,7 @@ R5 80 82 84 86 88 90 92 94
 
 After an ndarray is created, you can use various functions in the module to obtain its properties. For example, the following functions are commonly used ones.
 
-```ocaml file=../../examples/code/ndarray/interface_04.mli
+```ocaml 
 open Owl.Dense.Ndarray.Generic
 
 val shape : ('a, 'b) t -> int array

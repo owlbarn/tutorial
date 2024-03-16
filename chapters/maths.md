@@ -159,7 +159,7 @@ Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Ber
 The [@fig:algodiff:trio] shows the relationship between these trigonometric functions. This figure is inspired by a [wiki post](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0).
 These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $\sin(a) = b$, then $\textrm{asin}(b) = a$.
 
-![Relationship between different trigonometric functions](../images/maths/trio.png "trio"){width=60% #fig:algodiff:trio}
+![Relationship between different trigonometric functions](../images/maths/trio.png "trio")
 
 Another related idea is the *Hyperbolic functions* such as `sinh` and `cosh`.
 These functions are defined using exponential functions.
@@ -178,7 +178,7 @@ These functions in Owl are shown below:
 Similarly, each of these functions has a corresponding inverse functions: `asinh`, `acosh`, `atanh`, `acoth`, `asech`, `acsch`.
 The relationship between these hyperbolic trigonometric functions are clearly depicted in [@fig:algodiff:hyper_trio].
 
-![Relationship between different hyperbolic trigonometric functions](../images/maths/hyper_trio.png "hyper_trio"){width=70% #fig:algodiff:hyper_trio}
+![Relationship between different hyperbolic trigonometric functions](../images/maths/hyper_trio.png "hyper_trio")
 
 Besides these functions, there are also some related functions.
 `sinc` returns $\sin(x)/x$ and 1 for $x=0$.
@@ -242,7 +242,7 @@ let _ =
   Plot.output h
 ```
 
-![Examples of the two solutions of an Airy equation](../images/maths/example_airy.png "airy"){width=60% #fig:algodiff:airy}
+![Examples of the two solutions of an Airy equation](../images/maths/example_airy.png "airy")
 
 
 ### Bessel Functions
@@ -316,7 +316,7 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Bessel function of the first kind, with different order](../images/maths/example_bessel.png "bessel"){width=60% #fig:algodiff:bessel}
+![Examples of Bessel function of the first kind, with different order](../images/maths/example_bessel.png "bessel")
 
 
 ### Elliptic Functions
@@ -415,7 +415,7 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Gamma function along part of the real axis](../images/maths/example_gamma.png "gamma"){width=60% #fig:algodiff:gamma}
+![Examples of Gamma function along part of the real axis](../images/maths/example_gamma.png "gamma")
 
 
 ### Beta Functions
@@ -478,7 +478,7 @@ let _ =
   Plot.output h
 ```
 
-![Examples of Struve function for different orders.](../images/maths/example_struve.png "struve"){width=60% #fig:algodiff:struve}
+![Examples of Struve function for different orders.](../images/maths/example_struve.png "struve")
 
 
 ### Zeta Functions
@@ -536,7 +536,7 @@ let _ =
   Plot.output h
 ```
 
-![Plot of the Error function.](../images/maths/example_erf.png "struve"){width=75% #fig:algodiff:erf}
+![Plot of the Error function.](../images/maths/example_erf.png "struve")
 
 ### Integral Functions
 
@@ -566,27 +566,19 @@ let _ =
   Plot.output h
 ```
 
-![Plot of the Dawson and Fresnel integral function.](../images/maths/example_integrals.png "integrals"){width=100% #fig:algodiff:integrals}
+![Plot of the Dawson and Fresnel integral function.](../images/maths/example_integrals.png "integrals")
 
 Besides these two, several other type of special integral functions are also provided. The full list is shown in [@tbl:maths:integral].
 
------------------ -----------------------------------------------------------
-Function          Explanation
------------------ -----------------------------------------------------------
-`expn n x`        Generalized exponential integral $E_n(x) = x^{n-1}\int_x^{\infty}\frac{e^{-t}}{t^n}dt$
-
-`shi x`           Hyperbolic sine integral: $\int_0^x~\frac{\sinh~t}{t}dt$
-
-`chi x`           Hyperbolic cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cosh~t -1}{t}dt$
-
-`shichi x`        (`shi x`, `chi x`)
-
-`si x`            Sine integral: $\int_0^x~\frac{\sin~t}{t}dt$
-
-`ci x`            Cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cos~t -1}{t}dt$
-
-`sici x`          (`si x`, `ci x`)
------------------ -----------------------------------------------------------
+Function          |Explanation
+----------------- |-----------------------------------------------------------
+`expn n x`        |Generalized exponential integral $E_n(x) = x^{n-1}\int_x^{\infty}\frac{e^{-t}}{t^n}dt$
+`shi x`           |Hyperbolic sine integral: $\int_0^x~\frac{\sinh~t}{t}dt$
+`chi x`           |Hyperbolic cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cosh~t -1}{t}dt$
+`shichi x`        |(`shi x`, `chi x`)
+`si x`            |Sine integral: $\int_0^x~\frac{\sin~t}{t}dt$
+`ci x`            |Cosine integral: $\gamma + \log(x) + \int_0^x~\frac{\cos~t -1}{t}dt$
+`sici x`          |(`si x`, `ci x`)
 : Special integral functions {#tbl:maths:integral}
 
 
@@ -599,17 +591,13 @@ $F(n) = n! = n \times (n - 1) \times (n-2) \ldots \times 1$
 
 The factorial function, together with several of its variants, are contained in the `Math` module.
 
------------------ -----------------------------------------------------------
-Function          Explanation
------------------ -----------------------------------------------------------
-`fact n`          Factorial function $!n$
+Function           |Explanation
+-----------------  |-----------------------------------------------------------
+`fact n`           |Factorial function $!n$
+`log_fact n`       |Logarithm of factorial function
+`doublefact n`     |Double factorial function calculates $n!! = n(n-2)(n-4)\dots 2$ (or 1)
+`log_doublefact n` |Logarithm of double factorial function
 
-`log_fact n`      Logarithm of factorial function
-
-`doublefact n`    Double factorial function calculates $n!! = n(n-2)(n-4)\dots 2$ (or 1)
-
-`log_doublefact n` Logarithm of double factorial function
------------------ -----------------------------------------------------------
 : Factorial functions {#tbl:maths:factorial}
 
 The factorial functions accepts integer as input, for example:
@@ -669,7 +657,7 @@ We show how this interplation method works with an example.
 In the previous section we have said that the Gamma function is actually an interpolation solution to the integer function $y(x) = (n-1)!$.
 So we can specify five nodes on a plane that are generated from this factorial functions, and see how the interpolation function works compared with the Gamma function itself. 
 
-```ocaml:interp
+```ocaml
 # let x = [|2; 3; 4; 5; 6|]
 val x : int array = [|2; 3; 4; 5; 6|]
 # let y = Array.map (fun x -> Maths.fact (x - 1)) x
@@ -681,7 +669,7 @@ val x : float array = [|2.; 3.; 4.; 5.; 6.|]
 Now we can define the interpolation function `f` that accepts one float number and returns another float number.
 Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
 
-```ocaml:interp
+```ocaml
 let f a =
   let v, _ = Owl_maths_interpolate.polint x y a in
   v
@@ -694,7 +682,7 @@ Now we can plot the interpolation function and compare it to the Gamma function.
 As can be seen in [@fig:maths:interp], both lines cross the given nodes. The interpolated line fits well with the "true interpolation", i.e. the Gamma function, within a certain range. 
 However, the extrapolation fitting where the x-value falls out of given data, is less than ideal.
 
-```ocaml:interp
+```ocaml
 let _ =
   let h = Plot.create "interp.png" in
   Plot.(plot_fun ~h ~spec:[ RGB (66, 133, 244); LineStyle 1; LineWidth 2.] f 2. 6.5);
@@ -704,7 +692,7 @@ let _ =
   Plot.output h
 ```
 
-![Plot of interpolation and corresponding Gamma function.](../images/maths/interp.png "interp"){width=60% #fig:maths:interp}
+![Plot of interpolation and corresponding Gamma function.](../images/maths/interp.png "interp")
 
 ## Integration
 
