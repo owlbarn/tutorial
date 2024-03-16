@@ -7,7 +7,7 @@ layout: default
 
 # Owl Online Tutorial
 
-The main purpose of the online tutorial is for teaching how to use Owl software. The tutorial also convers many useful numerical and system techniques in numerical computing. Furthermore, the tutorial includes in-depth discussion on the lessons learnt by building a large and complex software system to enable scientific computing in OCaml.
+The main purpose of the online tutorial is for teaching how to use the [Owl](https://github.com/owlbarn/owl) software. The tutorial also convers many useful numerical and system techniques in numerical computing. Furthermore, the tutorial includes in-depth discussion on the lessons learnt by building a large and complex software system to enable scientific computing in OCaml.
 
 ## Chapters
 
@@ -30,7 +30,7 @@ The main purpose of the online tutorial is for teaching how to use Owl software.
 
 ## Contribute
 
-Currently contribution to the book is mainly in the form of Pull Request. 
+Currently contribution to the book is mainly in the form of Pull Request on [GitHub](https://github.com/owlbarn/tutorial). 
 Normally you only need to change one of the markdown files in the `chapters/` directory.
 
 
