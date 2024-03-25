@@ -118,7 +118,7 @@ let x = Mat.sequential 4 6;;
 
 You should be able to see the following output in your `utop`.
 
-```text
+```ocaml
 
      C0 C1 C2 C3 C4 C5
   R0  1  2  3  4  5  6

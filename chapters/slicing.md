@@ -26,7 +26,7 @@ Before we start, let's clarify some things:
 
 For basic slicing, each dimension in the slice definition must be defined in the format of **[start:stop:step]**. Owl provides two functions `get_slice` and `set_slice` to retrieve and assign slice values respectively.
 
-```text
+```ocaml
 val get_slice : int list list -> ('a, 'b) t -> ('a, 'b) t
 
 val set_slice : int list list -> ('a, 'b) t -> ('a, 'b) t -> unit
@@ -55,7 +55,7 @@ As shown above, fancy slice is defined by an `index list` where you can use thre
 
 Similar to the basic slicing, there are two functions to handle fancy slicing operations.
 
-```text
+```ocaml
 
   val get_fancy : index list -> ('a, 'b) t -> ('a, 'b) t
 
@@ -463,7 +463,7 @@ The convention used in broadcasting operation is much simpler than slicing. Give
 
 Here are some valid shapes where broadcasting can be applied between `x` and `y`.
 
-```text
+```ocaml
 
   x : [| 2; 1; 3 |]    y : [| 1; 1; 1 |]
   x : [| 2; 1; 3 |]    y : [| 2; 1; 1 |]
@@ -476,7 +476,7 @@ Here are some valid shapes where broadcasting can be applied between `x` and `y`
 
 Here are some invalid shapes that violate the aforementioned constraints so that the broadcasting cannot be applied.
 
-```text
+```ocaml
 
   x : [| 2; 1; 3 |]    y : [| 1; 1; 2 |]
   x : [| 2; 1; 3 |]    y : [| 3; 1; 1 |]

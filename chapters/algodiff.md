@@ -1192,7 +1192,7 @@ let f y =
 
 For this functions $f: \mathbf{R}^4 \rightarrow \mathbf{R}^4$, we can then find its Jacobian matrix. Suppose the given point of interest of where all four input variables equals one. Then we can use the `Algodiff.D.jacobian` function in this way.
 
-```text
+```ocaml
 let y = Mat.ones 1 4
 let result = jacobian f y
 
@@ -1208,7 +1208,7 @@ R3  0.53033 0.176777  0  0
 
 Next, we find the eigenvalues of this jacobian matrix with the Linear Algebra module in Owl that we have introduced in previous chapter.
 
-```text
+```ocaml
 let eig = Owl_linalg.D.eigvals j
 
 val eig : Owl_dense_matrix_z.mat =

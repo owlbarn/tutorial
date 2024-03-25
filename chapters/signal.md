@@ -304,7 +304,7 @@ The dataset provided here are of different granularity. Here we use the yearly d
 You can also try the monthly data to get more detailed knowledge.
 First, load the data:
 
-```text
+```ocaml
 let data = Owl_io.read_csv ~sep:';' "sunspot_full.csv"
 let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 
@@ -536,7 +536,7 @@ We take the stock price of Google in the past year, April 09, from 2019 to 2020.
 The data is taken from Yahoo Finance.
 We can load the data into a matrix:
 
-```text
+```ocaml
 let data = Owl_io.read_csv ~sep:',' "goog.csv"
 let data = Array.map (fun x ->
     Array.map float_of_string (Array.sub x 1 6))
@@ -547,20 +547,20 @@ let data = Array.map (fun x ->
 The data `y` contains several columns, each representing opening price, volume, high price, etc.
 Here we use the daily closing price as example, which are in the fourth column.
 
-```text
+```ocaml
 let y = Mat.get_slice [[];[3]] data
 ```
 
 To compute the moving average of this signal, I'll create a *window* with 10 elements.
 Here we only use a simple filter which normalises each element to the same `0.1`.
 
-```text
+```ocaml
 let filter = Mat.of_array (Array.make 10 0.1 ) 1 10
 ```
 
 Now, we can sliding this filter window along input signal to smooth the data step by step.
 
-```text
+```ocaml
 let y' = Mat.mapi (fun i _ ->
   let r = Mat.get_fancy [R [i; i+9]; R []] y in
   Mat.dot filter r |> Mat.sum'
@@ -658,7 +658,7 @@ let yf = Owl_fft.D.rfft ~axis:0 y
 
 The resulting data `yf` looks like this:
 
-```text
+```ocaml
 val yf : (Complex.t, Bigarray.complex64_elt) Owl_dense_ndarray_generic.t =
                         C0
   R0          (312445, 0i)
@@ -672,7 +672,7 @@ R125   (153.294, 68.7544i)
 
 We only keep the five most notable frequencies, and set the rest to zero.
 
-```text
+```ocaml
 let n = (Dense.Ndarray.Z.shape yf).(0)
 let z = Dense.Ndarray.Z.zeros [|n-5; 1|]
 let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z
@@ -718,7 +718,7 @@ The point is that, if you look closely, you can find that the image convolution 
 Therefore, we can implement the convolution with FFT and vice versa.
 For example, we can use `conv1d` function in Owl to solve the previous simple smoothing problem:
 
-```text
+```ocaml
 let y3  = Arr.reshape y [|1;251;1|]
 let f3  = Arr.reshape filter [|10;1;1|]
 let y3' = Arr.conv1d y3 f3 [|1|]

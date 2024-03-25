@@ -370,7 +370,7 @@ let _ = Owl_optimise.D.minimise_fun p rosenbrock init_value
 
 This function output enhanced log result which in part looks like below. It shows how the function value, starting at the initial point, is quickly reduced to the bottom within only 10 steps using gradient descent.
 
-```text
+```ocaml
 ...
 2020-09-13 10:46:49.805 INFO : T: 00s | E: 1.0/10 | B: 1/10 | L: 2026.000000
 2020-09-13 10:46:49.806 INFO : T: 00s | E: 2.0/10 | B: 2/10 | L: 476.101033

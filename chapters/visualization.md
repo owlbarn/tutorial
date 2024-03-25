@@ -15,7 +15,7 @@ In the sections below, we will demonstrate, with examples, how the plotting modu
 
 Let's start with the standard way of creating a plot using `Plot.create` function. Here is its type definition in `Owl_plot.mli`:
 
-```text
+```ocaml
 
   val create : ?m:int -> ?n:int -> string -> handle
 

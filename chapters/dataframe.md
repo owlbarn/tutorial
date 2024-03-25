@@ -145,7 +145,7 @@ However, if you just want to append one or two rows, the previous method seems a
 There are also functions allow you to retrieve the properties, for example:
 
 
-```text
+```ocaml
 
   val copy : t -> t          (* return the copy of a dataframe. *)
 
@@ -204,7 +204,7 @@ R1 Carol  30
 
 How can we miss the classic iteration functions in the functional programming? Dataframe includes the following methods to traverse the rows in a dataframe. We did not include any method to traverse columns because they can be simply extracted out as series then processed separately.
 
-```text
+```ocaml
 
   val iteri_row : (int -> elt array -> unit) -> t -> unit
 
@@ -229,7 +229,7 @@ Applying these functions to a dataframe is rather straightforward. All the eleme
 One interesting thing worth mentioning here is that there are several functions are associated with extended indexing operators. This allows us to write quite concise code in our application.
 
 
-```text
+```ocaml
 
   val ( .%( ) ) : t -> int * string -> elt
   (* associated with `get_by_name` *)
@@ -352,7 +352,7 @@ R2 Carol  3000.
 CSV (Comma-Separated Values) is a common format to store tabular data. The module provides simple support to process CSV files. The two core functions are as follows.
 
 
-```text
+```ocaml
 
   val of_csv : ?sep:char -> ?head:string array -> ?types:string array -> string -> t
 
@@ -383,7 +383,7 @@ Owl_pretty.pp_dataframe Format.std_formatter df
 
 The result should look like this. We have truncated out some rows to save space here.
 
-```text
+```ocaml
   funding data in csv file
 
        +-----------------+-----------------+-------+---------+-------------+-----+----------+----------+--------------+------------

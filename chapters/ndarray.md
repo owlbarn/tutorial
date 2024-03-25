@@ -201,7 +201,7 @@ The `map` function can be very useful in implementing vectorised math functions.
 
 If you need indices in the transformation function, you can use the `mapi` function which accepts the 1-d index of the element being accessed.
 
-```text
+```ocaml
 
   val mapi : (int -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
 
@@ -212,7 +212,7 @@ If you need indices in the transformation function, you can use the `mapi` funct
 
 The `fold` function is often referred to as "reduction" in other programming languages. It has a named parameter called `axis`, with which you can specify along what axis you want to fold a given ndarray.
 
-```text
+```ocaml
 
   val fold : ?axis:int -> ('a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b) t
 
@@ -231,7 +231,7 @@ The functions `sum`, `sum'`, `prod`, `prod'`, `min`, `min'`, `mean`, and `mean'`
 
 Similarly, if you need indices in folding function, you can use `foldi` which passes in 1-d indices.
 
-```text
+```ocaml
 
   val foldi : ?axis:int -> (int -> 'a -> 'a -> 'a) -> 'a -> ('a, 'b) t -> ('a, 'b) t
 
@@ -243,7 +243,7 @@ Similarly, if you need indices in folding function, you can use `foldi` which pa
 To some extent, the `scan` function is like the combination of `map` and `fold`. It accumulates the value along the specified axis but it does not change the shape of the input. Think about how we generate a cumulative distribution function (CDF) from a probability density/mass function (PDF/PMF).
 The type signature of `scan` looks like this in Ndarray.
 
-```text
+```ocaml
 
   val scan : ?axis:int -> ('a -> 'a -> 'a) -> ('a, 'b) t -> ('a, 'b) t
 
@@ -263,7 +263,7 @@ Again, you can use the `scani` to obtain the indices in the passed in cumulative
 
 The comparison functions themselves can be divided into several groups. The first group compares two ndarrays then returns a boolean value.
 
-```text
+```ocaml
 
   val equal : ('a, 'b) t -> ('a, 'b) t -> bool
 
@@ -278,7 +278,7 @@ The comparison functions themselves can be divided into several groups. The firs
 
 The second group compares two ndarrays but returns an 0-1 ndarray of the same shape. The elements where the predicate is satisfied have value 1 otherwise 0.
 
-```text
+```ocaml
 
   val elt_equal : ('a, 'b) t -> ('a, 'b) t -> ('a, 'b) t
 
@@ -294,7 +294,7 @@ The second group compares two ndarrays but returns an 0-1 ndarray of the same sh
 
 The third group is similar to the first one but compares an ndarray with a scalar value, the return is a Boolean value.
 
-```text
+```ocaml
 
   val equal_scalar : ('a, 'b) t -> 'a -> bool
 
@@ -310,7 +310,7 @@ The third group is similar to the first one but compares an ndarray with a scala
 
 The fourth group is similar to the second one but compares an ndarray with a scalar value, and the returned value is a 0-1 ndarray.
 
-```text
+```ocaml
 
   val elt_equal_scalar : ('a, 'b) t -> 'a -> ('a, 'b) t
 
@@ -358,7 +358,7 @@ Conceptually, Owl can implement all these functions using the aforementioned `ma
 
 Like native OCaml array, Owl also provides `iter` and `iteri` functions with which you can iterate over all the elements in an ndarray.
 
-```text
+```ocaml
 
   val iteri :(int -> 'a -> unit) -> ('a, 'b) t -> unit
 
@@ -369,7 +369,7 @@ Like native OCaml array, Owl also provides `iter` and `iteri` functions with whi
 One common use case is iterating all the elements and checking if one (or several) predicate is satisfied.
 There is a special set of iteration functions to help you finish this task.
 
-```text
+```ocaml
 
   val is_zero : ('a, 'b) t -> bool
 
@@ -387,7 +387,7 @@ There is a special set of iteration functions to help you finish this task.
 
 The predicates can be very complicated sometimes. In that case you can use the following three functions to pass in arbitrarily complicated functions to check them.
 
-```text
+```ocaml
 
   val exists : ('a -> bool) -> ('a, 'b) t -> bool
 
@@ -399,7 +399,7 @@ The predicates can be very complicated sometimes. In that case you can use the f
 
 All aforementioned functions only tell us whether the predicates are met or not. They cannot tell which elements satisfy the predicate. The following `filter` function can return the 1-d indices of those elements satisfying the predicates.
 
-```text
+```ocaml
 
   val filteri : (int -> 'a -> bool) -> ('a, 'b) t -> int array
 
@@ -409,7 +409,7 @@ All aforementioned functions only tell us whether the predicates are met or not.
 
 We have mentioned that 1-d indices are passed in. The reason is passing in 1-d indices is way faster than passing in n-d indices. However, if you do need n-dimensional indices, you can use the following two functions to convert between 1-d and 2-d indices, both are defined in the `Owl.Utils` module.
 
-```text
+```ocaml
 
   val ind : ('a, 'b) t -> int -> int array
   (* 1-d to n-d index conversion *)
@@ -473,7 +473,7 @@ R5  8  9 10 11
 
 You can also expand the dimensionality of an ndarray, or squeeze out those dimensions having only one element, or even padding elements to an existing ndarray.
 
-```text
+```ocaml
 
   val expand : ('a, 'b) t -> int -> ('a, 'b) t
 
@@ -488,7 +488,7 @@ The `concatenate` allows us to concatenate an array of ndarrays along the specif
 For matrices, there are two operators associated with concatenation: `@||` for concatenating horizontally (i.e. along axis 1); `@=` for concatenating vertically (i.e. along axis 0).
 The `split` is simply the inverse operation of concatenation.
 
-```text
+```ocaml
 
   val concatenate : ?axis:int -> ('a, 'b) t array -> ('a, 'b) t
 
@@ -498,7 +498,7 @@ The `split` is simply the inverse operation of concatenation.
 
 You can also sort an ndarray but note that modification will happen in place.
 
-```text
+```ocaml
 
   val sort : ('a, 'b) t -> unit
 
@@ -506,7 +506,7 @@ You can also sort an ndarray but note that modification will happen in place.
 
 Converting between ndarrays and OCaml native arrays can be efficiently done with these conversion functions:
 
-```text
+```ocaml
 
   val of_array : ('a, 'b) kind -> 'a array -> int array -> ('a, 'b) t
 
@@ -521,7 +521,7 @@ Again, there also exist the `to_arrays` and `of_arrays` two functions for the sp
 
 Serialisation and de-serialisation are simply done with the `save` and `load` functions.
 
-```text
+```ocaml
 
   val save : out:string -> ('a, 'b) t -> unit
 

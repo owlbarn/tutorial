@@ -46,7 +46,7 @@ For unary operators such as `Arr.sin x`, the situation is rather straightforward
 
 For `Arr.add_ x y`, the question is where to store the final result when both inputs are ndarray. Let's look at the type of `Arr.add_` function.
 
-```text
+```ocaml
 val Arr.add_ : ?out:Arr.arr -> Arr.arr -> Arr.arr -> unit
 ```
 
@@ -275,55 +275,32 @@ As you can see, the operators above do not allow interoperation on different num
 
 Some people just like Pythonic way of working, `Owl.Ext` module is specifically designed for this purpose, to make prototyping faster and easier. Once you open the module, `Ext` immediately provides a set of operators to allow you to interoperate on different number types, as below. It automatically casts types for you if necessary.
 
--------------    -------------     --------------------------
-Operator         Example           Operation
--------------    -------------     --------------------------
-`+`              `x + y`           add
+Operator         | Example           | Operation
+-------------    | -------------     | --------------------------
+`+`              | `x + y`           | add
+`-`              | `x - y`           | sub
+`*`              | `x * y`           | mul
+`/`              | `x / y`           | div
+`=`              | `x = y`           | comparison, return bool
+`!=`             | `x != y`          | comparison, return bool
+`<>`             | `x <> y`          | same as `!=`
+`>`              | `x > y`           | comparison, return bool
+`<`              | `x < y`           | comparison, return bool
+`>=`             | `x >= y`          | comparison, return bool
+`<=`             | `x <= y`          | comparison, return bool
+`=.`             | `x =. y`          | element_wise comparison
+`!=.`            | `x !=. y`         | element_wise comparison
+`<>.`            | `x <>. y`         | same as `!=.`
+`>.`             | `x >. y`          | element_wise comparison
+`<.`             | `x <. y`          | element_wise comparison
+`>=.`            | `x >=. y`         | element_wise comparison
+`<=.`            | `x <=. y`         | element_wise comparison
+`%`              | `x % y`           | element_wise mod divide
+`**`             | `x ** y`          | power function
+`*@`             | `x *@ y`          | matrix multiply
+`min2`           | `min2 x y`        | element-wise min
+`max2`           | `max2 x y`        | element-wise max
 
-`-`              `x - y`           sub
-
-`*`              `x * y`           mul
-
-`/`              `x / y`           div
-
-`=`              `x = y`           comparison, return bool
-
-`!=`             `x != y`          comparison, return bool
-
-`<>`             `x <> y`          same as `!=`
-
-`>`              `x > y`           comparison, return bool
-
-`<`              `x < y`           comparison, return bool
-
-`>=`             `x >= y`          comparison, return bool
-
-`<=`             `x <= y`          comparison, return bool
-
-`=.`             `x =. y`          element_wise comparison
-
-`!=.`            `x !=. y`         element_wise comparison
-
-`<>.`            `x <>. y`         same as `!=.`
-
-`>.`             `x >. y`          element_wise comparison
-
-`<.`             `x <. y`          element_wise comparison
-
-`>=.`            `x >=. y`         element_wise comparison
-
-`<=.`            `x <=. y`         element_wise comparison
-
-`%`              `x % y`           element_wise mod divide
-
-`**`             `x ** y`          power function
-
-`*@`             `x *@ y`          matrix multiply
-
-`min2`           `min2 x y`        element-wise min
-
-`max2`           `max2 x y`        element-wise max
--------------    -------------     --------------------------
 : Operator extensions {#tbl:convention:ext}
 
 You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing interoperation makes the operator table much shorter.
@@ -346,7 +323,7 @@ Note that `Ext` contains its own `Ext.Dense` module which further contains the f
 
 These modules are simply the wrappers of the original modules in `Owl.Dense` module so they provide most of the APIs already implemented. The extra thing these wrapper modules does is to pack and unpack the raw number types for you automatically. However, you can certainly use the raw data types then use the constructors defined in `Owl_ext_types` to wrap them up by yourself. The constructors are defined as below.
 
-```text
+```ocaml
 
   type ext_typ =
     F   of float
@@ -411,7 +388,7 @@ Before we finish this chapter, I want to point out the caveat. `Ext` tries to mi
 
 In Owl, `Dense` module contains the modules of dense data structures. For example, `Dense.Matrix` supports the operations of dense matrices. Similarly, `Sparse` module contains the modules of sparse data structures.
 
-```text
+```ocaml
 Dense.Ndarray;;   (* dense ndarray *)
 Dense.Matrix;;    (* dense matrix *)
 
@@ -536,7 +513,7 @@ Mat.zeros 5 5;;          (* same as Dense.Matrix.D.zeros 5 5 *)
 
 More examples besides creation functions are as follows.
 
-```text
+```ocaml
 Mat.load "data.mat";;    (* same as Dense.Matrix.D.load "data.mat" *)
 Mat.of_array 5 5 x;;     (* same as Dense.Matrix.D.of_array 5 5 x *)
 Mat.linspace 0. 9. 10;;  (* same as Dense.Matrix.D.linspace 0. 9. 10 *)
@@ -562,7 +539,7 @@ As I mentioned before, there are four basic number types. You can therefore cast
 
 In fact, all these function rely on the following `cast` function.
 
-```text
+```ocaml 
 
   val cast : ('a, 'b) kind -> ('c, 'd) t -> ('a, 'b) t
 

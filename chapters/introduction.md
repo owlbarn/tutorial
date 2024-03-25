@@ -373,7 +373,7 @@ The Second example demonstrates how to plot figures in notebook. Because Owl's P
 
 To load the image into browser, we need to call the `Jupyter_notebook.display_file` function. Then we can see the plot [@fig:introduction:example00] is correctly rendered in the notebook running in your browser. Plotting capability greatly enriches the content of an interactive presentation.
 
-```text
+```ocaml
 Jupyter_notebook.display_file ~base64:true "image/png" "plot_00.png"
 ```
 

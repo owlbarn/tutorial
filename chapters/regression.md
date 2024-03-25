@@ -282,7 +282,7 @@ let multi_regression csv_file =
 
 The resulting parameters are shown below:
 
-```text
+```ocaml
 val theta : Owl_algodiff_primal_ops.D.arr array =
   [|
         C0
@@ -327,7 +327,7 @@ let norm_ols data =
 Here `data` is the matrix we get from loading the csv file from the previous section.
 This time we get a new set of parameters for the normalised data:
 
-```text
+```ocaml
 val theta' : Owl_algodiff_primal_ops.D.arr array =
   [|
            C0
@@ -343,7 +343,7 @@ These parameters set the model as: $\bar{y}=0.95\bar{x}_0-0.06\bar{x}_1$.
 This result can be cross-validated with the analytical solution shown in the next section.
 You can also manually check this result with the normalised data:
 
-```text
+```ocaml
 val data' : (float, Bigarray.float64_elt) Owl_dense_ndarray_generic.t =
 
             C0         C1         C2
@@ -387,7 +387,7 @@ let solution = Mat.dot (Mat.dot
 Here the `x'`, `y'` are the normalised data from the previous section.
 The result is close to what we have gotten using the gradient descent method:
 
-```text
+```ocaml
 val solution : Mat.mat =
 
              C0

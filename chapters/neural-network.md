@@ -66,11 +66,11 @@ Now we need to extend it towards multiple classes, with a new hidden layer.
 
 The data we will use is from [MNIST dataset](http://yann.lecun.com/exdb/mnist/). You can use `Owl.Dataset.download_all()` to download the dataset.
 
-```text
+```ocaml
 let x, _, y = Dataset.load_mnist_train_data_arr ()
 ```
 
-```text
+```ocaml
 # let x_shape, y_shape =
    Dense.Ndarray.S.shape x, Dense.Ndarray.S.shape y
 
@@ -80,7 +80,7 @@ val y_shape : int array = [|60000; 10|]
 
 The label is in the one-hot format:
 
-```text
+```ocaml
 val y : Owl_dense_matrix.S.mat =
 
         C0  C1  C2  C3  C4  C5  C6  C7  C8  C9
@@ -161,7 +161,7 @@ But actually we don't have to now that we are using the AD module.
 The partial derivatives of both parameters can be correctly calculated.
 We have shown in the Algorithmic Differentiation chapter how it can be done in Owl:
 
-```text
+```ocaml
 let x', y' = Dataset.draw_samples x y 1
 let cost = j t0 t1 (Arr x') (Arr y')
 let _ = reverse_prop (F 1.) cost
@@ -365,7 +365,7 @@ let main () =
 
 When the training starts, our application keeps printing the value of loss function at the end of iteration. From the output, we can see the value of loss function keeps decreasing quickly after training starts.
 
-```text
+```ocaml
 2019-11-12 01:04:14.632 INFO : #001 : loss = 2.54432
 2019-11-12 01:04:14.645 INFO : #002 : loss = 2.48446
 2019-11-12 01:04:14.684 INFO : #003 : loss = 2.33889
@@ -436,7 +436,7 @@ The last part in the definition of this neuron `init_typ` is about what kind of 
 
 Then this module contains several standard functions that are shared by all the neuron modules.
 
-```text
+```ocaml
 let create ?inputs o init_typ =
   let in_shape =
     match inputs with
@@ -449,7 +449,7 @@ let create ?inputs o init_typ =
 After definition of its type, a neuron is created using the `create` function.
 Here we only need to specify the output shape, or the size of hidden layer `o`.
 
-```text
+```ocaml
 let connect out_shape l =
   assert (Array.length out_shape > 0);
   l.in_shape <- Array.copy out_shape
@@ -459,7 +459,7 @@ The input shape is actually taken from the previous layer in the `connect` funct
 We will see why we need this function later.
 Next we initialise the parameters accordingly:
 
-```text
+```ocaml
 let init l =
   let m = Array.fold_left (fun a b -> a * b) 1 l.in_shape in
   let n = l.out_shape.(0) in
@@ -471,7 +471,7 @@ There is nothing magical in the `init` function. The `m` is a flattened input si
 The `w` parameter is initialised with predefined initialisation function, and we can just make `b` all zero, which means no bias at the beginning.
 Then we have the forward propagation part, in the `run` function:
 
-```text
+```ocaml
 let run x l =
   let m = Mat.row_num l.w in
   let n = Arr.numel x / m in
@@ -511,7 +511,7 @@ And it's the `Graph` module we users have access to.
 
 The `node` in a neural network is defined as:
 
-```text
+```ocaml
 type node = {
   mutable name : string;
   mutable prev : node array;
@@ -527,7 +527,7 @@ Besides the neuron itself, a node also contains information such as its parents,
 
 In the Graph module, most of the time we need to deal with functions that build node and connect it to existing network. For example:
 
-```text
+```ocaml
 let fully_connected ?name ?(init_typ = Init.Standard) outputs input_node =
   let neuron = FullyConnected (FullyConnected.create outputs init_typ) in
   let nn = get_network input_node in
@@ -605,7 +605,7 @@ It executes the computation layer by layer, and accumulates the result in `yt'`.
 Note that `yt'` is not simply an ndarray, but an `Algodiff` data type that contains all the computation graph information.
 The `ws` is an array of all the parameters in the neural network.
 
-```text
+```ocaml
 let loss = loss_fun yt yt'
 let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
 ```
@@ -619,7 +619,7 @@ Previously we have used the `cross_entropy`, and in the `Loss` module, the optim
 - `Loss.Hinge`: $\sum\textrm{max}(0, 1-y^Ty')$
 
 
-```text
+```ocaml
 let reg =
   match params.regularisation <> Regularisation.None with
   | true  -> Owl_utils.aarr_fold (fun a w -> Maths.(a + regl_fun w)) (_f 0.) ws
