@@ -16,12 +16,12 @@ In this chapter we focus on the ODE and introduce what is it, how it can be solv
 
 Generally, an ODE can be expressed as:
 
-$$ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.$$ {#eq:diffequation:ode-def}
+$$ F(x, y^{'}, y^{''}, \ldots, y^{(n)}) = 0.$$  <!-- {#eq:diffequation:ode-def} -->
 
 The differential equations model dynamic systems, and the initial status of the system is often known. That is called *initial values*.
 They can be represented as:
 
-$$y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots ,$${#eq:diffequation:init}
+$$y|_{x=x_0} = y_0, y^{'}|_{x=x_1} = y_1, \ldots $$
 
 where the $y_0$, $y_1$, etc. are known.
 The highest order of derivatives that are used in [@eq:diffequation:ode-def] is the *order* of this differential equation.

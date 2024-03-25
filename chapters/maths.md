@@ -25,27 +25,18 @@ You can use these unary functions easily from the `Maths` module. For example:
 
 The [@tbl:maths:basic_unary] lists these unary functions supported in this module. 
 
-------------  -------------------------------------------------------
-Function      Explanation
-------------  -------------------------------------------------------
-`abs`         `|x|`
+Function      | Explanation
+------------  | -------------------------------------------------------
+`abs`         | `|x|`
+`neg`         | `-x`
+`reci`        | `1/x`
+`floor`       | the largest integer that is smaller than `x`
+`ceil`        | the smallest integer that is larger than `x`
+`round`       | rounds `x` towards the bigger integer when on the fence
+`trunc`       | integer part of `x`
+`sqr`         | $x^2$
+`sqrt`        | $\sqrt{x}$
 
-`neg`         `-x`
-
-`reci`        `1/x`
-
-`floor`       the largest integer that is smaller than `x`
-
-`ceil`        the smallest integer that is larger than `x`
-
-`round`       rounds `x` towards the bigger integer when on the fence
-
-`trunc`       integer part of `x`
-
-`sqr`         $x^2$
-
-`sqrt`        $\sqrt{x}$
-------------  -------------------------------------------------------
 : Basic unary math functions {#tbl:maths:basic_unary}
 
 ### Basic Binary Functions
@@ -53,26 +44,18 @@ Function      Explanation
 Unlike the unary ones, the *binary functions* take two floats as inputs and return one float as output. 
 Most common arithmetic functions belong to this category, as shown in [@tbl:maths:binary].
 
-------------  -------------------------------------------------------
-Function      Explanation
-------------  -------------------------------------------------------
-`add`         `x + y`
+Function      | Explanation
+------------  | -------------------------------------------------------
+`add`         | `x + y`
+`sub`         | `x - y`
+`mul`         | `x * y`
+`div`         | `x / y`
+`fmod`        | `x % y`
+`pow`         | $$x^y$$
+`hypot`       | $$\sqrt{x^2 + y^2}$$
+`atan2`       | returns $$\arctan(y/x)$$, accounting for the sign of the
+              | arguments; this is the angle to the vector $$(x, y)$$ counting from the x-axis.
 
-`sub`         `x - y`
-
-`mul`         `x * y`
-
-`div`         `x / y`
-
-`fmod`        `x % y`
-
-`pow`         $x^y$
-
-`hypot`       $\sqrt{x^2 + y^2}$
-
-`atan2`       returns $\arctan(y/x)$, accounting for the sign of the
-              arguments; this is the angle to the vector $(x, y)$ counting from the x-axis.
-------------  -------------------------------------------------------
 : Binary math functions {#tbl:maths:binary}
 
 ### Exponential and Logarithmic Functions
