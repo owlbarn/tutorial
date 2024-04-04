@@ -26,6 +26,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://ocaml.xyz/tutorial/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jekyllrb
 github_username:  jzstark
+google_analytics: "UA-123353217-1"
 
 # Build settings
 remote_theme: pages-themes/cayman@v0.2.0
