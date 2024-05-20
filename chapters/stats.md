@@ -21,15 +21,15 @@ Depending on the number of values it can be, a random variable can be broadly ca
 
 ### Discrete Random Variables
 
-Back to the coin tossing example. Suppose that the coin is specially minted so that the probability of tossing head is $p$.
+Back to the coin tossing example. Suppose that the coin is specially minted so that the probability of tossing head is $$p$$.
 In this scenario, we toss for three times.
-Use the number of heads as a random variable $X$, and it contains four possible outcomes: 0, 1, 2, or 3.
+Use the number of heads as a random variable $$X$$, and it contains four possible outcomes: 0, 1, 2, or 3.
 
-We can calculate the possibility of each output result. Since each toss is a individual trial, the possibility of three heads `P(X=2)` is $p^3$.
-Two heads includes three cases: HHT, HTH, THH, each has a probability of $p^2(1-p)$, and together $P(X=2) = 3p^2(1-p)$.
-Similarly $P(X=1)=3p(1-p)^2$, and $P(X=0)=(1-p)^3$.
+We can calculate the possibility of each output result. Since each toss is a individual trial, the possibility of three heads `P(X=2)` is $$p^3$$.
+Two heads includes three cases: HHT, HTH, THH, each has a probability of $$p^2(1-p)$$, and together $$P(X=2) = 3p^2(1-p)$$.
+Similarly $$P(X=1)=3p(1-p)^2$$, and $$P(X=0)=(1-p)^3$$.
 
-Formally, consider a series of $n$ independent trails, each trail containing two possible results, and the result of interest happens at a possibility of $p$, then the possibility distribution of random variable $X$ is ($X$ being the number of result of interests):
+Formally, consider a series of $$n$$ independent trails, each trail containing two possible results, and the result of interest happens at a possibility of $$p$$, then the possibility distribution of random variable $$X$$ is ($$X$$ being the number of result of interests):
 
 $$P(X=k) = {N\choose k} p^k(1-p)^{n-k}.$$ {#eq:stats:binomial_pdf}
 
@@ -44,12 +44,12 @@ Suppose the probability of tossing head is 0.4, and for 10 times.
 - : int array = [|0; 0; 0; 0; 0; 0; 0; 0; 1; 0|]
 ```
 
-The equation [@eq:stats:binomial_pdf] is called the *&probability density function* (PDF) of this binomial distribution.
+The equation is called the *&probability density function* (PDF) of this binomial distribution.
 Formally the PDF of random variable X is denoted with $p_X(k)$ and is defined as:
 
 $$p_X(k)=P({s \in S | X(s) = k}),$$
 
-where $S$ is the sample space.
+where $$S$$ is the sample space.
 This can also be expressed with the code:
 
 ```ocaml
@@ -63,9 +63,9 @@ val p : float array =
 - : float = 0.999999999999999778
 ```
 
-Aside from the PDF, another related and frequently used idea is to see the probability of random variable $X$ being within a certain range: $P(a \leq X \leq b)$.
-It can be rewritten as $P(X \leq b) - P(X \leq a - 1)$.
-Here the term $P(X \leq t)$ is called the *Cumulative Distribution Function* of random variable $X$.
+Aside from the PDF, another related and frequently used idea is to see the probability of random variable $$X$$ being within a certain range: $$P(a \leq X \leq b)$$.
+It can be rewritten as $$P(X \leq b) - P(X \leq a - 1)$$.
+Here the term $$P(X \leq t)$$ is called the *Cumulative Distribution Function* of random variable $$X$$.
 For the binomial distribution, it CDF is:
 
 $$p(X\leq~k)=\sum_{i=0}^k{N\choose i} p^k(1-p)^{n-i}.$$
@@ -86,12 +86,12 @@ For example, in uniform distribution, we can pick a random real number between 0
 
 One of the most widely used continuous distribution is no doubt the *Gaussian distribution*.
 It's probability function is a continuous one:
-$$p(x) = \frac{1}{\sqrt{2\pi~\delta}}e^{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}$$ {#eq:stats:gaussian_pdf}
+$$p(x) = \frac{1}{\sqrt{2\pi~\delta}}e^{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2}$$
 
-Here the $\mu$ and $\sigma$ are parameters. Depending on them, the $p(x)$ can take different shapes.
+Here the $$\mu$$ and $$\sigma$$ are parameters. Depending on them, the $$p(x)$$ can take different shapes.
 Let's look at an example.
 
-We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution $\mathcal{N} (\mu, \sigma^{2})$. For the first one, the configuration is $(\mu = 1, \sigma = 1)$; whilst for the second one, the configuration is $(\mu = 12, \sigma = 3)$.
+We generate two data sets in this example, and both contain 999 points drawn from different Gaussian distribution $$\mathcal{N} (\mu, \sigma^{2})$$. For the first one, the configuration is $$(\mu = 1, \sigma = 1)$$; whilst for the second one, the configuration is $$(\mu = 12, \sigma = 3)$$.
 
 ```ocaml
 let noise sigma = Stats.gaussian_rvs ~mu:0. ~sigma;;
@@ -126,7 +126,7 @@ Plot.output h;;
 
 In subplot 1, we can see the second data set has much wider spread. In subplot 2, we also plot corresponding the probability density functions of the two data sets.
 
-![Probability density functions of two data sets](../images/stats/plot_02.png "plot 02"){ width=90% #fig:stats:plot_02 }
+![Probability density functions of two data sets](../images/stats/plot_02.png "plot 02")
 
 The CDF of Gaussian can be calculated with infinite summation, i.e. integration:
 
@@ -143,29 +143,29 @@ Plot.(legend_on h ~position:SouthEast [|"mu=1,sigma=1"; "mu=12, sigma=3"|]);
 Plot.output h
 ```
 
-![Cumulated density functions of two data sets](../images/stats/plot_gaussian_cdf.png "plot gaussian cdf"){ width=70% #fig:stats:plot_gaussian_cdf }
+![Cumulated density functions of two data sets](../images/stats/plot_gaussian_cdf.png "plot gaussian cdf")
 
 ### Descriptive Statistics
 
 A random variables describes one individual event. A whole collection of individuals that of certain interests becomes a *population*.
 A population can be characterised with multiple descriptive statistics.
 Two of the most frequently used of them are *mean* and *variance*.
-The mean of a population $X$ with $n$ elements is defined as:
+The mean of a population $$X$$ with $$n$$ elements is defined as:
 
-$$E(X) = \frac{1}{n}\sum_{i}x_i,$$ {#eq:stats:mean}
-where $x_i$ is the $i$-th element in population.
+$$E(X) = \frac{1}{n}\sum_{i}x_i,$$
+where $$x_i$$ is the $$i$$-th element in population.
 And the definition of variance is similar:
 
-$$Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.$$ {#eq:stats:variance}
+$$Var(X) = \frac{1}{n}\sum_{i}(x_i - E(X))^2.$$
 
 A similar and commonly used idea is *standard deviation*, which is the square root of variance.
 The meaning of both the mean (or *expected value*) and the variance are plain to see, the first being a representative central value of a population, and the second being how the values spread around the central expectation.
 
 These definitions are for discrete random variables, but they can easily be extended to the continuous cases. To make it more general, we define the *n-th moment* of a real variable about a value X as:
 
-$$M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,$$ {#eq:stats:moment}
+$$M_n(X) = \int_x~(x_i - c)^2~f(x_i)dx,$$
 
-where $f(x)$ is the the continuous function of the variable $X$, and $c$ is certain constant.
+where $$f(x)$$ is the the continuous function of the variable $$X$$, and $$c$$ is certain constant.
 You can see that the mean value is actually the first order moment, and variance is the second order.  
 The third order moment is called *skewness*, indicating the asymmetry of the probability distribution of a real random variable.
 The fourth order moment is called *kurtosis*, and it shows how long a "tail" the probability distribution has.
@@ -209,7 +209,7 @@ The following code calculates different central moments of the distribution. A c
 
 Besides the moments, we also use *order statistics* frequently to understand data.
 Order statistics and rank statistics are among the most fundamental tools in non-parametric statistics and inference.
-The $k^{th}$ order statistic of a statistical sample is equal to its k-th smallest value.
+The $$k^{th}$$ order statistic of a statistical sample is equal to its k-th smallest value.
 The example functions of
 
 There are many ordered statistical functions in the `Stat` module in Owl for you to explore.
@@ -242,13 +242,13 @@ A small number of them are listed in the table below.
 
 | Distribution name | PDF |
 | :------------- |:-------------|
-| Gaussian distribution | $\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$ | 
-| Gamma distribution | $\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$ | 
-| Beta distribution  | $\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$ | 
-| Cauchy distribution | $(\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}$ | 
-| Student's $t$-distribution | $\frac{\Gamma((v+1)/2)}{\sqrt{v\pi}\Gamma(v/2)}(1 + \frac{x^2}{v})^{-\frac{v+1}{2}}$ | 
+| Gaussian distribution | $$\frac{1}{\sigma {\sqrt {2\pi }}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}$$ | 
+| Gamma distribution | $$\frac{1}{\Gamma(k)\theta^k}x^{k-1}e^{-x\theta^-{1}}$$ | 
+| Beta distribution  | $$\frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha-1}(1-x)^{\beta-1}$$ | 
+| Cauchy distribution | $$(\pi~\gamma~(1 + (\frac{x-x_0}{\gamma})^2))^{-1}$$ | 
+| Student's $$t$$-distribution | $$\frac{\Gamma((v+1)/2)}{\sqrt{v\pi}\Gamma(v/2)}(1 + \frac{x^2}{v})^{-\frac{v+1}{2}}$$ | 
 
-Here $\Gamma(x)$ is the Gamma function.
+Here $$\Gamma(x)$$ is the Gamma function.
 These different kinds of distributions are supported in the `Stats` module in Owl. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 For example, for the gaussian distribution, we can utilise the function below:
 
@@ -265,7 +265,7 @@ For example, for the gaussian distribution, we can utilise the function below:
 
 Stats module supports many distributions. For each distribution, there is a set of related functions using the distribution name as their common prefix.
 As an example, the code below plots the probability density function of the Gamma distribution using `gamma_pdf`.
-The result is shown in [@fig:stats:gamma_pdf].
+The result is shown in the figure below.
 
 
 ```ocaml
@@ -299,16 +299,16 @@ let _ =
   output h
 ```
 
-![Probability density functions of Gamma distribution](../images/stats/gamma_pdf.png "gamma_pdf"){ width=60% #fig:stats:gamma_pdf}
+![Probability density functions of Gamma distribution](../images/stats/gamma_pdf.png "gamma_pdf")
 
 ## Multiple Variables
 
 So far we have talked about one single random variable, but a problem often involves multiple variables.
 For example, in a data centre, if we know the probability that the servers stop working, and the probability that the network links break, we might want to consider the probability that a data centre functions normally.
-The *joint probability* of two random variable $X$ and $Y$ is expressed as $p(X, Y)$, or $P(X~\cap~Y)$, indicating the probability of the two events happened at the same time.
+The *joint probability* of two random variable $$X$$ and $$Y$$ is expressed as $$p(X, Y)$$, or $$P(X~\cap~Y)$$, indicating the probability of the two events happened at the same time.
 
 There is one special case where the joint probability is intuitive to compute.
-If the two events are *independent*, i.e. not related with each other, then the probability of result $X=x$ and $Y=y$ is:
+If the two events are *independent*, i.e. not related with each other, then the probability of result $$X=x$$ and $$Y=y$$ is:
 
 $$p(xy) = p(X=x \textrm{AND } Y=y) = p(X=x) * p(Y=y) = p_X(x)p_Y(y).$$
 
@@ -318,21 +318,21 @@ Formally, the probability of event A given event B is computed as:
 
 $$P(X | Y) = \frac{P(X~\cap~Y)}{P(Y)}.$$
 
-There is not doubt that the most important application of conditional probabilities is the *Bayes' Theorem*, proposed first by Thomas Bayes in 1991 [@bayes1991essay].
-It is expressed by an simple form as shown in [@eq:stats:bayes], e.g. it provides a way to compute the condition probability when it is not directly available.
+There is not doubt that the most important application of conditional probabilities is the *Bayes' Theorem*, proposed first by Thomas Bayes in 1991.
+It is expressed by an simple form as shown in the equation, e.g. it provides a way to compute the condition probability when it is not directly available.
 
-$$P(X|Y) = \frac{P(Y|X)P(X)}{P(Y)}$$ {#eq:stats:bayes}
+$$P(X\|Y) = \frac{P(Y\|X)P(X)}{P(Y)}$$ {#eq:stats:bayes}
 
 One powerful application of this theorem is that it provides the tool to calibrate your knowledge about something ("it has 10% percentage to happen") based on observed evidence.
-For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one,  you would say "hmm, I don't know, perhaps 10%". Define event $X$ to be "the dice is loaded", and you just set a **prior** that $P(X) = 0.1$.
+For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one,  you would say "hmm, I don't know, perhaps 10%". Define event $$X$$ to be "the dice is loaded", and you just set a **prior** that $$P(X) = 0.1$￥.
 Now I begin to roll for three times, and somehow, I got three 6's. Now I ask you again, *given the evidence you just observed*, estimate again the probability that the dice is loaded. 
-Define $Y$ as the event "get all 6's of all three rolling". 
+Define $$Y$$ as the event "get all 6's of all three rolling". 
 
-We can easily calculate that in the normal case $P(Y) = 1 / 6^3 \approx 0.005$, and the probability this "normal case" happens, is 90%, according to our prior knowledge.  
-In total, $P(Y) = P(Y|X)P(X) + P(Y|X')P(X')$, where $P(X')$ denotes the probability the dice is normal one. 
-Besides, we can say that getting all 6's if the dice is loaded $P(Y | X)$ would be pretty high, for example 0.99.
+We can easily calculate that in the normal case $$P(Y) = 1 / 6^3 \approx 0.005$$, and the probability this "normal case" happens, is 90%, according to our prior knowledge.  
+In total, $$P(Y) = P(Y|X)P(X) + P(Y|X')P(X')$$, where $$P(X')$$ denotes the probability the dice is normal one. 
+Besides, we can say that getting all 6's if the dice is loaded $$P(Y | X)$$ would be pretty high, for example 0.99.
 Therefore, we can calculate that, now that given the observed evidence, the dice is loaded with a probability 
-$P(X|Y) = \frac{0.99 * 0.1}{0.99~\times~0.1 + 0.005~\times~0.9} \approx 0.96$. 
+$$P(X|Y) = \frac{0.99 * 0.1}{0.99~\times~0.1 + 0.005~\times~0.9} \approx 0.96$$. 
 This is the **posterior** that we get after observing the evidence, which improves our previous knowledge significantly. 
 This process can be widely applied to numerous scientific fields, where existing theory or knowledge are often put to test with new evidences. 
 
@@ -353,20 +353,20 @@ After choosing a suitable sample, the next thing is to describe the population w
 The statistics such as mean and variance etc. are still very useful, but can we directly use the statistics of the sample and declare that they can also be used to represent the whole population?
 In fact, that depends on if the statistics is an *unbiased estimator*, i.e. the expected value of its value is the corresponding population parameter.
 
-For example, let's take a sample of $n$ elements, and its mean $m$ is:
+For example, let's take a sample of $$n$$ elements, and its mean $$m$$ is:
 
 $$m = \frac{1}{n}\sum_{i=1}^n~x_i,$$
 
-where $x_i$ is an element in the sample. 
-Denoting the population as $\mu$, it can be further proved that:  $E(m) = \mu$. 
+where $$x_i$$ is an element in the sample. 
+Denoting the population as $$\mu$$, it can be further proved that:  $$E(m) = \mu$$. 
 Therefore, the sample mean is an unbiased estimator of the population. 
 
 The same cannot of said of variance. The sample variance is:
 
 $$v = \frac{1}{n}\sum_{i=1}^n(x_i - m)^2.$$
 
-Assume the variance of population is $\sigma^2$, then it can be proved that $E(v) = \frac{n - 1}{n}\sigma^2$.
-Therefore, the unbiased estimator of population variance of not that of the sample $v$, but $\frac{n}{n-1}v$.
+Assume the variance of population is $$\sigma^2$$, then it can be proved that $$E(v) = \frac{n - 1}{n}\sigma^2$$.
+Therefore, the unbiased estimator of population variance of not that of the sample $$v$$, but $$\frac{n}{n-1}v$$.
 
 ### Inferring Population Parameters 
 
@@ -376,16 +376,16 @@ This section investigates this question.
 
 First, we need to explain the *Central Limit Theorem*.
 It states that, if you have a population and take sufficiently large random samples from the population with replacement, the distribution of the sample means will be approximately normally distributed. 
-If the sample size is sufficiently large (such as $n \lt 20$), this theorem holds true regardless of the population distribution. 
+If the sample size is sufficiently large (such as $$n \lt 20$$), this theorem holds true regardless of the population distribution. 
 
-Specifically, suppose we repeatedly sample a subset of the same size $n$, and we can then define random variable $X$ to represents the mean value of each sampled subset. 
-According to the central limit theorem, it can be derived that, suppose the population has mean $\mu$ and variance of $\sigma^2$, both unknown, then $X$ follows a normal distribution of mean value $\mu$, and variance $\frac{\sigma^2}{n}$.
+Specifically, suppose we repeatedly sample a subset of the same size $$n$$, and we can then define random variable $$X$$ to represents the mean value of each sampled subset. 
+According to the central limit theorem, it can be derived that, suppose the population has mean $$\mu$$ and variance of $$\sigma^2$$, both unknown, then $$X$$ follows a normal distribution of mean value $$\mu$$, and variance $$\frac{\sigma^2}{n}$$.
 
 Since both the mean and the variance of the population is unknown, apparently we cannot solve this case with mystery at both ends.
-To get a more precise estimation about population mean $\mu$, let's first assume that the population variance can be calculated directly with the sample variance: $\sigma^2 = \frac{1}{n-1}\sum_{i=1}^n(x_i - m)^2$.
-This assumption is of good quality in practice when $n$ is sufficiently large.
+To get a more precise estimation about population mean $$\mu$$, let's first assume that the population variance can be calculated directly with the sample variance: $$\sigma^2 = \frac{1}{n-1}\sum_{i=1}^n(x_i - m)^2$$.
+This assumption is of good quality in practice when $$n$$ is sufficiently large.
 
-Now that we know $X$ follows a normal distribution, we can utilise some of this nice properties. For example, we know that 95% of the probability mass lies within 1.96 standard deviations of this means. We can verify this point this simple code using the CDF function of normal distribution:
+Now that we know $$X$$ follows a normal distribution, we can utilise some of this nice properties. For example, we know that 95% of the probability mass lies within 1.96 standard deviations of this means. We can verify this point this simple code using the CDF function of normal distribution:
 
 ```ocaml
 # let f = Stats.gaussian_cdf ~mu:0. ~sigma:1. in
@@ -393,24 +393,24 @@ Now that we know $X$ follows a normal distribution, we can utilise some of this 
 - : float = 0.950004209703559
 ```
 
-Therefore, for any value $x$ in $X$, we know that:
+Therefore, for any value $$x$$ in $$X$$, we know that:
 $$P(\mu - 1.96~\frac{\sigma}{\sqrt{n}} \le x \le  \mu + 1.96~\frac{\sigma}{\sqrt{n}}).$$
 
 With a bit variation, it becomes:
 
 $$P( x - 1.96~\frac{\sigma}{\sqrt{n}} \le \mu \le  x + 1.96~\frac{\sigma}{\sqrt{n}}).$$
 
-That means that given the sample mean $m$, the population mean $\mu$ lies within this range [$m - 1.96~\frac{\sigma}{\sqrt{n}}$, $m + 1.96~\frac{\sigma}{\sqrt{n}}$] with 95% probability. It is called its *confidence interval*. 
-Again, the population variance $\sigma^2$ directly use that of the unbiased estimation from sample.
+That means that given the sample mean $$m$$, the population mean $$\mu$$ lies within this range [$$m - 1.96~\frac{\sigma}{\sqrt{n}}$$, $$m + 1.96~\frac{\sigma}{\sqrt{n}}$$] with 95% probability. It is called its *confidence interval*. 
+Again, the population variance $$\sigma^2$$ directly use that of the unbiased estimation from sample.
 
 Let's go back to the *1.96* number. We use this range because X is assumed to follow a normal distribution. 
-The $\frac{x - \mu}{\sigma/\sqrt{n}}$ variable follows a standard normal distribution. It is called tne *standard Z variable*.
+The $$\frac{x - \mu}{\sigma/\sqrt{n}}$$ variable follows a standard normal distribution. It is called tne *standard Z variable*.
 We can check the standard normal distribution table to find the range that corresponds to 95% confidence. 
-However, as we have explained, this does not hold when $n$ is small, since we actually uses $\frac{x-\mu}{\sqrt{\frac{\sum_{i}(x - m)^2}{n(n-1)}}}$ instead of the real $z$ variable. 
-The latter one is called *standard t variable*, which follows the t-distribution with  $n-1$ degree of freedom. 
-When $n$ is a large number, the t distribution behave almost the same as that of a normal distribution. 
-Therefore, if the $n$ is small, we need to look up the t table. 
-For example, if $n=17$, then the range parameter is about 2.12, which can be verified as:
+However, as we have explained, this does not hold when $$n$$ is small, since we actually uses $$\frac{x-\mu}{\sqrt{\frac{\sum_{i}(x - m)^2}{n(n-1)}}}$$ instead of the real $$z$$ variable. 
+The latter one is called *standard t variable*, which follows the t-distribution with  $$n-1$$ degree of freedom. 
+When $$n$$ is a large number, the t distribution behave almost the same as that of a normal distribution. 
+Therefore, if the $$n$$ is small, we need to look up the t table. 
+For example, if $$n=17$$, then the range parameter is about 2.12, which can be verified as:
 
 ```ocaml
 # let f x = Stats.t_cdf x ~df:16. ~loc:0. ~scale:1. in 
@@ -419,7 +419,7 @@ For example, if $n=17$, then the range parameter is about 2.12, which can be ver
 ```
 
 That's all for the population mean.
-The estimation of population variance range uses $\chi$-square distribution, but rarely used in practice. So we omitted it in this section.
+The estimation of population variance range uses $$\chi$$-square distribution, but rarely used in practice. So we omitted it in this section.
 
 ## Hypothesis Tests
 
@@ -434,8 +434,8 @@ That's where we need hypothesis tests.
 
 There are two hypotheses proposed with regard to the statistical relationship between data sets.
 
-* Null hypothesis $H_0$: there is no relationship between two data sets.
-* Alternative hypothesis $H_1$: there is statistically significant relationship between two data sets.
+* Null hypothesis $$H_0$$: there is no relationship between two data sets.
+* Alternative hypothesis $$H_1$$: there is statistically significant relationship between two data sets.
 
 The probability of an outcome assuming that a hypothesis is true is called its p-value. 
 In practice the p-value is set to 5% (1% is also used frequently).
@@ -444,21 +444,21 @@ For example, if we believe that a coin is a normal one, but the experiment resul
 Note that, if we do not reject a hypothesis, that does not mean it is accepted. If we flip the coin three times and get three heads. Given the hypothesis that this coin is normal, this result happens with a probability of 12.5%, therefore we cannot reject this hypothesis.  
 The non-rejection does not mean we are pretty sure the coin is totally not biased with much confidence. 
 Therefore, one needs to be very careful in choosing hypothesis. 
-$H_0$ should be something we believe is solid enough to explain the data unless the strongly challenged by observed data. 
+$$H_0$$ should be something we believe is solid enough to explain the data unless the strongly challenged by observed data. 
 Besides, it also helps to make the null hypothesis as precise as possible. A wide coverage only makes the hypothesis undeniable.
 
 ### Gaussian Distribution in Hypothesis Testing
 
 One of the most common test to make is to see if observed data come from a certain gaussian distribution. 
 This is called a "z-test."
-Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $\mathcal{N}(0, 1)$, while the second one `data_1` is drawn from $\mathcal{N}(3, 1)$.
+Now let's see how to perform a z-test in Owl. We first generate two data sets, both are drawn from Gaussian distribution but with different parameterisation. The first one `data_0` is drawn from $$\mathcal{N}(0, 1)$$, while the second one `data_1` is drawn from $$\mathcal{N}(3, 1)$$.
 
 ```ocaml
 let data_0 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:0. ~sigma:1.);;
 let data_1 = Array.init 10 (fun _ -> Stats.gaussian_rvs ~mu:3. ~sigma:1.);;
 ```
 
-Our hypothesis is that the data set is drawn from Gaussian distribution $\mathcal{N}(0, 1)$. From the way we generated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
+Our hypothesis is that the data set is drawn from Gaussian distribution $$\mathcal{N}(0, 1)$$. From the way we generated the synthetic data, it is obvious that `data_0` will pass the test, but let's see what Owl will test us using its `Stats.z_test` function.
 
 ```ocaml
 # Stats.z_test ~mu:0. ~sigma:1. data_0
@@ -477,7 +477,7 @@ type hypothesis = {
 }
 ```
 
-From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $\mathcal{N}(0, 1)$. How about the second data set then?
+From the previous result, we can see `reject = false`, indicating null hypothesis is rejected, therefore the data set `data_0` is drawn from $$\mathcal{N}(0, 1)$$. How about the second data set then?
 
 ```ocaml
 # Stats.z_test ~mu:0. ~sigma:1. data_1
@@ -486,7 +486,7 @@ From the previous result, we can see `reject = false`, indicating null hypothesi
  score = 9.88035435799393547}
 ```
 
-As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $\mathcal{N}(0, 1)$.
+As we expected, the null hypothesis is accepted with a very small p value. This indicates that `data_1` is drawn from a different distribution rather than assumed $$\mathcal{N}(0, 1)$$.
 
 
 In the previous section we have introduced the z-variable and t-variable.
@@ -516,8 +516,8 @@ For example, if we can assume that the variances of both population are the same
 
 $$\frac{\bar{x} - \bar{y}}{\sqrt{\frac{\sum_{i=1}^a~(x_i - \bar{x})^2 + \sum_{i=1}^b~(y_i - \bar{y})^2}{a + b - 2}(\frac{1}{a} + \frac{1}{b})}},$$
 
-is a standard t variable with $a + b - 2$ degree of freedom, 
-where $a$ and $b$ are the length of the sample $X$ and $Y$.
+is a standard t variable with $$a + b - 2$$ degree of freedom, 
+where $$a$$ and $$b$$ are the length of the sample $$X$$ and $$Y$$.
 
 This idea is implemented as the unpaired sample t-test.
 The function `t_test_unpaired ~alpha ~side ~equal_var x y` returns a test decision for
@@ -610,7 +610,7 @@ let h = Plot.create ~m:1 ~n:2 "plot_01.png" in
 
 The subfigure 1 shows the functional relation between `x` and `y` whilst the subfiture 2 shows the relation between `x` and `z`. Because we have added higher-level noise to `z`, the points in the second figure are more diffused.
 
-![Functional relation between `x` and the other two variables.](../images/stats/plot_01.png "plot 01"){ width=90% #fig:stats:plot_01 }
+![Functional relation between `x` and the other two variables.](../images/stats/plot_01.png "plot 01")
 
 
 Intuitively, we can easily see there is stronger relation between `x` and `y` from the figures. But how about numerically? In many cases, numbers are preferred because they are easier to compare with by a computer. The following snippet calculates the Pearson correlation between `x` and `y`, as well as the correlation between `x` and `z`. As we see, the smaller correlation value indicates weaker linear relation between `x` and `z` comparing to that between `x` and `y`.
