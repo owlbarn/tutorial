@@ -54,6 +54,9 @@ As we can see from the function type, the output can be specified by an optional
 
 Most binary math functions in Owl are associated with a shorthand operator, such as `+`, `-`, `*`, and `/`. The impure versions also have their own operators. For example, corresponding to `Arr.(x + y)` which returns the result in a new ndarray, you can write `Arr.(x += y)` which adds up `x` and `y` and saves the result into `x`.
 
+
+The table below shows alias of pure and impure binary math functions.
+
 Function Name     |Pure              |Impure
 --------------    |--------------    |--------------
 add               |`+`               |`+=`
@@ -65,7 +68,6 @@ sub_scalar        |`-$`              |`-$=`
 mul_scalar        |`*$`              |`*$=`
 div_scalar        |`/$`              |`/$=`
 
-: Alias of pure and impure binary math functions  {#tbl:convention:pure}
 
 
 ##  Ndarray vs. Scalar
@@ -155,6 +157,8 @@ As long as a module implements all the functions defined in the module signature
 
 The operators have been included in each `Ndarray` and `Matrix` module. The following table summarises the operators currently implemented. In the table, both `x` and `y` represent either a matrix or an ndarray while `a` represents a scalar value.
 
+The table below shows infix operators in ndarray and matrix modules.
+
 Operator      |Example       |Operation                 |Dense/Sparse  |Ndarray/Matrix
 ------------  |------------  |------------------------  |------------  |-----------------
 `+`           |`x + y`       |element-wise add          |both          |both
@@ -212,7 +216,6 @@ Operator      |Example       |Operation                 |Dense/Sparse  |Ndarray/
 `@=`          |`x @= y`      |concatenate vertically    |Dense         |both
 `@||`         |`x @|| y`     |concatenate horizontally  |Dense         |both
 
-: Infix operators in ndarray and matrix modules {#tbl:convention:infix}
 
 
 There is a list of things worth your attention as below.
@@ -301,11 +304,9 @@ Operator         | Example           | Operation
 `min2`           | `min2 x y`        | element-wise min
 `max2`           | `max2 x y`        | element-wise max
 
-: Operator extensions {#tbl:convention:ext}
+You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing inter-operation makes the operator table much shorter.
 
-You may have noticed, the operators ended with `$` (e.g., `+$`, `-$` ...) disappeared from the table, which is simply because we can add/sub/mul/div a scalar with a matrix directly and we do not need these operators any more. Similar for comparison operators, because we can use the same `>` operator to compare a matrix to another matrix, or compare a matrix to a scalar, we do not need `>$` any longer. Allowing interoperation makes the operator table much shorter.
-
-Currently, the operators in `Ext` only support interoperation on dense structures. Besides binary operators, `Ext` also implements most of the common math functions which can be applied to float numbers, complex numbers, matrices, and ndarray. These functions are:
+Currently, the operators in `Ext` only support inter-operation on dense structures. Besides binary operators, `Ext` also implements most of the common math functions which can be applied to float numbers, complex numbers, matrices, and ndarray. These functions are:
 
 `im`; `re`; `conj`, `abs`, `abs2`, `neg`, `reci`, `signum`, `sqr`, `sqrt`, `cbrt`, `exp`, `exp2`, `expm1`, `log`, `log10`, `log2`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `floor`, `ceil`, `round`, `trunc`, `erf`, `erfc`, `logistic`, `relu`, `softplus`, `softsign`, `softmax`, `sigmoid`, `log_sum_exp`, `l1norm`, `l2norm`, `l2norm_sqr`, `inv`, `trace`, `sum`, `prod`, `min`, `max`, `minmax`, `min_i`, `max_i`, `minmax_i`.
 
@@ -346,8 +347,6 @@ These modules are simply the wrappers of the original modules in `Owl.Dense` mod
     SAZ of saz
 
 ```
-
-There are also corresponding `packing` and `unpacking` functions you can use, please read `owl_ext_types.ml <https://github.com/owlbarn/owl/blob/master/src/owl/ext/owl_ext_types.ml>`_ for more details.
 
 Let's see some examples to understand how convenient it is to use `Ext` module.
 
@@ -577,7 +576,7 @@ R4 (0.981664, 0i)  (0.446936, 0i)  (0.276383, 0i) (0.414747, 0i) (0.174775, 0i)
 
 To know more about the functions provided in each module, please read the corresponding interface file of `Generic` module. The `Generic` module contains the documentation.
 
-* [Dense.Ndarray.Generic](https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli)
-* [Dense.Matrix.Generic](https://github.com/ryanrhymes/owl/blob/master/src/owl/dense/owl_dense_matrix_generic.mli)
-* [Sparse.Ndarray.Generic](https://github.com/ryanrhymes/owl/blob/master/src/owl/sparse/owl_sparse_ndarray_generic.mli)
-* [Sparse.Matrix.Generic](https://github.com/ryanrhymes/owl/blob/master/src/owl/sparse/owl_sparse_matrix_generic.mli)
+* [Dense.Ndarray.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_ndarray_generic.mli)
+* [Dense.Matrix.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/dense/owl_dense_matrix_generic.mli)
+* [Sparse.Ndarray.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/sparse/owl_sparse_ndarray_generic.mli)
+* [Sparse.Matrix.Generic](https://github.com/owlbarn/owl/blob/master/src/owl/sparse/owl_sparse_matrix_generic.mli)
