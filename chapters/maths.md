@@ -70,7 +70,7 @@ The full list of exponential and logarithmic functions, together with some handy
 
 unction       | Explanation
 ------------  | -------------------------------------------------------
-`exp`         | exponential $$e^x$￥
+`exp`         | exponential $$e^x$$
 `exp2`        | $$2^x$$
 `exp10`       | $$10^x$$
 `expm1`       | returns $$\exp(x) - 1$$ but more accurate for $$x \sim 0$$
@@ -79,7 +79,7 @@ unction       | Explanation
 `log10`       | $$\log_10~x$$
 `logn`        | $$\log_n~x$$
 `log1p`       | inverse of `expm1`
-`logabs`      | $$\log(|x|)$$
+`logabs`      | $$\log(\|x\|)$$
 `xlogy`       | $$x \log(y)$$
 `xlog1py`     | $$x \log(y+1)$$
 `logit`       | $$\log(p/(1-p))$$
@@ -109,7 +109,7 @@ Function      | Explanation        | Derivatives                          | Tayl
 `sec`         | $$1/\cos(x)$$      | $$\textrm{sec}(x)\tan(x)$$           | $$\sum_{n=0}\frac{2(2^{2n-1})B_n~x^{2n-1}}{(2n)!}$$
 `csc`         | $$1/\sin(x)$$      | $$-\textrm{csc}(x)\textrm{cot}(x)$$  | $$\frac{1}{x}-\sum_{n=1}\frac{4^n~B_n~x^{2n-1}}{(2n)!}$$
 
-Here the $B_n$ is the $n$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $$E_n$$ is the $$n$$-th [Euler number](https://en.wikipedia.org/wiki/Euler_number).
+Here the $$B_n$$ is the $$n$$th [Bernoulli number](https://en.wikipedia.org/wiki/Bernoulli_number), and $$E_n$$ is the $$n$$-th [Euler number](https://en.wikipedia.org/wiki/Euler_number).
 The figure below shows the relationship between these trigonometric functions. This figure is inspired by a [wiki post](https://zh.wikipedia.org/wiki/%E5%8F%8C%E6%9B%B2%E5%87%BD%E6%95%B0).
 These functions also have corresponding inverse functions: `asin`, `acos`, `atan`, `acot`, `asec`, `acsc`. For example, if $$\sin(a) = b$$, then $$\textrm{asin}(b) = a$$.
 
@@ -205,7 +205,7 @@ Bessel functions, first defined by the mathematician Daniel Bernoulli and then g
 
 $$x^2y''+xy'+(x^2 - \alpha^2)y = 0.$$
 
-The complex number $\alpha$ is called the "order" of the bessel function.
+The complex number $$\alpha$$ is called the "order" of the bessel function.
 Bessel functions are important for many problems in studying the wave propagation and static potentials, such as electromagnetic waves in a cylindrical waveguide. 
 In solving cylindrical coordinate systems, Bessel functions of integer order or half integer order are often used. 
 
@@ -263,7 +263,7 @@ There are twelve Jacobi elliptic functions and `ellipj` we include here in Owl r
 On the other hand, the *Elliptic integrals* are initially used to find the perimeters of ellipses. 
 A Elliptic integral function can be expressed in the form of:
 $$f(x)=\int_c^xR(t, \sqrt(P(t)))dt,$$
-where $R$ is a rational function of its two arguments, $$P$$ is a polynomial of degree 3 or 4 with no repeated roots, and $$c$$ is a constant.
+where $$R$$ is a rational function of its two arguments, $$P$$ is a polynomial of degree 3 or 4 with no repeated roots, and $$c$$ is a constant.
 An elliptic integral can be categorised as "complete" or "incomplete".
 The former one is function of a single argument, while the latter contains two arguments.
 Each elliptic integral can be transformed so that it contains integrals of rational functions and the three Legendre canonical forms, according to which the elliptic can be categorised into the first, second, and third kind. 
@@ -296,7 +296,7 @@ For a positive integer n, the *Gamma function* is the factorial function:
 
 $$\Gamma(n) = (n-1)!$$
 
-For a complex numbers $z$ with a positive real part, the Gamma function is defined as:
+For a complex numbers $$z$$ with a positive real part, the Gamma function is defined as:
 
 $$\Gamma(z) = \int_0^{\infty}x^{z-1}e^{-x}dx.$$
 
@@ -342,7 +342,7 @@ Beta function is defined as:
 
 $$B(x,y) = \int_0^1t^{x-1}(1-t)^{y-1}dt = \frac{\Gamma(x)\Gamma(y)}{\Gamma(x+y)}$$
 
-Here $\Gamma$ is the Gamma function, and similar to it, the Beta function has its "incomplete" version. 
+Here $$\Gamma$$ is the Gamma function, and similar to it, the Beta function has its "incomplete" version. 
 The incomplete Beta function extends this definition to:
 
 $$B(x, a, b) = \int_0^xt^{a-1}(1-t)^{b-1}dt.$$
@@ -360,7 +360,7 @@ val x : float = 0.0166666666666666664
 val y : float = 0.0166666666666666664
 ```
 
-Another property is its symmetricity, which means $B(x,y) = B(y, x)$.
+Another property is its symmetricity, which means $$B(x,y) = B(y, x)$$.
 
 ```ocaml
 # let x = Maths.beta 3. 4.
@@ -377,10 +377,10 @@ It is also used in the analysis of the preferential attachment process, a type o
 The *Struve function* is defined as:
 $$H_v(x) = (z/2)^{v + 1} \sum_{n=0}^\infty \frac{(-1)^n (z/2)^{2n}}{\Gamma(n + \frac{3}{2}) \Gamma(n + v + \frac{3}{2})},$$
 
-where $\Gamma$ is the Gamma function. $x$ must be positive unless $v$ is an integer.
+where $$\Gamma$$ is the Gamma function. $$x$$ must be positive unless $$v$$ is an integer.
 Struve functions are used across a wide variety of physics applications, such as water-wave problems and calculations in unsteady aerodynamics.
 
-The Owl function `struve v x` returns the value of Struve function. The parameter $v$ is called the *order* of this function.
+The Owl function `struve v x` returns the value of Struve function. The parameter $$v$$ is called the *order* of this function.
 Here is an example that shows the curves of Struve functions with order from 0 to 4.
 
 ```ocaml
@@ -405,7 +405,7 @@ The *Hurwitz zeta function* `zeta x q` is defined as:
 
 $$\zeta(x, q) = \sum_{k=0}^{\infty}\frac{1}{(k+q)^x}.$$
 
-When $q$ is set to 1, this function is reduced to the *Riemann zeta function*.
+When $$q$$ is set to 1, this function is reduced to the *Riemann zeta function*.
 The function `zetac x` returns Riemann zeta function minus 1.
 The zeta function is often used to analyse the dynamic systems.
 Besides, the Riemann zeta function plays an important role in number theory and is widely applied in quantum physics, probability theory, and applied statistics, etc. 
@@ -502,7 +502,7 @@ The factorial function, together with several of its variants, are contained in 
 
 Function           |Explanation
 -----------------  |-----------------------------------------------------------
-`fact n`           |Factorial function $!n$
+`fact n`           |Factorial function $$!n$$
 `log_fact n`       |Logarithm of factorial function
 `doublefact n`     |Double factorial function calculates $$n!! = n(n-2)(n-4)\dots 2$$ (or 1)
 `log_doublefact n` |Logarithm of double factorial function
@@ -517,7 +517,7 @@ The factorial functions accepts integer as input, for example:
 The factorials are applied in many areas of mathematics, most notably the combinatorics.
 The permutation and combination are both defined in factorials.
 The permutation function returns the number $$n!/(n-k)!$$ of ordered subsets of length $$k$$, taken from a set of $$n$$ elements.
-The combination function returns the number $${n\choose k} = n!/(k!(n-k)!)$$ of subsets of $$k$$ elements of a set of $n$ elements.
+The combination function returns the number $${n\choose k} = n!/(k!(n-k)!)$$ of subsets of $$k$$ elements of a set of $$n$$ elements.
 The table below provides the combinatorics functions you can use in the `Math` module.
 
 Function                Explanation
@@ -566,7 +566,7 @@ val x : float array = [|2.; 3.; 4.; 5.; 6.|]
 ```
 
 Now we can define the interpolation function `f` that accepts one float number and returns another float number.
-Also we convert the given data $x$ and $y$ into matrix format for plotting purpose.
+Also we convert the given data $$x$$ and $$y$$ into matrix format for plotting purpose.
 
 ```ocaml
 let f a =
@@ -596,7 +596,7 @@ let _ =
 ## Integration
 
 We have introduced some special integral functions, but we still need general integration methods that work for any input functions. 
-Given a function $f$ that accepts a real variable and an interval $$[a, b]$$ of the real line, the integral of this function
+Given a function $$f$$ that accepts a real variable and an interval $$[a, b]$$ of the real line, the integral of this function
 
 $$\int_a^bf(x)dx$$
 
@@ -618,11 +618,11 @@ Using numerical methods (or *quadrature*) to do integration dates back to the in
 The basic idea is to use summation of small areas to approximate that of an integration.
 There exist a lot of algorithms to do numerical integration, and using the trapezoial rule is one of them.
 
-This classical method divides `a` to `b` into $N$ equally spaced abscissas: $$x_0, x_1, \ldots, x_N$$. Each area between $$x_i$$ and $$x_j$$ is seen as an "Trapezoid" and the area formula is computed as:
+This classical method divides `a` to `b` into $$N$$ equally spaced abscissas: $$x_0, x_1, \ldots, x_N$$. Each area between $$x_i$$ and $$x_j$$ is seen as an "Trapezoid" and the area formula is computed as:
 
 $$\int_{x_0}^{x_1}f(x)dx = h(\frac{f(x_0)}{2} + \frac{f(x_1)}{2}) + O(h^3f'').$$
 
-Here the error term $O(h^3f'')$ indicated that the error of approximation is related with that of abscissas size $h$ and second order derivative of the original function.
+Here the error term $$O(h^3f'')$$ indicated that the error of approximation is related with that of abscissas size $$h$$ and second order derivative of the original function.
 The function `trapz` implements this method. It's interface is:
 
 ```
@@ -667,7 +667,7 @@ This function is deterministic for all numbers representable by an int. It is im
 ```
 
 Another number theory related idea is the *Fermat's factorization*, which represents an odd integer as the difference of two squares: $$N = a^2 - b^2$$, and therefore `N` can be factorised as $$(a+b)(a-b)$$.
-The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.e. into two roughly equal factors $x$ and $y$ so that $$N=x\times~y$$.
+The function `fermat_fact` performs Fermat factorisation over odd number `N`, i.e. into two roughly equal factors $$x$$ and $$y$$ so that $$N=x\times~y$$.
 
 ```ocaml
 # Maths.fermat_fact 6557
