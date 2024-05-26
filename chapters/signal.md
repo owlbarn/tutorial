@@ -739,4 +739,3 @@ Finally, we discussed filtering in signal process using different techniques, in
 Here we also explained the relationship between the two most crucial computations in numerical applications: FFT and convolution.
 More about convolution can be find in the Neural Network chapter.
 
-## References

@@ -950,4 +950,3 @@ With a bit of change in its cost function, we venture to introduce a type of adv
 They can be used for both linear and non-linear decision boundary by using different kernel functions.
 We have also talked about related issues, such as the regularisation, model error and selection.
 
-## References

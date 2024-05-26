@@ -700,4 +700,3 @@ This chapter explain in detail the Ndarray module, including its creation, prope
 Besides, we also discuss the subtle difference between tensor and ndarray in this chapter.
 This chapter is easy to follow, and can serve as a reference whenever users need a quick check of functions they need.
 
-## References

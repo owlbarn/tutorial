@@ -32,12 +32,3 @@ The main purpose of the online tutorial is for teaching how to use the [Owl](htt
 
 Currently contribution to the book is mainly in the form of Pull Request on [GitHub](https://github.com/owlbarn/tutorial). 
 Normally you only need to change one of the markdown files in the `chapters/` directory.
-
-
-## Tooling
-
-The following tools are used in the project, please refer to their documentation.
-
-- [Jekyll](https://jekyllrb.com/)
-- [Cayman Theme](https://github.com/pages-themes/cayman)
-

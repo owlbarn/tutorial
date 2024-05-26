@@ -517,4 +517,3 @@ The local unconstrained problem is further explained in two parts: the univariat
 Of all the methods introduced here, the gradient descent is especially important, and we will see it again in the Regression and Neural Network chapters.
 Finally, we give a brief peek at the topic of global and constrained  optimisation problems.
 
-## References

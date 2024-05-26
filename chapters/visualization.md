@@ -683,5 +683,3 @@ The good news is that, you can easily change the colors in the plot.
 Try google "colour theory" and you can find a lot of guidelines. 
 For example, the analogous colours can be a good choice in your line plots. These colours are any sequential three colors on a 12-part color wheel, such as yellow-green, yellow, and yellow-orange.
 We find this artistic aspect of visualisation is often enjoyable.
-
-## References

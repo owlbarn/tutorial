@@ -1560,5 +1560,3 @@ You can see that the core idea of AD can be implemented with surprisingly simple
 Then we turn to the Owl side: first, how Owl support what we have done in the strawman implementation with the forward and reverse propagation APIs; next, how Owl provides various powerful high level APIs to enable users to directly perform AD.
 Finally, we give an in-depth introduction to the implementation of the AD module in Owl, including some details that enhance the simple strawman code, how to build user-defined AD computation, and using lazy evaluation to improve performance, etc.
 Hopefully, after finishing this chapter, you can have a solid understanding of both its theory and implementation.
-
-## References

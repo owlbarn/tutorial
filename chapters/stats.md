@@ -632,4 +632,3 @@ Then we went from descriptive statistics to inference statistics, and introduced
 Next, we covered the basic idea in hypothesis testing with examples. 
 The difference between covariance and correlations is also discussed.
 
-## References

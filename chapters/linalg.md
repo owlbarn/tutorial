@@ -1452,4 +1452,3 @@ Sure enough, there is no way to cover all these topics in one chapter. We refer 
 In the end, we introduce how the linear algebra module is implemented in a numerical library such as Owl. 
 We close the discussion with a brief explanation of the sparse matrix and the representation formats used.
 
-## References
