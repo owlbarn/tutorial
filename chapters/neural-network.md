@@ -18,12 +18,12 @@ Let's begin.
 
 Before diving into the complex neural network structures, let's briefly recount where everything begins: the *perceptron*.
 The definition is actually very similar to that of logistic regression.
-Look at [@fig:neural-network:simple_nn](a) and remember that logistic regression can be expressed as:
+Remember that logistic regression can be expressed as:
 
 $$h_{\boldsymbol{\theta}}(x) = g(x^T~\boldsymbol{\theta}),$$
 
-where the $g$ function is a sigmoid function: $g(x) = \frac{1}{1+e^{-x}}$.
-This function projects a number in $[-\infty, \infty]$ to $[0, 1]$.
+where the $$g$$ function is a sigmoid function: $$g(x) = \frac{1}{1+e^{-x}}$$.
+This function projects a number in $$[-\infty, \infty]$$ to $$[0, 1]$$.
 To get a perceptron, all we need to do is to change the function to:
 
 $$
@@ -35,7 +35,7 @@ g(x)=
 $$
 
 This function is called a *Unit Step Function*, or heaviside/binary step function.
-Instead of a range $[0, 1]$, the result can only be either 0 or 1.
+Instead of a range $$[0, 1]$$, the result can only be either 0 or 1.
 It is thus suitable for binary classification.
 In the perceptron learning algorithm, we can still follow the previous parameter update method:
 
@@ -59,7 +59,7 @@ The starting example is also inspired by the Machine Learning course by Andrew N
 
 ### Model Representation
 
-In logistic regression we have multiple parameters as one layer to decide if the input data belongs to one type or the other, as shown in [@fig:neural-network:simple_nn](a).
+In logistic regression we have multiple parameters as one layer to decide if the input data belongs to one type or the other.
 Now we need to extend it towards multiple classes, with a new hidden layer.
 
 ![Extend logistic regression to neural network with one hidden layer](../images/neural-network/simple_nn.png "simple_nn")
@@ -102,10 +102,10 @@ The computation is repeated logistic regression:
 
 $$h_{\Theta}(x) = f(f(x^T~\boldsymbol{\theta_0})~\boldsymbol{\theta_1}).$$
 
-Here $\Theta$ denotes the collection of parameters $\boldsymbol{\theta_0}$ and $\boldsymbol{\theta_1}$.
+Here $$\Theta$$ denotes the collection of parameters $$\boldsymbol{\theta_0}$$ and $$\boldsymbol{\theta_1}$$.
 It can be implemented as:
 
-```ocaml-network:simple-nn
+```ocaml
 open Algodiff.D
 module N = Dense.Ndarray.D
 
@@ -123,7 +123,7 @@ let h theta0 theta1 x =
 
 That's it. We can now classify an input `28x28` array into one of the ten classes... except that we can't.
 Currently we only use random content as the parameters.
-We need to train the model and find suitable $\theta_0$ and $\theta_1$ parameters.
+We need to train the model and find suitable $$\theta_0$$ and $$\theta_1$$ parameters.
 
 ### Back propagation
 
@@ -133,14 +133,14 @@ The core of training is the backpropagation algorithm. As its name suggests, bac
 Backpropagation is the core of all neural networks; actually it is just a special case of reverse mode AD. Therefore, we can write up the backpropagation algorithm from scratch easily with the help of `Algodiff` module.
 
 Recall in the Regression chapter, training parameters is the process is to find the parameters that minimise the cost function of iteratively.
-In the case of this neural network, its cost function $J$ is similar to that of logistic regression.
-Suppose we have $m$ training data pairs, then it can be expressed as:
+In the case of this neural network, its cost function $$J$$ is similar to that of logistic regression.
+Suppose we have $$m$$ training data pairs, then it can be expressed as:
 
-$$J_{\Theta}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).$$ {#eq:neural-network:costfun}
+$$J_{\Theta}(\boldsymbol{x}, \boldsymbol{y}) = \frac{1}{m}\sum_{i=1}^m(-y^{(i)}log(h_\Theta(x^{(i)}))-(1 -y^{(i)})log(1-h_\Theta(x^{(i)}))).$$ 
 
 It can be translated to Owl code as:
 
-```ocaml-network:simple-nn
+```ocaml
 let j t0 t1 x y =
   let z = h t0 t1 x in
   Maths.add
@@ -149,9 +149,9 @@ let j t0 t1 x y =
   	   Arr.(sub (ones (shape z)) z))
 ```
 
-Here the "`cross_entropy y x`" means $-y~\log(x)$.
+Here the "`cross_entropy y x`" means $$-y~\log(x)$$.
 
-In the regression chapter, to find the suitable parameters that minimise $J$, we iteratively apply:
+In the regression chapter, to find the suitable parameters that minimise $$J$$, we iteratively apply:
 
 $$ \theta_j \leftarrow \theta_j - \alpha~\frac{\partial J}{\partial \theta_j}$$
 
@@ -170,7 +170,7 @@ let theta1' =  adjval t1 |> unpack_arr
 ```
 
 That's it for one iteration.
-We get $\frac{\partial J}{\partial \theta_j}$, and then can iteratively update the $\theta_0$ and $\theta_1$ parameters.
+We get $$\frac{\partial J}{\partial \theta_j}$$, and then can iteratively update the $$\theta_0$$ and $$\theta_1$$ parameters.
 
 ## Feed Forward Network
 
@@ -184,7 +184,7 @@ We need to add the abstraction of *layer* as the building block of neural networ
 The following code defines the layer and network type, both are OCaml record types.
 
 Also note that for each layer, besides the matrix multiplication, we also added an extra *bias* parameter. The bias vector influences the output without actually interacting with the data.
-Each linear layer performs the following calculation where $a$ is a non-linear activation function.
+Each linear layer performs the following calculation where $$a$$ is a non-linear activation function.
 
 $$ y = a(x \times w + b) $$
 
@@ -211,7 +211,7 @@ let run_layer x l = Maths.((x *@ l.w) + l.b) |> l.a
 let run_network x nn = Array.fold_left run_layer x nn.layers
 ```
 
-The `run_network` can generate what equals to the $h_\Theta(x)$ function in the previous section.
+The `run_network` can generate what equals to the $$h_\Theta(x)$$ function in the previous section.
 
 
 ### Activation Functions
@@ -232,9 +232,9 @@ The first is the Unit Step Function.
 It works like a simple on/off digital gate that allows part of neurons to be activated.
 Then there is the familiar `sigmoid` function. It limits the value to be within 0 and 1, and therefore we can think of it as a kind of probability of being activated.
 
-Besides these two, there are many other types of non-linear activation functions, as shows in [@fig:neural-network:activations].
-The `tanh(x)` function computes $\frac{e^x - e^{-x}}{e^x + e^{-x}}$.
-Softsign computes $\frac{x}{1+|x|}$.
+Besides these two, there are many other types of non-linear activation functions.
+The `tanh(x)` function computes $$\frac{e^x - e^{-x}}{e^x + e^{-x}}$$.
+Softsign computes $$\frac{x}{1+|x|}$$.
 The `relu(x)` computes:
 
 $$
@@ -249,7 +249,7 @@ $$
 ![Different activation functions in neural network](../images/neural-network/activations.png "activations")
 
 And there is the `softmax` function.
-It takes a vector of $K$ real numbers, and normalizes it into a probability distribution consisting of $K$ probabilities proportional to the exponentials of the input numbers:
+It takes a vector of $$K$$ real numbers, and normalizes it into a probability distribution consisting of $$K$$ probabilities proportional to the exponentials of the input numbers:
 
 $$f_i(x) = \frac{e^{x_i}}{\sum_{k=1}^K~e^{x_k}} \textrm{ for } i=1, 2, \ldots, K.$$
 
@@ -291,16 +291,12 @@ There are many works that aim to solve this problem.
 One common solution is to use `ReLU` as activation functions since it is more robust to this issue.
 As to initialisation itself, there are multiple heuristics that can be used.
 
-For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: $\sqrt{\frac{1}{n}}$.
-This parameter is shared by two layers, and $n$ is the size the first layer.
+For example, the commonly used Xavier initialization approach proposes to scale the uniformly generated parameters with: $$\sqrt{\frac{1}{n}}$$.
+This parameter is shared by two layers, and $$n$$ is the size the first layer.
 This approach is especially suitable to use with `tanh` activation function.
 It is provided by the `Init.Standard` method in the initialisation module.
-The `Init.LecunNormal` is similar, but it uses $\sqrt{\frac{1}{n}}$ as the standard deviation of the Gaussian random generator.
-
-In [@glorot2010understanding] the authors propose to use $\sqrt{\frac{2}{n_0 + n_1}}$ as the standard deviation in gaussian random generation.
-Here $n_0$ and $n_1$ is the input and output size of the current layer, or the length of two edges of the parameter matrix.
-It can be used with `Init.GlorotNormal`.
-If we want to use the uniformly generation approach, then the parameters should be scaled by $\sqrt{\frac{6}{n_0 + n_1}}$. For this method we use `Init.GlorotUniform` or `Init.Tanh`.
+The `Init.LecunNormal` is similar, but it uses $$\sqrt{\frac{1}{n}}$$ as the standard deviation of the Gaussian random generator.
+If we want to use the uniformly generation approach, then the parameters should be scaled by $$\sqrt{\frac{6}{n_0 + n_1}}$$. For this method we use `Init.GlorotUniform` or `Init.Tanh`.
 
 Of course, besides these methods, we still provide the mechanism to use the vanilla uniform (`Init.Uniform`) or gaussian (`Init.Gaussian`) randomisation, or a custom method (`Init.Custom`).
 
@@ -376,7 +372,7 @@ When the training starts, our application keeps printing the value of loss funct
 2019-11-12 01:04:14.740 INFO : #008 : loss = 1.96638
 ```
 
-After the training is finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction. The model says with $90.14%$ chance it is a number 3, which is quite accurate.
+After the training is finished, we test the accuracy of the network. Here is one example where we input hand-written 3. The vector below shows the prediction. The model says with $$90.14%$$ chance it is a number 3, which is quite accurate.
 
 ![Prediction from the model](../images/neural-network/plot_01.png "plot_01"){ width=60% #fig:neural-network:plot01 }
 
@@ -400,7 +396,7 @@ The outcome is wonderful. It turns out with Owl's architecture and its internal 
 
 ![Neural network module structure](../images/neural-network/neural_module.png "neural module")
 
-To understand how we do that, let's look at [@fig:neural-network:modules].
+To understand how we do that, let's look at the figure above.
 It shows the basic module architecture of the neural network module.
 The neural network in Owl mainly consists of two sub modules: `Neuron` and `Graph`.
 In the module system, they are built based on the Optimisation module, which are in turn based on the Algorithmic Differentiation module (`Algodiff`).
@@ -542,7 +538,7 @@ This step uses the `connect` function of the neuron, and also update the child's
 
 Finally, after understanding the `Graph` module of Owl, we can now "officially" re-define the network in previous example with the Owl neural network module:
 
-```ocaml-network:example-02
+```ocaml
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
@@ -568,7 +564,7 @@ Now the last thing to do is to train the model.
 Again, we want to encapsulate all the manual back-propagation and parameter update into one simple function.
 It is mainly implemented in the `minimise_network` function in the `Optimise` module.
 This module provides the `Params` submodule which maintains a set of training hyper-parameters.
-Without getting into the sea of implementation details, we focus on one single $i$-th update iteration and see how these hyper-parameters work.
+Without getting into the sea of implementation details, we focus on one single $$i$$-th update iteration and see how these hyper-parameters work.
 Let's start with the first step in this iteration: training data bataching.
 
 ```
@@ -613,10 +609,10 @@ let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
 To compare how different the inference result `y'` is from the true label `y`, we need the loss function.
 Previously we have used the `cross_entropy`, and in the `Loss` module, the optimisation module provides other popular loss function:
 
-- `Loss.L1norm`: $\sum|y - y'|$
-- `Loss.L2norm`: $\sum\|y - y'\|_2$
-- `Loss.Quadratic`: $\sum\|y - y'\|_2^2$
-- `Loss.Hinge`: $\sum\textrm{max}(0, 1-y^Ty')$
+- `Loss.L1norm`: $$\sum|y - y'|$$
+- `Loss.L2norm`: $$\sum\|y - y'\|_2$$
+- `Loss.Quadratic`: $$\sum\|y - y'\|_2^2$$
+- `Loss.Hinge`: $$\sum\textrm{max}(0, 1-y^Ty')$$
 
 
 ```ocaml
@@ -635,7 +631,7 @@ We can also choose not to apply regularisation method by using the `None` parame
 In the `Graph` module, Owl provides a `train` function that is a wrapper of this optimisation function.
 As a result, we can train the network by simply calling:
 
-```ocaml-network:example-02
+```ocaml
 let train () =
   let x, _, y = Dataset.load_mnist_train_data_arr () in
   let network = make_network () in
@@ -651,8 +647,8 @@ The `Adagrad` part may seem unfamiliar.
 So far we keep using a constant learning rate (`Learning_rate.Const`), but the problem is that, this is hardly an ideal setting.
 We want the gradient descent to be fast with large step at the beginning, but we also want it to be in small steps when it reaches the minimum point.
 Therefore, Owl provides the `Decay` and `Exp_decay` learning rate methods; both method reduce the base learning rate according to the iteration.
-The first reduces the learning rate by a factor of $\frac{1}{1+ik}$, where $i$ is the iteration number and $k$ is the reduction rate.
-Similarly, the second method reduces the leaning rate by a factor of $e^{-ik}$.
+The first reduces the learning rate by a factor of $$\frac{1}{1+ik}$$, where $$i$$ is the iteration number and $$k$$ is the reduction rate.
+Similarly, the second method reduces the leaning rate by a factor of $$e^{-ik}$$.
 
 We also implement the other more advanced learning methods.
 The `Adagrad` we use here adapts the learning rate to the parameters, not just iteration number. It uses smaller step for parameters associated with frequently occurring features. Therefore, it is very suitable for sparse training data.
@@ -666,7 +662,7 @@ Here by taking a 0.1 epoch, we process only a tenth of all the training data for
 After the training is finished, you can call `Graph.model` to generate a functional model to perform inference. Moreover, `Graph` module also provides functions such as `save`, `load`, `print`, `to_string` and so on to help you in manipulating the neural network.
 Finally we can test the trained parameter on test set, by comparing the accuracy of correct inference result.
 
-```ocaml-network:example-02
+```ocaml
 let test network =
   let imgs, _, labels = Dataset.load_mnist_test_data () in
   let m = Dense.Matrix.S.row_num imgs in
@@ -708,7 +704,7 @@ These neurons should be sufficient for creating from simple MLP to the most comp
 Since the MNIST handwritten recognition task is also a computer vision task, let's use the CNN to do it again.
 The code below creates a small convolutional neural network of six layers.
 
-```ocaml-network:example-02
+```ocaml
 
 let make_network input_shape =
   input input_shape
@@ -743,18 +739,18 @@ In this way, the information from previous data in the sequence is kept.
 
 ![Unroll the recurrent neural network](../images/neural-network/rnn-unrolled.png "rnn-unrolled")
 
-As shown in [@fig:neural-network:rnn-unrolled], a RNN can actually be unrolled into a chain of multiple connected neural networks.
-Here the $x_i$'s are sequential input, and the $h_i$'s are the *hidden status*, or output of the RNN.
-The function of RNN therefore mainly relies on the processing logic in $A$.
+As shown in this figure, a RNN can actually be unrolled into a chain of multiple connected neural networks.
+Here the $$x_i$$'s are sequential input, and the $$h_i$$'s are the *hidden status*, or output of the RNN.
+The function of RNN therefore mainly relies on the processing logic in $$A$$.
 
 ![Basic processing unit in classic recurrent neural network](../images/neural-network/rnn-unit.png "rnn-unit")
 
 In a vanilla recurrent neural network, the function can be really simple and familiar:
 
-$$h_i = \textrm{activation}(w(h_{i-1}x_i) + b).$$ {#eq:neural-network:update}
+$$h_i = \textrm{activation}(w(h_{i-1}x_i) + b).$$
 
 This is exactly what we have seen in the feed forward networks. Here `w` and `b` are the parameters to be trained in this RNN.
-This process is shown in [@fig:neural-network:rnn-unit].
+This process is shown in the figure above.
 The activation function here is usually the `tanh` function to keep the value within range of `[-1, 1]`.
 
 However, this unit has a problem.
@@ -774,30 +770,30 @@ In this way, the useful information from previous data can be kept longer and th
 ![Basic processing unit in LSTM](../images/neural-network/lstm.png "lstm")
 
 Let's see how it achieves this effect.
-The process unit of LSTM is shown in [@fig:neural-network:lstm].
+The process unit of LSTM is shown here.
 It consists of three parts that corresponds to the three choices listed above.
-Unlike standard RNN, each unit also takes in and produces a state $C$ that flows along the whole loop process.
+Unlike standard RNN, each unit also takes in and produces a state $$C$$ that flows along the whole loop process.
 This state is modified twice within the unit.
 
 The first part is called *forget gate layer*.
-It combines the output $h_{t-1}$ from previous loop and the data $x_i$, and outputs a probability number between [0, 1] to decide how much of the existing information should be kept.
-This probability, as you may have guessed, is achieved using the `sigmoid` activation function, denoted by $\sigma$.
+It combines the output $$h_{t-1}$$ from previous loop and the data $$x_i$$, and outputs a probability number between [0, 1] to decide how much of the existing information should be kept.
+This probability, as you may have guessed, is achieved using the `sigmoid` activation function, denoted by $$\sigma$$.
 
 Next, we need to decide "what to remember" from the existing data.
 This is done with two branches.
-The first branch uses the `sigmoid` function to denote which part of the new data $h_{t-1}+x_t$ should be updated, and the second branch using the `tanh` function decides how much value to update for the vector.
-Both branches follow the procedure in [@eq:neural-network:update], but with different `w` and `b` parameters.
+The first branch uses the `sigmoid` function to denote which part of the new data $$h_{t-1}+x_t$$ should be updated, and the second branch using the `tanh` function decides how much value to update for the vector.
+Both branches follow the procedure, but with different `w` and `b` parameters.
 
-By multiplying these two branches together, we know how much new information we should add to the information flow $C$.
-The flow $C$ is therefore first multiplied with the output from the *forget gate* to remove unnecessary information, and it adds the output from the second step to gain necessary know knowledge.
+By multiplying these two branches together, we know how much new information we should add to the information flow $$C$$.
+The flow $$C$$ is therefore first multiplied with the output from the *forget gate* to remove unnecessary information, and it adds the output from the second step to gain necessary know knowledge.
 
 Now the only step left is to decide what to output.
-This time it first runs a `sigmoid` function again to decide which part of information flow $C$ to keep, and then applies this filter to a `tanh`-scaled information flow to finally get the output $h_t$.
+This time it first runs a `sigmoid` function again to decide which part of information flow $$C$$ to keep, and then applies this filter to a `tanh`-scaled information flow to finally get the output $$h_t$$.
 
 LSTM is widely used in time-series related applications such as speech recognition, time-series prediction, human action recognition, robot control, etc.
 Using the neural network module in Owl, we can easily built a RNN that generates text by itself, following the style of the input text.
 
-```ocaml-network:lstm-example01
+```ocaml
 open Neural.S
 open Neural.S.Graph
 
@@ -818,13 +814,13 @@ However, the generated computation graph is way more complicated due to LSTM's i
 
 The LSTM has been refined in later work since its proposal.
 There are many variants of it, and one of them is the *Gated Recurrent Unit* (GRU) which is proposed by Cho, et al. in 2014.
-Its processing unit is shown in [@fig:neural-network:gru].
+Its processing unit is shown in the figure below.
 
 ![Basic processing unit in GRU](../images/neural-network/gru.png "gru")
 
 Compared to LSTM, the GRU consists of two parts.
 The first is a "reset gate" that decides how much information to forget from the past, and the "update gate" behaves like a combination of LSTM's forget and input gate.
-Besides, it also merges the information flow $C$ and output status $h$.
+Besides, it also merges the information flow $$C$$ and output status $$h$$.
 With these changes, the GRU can achieve the same effect as LSTM with fewer operations, and therefore is a bit faster than LSTM in training.
 In the LSTM code above, we can just replace the `lstm` node to `gru`.
 
@@ -844,7 +840,7 @@ It doesn't matter which digits; the point is being "real", since this output is 
 To generate such an image does not really need too complicated network structure.
 For example, we can use something like below ([Reference](https://towardsdatascience.com/writing-your-first-generative-adversarial-network-with-keras-2d16fd8d4889)):
 
-```ocaml-network:gan
+```ocaml
 open Neural.S
 open Neural.S.Graph
 open Neural.S.Algodiff
@@ -870,7 +866,7 @@ This network accepts an ndarray of image shape `28x28` and outputs an ndarray of
 
 Besides this generator, the other half of the GAN is the discriminator. The structure is also quite simple:
 
-```ocaml-network:gan
+```ocaml
 let make_discriminator input_shape =
   input input_shape
   |> fully_connected 512 ~act_typ:(Activation.LeakyRelu 0.2)
@@ -916,4 +912,3 @@ Next, we introduce the Neural Network module, including how its core part works 
 Here we use the Owl API to solve the same example, including training and testing. The training parameter setting regression module in Owl is explained in detail.
 We then introduce two important types of neural network: the convolutional neural network, together its superior performance against simple feedforward network, and the recurrent neural network, including two of its variants: the LSTM and GRU.
 We finish this chapter with a brief introduction of the basic idea behind Generative Adversarial Network, another type of neural network that has gained a lot of momentum in research and application recently.
-
