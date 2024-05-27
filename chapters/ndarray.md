@@ -566,46 +566,46 @@ There are way more functions contained in the `Ndarray` module than the ones we 
 In the last part of this chapter, we will briefly introduce the idea of *tensor*.
 If you look at some articles online the tensor is often defined as an n-dimensional array.
 However, mathematically, there are differences between these two.
-In a n-dimension space, a tensor that contains $m$ indices is a mathematical object that obeys certain transformation rules.
+In a n-dimension space, a tensor that contains $$m$$ indices is a mathematical object that obeys certain transformation rules.
 For example, in a three dimension space, we have a value `A = [0, 1, 2]` that indicate a vector in this space.
-We can find each element in this vector by a single index $i$, e.g. $A_1 = 1$.
+We can find each element in this vector by a single index $$i$$, e.g. $$A_1 = 1$$.
 This vector is an object in this space, and it stays the same even if we change the standard cartesian coordinate system into other systems.
-But if we do so, then the content in $A$ needs to be updated accordingly.
+But if we do so, then the content in $$A$$ needs to be updated accordingly.
 Therefore we say that, a tensor can normally be expressed in the form of an ndarray, but it is not an ndarray.
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
 The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, the component of the vector needs to be changed to another direction.
-Considering a single vector $v$ in a coordinate system with basis $e$.
-We can change the coordinate base to $\tilde{e}$ with linear transformation: $\tilde{e} = Ae$ where A is a matrix. For any vector in this space using $e$ as base, its content will be transformed as: $\tilde{v} = A^{-1}v$, or we can write it as:
+Considering a single vector $$v$$ in a coordinate system with basis $e$.
+We can change the coordinate base to $$\tilde{e}$$ with linear transformation: $$\tilde{e} = Ae$$ where A is a matrix. For any vector in this space using $e$ as base, its content will be transformed as: $$\tilde{v} = A^{-1}v$$, or we can write it as:
 
 $$\tilde{v}^i = \sum_j~B_j^i~v^j.$$
 
-Here $B=A^{-1}$.
+Here $$B=A^{-1}$$.
 We call a vector *contravector* because it changes in the opposite way to the basis.
 Note we use the superscript to denote the element in contravectors.
 
-As a comparison, think about a matrix multiplication $\alpha~v$. The $\alpha$ itself forms a different vector space, the basis of which is related to the basis of $v$'s vector space.
-It turns out that the direction of change of $\alpha$ is the same as that of $e$. When $v$ uses new $\tilde{e} = Ae$, its component changes in the same way:
+As a comparison, think about a matrix multiplication $$\alpha~v$$. The $$\alpha$$ itself forms a different vector space, the basis of which is related to the basis of $$v$$'s vector space.
+It turns out that the direction of change of $$\alpha$$ is the same as that of $$e$$. When $$v$$ uses new $$\tilde{e} = Ae$$, its component changes in the same way:
 
 $$\tilde{\alpha}_j = \sum_i~A_j^i~\alpha_i.$$
 
 It is called a *covector*, denoted with subscript.
-We can further extend it to matrix. Think about a linear mapping $L$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication.
-With the change of the coordinate system, it can be proved that the content of the linear map $L$ itself is updated to:
+We can further extend it to matrix. Think about a linear mapping $$L$$. It can be represented as a matrix so that we can apply it to any vector using matrix dot multiplication.
+With the change of the coordinate system, it can be proved that the content of the linear map $$L$$ itself is updated to:
 
 $$\tilde{L_j^i} = \sum_{kl}~B_k^i~L_l^k~A_j^l.$$
 
-Again, note we use both superscript and subscript for the linear map $L$, since it contains one covariant component and one contravariant component.
+Again, note we use both superscript and subscript for the linear map $$L$$, since it contains one covariant component and one contravariant component.
 Further more, we can extend this process and define the tensor.
 A tensor $T$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
 The way is that:
 
-$$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_{ijk\ldots~rst\ldots}~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$ {#eq:ndarray:tensor}
+$$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_{ijk\ldots~rst\ldots}~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$
 
-Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $rst\ldots$ are that of the covariant part.
+Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $$rst\ldots$$ are that of the covariant part.
 
 One of the important operations of tensor is the *tensor contraction*. We are familiar with the matrix multiplication:
-$$C_j^i = \sum_{k}A_k^iB_j^k.$$ {#eq:ndarray:matmul}
+$$C_j^i = \sum_{k}A_k^iB_j^k.$$ 
 The *contraction* operations extends this process to multiple dimension space.
 It sums the products of the two ndarrays' elements over specified axes.
 For example, we can perform the matrix multiplication with contraction:
@@ -623,7 +623,7 @@ We can see that the matrix multiplication is a special case of contraction opera
 Next, let's extend the two dimension case to multiple dimensions.
 Let's say we have two three-dimensional array A and B. We hope to compute the matrix C so that:
 
-$$C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}$$ {#eq:ndarray:contract}
+$$C_j^i = \sum_{hk}~A_{hk}^i~B_j^{kh}$$
 
 We can use the `contract2` function in the `Ndarray` module. It takes an array of `int * int` tuples to specifies the pair of indices in the two input ndarrays. Here is the code:
 
@@ -634,7 +634,7 @@ let y = Arr.sequential [|4;3;2|]
 let z1 = Arr.contract2 [|(0, 1); (1, 0)|] x y
 ```
 
-The indices mean that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`, as shown in [@eq:ndarray:contract].
+The indices mean that, in the contraction, the 0th dimension of `x` corresponds with the 1st dimension of `y`, an the 1st dimension of `x` corresponds with the 0th dimension of `y`.
 We can verify the result with the naive way of implementation:
 
 ```ocaml:contraction
@@ -687,16 +687,15 @@ High-performance implementation of the contraction operation has been a research
 Actually, many tensor operations involve summation over particular indices.
 Therefore in using tensors in applications such as linear algebra and physics, the *Einstein notation* is used to simplified notations.
 It removes the common summation notation, and also, any twice-repeated index in a term is summed up (no index is allowed to occur three times or more in a term).
-For example, the matrix multiplication notation $C_{ij} = \sum_{k}A_{ik}B_{kj}$ can be simplified as C = $A_{ik}B_{kj}$.
-The [@eq:ndarray:tensor] can also be greatly simplified in this way.
+For example, the matrix multiplication notation $$C_{ij} = \sum_{k}A_{ik}B_{kj}$$ can be simplified as C = $$A_{ik}B_{kj}$$.
 
 The tensor calculus is of important use in disciplines such as geometry and physics.
-More details about the tensor calculation is beyond the scope of this book. We refer readers to work such as [@dullemond1991introduction] for deeper understanding about this topic.
+More details about the tensor calculation is beyond the scope of this book. 
 
 ## Summary
 
 N-dimensional array is the fundamental data type in Owl, as well as in many other numerical libraries such as NumPy.
-This chapter explain in detail the Ndarray module, including its creation, properties, manipulation, serialisation, etc.
+This chapter explain in detail the Ndarray module, including its creation, properties, manipulation, serialization, etc.
 Besides, we also discuss the subtle difference between tensor and ndarray in this chapter.
 This chapter is easy to follow, and can serve as a reference whenever users need a quick check of functions they need.
 
