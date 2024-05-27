@@ -118,7 +118,7 @@ let x = Arr.sequential [|8; 8|]
 
 ![Illustrated Examples of Slicing](../images/slicing/example_slice_01.png "slicing example 01")
 
-The first example as shown in [@fig:slicing:example_slice_01](a)is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:
+The first example is to take one column of this matrix. It can be achieved by using both basic and fancy slicing:
 
 ```ocaml
 # Arr.get_fancy [ R[]; I 2 ] x;;
@@ -152,7 +152,7 @@ R7 58
 
 ```
 
-The second example in in [@fig:slicing:example_slice_01](b)is similar, but about retrieving part of a row. Still, this can be gotten using both methods.
+The second example is similar, but about retrieving part of a row. Still, this can be gotten using both methods.
 
 ```ocaml
 # Arr.get_fancy [ I 2; R [4; 6] ] x;;
@@ -173,7 +173,7 @@ R0 20 21 22
 ![Illustrated Examples of Slicing (Cont.)](../images/slicing/example_slice_02.png "slicing example 02")
 
 
-The next example in [@fig:slicing:example_slice_02](a) is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
+The next example is a bit more complex. It chooses certain rows, and then choose the columns by a fixed step 2. We can use the fancy slicing in this way:
 
 ```ocaml
 # Arr.get_fancy [ L [3; 5]; R [1; 7; 2] ] x;;
@@ -566,7 +566,9 @@ The broadcasting operation is transparent to programmers, which means it will be
 ## Slicing in NumPy and Julia
 
 The indexing and slicing functions are fundamental in all the multi-dimensional array implementations in various other libraries.
-For example, the examples in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] can be implemented using NumPy with code below.
+For example, the previous examples 
+<!-- in [@fig:slicing:example_slice_01] and [@fig:slicing:example_slice_02] --> 
+can be implemented using NumPy with code below.
 
 ```python
 >> import numpy as np
