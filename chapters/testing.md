@@ -141,11 +141,11 @@ let () =
 
 That's all. Now you can try `make test` and check if the functions are implemented well:
 
-![All tests passes](../images/testing/example_00.png){#fig:testing:example_00}
+![All tests passes](../images/testing/example_00.png)
 
 What if one of the test functions does not pass? Let's intentionally make a wrong test, such as asserting the matrix in the `rank` test is 1 instead of the correct answer 2, and run the test again:
 
-![Error in tests](../images/testing/example_01.png){#fig:testing:example_01}
+![Error in tests](../images/testing/example_01.png)
 
 
 ## What Could Go Wrong
