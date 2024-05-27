@@ -23,24 +23,26 @@ On the other hand, maybe less obviously, the sound can also be described in the 
 The thing is that, the real-world sound is not always so pure, they are quite likely compounded from different frequencies. Perhaps this 10 seconds are about water flowing, or wind whispering, what frequencies it is built from then?
 
 That's where Fourier Transform comes into play. It captures the idea of converting the two forms of representing a signal: in time domain and in frequency domain.
-We can represent a signal with the values of some quantity $h$ as a function of time: $h(t)$, or this signal can be represented by giving its amplitude $H$ as function of frequency: $H(f)$. We can think they are two representation of the same thing, and Fourier Transform change between them:
+We can represent a signal with the values of some quantity $$h$$ as a function of time: $$h(t)$$, or this signal can be represented by giving its amplitude $$H$$ as function of frequency: $$H(f)$$. We can think they are two representation of the same thing, and Fourier Transform change between them:
 
-$$ h(f) = \int H(f)e^{-2\pi~ift}df$$ {#eq:signal:ft01}
+$$ h(f) = \int H(f)e^{-2\pi~ift}df$$
+
 $$ H(f) = \int h(t)e^{2\pi~ift}dt$$
 
 To put it simply: suppose Alice mix an unknown number of colour together, and let Bob to guess what those colours are, then Bob can use a Fourier Transform machine to do that.
 
 In computer-based numerical computation, signals are often represented in a discrete way, i.e. a finite sequence of sampled data, instead of continuous.
 In that case, the method is called *Discrete Fourier Transform* (DFT).
-Suppose we have a complex vector $y$ as signal, which contains $n$ elements, then to get the Fourier Transform vector $Y$, the discrete form of [@eq:signal:ft01] can be expressed with:
+Suppose we have a complex vector $$y$$ as signal, which contains $$n$$ elements, then to get the Fourier Transform vector $$Y$$, the discrete form of can be expressed with:
 
-$$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$ {#eq:signal:dft01}
+$$ Y_k = \sum_{j=0}^{n-1}y_j~\omega^{jk},$$ 
+
 $$ y_k = \frac{1}{n}\sum_{j=0}^{n-1}Y_k~\omega^{-jk},$$
 
-where $\omega = e^{-2\pi~i/n}$ and $i = \sqrt{-1}$. $j$ and $k$ are indices that go from 0 to $n-1$.
+where $$\omega = e^{-2\pi~i/n}$$ and $$i = \sqrt{-1}$$. $$j$$ and $$k$$ are indices that go from 0 to $$n-1$$.
 
 We highly recommend you to checkout the [video](https://www.youtube.com/watch?v=spUNpyF58BY) that's named "But what is the Fourier Transform? A visual introduction" produced by 3Blue1Brown.
-It shows how this [@eq:signal:dft01] of Fourier Transform comes into being with beautiful and clear illustration.
+It shows how this equation of Fourier Transform comes into being with beautiful and clear illustration.
 
 What can we do if we know how a sound is composed?
 Think of a classic example where you need to remove some high pitch noise from some music. By using DFT, you can easily find out the frequency of this noise, remove this frequency, and turn the signal back to the time domain by using something a reverse process.
@@ -54,25 +56,24 @@ One important reason of its popularity is that it has an efficient algorithm in 
 
 ## Fast Fourier Transform
 
-One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $\mathcal{O}(n^2)$: computing each of the $n$ component of $Y$ in [@eq:signal:dft01] requires $n$ multiplications and $n$ additions.
+One problem with DFT is that if you follow its definition in implementation, the algorithm computation complexity would be $$\mathcal{O}(n^2)$$: computing each of the $$n$$ component of $$Y$$ requires $$n$$ multiplications and $$n$$ additions.
 It means that DFT does not scale well with input size.
-The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $\mathcal{O}(n\log{}n)$.
+The Fast Fourier Transform algorithm, first formulated by Gauss in 1805 and then developed by James Cooley and John Tukey in 1965, drops the complexity down to $$\mathcal{O}(n\log{}n)$$.
 To put it in a simple way, the FFT algorithm finds out that, any DFT can be represented by the sum of two sub-DFTs: one consists of the elements on even index in the signal, and the other consists of elements on odd positions:
 
-$$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$ {#eq:signal:fft01}
+$$ Y_k = \sum_{even j}\omega^{jk}y_j + \sum_{odd j}\omega^{jk}y_j$$
+
 $$ = \sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j} + \omega^k\sum_{j=0}^{n/2-1}\omega^{2jk}y_{2j+1}.$$
 
-The key to this step is the fact that $\omega_{2n}^2 = \omega_n$.
-According to [@eq:signal:fft01], one FFT can be reduced into two FFTs, each on only half of the original length, and then the second half is multiplied by a factor $\omega^{k}$ and added to the first half.
+The key to this step is the fact that $$\omega_{2n}^2 = \omega_n$$.
+One FFT can be reduced into two FFTs, each on only half of the original length, and then the second half is multiplied by a factor $$\omega^{k}$$ and added to the first half.
 The half signal can further be halved, so on and so forth. Therefore the computation can be reduced to a logarithm level in a recursive process.
 At the end of this recursion is the fact that a FFT on input that contains only one number returns just the number itself.
-
-To introduce Fourier Transform in detailed math and analysis of its properties is beyond the scope of this book, we encourage the readers to refer to other classic textbook on this topic [@phillips2003signals].
 In this chapter, we focus on introducing how to use FFT in Owl and its applications with Owl code. Hopefully these materials are enough to interest you to investigate more.
 
 The implementation of the FFT module in Owl interfaces to the [FFTPack](https://www.netlib.org/fftpack/) C implementation.
-The core functions in a FFT module is the fft function and its reverse, corresponding to the two equations in [@eq:signal:fft01].
-Owl provides these basic FFT functions, listed in Tabel [@tbl:signal:fftfun].
+The core functions in a FFT module is the fft function and its reverse, corresponding to the previous two equations.
+Owl provides these basic FFT functions, listed in the table below.
 The parameter `otyp` is used to specify the output type. It must be the consistent
 precision with input `x`. You can skip this parameter by using a sub-module
 with specific precision such as ``Owl.Fft.S`` or ``Owl.Fft.D``.
@@ -85,7 +86,6 @@ The parameter `n` specifies the size of output.
 | `ifft ~axis x` | Compute the one-dimensional inverse discrete Fourier Transform |
 | `rfft ~axis otyp x` | Compute the one-dimensional discrete Fourier Transform for real input |
 | `irfft ~axis ~n otyp x` | Compute the one-dimensional inverse discrete Fourier Transform for real input |
-: FFT functions in Owl {#tbl:signal:fftfun}
 
 ### Examples
 
@@ -171,7 +171,7 @@ R  0 0.294317 0.475851 0.47504 0.292193 ... -0.292193 -0.47504 -0.475851 -0.2943
 
 ```
 
-Here we create two sine signals of different frequencies: $y_1(x)=\sin(100\pi~x)$, $y_2(x) = \frac{1}{2}\sin(160\pi~x)$. We then mix them together.
+Here we create two sine signals of different frequencies: $$y_1(x)=\sin(100\pi~x)$$, $$y_2(x) = \frac{1}{2}\sin(160\pi~x)$$. We then mix them together.
 
 ```ocaml
 # let y = Arr.(y1 + y2) |> G.cast_d2z
@@ -288,7 +288,6 @@ R4 (1, 0i)   (0.309017, 0.951057i)  (-0.809017, 0.587785i) (-0.809017, -0.587785
 
 As we said, the applications of FFT are numerous. Here we pick three to demonstrate the power of FFT and how to use it in Owl.
 The first is to find the period rules in the historical data of sunspots, and the second is about analysing the content of dial number according to audio information.
-Both applications are inspired by [@moler2008numerical].
 The third application is about image processing.
 These three applications together present a full picture about how the wide usage of FFT in various scenarios.
 
@@ -363,7 +362,7 @@ let plot_sunspot_freq p =
   Plot.output h
 ```
 
-The result is shown in [@fig:signal:freq].
+The result is shown in the figure below.
 Now we can see clearly that the most prominent cycle is a little bit less than 11 years.
 
 ![Find sunspot cycle with FFT](../images/signal/plot_sunspot_freq.png "sunspot_freq")
@@ -372,10 +371,9 @@ Now we can see clearly that the most prominent cycle is a little bit less than 1
 
 When we are dialling a phone number, the soundwave can be seen a signal.
 In this example, we show how to decipher which number is dialled according to the given soundwave.
-This examples uses the data from [@moler2008numerical].
 Let's first load and visualise them.
 
-```
+```ocaml
 let data = Owl_io.read_csv ~sep:',' "touchtone.csv"
 let data = Array.map (fun x -> Array.map float_of_string x) data |> Mat.of_arrays
 let data = Mat.div_scalar data 128.
@@ -383,14 +381,14 @@ let data = Mat.div_scalar data 128.
 
 The dataset specifies a sampling rate of 8192.
 
-```ocaml:tune01
+```ocaml
 let fs = 8192.
 ```
 
 We have a segment of signal that shows the touch tone of dialling a phone number.
 We can visualise the signal:
 
-```ocaml:tune01
+```ocaml
 let plot_tone data filename =
   let x = Mat.div_scalar (Mat.sequential 1 (Arr.shape data).(1)) fs in
   let h = Plot.create filename in
@@ -402,7 +400,7 @@ let plot_tone data filename =
   Plot.output h
 ```
 
-The result is shown in [@fig:signal:tone](a).
+The result is shown in the figure below
 Apparently, according to the dense area in this signal, there are 11 digits in this phone number. The question is: which numbers?
 
 ![Recording of an 11-digit number and its FFT decomposition](../images/signal/tone.png "tone")
@@ -410,16 +408,16 @@ Apparently, according to the dense area in this signal, there are 11 digits in t
 This is a suitable question for FFT.
 Let's start by applying the FFT to the original data.
 
-```
+```ocaml
 let yf = Owl_fft.D.rfft data
 let y' = Dense.Ndarray.Z.(abs yf |> re)
 let n = (Arr.shape y').(1)
 let x' = Mat.linspace 0. (fs /. 2.) n
 ```
 
-We plot `x'` with `y'` similarly using the previous plotting function, and the result is shown in [@fig:signal:tone](b).
+We plot `x'` with `y'` similarly using the previous plotting function.
 The tune of phone is combination of two different frequencies.
-All the 11 digits are composed from 7 prominent frequencies, as shown in [@tbl:signal:keypad].
+All the 11 digits are composed from 7 prominent frequencies, as shown in the table below.
 This frequency keypad is specified in the Dual-tone multi-frequency signalling (DTMF) standard.
 
 || 1209 Hz  | 1336 Hz | 1477 Hz |
@@ -428,21 +426,20 @@ This frequency keypad is specified in the Dual-tone multi-frequency signalling (
 | **770Hz** | 4 | 5 | 6 |
 | **852Hz** | 7 | 8 | 9 |
 | **941Hz** | * | 2 | # |
-: DTMF keypad frequencies {#tbl:signal:keypad}
 
 We can use the first tone as an example to find out which two frequencies it is composed from.
 Let's get a subset of the signal:
 
-```
+```ocaml 
 let data2 = Arr.get_slice [[];[0; 4999]] data
 ```
 
 ![Recording of the first digit and its FFT decomposition](../images/signal/tone2.png "tone")
 
 
-And then perform the same process as before, the results are shown in [@fig:signal:tone2].
+And then perform the same process as before, the results are shown in the figure above.
 We can see that the first digit is mainly composed from two frequencies, which are about 700 and 1200.
-Looking it up in [@tbl:signal:keypad], we can see that the first digit is `1`.
+Looking it up in the table, we can see that the first digit is `1`.
 You can investigate the whole phone number following the same procedure.
 
 
@@ -453,19 +450,19 @@ It can be used for a wide range of image processing tasks such as blurring, comp
 In this section, we demonstrate an image denoising example.
 The basic idea is similar: many Fourier frequencies in the image are small and can be neglected via using filters. The image quality can be largely preserved by recreating the image from only the major frequencies.
 
-As input, we use the noised version of the moon landing image([src](https://imgur.com/gallery/MHcHVmX)), as shown in [@fig:signal:moonlanding].
+As input, we use the noised version of the moon landing image([src](https://imgur.com/gallery/MHcHVmX)), as shown in the figure below.
 
 ![Noise Moonlanding image](../images/signal/moonlanding.png)
 
 As a tool for image processing, we use the [imageUtils.ml](https://gist.github.com/jzstark/f93177fcb0ab843e82d2c6b83880d873) script. It can be used for reading images of PPM format into ndarray, or saving ndarray into PPM image. You can copy this script to local directory.
 
-```
+```ocaml
 #use "imageUtils.ml"
 ```
 
 As the first step, we read in the image into Owl as a ndarray using the function `load_ppm`. All the elements in this matrix are within the range 0 to 255. Since this is an greyscale image, we only need to process on single channel of this array, which is a matrix.
 
-```
+```ocaml
 module N = Dense.Ndarray.S
 module C = Dense.Ndarray.C
 
@@ -478,7 +475,7 @@ let img = N.reshape img_arr [|h; w|] |> Dense.Ndarray.Generic.cast_s2c
 
 The next step is simple: applying the `fft2` function on the image.
 
-```
+```ocaml
 let img_fft = Owl_fft.S.fft2 img
 ```
 
@@ -486,7 +483,7 @@ Next, we can apply all kinds of filters on this frequency map `img_fft` to remov
 We choose use a simple one here: only keep the frequencies on the four "corner" in this matrix, and set the rest to zeros.  
 We can achieve that with the slicing.
 
-```
+```ocaml
 let sub_length x frac = (float_of_int x) *. frac |> int_of_float
 
 let h1 = sub_length h 0.1
@@ -509,7 +506,7 @@ let _ = C.set_fancy index_2 img_fft (C.shape slice_2 |> C.zeros)
 
 Finally, let's apply the reverse FFT function on the processed frequency map, and save the result as image.
 
-```
+```ocaml
 let img = Owl_fft.S.ifft img_fft |> C.re
 
 let image = N.stack ~axis:2 [|img; img; img|]
@@ -517,7 +514,7 @@ let image = N.expand image 4
 let _ = save_ppm_from_arr image "moonlanding_denoise.ppm"
 ```
 
-As can be seen in [@fig:signal:moonlanding_denoise], though a bit blur, the output image remove the noise in the original image, and manage to keep most of the information in it.
+As can be seen in the figure below, though a bit blur, the output image remove the noise in the original image, and manage to keep most of the information in it.
 
 ![De-noised Moonlanding image](../images/signal/moonlanding_denoise.png)
 
@@ -586,7 +583,7 @@ let plot_goog data y y' =
 
 ![Smoothed stock price of Google](../images/signal/plot_goog.png "goog.png")
 
-The results are shown in [@fig:signal:goog].
+The results are shown in the figure above.
 The blue dotted line smooths the jagged original stock price line, which represents a general trend of the price.
 The sudden drop in the last month might be related with the COVID-19 pandemic.
 
@@ -595,7 +592,7 @@ The sudden drop in the last month might be related with the COVID-19 pandemic.
 However, the filter we have used is not an ideal one.
 A common pattern in this line drops first, but then bounces around.
 To get a smoother curve, we can change this simple filter to another one: the gaussian filter.
-Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: $p(x) = e^{-\frac{x^2}{2\sigma^2}}$.
+Instead of giving equal probability to each element in the moving window, the gaussian filter assigns probability according to the gaussian distribution: $$p(x) = e^{-\frac{x^2}{2\sigma^2}}$$.
 
 The code below generates a simple 1-D gaussian filter.
 Similar to the previous simple example, the filter also needs to be normalised.
@@ -615,7 +612,7 @@ let gaussian_kernel sigma =
 let filter = gaussian_kernel 3.
 ```
 
-Computing the correlation between filter and the input data as before, we get a better smoothed curve in [@fig:signal:goog_gauss].
+Computing the correlation between filter and the input data as before, we get a better smoothed curve in the figure below.
 
 ![Smoothed stock price of Google with Gaussian filtering](../images/signal/plot_goog_gauss.png "goog_gauss.png")
 
@@ -624,7 +621,6 @@ Time domain filters are used when the information is encoded in the shape of the
 It includes filter methods such as moving average and single pole.
 Frequency filters are used to divide a band of frequencies from signals, and its input information is in the form of sinusoids. It includes filter methods such as Windowed-sinc and Chebyshev.
 There are many filters, each with different shape (or *impulse response*) and application scenarios, and we cannot fully cover them here.
-Please refer to some classical textbooks on signal processing such as [@smith1997scientist] for more information.
 
 ### Signal Convolution
 
@@ -632,10 +628,10 @@ So far we have not used FFT to perform filtering yet.
 What we have seen in the previous section is called *convolution*.
 Formally it is mathematical operation on two functions that produces a third function expressing how the shape of one is modified by the other:
 
-$$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$ {#eq:signal:01}
+$$f(t) * g(t) = \sum_{\tau=-\infty}{\infty}f(\tau)g(t-\tau)$$
 
-In equation [@eq:signal:01], $*$ denotes the convolution operation, and you can think of $f$ as (discrete) input signal, and $g$ be filter.
-Note that for computing $f(\tau)g(t-\tau)$ for each $\tau$ requires adding all product pairs.
+In this equation, $$*$$ denotes the convolution operation, and you can think of $$f$$ as (discrete) input signal, and $$g$$ be filter.
+Note that for computing $$f(\tau)g(t-\tau)$$ for each $$\tau$$ requires adding all product pairs.
 You can see that this process is computation-heavy.
 It is even more tricky for computing the convolution of two continuous signal following definition.
 
@@ -644,15 +640,15 @@ We have talked a lot about FFT, and here is the place we use it.
 Fourier Transformation can greatly reduce the complexity of computing the convolution and filtering.
 Specifically, the **Convolution Theorem** states that:
 
-$$\textrm{DFT}(f * g) = \textrm{DFT}(f).\textrm{DFT}(g).$$ {#eq:signal:02}
+$$\textrm{DFT}(f * g) = \textrm{DFT}(f).\textrm{DFT}(g).$$
 
-To put equation [@eq:signal:02] into plain words, to get DFT of two signals' convolution, we can simply get the DFT of each signal separately and then multiply them element-wise.
+To put the equation into plain words, to get DFT of two signals' convolution, we can simply get the DFT of each signal separately and then multiply them element-wise.
 Someone may also prefer to express it in this way: convolution in the time domain can be expressed in multiplication in the frequency domain. And multiplication we are very familiar with.
-Once you have the $\textrm{DFT}(f * g)$, you can naturally apply the inverse transform and get $f * g$.
+Once you have the $$\textrm{DFT}(f * g)$$, you can naturally apply the inverse transform and get $$f * g$$.
 
 Let's apply the DFT approach to the previous data, and move it to the frequency domain:
 
-```
+```ocaml
 let yf = Owl_fft.D.rfft ~axis:0 y
 ```
 
@@ -680,11 +676,11 @@ let _ = Dense.Ndarray.Z.set_slice [[5;n-1];[]] yf z
 
 Now, we can apply reverse FFT on this processed frequency vector and get the smoothed data:
 
-```
+```ocaml
 let y2 = Owl_fft.D.irfft ~axis:0 yf
 ```
 
-We can similarly check how the smoothing approach works in [@fig:signal:goog2].
+We can similarly check how the smoothing approach works.
 Compared to the previous two smoothing methods, FFT generates a better curve to describe the trend of the stock price.
 
 ![Smoothed stock price of Google using FFT method](../images/signal/plot_goog2.png "goog2.png")
@@ -695,13 +691,13 @@ Compared to the previous two smoothing methods, FFT generates a better curve to 
 You might heard of the word "convolution" before, and yes you are right: convolution is also the core idea in the popular deep neural network (DNN) applications.
 The convolution in DNN is often applied on ndarrays.
 It is not complex: you start with an input image in the form of ndarray, and use another smaller ndarray called "kernel" to slide over the input image step by step, and at each position, an element-wise multiplication is applied, and the result is filled into corresponding position in an output ndarray.
-This process can be best illustrated in [@fig:signal:conv] (inspired by the nice work by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/):
+This process can be best illustrated in the figure below (inspired by the nice work by [Andrej Karpathy](https://cs231n.github.io/convolutional-networks/)):
 
 ![Image convolution illustration](../images/signal/conv.png "conv")
 
 Owl has provided thorough support of convolution operations:
 
-```
+```ocaml
 val conv1d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
 
 val conv2d : ?padding:padding -> (float, 'a) t -> (float, 'a) t -> int array -> (float, 'a) t
@@ -725,7 +721,7 @@ let y3' = Arr.conv1d y3 f3 [|1|]
 ```
 
 If you are interested to check the result, this vector `y3'` contains the data to plot a smoothed curve.
-The smoothed data would be similar to that in [@fig:signal:goog] since the calculation is the same, only with more concise code.
+The smoothed data would be similar since the calculation is the same, only with more concise code.
 
 Also, FFT is a popular implementation method of convolution. There has been a lot of research on optimising and comparing its performance with other implementation methods such as Winograd, with practical considerations such as kernel size and implementation details of code, but we will omit these technical discussion for now.
 

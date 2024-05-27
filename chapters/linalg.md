@@ -820,7 +820,7 @@ First, we need to understand the *Norm* of a matrix.
 The norm, or 2-norm of a matrix  $$\|A\|$$ is calculated as square root of the maximum eigenvalue of $$A^HA$$.
 The norm of a matrix is a upper limit so that for any $$x$$ we can be certain that $$\|Ax\| \leq \|A\|\|x\|$$.
 Here $$\|Ax\|$$ and $$\|x\|$$ are the L2-Norm for vectors.
-The $$\|A\|\$$ bounds the how large the $$A$$ can amplify the input $$x$$.
+The $$\|A\|$$ bounds how large the $$A$$ can amplify the input $$x$$.
 We can calculate the norm with `norm` in the linear algebra module.
 
 The most frequently used condition number is that represent the sensitivity of inverse matrix.
