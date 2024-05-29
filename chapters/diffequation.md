@@ -394,7 +394,7 @@ Later we will show an example of using the symplectic solver to solve a damped h
 One feature of `owl-ode` is the automatic inference of state dimensionality from initial state.
 For example, the native solvers takes matrix as state.
 Suppose the initial state of the system is a row vector of dimension $$1\times~N$$.
-After $$T$$ time steps, the states are stacked vertically, and thus have dimensions $T\times~N$.
+After $$T$$ time steps, the states are stacked vertically, and thus have dimensions $$T\times~N$$.
 If the initial state is a column vector of shape $$N\times~1$$, then the stacked state after $$T$$ time steps will be inferred as $$N\times~T$$.
 
 The temporal integration of matrices, i.e. cases where the initial state is matrix instead of vector, is also supported.
@@ -566,7 +566,7 @@ let custom_solver = Native.D.rk45 ~tol:1E-9 ~dtmax:10.0
 ```
 
 Now, we can solve the ODEs system and visualise the results.
-In the plots, we first show how the value of $x$, $y$ and $z$ changes with time; next we show the phase plane plots between each two of them.
+In the plots, we first show how the value of $$x$$, $$y$$ and $$z$$ changes with time; next we show the phase plane plots between each two of them.
 
 ```ocaml
 let _ =

@@ -575,8 +575,8 @@ Therefore we say that, a tensor can normally be expressed in the form of an ndar
 That's why we keep using the term "ndarray" in this chapter and through out the book.
 
 The basic idea about tensor is that, since the object stays the same, if we change the coordinate towards one direction, the component of the vector needs to be changed to another direction.
-Considering a single vector $$v$$ in a coordinate system with basis $e$.
-We can change the coordinate base to $$\tilde{e}$$ with linear transformation: $$\tilde{e} = Ae$$ where A is a matrix. For any vector in this space using $e$ as base, its content will be transformed as: $$\tilde{v} = A^{-1}v$$, or we can write it as:
+Considering a single vector $$v$$ in a coordinate system with basis $$e$$.
+We can change the coordinate base to $$\tilde{e}$$ with linear transformation: $$\tilde{e} = Ae$$ where A is a matrix. For any vector in this space using $$e$$ as base, its content will be transformed as: $$\tilde{v} = A^{-1}v$$, or we can write it as:
 
 $$\tilde{v}^i = \sum_j~B_j^i~v^j.$$
 
@@ -597,12 +597,12 @@ $$\tilde{L_j^i} = \sum_{kl}~B_k^i~L_l^k~A_j^l.$$
 
 Again, note we use both superscript and subscript for the linear map $$L$$, since it contains one covariant component and one contravariant component.
 Further more, we can extend this process and define the tensor.
-A tensor $T$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
+A tensor $$T$$ is an object that is invariant under a change of coordinates, and with a change of coordinates its component changes in a special way.
 The way is that:
 
 $$\tilde{T_{xyz~\ldots}^{abc~\ldots}} = \sum_{ijk\ldots~rst\ldots}~B_i^aB_j^bB_k^c\ldots~T_{rst~\ldots}^{ijk~\ldots}~A_x^rA_y^sA_z^t\ldots$$
 
-Here the $ijk\ldots$ are indices of the contravariant part of the tensor and the $$rst\ldots$$ are that of the covariant part.
+Here the $$ijk\ldots$$ are indices of the contravariant part of the tensor and the $$rst\ldots$$ are that of the covariant part.
 
 One of the important operations of tensor is the *tensor contraction*. We are familiar with the matrix multiplication:
 $$C_j^i = \sum_{k}A_k^iB_j^k.$$ 

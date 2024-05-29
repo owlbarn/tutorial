@@ -520,13 +520,13 @@ The permutation function returns the number $$n!/(n-k)!$$ of ordered subsets of 
 The combination function returns the number $${n\choose k} = n!/(k!(n-k)!)$$ of subsets of $$k$$ elements of a set of $$n$$ elements.
 The table below provides the combinatorics functions you can use in the `Math` module.
 
-Function                Explanation
-----------------------  -----------------------------------------------------------
-`permutation n k`       Permutation number
-`permutation_float n k` Similar to `permutation` but deals with larger range and returns float
-`combination n k`       Combination number
-`combination_float n k` Similar to `combination` but deals with larger range and returns float
-`log_combination n k`   Returns the logarithm of $${n\choose k}$$
+Function                | Explanation
+----------------------  | -----------------------------------------------------------
+`permutation n k`       | Permutation number
+`permutation_float n k` | Similar to `permutation` but deals with larger range and returns float
+`combination n k`       | Combination number
+`combination_float n k` | Similar to `combination` but deals with larger range and returns float
+`log_combination n k`   | Returns the logarithm of $${n\choose k}$$
 
 Let's take a look at a simple example.
 

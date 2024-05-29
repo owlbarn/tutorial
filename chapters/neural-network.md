@@ -609,7 +609,7 @@ let loss = Maths.(loss / _f (Mat.row_num yt |> float_of_int))
 To compare how different the inference result `y'` is from the true label `y`, we need the loss function.
 Previously we have used the `cross_entropy`, and in the `Loss` module, the optimisation module provides other popular loss function:
 
-- `Loss.L1norm`: $$\sum|y - y'|$$
+- `Loss.L1norm`: $$\sum\|y - y'\|$$
 - `Loss.L2norm`: $$\sum\|y - y'\|_2$$
 - `Loss.Quadratic`: $$\sum\|y - y'\|_2^2$$
 - `Loss.Hinge`: $$\sum\textrm{max}(0, 1-y^Ty')$$

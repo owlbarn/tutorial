@@ -843,7 +843,7 @@ R1 9.7 6.6
 val c : float = 1622.99938385646283
 ```
 
-Its condition number for inversion is much larger than one. Therefore, a small change in $A$ should leads to a large change of $$A^{-1}$$.
+Its condition number for inversion is much larger than one. Therefore, a small change in $$A$$ should leads to a large change of $$A^{-1}$$.
 
 ```ocaml
 # let a' = Linalg.D.inv a;;
@@ -1115,7 +1115,7 @@ It's inverse $$A = Q\Lambda~Q^{-1}$$ is called *Eigendecomposition*.
 Analysing A's diagonal similar matrix $$\Lambda$$ instead of A itself can greatly simplify the problem.
 
 Not every matrix can be diagonalised.
-If any two of the $n$ eigenvalues of A are not the same, then its $$n$$ eigenvectors are linear-independent ana thus A can be  diagonalised.
+If any two of the $$n$$ eigenvalues of A are not the same, then its $$n$$ eigenvectors are linear-independent ana thus A can be  diagonalised.
 Specifically, every real symmetric matrix can be diagonalised by an orthogonal matrix.
 Or put into the complex space, every hermitian matrix can be diagonalised by a unitary matrix.
 
@@ -1204,7 +1204,7 @@ $$A=U\Sigma~V^T$$
 
 Here $$U$$ is is a $$m\times~m$$ matrix. Its columns are the eigenvectors of $$AA^T$$.
 Similarly, $$V$$ is a $$n\times~n$$ matrix, and the columns of V are eigenvectors of $$A^TA$$.
-The $r$ (rank of A) singular value on the diagonal of the $$m\times~n$$ diagonal matrix $$\Sigma$$ are the square roots of the nonzero eigenvalues of both $$AA^T$$ and $$A^TA$$.
+The $$r$$ (rank of A) singular value on the diagonal of the $$m\times~n$$ diagonal matrix $$\Sigma$$ are the square roots of the nonzero eigenvalues of both $$AA^T$$ and $$A^TA$$.
 It's close related with eigenvector factorisation of a positive definite matrix.
 For a positive definite matrix, the SVD factorisation is the same as the $$Q\Lambda~Q^T$$.
 

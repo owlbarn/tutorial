@@ -16,7 +16,7 @@ $$\textrm{minimise } f_0(\mathbf{x}),$$
 
 $$\textrm{subject to } f_i(\mathbf{x}) \leq b_i, i = 1, 2, \ldots, m. $$ 
 
-Here $\mathbf{x}$ is a vector that contains all the *optimisation variable*: $$\mathbf{x} = [x_0, x_1, ... x_n]$. Function $$f_0 : \mathbf{R}^n \rightarrow \mathbf{R}$$ is the optimisation target, and is called an *objective function*, or *cost function*.
+Here $$\mathbf{x}$$ is a vector that contains all the *optimisation variable*: $$\mathbf{x} = [x_0, x_1, ... x_n]$$. Function $$f_0 : \mathbf{R}^n \rightarrow \mathbf{R}$$ is the optimisation target, and is called an *objective function*, or *cost function*.
 An optimisation problem could be bounded by zero or more *constraints*. $$f_i : \mathbf{R}^n \rightarrow \mathbf{R}$$ in a constraint is called a *constraint function*, which are bounded by the $$b_i$$'s.
 The target is to find the optimal variable values $$\mathbf{x}^{*}$$ so that $$f_0$$ can take on a maximum or minimum value.
 
@@ -480,7 +480,7 @@ One example of algorithm: *Simulated Annealing Methods*. A suitable systems to a
 First, it contains a finite set $$S$$, and a cost function $$f$$ that is defined on this set.
 There is also a non-increasing function $$T$$ that projects the set of positive integers to real positive value.
 $$T(t)$$ is called the *temperature* at time $$t$$.
-Suppose at time $t$, the current state is $$i$$ in $$S$$.
+Suppose at time $$t$$, the current state is $$i$$ in $$S$$.
 It choose one of its neighbours $$j$$ randomly.
 Next, if $$f(i) < f(j)$$ then $$j$$ is used as the next state. If not so, then $$j$$ is chosen as the next state with a probability of $$e^{-\frac{f(j)-f(i)}{T(t)}}$$, otherwise the next state stays to be $$i$$.
 Starting from an initial state $$x_0$$, this process is repeated for a finite number of steps to find the optimum.

@@ -824,7 +824,7 @@ In other words, for data $$\boldsymbol{x}$$ that contains any number of features
 
 $$\theta_0 + \sum_{i=1}^k\theta_i~d_i,$$ 
 
-where $d_i$ is the "distance" of the current point to the reference point $$p_k$$.
+where $$d_i$$ is the "distance" of the current point to the reference point $$p_k$$.
 In inference phase, if this function is larger than zero, then the point is predicted to be positive, otherwise it is negative.
 
 So how exactly is this "distance" calculated? There are many ways to do that, and one of the most used is the gaussian distance.
@@ -892,7 +892,7 @@ The latter is the deviation of the observed value from the unobservable true val
 
 First, let's look at two most commonly used metrics:
 
-- **Mean absolute error** (MAE): average absolute value fo residuals, represented by: $$\textrm{MAE}=\frac{1}{n}\sum|y - y'|$$.
+- **Mean absolute error** (MAE): average absolute value fo residuals, represented by: $$\textrm{MAE}=\frac{1}{n}\sum\|y - y'\|$$.
 - **Mean square error** (MSE): average squared residuals, represented as: $$\textrm{MSE}=\frac{1}{n}\sum(y-y')^2$$. This is the method we have previous used in linear regression in this chapter.
 The part before applying average is called **Residual Sum of Squares** (RSS): $$\textrm{RSS}=\sum(y-y')^2$$.
 
@@ -905,7 +905,7 @@ Based on these two basic metrics, we can derive the definition of other metrics:
 
 - **Root mean squared error** (RMSE): it is just the square root of MSE. By applying square root, the unit of error is back to normal and thus easier to interpret. Besides, this metric is similar to the standard deviation and denotes how wide the residuals spread out.
 
-- **Mean absolute percentage error** (MAPE): based on MAE, MAPE changes it into percentage representation: $$\textrm{MAPE}=\frac{1}{n}\sum |\frac{y - y'}{y}|$$. It denotes the average distance between a model's predictions and their corresponding outputs in percentage format, for easier interpretation.
+- **Mean absolute percentage error** (MAPE): based on MAE, MAPE changes it into percentage representation: $$\textrm{MAPE}=\frac{1}{n}\sum \|\frac{y - y'}{y}\|$$. It denotes the average distance between a model's predictions and their corresponding outputs in percentage format, for easier interpretation.
 
 - **Mean percentage error** (MPE): similar to MAPE, but does not use the absolute value: $$\textrm{MPE}=\frac{1}{n}\sum\left(\frac{y - y'}{y} \right)$$. Without the absolute value, the metric can represent it the predict value is larger or smaller than the observed value in data. So unlike MAE and MSE, it's a relative measurement of error.
 

@@ -45,7 +45,7 @@ Suppose the probability of tossing head is 0.4, and for 10 times.
 ```
 
 The equation is called the *&probability density function* (PDF) of this binomial distribution.
-Formally the PDF of random variable X is denoted with $p_X(k)$ and is defined as:
+Formally the PDF of random variable X is denoted with $$p_X(k)$$ and is defined as:
 
 $$p_X(k)=P({s \in S | X(s) = k}),$$
 
@@ -324,7 +324,7 @@ It is expressed by an simple form as shown in the equation, e.g. it provides a w
 $$P(X\|Y) = \frac{P(Y\|X)P(X)}{P(Y)}$$ {#eq:stats:bayes}
 
 One powerful application of this theorem is that it provides the tool to calibrate your knowledge about something ("it has 10% percentage to happen") based on observed evidence.
-For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one,  you would say "hmm, I don't know, perhaps 10%". Define event $$X$$ to be "the dice is loaded", and you just set a **prior** that $$P(X) = 0.1$￥.
+For example, a novice hardly tell if a dice is normal or loaded. If I show you a dice and ask you to estimate the probability that this dice a fake one,  you would say "hmm, I don't know, perhaps 10%". Define event $$X$$ to be "the dice is loaded", and you just set a **prior** that $$P(X) = 0.1$$.
 Now I begin to roll for three times, and somehow, I got three 6's. Now I ask you again, *given the evidence you just observed*, estimate again the probability that the dice is loaded. 
 Define $$Y$$ as the event "get all 6's of all three rolling". 
 
