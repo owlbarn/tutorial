@@ -282,6 +282,7 @@ Step |Primal computation
 You might be wondering, this looks the same as the left side.
 You are right. These two are exactly the same, and we repeat it again to make the point that, this time you cannot perform the calculation with one pass.
 You must compute the required intermediate results first, and then perform the other "backward pass", which is the key point in reverse mode.
+
 Step | Adjoint computation
 ---- | ---------------------------------------------------------------------------------
 10   | $$\bar{v_9} = 1$$
