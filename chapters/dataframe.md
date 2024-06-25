@@ -360,7 +360,7 @@ CSV (Comma-Separated Values) is a common format to store tabular data. The modul
 
 ```
 
-`of_csv` function loads a CSV file into in-memory dataframe while `to_csv` writes a dataframe into CSV file on the disk. In both functions, we can use `sep` to specify the separator, the default separator is `tab` in Owl.
+`of_csv` function loads a CSV file into in-memory dataframe while `to_csv` writes a dataframe into CSV file on the disk. In both functions, we can use `sep` to specify the separator, the default separator is chosen from context by identifying a character that yields the same number of columns for every row.
 
 For `of_csv` function, you can pass in the head names using `head` argument; otherwise the first row of the CSV file will be used as head. `types` argument is used to specify the type of each column in a CSV file. If `types` is dropped, all the column will be treated as string series by default. Note the length of both `head` and `types` must match the actual number of columns in the CSV file.
 
