@@ -109,26 +109,26 @@ Thanks to the folks in [OCaml Labs](http://ocamllabs.io/), OPAM makes package ma
 
 ```
 
-There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` manually, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker file](https://github.com/owlbarn/owl/blob/master/docker/Dockerfile.ubuntu) as a reference for this issue.
+There is a known issue when installing Owl on `ubuntu`-based distribution. The reason is that the binary distribution of BLAS and LAPACK are outdated and failed to provide all the interfaces Owl requires. You will need to compile `openblas` manually, and use the appropriate environment variables to point at your newly compiled library. You can use `[owl's docker files](https://github.com/owlbarn/owl/tree/main/docker) as a reference for this issue.
 
 This way of installation pulls in the most recent Owl released on OPAM. Owl does not have a fixed release schedule. We usually make a new release whenever there are enough changes accumulated or a significant feature implemented. If you want to try the newest development features, we recommend the other ways to install Owl, as below.
 
 
 ### Option 2: Pull from Docker Hub
 
-[Owl's docker images](https://hub.docker.com/r/owlbarn/owl/) are synchronised with the master branch. The image is always automatically built whenever there are new commits. You can check the building history on [Docker Hub](https://hub.docker.com/r/owlbarn/owl/builds).
+[Owl's docker images](https://hub.docker.com/r/matrixanger/owl) are synchronised with the master branch. The image is always automatically built whenever there are new commits. The main version is built with Ubuntu.  
 
 You only need to pull the image then start a container.
 
 ```shell
 
-  docker pull owlbarn/owl
-  docker run -t -i owlbarn/owl
+  docker pull matrixanger/owl
+  docker run -t -i matrixanger/owl
 
 ```
 
 Besides the complete Owl system, the docker image also contains an enhanced OCaml toplevel - `utop`. You can start `utop` in the container and try out some examples. The source code of Owl is stored in `/root/owl` directory. You can modify the source code and rebuild the system directly in the started container.
-There are Owl docker images on various Linux distributions, this can be further specified using tags, e.g. `docker pull owlbarn/owl:alpine`.
+There are Owl docker images on various Linux distributions. This can be further specified using tags, e.g. `docker pull matrixanger/owl:fedora`. 
 
 
 ### Option 3: Pin the Dev-Repo
@@ -145,7 +145,7 @@ There are Owl docker images on various Linux distributions, this can be further 
 
 ### Option 4: Compile from Source
 
-Compiling directly from the source is an old-school but a recommended option. First, you need to clone the repository.
+Compiling directly from the source is an old-school but a recommended option since it enables all the most up-to-date features and patches. First, you need to clone the repository.
 
 ```shell
 
