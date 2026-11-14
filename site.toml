@@ -1,0 +1,39 @@
+# Online tutorial configuration. Edit "chapters" to choose what is published.
+title = "Owl Online Tutorial"
+subtitle = "Scientific computing in OCaml"
+edition = "From the book OCaml Scientific Computing"
+intro = """
+<p>These chapters come from the book <em>OCaml Scientific Computing: Functional
+Programming in Data Science and AI</em> by Liang Wang, Jianxin Zhao and Richard
+Mortier. Every code example runs in the book's Docker image.</p>
+"""
+footer = """Text from <em>OCaml Scientific Computing</em> by Liang Wang, Jianxin Zhao and Richard Mortier.
+Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code</a>."""
+
+# Published chapters, in reading order. Available: see manifest.json.
+chapters = ["mathematics", "statistics", "linear-algebra", "ndarray", "diffequation", "signal",
+            "algodiff", "optimisation", "regression", "neural-network",
+            "reinforcement-learning"]
+
+[links]
+"Owl on GitHub" = "https://github.com/owlbarn/owl"
+"Book code and Docker image" = "https://github.com/owlbarn/springer-book-code"
+
+# Old page -> chapter slug. Unpublished or empty targets go to the contents page.
+[redirects]
+"chapters/maths.html" = "mathematics"
+"chapters/stats.html" = "statistics"
+"chapters/linalg.html" = "linear-algebra"
+"chapters/ndarray.html" = "ndarray"
+"chapters/diffequation.html" = "diffequation"
+"chapters/signal.html" = "signal"
+"chapters/algodiff.html" = "algodiff"
+"chapters/optimisation.html" = "optimisation"
+"chapters/regression.html" = "regression"
+"chapters/neural-network.html" = "neural-network"
+"chapters/introduction.html" = ""
+"chapters/convention.html" = ""
+"chapters/visualization.html" = ""
+"chapters/dataframe.html" = ""
+"chapters/slicing.html" = ""
+"chapters/testing.html" = ""
