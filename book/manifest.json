@@ -1,0 +1,60 @@
+{
+  "source_revision": "cf9531e92565425c196d0ef3a4efed1744f745ac",
+  "chapters": [
+    {
+      "slug": "mathematics",
+      "number": "2",
+      "title": "Numerical Algorithms"
+    },
+    {
+      "slug": "statistics",
+      "number": "3",
+      "title": "Statistics"
+    },
+    {
+      "slug": "linear-algebra",
+      "number": "4",
+      "title": "Linear Algebra"
+    },
+    {
+      "slug": "ndarray",
+      "number": "5",
+      "title": "N-Dimensional Arrays"
+    },
+    {
+      "slug": "diffequation",
+      "number": "6",
+      "title": "Ordinary Differential Equations"
+    },
+    {
+      "slug": "signal",
+      "number": "7",
+      "title": "Signal Processing"
+    },
+    {
+      "slug": "algodiff",
+      "number": "8",
+      "title": "Algorithmic Differentiation"
+    },
+    {
+      "slug": "optimisation",
+      "number": "9",
+      "title": "Optimisation"
+    },
+    {
+      "slug": "regression",
+      "number": "10",
+      "title": "Regression"
+    },
+    {
+      "slug": "neural-network",
+      "number": "11",
+      "title": "Neural Network"
+    },
+    {
+      "slug": "reinforcement-learning",
+      "number": "12",
+      "title": "Reinforcement Learning"
+    }
+  ]
+}
