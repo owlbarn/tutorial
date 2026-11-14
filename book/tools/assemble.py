@@ -18,11 +18,16 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 
 
+def label(number):
+    """Chapter numbers are padded (07); appendix letters stay as they are (A)."""
+    return number.zfill(2) if number.isdigit() else number
+
+
 def shell(config, pages, page, body, toc, turn):
     nav = ''.join(
         f'<a class="book-link{" active" if item is page else ""}" href="{item["slug"]}.html"'
         f'{" aria-current=" + chr(34) + "page" + chr(34) if item is page else ""}>'
-        f'<span>{item["number"].zfill(2)}</span>{html.escape(item["title"])}</a>' for item in pages)
+        f'<span>{label(item["number"])}</span>{html.escape(item["title"])}</a>' for item in pages)
     toc_html = ''.join(
         f'<a class="{"toc-sub" if entry["level"] > 1 else ""}" href="#{entry["id"]}">{html.escape(entry["text"])}</a>'
         for entry in toc)
@@ -71,13 +76,14 @@ def main():
         if index + 1 < len(pages):
             following = pages[index + 1]
             turn.append(f'<a class="next" href="{following["slug"]}.html"><small>NEXT</small>{html.escape(following["title"])} →</a>')
-        heading = (f'<p class="chapter-number">CHAPTER {page["number"].zfill(2)}</p>'
+        kind = 'CHAPTER' if page['number'].isdigit() else 'APPENDIX'
+        heading = (f'<p class="chapter-number">{kind} {label(page["number"])}</p>'
                    f'<h1>{html.escape(page["title"])}</h1>')
         (args.out / f'{page["slug"]}.html').write_text(
             shell(config, pages, page, heading + body(page), page['toc'], ''.join(turn)))
 
     contents = ''.join(
-        f'<li><a href="{page["slug"]}.html"><span class="contents-number">{page["number"].zfill(2)}</span>'
+        f'<li><a href="{page["slug"]}.html"><span class="contents-number">{label(page["number"])}</span>'
         f'<span>{html.escape(page["title"])}</span><span aria-hidden="true">→</span></a></li>' for page in pages)
     home = (HERE / 'home.html').read_text().replace('{{intro}}', config['intro']).replace(
         '{{title}}', html.escape(config['title'])).replace('{{subtitle}}', html.escape(config['subtitle'])).replace(
@@ -89,9 +95,12 @@ def main():
     shutil.copyfile(args.content / 'syntax.css', args.out / 'syntax.css')
     for name in ('reader.css', 'reader.js', 'favicon.svg'):
         shutil.copyfile(HERE / name, args.out / name)
-    # Old URLs keep working: each redirects to its chapter, or to the contents.
-    for old_path, slug in config.get('redirects', {}).items():
-        target = '../' * old_path.count('/') + (f'{slug}.html' if slug in published else 'index.html')
+    # Old URLs keep working: each redirects to its chapter ("slug" or "slug#anchor"),
+    # or to the contents when that chapter is not published.
+    for old_path, destination in config.get('redirects', {}).items():
+        slug, _, fragment = destination.partition('#')
+        page_name = f'{slug}.html' + (f'#{fragment}' if fragment else '') if slug in published else 'index.html'
+        target = '../' * old_path.count('/') + page_name
         page = args.out / old_path
         page.parent.mkdir(parents=True, exist_ok=True)
         page.write_text(f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url={target}">'

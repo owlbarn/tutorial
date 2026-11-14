@@ -1,6 +1,11 @@
 {
-  "source_revision": "cf9531e92565425c196d0ef3a4efed1744f745ac",
+  "source_revision": "50d851bf4f27c00ac6cbb45b70535e7866c9f696",
   "chapters": [
+    {
+      "slug": "introduction",
+      "number": "1",
+      "title": "Introduction"
+    },
     {
       "slug": "mathematics",
       "number": "2",
@@ -55,6 +60,16 @@
       "slug": "reinforcement-learning",
       "number": "12",
       "title": "Reinforcement Learning"
+    },
+    {
+      "slug": "conventions",
+      "number": "A",
+      "title": "Conventions of Owl"
+    },
+    {
+      "slug": "visualisation",
+      "number": "B",
+      "title": "Visualisation"
     }
   ]
 }
