@@ -11,9 +11,14 @@ footer = """Text from <em>OCaml Scientific Computing</em> by Liang Wang, Jianxin
 Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code</a>."""
 
 # Published chapters, in reading order. Available: see manifest.json.
-chapters = ["mathematics", "statistics", "linear-algebra", "ndarray", "diffequation", "signal",
-            "algodiff", "optimisation", "regression", "neural-network",
-            "reinforcement-learning"]
+# All available chapters:
+# chapters = ["introduction", "mathematics", "statistics", "linear-algebra", "ndarray", "diffequation", "signal",
+#             "algodiff", "optimisation", "regression", "neural-network",
+#             "reinforcement-learning", "conventions", "visualisation"]
+
+chapters = ["introduction", "linear-algebra", "ndarray", "diffequation", "signal",
+            "algodiff", "neural-network",
+            "reinforcement-learning", "conventions", "visualisation"]
 
 [links]
 "Owl on GitHub" = "https://github.com/owlbarn/owl"
@@ -31,9 +36,9 @@ chapters = ["mathematics", "statistics", "linear-algebra", "ndarray", "diffequat
 "chapters/optimisation.html" = "optimisation"
 "chapters/regression.html" = "regression"
 "chapters/neural-network.html" = "neural-network"
-"chapters/introduction.html" = ""
-"chapters/convention.html" = ""
-"chapters/visualization.html" = ""
+"chapters/introduction.html" = "introduction"
+"chapters/convention.html" = "conventions"
+"chapters/visualization.html" = "visualisation"
 "chapters/dataframe.html" = ""
-"chapters/slicing.html" = ""
+"chapters/slicing.html" = "ndarray#ref-sec-slicing-slicing"
 "chapters/testing.html" = ""
