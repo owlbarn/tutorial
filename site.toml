@@ -14,11 +14,11 @@ Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code
 # All available chapters:
 # chapters = ["introduction", "mathematics", "statistics", "linear-algebra", "ndarray", "diffequation", "signal",
 #             "algodiff", "optimisation", "regression", "neural-network",
-#             "reinforcement-learning", "conventions", "visualisation"]
+#             "reinforcement-learning", "case-autonomous-driving", "conventions", "visualisation"]
 
 chapters = ["introduction", "linear-algebra", "ndarray", "diffequation", "signal",
             "algodiff", "neural-network",
-            "reinforcement-learning", "conventions", "visualisation"]
+            "reinforcement-learning", "case-autonomous-driving", "conventions", "visualisation"]
 
 [links]
 "Owl on GitHub" = "https://github.com/owlbarn/owl"
