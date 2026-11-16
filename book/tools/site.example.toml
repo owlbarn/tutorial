@@ -13,7 +13,7 @@ Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code
 # Published chapters, in reading order. Available: see manifest.json.
 chapters = ["introduction", "mathematics", "statistics", "linear-algebra", "ndarray", "diffequation",
             "signal", "algodiff", "optimisation", "regression", "neural-network",
-            "reinforcement-learning", "conventions", "visualisation"]
+            "reinforcement-learning", "case-autonomous-driving", "conventions", "visualisation"]
 
 [links]
 "Owl on GitHub" = "https://github.com/owlbarn/owl"

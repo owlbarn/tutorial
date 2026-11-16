@@ -1,5 +1,5 @@
 {
-  "source_revision": "17fbded8a1d79225615d9184b17d7427ddbd2848",
+  "source_revision": "bc004701af13e75c991221ec0a2deadaba5126bd",
   "chapters": [
     {
       "slug": "introduction",
@@ -60,6 +60,11 @@
       "slug": "reinforcement-learning",
       "number": "12",
       "title": "Reinforcement Learning"
+    },
+    {
+      "slug": "case-autonomous-driving",
+      "number": "18",
+      "title": "Case Study: Autonomous Driving"
     },
     {
       "slug": "conventions",
