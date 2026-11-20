@@ -7,8 +7,8 @@ intro = """
 Programming in Data Science and AI</em> by Liang Wang, Jianxin Zhao and Richard
 Mortier. Every code example runs in the book's Docker image.</p>
 """
-footer = """Text from <em>OCaml Scientific Computing</em> by Liang Wang, Jianxin Zhao and Richard Mortier.
-Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code</a>."""
+footer = """Text from <em>OCaml Scientific Computing</em> by Liang Wang, Jianxin Zhao and Richard Mortier."""
+# Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code</a>."""
 
 # Published chapters, in reading order. Available: see manifest.json.
 # All available chapters:
@@ -16,9 +16,9 @@ Code: <a href="https://github.com/owlbarn/springer-book-code">springer-book-code
 #             "algodiff", "optimisation", "regression", "neural-network",
 #             "reinforcement-learning", "case-autonomous-driving", "conventions", "visualisation"]
 
-chapters = ["introduction", "linear-algebra", "ndarray", "diffequation", "signal",
+chapters = ["introduction", "linear-algebra", "ndarray", "diffequation",
             "algodiff", "neural-network",
-            "reinforcement-learning", "case-autonomous-driving", "conventions", "visualisation"]
+            "reinforcement-learning", "case-autonomous-driving", "visualisation"]
 
 [links]
 "Owl on GitHub" = "https://github.com/owlbarn/owl"
